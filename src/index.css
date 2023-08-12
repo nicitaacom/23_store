@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #202020;
+  --primary-dark: #303030;
+  --secondary: #6b7280;
+  --secondary-dark: #4c515c;
+  --cta: rgba(254, 14, 0);
+}
+
+body {
+  list-style: none;
+  min-height: -webkit-fill-available;
+  background-color: #0C0B08;
+  font-family: 'Open Sans',sans-serif;
+}
+
+#root {
+  display: flex;
+  flex-flow: column;
+  min-height: 100vh;
+}
+
+
+.image-upload {
+  /* https://kovart.github.io/dashed-border-generator/ */
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23FE0E00FF' stroke-width='4' stroke-dasharray='9%25%2c 10%25' stroke-dashoffset='6' stroke-linecap='butt'/%3e%3c/svg%3e");
+}
+
+
+/* disable default input styling */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+/* ===== Scrollbar CSS ===== */
+  /* Firefox */
+  * {
+    scrollbar-width: auto;
+    scrollbar-color: #6b7280 #ffffff;
+  }
+
+  /* Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 16px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #303030;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #6b7280;
+    border-radius: 8px;
+    border: 3px solid #303030;
+  }
