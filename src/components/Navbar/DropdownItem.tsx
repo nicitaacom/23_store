@@ -24,7 +24,7 @@ export function DropdownItem({
     transition-all duration-100 first:border-none hover:brightness-75
      ${className}`)}
       onClick={onClick}>
-      <div className="flex cursor-pointer items-center justify-start gap-x-2 pl-[30%]">
+      <div className="flex cursor-pointer items-center justify-center gap-x-2">
         <Icon className="text-secondary" size={size ? size : 24} />
         <a className={labelClassName}>{label}</a>
       </div>
