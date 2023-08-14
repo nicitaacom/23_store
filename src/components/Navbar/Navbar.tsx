@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { BiLogIn, BiLogOut } from "react-icons/bi"
 import { AiOutlineHome, AiOutlineUserAdd } from "react-icons/ai"
 import { BsWindow } from 'react-icons/bs'
+import { HiSwitchHorizontal } from 'react-icons/hi'
 
 import useHamburgerMenu from "../../store/useHamburgerMenu"
 import { Button } from "../ui/Button"
@@ -93,7 +94,7 @@ export function Navbar() {
         {isAuthenticated && <DropdownItem icon={BsWindow} label="Admin panel" onClick={() => openModal(1)} />}
         {!isAuthenticated && <DropdownItem icon={BiLogIn} label="Login" onClick={() => navigate('/login', { replace: true })} />}
         {!isAuthenticated && <DropdownItem icon={AiOutlineUserAdd} label="Register" onClick={() => navigate('/register', { replace: true })} />}
-        {isAuthenticated && <DropdownItem icon={AiOutlineUserAdd} label="Switch account" onClick={() => navigate('/switch-account', { replace: true })} />}
+        {isAuthenticated && <DropdownItem icon={HiSwitchHorizontal} label="Switch account" onClick={() => navigate('/switch-account', { replace: true })} />}
         {isAuthenticated && <DropdownItem icon={BiLogOut} label="Logout" onClick={() => supabase.auth.signOut()} />}
       </DropdownContainer>
 

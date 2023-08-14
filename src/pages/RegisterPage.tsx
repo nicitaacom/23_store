@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-import { FormSkeleton } from "../components/FormSkeleton"
+import { FormSkeleton } from "../components/ui/Skeletons/FormSkeleton"
 import supabase from "../utils/supabaseClient"
 
 import useUserStore from "../store/userStore"
