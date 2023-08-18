@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["development"]
+    branches: ["main"]
   pull_request:
     types: [opened, synchronize]
 
@@ -51,7 +51,7 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
 
       
-- name: Setup prettier
+      - name: Setup prettier
         run: pnpm i prettier --save-dev
 
       - name: prettierrc
@@ -69,7 +69,7 @@ jobs:
         run: pnpm lint
         env:
          VITE_SUPABASE_URL: "https://ambgxbbsgequlwnbzchr.supabase.co"
-          VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+         VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 
       - name: Type-checking
         run: pnpm type-check
