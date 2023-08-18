@@ -7,6 +7,8 @@ import { HomePage, Login, Register } from "./pages"
 import { Navbar } from "./components/Navbar/Navbar"
 import { AdminModal } from "./components/ui/Modals/AdminModal"
 import { useModalsStore } from "./store/useModals"
+import useDarkMode from "./store/darkModeStore"
+import { useEffect } from "react"
 
 function App() {
 
@@ -16,8 +18,22 @@ function App() {
     onClose(id)
   }
 
+  const darkMode = useDarkMode()
+
+  useEffect(() => {
+    if (darkMode.isDarkMode) {
+      document.getElementsByTagName('html')[0].classList.remove('light')
+      document.getElementsByTagName('html')[0].classList.add('dark')
+    }
+    else {
+      document.getElementsByTagName('html')[0].classList.remove('dark')
+      document.getElementsByTagName('html')[0].classList.add('light')
+    }
+  }, [darkMode])
+
   return (
-    <div className="text-white">
+    <div className="bg-background text-title
+    min-h-screen transition-colors duration-300">
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />

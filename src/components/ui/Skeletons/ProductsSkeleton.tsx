@@ -12,11 +12,9 @@ export function ProductsSkeleton({ count }: { count?: number }) {
 
           <Skeleton
             className="laptop:max-w-[99%] laptop:h-[200px] h-[clamp(12.5rem,3.5714rem+44.6429vw,25rem)]"
-            baseColor="var(--primary-dark)"
-            highlightColor="var(--secondary)"
+            baseColor="var(--foreground)"
+            highlightColor="backdrop-flter:brightness(75%)"
           />
-
-
         </div>
 
       )

@@ -65,7 +65,7 @@ export function ModalContainer({ isOpen, onClose, children, className }: ModalCo
             exit={{ scale: 0, opacity: 0 }}
             transition={{ duration: 0.5 }}
             {...modalHandler}>
-            <IoMdClose className='absolute right-[0] top-[0] border-l-[1px] border-b-[1px] border-solid border-cta rounded-bl-md cursor-pointer'
+            <IoMdClose className='absolute right-[0] top-[0] border-l-[1px] border-b-[1px] border-solid border-brand rounded-bl-md cursor-pointer'
               size={32} onClick={closeModal} />
             {children}
           </motion.div>

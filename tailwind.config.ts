@@ -1,28 +1,41 @@
-import { type Config } from "tailwindcss";
+import { type Config } from "tailwindcss"
 
 export default {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode:"class",
   theme: {
      fontFamily: {
       primary: ["Inter", "sans-serif"],
       secondary: ["Proxima Nova", "sans-serif"]
     },
-     screens: {
+      screens: {
+      mobile: "415px",
+      // => @media (min-width: 415px) { ... }
       tablet: "768px",
       // => @media (min-width: 768px) { ... }
-      laptop: "1024px"
+      laptop: "1024px",
       // => @media (min-width: 1024px) { ... }
+      desktop:"1440px",
+      // => @media (min-width: 1440px) { ... }
     },
     extend: {
       colors: {
-        primary: "#202020",
-        "primary-dark": "#303030",
-        secondary: "#6B7280", //bg-gray-500
-        "secondary-dark": "#4c515c",
-        cta: "rgba(254, 14, 0)",
-        "danger": "rgba(197, 52, 52, 1)",
-        "success": "rgba(58, 184, 63, 1)",
-        
+        "brand": "hsl(var(--brand) / 1)",
+        "background": "hsl(var(--background) / 1)",
+        "foreground": "hsl(var(--foreground) / 1)", 
+        "title":"hsl(var(--title) / 1)",
+        "title-foreground":"hsl(var(--title-foreground) / 1)",
+        "subTitle":"hsl(var(--subTitle) / 1)",
+
+        /* The same colors */
+        "border-color":"hsl(var(--border-color) / 1)", /*subTitle*/
+        "icon-color":"hsl(var(--icon-color) / 1)", /* title */
+
+        /* Support colors */
+        "info":"hsl(var(--info) / 1)",
+        "danger":"hsl(var(--danger) / 1)",
+        "warning":"hsl(var(--warning) / 1)",
+        "success":"hsl(var(--success) / 1)",
       }
     },
   },

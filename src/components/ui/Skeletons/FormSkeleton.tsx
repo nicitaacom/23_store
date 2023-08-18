@@ -10,8 +10,9 @@ export function FormSkeleton({ count }: { count?: number }) {
       return (
         <Skeleton
           key={uuid}
-          baseColor="var(--primary-dark)"
-          highlightColor="var(--secondary)"
+          baseColor="hsl(var(--foreground))"
+          highlightColor="backdrop-flter:brightness(75%)"
+          style={{ backdropFilter: "brightness(75%)" }}
           width={"100%"}
           height={"40px"}
         />

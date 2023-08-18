@@ -12,7 +12,7 @@ export function RadioButton({ label, inputName, onChange, ...props }: RadioButto
     transition-all duration-300">
       <input type="radio" name={inputName} value={label} id={label} className="hidden peer" onChange={onChange} {...props} />
       <span
-        className={`before:absolute before:border-b-2 before:border-t-0 before:border-solid before:border-secondary before:w-full before:h-[50px]
+        className={`before:absolute before:border-b-2 before:border-t-0 before:border-border-color before:w-full before:h-[50px]
         before:top-[50%] before:left-[50%] before:translate-x-[-50%] before:translate-y-[-50%]
 
         before:transition-all before:duration-300 

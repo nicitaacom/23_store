@@ -75,7 +75,7 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
     ${productAction === 'Add product' && 'h-[90vh] tablet:max-h-[900px]'}
      ${productAction === 'Edit product' && 'h-[40vh] tablet:max-h-[400px]'}
      ${productAction === 'Delete product' && 'h-[40vh] tablet:max-h-[400px]'}
-     bg-primary rounded-md border-[1px] border-solid border-secondary-dark py-8 overflow-y-scroll transition-all duration-500`}
+     bg-primary rounded-md border-[1px] border-solid border-border-color py-8 overflow-y-scroll transition-all duration-500`}
       isOpen={isOpen} onClose={() => onClose()}>
 
       <div className="flex flex-col justify-center items-center w-1/2 mx-auto ">
@@ -114,7 +114,7 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
                     {imageList.map((image, index) => (
                       <div
                         key={index}
-                        className="flex flex-col gap-y-4 overflow-hidden rounded-xl border-[1px] border-solid border-secondary">
+                        className="flex flex-col gap-y-4 overflow-hidden rounded-xl border-[1px] border-solid border-border-color">
                         <img
                           className="aspect-video min-w-[320px] object-cover"
                           src={image.data_url}

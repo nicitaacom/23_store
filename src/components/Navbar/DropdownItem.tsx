@@ -20,12 +20,12 @@ export function DropdownItem({
 }: DropdownItemProps) {
   return (
     <li
-      className={twMerge(`z-[1] border-t-[1px] border-solid border-secondary py-2
+      className={twMerge(`z-[1] border-t-[1px] border-solid border-border-color py-2
     transition-all duration-100 first:border-none hover:brightness-75
      ${className}`)}
       onClick={onClick}>
       <div className="flex cursor-pointer items-center justify-center gap-x-2">
-        <Icon className="text-secondary" size={size ? size : 24} />
+        <Icon className="text-icon-color" size={size ? size : 24} />
         <a className={labelClassName}>{label}</a>
       </div>
     </li>
