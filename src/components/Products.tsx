@@ -1,9 +1,13 @@
-import { Button } from "."
-import { formatCurrency } from "../utils/currencyFormatter"
 import { useEffect, useState } from "react"
-import supabase from "../utils/supabaseClient"
-import useProductsStore from "../store/productsStore"
+
+import { MdOutlineDeleteOutline } from 'react-icons/md'
+
 import useGetUserId from "../hooks/useGetUserId"
+import supabase from "../utils/supabaseClient"
+import { formatCurrency } from "../utils/currencyFormatter"
+import { ProductsSkeleton } from "./ui/Skeletons/ProductsSkeleton"
+import { Button } from "."
+import useUserCartStore from "../store/userCartStore"
 
 interface Product {
   id: string
@@ -14,49 +18,123 @@ interface Product {
 }
 
 
-function Product(product: Product) {
 
-  const productsStore = useProductsStore()
-
-  const [products, setProducts] = useState<Product[]>([product])
+function Product({ ...product }: Product) {
 
   const { userId } = useGetUserId()
 
-  async function increaseItemQuantity() {
-    try {
-      const response = await supabase.from("user_cart")
-        .update({ items: product })
-        .eq("id", userId)
+  const userCartStore = useUserCartStore()
 
-      const { data } = await supabase.from("user_cart")
-        .select("cart_quantity")
-        .eq("id", userId)
-      const cartQuantity = data?.[0]?.cart_quantity ?? 0
-      await supabase.from("user_cart").update({ cart_quantity: cartQuantity + 1 }).eq("id", userId)
-      if (response.error) throw response.error
+  useEffect(() => {
+    async function getCartQuantity() {
+       if (userId) {
+        try {
+          const { data: cartQuantityResponse } = await supabase
+          .from("users_cart")
+          .select("cart_quantity")
+          .eq("id", userId)
+          if (cartQuantityResponse) {
+            userCartStore.setCartQuantityFromDB(cartQuantityResponse[0].cart_quantity);
+          }
+        } catch (error) {
+          console.error("fetchCartQuantity - ", error);
+        }
+      }
+    }
+    getCartQuantity()
+  }, [userId])
+
+  if (userCartStore.cartQuantity === null) {
+    return <ProductsSkeleton />
+  }
+
+
+  async function increaseItemQuantity(id: string) {
+    try {
+      if (userId) {
+        const { data } = await supabase.from("users_cart")
+          .select("cart_quantity")
+          .eq("id", userId)
+        const cartQuantity = data?.[0]?.cart_quantity ?? 0
+        await supabase.from("users_cart").update({ cart_quantity: cartQuantity + 1 }).eq("id", userId)
+      }
+      console.log("id - ", id)
+      userCartStore.increaseItemQuantity(id)
+
     } catch (error) {
       console.error("increaseItemQuantity - ", error)
     }
   }
 
+  async function decreaseItemQuantity(id:string) {
+    if (userCartStore.cartQuantity > 0) {
+      userCartStore.setCartQuantityFromDB(userCartStore.cartQuantity - 1)
+      try {
+        const response = await supabase.from("users_cart")
+          .update({ items: product })
+          .eq("id", userId)
+        if (response.error) throw response.error
+
+        const { data } = await supabase.from("users_cart")
+          .select("cart_quantity")
+          .eq("id", userId)
+        const cartQuantity = data?.[0]?.cart_quantity ?? 0
+
+        await supabase.from("users_cart")
+          .update({ cart_quantity: cartQuantity - 1 })
+          .eq("id", userId)
+
+      } catch (error) {
+        console.error("decreaseItemQuantity - ", error)
+      }
+    }
+  }
+
+  async function setCartQuantity0() {
+    if (userCartStore.cartQuantity === 0) return
+    
+    if (userId) {
+      try {
+        const respose = await supabase.from("users_cart")
+        .update({ items: product })
+        .eq("id", userId)
+      if (respose.error) throw respose.error
+
+      await supabase.from("users_cart")
+        .update({ cart_quantity: 0 })
+        .eq("id", userId)
+      } catch (error) {
+        console.error("setItemQuantity0 - ", error)
+      }
+    }
+  }
+
   return (
-    <div className="flex flex-col laptop:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
-      <img className="w-full laptop:max-w-[30%] laptop:h-[200px] h-[clamp(12.5rem,3.5714rem+44.6429vw,25rem)] object-cover
+    <div className="flex flex-col mobile:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
+      <img className="w-full mobile:max-w-[40%] laptop:max-w-[30%] laptop:h-[200px] object-cover
       laptop:mr-2" src={product.img_url} alt="image" />
-      <div className="flex flex-col justify-between gap-y-2 w-full">
+      <div className="flex flex-col justify-between gap-y-2 w-full px-4 py-2">
+        <div className="flex flex-row justify-between items-start text-brand">
+          <div className="flex flex-col">
+            <h1 className="text-xl">{product.label}</h1>
+            <p className="text-sm text-subTitle">Left on stock:{product.on_stock}</p>
+            <p className="text-sm text-subTitle">Quantity:</p>
+          </div>
+          <h1 className="text-lg py-[2px]">{formatCurrency(product.price)}</h1>
+        </div>
         <div className="flex flex-col laptop:flex-row justify-between pr-2">
           <div className="flex flex-col">
-            <h1>{product.label}</h1>
-            <p className="text-sm text-gray-300">Price:{formatCurrency(product.price)}</p>
-            <p className="text-sm text-gray-300">Left on stock:{product.on_stock}</p>
-            <p className="text-sm text-gray-300">Quantity:</p>
+
+
           </div>
           <div className="flex flex-col gap-y-2">
-            <Button variant='danger'>Clear</Button>
+            <Button className="font-secondary font-thin hidden laptop:flex" variant='danger-outline'
+            onClick={setCartQuantity0}>Clear <MdOutlineDeleteOutline /></Button>
             <div className="flex flex-row gap-x-2">
-              <Button variant='success-outline' className="w-full laptop:w-fit text-2xl"
-                onClick={increaseItemQuantity}>+</Button>
-              <Button variant='danger-outline' className="w-full laptop:w-fit text-2xl">-</Button>
+              <Button className="w-full laptop:w-fit text-2xl" variant='danger-outline'
+                onClick={() => decreaseItemQuantity(product.id)}>-</Button>
+              <Button className="w-full laptop:w-fit text-2xl" variant='success-outline'
+                onClick={() => increaseItemQuantity(product.id)}>+</Button>
             </div>
           </div>
         </div>
@@ -98,8 +176,11 @@ export function Products() {
 
 
   return (
-    <div className="border-[1px] border-solid broder-gray-500 rounded">
-      <h1 className="border-b-2 border-solid border-gray-500 mb-4">Products:</h1>
+    <div className="border-[1px] border-solid broder-border-color rounded 
+    w-full max-w-[1440px]">
+      <div className="flex flex-row justify-between w-full px-4">
+        <h1 className="hidden tablet:flex text-lg">Products:</h1>
+      </div>
       <ul className="flex flex-col gap-y-8">
         {products.map(product => (
           <li key={product.id}>

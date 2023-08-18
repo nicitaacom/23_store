@@ -1,118 +1,93 @@
-"use client"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
-import { useLocation, useNavigate } from "react-router-dom"
+import { AiOutlineMenu } from 'react-icons/ai'
+import { BiSearchAlt, BiUserCircle } from 'react-icons/bi'
+import { LuShoppingCart } from 'react-icons/lu'
+import { FiPhoneCall } from 'react-icons/fi'
 
-import { AnimatePresence, motion } from "framer-motion"
-import { BiLogIn } from "react-icons/bi"
-import { AiOutlineHome, AiOutlineUserAdd } from "react-icons/ai"
-import { RiAdminLine } from "react-icons/ri"
+import useDarkMode from "../../store/darkModeStore"
+import { Input } from "../ui/Input"
+import { Language } from "./Language"
+import { Switch } from "../ui/Switch"
+import supabase from "../../utils/supabaseClient"
+import useGetUserId from "../../hooks/useGetUserId"
+import { ProductsSkeleton } from "../ui/Skeletons/ProductsSkeleton"
+import useUserCartStore from "../../store/userCartStore"
 
-import useHamburgerMenu from "../../store/useHamburgerMenu"
-import { Button } from "../ui/Button"
-import { DropdownContainer } from "./DropdownContainer"
-import { DropdownItem } from "./DropdownItem"
-import useGetProfilePictureUrl from "../../hooks/useGetProfilePicture"
-import { useModalsStore } from "../../store/useModals"
 
 export function Navbar() {
 
-  const { onOpen } = useModalsStore()
-
-  const openModal = (id: number) => {
-    onOpen(id)
-  }
-
-  const { profilePictureUrl } = useGetProfilePictureUrl()
-
-  const navLinks = [
-    {
-      label: "Home",
-      href: "/",
-    },
-    {
-      label: "Login",
-      href: "/login",
-    },
-    {
-      label: "Register",
-      href: "/register",
-    },
-  ]
-
-  const hamburgerMenu = useHamburgerMenu()
-
   const navigate = useNavigate()
-  const location = useLocation()
+  const { userId } = useGetUserId()
+  const darkMode = useDarkMode()
+  const userCartStore = useUserCartStore()
 
+
+  const [search, setSearch] = useState('')
+  const [cartQuantity, setCartQuantity] = useState<number>(0);
+  //if user load cartQuantity from db else from store
+
+
+  useEffect(() => {
+    async function getCartQuantity() {
+      try {
+        const { data: cartQuantityResponse } = await supabase
+          .from("users_cart")
+          .select("cart_quantity")
+          .eq("id", userId);
+        if (cartQuantityResponse) {
+          setCartQuantity(cartQuantityResponse[0].cart_quantity);
+        }
+      } catch (error) {
+        console.error("fetchCartQuantity - ", error);
+      }
+    }
+    getCartQuantity()
+  }, [userId])
+
+  if (cartQuantity === null) {
+    return <ProductsSkeleton />
+  }
 
 
   return (
-    <nav className="flex items-center justify-between px-4 py-2 tablet:px-6 laptop:px-8">
+    <nav className="flex flex-row justify-between items-center 
+    px-4 tablet:px-6 laptop:px-8 py-2 max-w-[1600px] max-h-[64px] mx-auto">
+
+      {/* HAMBURGER-ICON */}
+      <AiOutlineMenu className='flex  cursor-pointer' onClick={() => { /* open slidebar */ }} size={28} />
+
       {/* LOGO */}
-      <h1 className="text-5xl font-bold text-gray-300">Logo</h1>
+      <h1 className="hidden laptop:flex cursor-pointer uppercase" onClick={() => navigate('/', { replace: true })} >
+        Store
+      </h1>
 
-      {/* Nav-links */}
-      <ul className="hidden items-center justify-between gap-x-4 tablet:flex">
-        {navLinks.map(navLink => (
-          <li key={navLink.href}>
-            <Button
-              href={navLink.href}
-              variant="nav-link"
-              active={location.pathname === navLink.href ? "active" : "inactive"}>
-              {navLink.label}
-            </Button>
-          </li>
-        ))}
-      </ul>
+      <div className="flex flex-row gap-x-2">
+        {/* SEARCH */}
+        <Input startIcon={<BiSearchAlt size={24} />} className="hidden tablet:flex w-[40vw]" value={search} onChange={e => setSearch(e.target.value)}
+          placeholder="Search..." />
 
-      {/* HAMBURDER-ICON */}
-      <DropdownContainer
-        className="top-[47.5px] w-[200px]"
-        icon={
-          <img className="h-[32px] w-[32px] rounded-full"
-            src={profilePictureUrl ? profilePictureUrl : "/placeholder.jpg"}
-            width={32}
-            height={32}
-            alt="profile_picture_url"
-          />
-        }>
-        <DropdownItem icon={AiOutlineHome} label="Home" onClick={() => navigate('/', { replace: true })} />
-        <DropdownItem icon={RiAdminLine} label="Admin panel" onClick={() => openModal(1)} />
-        <DropdownItem icon={BiLogIn} label="Login" onClick={() => navigate('/login', { replace: true })} />
-        <DropdownItem icon={AiOutlineUserAdd} label="Register" onClick={() => navigate('/register', { replace: true })} />
-      </DropdownContainer>
+        {/* LANGUAGE */}
+        <Language className="hidden tablet:flex" />
+      </div>
 
-      {/* HAMBURDER-MENU */}
-      <AnimatePresence>
-        {hamburgerMenu.isOpen && (
-          <motion.div
-            initial={{ opacity: -1 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: -1 }}
-            className="fixed inset-[0] z-[99] bg-[rgba(0,0,0,0.2)]"
-            onClick={hamburgerMenu.onClose}>
-            <motion.div
-              className="absolute left-1/2 z-[100]"
-              initial={{ y: "-150%", x: "-50%", opacity: -1 }}
-              animate={{ y: "150%", x: "-50%", opacity: 1 }}
-              exit={{ y: "-150%", x: "-50%", opacity: -1 }}
-              transition={{ ease: "circOut", duration: 0.3 }}>
-              <ul className="flex flex-col items-center justify-between gap-y-4 px-8 py-4">
-                {navLinks.map(navLink => (
-                  <li key={navLink.href}>
-                    <Button
-                      href={navLink.href}
-                      variant="nav-link"
-                      active={location.pathname === navLink.href ? "active" : "inactive"}>
-                      {navLink.label}
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ICONS-HELP */}
+      <div className="flex flex-row gap-x-2 items-center ">
+        <BiUserCircle className='cursor-pointer text-title hover:text-subTitle transition-colors duration-300' size={28} />
+        <div className={`cursor-pointer text-title hover:text-subTitle transition-colors duration-300
+        before:absolute before:w-[20px] before:h-[20px] before:bg-brand before:rounded-full before:text-title-foreground
+        before:translate-x-[80%] before:translate-y-[-20%] ${userId ? cartQuantity === 0 ? 'hidden' : 'flex' : userCartStore.cartQuantity}
+        `}>
+          <LuShoppingCart className='cursor-pointer' size={28} />
+          <div className={`absolute min-w-[20px] translate-x-[80%] translate-y-[-170%] text-center text-title-foreground text-[12px]
+          ${userId ? cartQuantity === 0 ? 'hidden' : 'flex' : userCartStore.cartQuantity}`}>
+            {userId ? cartQuantity : userCartStore.cartQuantity}
+            </div>
+        </div>
+        <FiPhoneCall className='cursor-pointer text-title hover:text-subTitle transition-colors duration-300' size={28} />
+        <Switch isChecked={darkMode.isDarkMode} onChange={darkMode.toggleDarkMode} />
+      </div>
     </nav>
   )
 }

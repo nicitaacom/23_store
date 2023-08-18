@@ -17,14 +17,14 @@ export function DropdownContainer({ children, icon, className = "" }: DropdownCo
       </div>
 
       <div
-        className={`absolute right-[0%] top-[45px] z-[2] bg-primary text-secondary ${className}
+        className={`absolute right-[0%] top-[45px] z-[2] bg-primary ${className}
       before:absolute before:right-[0] before:top-[-8px] before:h-4 before:w-4 before:translate-x-[-50%] before:rotate-45
-       before:border-l-[1px] before:border-t-[1px] before:border-solid before:border-secondary before:bg-primary
+       before:border-l-[1px] before:border-t-[1px] before:border-solid before:border-border-color before:bg-primary
        ${isDropdown
             ? "visible translate-y-0 opacity-100 transition-all duration-300"
             : "invisible translate-y-[-20px] opacity-0 transition-all duration-300"
           }`}>
-        <div className="text-md rounded-md border-[1px] border-solid border-secondary"
+        <div className="text-md rounded-md border-[1px] border-solid border-border-color"
           onClick={() => setIsDropdown(!isDropdown)}>
           {children}</div>
       </div>
