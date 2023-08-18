@@ -55,17 +55,19 @@ export function Navbar() {
     <nav className="flex flex-row justify-between items-center 
     px-4 tablet:px-6 laptop:px-8 py-2 max-w-[1600px] max-h-[64px] mx-auto">
 
-      {/* HAMBURGER-ICON */}
+      <div className="flex flex-row gap-x-2 items-center">
+        {/* HAMBURGER-ICON */}
       <AiOutlineMenu className='flex  cursor-pointer' onClick={() => { /* open slidebar */ }} size={28} />
 
       {/* LOGO */}
-      <h1 className="hidden laptop:flex cursor-pointer uppercase" onClick={() => navigate('/', { replace: true })} >
+      <h1 className="hidden laptop:flex cursor-pointer uppercase text-4xl" onClick={() => navigate('/', { replace: true })} >
         Store
       </h1>
+      </div>
 
       <div className="flex flex-row gap-x-2">
         {/* SEARCH */}
-        <Input startIcon={<BiSearchAlt size={24} />} className="hidden tablet:flex w-[40vw]" value={search} onChange={e => setSearch(e.target.value)}
+        <Input startIcon={<BiSearchAlt size={24} />} className="hidden tablet:flex w-[40vw] max-w-[600px]" value={search} onChange={e => setSearch(e.target.value)}
           placeholder="Search..." />
 
         {/* LANGUAGE */}
@@ -74,18 +76,21 @@ export function Navbar() {
 
       {/* ICONS-HELP */}
       <div className="flex flex-row gap-x-2 items-center ">
-        <BiUserCircle className='cursor-pointer text-title hover:text-subTitle transition-colors duration-300' size={28} />
-        <div className={`cursor-pointer text-title hover:text-subTitle transition-colors duration-300
+        <BiUserCircle className='cursor-pointer text-title hover:brightness-75 transition-all duration-300' size={28} />
+
+        <div className={`mr-2 cursor-pointer text-title hover:brightness-75 transition-all duration-300
         before:absolute before:w-[20px] before:h-[20px] before:bg-brand before:rounded-full before:text-title-foreground
         before:translate-x-[80%] before:translate-y-[-20%] ${userId ? cartQuantity === 0 ? 'hidden' : 'flex' : userCartStore.cartQuantity}
         `}>
           <LuShoppingCart className='cursor-pointer' size={28} />
-          <div className={`absolute min-w-[20px] translate-x-[80%] translate-y-[-170%] text-center text-title-foreground text-[12px]
+          <div className={`absolute min-w-[20px] translate-x-[80%] translate-y-[-175%] laptop:translate-y-[-155%] text-center text-title-foreground 
+          text-[12px] laptop:text-[14px]
           ${userId ? cartQuantity === 0 ? 'hidden' : 'flex' : userCartStore.cartQuantity}`}>
             {userId ? cartQuantity : userCartStore.cartQuantity}
             </div>
         </div>
-        <FiPhoneCall className='cursor-pointer text-title hover:text-subTitle transition-colors duration-300' size={28} />
+        
+        <FiPhoneCall className='cursor-pointer text-icon-color hover:brightness-75 transition-all duration-300' size={28} />
         <Switch isChecked={darkMode.isDarkMode} onChange={darkMode.toggleDarkMode} />
       </div>
     </nav>
