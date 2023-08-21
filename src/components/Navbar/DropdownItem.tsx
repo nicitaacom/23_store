@@ -1,11 +1,11 @@
-import type { IconType } from "react-icons"
+import { icons, type IconType } from "react-icons"
 import { twMerge } from "tailwind-merge"
 
 interface DropdownItemProps {
   icon: IconType
   label: string
   onClick: () => void
-  size?: number
+  iconSize?: number
   className?: string
   labelClassName?: string
 }
@@ -13,7 +13,7 @@ interface DropdownItemProps {
 export function DropdownItem({
   icon: Icon,
   label,
-  size,
+  iconSize,
   className = "",
   labelClassName = "",
   onClick,
@@ -21,11 +21,11 @@ export function DropdownItem({
   return (
     <li
       className={twMerge(`z-[1] border-t-[1px] border-solid border-border-color py-2
-    transition-all duration-100 first:border-none hover:brightness-75
+    transition-all duration-100 first:border-none hover:brightness-75 bg-background
      ${className}`)}
       onClick={onClick}>
       <div className="flex cursor-pointer items-center justify-center gap-x-2">
-        <Icon className="text-icon-color" size={size ? size : 24} />
+        <Icon className="text-icon-color" size={iconSize ? iconSize : 24} />
         <a className={labelClassName}>{label}</a>
       </div>
     </li>
