@@ -9,14 +9,12 @@ export function ProductsSkeleton({ count }: { count?: number }) {
       const uuid = uuidv4()
       return (
         <div key={uuid}>
-
           <Skeleton
-            className="laptop:max-w-[99%] laptop:h-[200px] h-[clamp(12.5rem,3.5714rem+44.6429vw,25rem)]"
-            baseColor="var(--foreground)"
-            highlightColor="backdrop-flter:brightness(75%)"
+            className="laptop:h-[200px] h-[clamp(12.5rem,3.5714rem+44.6429vw,25rem)]"
+            baseColor="hsl(var(--foreground))"
+            highlightColor="hsl(var(--foreground-hover))"
           />
         </div>
-
       )
     })
 }

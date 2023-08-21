@@ -1,13 +1,14 @@
-import useCloseOnClickOutlise from "../../hooks/useCloseOnClickOutside"
+import useCloseOnClickOutlise from "../../hooks/ui/useCloseOnClickOutside"
+import React from "react"
 
 interface DropdownContainerProps {
   children: React.ReactNode
-  size?: number
-  icon: React.ReactElement
+  icon: React.ReactNode
   className?: string
+  username: string | undefined
 }
 
-export function DropdownContainer({ children, icon, className = "" }: DropdownContainerProps) {
+export function DropdownContainer({ children, icon, username, className = "" }: DropdownContainerProps) {
   const { isDropdown, dropdownContainerRef, setIsDropdown } = useCloseOnClickOutlise()
 
   return (
@@ -17,31 +18,21 @@ export function DropdownContainer({ children, icon, className = "" }: DropdownCo
       </div>
 
       <div
-        className={`absolute right-[0%] top-[45px] z-[2] bg-primary ${className}
+        className={`absolute right-[0%] top-[45px] z-[2] ${className}
       before:absolute before:right-[0] before:top-[-8px] before:h-4 before:w-4 before:translate-x-[-50%] before:rotate-45
-       before:border-l-[1px] before:border-t-[1px] before:border-solid before:border-border-color before:bg-primary
-       ${isDropdown
-            ? "visible translate-y-0 opacity-100 transition-all duration-300"
-            : "invisible translate-y-[-20px] opacity-0 transition-all duration-300"
-          }`}>
-        <div className="text-md rounded-md border-[1px] border-solid border-border-color"
-          onClick={() => setIsDropdown(!isDropdown)}>
-          {children}</div>
+       before:border-l-[1px] before:border-t-[1px] before:border-solid before:border-border-color before:bg-background
+       ${
+         isDropdown
+           ? "visible translate-y-0 opacity-100 transition-all duration-300"
+           : "invisible translate-y-[-20px] opacity-0 transition-all duration-300"
+       }`}>
+        <div className="text-md rounded-md border-[1px] border-border-color" onClick={() => setIsDropdown(!isDropdown)}>
+          <h1 className="text-center flex justify-center items-center">
+            Hi&nbsp;<p>{username}</p>
+          </h1>
+          {children}
+        </div>
       </div>
     </div>
   )
 }
-
-// css
-/*
-<div className={`dropdown-container`} ref={dropdownContainerRef}>
-      <BiUserCircle className="menu-trigger" onClick={() => setIsDropdown(!isDropdown)} />
-
-      <div className={`dropdown-menu ${isDropdown ? 'dropdown-active' : 'dropdown-inactive'}`}>
-        <div className='dropdown-menu-title'><h3>The Kiet</h3><span className='subTitle'>Webiste Designer</span></div>
-        <ul>
-          {children}
-        </ul>
-      </div>
-    </div>
-*/

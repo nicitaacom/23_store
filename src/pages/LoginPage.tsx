@@ -4,87 +4,93 @@ import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 
 import { FormSkeleton } from "../components/ui/Skeletons/FormSkeleton"
+import { AiOutlineGoogle } from "react-icons/ai"
 import supabase from "../utils/supabaseClient"
 
-import useAuthorized from "../hooks/useAuthorized"
-import useUserStore from "../store/userStore"
-import useGetUsername from "../hooks/useGetUsername"
-import useGetUserId from "../hooks/useGetUserId"
-import { Button } from "../components/index"
-import { Input } from "../components/ui/Input"
+import useUserStore from "../store/user/userStore"
+import { Button } from "../components/ui"
+import { Input } from "../components/ui/Inputs/Input"
 
 export default function Login() {
-
   const navigate = useNavigate()
   const userStore = useUserStore()
 
-
-  const [email, setEmail] = useState<string | undefined>("")
+  const [emailOrUsername, setEmailOrUsername] = useState<string | undefined>("")
   const [password, setPassword] = useState<string | undefined>("")
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [isError, setIsError] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
-
-  const { isAuthenticated } = useAuthorized()
-  const { username } = useGetUsername()
-  const { userId } = useGetUserId()
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/', { replace: true })
+    if (userStore.isAuthenticated) {
+      navigate("/", { replace: true })
       setIsLoading(false)
     }
-  }, [isAuthenticated])
-
-  async function login(e: React.FormEvent) {
-    e.preventDefault()
-    try {
-      if (email && password) {
-        const response = await supabase.auth.signInWithPassword({ email: email, password: password })
-        if (response.data.user) {
-
-          const setProfilePictureUrl = async () => {
-            const { data } = await supabase.from("users")
-              .select("profile_picture_url")
-              .eq("id", userId)
-            if (data) {
-              userStore.setProfilePictureUrl(data[0]?.profile_picture_url as string)
-            }
-          }
-
-          const { data } = await supabase.from("users")
-            .select("username")
-            .eq("id", response.data.user?.id)
-          if (data && data.length > 0 && data[0]?.username) {
-            const { username } = data[0]
-            navigate('/', { replace: true })
-          }
-
-          setProfilePictureUrl()
-          setIsError(false)
-          setIsSuccess(true)
-        }
-      }
-    } catch (error) {
-      console.error("login - ", error)
-      setIsSuccess(false)
-      setIsError(true)
-    }
-  }
+  }, [userStore.isAuthenticated, navigate])
 
   useEffect(() => {
     setIsLoading(false)
   }, [])
 
+  async function login(e: React.FormEvent) {
+    e.preventDefault()
+    if (emailOrUsername && password) {
+      const isEmail = emailOrUsername.includes("@")
+
+      if (isEmail) {
+        try {
+          const response = await supabase.auth.signInWithPassword({ email: emailOrUsername, password: password })
+          if (response.error) throw response.error
+
+          if (response.data.user) {
+            userStore.authUser(response.data.user.id)
+            navigate(`/`, { replace: true })
+            setSuccess("Success!")
+          }
+        } catch (error) {
+          console.log(58, "error - ", error)
+          setError("Error!")
+        }
+      } else {
+        try {
+          const { data, error } = await supabase.from("users").select("email").eq("username", emailOrUsername)
+          if (error) throw error
+          if (data) {
+            const response = await supabase.auth.signInWithPassword({ email: data[0].email, password: password })
+            if (response.error) throw response.error
+            if (response.data.user) {
+              userStore.authUser(response.data.user.id)
+              setSuccess("You logged in!")
+            } else {
+              setError("user not found - made a typo?")
+            }
+          } else throw "LoginPage.tsx - no data"
+        } catch (error) {
+          console.error(78, "login - ", error)
+          setError("Error")
+        }
+      }
+    }
+  }
+
   return (
     <>
-      <form className="mx-auto flex w-1/4 flex-col gap-y-4" onSubmit={login}>
+      <form
+        className="mx-auto min-h-[calc(100vh-58px)] max-w-[500px] px-4 mobile:px-6 tablet:px-8 laptop:px-10 desktop:px-12
+      flex flex-col gap-y-4 justify-center"
+        onSubmit={login}>
         {isLoading ? (
           <FormSkeleton count={3} />
         ) : (
           <>
-            <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
+            <h1 className="text-2xl">Login</h1>
+            <Input
+              type="text"
+              value={emailOrUsername}
+              onChange={e => setEmailOrUsername(e.target.value)}
+              placeholder="Email or username"
+            />
             <Input
               type="password"
               value={password}
@@ -92,8 +98,12 @@ export default function Login() {
               placeholder="Password"
             />
             <Button type="submit">Login</Button>
-            {isError && <p className="text-center text-danger">Error! - an error occured - please try later</p>}
-            {isSuccess && <p className="text-success">Success!</p>}
+            <Button variant="continue-with" onClick={() => supabase.auth.signInWithOAuth({ provider: "google" })}>
+              Continue with Google
+              <AiOutlineGoogle className="text-title" size={42} />
+            </Button>
+            <p className="text-center text-danger">{error}</p>
+            <p className="text-success">{success}</p>
           </>
         )}
       </form>
