@@ -38,7 +38,7 @@ function Product({ ...product }: Product) {
       }
     }
     fetchCartQuantity()
-  }, [userStore.userId])
+  }, [userStore.userId, userCartStore])
 
   if (userCartStore.cartQuantity === null) {
     return <ProductsSkeleton />

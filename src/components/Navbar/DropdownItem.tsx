@@ -1,4 +1,4 @@
-import { icons, type IconType } from "react-icons"
+import { type IconType } from "react-icons"
 import { twMerge } from "tailwind-merge"
 
 interface DropdownItemProps {

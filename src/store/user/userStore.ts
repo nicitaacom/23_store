@@ -8,7 +8,6 @@ interface UserStore {
   username: string
   userId: string
   authUser: (userId: string) => void
-  authUserWithProvider: () => void
   logoutUser: () => void
 }
 
@@ -23,7 +22,7 @@ export const authUser = async (userId: string) => {
   }
 }
 
-export const authUserWithProvider = async () => {
+export const OAuthUser = async () => {
   await supabase.auth.signInWithOAuth({ provider: "google" })
   const response = await supabase.auth.getUser()
   return response && response
@@ -37,7 +36,7 @@ export const logoutUser = () => {
     userId: ""
   }
 }
-//pull request
+
 
 type SetState = (fn: (prevState: UserStore) => UserStore) => void
 
@@ -57,12 +56,6 @@ export const userStore = (set: SetState): UserStore => ({
     set((state: UserStore) => ({
       ...state,
       ...logoutUser()
-    }))
-  },
-  async authUserWithProvider() {
-    const response = await authUserWithProvider()
-    set((state: UserStore) => ({
-      ...statem
     }))
   }
 })

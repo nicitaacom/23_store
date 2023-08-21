@@ -27,7 +27,7 @@ export default function Login() {
       navigate("/", { replace: true })
       setIsLoading(false)
     }
-  }, [userStore.isAuthenticated])
+  }, [userStore.isAuthenticated, navigate])
 
   useEffect(() => {
     setIsLoading(false)
@@ -77,7 +77,7 @@ export default function Login() {
   return (
     <>
       <form
-        className="mx-auto min-h-[calc(100vh-58px)] px-4 mobile:px-6 tablet:px-8 laptop:px-10 desktop:px-12
+        className="mx-auto min-h-[calc(100vh-58px)] max-w-[500px] px-4 mobile:px-6 tablet:px-8 laptop:px-10 desktop:px-12
       flex flex-col gap-y-4 justify-center"
         onSubmit={login}>
         {isLoading ? (

@@ -1,6 +1,4 @@
-import { useEffect } from "react"
 import { Products } from "../components/Products"
-import supabase from "../utils/supabaseClient"
 
 export function HomePage() {
   return (
