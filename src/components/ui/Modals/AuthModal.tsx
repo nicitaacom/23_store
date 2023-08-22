@@ -28,30 +28,30 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
 
   const [authAction, setAuthAction] = useState("LOGIN")
 
-  const [inputErrors, setInputErrors] = useState({
-    usernameError: "3-16 characters - no symbols",
-    emailError: "Enter actuall email" || "User with this email already exits",
-    emailOrUsernameError: "",
-    passwordError: "Wrong Password or email",
-  })
-  const [submitError, setSubmitError] = useState({
-    usernameTaken: <p className="text-danger">Username already taken - choose a different one</p>,
-    wrongEmailOrPassword: <p className="text-danger">Wrong email or password</p>,
-    wrongUsernameOrPassword: <p className="text-danger">Wrong username or password</p>,
-    unknownError: (
-      <p className="text-danger">
-        "Unknown error occured - please fill out
-        <Button
-          variant="info"
-          onClick={() => {
-            /* OPEN MODAL WITH FORM AND SEND FORM TO TELEGRAM */
-          }}>
-          this
-        </Button>
-        form to get support and help us improve our service"
-      </p>
-    ),
-  })
+  // const [inputErrors, setInputErrors] = useState({
+  //   usernameError: "3-16 characters - no symbols",
+  //   emailError: "Enter actuall email" || "User with this email already exits",
+  //   emailOrUsernameError: "",
+  //   passwordError: "Wrong Password or email",
+  // })
+  // const [submitError, setSubmitError] = useState({
+  //   usernameTaken: <p className="text-danger">Username already taken - choose a different one</p>,
+  //   wrongEmailOrPassword: <p className="text-danger">Wrong email or password</p>,
+  //   wrongUsernameOrPassword: <p className="text-danger">Wrong username or password</p>,
+  //   unknownError: (
+  //     <p className="text-danger">
+  //       "Unknown error occured - please fill out
+  //       <Button
+  //         variant="info"
+  //         onClick={() => {
+  //           /* OPEN MODAL WITH FORM AND SEND FORM TO TELEGRAM */
+  //         }}>
+  //         this
+  //       </Button>
+  //       form to get support and help us improve our service"
+  //     </p>
+  //   ),
+  // })
 
   async function login(e: React.FormEvent) {
     e.preventDefault()
@@ -65,6 +65,7 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
 
           if (response.data.user) {
             userStore.authUser(response.data.user.id)
+
             navigate(`/`, { replace: true })
           }
         } catch (error) {
@@ -80,7 +81,6 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
 
             if (response.data.user) {
               userStore.authUser(response.data.user.id)
-            } else {
             }
           } else throw "LoginPage.tsx - no data"
         } catch (error) {
@@ -153,7 +153,7 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
               onChange={e => setUsername(e.target.value)}
               placeholder="Username"
               pattern="^[A-Za-z0-9]{3,16}$"
-              inputError={inputErrors.usernameError}
+              // inputError={inputErrors.usernameError}
               required
             />
           )}
@@ -164,7 +164,7 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
               onChange={e => setEmail(e.target.value)}
               placeholder="Email"
               pattern="^.+@.+$"
-              inputError={inputErrors.emailError}
+              // inputError={inputErrors.emailError}
             />
           )}
           {authAction === "LOGIN" && (
@@ -183,7 +183,7 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
               placeholder="Password"
             />
           )}
-          <p>{submitError}</p>
+          <p className="text-danger">Submit error</p>
           <Button type="submit">
             {authAction === "LOGIN" ? "Login" : authAction === "REGISTER" ? "Register" : "Recover"}
           </Button>

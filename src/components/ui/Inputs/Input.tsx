@@ -49,7 +49,7 @@ export function Input({type = "text",value,onChange, className = "", startIcon, 
         value={value}
         onChange={handleInputChange}
         pattern={pattern}
-        required
+        required={required}
         {...props}
       />
       {isError && (

@@ -10,6 +10,9 @@
     "preview": "vite preview",
     "type-check": "tsc -p tsconfig.json --noEmit"
   },
+  "lint-staged": {
+    "*": "yarn prettier --write src/*"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.32.0",
     "@types/uuid": "^9.0.2",
