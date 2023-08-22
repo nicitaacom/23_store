@@ -25,12 +25,12 @@ export const increaseItemQuantityinDB = async (id: string) => {
 
   return data && data.length > 0
     ? {
-      id: data[0].id,
-      label: data[0].label,
-      price: data[0].price,
-      img_url: data[0].img_url,
-      quantity: 1, //logic
-    }
+        id: data[0].id,
+        label: data[0].label,
+        price: data[0].price,
+        img_url: data[0].img_url,
+        quantity: 1, //logic
+      }
     : null
 }
 

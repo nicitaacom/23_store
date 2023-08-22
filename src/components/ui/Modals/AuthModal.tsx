@@ -20,16 +20,38 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
   const userStore = useUserStore()
   const navigate = useNavigate()
 
-  const [usernameValue, setUsername] = useState<string | undefined>("")
-  const [email, setEmail] = useState<string | undefined>("")
+  const [username, setUsername] = useState<string | undefined>("") //for REGISTER
+  const [email, setEmail] = useState<string | undefined>("") //for RECOVER
 
-  const [emailOrUsername, setEmailOrUsername] = useState<string | undefined>("")
-  const [password, setPassword] = useState<string | undefined>("")
+  const [emailOrUsername, setEmailOrUsername] = useState<string | undefined>("") //for LOGIN
+  const [password, setPassword] = useState<string | undefined>("") //for LOGIN and REGISTER
 
-  const [error, setError] = useState<string | undefined>("")
-  const [success, setSuccess] = useState<string | undefined>("")
+  const [authAction, setAuthAction] = useState("LOGIN")
 
-  const [authAction, setAuthAction] = useState("Login")
+  // const [inputErrors, setInputErrors] = useState({
+  //   usernameError: "3-16 characters - no symbols",
+  //   emailError: "Enter actuall email" || "User with this email already exits",
+  //   emailOrUsernameError: "",
+  //   passwordError: "Wrong Password or email",
+  // })
+  // const [submitError, setSubmitError] = useState({
+  //   usernameTaken: <p className="text-danger">Username already taken - choose a different one</p>,
+  //   wrongEmailOrPassword: <p className="text-danger">Wrong email or password</p>,
+  //   wrongUsernameOrPassword: <p className="text-danger">Wrong username or password</p>,
+  //   unknownError: (
+  //     <p className="text-danger">
+  //       "Unknown error occured - please fill out
+  //       <Button
+  //         variant="info"
+  //         onClick={() => {
+  //           /* OPEN MODAL WITH FORM AND SEND FORM TO TELEGRAM */
+  //         }}>
+  //         this
+  //       </Button>
+  //       form to get support and help us improve our service"
+  //     </p>
+  //   ),
+  // })
 
   async function login(e: React.FormEvent) {
     e.preventDefault()
@@ -43,12 +65,11 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
 
           if (response.data.user) {
             userStore.authUser(response.data.user.id)
+
             navigate(`/`, { replace: true })
-            setSuccess("Success!")
           }
         } catch (error) {
-          console.log(58, "error - ", error)
-          setError("Error!")
+          console.error("login with email - ", error)
         }
       } else {
         try {
@@ -60,14 +81,10 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
 
             if (response.data.user) {
               userStore.authUser(response.data.user.id)
-              setSuccess("You logged in!")
-            } else {
-              setError("user not found - made a typo?")
             }
           } else throw "LoginPage.tsx - no data"
         } catch (error) {
-          console.error(78, "login - ", error)
-          setError("Error")
+          console.error("login with username - ", error)
         }
       }
     }
@@ -75,6 +92,7 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
 
   async function register(e: React.FormEvent) {
     e.preventDefault()
+    console.log(78)
     if (email && password) {
       try {
         const response = await supabase.auth.signUp({ email: email, password: password })
@@ -83,15 +101,13 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
         if (response.data.user?.id) {
           const { error } = await supabase
             .from("users")
-            .insert({ id: response.data.user.id, username: usernameValue, email: email })
+            .insert({ id: response.data.user.id, username: username, email: email })
           if (error) throw error
 
           userStore.authUser(response.data.user.id)
-          setSuccess("Check your email")
         }
       } catch (error) {
         console.error("register - ", error)
-        setError("Error")
       }
     }
   }
@@ -109,73 +125,75 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
   return (
     <ModalContainer
       className={`w-[100vw] max-w-[500px] tablet:max-w-[650px] 
-      ${authAction === "Login" && "h-[70vh] tablet:max-h-[450px]"}
-      ${authAction === "Register" && "h-[75vh] tablet:max-h-[500px]"}
-     py-8 transition-all duration-500`}
+      ${authAction === "LOGIN" && "h-[70vh] tablet:max-h-[450px]"}
+      ${authAction === "REGISTER" && "h-[75vh] tablet:max-h-[500px]"}
+      ${authAction === "RECOVER" && "h-[50vh] tablet:max-h-[350px]"}
+     py-8 transition-all duration-300`}
       isOpen={isOpen}
       onClose={() => onClose()}>
       <div className="flex flex-col justify-center items-center w-1/2 mx-auto ">
         <h1 className="text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
         <ul className="flex flex-col tablet:flex-row w-[150%] justify-center mb-8">
           <li>
-            <RadioButton label="Login" inputName="auth" onChange={e => setAuthAction(e.target.value)} defaultChecked />
+            <RadioButton label="Login" inputName="auth" onChange={() => setAuthAction("LOGIN")} defaultChecked />
           </li>
           <li>
-            <RadioButton label="Register" inputName="auth" onChange={e => setAuthAction(e.target.value)} />
+            <RadioButton label="Register" inputName="auth" onChange={() => setAuthAction("REGISTER")} />
+          </li>
+          <li>
+            <RadioButton label="Recover" inputName="auth" onChange={() => setAuthAction("RECOVER")} />
           </li>
         </ul>
 
-        <div className="flex flex-col gap-y-2">
-          {authAction === "Login" && (
-            <form className="flex flex-col gap-y-2" onSubmit={login}>
-              <Input
-                type="text"
-                value={emailOrUsername}
-                onChange={e => setEmailOrUsername(e.target.value)}
-                placeholder="Email or username"
-              />
-              <Input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="Password"
-              />
-
-              <p className="text-success">{success}</p>
-              <p className="text-danger">{error}</p>
-              <Button type="submit">Login</Button>
-              <Button variant="continue-with" onClick={loginWithGoogle}>
-                Continue with Google
-                <AiOutlineGoogle className="text-title" size={42} />
-              </Button>
-            </form>
+        <form className="flex flex-col gap-y-2" onSubmit={authAction === "Login" ? login : register}>
+          {authAction === "REGISTER" && (
+            <Input
+              type="text"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="Username"
+              pattern="^[A-Za-z0-9]{3,16}$"
+              // inputError={inputErrors.usernameError}
+              required
+            />
           )}
-
-          {authAction === "Register" && (
-            <form className="flex flex-col gap-y-2" onSubmit={register}>
-              <Input
-                type="text"
-                value={usernameValue}
-                onChange={e => setUsername(e.target.value)}
-                placeholder="Username"
-              />
-              <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
-              <Input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="Password"
-              />
-              <p className="text-success">{success}</p>
-              <p className="text-danger">{error}</p>
-              <Button type="submit">Register</Button>
-              <Button variant="continue-with" onClick={loginWithGoogle}>
-                Continue with Google
-                <AiOutlineGoogle className="text-title" size={42} />
-              </Button>
-            </form>
+          {authAction !== "LOGIN" && (
+            <Input
+              type="text"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Email"
+              pattern="^.+@.+$"
+              // inputError={inputErrors.emailError}
+            />
           )}
-        </div>
+          {authAction === "LOGIN" && (
+            <Input
+              type="text"
+              value={emailOrUsername}
+              onChange={e => setEmailOrUsername(e.target.value)}
+              placeholder="Email or username"
+            />
+          )}
+          {authAction !== "RECOVER" && (
+            <Input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Password"
+            />
+          )}
+          <p className="text-danger">Submit error</p>
+          <Button type="submit">
+            {authAction === "LOGIN" ? "Login" : authAction === "REGISTER" ? "Register" : "Recover"}
+          </Button>
+          {authAction !== "RECOVER" && (
+            <Button variant="continue-with" onClick={loginWithGoogle}>
+              Continue with Google
+              <AiOutlineGoogle className="text-title" size={42} />
+            </Button>
+          )}
+        </form>
       </div>
     </ModalContainer>
   )
