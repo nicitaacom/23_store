@@ -56,9 +56,6 @@ jobs:
       - name: prettierrc
         run: pnpm prettier --write src/*
 
-      - name: commit changes
-        run: git commit -a .
-
       - name: Install dependencies
         run: pnpm i
 
