@@ -14,12 +14,14 @@ interface UserStore {
 export const authUser = async (userId: string) => {
   const response = await supabase.from("users").select("*").eq("id", userId)
   console.log(response.data)
-  return response.data && {
-    isAuthenticated: true,
-    profilePictureUrl: response.data[0].profile_picutre_url ? response.data[0].profile_picutre_url : "",
-    username: response.data[0].username,
-    userId: response.data[0].id
-  }
+  return (
+    response.data && {
+      isAuthenticated: true,
+      profilePictureUrl: response.data[0].profile_picutre_url ? response.data[0].profile_picutre_url : "",
+      username: response.data[0].username,
+      userId: response.data[0].id,
+    }
+  )
 }
 
 export const OAuthUser = async () => {
@@ -33,10 +35,9 @@ export const logoutUser = () => {
     isAuthenticated: false,
     profilePictureUrl: "",
     username: "",
-    userId: ""
+    userId: "",
   }
 }
-
 
 type SetState = (fn: (prevState: UserStore) => UserStore) => void
 
@@ -49,15 +50,15 @@ export const userStore = (set: SetState): UserStore => ({
     const response = await authUser(userId)
     set((state: UserStore) => ({
       ...state,
-      ...response
+      ...response,
     }))
   },
   logoutUser() {
     set((state: UserStore) => ({
       ...state,
-      ...logoutUser()
+      ...logoutUser(),
     }))
-  }
+  },
 })
 
 const useUserStore = create(devtools(persist(userStore, { name: "userStore" })))
