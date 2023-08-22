@@ -12,7 +12,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn prettier --write src/* && git add -A ."
+      "pre-commit2": "yarn prettier --write src/* && git add -A .",
+      "pre-commit": "echo [Husky] pre-commit"
     }
   },
   "dependencies": {
