@@ -170,7 +170,7 @@ export function Products() {
         setProducts(response.data)
         setIsLoading(false)
       } catch (error) {
-        console.error(171, "fetchProducts - ", error)
+        console.error("fetchProducts - ", error)
       }
     }
     fetchProducts()

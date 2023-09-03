@@ -26,8 +26,10 @@ export function DropdownContainer({ children, icon, username, className = "" }: 
            ? "visible translate-y-0 opacity-100 transition-all duration-300"
            : "invisible translate-y-[-20px] opacity-0 transition-all duration-300"
        }`}>
-        <div className="text-md rounded-md border-[1px] border-border-color" onClick={() => setIsDropdown(!isDropdown)}>
-          <h1 className="text-center flex justify-center items-center">
+        <div
+          className="text-md rounded-md border-[1px] border-border-color overflow-hidden"
+          onClick={() => setIsDropdown(!isDropdown)}>
+          <h1 className="text-center bg-background flex flex-wrap justify-center items-center py-1">
             Hi&nbsp;<p>{username}</p>
           </h1>
           {children}
