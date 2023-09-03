@@ -97,7 +97,7 @@ export function Navbar() {
                 src={userStore.profilePictureUrl ? userStore.profilePictureUrl : "/placeholder.jpg"}
               />
             }
-            className="w-[150px]">
+            className="w-[175px]">
             <DropdownItem
               label="logout"
               icon={BiLogOut}

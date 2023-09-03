@@ -52,19 +52,25 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   href?: string
+  disabled?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, children, href, variant, active, ...props }, ref) => {
+  ({ className, children, href, variant, active, disabled, ...props }, ref) => {
     if (href) {
       return (
-        <Link to={href} className={twMerge(buttonVariants({ variant, active, className }))}>
+        <Link
+          to={href}
+          className={twMerge(disabled && "opacity-50 cursor-default", buttonVariants({ variant, active, className }))}>
           {children}
         </Link>
       )
     }
     return (
-      <button className={twMerge(buttonVariants({ variant, active, className }))} ref={ref} {...props}>
+      <button
+        className={twMerge(disabled && "opacity-50 cursor-default", buttonVariants({ variant, active, className }))}
+        ref={ref}
+        {...props}>
         {children}
       </button>
     )

@@ -116,7 +116,6 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
                   isDragging,
                   dragProps,
                 }) => (
-                  // write your building UI
                   <div className="flex flex-col items-center justify-center gap-y-4">
                     <Button
                       className={`image-upload w-full bg-transparent px-16 py-8 text-xl whitespace-nowrap ${
