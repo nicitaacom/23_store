@@ -81,8 +81,14 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
           return "No user with this username - " + emailOrUsername
         }
       } catch (error) {
-        displayResponseMessage(<p className="text-danger">Wrong email or password</p>)
-        console.error("login with username - ", error)
+        const errorMessage = String(error)
+        if (errorMessage.includes("AuthApiError: Email not confirmed")) {
+          const formattedMessage = errorMessage.replace("AuthApiError: ", "")
+          displayResponseMessage(<p className="text-danger">{formattedMessage}</p>)
+        } else {
+          displayResponseMessage(<p className="text-danger">Wrong email or password</p>)
+          console.error("login with username - ", error)
+        }
       }
     }
   }
@@ -104,7 +110,7 @@ export function AuthModal({ isOpen, onClose, label }: AuthModalProps) {
           setResponseMessage(
             <div className="flex flex-row">
               Don't revice email?&nbsp;
-              <Timer label="resend in" seconds={40}>
+              <Timer label="resend in" seconds={45}>
                 <Button variant="link" onClick={() => resendVerificationEmail(email)}>
                   resend
                 </Button>

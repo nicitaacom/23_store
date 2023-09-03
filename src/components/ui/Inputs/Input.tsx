@@ -8,12 +8,10 @@ interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   className?: string
   startIcon?: React.ReactElement
   pattern?: string
-  inputError?: string
   required?: boolean
 }
 
-export function Input({type = "text",value,onChange, className = "", startIcon, pattern, required = false,
- inputError,  ...props
+export function Input({type = "text",value,onChange, className = "", startIcon, pattern, required = false,  ...props
 }: InputProps) {
 
 
