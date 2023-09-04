@@ -7,7 +7,7 @@ import { Button } from "../"
 import { ModalContainer } from "../ModalContainer"
 import { RadioButton } from "../Inputs/RadioButton"
 import useUserStore from "../../../store/user/userStore"
-import { InputForm } from "../Inputs/InputForm"
+import { InputForm } from "../Inputs/Validation/InputForm"
 import { useForm } from "react-hook-form"
 import { Timer } from "../Timer"
 

@@ -2,10 +2,10 @@ import { motion } from "framer-motion"
 import { FieldErrors, UseFormRegister } from "react-hook-form"
 
 interface FormData {
-  username: string
-  email: string
-  emailOrUsername: string
-  password: string
+  title: string
+  subTitle: string
+  price: number
+  onStock: number
 }
 
 interface InputFormProps {
@@ -30,7 +30,7 @@ interface ValidationRules {
   }
 }
 
-export function InputForm({
+export function InputProduct({
   className = "",
   id,
   type,
@@ -41,41 +41,33 @@ export function InputForm({
   placeholder,
   disabled,
 }: InputFormProps) {
-  /*
-  add validation for number (you can't start with 0 or .)
-    const inputValue = e.target.value;
-    const isValid = pattern ? new RegExp(pattern).test(inputValue) : true;
-
-    setIsError(!isValid);
-  */
-
   const validationRules: ValidationRules = {
-    username: {
+    title: {
       required: "This field is required",
       pattern: {
-        value: /^(?=.*[a-z])[a-z][a-z0-9]{2,15}$/i,
-        message: "3-16 characters, a-z, start with letter, numbers optional",
+        value: /^(?=.*[a-z])[a-z][a-z0-9$()_]{2,48}$/i,
+        message: "Enter product title - a-z - numbers and #()_ are optional",
       },
     },
-    email: {
+    subTitle: {
       required: "This field is required",
       pattern: {
-        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-        message: "Enter valid email address",
+        value: /^[-()#a-zA-Z0-9]{0,600}$/,
+        message: "Enter description 0-600 symbols",
       },
     },
-    emailOrUsername: {
+    price: {
       required: "This field is required",
       pattern: {
-        value: /^(?=.*[a-z])[a-zA-Z0-9@.]{2,}$/i,
-        message: "Enter valid username or email",
+        value: /^(?!0)[0-9.]{1,6}$/,
+        message: "Enter price from 1 to 999,999",
       },
     },
-    password: {
+    onStock: {
       required: "This field is required",
       pattern: {
-        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9_\-%#$]{8,64}$/,
-        message: "Must contain a-z A-Z 0-9 and _-%#$ are optional - between 8-64 symbols",
+        value: /^(?!0)[0-9.]{1,5}$/,
+        message: "Enter how much products on stock - 1 - 99,999",
       },
     },
   }
@@ -91,7 +83,7 @@ export function InputForm({
       <input
         className={`w-full rounded border-[1px] border-solid bg-transparent px-4 py-2 mb-1 outline-none 
             ${startIcon && "pl-10"}
-            ${errors[id] && "focus:ring-rose-500 focus-visible:outline-rose-600 focus:outline-offset-0"}
+            ${errors[id] && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0"}
             ${disabled && "opacity-50 cursor-default"}
             ${className}`}
         id={id}

@@ -11,7 +11,8 @@ import useUserStore from "../store/user/userStore"
 
 interface Product {
   id: string
-  label: string
+  title: string
+  subTitle: string
   price: number
   img_url: string | undefined
   on_stock: number
@@ -112,7 +113,8 @@ function Product({ ...product }: Product) {
       <div className="flex flex-col justify-between gap-y-2 w-full px-4 py-2">
         <div className="flex flex-row justify-between items-start text-brand">
           <div className="flex flex-col">
-            <h1 className="text-xl">{product.label}</h1>
+            <h1 className="text-xl">{product.title}</h1>
+            <p className="text-sm text-subTitle">{product.subTitle}</p>
             <p className="text-sm text-subTitle">Left on stock:{product.on_stock}</p>
             <p className="text-sm text-subTitle">Quantity:</p>
           </div>
@@ -153,7 +155,8 @@ export function Products() {
   const [products, setProducts] = useState([
     {
       id: "",
-      label: "",
+      title: "",
+      subTitle: "",
       price: 0,
       img_url: "",
       on_stock: 0,

@@ -9,7 +9,7 @@ import supabase from "../utils/supabaseClient"
 
 import useUserStore from "../store/user/userStore"
 import { Button } from "../components/ui"
-import { InputForm } from "../components/ui/Inputs/InputForm"
+import { InputForm } from "../components/ui/Inputs/Validation/InputForm"
 import { Timer } from "../components/ui/Timer"
 import { useForm } from "react-hook-form"
 
