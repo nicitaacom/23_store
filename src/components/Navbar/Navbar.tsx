@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"
 import supabase from "../../utils/supabaseClient"
 import { BiSearchAlt, BiUserCircle, BiLogOut } from "react-icons/bi"
 import { LuShoppingCart } from "react-icons/lu"
-import { AiOutlineMenu } from "react-icons/ai"
+import { AiOutlineMenu, AiOutlinePlus } from "react-icons/ai"
 import { FiPhoneCall } from "react-icons/fi"
 
 import { useSidebar } from "../../store/ui/useHamburgerMenu"
@@ -98,6 +98,10 @@ export function Navbar() {
               />
             }
             className="w-[175px]">
+            <DropdownItem
+              label="Add product"
+              icon={AiOutlinePlus}
+              onClick={() => openModal("AdminModal")}></DropdownItem>
             <DropdownItem
               label="logout"
               icon={BiLogOut}
