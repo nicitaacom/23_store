@@ -31,32 +31,24 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [productAction, setProductAction] = useState("Add product")
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
-  const dragZone = useRef<HTMLDivElement | null>(null)
+  const dragZone = useRef<HTMLButtonElement | null>(null)
   const [isDraggingg, setIsDragging] = useState(false)
 
   useEffect(() => {
     const handler = () => {
       setIsDragging(true)
-      console.log(40, "handler in if - ")
     }
-    console.log(41)
-    const leaveHandler = (event: Event) => {
-      if (!dragZone.current?.contains(event.target as Node)) {
-        setIsDragging(false)
-        event.stopPropagation()
-        console.log(46, "leaveHandler in if - ")
-      }
-      console.log(48, "leaveHandler - ")
+
+    const leaveHandler = () => {
+      setIsDragging(false)
     }
 
     const dropHandler = () => {
       setIsDragging(false)
-      console.log(52, "dragEndHandler - ")
     }
 
     const dragEndHandler = () => {
       setIsDragging(false)
-      console.log(56, "dragEndHandler - ")
     }
 
     document.addEventListener("dragover", handler, true)
@@ -112,6 +104,7 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
             })
             .eq("user_id", userStore.userId)
           if (updatedUserResponse.error) throw updatedUserResponse.error
+          displayResponseMessage(<p className="text-success">Product added</p>)
         }
       } else {
         displayResponseMessage(<p className="text-danger">Upload the image</p>)
@@ -130,15 +123,18 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
   return (
     <ModalContainer
       className={`w-[100vw] max-w-[500px] tablet:max-w-[650px] 
-    ${productAction === "Add product" && "h-[70vh] tablet:max-h-[900px]"}
-     ${productAction === "Edit product" && "h-[40vh] tablet:max-h-[400px]"}
-     ${productAction === "Delete product" && "h-[40vh] tablet:max-h-[400px]"}
-     bg-primary rounded-md border-[1px] border-solid border-border-color py-8 overflow-y-scroll transition-all duration-500`}
+     bg-primary rounded-md border-[1px] border-solid border-border-color pt-8 `}
       isOpen={isOpen}
       onClose={() => onClose()}>
-      <div className="flex flex-col justify-center items-center w-1/2 mx-auto ">
+      <div
+        className={`relative flex flex-col items-center w-full pb-8
+        ${isDraggingg ? "overflow-hidden" : "overflow-y-scroll"}
+        ${productAction === "Add product" && "h-[70vh] tablet:max-h-[900px]"}
+        ${productAction === "Edit product" && "h-[40vh] tablet:max-h-[400px]"}
+        ${productAction === "Delete product" && "h-[40vh] tablet:max-h-[400px]"}
+        transition-all duration-500`}>
         <h1 className="text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
-        <ul className="flex flex-col tablet:flex-row w-[150%] justify-center mb-8">
+        <ul className="flex flex-col tablet:flex-row justify-center mb-8">
           <li>
             <RadioButton
               label="Add product"
@@ -157,16 +153,17 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
         {productAction !== "Delete product" && (
           <ImageUploading multiple value={images} onChange={onChange} dataURLKey="data_url">
             {({ imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps }) => (
-              <div className="flex flex-col items-center justify-center gap-y-4">
-                <div className="fixed inset-0 z-[-1]" ref={dragZone} />
+              <div className="flex flex-col items-center justify-center gap-y-4 w-[50%]">
                 <Button
                   className={`${
-                    isDraggingg && "fixed inset-0 z-[101]"
-                  } image-upload w-full bg-transparent px-16 py-8 text-xl whitespace-nowrap`}
-                  // ref={dragZone}
+                    isDraggingg && "fixed inset-0 z-[101] !bg-[rgba(0,0,0,0.6)]"
+                  } image-upload w-full bg-transparent px-16 py-8 text-xl whitespace-nowrap transition-all duration-300`}
+                  ref={dragZone}
                   onClick={onImageUpload}
                   {...dragProps}>
-                  Click or Drop here
+                  <h1 className="pointer-events-none select-none">
+                    {isDragging ? "Drop files here" : "Click or Drop here"}
+                  </h1>
                 </Button>
                 &nbsp;
                 {imageList.map((image, index) => (
@@ -194,7 +191,7 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
           </ImageUploading>
         )}
 
-        <form className="flex flex-col gap-y-2" onSubmit={handleSubmit(onSubmit)}>
+        <form className="flex flex-col gap-y-2 w-[50%]" onSubmit={handleSubmit(onSubmit)}>
           {productAction === "Add product" && (
             <>
               <InputProduct
@@ -238,13 +235,13 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
 
           {productAction === "Edit product" && (
             <>
-              <h1>Edit product content</h1>
+              <h1 className="text-center">Edit product content</h1>
             </>
           )}
 
           {productAction === "Delete product" && (
             <>
-              <h1>Delete product content</h1>
+              <h1 className="text-center">Delete product content</h1>
             </>
           )}
         </form>
