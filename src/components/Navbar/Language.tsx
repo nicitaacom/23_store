@@ -92,7 +92,7 @@ export function Language({ className }: { className?: string }) {
       {/* Dropdown content */}
       <div
         className={`dropdown absolute top-[100%] left-[-1px] right-[-1px]
-      border-[1px] border-solid border-foreground z-10 
+      border-[1px] border-solid border-foreground z-10 bg-background
        flex flex-col text-md text-center ${
          showDropdown
            ? "opacity-100 visible translate-y-[0px] transition-all duration-300"

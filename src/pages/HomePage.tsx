@@ -11,12 +11,18 @@ export function HomePage() {
       const authUser = async () => {
         const response = await supabase.auth.getUser()
         if (response.data.user?.id) {
-          await supabase.from("users").insert({
+          const { error: errorUsersInsert } = await supabase.from("users").insert({
             id: response.data.user?.id,
             username: response.data.user?.user_metadata.name,
             email: response.data.user?.user_metadata.email,
             profile_picture_url: response.data.user?.user_metadata.picture,
           })
+          if (errorUsersInsert) throw errorUsersInsert
+          const { error: errorUsersCartInsert } = await supabase
+            .from("users_cart")
+            .insert({ id: response.data.user.id })
+          if (errorUsersCartInsert) throw errorUsersCartInsert
+          //that's wrong and should be fixed in branch
           userStore.authUser(response.data.user?.id as string)
         }
       }
