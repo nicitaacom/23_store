@@ -77,6 +77,7 @@ export function InputProduct({
     pattern: { value: patternValue, message: patternMessage },
   } = validationRules[id]
 
+
   return (
     <div className={`relative`}>
       <div className="absolute top-[50%] translate-y-[-50%] translate-x-[50%]">{startIcon}</div>
@@ -98,6 +99,19 @@ export function InputProduct({
             message: patternMessage,
           },
         })}
+        onKeyDown={(e) => {
+  const { key, target } = e;
+  const { value } = target as HTMLInputElement;
+
+  if (value.length === 0 && ["."].includes(key)) {
+    e.preventDefault();
+  }
+
+  if (["e", "E", "+", "-","0"].includes(key)) {
+    e.preventDefault();
+  }
+}}
+
       />
       {errors[id] && errors[id]?.message && (
         <motion.p className="font-secondary text-danger text-xs" initial={{ x: 0 }} animate={{ x: [0, -2, 2, 0] }}>
