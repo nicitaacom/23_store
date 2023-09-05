@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import { useRef, useState } from "react"
 import { FieldErrors, UseFormRegister } from "react-hook-form"
 
 interface FormData {
