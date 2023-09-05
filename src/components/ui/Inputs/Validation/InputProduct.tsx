@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
 import { FieldErrors, UseFormRegister } from "react-hook-form"
-
+//git
 interface FormData {
   title: string
   subTitle: string
