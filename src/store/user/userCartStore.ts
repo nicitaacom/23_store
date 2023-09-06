@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
+import useUserStore from "./userStore"
 import supabase from "../../utils/supabaseClient"
 
 export interface IProduct {
@@ -8,8 +9,8 @@ export interface IProduct {
   sub_title: string
   price: number
   img_url: string
-  quantity: number
   on_stock: number
+  quantity: number
 }
 
 interface UserCartStore {
@@ -19,6 +20,40 @@ interface UserCartStore {
   increaseProductQuantity: (product: IProduct) => void
   decreaseItemQuantity: (id: string) => void
   setItemQuantity0: (id: string) => void
+}
+
+export const increaseProductQuantityLogic = (
+  products: IProduct[],
+  product: IProduct,
+  cartQuantity: number,
+): IProduct[] => {
+  const updatedProducts = [...products]
+  const existingProductIndex = updatedProducts.findIndex(item => item.id === product.id)
+
+  if (existingProductIndex === -1) {
+    // Add new product if it doesn't exist in cart
+    updatedProducts.push({ ...product, quantity: product.quantity + 1 })
+  } else {
+    // If product already exists - update the quantity
+    updatedProducts[existingProductIndex].quantity += 1
+  }
+  increaseProductQuantityInDB()
+  async function increaseProductQuantityInDB() {
+    const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
+    if (userLocalStorage) {
+      const parsedLS = JSON.parse(userLocalStorage)
+
+      const { error } = await supabase
+        .from("users_cart")
+        .update({
+          cart_products: [...products],
+          cart_quantity: cartQuantity + 1,
+        })
+        .eq("id", parsedLS.user.id)
+      if (error) throw error
+    }
+  }
+  return updatedProducts
 }
 
 export const decreaseItemQuantity = (products: IProduct[], id: string): IProduct[] => {
@@ -69,7 +104,7 @@ const userCartStore = (set: SetState): UserCartStore => ({
   increaseProductQuantity(product: IProduct) {
     set((state: UserCartStore) => ({
       ...state,
-      products: [...state.products, product],
+      products: increaseProductQuantityLogic(state.products, product, state.cartQuantity),
       cartQuantity: state.cartQuantity + 1,
     }))
   },

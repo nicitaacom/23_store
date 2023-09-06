@@ -4,9 +4,11 @@ import supabase from "../utils/supabaseClient"
 
 import { ProductsSkeleton } from "./ui/Skeletons/ProductsSkeleton"
 import { Product } from "./Product"
-import { IProduct } from "../store/user/userCartStore"
+import useUserCartStore, { IProduct } from "../store/user/userCartStore"
 
 export function Products() {
+  const userCartStore = useUserCartStore()
+
   const [isLoading, setIsLoading] = useState(false)
   const [products, setProducts] = useState([
     {
@@ -15,8 +17,8 @@ export function Products() {
       sub_title: "",
       price: 0,
       img_url: "",
-      quantity: 0,
       on_stock: 0,
+      quantity: 0,
     },
   ])
 
@@ -26,7 +28,19 @@ export function Products() {
         setIsLoading(true)
         const response = await supabase.from("products").select("*")
         if (response.error) throw response.error
-        setProducts(response.data)
+
+        //add quantity for each product because (user A quantity - 2 - user B - quantity 3 )
+        const updatedResponse = response.data.map(product => {
+          console.log(34, "userCartStore.products - ", userCartStore.products)
+          const matchingProduct = userCartStore.products.find(item => item.id === product.id)
+
+          return {
+            ...product,
+            quantity: matchingProduct ? matchingProduct.quantity : 0,
+          }
+        })
+
+        setProducts(updatedResponse)
         setIsLoading(false)
       } catch (error) {
         console.error("fetchProducts - ", error)
@@ -34,8 +48,6 @@ export function Products() {
     }
     fetchProducts()
   }, [])
-
-  console.log(37, "Products render")
 
   return (
     <div

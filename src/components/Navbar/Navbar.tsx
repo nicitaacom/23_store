@@ -31,7 +31,8 @@ export function Navbar() {
   const [search, setSearch] = useState("")
   //if user load cartQuantity from db else from store
 
-  console.log(34, "username - ", userStore.username)
+  //I commented it to uncomment it in the feature to check for re-renders
+  // console.log(34, "username - ", userStore.username)
 
   return (
     <nav

@@ -212,7 +212,7 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
               />
               <InputProduct
                 id="price"
-                type="number"
+                type="numeric"
                 register={register}
                 errors={errors}
                 disabled={isLoading}

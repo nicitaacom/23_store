@@ -8,6 +8,11 @@ export function HomePage() {
 
   useEffect(() => {
     if (userStore.userId === "") {
+      const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
+      if (userLocalStorage) {
+        const parsedLS = JSON.parse(userLocalStorage)
+        userStore.authUser(parsedLS.user.id)
+      }
       const authUser = async () => {
         const response = await supabase.auth.getUser()
         if (response.data.user?.id) {

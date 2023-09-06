@@ -11,7 +11,7 @@ interface FormData {
 interface InputFormProps {
   id: keyof FormData
   className?: string
-  type?: string
+  type?: string | "numeric"
   required?: boolean
   register: UseFormRegister<FormData>
   startIcon?: React.ReactElement
@@ -33,7 +33,7 @@ interface ValidationRules {
 export function InputProduct({
   className = "",
   id,
-  type,
+  type = "text",
   required,
   register,
   startIcon,
@@ -45,22 +45,22 @@ export function InputProduct({
     title: {
       required: "This field is required",
       pattern: {
-        value: /^(?=.*[a-z])[a-z][a-z0-9$()_]{2,48}$/i,
-        message: "Enter product title - a-z - numbers and #()_ are optional",
+        value: /^(?=.*[A-Za-z])[A-Za-z][A-Za-z0-9$()_+ -]{2,48}$/,
+        message: "Enter a product title - a-z - numbers, and #()_ are optional",
       },
     },
     subTitle: {
       required: "This field is required",
       pattern: {
-        value: /^[-()#a-zA-Z0-9]{0,600}$/,
+        value: /^[-()#a-zA-Z0-9 ]{0,600}$/,
         message: "Enter description 0-600 symbols",
       },
     },
     price: {
       required: "This field is required",
       pattern: {
-        value: /^(?!0)[0-9.]{1,6}$/,
-        message: "Enter price from 1 to 999,999",
+        value: /^(?!0\.?$)[1-9][0-9]{0,5}(\.\d{1,2})?$/,
+        message: "Enter price from 1 to 999,999 with 2 decimal places",
       },
     },
     onStock: {
@@ -76,7 +76,6 @@ export function InputProduct({
     required: requiredMessage,
     pattern: { value: patternValue, message: patternMessage },
   } = validationRules[id]
-
 
   return (
     <div className={`relative`}>
@@ -99,19 +98,21 @@ export function InputProduct({
             message: patternMessage,
           },
         })}
-        onKeyDown={(e) => {
-  const { key, target } = e;
-  const { value } = target as HTMLInputElement;
+        onKeyDown={e => {
+          if (type === "numeric") {
+            const { key, target } = e
+            const { value } = target as HTMLInputElement
+            const regex = /^(?!\..)[0-9.]+$/
 
-  if (value.length === 0 && ["."].includes(key)) {
-    e.preventDefault();
-  }
+            if (value.length === 0 && [".", "0"].includes(key)) {
+              e.preventDefault()
+            }
 
-  if (["e", "E", "+", "-","0"].includes(key)) {
-    e.preventDefault();
-  }
-}}
-
+            if (!regex.test(key) && !["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab", "Enter"].includes(key)) {
+              e.preventDefault()
+            }
+          }
+        }}
       />
       {errors[id] && errors[id]?.message && (
         <motion.p className="font-secondary text-danger text-xs" initial={{ x: 0 }} animate={{ x: [0, -2, 2, 0] }}>

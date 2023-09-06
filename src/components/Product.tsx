@@ -6,17 +6,7 @@ import { Button } from "./ui/"
 import useUserStore from "../store/user/userStore"
 import supabase from "../utils/supabaseClient"
 
-interface Product {
-  id: string
-  title: string
-  sub_title: string
-  price: number
-  img_url: string
-  on_stock: number
-  quantity: number
-}
-
-export function Product({ ...product }: Product) {
+export function Product({ ...product }: IProduct) {
   const userCartStore = useUserCartStore()
   const userStore = useUserStore()
 
@@ -37,20 +27,24 @@ export function Product({ ...product }: Product) {
   //   }
   // }
 
-  async function increaseProductQuantity(product: IProduct) {
-    //if user - increase in store and DB
-    if (userStore.userId) {
-      const { error } = await supabase
-        .from("users_cart")
-        .update({
-          products: { ...product, quantity: product.quantity + 1 },
-          cart_quantity: userCartStore.cartQuantity + 1,
-        })
-        .eq("id", userStore.userId)
-      if (error) throw error
-    }
+  function increaseProductQuantity(product: IProduct) {
     //if !user - increase in store
-    userCartStore.increaseProductQuantity({ ...product, quantity: product.quantity + 1 })
+    userCartStore.increaseProductQuantity({ ...product })
+
+    //if user - increase in store and DB
+    increaseProductQuantityInDB()
+    async function increaseProductQuantityInDB() {
+      if (userStore.userId) {
+        const { error } = await supabase
+          .from("users_cart")
+          .update({
+            cart_products: userCartStore.products,
+            cart_quantity: userCartStore.cartQuantity + 1,
+          })
+          .eq("id", userStore.userId)
+        if (error) throw error
+      }
+    }
   }
 
   async function decreaseItemQuantity(id: string) {
@@ -58,8 +52,8 @@ export function Product({ ...product }: Product) {
       userCartStore.setCartQuantityFromDB(userCartStore.cartQuantity - 1)
 
       //that's wrong because no userId with product id (is its inside items - eq is row that equals column id)
-      const itemQuantity = await supabase.from("users_cart").select("products").eq("id", id)
-      if (itemQuantity?.data && itemQuantity.data[0].products > 0) {
+      const itemQuantity = await supabase.from("users_cart").select("cart_products").eq("id", id)
+      if (itemQuantity?.data && itemQuantity.data[0].cart_products > 0) {
         try {
           const response = await supabase.from("users_cart").update({ items: product }).eq("id", userStore.userId)
           if (response.error) throw response.error
@@ -83,7 +77,7 @@ export function Product({ ...product }: Product) {
 
     if (userStore.userId) {
       try {
-        const respose = await supabase.from("users_cart").update({ items: product }).eq("id", userStore.userId)
+        const respose = await supabase.from("users_cart").update({ cart_products: product }).eq("id", userStore.userId)
         if (respose.error) throw respose.error
 
         await supabase.from("users_cart").update({ cart_quantity: 0 }).eq("id", userStore)
@@ -92,7 +86,6 @@ export function Product({ ...product }: Product) {
       }
     }
   }
-  console.log(78, "Product render")
 
   return (
     <div className="flex flex-col mobile:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
@@ -124,7 +117,7 @@ export function Product({ ...product }: Product) {
             <Button
               className="min-w-[50px] laptop:w-fit text-2xl"
               variant="success-outline"
-              onClick={() => increaseProductQuantity(product)}>
+              onClick={() => userCartStore.increaseProductQuantity(product)}>
               +
             </Button>
             <Button
