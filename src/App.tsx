@@ -11,7 +11,6 @@ import { AdminModal, AuthModal } from "./components/ui/Modals"
 import { useModals } from "./store/ui/useModals"
 
 function App() {
-  const { isOpen, closeModal } = useModals()
 
   const darkMode = useDarkMode()
 
@@ -24,6 +23,10 @@ function App() {
       document.getElementsByTagName("html")[0].classList.add("light")
     }
   }, [darkMode])
+    
+  
+  const { isOpen, closeModal } = useModals()
+
 
   return (
     <div
