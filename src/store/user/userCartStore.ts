@@ -41,11 +41,9 @@ export const increaseProductQuantityLogic = (
     increaseProductQuantityInDB()
   } else {
     // If product already exists - update the quantity
-    console.log(44,"updatedProducts[existingProductIndex].quantity - " ,updatedProducts[existingProductIndex].quantity)
     updatedProducts[existingProductIndex].on_stock === updatedProducts[existingProductIndex].quantity
       ? updatedProducts[existingProductIndex].quantity
       : ((updatedProducts[existingProductIndex].quantity += 1), increaseProductQuantityInDB())
-    console.log(49,"updatedProducts[existingProductIndex].quantity - " ,updatedProducts[existingProductIndex].quantity)
   }
 
   async function increaseProductQuantityInDB() {
@@ -71,7 +69,6 @@ export const decreaseProductQuantityLogic = (
   cartQuantity: number,
 ): IProduct[] => {
   let updatedProducts = [...products]
-  console.log(72,"product - ",product)
   const existingProductIndex = updatedProducts.findIndex(item => item.id === product.id)
 
   updatedProducts[existingProductIndex].quantity === 0
@@ -85,8 +82,6 @@ export const decreaseProductQuantityLogic = (
     const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
     if (userLocalStorage) {
       const parsedLS = JSON.parse(userLocalStorage)
-      console.log(86,"cartQuantity - ",cartQuantity)
-      console.log(87,"cartQuantity - 1 - ",cartQuantity - 1)
       const { error } = await supabase
         .from("users_cart")
         .update({
