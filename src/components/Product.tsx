@@ -12,7 +12,6 @@ export function Product({ ...product }: IProduct) {
 
   const matchingProduct = userCartStore.products.find(item => item.id === product.id)
   const productQuantity = matchingProduct ? matchingProduct.quantity : 0
-  console.log(17, "productQuantity - ", productQuantity)
 
   async function setCartQuantity0() {
     if (userCartStore.cartQuantity === 0) return
@@ -65,7 +64,7 @@ export function Product({ ...product }: IProduct) {
             <Button
               className="font-secondary font-thin hidden laptop:flex"
               variant="danger-outline"
-              onClick={setCartQuantity0}>
+              onClick={() => userCartStore.setProductQuantity0(product)}>
               Clear <MdOutlineDeleteOutline />
             </Button>
           </div>

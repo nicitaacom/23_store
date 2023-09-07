@@ -38,7 +38,6 @@ export function Products() {
           }
         })
 
-        console.error("re-render Products.tsx")
 
         setProducts(updatedResponse)
         setIsLoading(false)
