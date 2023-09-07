@@ -62,10 +62,12 @@ export default function Register() {
       if (response.error) throw response.error
 
       if (response.data.user?.id) {
-        const { error } = await supabase
+        const { error: errorUsersInsert } = await supabase
           .from("users")
           .insert({ id: response.data.user.id, username: username, email: email })
-        if (error) throw error
+        if (errorUsersInsert) throw errorUsersInsert
+        const { error: errorUsersCartInsert } = await supabase.from("users_cart").insert({ id: response.data.user.id })
+        if (errorUsersCartInsert) throw errorUsersCartInsert
 
         userStore.authUser(response.data.user.id)
         displayResponseMessage(<p className="text-success">Check your email</p>)

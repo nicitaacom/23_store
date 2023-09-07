@@ -11,7 +11,6 @@ import { useSidebar } from "../../store/ui/useHamburgerMenu"
 import { useModals } from "../../store/ui/useModals"
 import useUserStore from "../../store/user/userStore"
 import useDarkMode from "../../store/ui/darkModeStore"
-import useUserCartStore from "../../store/user/userCartStore"
 import { Switch } from "../ui/Inputs/Switch"
 import { Input } from "../ui/Inputs/Input"
 import { DropdownContainer } from "./DropdownContainer"
@@ -21,17 +20,18 @@ import { Sidebar } from "./Sidebar"
 
 export function Navbar() {
   const navigate = useNavigate()
-  const userCartStore = useUserCartStore()
+  // const userCartStore = useUserCartStore()
   const userStore = useUserStore()
-  const { openModal } = useModals()
   const sidebar = useSidebar()
+  const { openModal } = useModals()
 
   const darkMode = useDarkMode()
 
   const [search, setSearch] = useState("")
   //if user load cartQuantity from db else from store
 
-  console.log(34, "username - ", userStore.username)
+  //I commented it to uncomment it in the feature to check for re-renders
+  // console.log(34, "username - ", userStore.username)
 
   return (
     <nav
@@ -69,17 +69,13 @@ export function Navbar() {
         <div
           className={`mr-1 cursor-pointer text-title hover:brightness-75 transition-all duration-300
         before:absolute before:w-[20px] before:h-[20px] before:bg-brand before:rounded-full before:text-title-foreground
-        before:translate-x-[80%] before:translate-y-[-20%] ${
-          userCartStore.cartQuantity === 0 ? "before:hidden" : "before:flex"
-        }
-        `}>
+        before:translate-x-[80%] before:translate-y-[-20%]`}>
           <LuShoppingCart className="cursor-pointer" size={28} />
           <div
             className={`absolute min-w-[20px] translate-x-[80%] translate-y-[-175%] laptop:translate-y-[-155%]
           flex justify-center text-center text-title-foreground 
-          text-[12px] laptop:text-[14px]
-          ${userCartStore.cartQuantity === 0 ? "hidden" : "flex"}`}>
-            {userCartStore.cartQuantity}
+          text-[12px] laptop:text-[14px]`}>
+            {/* {userCartStore.cartQuantity} */}
           </div>
         </div>
 

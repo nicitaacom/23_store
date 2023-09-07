@@ -4,55 +4,105 @@ import supabase from "../../utils/supabaseClient"
 
 export interface IProduct {
   id: string
-  label: string
+  title: string
+  sub_title: string
   price: number
   img_url: string
+  on_stock: number
   quantity: number
 }
 
 interface UserCartStore {
   products: IProduct[]
   cartQuantity: number
+  increaseProductQuantity: (product: IProduct) => void
+  decreaseProductQuantity: (product: IProduct) => void
   setCartQuantityFromDB: (cartQuantity: number) => void
-  increaseItemQuantity: (id: string) => void
-  decreaseItemQuantity: (id: string) => void
   setItemQuantity0: (id: string) => void
 }
 
-export const increaseItemQuantityinDB = async (id: string) => {
-  //db manipulations here
-  const { data } = await supabase.from("products").select("id, label, price, img_url").eq("id", id)
-
-  return data && data.length > 0
-    ? {
-        id: data[0].id,
-        label: data[0].label,
-        price: data[0].price,
-        img_url: data[0].img_url,
-        quantity: 1, //logic
-      }
-    : null
+export const getProductQuantityLogic = (products: IProduct[], id: string) => {
+  const product = products.find(produt => produt.id === id)
+  console.log(27, "product.quantity - ", product?.quantity)
+  return product?.quantity
 }
 
-export const decreaseItemQuantity = (products: IProduct[], id: string): IProduct[] => {
-  return products.map(product => {
-    if (product.id === id) {
-      return {
-        ...product,
-        quantity: product.quantity ? product.quantity - 1 : 0,
-      }
+export const increaseProductQuantityLogic = (
+  products: IProduct[],
+  product: IProduct,
+  cartQuantity: number,
+): IProduct[] => {
+  const updatedProducts = [...products]
+  const existingProductIndex = updatedProducts.findIndex(item => item.id === product.id)
+
+  if (existingProductIndex === -1) {
+    // Add new product if it doesn't exist in cart
+    updatedProducts.push({ ...product, quantity: product.quantity + 1 })
+  } else {
+    // If product already exists - update the quantity
+    updatedProducts[existingProductIndex].on_stock === updatedProducts[existingProductIndex].quantity
+      ? updatedProducts[existingProductIndex].quantity
+      : ((updatedProducts[existingProductIndex].quantity += 1), increaseProductQuantityInDB())
+  }
+
+  async function increaseProductQuantityInDB() {
+    const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
+    if (userLocalStorage) {
+      const parsedLS = JSON.parse(userLocalStorage)
+
+      const { error } = await supabase
+        .from("users_cart")
+        .update({
+          cart_products: [...products],
+          cart_quantity: cartQuantity + 1,
+        })
+        .eq("id", parsedLS.user.id)
+      if (error) throw error
     }
-    return product
-  })
+  }
+  return updatedProducts
+}
+
+export const decreaseProductQuantityLogic = (
+  products: IProduct[],
+  product: IProduct,
+  cartQuantity: number,
+): IProduct[] => {
+  const updatedProducts = [...products]
+  const existingProductIndex = updatedProducts.findIndex(item => item.id === product.id)
+
+  updatedProducts[existingProductIndex].quantity === 0
+    ? updatedProducts[existingProductIndex].quantity
+    : ((updatedProducts[existingProductIndex].quantity -= 1), decreaseProductQuantityInDB())
+
+  async function decreaseProductQuantityInDB() {
+    const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
+    if (userLocalStorage) {
+      const parsedLS = JSON.parse(userLocalStorage)
+
+      const { error } = await supabase
+        .from("users_cart")
+        .update({
+          cart_products: [...products],
+          cart_quantity: cartQuantity + 1,
+        })
+        .eq("id", parsedLS.user.id)
+      if (error) throw error
+    }
+  }
+  return updatedProducts
 }
 
 export const setCartQuantityFromDB = (cartQuantity: number) => {
+  console.log(52, "setCartQuantityFromDB")
   //I don't do backend request here because I want useEffect to fire this function
   //I mean I don't call this function on click
   return cartQuantity
 }
 
 export const setItemQuantity0 = (products: IProduct[], id: string): IProduct[] => {
+  console.log(59, "setItemQuantity0")
+
   return products.map(product => {
     if (product.id === id) {
       return {
@@ -64,24 +114,29 @@ export const setItemQuantity0 = (products: IProduct[], id: string): IProduct[] =
   })
 }
 
+// export const setUserCartFromDB = (products: IProduct[], cartQuantity: number): IProduct[] => {
+//   console.log(75, "setUserCartFromDB")
+
+//   return {}
+// }
+
 type SetState = (fn: (prevState: UserCartStore) => UserCartStore) => void
 
 const userCartStore = (set: SetState): UserCartStore => ({
   products: [],
   cartQuantity: 0,
-  async increaseItemQuantity(id: string) {
-    const newProduct = await increaseItemQuantityinDB(id)
-    if (newProduct)
-      set((state: UserCartStore) => ({
-        ...state,
-        products: [...state.products, newProduct],
-        cartQuantity: this.cartQuantity + 1,
-      }))
-  },
-  decreaseItemQuantity(id: string) {
+  increaseProductQuantity(product: IProduct) {
     set((state: UserCartStore) => ({
       ...state,
-      products: decreaseItemQuantity(state.products, id),
+      products: increaseProductQuantityLogic(state.products, product, state.cartQuantity),
+      cartQuantity: state.cartQuantity + 1,
+    }))
+  },
+  decreaseProductQuantity(product: IProduct) {
+    set((state: UserCartStore) => ({
+      ...state,
+      products: decreaseProductQuantityLogic(state.products, product, state.cartQuantity),
+      cartQuantity: state.cartQuantity === 0 ? 0 : state.cartQuantity - 1,
     }))
   },
   setCartQuantityFromDB(cartQuantity: number) {
