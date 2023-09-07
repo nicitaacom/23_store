@@ -20,7 +20,7 @@
 
     /* Support colors */
     --info: 219deg 83% 59%;
-    --warning: 22deg 84%, 27%;
+    --warning: 22deg 84% 27%;
     --danger: 0deg 90% 40%;
     --success: 118deg 80% 23%;
   }
@@ -40,7 +40,7 @@
 
     /* Support colors */
     --info: 219deg 83% 59%;
-    --warning: 22deg 84%, 73%;
+    --warning: 22deg 84% 73%;
     --danger: 0deg 80% 69%;
     --success: 118deg 80% 77%;
   }
@@ -85,22 +85,24 @@ input::-webkit-inner-spin-button {
 
 /* ===== Scrollbar CSS ===== */
 /* Firefox */
-* {
-  scrollbar-width: auto;
-  scrollbar-color: #6b7280 #ffffff;
-}
+@media (min-width: 1024px) {
+  * {
+    scrollbar-width: auto;
+    scrollbar-color: #6b7280 #ffffff;
+  }
 
-/* Chrome, Edge, and Safari */
-*::-webkit-scrollbar {
-  width: 16px;
-}
+  /* Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 16px;
+  }
 
-*::-webkit-scrollbar-track {
-  background: #303030;
-}
+  *::-webkit-scrollbar-track {
+    background: #303030;
+  }
 
-*::-webkit-scrollbar-thumb {
-  background-color: #6b7280;
-  border-radius: 8px;
-  border: 3px solid #303030;
+  *::-webkit-scrollbar-thumb {
+    background-color: #6b7280;
+    border-radius: 8px;
+    border: 3px solid #303030;
+  }
 }

@@ -11,7 +11,6 @@ import { AdminModal, AuthModal, CartModal } from "./components/ui/Modals"
 import { useModals } from "./store/ui/useModals"
 
 function App() {
-
   const darkMode = useDarkMode()
 
   useEffect(() => {
@@ -23,10 +22,8 @@ function App() {
       document.getElementsByTagName("html")[0].classList.add("light")
     }
   }, [darkMode])
-    
-  
-  const { isOpen, closeModal } = useModals()
 
+  const { isOpen, closeModal } = useModals()
 
   return (
     <div
