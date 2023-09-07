@@ -31,9 +31,7 @@ export function Products() {
 
         //add quantity for each product because (user A quantity - 2 - user B - quantity 3 )
         const updatedResponse = response.data.map(product => {
-          console.log(34, "userCartStore.products - ", userCartStore.products)
           const matchingProduct = userCartStore.products.find(item => item.id === product.id)
-
           return {
             ...product,
             quantity: matchingProduct ? matchingProduct.quantity : 0,

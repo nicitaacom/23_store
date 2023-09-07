@@ -10,67 +10,9 @@ export function Product({ ...product }: IProduct) {
   const userCartStore = useUserCartStore()
   const userStore = useUserStore()
 
-  // async function increaseItemQuantity(id: string) {
-  //   try {
-  //     if (userStore.userId) {
-  //       const { data } = await supabase.from("users_cart").select("cart_quantity").eq("id", userStore.userId)
-  //       const cartQuantity = data?.[0]?.cart_quantity ?? 0
-  //       await supabase
-  //         .from("users_cart")
-  //         .update({ cart_quantity: cartQuantity + 1 })
-  //         .eq("id", userStore.userId)
-  //     }
-  //     console.log("id - ", id)
-  //     userCartStore.increaseItemQuantity(id)
-  //   } catch (error) {
-  //     console.error("increaseItemQuantity - ", error)
-  //   }
-  // }
-
-  function increaseProductQuantity(product: IProduct) {
-    //if !user - increase in store
-    userCartStore.increaseProductQuantity({ ...product })
-
-    //if user - increase in store and DB
-    increaseProductQuantityInDB()
-    async function increaseProductQuantityInDB() {
-      if (userStore.userId) {
-        const { error } = await supabase
-          .from("users_cart")
-          .update({
-            cart_products: userCartStore.products,
-            cart_quantity: userCartStore.cartQuantity + 1,
-          })
-          .eq("id", userStore.userId)
-        if (error) throw error
-      }
-    }
-  }
-
-  async function decreaseItemQuantity(id: string) {
-    if (userCartStore.cartQuantity > 0) {
-      userCartStore.setCartQuantityFromDB(userCartStore.cartQuantity - 1)
-
-      //that's wrong because no userId with product id (is its inside items - eq is row that equals column id)
-      const itemQuantity = await supabase.from("users_cart").select("cart_products").eq("id", id)
-      if (itemQuantity?.data && itemQuantity.data[0].cart_products > 0) {
-        try {
-          const response = await supabase.from("users_cart").update({ items: product }).eq("id", userStore.userId)
-          if (response.error) throw response.error
-
-          const { data } = await supabase.from("users_cart").select("cart_quantity").eq("id", userStore.userId)
-          const cartQuantity = data?.[0]?.cart_quantity ?? 0
-
-          await supabase
-            .from("users_cart")
-            .update({ cart_quantity: cartQuantity - 1 })
-            .eq("id", userStore.userId)
-        } catch (error) {
-          console.error("decreaseItemQuantity - ", error)
-        }
-      }
-    }
-  }
+  const matchingProduct = userCartStore.products.find(item => item.id === product.id)
+  const productQuantity = matchingProduct ? matchingProduct.quantity : 0
+  console.log(17, "productQuantity - ", productQuantity)
 
   async function setCartQuantity0() {
     if (userCartStore.cartQuantity === 0) return
@@ -101,7 +43,7 @@ export function Product({ ...product }: IProduct) {
             <h1 className="text-xl">{product.title}</h1>
             <p className="text-sm text-subTitle">{product.sub_title}</p>
             <p className="text-sm text-subTitle">Left on stock:{product.on_stock}</p>
-            <p className="text-sm text-subTitle">Quantity:</p>
+            <p className="text-sm text-subTitle">{productQuantity === 0 ? "" : `Quantity:${productQuantity}`}</p>
           </div>
           <h1 className="text-lg py-[2px]">{formatCurrency(product.price)}</h1>
         </div>
@@ -111,7 +53,7 @@ export function Product({ ...product }: IProduct) {
             <Button
               className="min-w-[50px] laptop:w-fit text-2xl"
               variant="danger-outline"
-              onClick={() => decreaseItemQuantity(product.id)}>
+              onClick={() => userCartStore.decreaseProductQuantity(product)}>
               -
             </Button>
             <Button

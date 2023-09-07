@@ -1,6 +1,5 @@
 import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
-import useUserStore from "./userStore"
 import supabase from "../../utils/supabaseClient"
 
 export interface IProduct {
@@ -16,10 +15,16 @@ export interface IProduct {
 interface UserCartStore {
   products: IProduct[]
   cartQuantity: number
-  setCartQuantityFromDB: (cartQuantity: number) => void
   increaseProductQuantity: (product: IProduct) => void
-  decreaseItemQuantity: (id: string) => void
+  decreaseProductQuantity: (product: IProduct) => void
+  setCartQuantityFromDB: (cartQuantity: number) => void
   setItemQuantity0: (id: string) => void
+}
+
+export const getProductQuantityLogic = (products: IProduct[], id: string) => {
+  const product = products.find(produt => produt.id === id)
+  console.log(27, "product.quantity - ", product?.quantity)
+  return product?.quantity
 }
 
 export const increaseProductQuantityLogic = (
@@ -35,9 +40,11 @@ export const increaseProductQuantityLogic = (
     updatedProducts.push({ ...product, quantity: product.quantity + 1 })
   } else {
     // If product already exists - update the quantity
-    updatedProducts[existingProductIndex].quantity += 1
+    updatedProducts[existingProductIndex].on_stock === updatedProducts[existingProductIndex].quantity
+      ? updatedProducts[existingProductIndex].quantity
+      : ((updatedProducts[existingProductIndex].quantity += 1), increaseProductQuantityInDB())
   }
-  increaseProductQuantityInDB()
+
   async function increaseProductQuantityInDB() {
     const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
     if (userLocalStorage) {
@@ -56,17 +63,34 @@ export const increaseProductQuantityLogic = (
   return updatedProducts
 }
 
-export const decreaseItemQuantity = (products: IProduct[], id: string): IProduct[] => {
-  console.log(39, "decreaseItemQuantity - ")
-  return products.map(product => {
-    if (product.id === id) {
-      return {
-        ...product,
-        quantity: product.quantity ? product.quantity - 1 : 0,
-      }
+export const decreaseProductQuantityLogic = (
+  products: IProduct[],
+  product: IProduct,
+  cartQuantity: number,
+): IProduct[] => {
+  const updatedProducts = [...products]
+  const existingProductIndex = updatedProducts.findIndex(item => item.id === product.id)
+
+  updatedProducts[existingProductIndex].quantity === 0
+    ? updatedProducts[existingProductIndex].quantity
+    : ((updatedProducts[existingProductIndex].quantity -= 1), decreaseProductQuantityInDB())
+
+  async function decreaseProductQuantityInDB() {
+    const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
+    if (userLocalStorage) {
+      const parsedLS = JSON.parse(userLocalStorage)
+
+      const { error } = await supabase
+        .from("users_cart")
+        .update({
+          cart_products: [...products],
+          cart_quantity: cartQuantity + 1,
+        })
+        .eq("id", parsedLS.user.id)
+      if (error) throw error
     }
-    return product
-  })
+  }
+  return updatedProducts
 }
 
 export const setCartQuantityFromDB = (cartQuantity: number) => {
@@ -108,10 +132,11 @@ const userCartStore = (set: SetState): UserCartStore => ({
       cartQuantity: state.cartQuantity + 1,
     }))
   },
-  decreaseItemQuantity(id: string) {
+  decreaseProductQuantity(product: IProduct) {
     set((state: UserCartStore) => ({
       ...state,
-      products: decreaseItemQuantity(state.products, id),
+      products: decreaseProductQuantityLogic(state.products, product, state.cartQuantity),
+      cartQuantity: state.cartQuantity === 0 ? 0 : state.cartQuantity - 1,
     }))
   },
   setCartQuantityFromDB(cartQuantity: number) {
