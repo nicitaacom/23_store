@@ -38,6 +38,8 @@ export function Products() {
           }
         })
 
+        console.error("re-render Products.tsx")
+
         setProducts(updatedResponse)
         setIsLoading(false)
       } catch (error) {
@@ -45,6 +47,7 @@ export function Products() {
       }
     }
     fetchProducts()
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
