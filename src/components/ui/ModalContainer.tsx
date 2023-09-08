@@ -15,13 +15,14 @@ export function ModalContainer({ isOpen, onClose, children, className }: ModalCo
   const [showModal, setShowModal] = useState(isOpen)
 
   /* onOpen - show modal - disable scroll and scrollbar - hide navbar - show bg */
+  const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0
   useEffect(() => {
     setShowModal(isOpen)
     if (isOpen) {
       document.body.style.overflow = "hidden"
-      document.body.style.width = "calc(100% - 17px)"
+      if (!isTouchDevice) document.body.style.width = "calc(100% - 17px)"
     }
-  }, [isOpen])
+  }, [isOpen, isTouchDevice])
 
   /* onClose - close modal - show navbar - show scrollbar */
   function closeModal() {
