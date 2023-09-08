@@ -98,12 +98,11 @@ export const setProductQuantity0Logic = (products: IProduct[], product: IProduct
   updatedProducts[existingProductIndex].quantity = 0
   updatedProducts = updatedProducts.filter(product => product.quantity > 0)
 
-  const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
-  if (userLocalStorage) {
-    const parsedLS = JSON.parse(userLocalStorage)
-    setProductQuantity0InDB()
-
-    async function setProductQuantity0InDB() {
+  setProductQuantity0InDB()
+  async function setProductQuantity0InDB() {
+    const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
+    if (userLocalStorage) {
+      const parsedLS = JSON.parse(userLocalStorage)
       const { error } = await supabase
         .from("users_cart")
         .update({
@@ -122,11 +121,11 @@ export const setCartQuantity0Logic = (products: IProduct[]) => {
   let updatedProducts = [...products]
   updatedProducts = []
 
-  const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
-  if (userLocalStorage) {
-    const parsedLS = JSON.parse(userLocalStorage)
-    setCartQuantity0InDB()
-    async function setCartQuantity0InDB() {
+  setCartQuantity0InDB()
+  async function setCartQuantity0InDB() {
+    const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
+    if (userLocalStorage) {
+      const parsedLS = JSON.parse(userLocalStorage)
       const { error } = await supabase
         .from("users_cart")
         .update({

@@ -22,7 +22,7 @@ export function ModalContainer({ isOpen, onClose, children, className }: ModalCo
       document.body.style.overflow = "hidden"
       if (!isTouchDevice) document.body.style.width = "calc(100% - 17px)"
     }
-  }, [isOpen])
+  }, [isOpen, isTouchDevice])
 
   /* onClose - close modal - show navbar - show scrollbar */
   function closeModal() {
