@@ -38,7 +38,6 @@ export function Products() {
           }
         })
 
-
         setProducts(updatedResponse)
         setIsLoading(false)
       } catch (error) {

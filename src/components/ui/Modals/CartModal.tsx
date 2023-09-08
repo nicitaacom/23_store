@@ -38,12 +38,12 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                   </div>
                   <div className="flex flex-col tablet:flex-row gap-y-4 gap-x-8 justify-between items-center p-4">
                     <div className="flex flex-col">
-                      <h1 className="text-lg flex flex-row justify-center tablet:justify-start">
+                      <h5 className="text-lg flex flex-row justify-center tablet:justify-start">
                         Quantity:&nbsp;<p>{product.quantity}</p>
-                      </h1>
-                      <h1 className="text-lg flex flex-row justify-center tablet:justify-start">
+                      </h5>
+                      <h5 className="text-lg flex flex-row justify-center tablet:justify-start">
                         Sub-total:&nbsp;<p>{formatCurrency(product.quantity * product.price)}</p>
-                      </h1>
+                      </h5>
                     </div>
                     <div className="flex flex-row gap-x-2 justify-end max-h-[42px]">
                       <Button
@@ -72,7 +72,15 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
           </section>
           <section className="flex flex-col tablet:flex-row gap-y-4 gap-x-4 justify-between items-center w-full px-4 laptop:px-0">
             <h1 className="text-2xl flex flex-row">
-              Total:&nbsp;<p>{formatCurrency(userCartStore.totalPrice())}</p>
+              Total:&nbsp;
+              <span>
+                {formatCurrency(
+                  userCartStore.products.reduce(
+                    (totalPrice, product) => totalPrice + product.price * product.quantity,
+                    0,
+                  ),
+                )}
+              </span>
             </h1>
             <div className="flex flex-col mobile:flex-row gap-x-4 gap-y-4">
               <Button

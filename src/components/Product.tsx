@@ -29,7 +29,7 @@ export function Product({ ...product }: IProduct) {
   }
 
   return (
-    <div className="flex flex-col mobile:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
+    <article className="flex flex-col mobile:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
       <img
         className="w-full mobile:max-w-[40%] laptop:max-w-[30%] laptop:h-[200px] object-cover
       laptop:mr-2"
@@ -42,16 +42,18 @@ export function Product({ ...product }: IProduct) {
             <h1 className="text-xl">{product.title}</h1>
             <p className="text-sm text-subTitle">{product.sub_title}</p>
             <p className="text-sm text-subTitle">Left on stock:{product.on_stock}</p>
-            <p
-              className={`text-sm text-subTitle ${
-                productQuantity === 0 ? "invisible" : "visible"
-              } `}>{`Quantity:${productQuantity}`}</p>
           </div>
           <h1 className="text-lg py-[2px]">{formatCurrency(product.price)}</h1>
         </div>
-        {/* fix layout here - do it as in cartModal */}
         <div className="flex flex-col laptop:flex-row justify-between pr-2">
-          <div className="flex flex-col"></div>
+          <div className="flex flex-col">
+            <h5 className={`text-lg ${productQuantity === 0 ? "invisible" : "visible"}`}>
+              Quantity: <span>{productQuantity}</span>
+            </h5>
+            <h5 className="text-lg flex flex-row justify-center tablet:justify-start">
+              Sub-total:&nbsp;<p>{formatCurrency(productQuantity * product.price)}</p>
+            </h5>
+          </div>
           <div className="flex flex-row gap-x-2 justify-end">
             <Button
               className="min-w-[50px] laptop:w-fit text-2xl"
@@ -74,6 +76,6 @@ export function Product({ ...product }: IProduct) {
           </div>
         </div>
       </div>
-    </div>
+    </article>
   )
 }

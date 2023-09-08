@@ -18,9 +18,9 @@ export function ModalContainer({ isOpen, onClose, children, className }: ModalCo
   const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0
   useEffect(() => {
     setShowModal(isOpen)
-    document.body.style.overflow = "hidden"
-    if (isOpen && !isTouchDevice) {
-      document.body.style.width = "calc(100% - 17px)"
+    if (isOpen) {
+      document.body.style.overflow = "hidden"
+      if (!isTouchDevice) document.body.style.width = "calc(100% - 17px)"
     }
   }, [isOpen])
 

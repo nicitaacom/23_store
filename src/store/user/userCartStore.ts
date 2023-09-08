@@ -15,22 +15,10 @@ export interface IProduct {
 interface UserCartStore {
   products: IProduct[]
   cartQuantity: number
-  totalPrice: () => number
   increaseProductQuantity: (product: IProduct) => void
   decreaseProductQuantity: (product: IProduct) => void
   setProductQuantity0: (product: IProduct) => void
   setCartQuantity0: () => void
-}
-
-export const totalPriceLogic = (products: IProduct[]): number => {
-  const totalPrice = products.reduce((totalPrice, product) => totalPrice + product.price * product.quantity, 0)
-  return totalPrice
-}
-
-export const getProductQuantityLogic = (products: IProduct[], id: string) => {
-  const product = products.find(produt => produt.id === id)
-  console.log(27, "product.quantity - ", product?.quantity)
-  return product?.quantity
 }
 
 export const increaseProductQuantityLogic = (
@@ -158,9 +146,6 @@ type SetState = (fn: (prevState: UserCartStore) => UserCartStore) => void
 const userCartStore = (set: SetState): UserCartStore => ({
   products: [],
   cartQuantity: 0,
-  totalPrice() {
-    return totalPriceLogic(this.products)
-  },
   increaseProductQuantity(product: IProduct) {
     set((state: UserCartStore) => ({
       ...state,

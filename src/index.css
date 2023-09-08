@@ -50,11 +50,17 @@
   border-color: hsl(var(--border-color));
 }
 
-h1 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: hsl(var(--title));
 }
 
-p {
+p,
+span {
   color: hsl(var(--subTitle));
 }
 
