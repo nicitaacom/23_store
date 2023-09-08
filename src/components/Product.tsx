@@ -3,30 +3,12 @@ import { MdOutlineDeleteOutline } from "react-icons/md"
 import { formatCurrency } from "../utils/currencyFormatter"
 import useUserCartStore, { IProduct } from "../store/user/userCartStore"
 import { Button } from "./ui/"
-import useUserStore from "../store/user/userStore"
-import supabase from "../utils/supabaseClient"
 
 export function Product({ ...product }: IProduct) {
   const userCartStore = useUserCartStore()
-  const userStore = useUserStore()
 
   const matchingProduct = userCartStore.products.find(item => item.id === product.id)
   const productQuantity = matchingProduct ? matchingProduct.quantity : 0
-
-  async function setCartQuantity0() {
-    if (userCartStore.cartQuantity === 0) return
-
-    if (userStore.userId) {
-      try {
-        const respose = await supabase.from("users_cart").update({ cart_products: product }).eq("id", userStore.userId)
-        if (respose.error) throw respose.error
-
-        await supabase.from("users_cart").update({ cart_quantity: 0 }).eq("id", userStore)
-      } catch (error) {
-        console.error("setItemQuantity0 - ", error)
-      }
-    }
-  }
 
   return (
     <article className="flex flex-col mobile:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
