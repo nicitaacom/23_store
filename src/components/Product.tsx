@@ -27,7 +27,7 @@ export function Product({ ...product }: IProduct) {
           title={product.title}
         />
       )}
-      <section className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-4 py-2">
+      <section className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-4 pt-2 pb-4">
         <section className="flex flex-col gap-y-4 tablet:gap-y-0 justify-between items-center tablet:items-start text-brand">
           <div className="flex flex-row gap-x-2 justify-between items-center w-full">
             <h1 className="text-2xl tablet:text-xl desktop:text-2xl">{product.title}</h1>
@@ -41,7 +41,7 @@ export function Product({ ...product }: IProduct) {
           </div>
         </section>
         <section className="flex flex-col tablet:flex-row gap-y-4 gap-x-4 justify-between">
-          <div className={`flex flex-col ${productQuantity === 0 ? "invisible" : "visible"}`}>
+          <div className={`flex flex-col ${productQuantity === 0 ? "hidden" : "flex"}`}>
             <h5 className={`text-xl tablet:text-base laptop:text-lg text-center tablet:text-start`}>
               Quantity: <span>{productQuantity}</span>
             </h5>

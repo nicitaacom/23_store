@@ -26,19 +26,21 @@ function App() {
   const { isOpen, closeModal } = useModals()
 
   return (
-    <div
-      className="bg-background text-title
-    min-h-screen transition-colors duration-300">
+    <>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Routes>
-      <AdminModal isOpen={isOpen["AdminModal"]} onClose={() => closeModal("AdminModal")} label="Admin panel" />
-      <AuthModal isOpen={isOpen["AuthModal"]} onClose={() => closeModal("AuthModal")} label="Auth" />
-      <CartModal isOpen={isOpen["CartModal"]} onClose={() => closeModal("CartModal")} label="Cart" />
-    </div>
+      <div
+        className="bg-background text-title
+      min-h-screen transition-colors duration-300 pt-[62px]">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+        <AdminModal isOpen={isOpen["AdminModal"]} onClose={() => closeModal("AdminModal")} label="Admin panel" />
+        <AuthModal isOpen={isOpen["AuthModal"]} onClose={() => closeModal("AuthModal")} label="Auth" />
+        <CartModal isOpen={isOpen["CartModal"]} onClose={() => closeModal("CartModal")} label="Cart" />
+      </div>
+    </>
   )
 }
 
