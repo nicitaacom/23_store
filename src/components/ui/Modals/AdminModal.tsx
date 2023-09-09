@@ -84,14 +84,18 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
   async function createProduct(title: string, subTitle: string, price: number, onStock: number) {
     try {
       if (images.length > 0) {
-        const image = images[0]
-        if (image?.file && userStore.userId) {
-          const { data, error } = await supabase.storage
-            .from("public")
-            .upload(`${userStore.userId}/${image.file.name}`, image.file, { upsert: true })
-          if (error) throw error
+        const imagesArray = await Promise.all(
+          images.map(async (image) => {
+            if (image?.file && userStore.userId) {
+              const {data,error} = await supabase.storage.from("public")
+              .upload(`${userStore.userId}/${image.file.name}`,image.file,{upsert:true})
+              if (error) throw error
 
-          const response = supabase.storage.from("public").getPublicUrl(data.path)
+              const response = supabase.storage.from("public").getPublicUrl(data.path)
+              return response.data.publicUrl
+            }
+          })
+        )
 
           const updatedUserResponse = await supabase
             .from("products")
@@ -100,13 +104,12 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
               sub_title: subTitle,
               price: price,
               on_stock: onStock,
-              img_url: response.data.publicUrl,
+              img_url: imagesArray,
             })
             .eq("user_id", userStore.userId)
           if (updatedUserResponse.error) throw updatedUserResponse.error
           displayResponseMessage(<p className="text-success">Product added</p>)
-        }
-      } else {
+        } else {
         displayResponseMessage(<p className="text-danger">Upload the image</p>)
       }
     } catch (error) {

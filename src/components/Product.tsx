@@ -3,6 +3,7 @@ import { MdOutlineDeleteOutline } from "react-icons/md"
 import { formatCurrency } from "../utils/currencyFormatter"
 import useUserCartStore, { IProduct } from "../store/user/userCartStore"
 import { Button } from "./ui/"
+import { Slider } from "./Slider"
 
 export function Product({ ...product }: IProduct) {
   const userCartStore = useUserCartStore()
@@ -11,53 +12,65 @@ export function Product({ ...product }: IProduct) {
   const productQuantity = matchingProduct ? matchingProduct.quantity : 0
 
   return (
-    <article className="flex flex-col mobile:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
-      <img
-        className="w-full mobile:max-w-[40%] laptop:max-w-[30%] laptop:h-[200px] object-cover
-      laptop:mr-2"
-        src={product.img_url}
-        alt="image"
-      />
-      <div className="flex flex-col justify-between gap-y-2 w-full px-4 py-2">
-        <div className="flex flex-row justify-between items-start text-brand">
-          <div className="flex flex-col">
-            <h1 className="text-xl">{product.title}</h1>
-            <p className="text-sm text-subTitle">{product.sub_title}</p>
-            <p className="text-sm text-subTitle">Left on stock:{product.on_stock}</p>
+    <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
+      {product.img_url.length === 1 ? (
+        <img
+          className="w-full tablet:aspect-video h-[300px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit object-cover"
+          src={product.img_url[0]}
+          alt="image"
+        />
+      ) : (
+        <Slider
+          containerClassName="tablet:w-fit"
+          className="h-[300px]"
+          images={product.img_url}
+          title={product.title}
+        />
+      )}
+      <section className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-4 py-2">
+        <section className="flex flex-col gap-y-4 tablet:gap-y-0 justify-between items-center tablet:items-start text-brand">
+          <div className="flex flex-row gap-x-2 justify-between items-center w-full">
+            <h1 className="text-2xl tablet:text-xl desktop:text-2xl">{product.title}</h1>
+            <h1 className="text-2xl tablet:text-lg desktop:text-xl">{formatCurrency(product.price)}</h1>
           </div>
-          <h1 className="text-lg py-[2px]">{formatCurrency(product.price)}</h1>
-        </div>
-        <div className="flex flex-col laptop:flex-row justify-between pr-2">
           <div className="flex flex-col">
-            <h5 className={`text-lg ${productQuantity === 0 ? "invisible" : "visible"}`}>
+            <p className="text-lg tablet:text-sm text-subTitle text-center tablet:text-start">{product.sub_title}</p>
+            <p className="text-lg tablet:text-sm text-subTitle text-center tablet:text-start">
+              Left on stock:{product.on_stock}
+            </p>
+          </div>
+        </section>
+        <section className="flex flex-col tablet:flex-row gap-y-4 gap-x-4 justify-between">
+          <div className={`flex flex-col ${productQuantity === 0 ? "invisible" : "visible"}`}>
+            <h5 className={`text-xl tablet:text-base laptop:text-lg text-center tablet:text-start`}>
               Quantity: <span>{productQuantity}</span>
             </h5>
-            <h5 className="text-lg flex flex-row justify-center tablet:justify-start">
+            <h5 className="text-xl tablet:text-base laptop:text-lg text-center tablet:text-start flex flex-row justify-center tablet:justify-start">
               Sub-total:&nbsp;<p>{formatCurrency(productQuantity * product.price)}</p>
             </h5>
           </div>
-          <div className="flex flex-row gap-x-2 justify-end">
+          <div className="flex flex-row gap-x-2 justify-center tablet:justify-end items-center">
             <Button
-              className="min-w-[50px] laptop:w-fit text-2xl"
+              className="min-w-[50px] max-h-[50px] laptop:w-fit text-2xl"
               variant="danger-outline"
               onClick={() => userCartStore.decreaseProductQuantity(product)}>
               -
             </Button>
             <Button
-              className="min-w-[50px] laptop:w-fit text-2xl"
+              className="min-w-[50px] max-h-[50px] laptop:w-fit text-2xl"
               variant="success-outline"
               onClick={() => userCartStore.increaseProductQuantity(product)}>
               +
             </Button>
             <Button
-              className="font-secondary font-thin hidden laptop:flex"
+              className="font-secondary font-thin max-h-[50px]"
               variant="danger-outline"
               onClick={() => userCartStore.setProductQuantity0(product)}>
               Clear <MdOutlineDeleteOutline />
             </Button>
           </div>
-        </div>
-      </div>
+        </section>
+      </section>
     </article>
   )
 }
