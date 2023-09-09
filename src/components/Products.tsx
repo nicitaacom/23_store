@@ -10,13 +10,13 @@ export function Products() {
   const userCartStore = useUserCartStore()
 
   const [isLoading, setIsLoading] = useState(false)
-  const [products, setProducts] = useState([
+  const [products, setProducts] = useState<IProduct[]>([
     {
       id: "",
       title: "",
       sub_title: "",
       price: 0,
-      img_url: "",
+      img_url: [""],
       on_stock: 0,
       quantity: 0,
     },
@@ -28,7 +28,7 @@ export function Products() {
         setIsLoading(true)
         const response = await supabase.from("products").select("*")
         if (response.error) throw response.error
-
+        console.log(31, "response - ", response)
         //add quantity for each product because (user A quantity - 2 - user B - quantity 3 )
         const updatedResponse = response.data.map(product => {
           const matchingProduct = userCartStore.products.find(item => item.id === product.id)
@@ -50,8 +50,8 @@ export function Products() {
 
   return (
     <div
-      className="border-[1px] border-solid broder-border-color rounded 
-    w-full max-w-[1440px]">
+      className="tablet:border-[1px] border-solid broder-border-color rounded 
+    w-full max-w-[1440px] ">
       <div className="flex flex-row justify-between min-w-[80vw] px-4">
         <h1 className="hidden tablet:flex text-lg">Products:</h1>
       </div>
@@ -59,11 +59,14 @@ export function Products() {
         {isLoading ? (
           <ProductsSkeleton />
         ) : (
-          products.map(product => (
-            <li key={product.id}>
-              <Product {...(product as IProduct)} />
-            </li>
-          ))
+          products.map(product => {
+            console.log(63, "product - ", product)
+            return (
+              <li key={product.id}>
+                <Product {...product} />
+              </li>
+            )
+          })
         )}
       </ul>
     </div>

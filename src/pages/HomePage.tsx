@@ -36,7 +36,7 @@ export function HomePage() {
   }, [userStore])
 
   return (
-    <div className="text-2xl text-white min-h-screen flex flex-col gap-y-8 justify-between items-center py-12">
+    <div className="text-2xl text-white flex flex-col gap-y-8 justify-between items-center py-12">
       <section className="flex flex-col gap-y-4">
         <Products />
       </section>

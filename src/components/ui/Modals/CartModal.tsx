@@ -4,6 +4,7 @@ import useUserCartStore from "../../../store/user/userCartStore"
 import { formatCurrency } from "../../../utils/currencyFormatter"
 import { useModals } from "../../../store/ui"
 import { AreYouSureModal } from "."
+import { Slider } from "../.."
 
 interface CartModalProps {
   isOpen: boolean
@@ -18,7 +19,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   return (
     <>
       <ModalContainer
-        className="w-screen h-screen laptop:max-w-[768px] laptop:max-h-[480px] overflow-y-scroll"
+        className="w-screen h-screen laptop:max-w-[1024px] laptop:max-h-[640px] overflow-y-scroll"
         isOpen={isOpen}
         onClose={onClose}>
         <div className="flex flex-col gap-y-8 justify-center items-center mb-8 laptop:w-[90%] laptop:mx-auto">
@@ -26,11 +27,21 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
           <section className="flex flex-col gap-y-8 w-full">
             {userCartStore.products.map(product => (
               <article className="flex flex-col laptop:flex-row border-[1px]" key={product.id}>
-                <img
-                  className="h-[225px] mobile:h-[275px] tablet:h-[350px] laptop:h-[150px] object-cover"
-                  src={product.img_url}
-                  alt={product.title}
-                />
+                {product.img_url.length === 1 ? (
+                  <img
+                    className="w-full tablet:aspect-video h-[200px] mobile:h-[250px] tablet:h-[400px] laptop:h-[200px]
+                     laptop:w-fit object-cover"
+                    src={product.img_url[0]}
+                    alt={product.title}
+                  />
+                ) : (
+                  <Slider
+                    images={product.img_url}
+                    title={product.title}
+                    className="w-full tablet:aspect-video h-[200px] mobile:h-[250px] tablet:h-[400px] tablet:w-full
+                     laptop:h-[200px] desktop:h-[200px] laptop:w-fit"
+                  />
+                )}
                 <div className="flex flex-col justify-between w-full">
                   <div className="flex flex-row gap-x-8 justify-between items-center p-4">
                     <h1 className="text-2xl text-center truncate">{product.title}</h1>
