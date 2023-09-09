@@ -5,6 +5,8 @@ import { formatCurrency } from "../../../utils/currencyFormatter"
 import { useModals } from "../../../store/ui"
 import { AreYouSureModal } from "."
 import { Slider } from "../.."
+import { Input } from "../Inputs"
+import { useState } from "react"
 
 interface CartModalProps {
   isOpen: boolean
@@ -15,6 +17,9 @@ interface CartModalProps {
 export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   const userCartStore = useUserCartStore()
   const { isOpen: areYouSureIsOpen, closeModal, openModal } = useModals()
+
+  const [city,setCity] = useState("")
+  const [adress,setAdress] = useState("")
 
   return (
     <>
@@ -82,6 +87,13 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                     </div>
                   </article>
                 ))}
+              </section>
+
+              <section className="flex flex-col tablet:flex-row gap-x-4 gap-y-2 w-[90%] mx-auto">
+                  <Input className="w-full tablet:w-[50%]" value={city} onChange={e => setCity(e.target.value)}
+                  placeholder="City"/>
+                  <Input className="w-full tablet:w-[50%]" value={adress} onChange={e => setAdress(e.target.value)}
+                  placeholder="Street / house / floor / door"/>
               </section>
 
               <section className="flex flex-col tablet:flex-row gap-y-4 gap-x-4 justify-between items-center w-[90%] mx-auto px-4 laptop:px-0">
