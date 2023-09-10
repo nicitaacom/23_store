@@ -3,3 +3,4 @@ import Login from "./LoginPage"
 export { Register, Login }
 
 export { HomePage } from "./HomePage"
+export { PaymentStatusPage } from "./PaymentStatusPage"

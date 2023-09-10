@@ -17,8 +17,14 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    
+
+    /* Other */
+    "outDir": "./server"
+    
+    
   },
-  "include": ["src", "./env.d.ts"],
+  "include": ["src", "./env.d.ts", "server.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -49,7 +49,7 @@ export function Product({ ...product }: IProduct) {
               Sub-total:&nbsp;<p>{formatCurrency(productQuantity * product.price)}</p>
             </h5>
           </div>
-          <div className="flex flex-row gap-x-2 justify-center tablet:justify-end items-center">
+          <div className={`flex flex-row gap-x-2 justify-center tablet:justify-end items-center ${productQuantity === 0 && "w-full"}`}>
             <Button
               className="min-w-[50px] max-h-[50px] laptop:w-fit text-2xl"
               variant="danger-outline"

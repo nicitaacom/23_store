@@ -4,9 +4,10 @@ interface TimerProps {
   seconds: number
   children?: React.ReactNode
   label?: string
+  action?:() => void
 }
 
-export function Timer({ seconds, children, label }: TimerProps) {
+export function Timer({ seconds, children, label,action }: TimerProps) {
   const [countDown, setCountDown] = useState(seconds)
   const timerRef = useRef<NodeJS.Timeout | undefined>()
   const [isChildren, setIsChildren] = useState(false)
@@ -22,18 +23,21 @@ export function Timer({ seconds, children, label }: TimerProps) {
     if (countDown <= 0) {
       clearInterval(timerRef.current)
       setIsChildren(true)
+      if (action) {
+        action()
+      }
     }
   }, [countDown])
 
   return (
-    <div className="flex">
+    <span className="flex">
       {!isChildren && (
         <>
           {label}&nbsp;
-          <h1>{countDown}s</h1>
+          {countDown}s
         </>
       )}
       {isChildren && children}
-    </div>
+    </span>
   )
 }

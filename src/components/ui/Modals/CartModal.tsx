@@ -21,6 +21,10 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   const [city,setCity] = useState("")
   const [adress,setAdress] = useState("")
 
+
+const baseBackendURL = process.env.NODE_ENV === 'production' ? 'https://23-store.vercel.app' : 'http://localhost:3000';
+
+
   return (
     <>
       <ModalContainer
@@ -30,7 +34,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
         <div className="relative flex flex-col gap-y-8 pb-8 w-full h-full overflow-y-scroll">
           <h1 className="text-4xl text-center whitespace-nowrap mt-4">{label}</h1>
           {userCartStore.products.length > 0 ? (
-            <>
+            <form className="flex flex-col gap-y-4" action={`${baseBackendURL}/create-checkout-session`} method="POST">
               <section className="flex flex-col gap-y-8 w-[90%] mx-auto">
                 {userCartStore.products.map(product => (
                   <article className="flex flex-col laptop:flex-row border-[1px]" key={product.id}>
@@ -115,10 +119,10 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                     variant="danger-outline">
                     Clear cart <MdOutlineDeleteOutline />
                   </Button>
-                  <Button variant="info">Proceed to checkout</Button>
+                  <Button variant="info" type="submit">Proceed to checkout</Button>
                 </div>
               </section>
-            </>
+            </form>
           ) : (
             <div className="flex flex-col justify-center items-center">
               <img src="/empty-cart.png" alt="" />
