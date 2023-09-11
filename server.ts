@@ -1,9 +1,7 @@
 import express, { Request, Response } from 'express';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import cors from 'cors'
-
 dotenv.config();
 
 
@@ -19,11 +17,6 @@ export interface IProduct {
 }
 
 
-
-const supabaseUrl = process.env.VITE_SUPABASE_URL!
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY!
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://23-store.vercel.app' : 'http://localhost:8000';
@@ -53,37 +46,25 @@ app.get('/', (_req: Request, res: Response) => {
 
 
 
-app.post('/create-checkout-session', async (_req: Request, res: Response) => {
+
+
+
+app.post('/create-checkout-session', async (req: Request, res: Response) => {
  try {
-   const {  error } = await supabase.from('products').select('*');
-  
-  if (error) {
-    console.error('Error fetching products:', error);
-    return res.status(500).send('Error fetching products');
-  }
-  // const lineItems = products.map((product: IProduct) => ({
-  //   price_data: {
-  //     currency: 'usd',
-  //     product_data: {
-  //       name: product.title,
-  //       quantity:product.quantity
-  //     },
-  //     quantity:product.quantity,
-  //     unit_amount: product.quantity,
-  //   },
-  //   quantity:product.quantity
-  // }));
+   const cartProducts = req.query as { lineItems: string[] };
+    const lineItems = cartProducts.lineItems.map((item) => JSON.parse(item));
+    console.log(68, "lineItems - ", lineItems);
+
+   
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
-    line_items: [
-      {
-        price: 'price_1NUw1DDEq5VtEmno5V3GmTf0',
-        quantity: 1,
-      },
-    ],
+    line_items: lineItems,
     mode: 'payment',
     success_url: `${baseURL}/payment/?status=success`,
     cancel_url: `${baseURL}/payment/?status=canceled`,
+     shipping_address_collection: {
+    allowed_countries: ['DE'],
+  },
   });
 
   if (session.url)
@@ -92,6 +73,11 @@ app.post('/create-checkout-session', async (_req: Request, res: Response) => {
   console.log(error)
  }
 })
+
+
+
+
+
 
 
 

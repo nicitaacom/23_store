@@ -2,7 +2,6 @@ import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
 import supabase from "../../utils/supabaseClient"
 
-
 export interface IProduct {
   id: string
   title: string

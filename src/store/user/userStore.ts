@@ -3,10 +3,11 @@ import { devtools, persist } from "zustand/middleware"
 import supabase from "../../utils/supabaseClient"
 
 interface UserStore {
-  isAuthenticated: boolean
-  profilePictureUrl: string
-  username: string
   userId: string
+  isAuthenticated: boolean
+  username: string
+  email:string
+  profilePictureUrl: string
   authUser: (userId: string) => void
   logoutUser: () => void
 }
@@ -19,6 +20,7 @@ export const authUser = async (userId: string) => {
       profilePictureUrl: response.data[0].profile_picture_url ? response.data[0].profile_picture_url : "",
       username: response.data[0].username,
       userId: response.data[0].id,
+      email: response.data[0].email,
     }
   )
 }
@@ -41,10 +43,11 @@ export const logoutUser = () => {
 type SetState = (fn: (prevState: UserStore) => UserStore) => void
 
 export const userStore = (set: SetState): UserStore => ({
-  isAuthenticated: false,
-  profilePictureUrl: "",
-  username: "",
   userId: "",
+  isAuthenticated: false,
+  username: "",
+  email:"",
+  profilePictureUrl: "",
   async authUser(userId: string) {
     const response = await authUser(userId)
     set((state: UserStore) => ({

@@ -4,10 +4,10 @@ interface TimerProps {
   seconds: number
   children?: React.ReactNode
   label?: string
-  action?:() => void
+  action?: () => void
 }
 
-export function Timer({ seconds, children, label,action }: TimerProps) {
+export function Timer({ seconds, children, label, action }: TimerProps) {
   const [countDown, setCountDown] = useState(seconds)
   const timerRef = useRef<NodeJS.Timeout | undefined>()
   const [isChildren, setIsChildren] = useState(false)

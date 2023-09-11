@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 
 import supabase from "../../../utils/supabaseClient"
+import { Stripe, loadStripe } from "@stripe/stripe-js"
 import type { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
 
@@ -10,6 +11,7 @@ import { RadioButton } from "../Inputs/RadioButton"
 import useUserStore from "../../../store/user/userStore"
 import { InputProduct } from "../Inputs/Validation/InputProduct"
 import { useForm } from "react-hook-form"
+import axios from "axios"
 
 interface AdminModalProps {
   isOpen: boolean
@@ -26,6 +28,16 @@ interface FormData {
 
 export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
   const userStore = useUserStore()
+
+  const [stripe, setStripe] = useState<Stripe | null>(null)
+  useEffect(() => {
+    const initializeStripe = async () => {
+      const stripeInstance = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC)
+      setStripe(stripeInstance)
+    }
+
+    initializeStripe()
+  }, [])
 
   const [images, setImages] = useState<ImageListType>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -81,25 +93,84 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
     }, 5000)
   }
 
-  async function createProduct(title: string, subTitle: string, price: number, onStock: number) {
+
+  async function createProduct(title: string, subTitle: string, price: number, onStock: number): Promise<any> {
     try {
-      if (images.length > 0) {
+        if (images.length > 0 && stripe) {
+
+
         const imagesArray = await Promise.all(
-          images.map(async (image) => {
+          images.map(async image => {
             if (image?.file && userStore.userId) {
-              const {data,error} = await supabase.storage.from("public")
-              .upload(`${userStore.userId}/${image.file.name}`,image.file,{upsert:true})
+              const { data, error } = await supabase.storage
+                .from("public")
+                .upload(`${userStore.userId}/${image.file.name}`, image.file, { upsert: true })
               if (error) throw error
 
               const response = supabase.storage.from("public").getPublicUrl(data.path)
               return response.data.publicUrl
             }
-          })
+          }),
         )
+
+        //Create product on Stripe https://dashboard.stripe.com/test/products/create
+        const productResponse = await axios.post(
+          "https://api.stripe.com/v1/products",
+          {
+            name: title,
+            description: subTitle,
+            type: "good",
+            images: imagesArray,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${import.meta.env.VITE_STRIPE_SECRET}`,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          },
+        )
+
+        if (!productResponse.data.active) {
+          const activateResponse = await axios.put(
+            `https://api.stripe.com/v1/products/${productResponse.data.id}`,
+            {
+              active: true,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${import.meta.env.VITE_STRIPE_SECRET}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            },
+          )
+
+
+          if (activateResponse.data.active) {
+            console.log("Product activated:", activateResponse.data)
+          }
+        }
+
+          // Create price for the product
+         const priceResponse = await axios.post(
+            "https://api.stripe.com/v1/prices",
+            {
+              unit_amount: price * 100, // Convert to cents
+              currency: "usd",
+              product: productResponse.data.id,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${import.meta.env.VITE_STRIPE_SECRET}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            },
+          )
+
 
           const updatedUserResponse = await supabase
             .from("products")
             .insert({
+              id:priceResponse.data.id,
               title: title,
               sub_title: subTitle,
               price: price,
@@ -109,13 +180,17 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
             .eq("user_id", userStore.userId)
           if (updatedUserResponse.error) throw updatedUserResponse.error
           displayResponseMessage(<p className="text-success">Product added</p>)
-        } else {
-        displayResponseMessage(<p className="text-danger">Upload the image</p>)
+        }
+        else {
+          console.log(stripe,images.length)
+          displayResponseMessage(<p className="text-danger">Upload the image</p>)
+        }
       }
-    } catch (error) {
-      console.error("addProduct - ", error)
+      catch (error) {
+        console.error("addProduct - ", error)
+      }
     }
-  }
+  
 
   const onSubmit = (data: FormData) => {
     setIsLoading(true)
