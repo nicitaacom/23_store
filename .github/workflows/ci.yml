@@ -24,7 +24,7 @@ jobs:
         uses: oven-sh/setup-bun@v1  
 
       - name: Setup prettier
-        run: bun i prettier --save-dev
+        run: bun i prettier -D
 
       - name: prettierrc
         run: bun prettier --write src/*
@@ -33,15 +33,16 @@ jobs:
         run: bun i
 
       - name: Building
-        run: bun build src/main.tsx --output ./public  # Replace 'dist' with your desired output directory
+        run: bun build src/main.tsx --outdir ./public
         env:
           VITE_SUPABASE_URL: "https://ambgxbbsgequlwnbzchr.supabase.co"
-          VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+          VITE_SUPABASE_ANON_KEY: "123"
+
       - name: lintrc
         run: bun lint
         env:
           VITE_SUPABASE_URL: "https://ambgxbbsgequlwnbzchr.supabase.co"
-          VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+          VITE_SUPABASE_ANON_KEY: "123"
 
       - name: Type-checking
         run: bun type-check
