@@ -27,7 +27,7 @@ export function Timer({ seconds, children, label, action }: TimerProps) {
         action()
       }
     }
-  }, [countDown])
+  }, [countDown,action])
 
   return (
     <span className="flex">
