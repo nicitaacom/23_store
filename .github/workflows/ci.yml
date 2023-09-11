@@ -33,7 +33,7 @@ jobs:
         run: bun i
 
       - name: Building
-        run: bun build src/main.tsx --output ./dist   # Replace 'dist' with your desired output directory
+        run: bun build src/main.tsx --output ./   # Replace 'dist' with your desired output directory
         env:
           VITE_SUPABASE_URL: "https://ambgxbbsgequlwnbzchr.supabase.co"
           VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
