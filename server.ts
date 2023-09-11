@@ -53,8 +53,6 @@ app.post('/create-checkout-session', async (req: Request, res: Response) => {
  try {
    const cartProducts = req.query as { lineItems: string[] };
     const lineItems = cartProducts.lineItems.map((item) => JSON.parse(item));
-    console.log(68, "lineItems - ", lineItems);
-
    
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],

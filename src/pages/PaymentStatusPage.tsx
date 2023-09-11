@@ -2,11 +2,9 @@ import { useEffect } from "react"
 import useUserCartStore from "../store/user/userCartStore"
 import { Timer } from "../components/ui/Timer"
 import { useLocation, useNavigate } from "react-router"
-import useUserStore from "../store/user/userStore"
 
 export function PaymentStatusPage() {
   const userCartStore = useUserCartStore()
-  const userStore = useUserStore()
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
@@ -18,6 +16,7 @@ export function PaymentStatusPage() {
       
       userCartStore.setCartQuantity0()
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

@@ -94,7 +94,7 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
   }
 
 
-  async function createProduct(title: string, subTitle: string, price: number, onStock: number): Promise<any> {
+  async function createProduct(title: string, subTitle: string, price: number, onStock: number) {
     try {
         if (images.length > 0 && stripe) {
 
