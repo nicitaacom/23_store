@@ -46,6 +46,7 @@ export function PaymentStatusPage() {
         <>
           <img src="/success-checkmark.gif" alt="Success Checkmark" />
           <h1 className="text-2xl mb-2">Your payment is successful</h1>
+            <p>Check snet to your email</p>
           <p className="flex flex-row">
             Redirecting to home page in <Timer seconds={5} action={() => navigate("/", { replace: true })} />
           </p>
