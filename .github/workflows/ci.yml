@@ -20,55 +20,28 @@ jobs:
         with:
           node-version: 20
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.4
-        with:
-          version: 8.6.6
-
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        run: |
-          echo "pnpm_cache_dir=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Setup build cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.npm
-              ${{ github.workspace }}/.next/cache
-          # Generate a new cache whenever packages or source files change.
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx') }}
-          # If source files changed but packages didn't, rebuild from a prior cache.
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v1  
 
       - name: Setup prettier
-        run: pnpm i prettier --save-dev
+        run: bun i prettier --save-dev
 
       - name: prettierrc
-        run: pnpm prettier --write src/*
+        run: bun prettier --write src/*
 
       - name: Install dependencies
-        run: pnpm i
+        run: bun i
 
       - name: Building
-        run: pnpm build
+        run: bun build
         env:
           VITE_SUPABASE_URL: "https://ambgxbbsgequlwnbzchr.supabase.co"
           VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
       - name: lintrc
-        run: pnpm lint
+        run: bun lint
         env:
           VITE_SUPABASE_URL: "https://ambgxbbsgequlwnbzchr.supabase.co"
           VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 
       - name: Type-checking
-        run: pnpm type-check
+        run: bun type-check

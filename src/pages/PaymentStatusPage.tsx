@@ -2,22 +2,38 @@ import { useEffect } from "react"
 import useUserCartStore from "../store/user/userCartStore"
 import { Timer } from "../components/ui/Timer"
 import { useLocation, useNavigate } from "react-router"
-import useUserStore from "../store/user/userStore"
+import { Resend } from 'resend';
+
+
 
 export function PaymentStatusPage() {
   const userCartStore = useUserCartStore()
-  const userStore = useUserStore()
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
   const status = queryParams.get("status")
+ const resend = new Resend('re_EfV7hTAs_JYPFXwDZGtunYNmJMLsDwnid');
 
   useEffect(() => {
-    if (status === "success") {
-      
+    const sendEmail = async () => {
+      if (status === "success") {
+       try {
+         resend.emails.send({
+          from: 'onboarding@resend.dev',
+          to: 'icpcsenondaryemail@gmail.com',
+          subject: 'Hello World',
+          html: '<p>Congrats on sending your <strong>first email</strong>!</p>'
+        })
+        resend.domains.create({ name: 'http://localhost:8000' });
+
+           } catch (error) {
+             console.error('Failed to send email', error);
+           }
       
       userCartStore.setCartQuantity0()
     }
+    }
+    sendEmail()
   }, [])
 
   return (
