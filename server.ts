@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
 import Stripe from 'stripe';
-import dotenv from 'dotenv';
 import cors from 'cors'
+import { Resend } from 'resend'
+import dotenv from 'dotenv'
 dotenv.config();
 
 
@@ -37,9 +38,24 @@ app.use(express.static('public'));
      console.log(`Server is running on port ${port}`);
    });
 
-app.get('/', (_req: Request, res: Response) => {
-  res.send('Server running on port 3000'); // Or any other response you want to send for the root route
-});
+   app.get('/', (_req: Request, res: Response) => {
+  const htmlContent = `
+    <html>
+      <head>
+        <style>
+          body {
+            background-color: black;
+            color: white;
+          }
+        </style>
+      </head>
+      <body>
+        Server running on port 3000
+      </body>
+    </html>
+  `;
+  res.send(htmlContent);
+})
 
 
 
@@ -76,3 +92,28 @@ app.post('/create-checkout-session', async (req: Request, res: Response) => {
 
 
 
+
+
+
+const resend = new Resend(process.env.VITE_RESEND_PUBLIC);
+
+app.post('/send-email', (async function (req: Request) {
+     const { from, to, subject, html } = req.body;
+
+     console.log('from - ',from)
+     console.log('to - ',to)
+     console.log('subject- ',subject)
+     console.log('html - ',html)
+  try {
+    const data = await resend.sendEmail({
+      from,
+      to,
+      subject,
+      html,
+    });
+
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}))

@@ -23,6 +23,7 @@
     "axios": "^1.5.0",
     "class-variance-authority": "^0.7.0",
     "concurrently": "^8.2.1",
+    "express-validator": "^7.0.1",
     "framer-motion": "^10.16.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
