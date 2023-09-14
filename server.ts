@@ -5,40 +5,27 @@ import { Resend } from 'resend'
 import dotenv from 'dotenv'
 dotenv.config();
 
-
-
-export interface IProduct {
-  id: string
-  title: string
-  sub_title: string
-  price: number
-  img_url: string[]
-  on_stock: number
-  quantity: number
-}
-
-
-
-
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://23-store.vercel.app' : 'http://localhost:8000';
 
-//I'm sure that stripe requires my items in cart (not only all store items)
 
 
 
+
+
+
+/* server set up */
 const app = express();
-app.use(cors({origin:'http://localhost:8000'}))
 app.use(express.json());
-const stripe = new Stripe(process.env.VITE_STRIPE_SECRET!, {
-  apiVersion: '2023-08-16',
-});
+app.use(express.urlencoded({ extended: true }));
+app.use(cors({origin:`${baseURL}`}))
 app.use(express.static('public'));
- const port = 3000;
- app.listen(port, () => {
-     console.log(`Server is running on port ${port}`);
-   });
 
-   app.get('/', (_req: Request, res: Response) => {
+const port = 3000;
+app.listen(port, () => {
+     console.log(`Server is running on port ${port}`);
+})
+
+app.get('/', (_req: Request, res: Response) => {
   const htmlContent = `
     <html>
       <head>
@@ -65,6 +52,12 @@ app.use(express.static('public'));
 
 
 
+
+/* stripe set up */
+const stripe = new Stripe(process.env.VITE_STRIPE_SECRET!, {
+  apiVersion: '2023-08-16',
+});
+
 app.post('/create-checkout-session', async (req: Request, res: Response) => {
  try {
    const cartProducts = req.query as { lineItems: string[] };
@@ -76,7 +69,7 @@ app.post('/create-checkout-session', async (req: Request, res: Response) => {
     mode: 'payment',
     success_url: `${baseURL}/payment/?status=success`,
     cancel_url: `${baseURL}/payment/?status=canceled`,
-     shipping_address_collection: {
+    shipping_address_collection: {
     allowed_countries: ['DE'],
   },
   });
@@ -93,27 +86,32 @@ app.post('/create-checkout-session', async (req: Request, res: Response) => {
 
 
 
-
+/* email set up */
 
 const resend = new Resend(process.env.VITE_RESEND_PUBLIC);
 
-app.post('/send-email', (async function (req: Request) {
-     const { from, to, subject, html } = req.body;
+app.post('/send-email',  async (req: Request, res: Response) => {
+     try {
+       const { from, to, subject, html } = req.body;
 
+     console.log('-------------------------')
      console.log('from - ',from)
      console.log('to - ',to)
      console.log('subject- ',subject)
-     console.log('html - ',html)
-  try {
-    const data = await resend.sendEmail({
-      from,
-      to,
-      subject,
-      html,
-    });
+     console.log('react - ',html)
+     console.log('-------------------------')
+
+    const data = await resend.emails.send({
+      from:from,
+      to:to,
+      subject:subject,
+      html:html,
+    })
+     res.sendStatus(200);
 
     console.log(data);
   } catch (error) {
     console.error(error);
+     res.sendStatus(500);
   }
-}))
+})

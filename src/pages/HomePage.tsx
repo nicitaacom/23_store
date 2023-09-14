@@ -16,24 +16,27 @@ export function HomePage() {
       const authUser = async () => {
         const response = await supabase.auth.getUser()
         if (response.data.user?.id) {
+          console.log(19, response.data.user.id)
           const { error: errorUsersInsert } = await supabase.from("users").insert({
             id: response.data.user?.id,
             username: response.data.user?.user_metadata.name,
             email: response.data.user?.user_metadata.email,
             profile_picture_url: response.data.user?.user_metadata.picture,
           })
-          if (errorUsersInsert) throw errorUsersInsert
-          const { error: errorUsersCartInsert } = await supabase
+          const { data, error: errorUsersCartInsert } = await supabase
             .from("users_cart")
             .insert({ id: response.data.user.id })
+          if (errorUsersInsert) throw errorUsersInsert
           if (errorUsersCartInsert) throw errorUsersCartInsert
           //that's wrong and should be fixed in branch
+          console.log(data)
           userStore.authUser(response.data.user?.id as string)
         }
       }
       authUser()
     }
-  }, [userStore])
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="text-2xl text-white flex flex-col gap-y-8 justify-between items-center py-12">

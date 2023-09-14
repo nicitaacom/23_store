@@ -1,16 +1,7 @@
 import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
 import supabase from "../../utils/supabaseClient"
-
-export interface IProduct {
-  id: string
-  title: string
-  sub_title: string
-  price: number
-  img_url: string[]
-  on_stock: number
-  quantity: number
-}
+import { IProduct } from "../../interfaces/IProduct"
 
 interface UserCartStore {
   products: IProduct[]

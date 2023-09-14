@@ -1,7 +1,8 @@
 import { MdOutlineDeleteOutline } from "react-icons/md"
 
 import { formatCurrency } from "../utils/currencyFormatter"
-import useUserCartStore, { IProduct } from "../store/user/userCartStore"
+import useUserCartStore from "../store/user/userCartStore"
+import { IProduct } from "../interfaces/IProduct"
 import { Button } from "./ui/"
 import { Slider } from "./Slider"
 
@@ -40,7 +41,7 @@ export function Product({ ...product }: IProduct) {
             </p>
           </div>
         </section>
-        <section className="flex flex-col tablet:flex-row gap-y-4 gap-x-4 justify-between">
+        <section className="min-h-[56px] flex flex-col tablet:flex-row gap-y-4 gap-x-4 justify-between">
           <div className={`flex flex-col ${productQuantity === 0 ? "hidden" : "flex"}`}>
             <h5 className={`text-xl tablet:text-base laptop:text-lg text-center tablet:text-start`}>
               Quantity: <span>{productQuantity}</span>
@@ -50,7 +51,7 @@ export function Product({ ...product }: IProduct) {
             </h5>
           </div>
           <div
-            className={`flex flex-row gap-x-2 justify-center tablet:justify-end items-center ${
+            className={`flex flex-row gap-x-2 justify-center tablet:justify-end items-end ${
               productQuantity === 0 && "w-full"
             }`}>
             <Button

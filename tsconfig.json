@@ -25,6 +25,6 @@
     
     
   },
-  "include": ["src", "./env.d.ts", "server.ts"],
+  "include": ["src", "./env.d.ts", "server.ts", "src/utils/supabaseClient.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -5,9 +5,7 @@ import { formatCurrency } from "../../../utils/currencyFormatter"
 import { useModals } from "../../../store/ui"
 import { AreYouSureModal } from "."
 import { Slider } from "../.."
-import { Input } from "../Inputs"
-import { useState } from "react"
-import { IProduct } from "../../../../server"
+import { IProduct } from "../../../interfaces/IProduct"
 
 interface CartModalProps {
   isOpen: boolean
@@ -19,21 +17,14 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   const userCartStore = useUserCartStore()
   const { isOpen: areYouSureIsOpen, closeModal, openModal } = useModals()
 
-  const [city, setCity] = useState("")
-  const [adress, setAdress] = useState("")
-
   const baseBackendURL = process.env.NODE_ENV === "production" ? "https://23-store.vercel.app" : "http://localhost:3000"
-const cartItemsQuery = userCartStore.products
-  .map((product: IProduct) => ({
-    price: product.id,
-    quantity: product.quantity,
-  }))
-  .map(
-    (item) =>
-      `lineItems=${encodeURIComponent(JSON.stringify(item))}`
-  )
-  .join('&');
-  console.log(26,"cartItemsQuery - " ,cartItemsQuery)
+  const cartItemsQuery = userCartStore.products
+    .map((product: IProduct) => ({
+      price: product.id,
+      quantity: product.quantity,
+    }))
+    .map(item => `lineItems=${encodeURIComponent(JSON.stringify(item))}`)
+    .join("&")
   return (
     <>
       <ModalContainer
@@ -43,7 +34,10 @@ const cartItemsQuery = userCartStore.products
         <div className="relative flex flex-col gap-y-8 pb-8 w-full h-full overflow-y-scroll">
           <h1 className="text-4xl text-center whitespace-nowrap mt-4">{label}</h1>
           {userCartStore.products.length > 0 ? (
-            <form className="flex flex-col gap-y-4" action={`${baseBackendURL}/create-checkout-session?${cartItemsQuery}`} method="POST">
+            <form
+              className="flex flex-col gap-y-4"
+              action={`${baseBackendURL}/create-checkout-session?${cartItemsQuery}`}
+              method="POST">
               <section className="flex flex-col gap-y-8 w-[90%] mx-auto">
                 {userCartStore.products.map(product => (
                   <article className="flex flex-col laptop:flex-row border-[1px]" key={product.id}>
@@ -100,21 +94,6 @@ const cartItemsQuery = userCartStore.products
                     </div>
                   </article>
                 ))}
-              </section>
-
-              <section className="flex flex-col tablet:flex-row gap-x-4 gap-y-2 w-[90%] mx-auto">
-                <Input
-                  className="w-full tablet:w-[50%]"
-                  value={city}
-                  onChange={e => setCity(e.target.value)}
-                  placeholder="City"
-                />
-                <Input
-                  className="w-full tablet:w-[50%]"
-                  value={adress}
-                  onChange={e => setAdress(e.target.value)}
-                  placeholder="Street / house / floor / door"
-                />
               </section>
 
               <section className="flex flex-col tablet:flex-row gap-y-4 gap-x-4 justify-between items-center w-[90%] mx-auto px-4 laptop:px-0">
