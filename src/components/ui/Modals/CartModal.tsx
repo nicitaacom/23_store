@@ -1,4 +1,6 @@
 import { MdOutlineDeleteOutline } from "react-icons/md"
+import {HiOutlineRefresh} from 'react-icons/hi'
+
 import { Button, ModalContainer } from ".."
 import useUserCartStore from "../../../store/user/userCartStore"
 import { formatCurrency } from "../../../utils/currencyFormatter"
@@ -20,19 +22,20 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
 
   const baseBackendURL = process.env.NODE_ENV === "production" ? "https://23-store.vercel.app" : "http://localhost:3000"
   const cartItemsQuery = userCartStore.products
-    .map((product: IProduct) => ({
-      price: product.id,
-      quantity: product.quantity,
-    }))
-    .map(item => `lineItems=${encodeURIComponent(JSON.stringify(item))}`)
-    .join("&")
+  .filter((product: IProduct) => product.on_stock > 0)
+  .map((product: IProduct) => ({
+    price: product.id,
+    quantity: product.quantity,
+  }))
+  .map(item => `lineItems=${encodeURIComponent(JSON.stringify(item))}`)
+  .join("&");
 
 
     useEffect(() => {
-      //use this after I espect actuall problem that this function resolve
       const refreshOnStock = async () => {
         userCartStore.refreshProductOnStock(userCartStore.products)
       }
+      refreshOnStock()
     },[])
 
   return (
@@ -50,7 +53,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
               method="POST">
               <section className="flex flex-col gap-y-8 w-[90%] mx-auto">
                 {userCartStore.products.map(product => (
-                  <article className="flex flex-col laptop:flex-row border-[1px]" key={product.id}>
+                  <article className={`flex flex-col laptop:flex-row border-[1px] ${product.on_stock === 0 && 'border-warning'}`} key={product.id}>
                     {product.img_url.length === 1 ? (
                       <img
                         className="w-full tablet:aspect-video h-[200px] mobile:h-[250px] tablet:h-[400px] laptop:h-[200px]
@@ -68,8 +71,11 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                     )}
                     <div className="flex flex-col justify-between w-full">
                       <div className="flex flex-row gap-x-8 justify-between items-center p-4">
-                        <h1 className="text-2xl text-center truncate">{product.title}</h1>
-                        <h1 className="text-2xl text-center">{formatCurrency(product.price)}</h1>
+                        <div className="flex flex-col">
+                          <h1 className={`text-2xl text-center truncate ${product.on_stock === 0 && 'text-subTitle'}`}>{product.title}</h1>
+                          {product.on_stock === 0 && <p className="text-warning">Out of stock</p>}
+                        </div>
+                        <h1 className={`text-2xl text-center align-top h-full ${product.on_stock === 0 && 'text-subTitle'}`}>{formatCurrency(product.price)}</h1>
                       </div>
                       <div className="flex flex-col tablet:flex-row gap-y-4 gap-x-8 justify-between items-center p-4">
                         <div className="flex flex-col">
@@ -79,7 +85,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                           <h5 className="text-lg flex flex-row justify-center tablet:justify-start">
                             Sub-total:&nbsp;<p>{formatCurrency(product.quantity * product.price)}</p>
                           </h5>
-                        </div>
+                        </div>             
                         <div className="flex flex-row gap-x-2 justify-end max-h-[42px]">
                           <Button
                             className="w-[46px] h-[42px] text-2xl"
@@ -99,7 +105,14 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                             onClick={() => userCartStore.setProductQuantity0(product)}>
                             Clear <MdOutlineDeleteOutline />
                           </Button>
+                          {product.on_stock === 0 && 
+                          <Button className="text-lg flex flex-row gap-x-2" variant='info-outline'>
+                          <p className="flex tablet:hidden text-title">Request replenishment</p>
+                        <HiOutlineRefresh/>
+                          </Button>
+                          }
                         </div>
+                      
                       </div>
                     </div>
                   </article>
@@ -112,7 +125,9 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                   <span>
                     {formatCurrency(
                       userCartStore.products.reduce(
-                        (totalPrice, product) => totalPrice + product.price * product.quantity,
+                        (totalPrice, product) => product.on_stock === 0 
+                        ? totalPrice
+                        : totalPrice + product.price * product.quantity,
                         0,
                       ),
                     )}

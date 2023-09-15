@@ -1,3 +1,5 @@
+import { lineItems } from "./src/interfaces/lineItems";
+
 import express, { Request, Response } from 'express';
 import Stripe from 'stripe';
 import cors from 'cors'
@@ -58,10 +60,7 @@ const stripe = new Stripe(process.env.VITE_STRIPE_SECRET!, {
   apiVersion: '2023-08-16',
 });
 
-type lineItems = {
-  price:string
-  quantity:number
-}
+
 
 app.post('/create-checkout-session', async (req: Request, res: Response) => {
  try {
