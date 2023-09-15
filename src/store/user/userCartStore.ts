@@ -10,6 +10,7 @@ interface UserCartStore {
   decreaseProductQuantity: (product: IProduct) => void
   setProductQuantity0: (product: IProduct) => void
   setCartQuantity0: () => void
+  refreshProductOnStock:(products:IProduct[]) => void
 }
 
 export const increaseProductQuantityLogic = (
@@ -115,12 +116,13 @@ export const setCartQuantity0Logic = (products: IProduct[]) => {
   setCartQuantity0InDB()
   async function setCartQuantity0InDB() {
     const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
+    //on_stock - quantity not only if isAuthenticated on the feature
     if (userLocalStorage) {
       const parsedLS = JSON.parse(userLocalStorage)
       const { error } = await supabase
         .from("users_cart")
         .update({
-          cart_products: updatedProducts,
+          cart_products: [],
           cart_quantity: 0,
         })
         .eq("id", parsedLS.user.id)
@@ -130,6 +132,35 @@ export const setCartQuantity0Logic = (products: IProduct[]) => {
 
   return updatedProducts
 }
+
+
+
+export async function setOnStockFromDB(products: IProduct[]): Promise<IProduct[]> {
+  let updatedProducts = [...products];
+
+  for (const product of updatedProducts) {
+    const { data } = await supabase
+      .from("products")
+      .select("on_stock")
+      .eq("id", product.id);
+
+    if (Array.isArray(data) && data.length > 0) {
+      product.on_stock = data[0].on_stock as number;
+    }
+  }
+
+  return updatedProducts;
+}
+
+
+
+
+
+
+
+
+
+
 
 type SetState = (fn: (prevState: UserCartStore) => UserCartStore) => void
 
@@ -177,6 +208,13 @@ const userCartStore = (set: SetState): UserCartStore => ({
       cartQuantity: 0,
     }))
   },
+  async refreshProductOnStock(products:IProduct[]) {
+    const onStockFromDB = await setOnStockFromDB(products)
+    if (onStockFromDB) set((state:UserCartStore) => ({
+      ...state,
+      products:onStockFromDB
+    }))
+  }
 })
 
 const useUserCartStore = create(devtools(persist(userCartStore, { name: "userCartStore" })))

@@ -4,7 +4,8 @@ import supabase from "../utils/supabaseClient"
 
 import { ProductsSkeleton } from "./ui/Skeletons/ProductsSkeleton"
 import { Product } from "./Product"
-import useUserCartStore, { IProduct } from "../store/user/userCartStore"
+import useUserCartStore from "../store/user/userCartStore"
+import { IProduct } from "../interfaces/IProduct"
 
 export function Products() {
   const userCartStore = useUserCartStore()

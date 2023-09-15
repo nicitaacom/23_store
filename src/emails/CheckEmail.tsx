@@ -45,23 +45,26 @@ export const CheckEmail = ({ products,deliveryDate }: CheckEmailProps) => {
       {/* CONTENT - START */}
 
 
+
+
+        {/* HEADER */}
          <Column align="center">
              <Heading className="m-0 pt-8 text-title text-center">{previewText}</Heading>
-             <Text className="m-0 pb-8 text-subTitle text-center">Your order will delivered {deliveryDate} 🗓</Text>
+             <Text className="m-0 pb-8 text-subTitle text-center">Your order will delivered on {deliveryDate}  🗓</Text>
           </Column>
 
 
 
 
 
-
-<Container style={{display:'flex',flexFlow:'column',justifyContent:'center',width:'256px',maxWidth:'256px'}}>
+{/* MAIN CONTENT */}
+<Container style={{display:'flex',flexFlow:'column',justifyContent:'center',width:'480px',maxWidth:'480px'}}>
   {products &&
     products.length > 0 &&
     products.map((product) => (
       <Section
-      style={{width:'256px',maxWidth:'256px',marginBottom:'0.5rem'}}  
-      className="border-[1px] border-solid border-border-color pb-0 w-[256px] max-w-[256px]"
+      style={{width:'480px',maxWidth:'480px',marginBottom:'0.5rem'}}  
+      className="border-[1px] border-solid border-border-color pb-0"
         key={product.id}
       >
         <table
@@ -74,11 +77,12 @@ export const CheckEmail = ({ products,deliveryDate }: CheckEmailProps) => {
         >
           <tbody>
             <tr>
-              <td width="256" height="144" style={{ verticalAlign: "top" }}>
+              <td width="480" height="240" style={{ verticalAlign: "top" }}>
                 <Img
+                style={{objectFit:'cover'}}
                   src={product.img_url[0]}
-                  width="256"
-                  height="144"
+                  width="480"
+                  height="240"
                   alt={product.title}
                 />
               </td>
@@ -105,12 +109,14 @@ export const CheckEmail = ({ products,deliveryDate }: CheckEmailProps) => {
                       </tr>
                     <tr>
                       <td>
-                        <Text className="m-0 text-title text-center">Quantity:<span className="m-0 text-subTitle">{product.quantity}</span> </Text>
+                        <Text className="m-0 text-title text-lg text-center">Quantity:
+                        <span className="m-0 text-subTitle">{product.quantity}</span> </Text>
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        <Text className="m-0 text-title text-center">Sub-total: <span className="m-0 text-subTitle">{formatCurrency(product.price * product.quantity)}</span> </Text>
+                        <Text className="m-0 text-title text-lg text-center">Sub-total: <span className="m-0 text-subTitle">
+                          {formatCurrency(product.price * product.quantity)}</span> </Text>
                       </td>
                     </tr>
                   </tbody>
@@ -121,8 +127,34 @@ export const CheckEmail = ({ products,deliveryDate }: CheckEmailProps) => {
         </table>
       </Section>
     ))}
+
+
+
 </Container>
 
+
+
+
+{/* TOTAL */}
+<table style={{borderTop:'1px solid #999999',borderBottom:'1px solid #999999',minWidth:'100%',margin:'3rem 0rem',padding:'1rem 0rem',textAlign:'center'}}>
+  <tr>
+    <td>
+       <Text className="m-0 text-title text-2xl text-center">Total:&nbsp;
+        {formatCurrency(
+                      products.reduce(
+                        (totalPrice, product) => totalPrice + product.price * product.quantity,
+                        0,
+                      ),
+                    )}
+       </Text>
+    </td>
+  </tr>
+</table>
+
+
+
+
+{/* FOOTER */}
 <table style={{borderTop:'1px solid #999999',minWidth:'100%',margin:'1rem 0rem',padding:'1rem 0rem',textAlign:'center'}}>
   <tr>
     <td>

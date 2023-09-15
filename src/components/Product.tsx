@@ -1,4 +1,5 @@
 import { MdOutlineDeleteOutline } from "react-icons/md"
+import {HiOutlineRefresh} from 'react-icons/hi'
 
 import { formatCurrency } from "../utils/currencyFormatter"
 import useUserCartStore from "../store/user/userCartStore"
@@ -37,7 +38,9 @@ export function Product({ ...product }: IProduct) {
           <div className="flex flex-col">
             <p className="text-lg tablet:text-sm text-subTitle text-center tablet:text-start">{product.sub_title}</p>
             <p className="text-lg tablet:text-sm text-subTitle text-center tablet:text-start">
-              Left on stock:{product.on_stock}
+              {product.on_stock === 0
+              ? <p className="text-warning">Out of stock</p>
+              : <p>Left on stock:{product.on_stock}</p>}
             </p>
           </div>
         </section>
@@ -50,10 +53,17 @@ export function Product({ ...product }: IProduct) {
               Sub-total:&nbsp;<p>{formatCurrency(productQuantity * product.price)}</p>
             </h5>
           </div>
+          {product.on_stock === 0 ? 
+          <div className="w-full flex flex-row justify-center tablet:justify-end items-end">
+            <Button className="text-lg flex flex-row gap-x-2" variant='info-outline'>
+            Request replenishment
+            <HiOutlineRefresh/>
+          </Button>
+          </div>
+          :
           <div
-            className={`flex flex-row gap-x-2 justify-center tablet:justify-end items-end ${
-              productQuantity === 0 && "w-full"
-            }`}>
+            className={`flex flex-row gap-x-2 justify-center tablet:justify-end items-end 
+            ${productQuantity === 0 && "w-full"}`}>
             <Button
               className="min-w-[50px] max-h-[50px] laptop:w-fit text-2xl"
               variant="danger-outline"
@@ -72,7 +82,7 @@ export function Product({ ...product }: IProduct) {
               onClick={() => userCartStore.setProductQuantity0(product)}>
               Clear <MdOutlineDeleteOutline />
             </Button>
-          </div>
+          </div>}
         </section>
       </section>
     </article>

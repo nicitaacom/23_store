@@ -6,6 +6,7 @@ import useUserStore from "../store/user/userStore"
 import CheckEmail from "../emails/CheckEmail"
 import axios from 'axios'
 import { render } from "@react-email/render"
+import supabase from "../utils/supabaseClient"
 
 export function PaymentStatusPage() {
   const userCartStore = useUserCartStore()
@@ -15,10 +16,23 @@ export function PaymentStatusPage() {
   const queryParams = new URLSearchParams(location.search)
   const status = queryParams.get("status")
   const baseBackendURL = process.env.NODE_ENV === "production" ? "https://23-store.vercel.app" : "http://localhost:3000"
+  
+  function deliveryDate() {
+   const deliveryDate = new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000) // Add 3 days from current date
 
+  if (deliveryDate.getDay() === 6) {
+    deliveryDate.setDate(deliveryDate.getDate() + 1); // Add 1 more day to skip Saturday
+  }
 
+  const day = String(deliveryDate.getDate()).padStart(2, '0');
+  const month = String(deliveryDate.getMonth() + 1).padStart(2, '0');
+  const year = deliveryDate.getFullYear();
+
+  const formattedDeliveryDate = `${day}.${month}.${year}`;
+  return formattedDeliveryDate;
+}
     if (!userCartStore.products) throw Error("You should not use protected routes!")
-    const emailMessageString = render(<CheckEmail products={userCartStore.products} deliveryDate='13.13.2023 at 15:00 CEST' />, { pretty: true })
+    const emailMessageString = render(<CheckEmail products={userCartStore.products} deliveryDate={deliveryDate()} />, { pretty: true })
 
     const emailData = {
       from: "support@nicitaa.com",
@@ -36,7 +50,18 @@ export function PaymentStatusPage() {
         } catch (error:unknown) {
           console.log(error)
         }
-        // userCartStore.setCartQuantity0()
+        //for case if somebody buy when payment status === 'success'
+        userCartStore.refreshProductOnStock(userCartStore.products)
+
+        //I do it separately because I need substract on_stock - product.quantity only once 
+        //if payment status === 'success'
+        for (const product of userCartStore.products){
+          const {data} = await supabase.from("products")
+          .update({on_stock:product.on_stock - product.quantity})
+          .eq("id",product.id)
+          console.log(57,"data - ",data)
+        }
+        userCartStore.setCartQuantity0()
       }
     }
     sendEmail()

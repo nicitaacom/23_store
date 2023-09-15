@@ -6,6 +6,7 @@ import { useModals } from "../../../store/ui"
 import { AreYouSureModal } from "."
 import { Slider } from "../.."
 import { IProduct } from "../../../interfaces/IProduct"
+import { useEffect } from "react"
 
 interface CartModalProps {
   isOpen: boolean
@@ -25,6 +26,15 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
     }))
     .map(item => `lineItems=${encodeURIComponent(JSON.stringify(item))}`)
     .join("&")
+
+
+    useEffect(() => {
+      //use this after I espect actuall problem that this function resolve
+      const refreshOnStock = async () => {
+        userCartStore.refreshProductOnStock(userCartStore.products)
+      }
+    },[])
+
   return (
     <>
       <ModalContainer

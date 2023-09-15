@@ -58,10 +58,22 @@ const stripe = new Stripe(process.env.VITE_STRIPE_SECRET!, {
   apiVersion: '2023-08-16',
 });
 
+type lineItems = {
+  price:string
+  quantity:number
+}
+
 app.post('/create-checkout-session', async (req: Request, res: Response) => {
  try {
-   const cartProducts = req.query as { lineItems: string[] };
-    const lineItems = cartProducts.lineItems.map((item) => JSON.parse(item));
+    const cartProducts = req.query as { lineItems: string[] };
+
+    let lineItems: lineItems[];
+    
+    if (Array.isArray(cartProducts.lineItems)) {
+      lineItems = cartProducts.lineItems.map((item) => JSON.parse(item));
+    } else {
+      lineItems = [JSON.parse(cartProducts.lineItems)];
+    }
    
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -91,15 +103,8 @@ app.post('/create-checkout-session', async (req: Request, res: Response) => {
 const resend = new Resend(process.env.VITE_RESEND_PUBLIC);
 
 app.post('/send-email',  async (req: Request, res: Response) => {
-     try {
-       const { from, to, subject, html } = req.body;
-
-     console.log('-------------------------')
-     console.log('from - ',from)
-     console.log('to - ',to)
-     console.log('subject- ',subject)
-     console.log('react - ',html)
-     console.log('-------------------------')
+  try {
+    const { from, to, subject, html } = req.body;
 
     const data = await resend.emails.send({
       from:from,
