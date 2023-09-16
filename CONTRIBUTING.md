@@ -6,6 +6,10 @@ To write documentation for your project, you can follow these guidelines:
 
    c. Folder structure: Explain the structure of your projects folders and files. Describe the purpose of each folder or file and how they relate to each other.
    Say how I use imports like (react - dependencies - custom)
+   Say that I name my interfaces like so
+   IInterface - interface that has export and uses 2+ times in project
+   InterfaceProps - interface that use in props
+   interfaceType - type of some interface (it some data from exising interface - provide example)
 
    d. Components: Document the components you have created, including their purpose, props, and examples of usage. Explain how to use and customize each component, and provide code snippets when applicable.
 
