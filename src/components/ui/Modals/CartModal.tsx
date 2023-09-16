@@ -1,5 +1,6 @@
 import { MdOutlineDeleteOutline } from "react-icons/md"
 import {HiOutlineRefresh} from 'react-icons/hi'
+import {FaBitcoin,FaStripeS,FaPaypal} from 'react-icons/fa'
 
 import { Button, ModalContainer } from ".."
 import useUserCartStore from "../../../store/user/userCartStore"
@@ -21,13 +22,26 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   const { isOpen: areYouSureIsOpen, closeModal, openModal } = useModals()
 
   const baseBackendURL = process.env.NODE_ENV === "production" ? "https://23-store.vercel.app" : "http://localhost:3000"
-  const cartItemsQuery = userCartStore.products
+
+
+  const stripeProductsQuery = userCartStore.products
   .filter((product: IProduct) => product.on_stock > 0)
   .map((product: IProduct) => ({
     price: product.id,
     quantity: product.quantity,
   }))
-  .map(item => `lineItems=${encodeURIComponent(JSON.stringify(item))}`)
+  .map(item => `stripeProducts=${encodeURIComponent(JSON.stringify(item))}`)
+  .join("&");
+
+  const payPalProductsQuery = userCartStore.products
+  .filter((product: IProduct) => product.on_stock > 0)
+  .map((product: IProduct) => ({
+    name:product.title,
+    sku:product.id,
+    price:product.price,
+    quantity:product.quantity
+  }))
+  .map(item => `payPalProducts=${encodeURIComponent(JSON.stringify(item))}`)
   .join("&");
 
 
@@ -47,10 +61,8 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
         <div className="relative flex flex-col gap-y-8 pb-8 w-full h-full overflow-y-scroll">
           <h1 className="text-4xl text-center whitespace-nowrap mt-4">{label}</h1>
           {userCartStore.products.length > 0 ? (
-            <form
-              className="flex flex-col gap-y-4"
-              action={`${baseBackendURL}/create-checkout-session?${cartItemsQuery}`}
-              method="POST">
+            <div
+              className="flex flex-col gap-y-4">
               <section className="flex flex-col gap-y-8 w-[90%] mx-auto">
                 {userCartStore.products.map(product => (
                   <article className={`flex flex-col laptop:flex-row border-[1px] ${product.on_stock === 0 && 'border-warning'}`} key={product.id}>
@@ -119,8 +131,10 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                 ))}
               </section>
 
-              <section className="flex flex-col tablet:flex-row gap-y-4 gap-x-4 justify-between items-center w-[90%] mx-auto px-4 laptop:px-0">
-                <h1 className="text-2xl flex flex-row">
+              <section className="flex flex-col gap-y-4 gap-x-4 justify-between items-center w-[90%] mx-auto px-4 laptop:px-0">
+            
+              <div className="flex flex-row gap-x-2 justify-between items-center w-full">
+                <h1 className="text-2xl">
                   Total:&nbsp;
                   <span>
                     {formatCurrency(
@@ -140,12 +154,36 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                     variant="danger-outline">
                     Clear cart <MdOutlineDeleteOutline />
                   </Button>
-                  <Button variant="info" type="submit">
-                    Proceed to checkout
-                  </Button>
                 </div>
+              </div>
+                  
+                  <div className="flex flex-row gap-x-4 justify-end items-center w-full">
+                    <h1 className="text-2xl">Proceed to checkout</h1>
+                    <div className="flex flex-row gap-x-2">
+                       <form action={`${baseBackendURL}/payment`}>
+                        <Button className="flex flex-row gap-x-1" variant="info" type="submit">
+                          Bitcoin
+                          <FaBitcoin/>
+                        </Button>
+                       </form>
+                    <form action={`${baseBackendURL}/create-payment?${payPalProductsQuery}`}
+                    method="POST">
+                      <Button className="flex flex-row gap-x-1" variant="info" type="submit">
+                      PayPal
+                      <FaPaypal/>
+                    </Button>
+                    </form>
+                    <form action={`${baseBackendURL}/create-checkout-session?${stripeProductsQuery}`}
+                    method="POST">
+                    <Button className="flex flex-row gap-x-1" variant="info" type="submit">
+                      Stripe
+                      <FaStripeS/>
+                    </Button>
+                    </form>
+                    </div>
+                  </div>
               </section>
-            </form>
+            </div>
           ) : (
             <div className="flex flex-col justify-center items-center">
               <img src="/empty-cart.png" alt="" />
