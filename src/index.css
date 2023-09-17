@@ -33,7 +33,7 @@
     --title: 0deg 0% 88%;
     --title-foreground: 0deg 0% 10%;
     --subTitle: 0deg 0% 60%;
-
+      
     /* The same colors */
     --border-color: 0deg 0% 60%; /*subTitle*/
     --icon-color: 0deg 0% 88%; /* title */
@@ -112,3 +112,6 @@ input::-webkit-inner-spin-button {
     border: 3px solid #303030;
   }
 }
+
+
+

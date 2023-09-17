@@ -6,7 +6,7 @@ interface UserStore {
   userId: string
   isAuthenticated: boolean
   username: string
-  email:string
+  email: string
   profilePictureUrl: string
   authUser: (userId: string) => void
   logoutUser: () => void
@@ -46,7 +46,7 @@ export const userStore = (set: SetState): UserStore => ({
   userId: "",
   isAuthenticated: false,
   username: "",
-  email:"",
+  email: "",
   profilePictureUrl: "",
   async authUser(userId: string) {
     const response = await authUser(userId)

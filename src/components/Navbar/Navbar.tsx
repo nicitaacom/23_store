@@ -59,7 +59,7 @@ export function Navbar() {
         <img
           src={darkMode ? "/23_store-dark.png" : "/23_store-light.png"}
           className="cursor-pointer uppercase max-h-[32px]"
-          onClick={() => navigate("/", { replace: true })}></img>
+          onClick={() => navigate("/",)}></img>
       </div>
 
       <div className="flex flex-row gap-x-2">

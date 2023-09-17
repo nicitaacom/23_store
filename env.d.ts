@@ -1,3 +1,5 @@
+/* for import.meta.env */
+
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
@@ -7,4 +9,14 @@ interface ImportMetaEnv {
 
 interface ImportMeta {
   readonly env: ImportMetaEnv
+}
+
+
+
+/* for metamask detecting */
+
+/// <reference types="vite/client" />
+
+interface Window {
+  ethereum: any;
 }

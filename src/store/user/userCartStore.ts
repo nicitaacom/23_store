@@ -1,16 +1,7 @@
 import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
 import supabase from "../../utils/supabaseClient"
-
-export interface IProduct {
-  id: string
-  title: string
-  sub_title: string
-  price: number
-  img_url: string[]
-  on_stock: number
-  quantity: number
-}
+import { IProduct } from "../../interfaces/IProduct"
 
 interface UserCartStore {
   products: IProduct[]
@@ -19,6 +10,7 @@ interface UserCartStore {
   decreaseProductQuantity: (product: IProduct) => void
   setProductQuantity0: (product: IProduct) => void
   setCartQuantity0: () => void
+  refreshProductOnStock:(products:IProduct[]) => void
 }
 
 export const increaseProductQuantityLogic = (
@@ -103,6 +95,7 @@ export const setProductQuantity0Logic = (products: IProduct[], product: IProduct
     const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
     if (userLocalStorage) {
       const parsedLS = JSON.parse(userLocalStorage)
+      console.log(98,"updatedProducts - ",updatedProducts)
       const { error } = await supabase
         .from("users_cart")
         .update({
@@ -124,12 +117,13 @@ export const setCartQuantity0Logic = (products: IProduct[]) => {
   setCartQuantity0InDB()
   async function setCartQuantity0InDB() {
     const userLocalStorage = localStorage.getItem("sb-ambgxbbsgequlwnbzchr-auth-token")
+    //on_stock - quantity not only if isAuthenticated on the feature
     if (userLocalStorage) {
       const parsedLS = JSON.parse(userLocalStorage)
       const { error } = await supabase
         .from("users_cart")
         .update({
-          cart_products: updatedProducts,
+          cart_products: [],
           cart_quantity: 0,
         })
         .eq("id", parsedLS.user.id)
@@ -139,6 +133,35 @@ export const setCartQuantity0Logic = (products: IProduct[]) => {
 
   return updatedProducts
 }
+
+
+
+export async function setOnStockFromDB(products: IProduct[]): Promise<IProduct[]> {
+  let updatedProducts = [...products];
+
+  for (const product of updatedProducts) {
+    const { data } = await supabase
+      .from("products")
+      .select("on_stock")
+      .eq("id", product.id);
+
+    if (Array.isArray(data) && data.length > 0) {
+      product.on_stock = data[0].on_stock as number;
+    }
+  }
+
+  return updatedProducts;
+}
+
+
+
+
+
+
+
+
+
+
 
 type SetState = (fn: (prevState: UserCartStore) => UserCartStore) => void
 
@@ -169,12 +192,13 @@ const userCartStore = (set: SetState): UserCartStore => ({
     set((state: UserCartStore) => ({
       ...state,
       cartQuantity:
-        [...state.products].findIndex(item => item.id === product.id) === -1
+        [...state.products].findIndex(item => item.id === product.id) === -1 || 
+        [...state.products][[...state.products].findIndex(item => item.id === product.id)].on_stock === 0 
           ? state.cartQuantity
           : state.cartQuantity -
             [...state.products][[...state.products].findIndex(item => item.id === product.id)].quantity,
-      products:
-        [...state.products].findIndex(item => item.id === product.id) === -1
+        products:
+            [...state.products].findIndex(item => item.id === product.id) === -1
           ? state.products
           : setProductQuantity0Logic(state.products, product, state.cartQuantity),
     }))
@@ -186,6 +210,13 @@ const userCartStore = (set: SetState): UserCartStore => ({
       cartQuantity: 0,
     }))
   },
+  async refreshProductOnStock(products:IProduct[]) {
+    const onStockFromDB = await setOnStockFromDB(products)
+    if (onStockFromDB) set((state:UserCartStore) => ({
+      ...state,
+      products:onStockFromDB
+    }))
+  }
 })
 
 const useUserCartStore = create(devtools(persist(userCartStore, { name: "userCartStore" })))

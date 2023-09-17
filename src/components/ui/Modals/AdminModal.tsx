@@ -93,12 +93,9 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
     }, 5000)
   }
 
-
   async function createProduct(title: string, subTitle: string, price: number, onStock: number) {
     try {
-        if (images.length > 0 && stripe) {
-
-
+      if (images.length > 0 && stripe) {
         const imagesArray = await Promise.all(
           images.map(async image => {
             if (image?.file && userStore.userId) {
@@ -144,53 +141,48 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
             },
           )
 
-
           if (activateResponse.data.active) {
             console.log("Product activated:", activateResponse.data)
           }
         }
 
-          // Create price for the product
-         const priceResponse = await axios.post(
-            "https://api.stripe.com/v1/prices",
-            {
-              unit_amount: price * 100, // Convert to cents
-              currency: "usd",
-              product: productResponse.data.id,
+        // Create price for the product
+        const priceResponse = await axios.post(
+          "https://api.stripe.com/v1/prices",
+          {
+            unit_amount: price * 100, // Convert to cents
+            currency: "usd",
+            product: productResponse.data.id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${import.meta.env.VITE_STRIPE_SECRET}`,
+              "Content-Type": "application/x-www-form-urlencoded",
             },
-            {
-              headers: {
-                Authorization: `Bearer ${import.meta.env.VITE_STRIPE_SECRET}`,
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-            },
-          )
+          },
+        )
 
-
-          const updatedUserResponse = await supabase
-            .from("products")
-            .insert({
-              id:priceResponse.data.id,
-              title: title,
-              sub_title: subTitle,
-              price: price,
-              on_stock: onStock,
-              img_url: imagesArray,
-            })
-            .eq("user_id", userStore.userId)
-          if (updatedUserResponse.error) throw updatedUserResponse.error
-          displayResponseMessage(<p className="text-success">Product added</p>)
-        }
-        else {
-          console.log(stripe,images.length)
-          displayResponseMessage(<p className="text-danger">Upload the image</p>)
-        }
+        const updatedUserResponse = await supabase
+          .from("products")
+          .insert({
+            id: priceResponse.data.id,
+            title: title,
+            sub_title: subTitle,
+            price: price,
+            on_stock: onStock,
+            img_url: imagesArray,
+          })
+          .eq("user_id", userStore.userId)
+        if (updatedUserResponse.error) throw updatedUserResponse.error
+        displayResponseMessage(<p className="text-success">Product added</p>)
+      } else {
+        console.log(stripe, images.length)
+        displayResponseMessage(<p className="text-danger">Upload the image</p>)
       }
-      catch (error) {
-        console.error("addProduct - ", error)
-      }
+    } catch (error) {
+      console.error("addProduct - ", error)
     }
-  
+  }
 
   const onSubmit = (data: FormData) => {
     setIsLoading(true)
