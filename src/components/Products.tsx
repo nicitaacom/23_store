@@ -50,9 +50,9 @@ export function Products() {
 
   return (
     <div
-      className="mobile:border-[1px] border-solid broder-border-color rounded 
-    w-full max-w-[1440px] ">
-      <div className="flex flex-row justify-between min-w-[80vw] px-4">
+      className="mobile:border-[1px] broder-border-color rounded 
+    w-full max-w-[1440px] min-w-[80vw]">
+      <div className="flex flex-row justify-between px-4">
         <h1 className="hidden tablet:flex text-lg">Products:</h1>
       </div>
       <ul className="flex flex-col gap-y-8">

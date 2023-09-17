@@ -61,14 +61,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       return (
         <Link
           to={href}
-          className={twMerge(disabled && "opacity-50 cursor-default", buttonVariants({ variant, active, className }))}>
+          target="_blank"
+          className={twMerge(disabled && "opacity-50 cursor-default pointer-events-none select-none", buttonVariants({ variant, active, className }))}>
           {children}
         </Link>
       )
     }
     return (
       <button
-        className={twMerge(disabled && "opacity-50 cursor-default", buttonVariants({ variant, active, className }))}
+        className={twMerge(disabled && "opacity-50 cursor-default pointer-events-none select-none", buttonVariants({ variant, active, className }))}
         ref={ref}
         {...props}>
         {children}

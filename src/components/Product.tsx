@@ -37,10 +37,9 @@ export function Product({ ...product }: IProduct) {
           </div>
           <div className="flex flex-col">
             <p className="text-lg tablet:text-sm text-subTitle text-center tablet:text-start">{product.sub_title}</p>
-            <p className="text-lg tablet:text-sm text-subTitle text-center tablet:text-start">
-              {product.on_stock === 0
-              ? <p className="text-warning">Out of stock</p>
-              : <p>Left on stock:{product.on_stock}</p>}
+            <p className={`text-lg tablet:text-sm text-subTitle text-center tablet:text-start
+            ${product.on_stock === 0 && 'text-warning'}`}>
+               {product.on_stock === 0 ? 'Out of stock' : `Left on stock:${product.on_stock}`}
             </p>
           </div>
         </section>
