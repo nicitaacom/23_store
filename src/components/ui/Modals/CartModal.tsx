@@ -1,15 +1,18 @@
+import { useEffect, useState } from "react"
+
 import { MdOutlineDeleteOutline } from "react-icons/md"
 import {HiOutlineRefresh} from 'react-icons/hi'
 import {FaBitcoin,FaStripeS,FaPaypal} from 'react-icons/fa'
+import detectEthereumProvider from "@metamask/detect-provider"
 
+import { IProduct } from "../../../interfaces/IProduct"
 import { Button, ModalContainer } from ".."
 import useUserCartStore from "../../../store/user/userCartStore"
 import { formatCurrency } from "../../../utils/currencyFormatter"
-import { useModals } from "../../../store/ui"
+import { useModals, useToast } from "../../../store/ui"
 import { AreYouSureModal } from "."
 import { Slider } from "../.."
-import { IProduct } from "../../../interfaces/IProduct"
-import { useEffect } from "react"
+import { formatBalance, formatChainAsNum } from '../../../utils/formatMetamaskBalance'
 
 interface CartModalProps {
   isOpen: boolean
@@ -20,8 +23,11 @@ interface CartModalProps {
 export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   const userCartStore = useUserCartStore()
   const { isOpen: areYouSureIsOpen, closeModal, openModal } = useModals()
+  const toast = useToast()
+
 
   const baseBackendURL = process.env.NODE_ENV === "production" ? "https://23-store.vercel.app" : "http://localhost:3000"
+  const baseURL = process.env.NODE_ENV === "production" ? "https://23-store.vercel.app" : "http://localhost:8000"
 
 
   const stripeProductsQuery = userCartStore.products
@@ -45,12 +51,106 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   .join("&");
 
 
+
     useEffect(() => {
       const refreshOnStock = async () => {
         userCartStore.refreshProductOnStock(userCartStore.products)
       }
       refreshOnStock()
     },[])
+
+
+
+
+
+
+/* Metamask implementation */
+  const [hasProvider, setHasProvider] = useState<boolean | null>(null)
+  const initialState = { accounts: [], balance: "", chainId: "" }
+  const [wallet, setWallet] = useState(initialState)
+
+  const [isConnecting, setIsConnecting] = useState(false)
+  const [error, setError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+
+  useEffect(() => {
+    const refreshAccounts = (accounts: any) => {
+      if (accounts.length > 0) {
+        updateWallet(accounts)
+      } else {
+        // if length 0, user is disconnected
+        setWallet(initialState)
+      }
+    }
+
+    const refreshChain = (chainId: string) => {
+      setWallet((wallet) => ({ ...wallet, chainId }))
+    }
+
+    const getProvider = async () => {
+      const provider = await detectEthereumProvider({ silent: true })
+      setHasProvider(Boolean(provider))
+
+      if (provider) {
+        const accounts = await window.ethereum.request(
+          { method: 'eth_accounts' }
+        )
+        refreshAccounts(accounts)
+        window.ethereum.on('accountsChanged', refreshAccounts)
+        window.ethereum.on("chainChanged", refreshChain)
+      }
+    }
+
+    getProvider()
+
+    return () => {
+      window.ethereum?.removeListener('accountsChanged', refreshAccounts)
+      window.ethereum?.removeListener("chainChanged", refreshChain)
+    }
+  }, [])
+
+  const updateWallet = async (accounts: any) => {
+    const balance = formatBalance(await window.ethereum!.request({
+      method: "eth_getBalance",
+      params: [accounts[0], "latest"],
+    }))
+    const chainId = await window.ethereum!.request({
+      method: "eth_chainId",
+    })
+    setWallet({ accounts, balance, chainId })
+  }
+
+  const handleConnect = async () => {
+    setIsConnecting(true)
+
+    if (hasProvider === false) {
+      setTimeout(() => {
+        setIsConnecting(false)
+      },10000)
+      toast.show('error','Metamask not detected',
+      <span className="inline">Please install metamask&nbsp;
+         <Button className="inline w-fit text-info" variant='link' active='active'
+         href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=ext_app_menu">here </Button>
+         or using&nbsp;<Button className="inline w-fit text-info" variant='link' active='active' href={`${baseURL}/docs/how-install-metamask`}>this</Button> guide
+      </span>,10000)
+      throw Error("Metamask not detected")
+    }
+
+    await window.ethereum.request({
+      method: "eth_requestAccounts",
+    })
+    .then((accounts:[]) => {
+      setError(false)
+      updateWallet(accounts)
+    })
+    .catch((err:Error) => {
+      setError(true)
+      setErrorMessage(err.message)
+    })
+    setIsConnecting(false)
+  }
+
+  const disableConnect = Boolean(wallet) && isConnecting
 
   return (
     <>
@@ -81,15 +181,15 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                      laptop:h-[200px] desktop:h-[200px] laptop:w-fit"
                       />
                     )}
-                    <div className="flex flex-col justify-between w-full">
-                      <div className="flex flex-row gap-x-8 justify-between items-center p-4">
-                        <div className="flex flex-col">
-                          <h1 className={`text-2xl text-center truncate ${product.on_stock === 0 && 'text-subTitle'}`}>{product.title}</h1>
+                    <div className="flex flex-col justify-between w-full laptop:max-w-[calc(100%-355.55px)]">
+                      <div className="flex flex-col mobile:flex-row gap-y-2 gap-x-8 justify-between items-center p-4 max-w-full">
+                        <div className="flex flex-col w-full mobile:w-[60%]">
+                          <h1 className={`text-2xl text-center mobile:text-start truncate ${product.on_stock === 0 && 'text-subTitle'}`}>{product.title}</h1>
                           {product.on_stock === 0 && <p className="text-warning">Out of stock</p>}
                         </div>
-                        <h1 className={`text-2xl text-center align-top h-full ${product.on_stock === 0 && 'text-subTitle'}`}>{formatCurrency(product.price)}</h1>
+                        <h1 className={`text-2xl text-end align-top h-full mobile:w-[40%] ${product.on_stock === 0 && 'text-subTitle'}`}>{formatCurrency(product.price)}</h1>
                       </div>
-                      <div className="flex flex-col tablet:flex-row gap-y-4 gap-x-8 justify-between items-center p-4">
+                      <div className="flex flex-col tablet:flex-row gap-y-4 gap-x-8 justify-between items-center p-4 max-w-full">
                         <div className="flex flex-col">
                           <h5 className="text-lg flex flex-row justify-center tablet:justify-start">
                             Quantity:&nbsp;<p>{product.quantity}</p>
@@ -133,7 +233,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
 
               <section className="flex flex-col gap-y-4 gap-x-4 justify-between items-center w-[90%] mx-auto px-4 laptop:px-0">
             
-              <div className="flex flex-row gap-x-2 justify-between items-center w-full">
+              <div className="flex flex-col mobile:flex-row gap-y-2 gap-x-2 justify-between items-center w-full">
                 <h1 className="text-2xl">
                   Total:&nbsp;
                   <span>
@@ -147,9 +247,9 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                     )}
                   </span>
                 </h1>
-                <div className="flex flex-col mobile:flex-row gap-x-4 gap-y-4">
+                <div className="flex flex-row gap-x-4 w-full mobile:w-fit">
                   <Button
-                    className="flex flex-row gap-x-1"
+                    className="flex flex-row gap-x-1 w-full"
                     onClick={() => openModal("AreYouSureModal")}
                     variant="danger-outline">
                     Clear cart <MdOutlineDeleteOutline />
@@ -157,31 +257,67 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                 </div>
               </div>
                   
-                  <div className="flex flex-row gap-x-4 justify-end items-center w-full">
-                    <h1 className="text-2xl">Proceed to checkout</h1>
-                    <div className="flex flex-row gap-x-2">
-                       <form action={`${baseBackendURL}/payment`}>
-                        <Button className="flex flex-row gap-x-1" variant="info" type="submit">
-                          Bitcoin
-                          <FaBitcoin/>
-                        </Button>
-                       </form>
-                    <form action={`${baseBackendURL}/create-payment?${payPalProductsQuery}`}
+                  <h1 className="text-2xl">Proceed to checkout</h1>
+                  <div className="grid grid-cols-2 gap-4 laptop:flex flex-row">
+                  
+
+
+
+
+                  
+                    <div>Injected Provider {hasProvider ? 'DOES' : 'DOES NOT'} Exist</div>
+
+      {window.ethereum?.isMetaMask && wallet.accounts.length < 1 &&
+        <button disabled={disableConnect} onClick={handleConnect}>Connect MetaMask</button>
+      }
+
+      {wallet.accounts.length > 0 &&
+        <>
+          <div>Wallet Accounts: {wallet.accounts[0]}</div>
+          <div>Wallet Balance: {wallet.balance}</div>
+          <div>Hex ChainId: {wallet.chainId}</div>
+          <div>Numeric ChainId: {formatChainAsNum(wallet.chainId)}</div>
+        </>
+      }
+      { error && (
+          <div onClick={() => setError(false)}>
+            <strong>Error:</strong> {errorMessage}
+          </div>
+        )
+      }
+
+
+
+
+
+                    <div>
+                    <Button className="flex flex-row gap-x-1 w-full laptop:w-fit" variant="info"
+                    disabled={disableConnect} onClick={handleConnect}>
+                      Metamask 
+                      <img className="w-[20px] h-[20px]" width={32} height={32} src="/metamask.png" alt="metamask" />
+                    </Button>
+                    </div>                   
+                    <form action={`${baseBackendURL}/payment`}>
+                    <Button className="flex flex-row gap-x-1 w-full laptop:w-fit" variant="info" type="submit">
+                      Bitcoin
+                      <FaBitcoin/>
+                    </Button>
+                    </form>
+                   <form action={`${baseBackendURL}/create-payment?${payPalProductsQuery}`}
                     method="POST">
-                      <Button className="flex flex-row gap-x-1" variant="info" type="submit">
+                      <Button className="flex flex-row gap-x-1 w-full laptop:w-fit" variant="info" type="submit">
                       PayPal
                       <FaPaypal/>
                     </Button>
                     </form>
                     <form action={`${baseBackendURL}/create-checkout-session?${stripeProductsQuery}`}
                     method="POST">
-                    <Button className="flex flex-row gap-x-1" variant="info" type="submit">
+                    <Button className="flex flex-row gap-x-1 w-full laptop:w-fit" variant="info" type="submit">
                       Stripe
                       <FaStripeS/>
                     </Button>
                     </form>
                     </div>
-                  </div>
               </section>
             </div>
           ) : (

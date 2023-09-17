@@ -13,6 +13,7 @@
     "email": "email dev --dir src/emails --port 4000"
   },
   "dependencies": {
+    "@metamask/detect-provider": "^2.0.0",
     "@paypal/checkout-server-sdk": "^1.0.3",
     "@react-email/button": "^0.0.10",
     "@react-email/components": "^0.0.7",

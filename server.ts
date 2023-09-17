@@ -1,4 +1,5 @@
 import { stripeProductType } from "./src/interfaces/stripeProduct";
+import { paypalProductType } from "./src/interfaces/paypalProduct";
 
 import express, { Request, Response } from 'express';
 import Stripe from 'stripe';
@@ -7,7 +8,7 @@ import cors from 'cors'
 import axios from 'axios'
 import { Resend } from 'resend'
 import dotenv from 'dotenv'
-import { paypalProductType } from "./src/interfaces/paypalProduct";
+
 dotenv.config();
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://23-store.vercel.app' : 'http://localhost:8000';
