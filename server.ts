@@ -8,7 +8,6 @@ import cors from 'cors'
 import axios from 'axios'
 import { Resend } from 'resend'
 import dotenv from 'dotenv'
-
 dotenv.config();
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://23-store.vercel.app' : 'http://localhost:8000';
@@ -77,8 +76,6 @@ app.post('/create-checkout-session', async (req: Request, res: Response) => {
     } else {
       lineItems = [JSON.parse(cartProducts.stripeProducts)];
     }
-
-    console.log(79,"lineItems - ",lineItems)
     
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -233,7 +230,7 @@ app.post('/send-email',  async (req: Request, res: Response) => {
   try {
     const { from, to, subject, html } = req.body;
 
-    const data = await resend.emails.send({
+    await resend.emails.send({
       from:from,
       to:to,
       subject:subject,
@@ -241,7 +238,6 @@ app.post('/send-email',  async (req: Request, res: Response) => {
     })
      res.sendStatus(200);
 
-    console.log(data);
   } catch (error) {
     console.error(error);
      res.sendStatus(500);

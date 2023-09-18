@@ -5,7 +5,7 @@ import { Route, Routes } from "react-router-dom"
 
 /* sections */
 import { HomePage, Login, PaymentStatusPage, Register } from "./pages"
-import { DocsHomePage, HowInstallMetamask } from "./pages/docs"
+import { DocsCustomerPage, DocsDeveloperPage, DocsHomePage, HowInstallMetamask } from "./pages/docs"
 import useDarkMode from "./store/ui/darkModeStore"
 import useToast from "./store/ui/useToast"
 import { Navbar } from "./components/Navbar/Navbar"
@@ -42,12 +42,13 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/payment" element={<PaymentStatusPage />} />
         </Routes>
-          {/* DOCS */}
-
-        <div className="max-w-[1440px] mx-auto py-12">
-          <Routes>
+        {/* DOCS */}
+        <div className="max-[1800px]:w-[80vw] max-w-[1440px] w-[100vw] py-12 mx-auto">
+         <Routes>
           <Route path="docs/" element={<DocsHomePage />} />
-          <Route path="docs/how-install-metamask" element={<HowInstallMetamask />} />
+          <Route path="docs/developer" element={<DocsDeveloperPage />} />
+          <Route path="docs/customer" element={<DocsCustomerPage />} />
+          <Route path="docs/customer/how-to-install-metamask" element={<HowInstallMetamask />} />
         </Routes>
         </div>
 

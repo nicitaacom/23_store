@@ -2,6 +2,7 @@ import {  Head, Html, Preview, Tailwind, Body, Container,
    Section, Img, Heading,Text,Column,Link } from "@react-email/components";
 import { formatCurrency } from "../utils/currencyFormatter";
 import { IProduct } from "../interfaces/IProduct";
+import { baseURL } from "../utils/baseURL";
 
 interface CheckEmailProps {
   products: IProduct[]
@@ -10,7 +11,6 @@ interface CheckEmailProps {
 
 export const CheckEmail = ({ products,deliveryDate }: CheckEmailProps) => {
 
-  const baseURL = process.env.NODE_ENV === "production" ? "https://23-store.vercel.app" : "http://localhost:8000"
   const previewText = `Thank you for your purchace`;
   return (
     <Tailwind

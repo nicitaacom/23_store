@@ -1,12 +1,24 @@
+import {BsCodeSlash} from 'react-icons/bs'
+import {BiUser} from 'react-icons/bi'
+
+import { Button } from "../../components/ui";
+
 export function DocsHomePage () {
 return (
-    <div>
-      Choose docs you want to read
+    <section>
+      <h1 className="text-center text-3xl mb-4">Choose docs you want to read</h1>
 
-      For developers
+      <div className="flex flex-col gap-y-4 w-fit mx-auto">
+        <Button className="flex flex-row gap-x-2" variant='info-outline' href="/docs/developer">
+         For developer
+         <BsCodeSlash/>
+        </Button>
 
-
-      For customers
-    </div>
+        <Button className="flex flex-row gap-x-2" variant='info-outline' href="/docs/customer">
+          For customer
+          <BiUser/>
+        </Button>
+      </div>
+    </section>
 )
 }
