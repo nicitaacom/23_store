@@ -6,6 +6,7 @@ import {FaBitcoin,FaStripeS,FaPaypal} from 'react-icons/fa'
 import detectEthereumProvider from "@metamask/detect-provider"
 
 import { IProduct } from "../../../interfaces/IProduct"
+import { baseBackendURL, baseURL } from "../../../utils/baseURL"
 import { Button, ModalContainer } from ".."
 import useUserCartStore from "../../../store/user/userCartStore"
 import { formatCurrency } from "../../../utils/currencyFormatter"
@@ -26,8 +27,6 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   const toast = useToast()
 
 
-  const baseBackendURL = process.env.NODE_ENV === "production" ? "https://23-store.vercel.app" : "http://localhost:3000"
-  const baseURL = process.env.NODE_ENV === "production" ? "https://23-store.vercel.app" : "http://localhost:8000"
 
 
   const stripeProductsQuery = userCartStore.products
@@ -129,9 +128,10 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
       },10000)
       toast.show('error','Metamask not detected',
       <span className="inline">Please install metamask&nbsp;
-         <Button className="inline w-fit text-info" variant='link' active='active'
+         <Button className="inline w-fit text-info" variant='link' active='active' target="_blank"
          href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=ext_app_menu">here </Button>
-         or using&nbsp;<Button className="inline w-fit text-info" variant='link' active='active' href={`${baseURL}/docs/how-install-metamask`}>this</Button> guide
+         or using&nbsp;<Button className="inline w-fit text-info" variant='link' active='active' target="_blank"
+          href={`${baseURL}/docs/how-install-metamask`}>this</Button> guide
       </span>,10000)
       throw Error("Metamask not detected")
     }
@@ -232,6 +232,8 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
               </section>
 
               <section className="flex flex-col gap-y-4 gap-x-4 justify-between items-center w-[90%] mx-auto px-4 laptop:px-0">
+
+                
             
               <div className="flex flex-col mobile:flex-row gap-y-2 gap-x-2 justify-between items-center w-full">
                 <h1 className="text-2xl">
