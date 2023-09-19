@@ -138,11 +138,12 @@ const convertUSDToETHQuery = userCartStore.products
       `${baseBackendURL}/coinmarketcap?${convertUSDToETHQuery}&symbol=USD&convert=ETH`
     );
     console.log(140,'response -', response);
+    console.log(141,'response.data.data[0].quote.ETH.price -', response.data.data[0].quote.ETH.price);
     setETHPrice(response.data.data[0].quote.ETH.price)
-    console.log(142,"ETHprice - ",ETHprice)
-    const weiPrice = (ETHprice * 10 ** 18).toString();
-    console.log(144,"weiPrice - ",weiPrice)
-    
+    console.log(142,"ETHPrice - ",ETHprice)
+    const weiPrice = ((ETHprice * 10 ** 16)).toString();
+    console.log(144,"weiPrice - ",weiPrice);
+
   } catch (error) {
     console.log('Error -', error);
   }
@@ -164,7 +165,7 @@ fetchPriceConversion();
               gasLimit: '0x5028',
               maxPriorityFeePerGas: '0x3b9aca00',
               maxFeePerGas: '0x2540be400',
-              value:ETHprice.toString() + "000000000000000000"
+              value:(BigInt(ETHprice * 10 ** 18)).toString(16)
             },
           ],
         })
