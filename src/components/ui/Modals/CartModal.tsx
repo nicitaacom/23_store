@@ -50,6 +50,15 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   .map(item => `payPalProducts=${encodeURIComponent(JSON.stringify(item))}`)
   .join("&");
 
+const convertUSDToETHQuery = userCartStore.products
+  .filter((product: IProduct) => product.on_stock > 0)
+  .map((product: IProduct) => ({
+    price: product.price,
+    quantity: product.quantity
+  }))
+  .map(item => `amount=${encodeURIComponent(item.price * item.quantity)}`)
+  .join('&');
+
 
 
     useEffect(() => {
@@ -68,6 +77,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   const [hasProvider, setHasProvider] = useState<boolean | null>(null)
   const initialState = { accounts: [], balance: "", chainId: "" }
   const [wallet, setWallet] = useState(initialState)
+  const [ETHprice,setETHPrice] = useState<number>(0)
 
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState(false)
@@ -122,25 +132,27 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   }
 
   useEffect(() => {
-  const fetchPriceConversion = async () => {
-    try {
-      const response = await axios.get(`${baseBackendURL}/coinmarketcap`, {
-        headers: {
-          'X-CMC_PRO_API_KEY': import.meta.env.VITE_COINMARKETCAP_PUBLIC,
-        },
-      });
-      console.log('response -', response);
-    } catch (error) {
-      console.log('Error -', error);
-    }
-  };
+ const fetchPriceConversion = async () => {
+  try {
+    const response = await axios.get(
+      `${baseBackendURL}/coinmarketcap?${convertUSDToETHQuery}&symbol=USD&convert=ETH`
+    );
+    console.log(140,'response -', response);
+    setETHPrice(response.data.data[0].quote.ETH.price)
+    console.log(142,"ETHprice - ",ETHprice)
+    const weiPrice = (ETHprice * 10 ** 18).toString();
+    console.log(144,"weiPrice - ",weiPrice)
+    
+  } catch (error) {
+    console.log('Error -', error);
+  }
+};
 
-  fetchPriceConversion();
+fetchPriceConversion();
 }, []);
 
   function sendMoney() {
         setIsConnecting(true)
-
 
         window.ethereum
         .request({
@@ -152,7 +164,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
               gasLimit: '0x5028',
               maxPriorityFeePerGas: '0x3b9aca00',
               maxFeePerGas: '0x2540be400',
-              value:Number(3000000000000000).toString(16)
+              value:ETHprice.toString() + "000000000000000000"
             },
           ],
         })
