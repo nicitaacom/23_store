@@ -15,6 +15,7 @@ import { AreYouSureModal } from "."
 import { Slider } from "../.."
 import { formatBalance, formatChainAsNum } from '../../../utils/formatMetamaskBalance'
 import axios from "axios"
+import { useNavigate } from "react-router"
 
 interface CartModalProps {
   isOpen: boolean
@@ -26,6 +27,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   const userCartStore = useUserCartStore()
   const { isOpen: areYouSureIsOpen, closeModal, openModal } = useModals()
   const toast = useToast()
+  const navigate = useNavigate()
 
 
 
@@ -166,7 +168,7 @@ const convertUSDToETHQuery = userCartStore.products
             },
           ],
         })
-        .then((txHash:string) => console.log(txHash))
+        .then((txHash:string) => {navigate(`${baseURL}/payment?status=success`),console.log("txHash - ",txHash)})
         .catch((error:Error) => {
           
         error.message.includes("MetaMask Tx Signature: User denied transaction signature.")
