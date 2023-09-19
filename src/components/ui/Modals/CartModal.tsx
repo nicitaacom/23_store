@@ -131,29 +131,26 @@ const convertUSDToETHQuery = userCartStore.products
     
   }
 
-  useEffect(() => {
- const fetchPriceConversion = async () => {
-  try {
-    const response = await axios.get(
-      `${baseBackendURL}/coinmarketcap?${convertUSDToETHQuery}&symbol=USD&convert=ETH`
-    );
-    console.log(140,'response -', response);
-    console.log(141,'response.data.data[0].quote.ETH.price -', response.data.data[0].quote.ETH.price);
-    setETHPrice(response.data.data[0].quote.ETH.price)
-    console.log(142,"ETHPrice - ",ETHprice)
-    const weiPrice = ((ETHprice * 10 ** 16)).toString();
-    console.log(144,"weiPrice - ",weiPrice);
-
-  } catch (error) {
-    console.log('Error -', error);
-  }
-};
-
-fetchPriceConversion();
-}, []);
-
-  function sendMoney() {
+  async function sendMoney() {
         setIsConnecting(true)
+
+       
+          try {
+            const response = await axios.get(
+              `${baseBackendURL}/coinmarketcap?${convertUSDToETHQuery}&symbol=USD&convert=ETH`
+            );
+            console.log(140,'response -', response);
+            console.log(141,'response.data.data[0].quote.ETH.price -', response.data.data[0].quote.ETH.price);
+            setETHPrice(response.data.data[0].quote.ETH.price)
+            console.log(142,"ETHPrice - ",ETHprice)
+            const weiPrice = ((ETHprice * 10 ** 16)).toString();
+            console.log(144,"weiPrice - ",weiPrice);
+
+          } catch (error) {
+            console.log('Error -', error);
+          }
+        
+
 
         window.ethereum
         .request({
