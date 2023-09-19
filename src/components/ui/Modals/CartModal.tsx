@@ -14,6 +14,7 @@ import { useModals, useToast } from "../../../store/ui"
 import { AreYouSureModal } from "."
 import { Slider } from "../.."
 import { formatBalance, formatChainAsNum } from '../../../utils/formatMetamaskBalance'
+import axios from "axios"
 
 interface CartModalProps {
   isOpen: boolean
@@ -73,7 +74,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   const [errorMessage, setErrorMessage] = useState("")
 
   useEffect(() => {
-    const refreshAccounts = (accounts: any) => {
+    const refreshAccounts = (accounts: never[]) => {
       if (accounts.length > 0) {
         updateWallet(accounts)
       } else {
@@ -108,7 +109,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
     }
   }, [])
 
-  const updateWallet = async (accounts: any) => {
+  const updateWallet = async (accounts: never[]) => {
     const balance = formatBalance(await window.ethereum!.request({
       method: "eth_getBalance",
       params: [accounts[0], "latest"],
@@ -117,7 +118,52 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
       method: "eth_chainId",
     })
     setWallet({ accounts, balance, chainId })
+    
   }
+
+  useEffect(() => {
+  const fetchPriceConversion = async () => {
+    try {
+      const response = await axios.get(`${baseBackendURL}/coinmarketcap`, {
+        headers: {
+          'X-CMC_PRO_API_KEY': import.meta.env.VITE_COINMARKETCAP_PUBLIC,
+        },
+      });
+      console.log('response -', response);
+    } catch (error) {
+      console.log('Error -', error);
+    }
+  };
+
+  fetchPriceConversion();
+}, []);
+
+  function sendMoney() {
+        setIsConnecting(true)
+
+
+        window.ethereum
+        .request({
+          method: 'eth_sendTransaction',
+          params: [
+            {
+              from: wallet.accounts[0],
+              to: import.meta.env.VITE_METAMASK_ADRESS,
+              gasLimit: '0x5028',
+              maxPriorityFeePerGas: '0x3b9aca00',
+              maxFeePerGas: '0x2540be400',
+              value:Number(3000000000000000).toString(16)
+            },
+          ],
+        })
+        .then((txHash:string) => console.log(txHash))
+        .catch((error:Error) => {
+          
+        error.message.includes("MetaMask Tx Signature: User denied transaction signature.")
+        ? toast.show('error','Transaction error','User denied transaction signature')
+        : toast.show('error','Unknown error',error.message)
+          }).finally(() => setIsConnecting(false))
+}
 
   const handleConnect = async () => {
     setIsConnecting(true)
@@ -131,7 +177,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
          <Button className="inline w-fit text-info" variant='link' active='active' target="_blank"
          href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=ext_app_menu">here </Button>
          or using&nbsp;<Button className="inline w-fit text-info" variant='link' active='active' target="_blank"
-          href={`${baseURL}/docs/how-install-metamask`}>this</Button> guide
+          href={`${baseURL}/docs/customer/how-to-install-metamask`}>this</Button> guide
       </span>,10000)
       throw Error("Metamask not detected")
     }
@@ -149,8 +195,6 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
     })
     setIsConnecting(false)
   }
-
-  const disableConnect = Boolean(wallet) && isConnecting
 
   return (
     <>
@@ -270,16 +314,16 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
                     <div>Injected Provider {hasProvider ? 'DOES' : 'DOES NOT'} Exist</div>
 
       {window.ethereum?.isMetaMask && wallet.accounts.length < 1 &&
-        <button disabled={disableConnect} onClick={handleConnect}>Connect MetaMask</button>
+        <button disabled={isConnecting} onClick={handleConnect}>Connect MetaMask</button>
       }
 
       {wallet.accounts.length > 0 &&
-        <>
+        <div className="flex flex-col gap-y-2">
           <div>Wallet Accounts: {wallet.accounts[0]}</div>
           <div>Wallet Balance: {wallet.balance}</div>
           <div>Hex ChainId: {wallet.chainId}</div>
           <div>Numeric ChainId: {formatChainAsNum(wallet.chainId)}</div>
-        </>
+        </div>
       }
       { error && (
           <div onClick={() => setError(false)}>
@@ -294,7 +338,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
 
                     <div>
                     <Button className="flex flex-row gap-x-1 w-full laptop:w-fit" variant="info"
-                    disabled={disableConnect} onClick={handleConnect}>
+                    disabled={isConnecting} onClick={wallet ? sendMoney : handleConnect}>
                       Metamask 
                       <img className="w-[20px] h-[20px]" width={32} height={32} src="/metamask.png" alt="metamask" />
                     </Button>

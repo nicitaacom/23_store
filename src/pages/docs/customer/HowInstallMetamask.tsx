@@ -36,7 +36,7 @@ return (
 
       
     
-      {browser === 'chrome' &&
+      {browser === 'chrome' || !browser &&
       <>
         <section>
       <h2 className="text-2xl">Step 1</h2>
