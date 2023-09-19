@@ -354,13 +354,14 @@ const convertUSDToETHQuery = userCartStore.products
                       Metamask 
                       <img className="w-[20px] h-[20px]" width={32} height={32} src="/metamask.png" alt="metamask" />
                     </Button>
-                    </div>                   
-                    <form action={`${baseBackendURL}/payment`}>
+                    </div>
+                    <div className="tooltip h-[40px]">
                     <Button className="flex flex-row gap-x-1 w-full laptop:w-fit" variant="info" type="submit">
                       Bitcoin
                       <FaBitcoin/>
                     </Button>
-                    </form>
+                    <div className="tooltiptext bg-background whitespace-nowrap">I need ca 50$ to create it</div>
+                    </div>
                    <form action={`${baseBackendURL}/create-payment?${payPalProductsQuery}`}
                     method="POST">
                       <Button className="flex flex-row gap-x-1 w-full laptop:w-fit" variant="info" type="submit">
