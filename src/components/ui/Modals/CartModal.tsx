@@ -68,6 +68,7 @@ const convertUSDToETHQuery = userCartStore.products
         userCartStore.refreshProductOnStock(userCartStore.products)
       }
       refreshOnStock()
+      //eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 
 
@@ -119,6 +120,7 @@ const convertUSDToETHQuery = userCartStore.products
       window.ethereum?.removeListener('accountsChanged', refreshAccounts)
       window.ethereum?.removeListener("chainChanged", refreshChain)
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const updateWallet = async (accounts: never[]) => {

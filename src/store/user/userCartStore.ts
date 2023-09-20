@@ -13,6 +13,12 @@ interface UserCartStore {
   refreshProductOnStock:(products:IProduct[]) => void
 }
 
+
+
+
+
+
+
 export const increaseProductQuantityLogic = (
   products: IProduct[],
   product: IProduct,
@@ -49,6 +55,14 @@ export const increaseProductQuantityLogic = (
   return updatedProducts
 }
 
+
+
+
+
+
+
+
+
 export const decreaseProductQuantityLogic = (
   products: IProduct[],
   product: IProduct,
@@ -81,6 +95,12 @@ export const decreaseProductQuantityLogic = (
   return updatedProducts
 }
 
+
+
+
+
+
+
 export const setProductQuantity0Logic = (products: IProduct[], product: IProduct, cartQuantity: number): IProduct[] => {
   let updatedProducts = [...products]
   const existingProductIndex = updatedProducts.findIndex(item => item.id === product.id)
@@ -110,6 +130,13 @@ export const setProductQuantity0Logic = (products: IProduct[], product: IProduct
   return updatedProducts
 }
 
+
+
+
+
+
+
+
 export const setCartQuantity0Logic = (products: IProduct[]) => {
   let updatedProducts = [...products]
   updatedProducts = []
@@ -136,8 +163,13 @@ export const setCartQuantity0Logic = (products: IProduct[]) => {
 
 
 
+
+
+
+
+
 export async function setOnStockFromDB(products: IProduct[]): Promise<IProduct[]> {
-  let updatedProducts = [...products];
+  const updatedProducts = [...products];
 
   for (const product of updatedProducts) {
     const { data } = await supabase
@@ -152,6 +184,16 @@ export async function setOnStockFromDB(products: IProduct[]): Promise<IProduct[]
 
   return updatedProducts;
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
