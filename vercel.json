@@ -9,6 +9,6 @@
     { "src": "/api/paypal", "dest": "api/paypal.ts" },
     { "src": "/api/sendEmail", "dest": "api/sendEmail.ts" },
     { "src": "/api/stripe", "dest": "api/stripe.ts" },
-    { "src": "/(.*)", "dest": "/client/index.html" }
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
