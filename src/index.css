@@ -89,6 +89,26 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
+
+/* Tooltip  */
+@layer components {
+  .tooltip {
+    @apply relative inline-block;
+  }
+  .tooltip:hover .tooltiptext {
+    @apply opacity-100 visible transition-all duration-300
+    translate-y-[-105%]
+    whitespace-nowrap w-auto h-auto px-4 py-2 text-title z-[99];
+  }
+  .tooltiptext {
+    @apply opacity-0 invisible transition-all duration-300
+    absolute top-[0] left-[50%] translate-x-[-50%] translate-y-[-110%]
+    text-[1rem] text-center
+    bg-foreground rounded z-[99];
+  }
+}
+
+
 /* ===== Scrollbar CSS ===== */
 /* Firefox */
 @media (min-width: 1024px) {

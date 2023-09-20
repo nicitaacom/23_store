@@ -15,6 +15,7 @@ import { AreYouSureModal } from "."
 import { Slider } from "../.."
 import { formatBalance, formatChainAsNum } from '../../../utils/formatMetamaskBalance'
 import axios from "axios"
+import { useNavigate } from "react-router"
 
 interface CartModalProps {
   isOpen: boolean
@@ -26,6 +27,7 @@ export function CartModal({ isOpen, onClose, label }: CartModalProps) {
   const userCartStore = useUserCartStore()
   const { isOpen: areYouSureIsOpen, closeModal, openModal } = useModals()
   const toast = useToast()
+  const navigate = useNavigate()
 
 
 
@@ -131,28 +133,26 @@ const convertUSDToETHQuery = userCartStore.products
     
   }
 
-  useEffect(() => {
- const fetchPriceConversion = async () => {
-  try {
-    const response = await axios.get(
-      `${baseBackendURL}/coinmarketcap?${convertUSDToETHQuery}&symbol=USD&convert=ETH`
-    );
-    console.log(140,'response -', response);
-    setETHPrice(response.data.data[0].quote.ETH.price)
-    console.log(142,"ETHprice - ",ETHprice)
-    const weiPrice = (ETHprice * 10 ** 18).toString();
-    console.log(144,"weiPrice - ",weiPrice)
-    
-  } catch (error) {
-    console.log('Error -', error);
-  }
-};
-
-fetchPriceConversion();
-}, []);
-
-  function sendMoney() {
+  async function sendMoney() {
         setIsConnecting(true)
+
+       
+          try {
+            const response = await axios.get(
+              `${baseBackendURL}/coinmarketcap?${convertUSDToETHQuery}&symbol=USD&convert=ETH`
+            );
+            console.log(140,'response -', response);
+            console.log(141,'response.data.data[0].quote.ETH.price -', response.data.data[0].quote.ETH.price);
+            setETHPrice(response.data.data[0].quote.ETH.price)
+            console.log(142,"ETHPrice - ",ETHprice)
+            const weiPrice = ((ETHprice * 10 ** 16)).toString();
+            console.log(144,"weiPrice - ",weiPrice);
+
+          } catch (error) {
+            console.log('Error -', error);
+          }
+        
+
 
         window.ethereum
         .request({
@@ -164,11 +164,11 @@ fetchPriceConversion();
               gasLimit: '0x5028',
               maxPriorityFeePerGas: '0x3b9aca00',
               maxFeePerGas: '0x2540be400',
-              value:ETHprice.toString() + "000000000000000000"
+              value:(BigInt(ETHprice * 10 ** 18)).toString(16)
             },
           ],
         })
-        .then((txHash:string) => console.log(txHash))
+        .then((txHash:string) => {navigate(`${baseURL}/payment?status=success`),console.log("txHash - ",txHash)})
         .catch((error:Error) => {
           
         error.message.includes("MetaMask Tx Signature: User denied transaction signature.")
@@ -354,13 +354,14 @@ fetchPriceConversion();
                       Metamask 
                       <img className="w-[20px] h-[20px]" width={32} height={32} src="/metamask.png" alt="metamask" />
                     </Button>
-                    </div>                   
-                    <form action={`${baseBackendURL}/payment`}>
+                    </div>
+                    <div className="tooltip h-[40px]">
                     <Button className="flex flex-row gap-x-1 w-full laptop:w-fit" variant="info" type="submit">
                       Bitcoin
                       <FaBitcoin/>
                     </Button>
-                    </form>
+                    <div className="tooltiptext bg-background whitespace-nowrap">I need ca 50$ to create it</div>
+                    </div>
                    <form action={`${baseBackendURL}/create-payment?${payPalProductsQuery}`}
                     method="POST">
                       <Button className="flex flex-row gap-x-1 w-full laptop:w-fit" variant="info" type="submit">

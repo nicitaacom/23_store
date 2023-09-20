@@ -44,8 +44,6 @@ export function Navbar() {
     }
   }, [])
 
-  //I commented it to uncomment it in the feature to check for re-renders
-  console.log(34, "username - ", userStore.username)
   return (
     <nav
       className={`fixed flex flex-row justify-between items-center 

@@ -11,6 +11,7 @@ import dotenv from 'dotenv'
 dotenv.config();
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://23-store.vercel.app' : 'http://localhost:8000';
+const baseBackendURL = process.env.NODE_ENV === 'production' ? 'https://23-store.vercel.app' : 'http://localhost:3000';
 
 
 
@@ -59,7 +60,7 @@ app.get('/', (_req: Request, res: Response) => {
 
 
 /* stripe set up */
-const stripe = new Stripe(process.env.VITE_STRIPE_SECRET!, {
+const stripe = new Stripe(process.env.REACT_STRIPE_SECRET!, {
   apiVersion: '2023-08-16',
 });
 
@@ -109,8 +110,8 @@ app.post('/create-checkout-session', async (req: Request, res: Response) => {
 /* PayPal set up */
 paypal.configure({
   mode: process.env.NODE_ENV === 'production' ? 'live' : 'sandbox',
-  client_id: process.env.VITE_PAYPAL_PUBLIC!,
-  client_secret: process.env.VITE_PAYPAL_SECRET!,
+  client_id: process.env.REACT_PAYPAL_PUBLIC!,
+  client_secret: process.env.REACT_PAYPAL_SECRET!,
 });
 
 app.post('/create-payment', (req: Request, res: Response) => {
@@ -156,7 +157,7 @@ const transactions = [
       payment_method: 'paypal',
     },
     redirect_urls: {
-      return_url: `${baseURL}/payment/?status=success`,
+      return_url: `${baseBackendURL}/ipn-endpoint`,
       cancel_url: `${baseURL}/payment/?status=canceled`,
     },
     transactions: transactions as paypal.Transaction[],
@@ -183,33 +184,58 @@ const transactions = [
 });
 
 
+app.get('/ipn-endpoint', (req: Request, res: Response) => {
+  const paymentId = req.query.paymentId as string;
+  const token = req.query.token as string;
+  const payerId = req.query.PayerID as string;
 
+  const paypalApiEndpoint = process.env.NODE_ENV === 'production' 
+    ? 'https://api.paypal.com/v1' 
+    : 'https://api.sandbox.paypal.com/v1';
 
+  const getPaymentUrl = `${paypalApiEndpoint}/payments/payment/${paymentId}`;
 
+  const config = {
+    headers: {
+      Authorization: `Bearer ${process.env.REACT_PAYPAL_SECRET}`,
+      'Content-Type': 'application/json'
+    }
+  };
 
-
-/* BTC pay setup */
-
-app.post('/payment', async (req: Request, res: Response) => {
-  try {
-    // Replace with your BitPay API credentials
-    const bitpayToken = process.env.BITPAY_TOKEN;
+  console.log("---------------------------------- ")
+  console.log(205,"payerId - ",payerId)
+  console.log("---------------------------------- ")
+  console.log(204,"process.env.REACT_PAYPAL_SECRET - ",process.env.REACT_PAYPAL_SECRET)
+  console.log("---------------------------------- ")
+  console.log(206,"getPaymentUrl - ",getPaymentUrl)
+  console.log("---------------------------------- ")
+  console.log(207,"config - ",config)
+  console.log("---------------------------------- ")
   
-    // Create a BitPay invoice
-    const response = await axios.post('https://api.bitpay.com/v1/invoices', {
-      price: req.body.amount,
-      currency: 'USD',
-      token: bitpayToken,
+
+  axios.get(getPaymentUrl, config)
+    .then(response => {
+      const paymentData = response.data;
+      const email = paymentData.payer.payer_info.email;
+      const shippingAddress = paymentData.payer.payer_info.shipping_address;
+
+      console.log("Email:", email);
+      console.log("Shipping Address:", shippingAddress);
+
+      console.log("token:", token);
+      console.log("payerId:", payerId);
+
+      // Process the email and shipping address as needed
+
+      res.sendStatus(200);
+    })
+    .catch(error => {
+      console.error(error);
+      res.sendStatus(500);
     });
-  
-    // Get the payment invoice URL from the BitPay response
-    const paymentUrl = response.data.data.url;
-    res.json({ paymentUrl });
-  } catch (error) {
-    console.error('Payment error:', error);
-    res.status(500).json({ error: 'Payment failed' });
-  }
 });
+
+
 
 
 
@@ -224,7 +250,7 @@ app.post('/payment', async (req: Request, res: Response) => {
 
 /* email set up */
 
-const resend = new Resend(process.env.VITE_RESEND_PUBLIC);
+const resend = new Resend(process.env.REACT_RESEND_PUBLIC);
 
 app.post('/send-email',  async (req: Request, res: Response) => {
   try {
@@ -247,12 +273,23 @@ app.post('/send-email',  async (req: Request, res: Response) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+/* Coinmarketcap set up */
 app.get('/coinmarketcap', async (req: Request, res: Response) => {
   try {
     const { amount, symbol, convert } = req.query;
 
     const response = await axios.get(
-      `https://pro-api.coinmarketcap.com/v2/tools/price-conversion?amount=${amount}&symbol=${symbol}&convert=${convert}&CMC_PRO_API_KEY=${process.env.VITE_COINMARKETCAP_PUBLIC}`
+      `https://pro-api.coinmarketcap.com/v2/tools/price-conversion?amount=${amount}&symbol=${symbol}&convert=${convert}&CMC_PRO_API_KEY=${process.env.REACT_COINMARKETCAP_SECRET}`
     );
 
     res.status(200).json(response.data);
