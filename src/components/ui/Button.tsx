@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { Link } from "react-router-dom"
 import { VariantProps, cva } from "class-variance-authority"
