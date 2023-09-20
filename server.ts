@@ -29,7 +29,6 @@ const port = 3000;
 app.listen(port, () => {
      console.log(`Server is running on port ${port}`);
 })
-//vercel latest commit bug
 
 app.get('/', (_req: Request, res: Response) => {
   const htmlContent = `
