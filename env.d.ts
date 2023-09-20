@@ -3,8 +3,23 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_APP_TITLE: string
-  // more env variables...
+
+  REACT_PRODUCTION_URL:string
+
+  VITE_SUPABASE_URL:string
+  VITE_SUPABASE_ANON_KEY:string //security issue - I need to enable RLS to fix it - otherwise use Next
+
+  VITE_STRIPE_PUBLIC:string
+  REACT_STRIPE_SECRET:string
+
+  REACT_RESEND_PUBLIC:string
+
+  REACT_PAYPAL_PUBLIC:string
+  REACT_PAYPAL_SECRET:string
+
+  REACT_METAMASK_ADRESS:string
+
+  REACT_COINMARKETCAP_SECRET:string
 }
 
 interface ImportMeta {

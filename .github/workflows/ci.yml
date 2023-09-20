@@ -35,14 +35,14 @@ jobs:
       - name: Building
         run: bun build src/main.tsx --outdir ./public
         env:
-          VITE_SUPABASE_URL: "https://ambgxbbsgequlwnbzchr.supabase.co"
-          VITE_SUPABASE_ANON_KEY: "123"
+          REACT_SUPABASE_URL: "https://random.supabase.co"
+          REACT_SUPABASE_ANON_KEY: "123"
 
       - name: lintrc
         run: bun lint
         env:
-          VITE_SUPABASE_URL: "https://ambgxbbsgequlwnbzchr.supabase.co"
-          VITE_SUPABASE_ANON_KEY: "123"
+          REACT_SUPABASE_URL: "https://random.supabase.co"
+          REACT_SUPABASE_ANON_KEY: "123"
 
       - name: Type-checking
         run: bun type-check

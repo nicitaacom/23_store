@@ -121,7 +121,7 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
           },
           {
             headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_STRIPE_SECRET}`,
+              Authorization: `Bearer ${import.meta.env.REACT_STRIPE_SECRET}`,
               "Content-Type": "application/x-www-form-urlencoded",
             },
           },
@@ -135,7 +135,7 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
             },
             {
               headers: {
-                Authorization: `Bearer ${import.meta.env.VITE_STRIPE_SECRET}`,
+                Authorization: `Bearer ${import.meta.env.REACT_STRIPE_SECRET}`,
                 "Content-Type": "application/x-www-form-urlencoded",
               },
             },
@@ -156,7 +156,7 @@ export function AdminModal({ isOpen, onClose, label }: AdminModalProps) {
           },
           {
             headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_STRIPE_SECRET}`,
+              Authorization: `Bearer ${import.meta.env.REACT_STRIPE_SECRET}`,
               "Content-Type": "application/x-www-form-urlencoded",
             },
           },
