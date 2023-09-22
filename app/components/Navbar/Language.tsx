@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 
@@ -52,15 +54,31 @@ export function Language({ className }: { className?: string }) {
       }
     }
 
-    document.addEventListener("mousedown", handler)
+     document.addEventListener("mousedown", handler)
+
+    return () => {
+      document.removeEventListener("mousedown", handler)
+    }
   }, [])
 
   /* for closing on esc */
-  document.onkeydown = function (evt) {
-    if (evt.keyCode == 27) {
-      setShowDropdown(false)
+   useEffect(() => {
+    const handleKeyDown = (evt: KeyboardEvent) => {
+      if (evt.keyCode === 27) {
+        setShowDropdown(false)
+      }
     }
-  }
+
+    if (typeof document !== "undefined") {
+      document.addEventListener("keydown", handleKeyDown)
+    }
+
+    return () => {
+      if (typeof document !== "undefined") {
+        document.removeEventListener("keydown", handleKeyDown)
+      }
+    }
+  }, [])
 
   const [currentLanguage, setCurrentLanguage] = useState(2) //LocalStorage in feature
   const [hover, setHover] = useState<number | null>(null)

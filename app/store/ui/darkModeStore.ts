@@ -1,4 +1,3 @@
-'use client'
 import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
 
@@ -14,7 +13,7 @@ export const toggleDarkMode = (darkMode: DarkModeStore) => {
 }
 
 export const darkModeStore = (set: SetState): DarkModeStore => ({
-  isDarkMode: window.matchMedia("(prefers-color-scheme: dark)").matches,
+  isDarkMode: true,
   toggleDarkMode() {
     set((state: DarkModeStore) => ({
       ...state,

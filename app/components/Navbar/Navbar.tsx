@@ -54,7 +54,7 @@ export function Navbar () {
     ${scrollPosition < 40 ? "bg-background" : "bg-foreground"}`}>
       <div className="flex flex-row gap-x-4 items-center">
         {/* HAMBURGER-ICON */}
-        <AiOutlineMenu className="flex  cursor-pointer" onClick={sidebar.openSidebar} size={28} />
+        <AiOutlineMenu className="flex cursor-pointer text-icon-color" onClick={sidebar.openSidebar} size={28} />
 
         {/* LOGO */}
         <img
@@ -116,13 +116,13 @@ export function Navbar () {
               label="Add product"
               icon={AiOutlinePlus}
               onClick={() => openModal("AdminModal")}></DropdownItem>
-            {/* <DropdownItem
+            <DropdownItem
               label="logout"
               icon={BiLogOut}
               onClick={() => {
                 supabase.auth.signOut(),
                  userStore.logoutUser()
-              }}></DropdownItem> */}
+              }}></DropdownItem>
           </DropdownContainer>
         ) : (
           <BiUserCircle

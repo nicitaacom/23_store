@@ -10,15 +10,17 @@ export function Layout ({children}:{children:React.ReactNode}) {
   //more info - https://www.youtube.com/watch?v=9YuHTGAAyu0&ab_channel=ByteGrad
   const darkMode = useDarkMode()
 
-    useEffect(() => {
-    if (darkMode.isDarkMode) {
-      document.getElementsByTagName("html")[0].classList.remove("light")
-      document.getElementsByTagName("html")[0].classList.add("dark")
-    } else {
-      document.getElementsByTagName("html")[0].classList.remove("dark")
-      document.getElementsByTagName("html")[0].classList.add("light")
-    }
-  }, [darkMode])
+useEffect(() => {
+  const htmlElement = document.documentElement;
+  const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  // Set initial mode based on system preference
+  htmlElement.classList.toggle("light", !prefersDarkMode);
+  htmlElement.classList.toggle("dark", prefersDarkMode);
+
+  // Update mode when darkMode state changes
+  htmlElement.classList.toggle("light", !darkMode.isDarkMode);
+  htmlElement.classList.toggle("dark", darkMode.isDarkMode);
+}, [darkMode.isDarkMode]);
 
 return (
     <div className="bg-background text-title
