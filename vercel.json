@@ -4,10 +4,6 @@
     { "src": "api/*.ts", "use": "@vercel/node" },
     { "src": "client/*", "use": "@vercel/static-build" }
   ],
-<<<<<<< HEAD
-  "routes": [{ "src": "/api/(.*)", "dest": "api/$1" }]
-}
-=======
   "routes": [
     { "src": "/api/coinmarketcap", "dest": "api/coinmarketcap.ts" },
     { "src": "/api/ipnEndpoint", "dest": "api/ipnEndpoint.ts" },
@@ -17,4 +13,3 @@
     { "src": "/(.*)", "dest": "/client/index.html" }
   ]
 }
->>>>>>> parent of 0502030 (vercel json update_13)
