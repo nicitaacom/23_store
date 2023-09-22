@@ -15,6 +15,7 @@ specifiers:
   eslint-config-next: 13.5.2
   framer-motion: ^10.16.4
   next: 13.5.2
+  pnpm: ^8.7.6
   postcss: 8.4.30
   react: 18.2.0
   react-dom: 18.2.0
@@ -23,7 +24,6 @@ specifiers:
   react-images-uploading: ^3.1.7
   react-loading-skeleton: ^3.3.1
   react-swipeable: ^7.0.1
-  supabase-js#2: link:@supabase/supabase-js#2
   tailwind-merge: ^1.14.0
   tailwindcss: 3.3.3
   typescript: 5.2.2
@@ -53,13 +53,13 @@ dependencies:
   react-images-uploading: 3.1.7_biqbaboplfbrettd7655fr4n2y
   react-loading-skeleton: 3.3.1_react@18.2.0
   react-swipeable: 7.0.1_react@18.2.0
-  supabase-js#2: link:@supabase/supabase-js#2
   tailwind-merge: 1.14.0
   tailwindcss: 3.3.3
   uuid: 9.0.1
   zustand: 4.4.1_dpmmhqj3uzrk25jjzo7arvivk4
 
 devDependencies:
+  pnpm: 8.7.6
   typescript: 5.2.2
 
 packages:
@@ -1370,8 +1370,8 @@ packages:
       '@typescript-eslint/parser': 6.7.2_rngtr6f3b25lvetpihwplgecf4
       eslint: 8.49.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.6.0_vdc2g3jikc6haasea675jgmbym
-      eslint-plugin-import: 2.28.1_jglmfdm2i55yfgmytcsqnuesbm
+      eslint-import-resolver-typescript: 3.6.1_vdc2g3jikc6haasea675jgmbym
+      eslint-plugin-import: 2.28.1_lekpzls2c662pz3tleujoqr4qq
       eslint-plugin-jsx-a11y: 6.7.1_eslint@8.49.0
       eslint-plugin-react: 7.33.2_eslint@8.49.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.49.0
@@ -1391,8 +1391,8 @@ packages:
       - supports-color
     dev: false
 
-  /eslint-import-resolver-typescript/3.6.0_vdc2g3jikc6haasea675jgmbym:
-    resolution: {integrity: sha512-QTHR9ddNnn35RTxlaEnx2gCxqFlF2SEN0SE2d17SqwyM7YOSI2GHWRYp5BiRkObTUNYPupC/3Fq2a0PpT+EKpg==}
+  /eslint-import-resolver-typescript/3.6.1_vdc2g3jikc6haasea675jgmbym:
+    resolution: {integrity: sha512-xgdptdoi5W3niYeuQxKmzVDTATvLYqhpwmykwsh7f6HIOStGWEIL9iqZgQDF9u9OEzrRwR8no5q2VT+bjAujTg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       eslint: '*'
@@ -1401,8 +1401,8 @@ packages:
       debug: 4.3.4
       enhanced-resolve: 5.15.0
       eslint: 8.49.0
-      eslint-module-utils: 2.8.0_abyxgwgwp5afue244qyxp2clbu
-      eslint-plugin-import: 2.28.1_jglmfdm2i55yfgmytcsqnuesbm
+      eslint-module-utils: 2.8.0_qovmmbduy6lou7b6czyoge3ddi
+      eslint-plugin-import: 2.28.1_lekpzls2c662pz3tleujoqr4qq
       fast-glob: 3.3.1
       get-tsconfig: 4.7.2
       is-core-module: 2.13.0
@@ -1414,7 +1414,7 @@ packages:
       - supports-color
     dev: false
 
-  /eslint-module-utils/2.8.0_abyxgwgwp5afue244qyxp2clbu:
+  /eslint-module-utils/2.8.0_qovmmbduy6lou7b6czyoge3ddi:
     resolution: {integrity: sha512-aWajIYfsqCKRDgUfjEXNN/JlrzauMuSEy5sbd7WXbtW3EH6A6MpwEh42c7qD+MqQo9QMJ6fWLAeIJynx0g6OAw==}
     engines: {node: '>=4'}
     peerDependencies:
@@ -1439,12 +1439,12 @@ packages:
       debug: 3.2.7
       eslint: 8.49.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.6.0_vdc2g3jikc6haasea675jgmbym
+      eslint-import-resolver-typescript: 3.6.1_vdc2g3jikc6haasea675jgmbym
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /eslint-plugin-import/2.28.1_jglmfdm2i55yfgmytcsqnuesbm:
+  /eslint-plugin-import/2.28.1_lekpzls2c662pz3tleujoqr4qq:
     resolution: {integrity: sha512-9I9hFlITvOV55alzoKBI+K9q74kv0iKMeY6av5+umsNwayt59fz692daGyjR+oStBQgx6nwR9rXldDev3Clw+A==}
     engines: {node: '>=4'}
     peerDependencies:
@@ -1463,7 +1463,7 @@ packages:
       doctrine: 2.1.0
       eslint: 8.49.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.8.0_abyxgwgwp5afue244qyxp2clbu
+      eslint-module-utils: 2.8.0_qovmmbduy6lou7b6czyoge3ddi
       has: 1.0.3
       is-core-module: 2.13.0
       is-glob: 4.0.3
@@ -2682,6 +2682,12 @@ packages:
     resolution: {integrity: sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==}
     engines: {node: '>= 6'}
     dev: false
+
+  /pnpm/8.7.6:
+    resolution: {integrity: sha512-ZJ/LpDy+IGYpCPYo2INfnw2MopUOTHQ3HcnhbiSqVLtV5rTmsrbFHe4i35ITLpcgvIWptWbzUTZ8efDYXWpFew==}
+    engines: {node: '>=16.14'}
+    hasBin: true
+    dev: true
 
   /postcss-css-variables/0.18.0_postcss@8.4.21:
     resolution: {integrity: sha512-lYS802gHbzn1GI+lXvy9MYIYDuGnl1WB4FTKoqMQqJ3Mab09A7a/1wZvGTkCEZJTM8mSbIyb1mJYn8f0aPye0Q==}
