@@ -1,4 +1,3 @@
-
 interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   isChecked: boolean
   onChange: () => void

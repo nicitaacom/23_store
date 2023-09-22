@@ -8,10 +8,17 @@ import { LuShoppingCart } from "react-icons/lu"
 import { AiOutlineMenu, AiOutlinePlus } from "react-icons/ai"
 import { FiPhoneCall } from "react-icons/fi"
 
-import { useSidebar } from "../../store/ui/useSidebar"
-import useDarkMode from "../../store/ui/darkModeStore"
-import { Input } from "../ui/Inputs"
+import supabase from "@/utils/supabaseClient"
+import useUserCartStore from "@/store/user/userCartStore"
+import useDarkMode from "@/store/ui/darkModeStore"
+import useUserStore from "@/store/user/userStore"
+import { useModals } from "@/store/ui"
+import { useSidebar } from "@/store/ui/useSidebar"
+import { Input, Switch } from "../ui/Inputs"
 import { Language } from "./Language"
+import { Sidebar } from "./Sidebar"
+import { DropdownContainer } from "./DropdownContainer"
+import { DropdownItem } from "./DropdownItem"
 
 
 export function Navbar () {
@@ -20,12 +27,15 @@ export function Navbar () {
   const [search, setSearch] = useState("")
 
   const router = useRouter()
+  const { openModal } = useModals()
   const sidebar = useSidebar()
   const darkMode = useDarkMode()
+  const userCartStore = useUserCartStore()
+  const userStore = useUserStore()
 
 
 
-useEffect(() => {
+    useEffect(() => {
     function handleScroll() {
       const position = window.scrollY
       setScrollPosition(position)
@@ -106,12 +116,13 @@ useEffect(() => {
               label="Add product"
               icon={AiOutlinePlus}
               onClick={() => openModal("AdminModal")}></DropdownItem>
-            <DropdownItem
+            {/* <DropdownItem
               label="logout"
               icon={BiLogOut}
               onClick={() => {
-                supabase.auth.signOut(), userStore.logoutUser()
-              }}></DropdownItem>
+                supabase.auth.signOut(),
+                 userStore.logoutUser()
+              }}></DropdownItem> */}
           </DropdownContainer>
         ) : (
           <BiUserCircle

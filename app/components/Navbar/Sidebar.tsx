@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion"
-import { useSidebar } from "../../store/ui/useHamburgerMenu"
+import { useSidebar } from "@/store/ui/useSidebar"
 
 export function Sidebar() {
   const sidebar = useSidebar()
