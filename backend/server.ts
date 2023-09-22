@@ -1,5 +1,5 @@
-import { stripeProductType } from "./src/interfaces/stripeProduct";
-import { paypalProductType } from "./src/interfaces/paypalProduct";
+import { stripeProductType } from "../src/interfaces/stripeProduct";
+import { paypalProductType } from "../src/interfaces/paypalProduct";
 
 import express, { Request, Response } from 'express';
 import Stripe from 'stripe';
