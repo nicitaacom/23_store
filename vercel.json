@@ -7,12 +7,5 @@
     { "src": "*", "use": "@vercel/static-build" },
     { "src": "/*", "use": "@vercel/static-build" }
   ],
-  "routes": [
-    { "src": "/api/coinmarketcap", "dest": "api/coinmarketcap.ts" },
-    { "src": "/api/ipnEndpoint", "dest": "api/ipnEndpoint.ts" },
-    { "src": "/api/paypal", "dest": "api/paypal.ts" },
-    { "src": "/api/sendEmail", "dest": "api/sendEmail.ts" },
-    { "src": "/api/stripe", "dest": "api/stripe.ts" },
-    { "src": "/(.*)", "dest": "/" }
-  ]
+  "routes": [{ "src": "/api/(.*)", "dest": "api/$1" }]
 }
