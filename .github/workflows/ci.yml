@@ -27,7 +27,7 @@ jobs:
         run: bun i prettier -D
 
       - name: prettierrc
-        run: bun prettier --write src/*
+        run: bun prettier --write app/*
 
       - name: Install dependencies
         run: bun i
