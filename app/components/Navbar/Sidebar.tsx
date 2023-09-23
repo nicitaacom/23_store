@@ -15,7 +15,11 @@ export function Sidebar() {
             exit={{ x: ["0%", "-100%"] }}
             transition={{ duration: 0.4 }}
             onClick={e => e.stopPropagation()}>
-            Sidebar content
+            <div className="flex flex-col gap-y-4">
+              <p>Make payment in 1 click</p>
+              <p>Change color palette</p>
+              <p>Change language</p>
+            </div>
           </motion.div>
         </div>
       )}
