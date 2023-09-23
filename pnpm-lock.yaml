@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@metamask/detect-provider': ^2.0.0
   '@react-email/components': ^0.0.7
   '@stripe/stripe-js': ^2.1.6
   '@supabase/supabase-js': ^2.36.0
@@ -32,6 +33,7 @@ specifiers:
   zustand: ^4.4.1
 
 dependencies:
+  '@metamask/detect-provider': 2.0.0
   '@react-email/components': 0.0.7
   '@stripe/stripe-js': 2.1.6
   '@supabase/supabase-js': 2.36.0
@@ -181,6 +183,11 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
+    dev: false
+
+  /@metamask/detect-provider/2.0.0:
+    resolution: {integrity: sha512-sFpN+TX13E9fdBDh9lvQeZdJn4qYoRb/6QF2oZZK/Pn559IhCFacPMU1rMuqyXoFQF3JSJfii2l98B87QDPeCQ==}
+    engines: {node: '>=14.0.0'}
     dev: false
 
   /@next/env/13.5.2:
@@ -900,7 +907,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001538
-      electron-to-chromium: 1.4.527
+      electron-to-chromium: 1.4.528
       node-releases: 2.0.13
       update-browserslist-db: 1.0.13_browserslist@4.21.11
     dev: false
@@ -1209,8 +1216,8 @@ packages:
       semver: 7.5.4
     dev: false
 
-  /electron-to-chromium/1.4.527:
-    resolution: {integrity: sha512-EafxEiEDzk2aLrdbtVczylHflHdHkNrpGNHIgDyA63sUQLQVS2ayj2hPw3RsVB42qkwURH+T2OxV7kGPUuYszA==}
+  /electron-to-chromium/1.4.528:
+    resolution: {integrity: sha512-UdREXMXzLkREF4jA8t89FQjA8WHI6ssP38PMY4/4KhXFQbtImnghh4GkCgrtiZwLKUKVD2iTVXvDVQjfomEQuA==}
     dev: false
 
   /emoji-regex/9.2.2:

@@ -10,6 +10,7 @@
     "type-check": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@metamask/detect-provider": "^2.0.0",
     "@react-email/components": "^0.0.7",
     "@stripe/stripe-js": "^2.1.6",
     "@supabase/supabase-js": "^2.36.0",

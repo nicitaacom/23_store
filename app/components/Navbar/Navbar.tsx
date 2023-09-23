@@ -19,6 +19,7 @@ import { Language } from "./Language"
 import { Sidebar } from "./Sidebar"
 import { DropdownContainer } from "./DropdownContainer"
 import { DropdownItem } from "./DropdownItem"
+import Image from "next/image"
 
 export function Navbar() {
   const [scrollPosition, setScrollPosition] = useState(0)
@@ -53,17 +54,21 @@ export function Navbar() {
         <AiOutlineMenu className="flex cursor-pointer text-icon-color" onClick={sidebar.openSidebar} size={28} />
 
         {/* LOGO */}
-        <img
+        <Image
+          className="cursor-pointer uppercase max-h-[32px] aspect-video"
+          onClick={() => router.push("/")}
+          width={175}
+          height={355}
           src={darkMode ? "/23_store-dark.png" : "/23_store-light.png"}
-          className="cursor-pointer uppercase max-h-[32px]"
-          onClick={() => router.push("/")}></img>
+          alt="navbar logo"
+        />
       </div>
 
       <div className="flex flex-row gap-x-2">
         {/* SEARCH */}
         <Input
-          startIcon={<BiSearchAlt size={24} />}
           className="hidden tablet:flex w-[40vw] max-w-[600px]"
+          startIcon={<BiSearchAlt size={24} />}
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search..."
@@ -102,9 +107,12 @@ export function Navbar() {
           <DropdownContainer
             username={userStore.username}
             icon={
-              <img
+              <Image
                 className="w-[32px] h-[32px] rounded-full"
+                width={32}
+                height={32}
                 src={userStore.profilePictureUrl ? userStore.profilePictureUrl : "/placeholder.jpg"}
+                alt="placeholder"
               />
             }
             className="w-[175px]">
