@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
@@ -54,7 +54,7 @@ export function Language({ className }: { className?: string }) {
       }
     }
 
-     document.addEventListener("mousedown", handler)
+    document.addEventListener("mousedown", handler)
 
     return () => {
       document.removeEventListener("mousedown", handler)
@@ -62,7 +62,7 @@ export function Language({ className }: { className?: string }) {
   }, [])
 
   /* for closing on esc */
-   useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (evt: KeyboardEvent) => {
       if (evt.keyCode === 27) {
         setShowDropdown(false)

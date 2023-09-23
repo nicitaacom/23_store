@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -20,9 +20,7 @@ import { Sidebar } from "./Sidebar"
 import { DropdownContainer } from "./DropdownContainer"
 import { DropdownItem } from "./DropdownItem"
 
-
-export function Navbar () {
-
+export function Navbar() {
   const [scrollPosition, setScrollPosition] = useState(0)
   const [search, setSearch] = useState("")
 
@@ -33,9 +31,7 @@ export function Navbar () {
   const userCartStore = useUserCartStore()
   const userStore = useUserStore()
 
-
-
-    useEffect(() => {
+  useEffect(() => {
     function handleScroll() {
       const position = window.scrollY
       setScrollPosition(position)
@@ -60,7 +56,7 @@ export function Navbar () {
         <img
           src={darkMode ? "/23_store-dark.png" : "/23_store-light.png"}
           className="cursor-pointer uppercase max-h-[32px]"
-          onClick={() => router.push("/",)}></img>
+          onClick={() => router.push("/")}></img>
       </div>
 
       <div className="flex flex-row gap-x-2">
@@ -120,8 +116,7 @@ export function Navbar () {
               label="logout"
               icon={BiLogOut}
               onClick={() => {
-                supabase.auth.signOut(),
-                 userStore.logoutUser()
+                supabase.auth.signOut(), userStore.logoutUser()
               }}></DropdownItem>
           </DropdownContainer>
         ) : (

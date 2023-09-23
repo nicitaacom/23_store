@@ -1,4 +1,4 @@
-export type stripeProductType  = {
-  price:string
-  quantity:number
+export type stripeProductType = {
+  price: string
+  quantity: number
 }

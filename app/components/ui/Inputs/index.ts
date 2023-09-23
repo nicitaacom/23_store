@@ -1,2 +1,2 @@
 export { Input } from "./Input"
-export {Switch } from "./Switch"
+export { Switch } from "./Switch"

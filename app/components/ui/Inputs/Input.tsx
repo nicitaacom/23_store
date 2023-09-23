@@ -11,12 +11,18 @@ interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   required?: boolean
 }
 
-export function Input({type = "text",value,onChange, className = "", startIcon, pattern, required = false,  ...props
+export function Input({
+  type = "text",
+  value,
+  onChange,
+  className = "",
+  startIcon,
+  pattern,
+  required = false,
+  ...props
 }: InputProps) {
-
-
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange(e);
+    onChange(e)
     if (type === "number") {
       const inputValue = e.target.value
       const firstChar = inputValue.charAt(0)
@@ -26,8 +32,6 @@ export function Input({type = "text",value,onChange, className = "", startIcon, 
     }
     onChange(e)
   }
-
- 
 
   return (
     <div className={`relative ${className}`}>
