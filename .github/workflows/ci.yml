@@ -21,7 +21,7 @@ jobs:
           node-version: 20
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v1  
+        uses: oven-sh/setup-bun@v1
 
       - name: Setup prettier
         run: bun i prettier -D
@@ -33,7 +33,7 @@ jobs:
         run: bun i
 
       - name: Building
-        run: bun build src/main.tsx --outdir ./public
+        run: bun build app/layout.tsx --outdir ./dist
         env:
           REACT_SUPABASE_URL: "https://random.supabase.co"
           REACT_SUPABASE_ANON_KEY: "123"
