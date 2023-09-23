@@ -110,7 +110,7 @@ export function Language({ className }: { className?: string }) {
       {/* Dropdown content */}
       <div
         className={`dropdown absolute top-[100%] left-[-1px] right-[-1px]
-      border-[1px] border-solid border-foreground z-10 bg-background
+      border-[1px] border-solid border-border-color z-10 bg-background
        flex flex-col text-md text-center ${
          showDropdown
            ? "opacity-100 visible translate-y-[0px] transition-all duration-300"
@@ -120,9 +120,13 @@ export function Language({ className }: { className?: string }) {
         {languages.map(language =>
           language.id !== 5 ? (
             <Link
-              className={`border-b-[1px] border-solid border-foreground
-        transition-all duration-[300ms]
-                ${isHover ? hover === language.id && "active" : currentLanguage === language.id && "active"}`}
+              className={`border-b-[1px] border-solid border-border-color
+        transition-all duration-100
+                ${
+                  isHover
+                    ? hover === language.id && "bg-foreground"
+                    : currentLanguage === language.id && "bg-brand text-title-foreground"
+                }`}
               onMouseOver={mouseHover(language.id)}
               onClick={changeLanguage(language.id)}
               href={language.url}
@@ -131,9 +135,9 @@ export function Language({ className }: { className?: string }) {
             </Link>
           ) : (
             <Link
-              className={`border-solid border-foreground
-        transition-all duration-[300ms]
-         ${isHover ? hover === language.id && "active" : currentLanguage === language.id && "active"}`}
+              className={`border-solid border-border-color
+        transition-all duration-100
+         ${isHover ? hover === language.id && "bg-foreground" : currentLanguage === language.id && "bg-brand"}`}
               onMouseOver={mouseHover(language.id)}
               onClick={changeLanguage(language.id)}
               href={language.url}
