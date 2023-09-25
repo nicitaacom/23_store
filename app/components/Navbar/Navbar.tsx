@@ -1,5 +1,5 @@
 import { Switch } from ".."
-import { HamburgerMenu, Logo } from "./components"
+import { HamburgerMenu, Logo, NavbarSearch } from "./components"
 import NavbarWrapper from "./components/NavbarWrapper"
 
 export default function Navbar() {
@@ -12,6 +12,10 @@ export default function Navbar() {
         <Logo />
 
         <Switch />
+
+        <div className="flex flex-row gap-x-2">
+          <NavbarSearch/>
+        </div>
       </div>
     </NavbarWrapper>
   )
