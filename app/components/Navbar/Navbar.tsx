@@ -1,4 +1,5 @@
 import { Switch } from ".."
+import { Language } from "../Language"
 import { HamburgerMenu, Logo, NavbarSearch } from "./components"
 import NavbarWrapper from "./components/NavbarWrapper"
 
@@ -15,6 +16,7 @@ export default function Navbar() {
 
         <div className="flex flex-row gap-x-2">
           <NavbarSearch/>
+          <Language/>
         </div>
       </div>
     </NavbarWrapper>
