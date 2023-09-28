@@ -1,6 +1,6 @@
 "use client"
 
-import { Input } from "@/components/Inputs"
+import { Input } from "@/components/ui/Inputs"
 import { useState } from "react"
 
 import { BiSearchAlt } from "react-icons/bi"

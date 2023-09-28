@@ -11,7 +11,7 @@ export default function OpenCartModalButton() {
 
   return (
     <Link href={updatedPath}>
-      <LuShoppingCart className="cursor-pointer" size={28} />
+      <LuShoppingCart className="cursor-pointer hover:brightness-75 duration-300" size={28} />
     </Link>
   )
 }
