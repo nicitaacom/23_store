@@ -1,5 +1,4 @@
 "use client"
-
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 
@@ -80,7 +79,7 @@ export function Language({ className }: { className?: string }) {
     }
   }, [])
 
-  const [currentLanguage, setCurrentLanguage] = useState(2) //LocalStorage in feature
+  const [currentLanguage, setCurrentLanguage] = useState(2) //Cookies in feature
   const [hover, setHover] = useState<number | null>(null)
   const isHover = hover !== null
 
@@ -122,7 +121,11 @@ export function Language({ className }: { className?: string }) {
             <Link
               className={`border-b-[1px] border-solid border-foreground
         transition-all duration-[300ms]
-                ${isHover ? hover === language.id && "active" : currentLanguage === language.id && "active"}`}
+                ${
+                  isHover
+                    ? hover === language.id && "bg-foreground"
+                    : currentLanguage === language.id && "bg-brand text-title-foreground"
+                }`}
               onMouseOver={mouseHover(language.id)}
               onClick={changeLanguage(language.id)}
               href={language.url}
@@ -133,7 +136,11 @@ export function Language({ className }: { className?: string }) {
             <Link
               className={`border-solid border-foreground
         transition-all duration-[300ms]
-         ${isHover ? hover === language.id && "active" : currentLanguage === language.id && "active"}`}
+         ${
+           isHover
+             ? hover === language.id && "bg-foreground"
+             : currentLanguage === language.id && "bg-brand text-title-foreground"
+         }`}
               onMouseOver={mouseHover(language.id)}
               onClick={changeLanguage(language.id)}
               href={language.url}

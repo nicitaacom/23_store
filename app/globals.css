@@ -6,12 +6,12 @@
 
 @layer base {
   :root {
-    --brand: 137deg 82% 49%;
+    --brand: 137deg 82% 22%;
     --background: 0deg 0% 93%;
     --foreground: 0deg 0% 84%;
     --foreground-hover: 0deg 0% 74%; /* for skeleton */
     --title: 0deg 0% 12%;
-    --title-foreground: 0deg 0% 10%;
+    --title-foreground: 0deg 0% 90%;
     --subTitle: 0deg 0% 40%;
 
     /* The same colors */
@@ -19,30 +19,30 @@
     --icon-color: 0deg 0% 12%; /* title */
 
     /* Support colors */
-    --info: 219deg 83% 59%;
+    --info: 219deg 65% 36%;
     --warning: 22deg 84% 27%;
-    --danger: 0deg 90% 40%;
-    --success: 118deg 80% 23%;
+    --danger: 0deg 82% 34%;
+    --success: 118deg 78% 20%;
   }
-  /* inverted colors (HSL - L) */
+  /* I did it using rgb color picker and contrast checker */
   .dark {
-    --brand: 137deg 82% 51%;
+    --brand: 137deg 82% 52%;
     --background: 0deg 0% 7%;
     --foreground: 0deg 0% 16%;
     --foreground-hover: 0deg 0% 26%; /* for skeleton */
     --title: 0deg 0% 88%;
     --title-foreground: 0deg 0% 10%;
-    --subTitle: 0deg 0% 60%;
+    --subTitle: 0deg 0% 63%;
 
     /* The same colors */
     --border-color: 0deg 0% 60%; /*subTitle*/
     --icon-color: 0deg 0% 88%; /* title */
 
     /* Support colors */
-    --info: 219deg 83% 59%;
+    --info: 219deg 83% 72%;
     --warning: 22deg 84% 73%;
-    --danger: 0deg 80% 69%;
-    --success: 118deg 80% 77%;
+    --danger: 0deg 80% 72%;
+    --success: 118deg 80% 78%;
   }
 }
 

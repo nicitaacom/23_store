@@ -1,20 +1,23 @@
-interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  isChecked: boolean
-  onChange: () => void
-}
+"use client"
 
-export function Switch({ isChecked = false, onChange, ...props }: SwitchProps) {
+import useDarkMode from "@/store/ui/darkModeStore"
+
+interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+export function Switch({ ...props }: SwitchProps) {
+  const mode = useDarkMode()
+
   return (
     <label
       className="relative w-[36px] h-[20px] border-[3px] border-icon-color hover:brightness-75 transition-all duration-300 
-    rounded-full cursor-pointer mx-1">
+    rounded-full cursor-pointer mx-1 flex">
       <input
         className="hidden peer/input"
+        {...props}
         type="checkbox"
         id="check"
-        checked={isChecked}
-        onChange={onChange}
-        {...props}
+        checked={mode.isDarkMode}
+        onChange={mode.toggleDarkMode}
       />
       <span
         className={`absolute rounded-full

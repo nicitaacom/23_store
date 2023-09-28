@@ -4,14 +4,15 @@ import { useEffect } from "react"
 
 import useDarkMode from "@/store/ui/darkModeStore"
 
-export function Layout({ children }: { children: React.ReactNode }) {
-  //children inside client component - is server component by default
-  //more info - https://www.youtube.com/watch?v=9YuHTGAAyu0&ab_channel=ByteGrad
+export default function Layout({ children }: { children: React.ReactNode }) {
   const darkMode = useDarkMode()
 
+  //children is a server component
+  //more info - https://www.youtube.com/watch?v=9YuHTGAAyu0
   useEffect(() => {
     const htmlElement = document.documentElement
     const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+
     // Set initial mode based on system preference
     htmlElement.classList.toggle("light", !prefersDarkMode)
     htmlElement.classList.toggle("dark", prefersDarkMode)
@@ -24,7 +25,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="bg-background text-title
-        min-h-screen transition-colors duration-300 pt-[62px]">
+    min-h-screen transition-colors duration-300 pt-[62px]">
       {children}
     </div>
   )
