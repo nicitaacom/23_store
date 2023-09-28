@@ -1,10 +1,12 @@
+import Link from "next/link"
 import { IconType } from "react-icons"
 import { twMerge } from "tailwind-merge"
 
 interface DropdownItemProps {
   icon: IconType
   label: string
-  onClick: () => void
+  onClick?: () => void
+  href?: string
   size?: number
   className?: string
   labelClassName?: string
@@ -14,6 +16,7 @@ export function DropdownItem({
   icon: Icon,
   label,
   size,
+  href,
   className = "",
   labelClassName = "",
   onClick,
@@ -24,10 +27,17 @@ export function DropdownItem({
     hover:brightness-75 transition-all duration-100 z-[1]
      ${className}`)}
       onClick={onClick}>
-      <div className="flex justify-center items-center gap-x-2 px-4 cursor-pointer">
-        <Icon size={size ? size : 24} />
-        <a className={labelClassName}>{label}</a>
-      </div>
+      {href ? (
+        <Link className="flex justify-center items-center gap-x-2 px-4 cursor-pointer" href={href}>
+          <Icon size={size ? size : 24} />
+          <p className={labelClassName}>{label}</p>
+        </Link>
+      ) : (
+        <div className="flex justify-center items-center gap-x-2 px-4 cursor-pointer">
+          <Icon size={size ? size : 24} />
+          <p className={labelClassName}>{label}</p>
+        </div>
+      )}
     </li>
   )
 }

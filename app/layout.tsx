@@ -4,8 +4,8 @@ import type { Metadata } from "next"
 
 import { Layout } from "./components"
 import Navbar from "./components/Navbar/Navbar"
-import { CartModalContainer } from "./components/ui/Modals/ModalContainers"
-import { CartModal } from "./components/ui/Modals"
+import { AuthModalContainer, CartModalContainer } from "./components/ui/Modals/ModalContainers"
+import { AuthModal, CartModal } from "./components/ui/Modals"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -19,8 +19,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <Layout>{children}</Layout>
         <CartModalContainer>
-          <CartModal label="Cart modal" />
+          <CartModal label="Cart" />
         </CartModalContainer>
+        <AuthModalContainer>
+          <AuthModal label="Auth" />
+        </AuthModalContainer>
       </body>
     </html>
   )

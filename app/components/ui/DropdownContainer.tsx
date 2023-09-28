@@ -5,15 +5,23 @@ import { twMerge } from "tailwind-merge"
 
 interface DropdownContainerProps {
   children: React.ReactNode
-  icon: React.ReactElement
+  icon: React.ReactNode
   className?: string
+  classNameDropdownContainer?: string
+  username?: string | undefined
 }
 
-export function DropdownContainer({ children, icon, className = "" }: DropdownContainerProps) {
+export function DropdownContainer({
+  children,
+  icon,
+  username,
+  className = "",
+  classNameDropdownContainer = "",
+}: DropdownContainerProps) {
   const { isDropdown, dropdownContainerRef, setIsDropdown } = useCloseOnClickOutlise()
 
   return (
-    <div className={`relative z-10`} ref={dropdownContainerRef}>
+    <div className={`relative z-10 ${classNameDropdownContainer}`} ref={dropdownContainerRef}>
       <div className="cursor-pointer hover:brightness-75 duration-300" onClick={() => setIsDropdown(!isDropdown)}>
         {icon}
       </div>
@@ -27,7 +35,10 @@ export function DropdownContainer({ children, icon, className = "" }: DropdownCo
            ? "opacity-100 visible translate-y-0 transition-all duration-300"
            : "opacity-0 invisible translate-y-[-20px] transition-all duration-300"
        } ${className}`)}>
-        <div className="text-md border-[1px] border-solid border-secondary rounded-md">{children}</div>
+        <div className="text-md border-[1px] border-solid border-secondary rounded-md">
+          {username && <h1 className="text-center">Hi&nbsp; {username}</h1>}
+          {children}
+        </div>
       </div>
     </div>
   )

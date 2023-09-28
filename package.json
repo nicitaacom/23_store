@@ -13,6 +13,7 @@
     "@metamask/detect-provider": "^2.0.0",
     "@react-email/components": "^0.0.7",
     "@stripe/stripe-js": "^2.1.6",
+    "@supabase/auth-helpers-nextjs": "^0.8.1",
     "@supabase/supabase-js": "^2.36.0",
     "@types/node": "20.6.3",
     "@types/react": "18.2.22",

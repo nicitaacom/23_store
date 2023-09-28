@@ -1,14 +1,23 @@
+import Link from "next/link"
+import Image from "next/image"
+
 import { FiPhoneCall } from "react-icons/fi"
-import { BiUserCircle } from "react-icons/bi"
+import { AiOutlinePlus } from "react-icons/ai"
 
 import { Switch } from ".."
 import { Language } from "../Language"
-import { HamburgerMenu, Logo, NavbarSearch, OpenCartModalButton } from "./components"
+import { HamburgerMenu, Logo, NavbarSearch, OpenAuthModalButton, OpenCartModalButton } from "./components"
 import NavbarWrapper from "./components/NavbarWrapper"
 import { DropdownContainer } from "../ui/DropdownContainer"
-import Link from "next/link"
+import supabaseServer from "@/utils/supabaseServer"
+import { DropdownItem } from "../ui/DropdownItem"
+import LogoutDropdownItem from "./components/LogoutDropdownItem"
 
-export default function Navbar() {
+export default async function Navbar() {
+  const {
+    data: { session },
+  } = await supabaseServer.auth.getSession()
+
   return (
     <NavbarWrapper>
       <div className="flex flex-row gap-x-4 items-center">
@@ -38,8 +47,28 @@ export default function Navbar() {
             </div>
           </div>
         </DropdownContainer>
-
-        <BiUserCircle className="cursor-pointer text-title hover:brightness-75 transition-all duration-300" size={32} />
+        {session ? (
+          <DropdownContainer
+            classNameDropdownContainer="ml-1"
+            className="max-w-[175px]"
+            username={"undefined"}
+            icon={
+              <>
+                <Image
+                  className="w-[32px] h-[32px] rounded-full"
+                  src={false ? "" : "/placeholder.jpg"}
+                  alt="user logo"
+                  width={32}
+                  height={32}
+                />
+              </>
+            }>
+            <DropdownItem label="Add product" icon={AiOutlinePlus} href="?modal=AddProduct" />
+            <LogoutDropdownItem />
+          </DropdownContainer>
+        ) : (
+          <OpenAuthModalButton />
+        )}
       </div>
     </NavbarWrapper>
   )

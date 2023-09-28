@@ -4,6 +4,7 @@ specifiers:
   '@metamask/detect-provider': ^2.0.0
   '@react-email/components': ^0.0.7
   '@stripe/stripe-js': ^2.1.6
+  '@supabase/auth-helpers-nextjs': ^0.8.1
   '@supabase/supabase-js': ^2.36.0
   '@types/node': 20.6.3
   '@types/react': 18.2.22
@@ -36,6 +37,7 @@ dependencies:
   '@metamask/detect-provider': 2.0.0
   '@react-email/components': 0.0.7
   '@stripe/stripe-js': 2.1.6
+  '@supabase/auth-helpers-nextjs': 0.8.1_hanmkkm6xzzkvcfspaywvj7ddm
   '@supabase/supabase-js': 2.36.0
   '@types/node': 20.6.3
   '@types/react': 18.2.22
@@ -486,6 +488,25 @@ packages:
 
   /@stripe/stripe-js/2.1.6:
     resolution: {integrity: sha512-QSzqQIcowgap7a40f3a7oUR+59Xet/i8fp1EsnzzwxK5oPRQsCbbLQ4Cd6qM0y1pdZMonFnCrAWayWdE9Lr0iA==}
+    dev: false
+
+  /@supabase/auth-helpers-nextjs/0.8.1_hanmkkm6xzzkvcfspaywvj7ddm:
+    resolution: {integrity: sha512-ZO/UGDE9oaVXwPL4gpzGu2NpPwfKOgxTUnuK6no51So8Ah9BUuUUsTj+BdZlx7jJoZEIAkHWdRIx65WuQgWAiQ==}
+    peerDependencies:
+      '@supabase/supabase-js': ^2.19.0
+    dependencies:
+      '@supabase/auth-helpers-shared': 0.5.0_hanmkkm6xzzkvcfspaywvj7ddm
+      '@supabase/supabase-js': 2.36.0
+      set-cookie-parser: 2.6.0
+    dev: false
+
+  /@supabase/auth-helpers-shared/0.5.0_hanmkkm6xzzkvcfspaywvj7ddm:
+    resolution: {integrity: sha512-kioUeYDBZ89cfqOTZFOLEFIO7kGczL0XJYZdVv/bKt5efXqhiY14NbzgGWiMvvD9o9Iluo0+YEV2tG3ZZ5W06A==}
+    peerDependencies:
+      '@supabase/supabase-js': ^2.19.0
+    dependencies:
+      '@supabase/supabase-js': 2.36.0
+      jose: 4.14.6
     dev: false
 
   /@supabase/functions-js/2.1.5:
@@ -2257,6 +2278,10 @@ packages:
     hasBin: true
     dev: false
 
+  /jose/4.14.6:
+    resolution: {integrity: sha512-EqJPEUlZD0/CSUMubKtMaYUOtWe91tZXTWMJZoKSbLk+KtdhNdcvppH8lA9XwVu2V4Ailvsj0GBZJ2ZwDjfesQ==}
+    dev: false
+
   /js-beautify/1.14.9:
     resolution: {integrity: sha512-coM7xq1syLcMyuVGyToxcj2AlzhkDjmfklL8r0JgJ7A76wyGMpJ1oA35mr4APdYNO/o/4YY8H54NQIJzhMbhBg==}
     engines: {node: '>=12'}
@@ -3079,6 +3104,10 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
+    dev: false
+
+  /set-cookie-parser/2.6.0:
+    resolution: {integrity: sha512-RVnVQxTXuerk653XfuliOxBP81Sf0+qfQE73LIYKcyMYHG94AuH0kgrQpRDuTZnSmjpysHmzxJXKNfa6PjFhyQ==}
     dev: false
 
   /set-function-name/2.0.1:
