@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc -p tsconfig.json --noEmit"
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "update-types": "pnpx supabase gen types typescript --project-id ambgxbbsgequlwnbzchr > types_db.ts"
   },
   "dependencies": {
     "@metamask/detect-provider": "^2.0.0",
@@ -15,15 +16,9 @@
     "@stripe/stripe-js": "^2.1.6",
     "@supabase/auth-helpers-nextjs": "^0.8.1",
     "@supabase/supabase-js": "^2.36.0",
-    "@types/node": "20.6.3",
-    "@types/react": "18.2.22",
-    "@types/react-dom": "18.2.7",
-    "@types/uuid": "^9.0.4",
     "autoprefixer": "10.4.16",
     "axios": "^1.5.0",
     "class-variance-authority": "^0.7.0",
-    "eslint": "8.49.0",
-    "eslint-config-next": "13.5.2",
     "framer-motion": "^10.16.4",
     "next": "13.5.3",
     "postcss": "8.4.30",
@@ -42,6 +37,12 @@
   "devDependencies": {
     "pnpm": "^8.8.0",
     "prettier": "^3.0.3",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "eslint": "8.49.0",
+    "eslint-config-next": "13.5.2",
+    "@types/node": "20.6.3",
+    "@types/react": "18.2.22",
+    "@types/react-dom": "18.2.7",
+    "@types/uuid": "^9.0.4"
   }
 }

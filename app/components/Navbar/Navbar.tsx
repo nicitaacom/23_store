@@ -16,7 +16,7 @@ import LogoutDropdownItem from "./components/LogoutDropdownItem"
 export default async function Navbar() {
   const {
     data: { session },
-  } = await supabaseServer.auth.getSession()
+  } = await supabaseServer().auth.getSession()
 
   return (
     <NavbarWrapper>
