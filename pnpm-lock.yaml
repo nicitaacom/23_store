@@ -15,10 +15,10 @@ dependencies:
     specifier: ^2.1.6
     version: 2.1.7
   '@supabase/auth-helpers-nextjs':
-    specifier: ^0.8.1
+    specifier: latest
     version: 0.8.1(@supabase/supabase-js@2.38.1)
   '@supabase/supabase-js':
-    specifier: ^2.36.0
+    specifier: latest
     version: 2.38.1
   autoprefixer:
     specifier: 10.4.16
