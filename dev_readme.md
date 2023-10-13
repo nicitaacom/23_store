@@ -1,8 +1,12 @@
-# Problem
+## Problem
+Buy and sell something
 
-# Solution
+## Solution
 
-# Usage
+Create this site that better other ones where everybody can buy or sell something
+
+## Live demo - performance - N/A mobile / N/A desktop
+vercel.app
 
 
 
