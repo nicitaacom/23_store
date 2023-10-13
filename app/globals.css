@@ -1,114 +1,27 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
   :root {
-    --brand: 137deg 82% 22%;
-    --background: 0deg 0% 93%;
-    --foreground: 0deg 0% 84%;
-    --foreground-hover: 0deg 0% 74%; /* for skeleton */
-    --title: 0deg 0% 12%;
-    --title-foreground: 0deg 0% 90%;
-    --subTitle: 0deg 0% 40%;
-
-    /* The same colors */
-    --border-color: 0deg 0% 40%; /*subTitle*/
-    --icon-color: 0deg 0% 12%; /* title */
-
-    /* Support colors */
-    --info: 219deg 65% 36%;
-    --warning: 22deg 84% 27%;
-    --danger: 0deg 82% 34%;
-    --success: 118deg 78% 20%;
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
   }
-  /* I did it using rgb color picker and contrast checker */
-  .dark {
-    --brand: 137deg 82% 52%;
-    --background: 0deg 0% 7%;
-    --foreground: 0deg 0% 16%;
-    --foreground-hover: 0deg 0% 26%; /* for skeleton */
-    --title: 0deg 0% 88%;
-    --title-foreground: 0deg 0% 10%;
-    --subTitle: 0deg 0% 63%;
-
-    /* The same colors */
-    --border-color: 0deg 0% 60%; /*subTitle*/
-    --icon-color: 0deg 0% 88%; /* title */
-
-    /* Support colors */
-    --info: 219deg 83% 72%;
-    --warning: 22deg 84% 73%;
-    --danger: 0deg 80% 72%;
-    --success: 118deg 80% 78%;
-  }
-}
-
-* {
-  border-color: hsl(var(--border-color));
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: hsl(var(--title));
-}
-
-p,
-span {
-  color: hsl(var(--subTitle));
 }
 
 body {
-  list-style: none;
-  min-height: -webkit-fill-available;
-  background-color: hsl(var(--background));
-  font-family: "Inter", sans-serif;
-}
-
-#root {
-  display: flex;
-  flex-flow: column;
-  min-height: 100vh;
-}
-
-.image-upload {
-  /* https://kovart.github.io/dashed-border-generator/ */
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23FE0E00FF' stroke-width='4' stroke-dasharray='9%25%2c 10%25' stroke-dashoffset='6' stroke-linecap='butt'/%3e%3c/svg%3e");
-}
-
-/* disable default input styling */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* ===== Scrollbar CSS ===== */
-/* Firefox */
-@media (min-width: 1024px) {
-  * {
-    scrollbar-width: auto;
-    scrollbar-color: #6b7280 #ffffff;
-  }
-
-  /* Chrome, Edge, and Safari */
-  *::-webkit-scrollbar {
-    width: 16px;
-  }
-
-  *::-webkit-scrollbar-track {
-    background: #303030;
-  }
-
-  *::-webkit-scrollbar-thumb {
-    background-color: #6b7280;
-    border-radius: 8px;
-    border: 3px solid #303030;
-  }
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
 }
