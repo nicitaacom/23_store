@@ -45,7 +45,7 @@ dependencies:
     specifier: 18.2.0
     version: 18.2.0(react@18.2.0)
   react-hook-form:
-    specifier: ^7.46.2
+    specifier: ^7.47.0
     version: 7.47.0(react@18.2.0)
   react-icons:
     specifier: ^4.11.0

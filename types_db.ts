@@ -79,16 +79,22 @@ export interface Database {
       }
       users_cart: {
         Row: {
+          cart_products: Json | null
+          cart_quantity: number | null
           created_at: string
           id: number
           owner_username: string
         }
         Insert: {
+          cart_products?: Json | null
+          cart_quantity?: number | null
           created_at?: string
           id?: number
           owner_username: string
         }
         Update: {
+          cart_products?: Json | null
+          cart_quantity?: number | null
           created_at?: string
           id?: number
           owner_username?: string
@@ -96,43 +102,6 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: "users_cart_owner_username_fkey"
-            columns: ["owner_username"]
-            referencedRelation: "users"
-            referencedColumns: ["username"]
-          }
-        ]
-      }
-      users_cart1: {
-        Row: {
-          cart_products: Json[] | null
-          cart_quantity: number | null
-          created_at: string
-          id: string
-          owner_username: string | null
-        }
-        Insert: {
-          cart_products?: Json[] | null
-          cart_quantity?: number | null
-          created_at?: string
-          id: string
-          owner_username?: string | null
-        }
-        Update: {
-          cart_products?: Json[] | null
-          cart_quantity?: number | null
-          created_at?: string
-          id?: string
-          owner_username?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "users_cart1_id_fkey"
-            columns: ["id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "users_cart1_owner_username_fkey"
             columns: ["owner_username"]
             referencedRelation: "users"
             referencedColumns: ["username"]
