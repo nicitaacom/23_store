@@ -17,7 +17,13 @@ export default async function Navbar() {
   const {
     data: { user },
   } = await supabaseServer().auth.getUser()
-  const { data: username } = await supabaseServer().from("users").select("username").single()
+  console.log(20, "user - ", user)
+
+  const { data: username } = await supabaseServer()
+    .from("users")
+    .select("username")
+    .eq("id", user?.id ?? "")
+    .single()
 
   return (
     <NavbarWrapper>
