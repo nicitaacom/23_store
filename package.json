@@ -24,7 +24,7 @@
     "postcss": "8.4.30",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-hook-form": "^7.46.2",
+    "react-hook-form": "^7.47.0",
     "react-icons": "^4.11.0",
     "react-images-uploading": "^3.1.7",
     "react-loading-skeleton": "^3.3.1",
@@ -35,14 +35,14 @@
     "zustand": "^4.4.1"
   },
   "devDependencies": {
-    "pnpm": "^8.8.0",
-    "prettier": "^3.0.3",
-    "typescript": "5.2.2",
-    "eslint": "8.49.0",
-    "eslint-config-next": "13.5.2",
     "@types/node": "20.6.3",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
-    "@types/uuid": "^9.0.4"
+    "@types/uuid": "^9.0.4",
+    "eslint": "8.49.0",
+    "eslint-config-next": "13.5.2",
+    "pnpm": "^8.8.0",
+    "prettier": "^3.0.3",
+    "typescript": "5.2.2"
   }
 }
