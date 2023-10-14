@@ -1,21 +1,29 @@
 import "./globals.css"
 
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import Layout from "./components/Layout"
 
-const inter = Inter({ subsets: ["latin"] })
+import { Layout } from "./components"
+import Navbar from "./components/Navbar/Navbar"
+import { AuthModalContainer, CartModalContainer } from "./components/ui/Modals/ModalContainers"
+import { AuthModal, CartModal } from "./components/ui/Modals"
 
 export const metadata: Metadata = {
-  title: "auth-form-next",
-  description: "description",
+  title: "23_store",
+  description: "Something better than amazon",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
+        <Navbar />
         <Layout>{children}</Layout>
+        <CartModalContainer>
+          <CartModal label="Cart" />
+        </CartModalContainer>
+        <AuthModalContainer>
+          <AuthModal label="Auth" />
+        </AuthModalContainer>
       </body>
     </html>
   )

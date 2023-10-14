@@ -39,7 +39,11 @@ export function NameModalContainer({ children }: { children: React.ReactNode }) 
 }
 ```
 
-## Step 4 (in components folder where you have button to open modal e.g Navbar/components)
+## Step 4
+
+Export every modal container in ModalContainers/index.ts
+
+## Step 5 (in components folder where you have button to open modal e.g Navbar/components)
 
 ```tsx
 "use client"
@@ -60,11 +64,11 @@ export default function OpenNameModalButton() {
 }
 ```
 
-## Step 5
+## Step 6
 
 Export every button in index.ts (e.g Navbar/components/index.ts)
 
-## Step 6
+## Step 7
 
 Render NameModal as children NameModalContainer somewhere (e.g in layout.tsx)
 
@@ -74,7 +78,7 @@ Render NameModal as children NameModalContainer somewhere (e.g in layout.tsx)
 </NameModalContainer>
 ```
 
-## Step 7
+## Step 8
 
 Render OpenNameModalButton.tsx somewhere (e.g in Navbar.tsx)
 

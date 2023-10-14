@@ -1,14 +1,9 @@
-import Navbar from "./components/Navbar/Navbar"
-import { AuthModal } from "./components/ui/Modals/AuthModal"
-import { AuthModalContainer } from "./components/ui/Modals/ModalContainers/AuthModalContainer"
-
-export default function Home() {
+function Home() {
   return (
-    <>
-      <Navbar />
-      <AuthModalContainer>
-        <AuthModal label="Auth" />
-      </AuthModalContainer>
-    </>
+    <div className="text-2xl flex flex-col gap-y-8 justify-between items-center py-12">
+      <section className="flex flex-col gap-y-4 text-brand">high performance on the beat</section>
+    </div>
   )
 }
+
+export default Home

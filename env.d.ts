@@ -1,10 +1,14 @@
+interface ProcessEnv {
+  [key: string]: string | undefined
+}
+
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
       NEXT_PRODUCTION_URL: string
 
-      NEXT_PUBLIC_SUPABASE_URL: string
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: string
+      NEXT_SUPABASE_URL: string
+      NEXT_SUPABASE_ANON_KEY: string
 
       NEXT_STRIPE_PUBLIC: string
       NEXT_STRIPE_SECRET: string
@@ -18,6 +22,14 @@ declare global {
 
       NEXT_COINMARKETCAP_SECRET: string
     }
+  }
+}
+
+/* for metamask detecting */
+
+declare global {
+  interface Window {
+    ethereum: any
   }
 }
 

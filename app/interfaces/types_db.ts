@@ -1,4 +1,10 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export interface Database {
   public: {
@@ -37,7 +43,7 @@ export interface Database {
             columns: ["owner_username"]
             referencedRelation: "users"
             referencedColumns: ["username"]
-          },
+          }
         ]
       }
       users: {
@@ -68,7 +74,7 @@ export interface Database {
             columns: ["id"]
             referencedRelation: "users"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
       users_cart: {
@@ -93,7 +99,7 @@ export interface Database {
             columns: ["owner_username"]
             referencedRelation: "users"
             referencedColumns: ["username"]
-          },
+          }
         ]
       }
       users_cart1: {
@@ -102,18 +108,21 @@ export interface Database {
           cart_quantity: number | null
           created_at: string
           id: string
+          owner_username: string | null
         }
         Insert: {
           cart_products?: Json[] | null
           cart_quantity?: number | null
           created_at?: string
           id: string
+          owner_username?: string | null
         }
         Update: {
           cart_products?: Json[] | null
           cart_quantity?: number | null
           created_at?: string
           id?: string
+          owner_username?: string | null
         }
         Relationships: [
           {
@@ -122,6 +131,12 @@ export interface Database {
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "users_cart1_owner_username_fkey"
+            columns: ["owner_username"]
+            referencedRelation: "users"
+            referencedColumns: ["username"]
+          }
         ]
       }
     }
