@@ -2,6 +2,7 @@ import type { Config } from "tailwindcss"
 
 const config: Config = {
   content: ["./app/**/*.{tsx,mdx}"],
+
   theme: {
     fontFamily: {
       primary: ["Inter", "sans-serif"],
