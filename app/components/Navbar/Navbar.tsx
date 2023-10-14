@@ -15,8 +15,9 @@ import LogoutDropdownItem from "./components/LogoutDropdownItem"
 
 export default async function Navbar() {
   const {
-    data: { session },
-  } = await supabaseServer().auth.getSession()
+    data: { user },
+  } = await supabaseServer().auth.getUser()
+  const { data: username } = await supabaseServer().from("users").select("username").single()
 
   return (
     <NavbarWrapper>
@@ -47,11 +48,11 @@ export default async function Navbar() {
             </div>
           </div>
         </DropdownContainer>
-        {session ? (
+        {user ? (
           <DropdownContainer
             classNameDropdownContainer="ml-1"
             className="max-w-[175px]"
-            username={"undefined"}
+            username={username?.username}
             icon={
               <>
                 <Image

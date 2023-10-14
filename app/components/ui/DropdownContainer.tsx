@@ -36,7 +36,7 @@ export function DropdownContainer({
            : "opacity-0 invisible translate-y-[-20px] transition-all duration-300"
        } ${className}`)}>
         <div className="text-md border-[1px] border-solid border-secondary rounded-md">
-          {username && <h1 className="text-center">Hi&nbsp; {username}</h1>}
+          {username && <h1 className="text-center">Hi {username}</h1>}
           {children}
         </div>
       </div>

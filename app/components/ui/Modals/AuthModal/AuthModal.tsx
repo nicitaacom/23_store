@@ -7,15 +7,14 @@ import { usePathname, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai"
 import supabaseClient from "@/utils/supabaseClient"
+import { AuthError } from "@supabase/supabase-js"
 
 import { FormInput } from "../../Inputs/Validation/FormInput"
 import ContinueWithButton from "@/(auth)/components/ContinueWithButton"
 import { Button, Checkbox, ModalContainer } from "../.."
 import { Timer } from "@/(auth)/components"
 import useDarkMode from "@/store/ui/darkModeStore"
-
-//TODO - its trash code - reduce line amount of line
-//https://i.imgur.com/KfOf5kG.png
+import useUserStore from "@/store/user/userStore"
 
 interface AdminModalProps {
   label: string
@@ -32,6 +31,7 @@ export function AuthModal({ label }: AdminModalProps) {
   const router = useRouter()
   const pathname = usePathname()
   const queryParams = useSearchParams().get("variant")
+  const userStore = useUserStore()
   const darkMode = useDarkMode()
   const [isChecked, setIsChecked] = useState(false)
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
@@ -85,29 +85,34 @@ export function AuthModal({ label }: AdminModalProps) {
           console.error("Unknown error - ", error)
         }
       }
-    } else {
+    }
+    //If user want to login with username
+    else {
       try {
+        //Find email that matches username
         const { data: email, error: emailSelectError } = await supabaseClient
           .from("users")
           .select("email")
           .eq("username", emailOrUsername)
         if (emailSelectError) throw emailSelectError
+
+        //Login user with email&password
         if (email && email.length > 0) {
           const { data: user, error: signInError } = await supabaseClient.auth.signInWithPassword({
             email: email[0].email!, //email 100% !== null because email && email.length >0 (thats why I use !)
             password: password,
           })
           if (signInError) throw signInError
-
+          //I don't store user info in localstorage because zustand requires 'use client'
+          //and I can use SSR with request to DB - anyway its renders on a server so I still get better performance
           if (user.user) {
-            //store info somewhere (e.g in localStorage with zustand)
             displayResponseMessage(<p className="text-success">You are logged in</p>)
             router.refresh()
           }
         } else {
           displayResponseMessage(<p className="text-danger">No user with this username</p>)
         }
-      } catch (error) {
+      } catch (error: unknown) {
         if (error instanceof Error) {
           displayResponseMessage(<p className="text-danger">{error.message}</p>)
           console.error("Login with email - ", error)
@@ -160,9 +165,13 @@ export function AuthModal({ label }: AdminModalProps) {
           )
         }, 5000)
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        displayResponseMessage(<p className="text-danger">{error.message}</p>)
+    } catch (error: unknown) {
+      if (error instanceof AuthError) {
+        if (error.message.includes("duplicate key value violates unique constraint")) {
+          displayResponseMessage(<p className="text-danger">User with this username/email already exists.</p>)
+        } else {
+          displayResponseMessage(<p className="text-danger">{error.message}</p>)
+        }
         console.error("Login with email - ", error)
       } else {
         displayResponseMessage(
@@ -231,7 +240,6 @@ export function AuthModal({ label }: AdminModalProps) {
 
   async function resetPassword(password: string) {
     try {
-      //TODO - check if this password already belong to current email
       const { error } = await supabaseClient.auth.updateUser({ password: password })
       if (error) throw error
       displayResponseMessage(<p className="text-success">Your password changed</p>)

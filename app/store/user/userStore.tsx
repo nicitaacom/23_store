@@ -1,6 +1,5 @@
 import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
-import supabase from "../../utils/supabaseClient"
 
 interface UserStore {
   userId: string
@@ -8,6 +7,7 @@ interface UserStore {
   username: string
   email: string
   profilePictureUrl: string
+  setUser: (userId: string, username: string, email: string, profilePictureUrl: string) => void
 }
 
 type SetState = (fn: (prevState: UserStore) => UserStore) => void
@@ -18,6 +18,15 @@ export const userStore = (set: SetState): UserStore => ({
   username: "",
   email: "",
   profilePictureUrl: "",
+  setUser(userId: string, username: string, email: string, profilePictureUrl: string) {
+    set((state: UserStore) => ({
+      ...state,
+      userId: userId,
+      username: username,
+      email: email,
+      profilePictureUrl: profilePictureUrl,
+    }))
+  },
 })
 
 const useUserStore = create(devtools(persist(userStore, { name: "userStore" })))
