@@ -8,8 +8,8 @@ import { Product } from "."
 //if no products in cache - fetch from DB
 
 async function fetchProductsQuantity() {
+  //TODO - create case for unauthenticated user I mean if !user output something
   const { data: user } = await supabaseServer().auth.getUser()
-  console.log(12, "user - ", user.user?.id)
   if (user?.user?.id) {
     const cartProductQuantity = await supabaseServer()
       .from("users_cart")
@@ -24,7 +24,6 @@ export default async function Products() {
   const products = await supabaseServer().from("products").select("*").limit(10)
   //output products with product.quantity that I take from users_cart
   const cartProductsQuantity = await fetchProductsQuantity()
-  cartProductsQuantity?.map(cartProductQuantity => console.log(cartProductQuantity))
   //set individual quantity for each user in updatedProducts variable
   const updatedProducts = products.data?.map((product: Omit<IProduct, "quantity">) => {
     const productQuantity = cartProductsQuantity?.find((cartProduct: IProduct) => cartProduct.id === product.id)

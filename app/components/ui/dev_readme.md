@@ -33,7 +33,7 @@ check Modals/dev_readme.md
 ```tsx
   <Button variant='continue-with'>
     Continue with Google
-    <AiOutlineGoogle className='text-secondary' size={42} />
+    <AiOutlineGoogle className='text-title-foreground' size={42} />
   </Button>
   <Button variant='cta'>cta</Button>
   <Button variant='danger'>danger</Button>
