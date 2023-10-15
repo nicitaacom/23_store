@@ -17,7 +17,6 @@ export default async function Navbar() {
   const {
     data: { user },
   } = await supabaseServer().auth.getUser()
-  console.log(20, "user - ", user)
 
   const { data: username } = await supabaseServer()
     .from("users")
