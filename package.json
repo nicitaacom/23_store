@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc -p tsconfig.json --noEmit",
-    "update-types": "pnpx supabase gen types typescript --project-id ambgxbbsgequlwnbzchr > types_db.ts"
+    "update-types": "pnpx supabase gen types typescript --project-id ambgxbbsgequlwnbzchr > app/interfaces/types_db.ts"
   },
   "dependencies": {
     "@metamask/detect-provider": "^2.0.0",
