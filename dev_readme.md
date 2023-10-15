@@ -6,9 +6,9 @@ Buy and sell something
 
 Create this site that better other ones where everybody can buy or sell something
 
-## Live demo - performance - N/A mobile / N/A desktop
+## Live demo - performance - 83 mobile / 96 desktop
 
-vercel.app
+https://23-store.vercel.app/
 
 ## Use supabaseServer like this
 
