@@ -1,5 +1,7 @@
 import { ICartProduct } from "./ICartProduct"
 
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
 export interface Database {
   public: {
     Tables: {
@@ -80,7 +82,7 @@ export interface Database {
           owner_username: string
         }
         Insert: {
-          cart_products: ICartProduct[]
+          cart_products?: ICartProduct[]
           cart_quantity?: number | null
           created_at?: string
           id: string

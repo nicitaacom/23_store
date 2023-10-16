@@ -1,4 +1,3 @@
-import supabaseServerAction from "@/utils/supabaseServerAction"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
@@ -7,19 +6,19 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get("code")
 
+  const supabase = createRouteHandlerClient({ cookies })
   if (code) {
-    const supabase = createRouteHandlerClient({ cookies })
     await supabase.auth.exchangeCodeForSession(code)
   }
-  const { data: user } = await supabaseServerAction().auth.getUser()
+  const { data: user } = await supabase.auth.getUser()
   if (user && user.user) {
     //Insert row in users table
-    const { error: errorUsersInsert } = await supabaseServerAction()
+    const { error: errorUsersInsert } = await supabase
       .from("users")
       .insert({ id: user.user.id, username: user.user.user_metadata.name, email: user.user.user_metadata.email })
     if (errorUsersInsert) throw errorUsersInsert
     //Insert row in users_cart table
-    const { error: errorUsersCartInsert } = await supabaseServerAction()
+    const { error: errorUsersCartInsert } = await supabase
       .from("users_cart")
       .insert({ owner_username: user.user.user_metadata.name, id: user.user.id })
     if (errorUsersCartInsert) throw errorUsersCartInsert
