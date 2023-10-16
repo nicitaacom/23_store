@@ -1,7 +1,6 @@
 import { HiOutlineRefresh } from "react-icons/hi"
 
-import { IProduct } from "@/interfaces/IProduct"
-import { Button, Slider } from "@/components/ui"
+import { Slider } from "@/components/ui"
 import {
   ClearProductQuantityButton,
   DecreaseProductQuantityButton,
@@ -10,8 +9,12 @@ import {
 } from "@/components/ui/Buttons"
 import Image from "next/image"
 import { formatCurrency } from "@/utils/currencyFormatter"
+import { ICartProduct } from "@/interfaces/ICartProduct"
 
-export default function Product({ ...product }: IProduct) {
+export default function Product({ ...product }: ICartProduct) {
+  if (product.quantity === null) {
+    console.log("use client")
+  }
   return (
     <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
       {product.img_url.length === 1 ? (
@@ -63,9 +66,9 @@ export default function Product({ ...product }: IProduct) {
             <div
               className={`flex flex-row gap-x-2 justify-center tablet:justify-end items-end 
             ${product.quantity === 0 && "w-full"}`}>
-              <IncreaseProductQuantityButton />
-              <DecreaseProductQuantityButton />
-              <ClearProductQuantityButton />
+              <IncreaseProductQuantityButton product={product} />
+              <DecreaseProductQuantityButton product={product} />
+              <ClearProductQuantityButton product={product} />
             </div>
           )}
         </section>

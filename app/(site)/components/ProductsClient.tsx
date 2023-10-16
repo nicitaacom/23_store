@@ -1,10 +1,10 @@
+"use client"
 import { ProductsSkeleton } from "@/components/Skeletons"
 import { IProduct } from "@/interfaces/IProduct"
 import { Product } from "."
 import { ICartProduct } from "@/interfaces/ICartProduct"
+import useAnonymousCartStore from "@/store/user/anonymousCart"
 import { PostgrestSingleResponse } from "@supabase/supabase-js"
-import supabaseClient from "@/utils/supabaseClient"
-import { GetServerSideProps } from "next"
 
 //TODO - get products from cache (check in future if product was edited - do new request to DB)
 //if no products in cache - fetch from DB
@@ -23,22 +23,10 @@ interface ProductsProps {
   >
 }
 
-async function fetchCartProducts() {
-  //IN PROGRESS - create case for unauthenticated user I mean if !user output something
-  const { data: user } = await supabaseClient.auth.getUser()
-  if (user?.user?.id) {
-    //if user - output quantity for products based on users_cart
-    const cartProducts = await supabaseClient.from("users_cart").select("cart_products").eq("id", user.user.id).single()
-    return cartProducts.data?.cart_products as unknown as ICartProduct[]
-  } else {
-    //if !user - output quantity for products based on localstorage
-    return null
-  }
-}
-
-export default async function Products({ products }: ProductsProps) {
+export default function ProductsClient({ products }: ProductsProps) {
   //output products with product.quantity that I take from users_cart
-  const cartProducts = await fetchCartProducts()
+  const anonymousCart = useAnonymousCartStore()
+  const cartProducts = anonymousCart.cartProducts
   //set individual quantity for each user in updatedProducts variable
   const updatedProducts = products?.data?.map((product: IProduct) => {
     const productQuantity = cartProducts?.find((cartProduct: ICartProduct) => cartProduct.id === product.id)
