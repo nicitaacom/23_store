@@ -8,6 +8,7 @@ interface UserStore {
   email: string
   profilePictureUrl: string
   setUser: (userId: string, username: string, email: string, profilePictureUrl: string) => void
+  logoutUser: () => void
 }
 
 type SetState = (fn: (prevState: UserStore) => UserStore) => void
@@ -22,9 +23,20 @@ export const userStore = (set: SetState): UserStore => ({
     set((state: UserStore) => ({
       ...state,
       userId: userId,
+      isAuthenticated: true,
       username: username,
       email: email,
       profilePictureUrl: profilePictureUrl,
+    }))
+  },
+  logoutUser() {
+    set((state: UserStore) => ({
+      ...state,
+      userId: "",
+      isAuthenticated: false,
+      username: "",
+      email: "",
+      profilePictureUrl: "",
     }))
   },
 })

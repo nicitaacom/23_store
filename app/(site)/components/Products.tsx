@@ -1,37 +1,62 @@
-import supabaseServer from "@/utils/supabaseServer"
+"use client"
 
 import { ProductsSkeleton } from "@/components/Skeletons"
 import { IProduct } from "@/interfaces/IProduct"
 import { Product } from "."
+import { ICartProduct } from "@/interfaces/ICartProduct"
+import { PostgrestSingleResponse } from "@supabase/supabase-js"
+import useAnonymousCartStore from "@/store/user/anonymousCart"
+import { useEffect, useState } from "react"
 
 //TODO - get products from cache (check in future if product was edited - do new request to DB)
 //if no products in cache - fetch from DB
 
-async function fetchProductsQuantity() {
-  //TODO - create case for unauthenticated user I mean if !user output something
-  const { data: user } = await supabaseServer().auth.getUser()
-  if (user?.user?.id) {
-    const cartProductQuantity = await supabaseServer()
-      .from("users_cart")
-      .select("cart_products")
-      .eq("id", user.user.id)
-      .single()
-    return cartProductQuantity.data?.cart_products as unknown as IProduct[]
-  }
+interface ProductsProps {
+  products: PostgrestSingleResponse<
+    {
+      id: string
+      img_url: string[]
+      on_stock: number
+      owner_username: string
+      price: number
+      sub_title: string
+      title: string
+    }[]
+  >
+  cart_products: PostgrestSingleResponse<{ cart_products: ICartProduct[] }> | null
 }
 
-export default async function Products() {
-  const products = await supabaseServer().from("products").select("*").limit(10)
+export default function Products({ products, cart_products }: ProductsProps) {
   //output products with product.quantity that I take from users_cart
-  const cartProductsQuantity = await fetchProductsQuantity()
   //set individual quantity for each user in updatedProducts variable
-  const updatedProducts = products.data?.map((product: Omit<IProduct, "quantity">) => {
-    const productQuantity = cartProductsQuantity?.find((cartProduct: IProduct) => cartProduct.id === product.id)
-    return {
-      ...product,
-      quantity: productQuantity ? productQuantity.quantity : 0,
+  //now I have issue with supabaseServer because it requires next/headers
+  const [updatedProducts, setUpdatedProducts] = useState<ICartProduct[]>([])
+  const anonymousCart = useAnonymousCartStore()
+  useEffect(() => {
+    if (cart_products?.data?.cart_products === undefined) {
+      const updatedProducts = products?.data?.map((product: IProduct) => {
+        const productQuantity = anonymousCart.cartProducts.find(
+          (cartProduct: ICartProduct) => cartProduct.id === product.id,
+        )
+        return {
+          ...product,
+          quantity: productQuantity ? productQuantity.quantity : 0,
+        }
+      })
+      setUpdatedProducts(updatedProducts ?? [])
+    } else {
+      const updatedProducts = products?.data?.map((product: IProduct) => {
+        const productQuantity = cart_products?.data?.cart_products.find(
+          (cartProduct: ICartProduct) => cartProduct.id === product.id,
+        )
+        return {
+          ...product,
+          quantity: productQuantity ? productQuantity.quantity : 0,
+        }
+      })
+      setUpdatedProducts(updatedProducts ?? [])
     }
-  })
+  }, [cart_products, products?.data, anonymousCart.cartQuantity, anonymousCart.cartProducts])
 
   return (
     <div

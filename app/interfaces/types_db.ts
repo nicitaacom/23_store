@@ -1,10 +1,6 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+import { ICartProduct } from "./ICartProduct"
+
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export interface Database {
   public: {
@@ -43,7 +39,7 @@ export interface Database {
             columns: ["owner_username"]
             referencedRelation: "users"
             referencedColumns: ["username"]
-          }
+          },
         ]
       }
       users: {
@@ -74,26 +70,26 @@ export interface Database {
             columns: ["id"]
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       users_cart: {
         Row: {
-          cart_products: Json | null
+          cart_products: ICartProduct[]
           cart_quantity: number | null
           created_at: string
           id: string
           owner_username: string
         }
         Insert: {
-          cart_products?: Json | null
+          cart_products?: ICartProduct[]
           cart_quantity?: number | null
           created_at?: string
           id: string
           owner_username: string
         }
         Update: {
-          cart_products?: Json | null
+          cart_products?: ICartProduct[]
           cart_quantity?: number | null
           created_at?: string
           id?: string
@@ -105,7 +101,7 @@ export interface Database {
             columns: ["owner_username"]
             referencedRelation: "users"
             referencedColumns: ["username"]
-          }
+          },
         ]
       }
     }

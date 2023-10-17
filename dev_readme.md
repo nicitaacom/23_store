@@ -5,6 +5,7 @@ Buy and sell something
 ## Solution
 
 Create this site that better other ones where everybody can buy or sell something
+Site created with focus on performance
 
 ## Live demo - performance - 83 mobile / 96 desktop
 
