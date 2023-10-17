@@ -13,6 +13,7 @@ export default async function getCartFromDB() {
       .select("cart_products")
       .eq("id", user?.user?.id)
       .single()
+    if (error) throw error
     return cart_products?.cart_products as unknown as ICartProduct[]
   }
   return []

@@ -1,15 +1,20 @@
-import ProductsClient from "./components/ProductsClient"
+import supabaseServer from "@/utils/supabaseServer"
 import { Products } from "./components"
-import supabaseClient from "@/utils/supabaseClient"
 
 export default async function Home() {
-  const { data: user } = await supabaseClient.auth.getUser()
-  const products = await supabaseClient.from("products").select("*").limit(10)
+  //TODO - fix error with supabase cookies (I need supabaseServer to getUser() from cookies)
+  const { data: user } = await supabaseServer().auth.getUser()
+  const products = await supabaseServer().from("products").select("*").limit(10)
+  const cart_products = await supabaseServer()
+    .from("users_cart")
+    .select("cart_products")
+    .eq("id", user.user?.id ?? "")
+    .single()
 
   return (
     <div className="text-2xl text-white flex flex-col gap-y-8 justify-between items-center py-12">
       <section className="flex flex-col gap-y-4">
-        {user.user?.id ? <Products products={products} /> : <ProductsClient products={products} />}
+        <Products products={products} cart_products={cart_products ? cart_products : null} />
       </section>
     </div>
   )

@@ -1,5 +1,3 @@
-import { HiOutlineRefresh } from "react-icons/hi"
-
 import { Slider } from "@/components/ui"
 import {
   ClearProductQuantityButton,
@@ -12,9 +10,6 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { ICartProduct } from "@/interfaces/ICartProduct"
 
 export default function Product({ ...product }: ICartProduct) {
-  if (product.quantity === null) {
-    console.log("use client")
-  }
   return (
     <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
       {product.img_url.length === 1 ? (

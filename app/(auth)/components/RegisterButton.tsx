@@ -19,9 +19,5 @@ export default function RegisterButton() {
     router.refresh()
   }
 
-  return (
-    <form action={register}>
-      <Button variant="default-outline">Register</Button>
-    </form>
-  )
+  return <Button variant="default-outline">Register</Button>
 }

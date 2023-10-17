@@ -6,7 +6,14 @@ import { AiOutlinePlus } from "react-icons/ai"
 
 import { Switch } from ".."
 import { Language } from "../Language"
-import { HamburgerMenu, Logo, NavbarSearch, OpenAuthModalButton, OpenCartModalButton } from "./components"
+import {
+  HamburgerMenu,
+  Logo,
+  NavbarSearch,
+  OpenAuthModalButton,
+  OpenCartModalButton,
+  OpenUserMenuButton,
+} from "./components"
 import NavbarWrapper from "./components/NavbarWrapper"
 import { DropdownContainer } from "../ui/DropdownContainer"
 import supabaseServer from "@/utils/supabaseServer"
@@ -53,28 +60,7 @@ export default async function Navbar() {
             </div>
           </div>
         </DropdownContainer>
-        {user ? (
-          <DropdownContainer
-            classNameDropdownContainer="ml-1"
-            className="max-w-[175px]"
-            username={username?.username}
-            icon={
-              <>
-                <Image
-                  className="w-[32px] h-[32px] rounded-full"
-                  src={false ? "" : "/placeholder.jpg"}
-                  alt="user logo"
-                  width={32}
-                  height={32}
-                />
-              </>
-            }>
-            <DropdownItem label="Add product" icon={AiOutlinePlus} href="?modal=AddProduct" />
-            <LogoutDropdownItem />
-          </DropdownContainer>
-        ) : (
-          <OpenAuthModalButton />
-        )}
+        {user ? <OpenUserMenuButton /> : <OpenAuthModalButton />}
       </div>
     </NavbarWrapper>
   )

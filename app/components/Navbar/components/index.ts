@@ -5,6 +5,7 @@ import NavbarSearch from "./NavbarSearch"
 import OpenCartModalButton from "./OpenCartModalButton"
 import OpenAreYouSureModalButton from "./OpenAreYouSureModalButton"
 import OpenAuthModalButton from "./OpenAuthModalButton"
+import OpenUserMenuButton from "./OpenUserMenuButton"
 
 export {
   NavbarWrapper,
@@ -14,4 +15,5 @@ export {
   OpenCartModalButton,
   OpenAreYouSureModalButton,
   OpenAuthModalButton,
+  OpenUserMenuButton,
 }
