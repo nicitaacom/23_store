@@ -11,6 +11,8 @@ const ClientOnly: React.FC<ClientOnlyProps> = ({ children }) => {
 
   useEffect(() => {
     setHasMounted(true)
+    //remove initial page loading skeleton
+    document.getElementById("initial-loading")?.remove()
   }, [])
 
   if (!hasMounted) {

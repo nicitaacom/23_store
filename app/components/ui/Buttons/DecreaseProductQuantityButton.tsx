@@ -48,6 +48,7 @@ export default function DecreaseProductQuantityButton({ product }: { product: IP
           .update({ cart_quantity: updatedCartQuantity })
           .eq("id", userStore.userId)
         if (cart_quantity_error) throw cart_quantity_error
+        router.refresh()
       }
     } else {
       anonymousCart.decreaseProductQuantity(product)

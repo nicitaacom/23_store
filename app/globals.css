@@ -4,6 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* if you do any changes here it requires manually changes in Skeleton*/
 @layer base {
   :root {
     --brand: 137deg 82% 22%;
