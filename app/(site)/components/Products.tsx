@@ -4,33 +4,65 @@ import { ProductsSkeleton } from "@/components/Skeletons"
 import { IProduct } from "@/interfaces/IProduct"
 import { Product } from "."
 import { ICartProduct } from "@/interfaces/ICartProduct"
-import { PostgrestSingleResponse } from "@supabase/supabase-js"
+import { PostgrestSingleResponse, User } from "@supabase/supabase-js"
 import useAnonymousCartStore from "@/store/user/anonymousCart"
 import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import supabaseClient from "@/utils/supabaseClient"
 
 //TODO - get products from cache (check in future if product was edited - do new request to DB)
 //if no products in cache - fetch from DB
 
-interface ProductsProps {
-  products: PostgrestSingleResponse<
-    {
-      id: string
-      img_url: string[]
-      on_stock: number
-      owner_username: string
-      price: number
-      sub_title: string
-      title: string
-    }[]
-  >
-  cart_products: PostgrestSingleResponse<{ cart_products: ICartProduct[] }> | null
-}
+type IProductsResponse = PostgrestSingleResponse<
+  {
+    id: string
+    img_url: string[]
+    on_stock: number
+    owner_username: string
+    price: number
+    sub_title: string
+    title: string
+  }[]
+>
+type ICartResponse = PostgrestSingleResponse<{ cart_products: ICartProduct[] }> | null
 
-export default function Products({ products, cart_products }: ProductsProps) {
+export default function Products({ user }: { user: User } | { user: null }) {
   //output products with product.quantity that I take from users_cart
   //set individual quantity for each user in updatedProducts variable
-  //now I have issue with supabaseServer because it requires next/headers
-  const [updatedProducts, setUpdatedProducts] = useState<ICartProduct[]>([])
+  const {
+    data: products,
+    isLoading: isLoading_products,
+    isError: isError_products,
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const products = await supabaseClient.from("products").select("*").limit(10)
+      console.log(18, "products - ", products)
+      return products as IProductsResponse | undefined
+    },
+  })
+
+  const {
+    data: cart_products,
+    isLoading: isLoading_cart_products,
+    isError: isError_cart_products,
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+  } = useQuery({
+    queryKey: ["cart_products"],
+    queryFn: async () => {
+      if (user) {
+        const cart_products = await supabaseClient
+          .from("users_cart")
+          .select("cart_products")
+          .eq("id", user.id ?? "")
+          .single()
+        return cart_products as ICartResponse
+      }
+      return null
+    },
+  })
+  const [updatedProducts, setUpdatedProducts] = useState<ICartProduct[] | undefined>(cart_products?.data?.cart_products)
   const anonymousCart = useAnonymousCartStore()
   useEffect(() => {
     if (cart_products?.data?.cart_products === undefined) {
@@ -66,13 +98,17 @@ export default function Products({ products, cart_products }: ProductsProps) {
         <h1 className="hidden tablet:flex text-lg">Products:</h1>
       </div>
       <ul className="flex flex-col gap-y-8">
-        {updatedProducts?.map(updatedProduct => (
-          <li key={updatedProduct.id}>
-            <Product {...updatedProduct} />
-          </li>
-        ))}
+        {isLoading_products ? (
+          <ProductsSkeleton />
+        ) : (
+          updatedProducts?.map(updatedProduct => (
+            <li key={updatedProduct.id}>
+              <Product {...updatedProduct} />
+            </li>
+          ))
+        )}
       </ul>
-      {/* Pagination bar in future + limit per page */}
+      {/* Pagination bar in future + limit per page + pagination/lazy loading switcher */}
     </div>
   )
 }

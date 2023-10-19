@@ -1,7 +1,6 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { experimental_useOptimistic as useOptimistic } from "react"
 
 import { IProduct } from "@/interfaces/IProduct"
 import useAnonymousCartStore from "@/store/user/anonymousCart"
@@ -60,6 +59,7 @@ export default function IncreaseProductQuantityButton({ product }: { product: IP
           .update({ cart_products: updatedProducts })
           .eq("id", userStore.userId)
         if (users_cart_error) throw users_cart_error
+        router.refresh()
       }
     } else {
       anonymousCart.increaseProductQuantity(product)
