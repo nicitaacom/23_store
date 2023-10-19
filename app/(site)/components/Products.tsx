@@ -1,14 +1,15 @@
 "use client"
 
-import { ProductsSkeleton } from "@/components/Skeletons"
+import supabaseClient from "@/utils/supabaseClient"
+import { PostgrestSingleResponse, User } from "@supabase/supabase-js"
+
+import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
 import { IProduct } from "@/interfaces/IProduct"
 import { Product } from "."
 import { ICartProduct } from "@/interfaces/ICartProduct"
-import { PostgrestSingleResponse, User } from "@supabase/supabase-js"
 import useAnonymousCartStore from "@/store/user/anonymousCart"
 import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import supabaseClient from "@/utils/supabaseClient"
 
 //TODO - get products from cache (check in future if product was edited - do new request to DB)
 //if no products in cache - fetch from DB
