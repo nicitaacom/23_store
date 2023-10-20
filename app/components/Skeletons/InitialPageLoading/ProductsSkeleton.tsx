@@ -10,10 +10,10 @@ export function ProductsSkeleton() {
         .map(() => {
           const uuid = uuidv4()
           return (
-            <>
+            <div key={uuid}>
               {/* max-width:768px */}
 
-              <div className="flex tablet:hidden flex-col gap-y-2">
+              <article className="flex tablet:hidden flex-col gap-y-2">
                 {/* Image */}
                 <Skeleton
                   duration={2}
@@ -170,7 +170,7 @@ export function ProductsSkeleton() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </article>
 
               {/* min-width:768px */}
 
@@ -342,7 +342,7 @@ export function ProductsSkeleton() {
                   </div>
                 </div>
               </div>
-            </>
+            </div>
           )
         })}
     </section>

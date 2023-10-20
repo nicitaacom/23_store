@@ -6,24 +6,26 @@ import { Button, Slider } from "@/components/ui"
 import {
   ClearProductQuantityButton,
   DecreaseProductQuantityButton,
-  IncreaseProductQuantityButton,
   RequestReplanishmentButton,
 } from "@/components/ui/Buttons"
 import Image from "next/image"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { ICartProduct } from "@/interfaces/ICartProduct"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import useUserStore from "@/store/user/userStore"
 import useAnonymousCartStore from "@/store/user/anonymousCart"
 import supabaseClient from "@/utils/supabaseClient"
-import getCartFromDB from "@/actions/getCart"
 
 export default function Product({ ...product }: ICartProduct) {
   const queryClient = useQueryClient()
   const userStore = useUserStore()
   const anonymousCart = useAnonymousCartStore()
 
-  const [productQuantity, setProductQuantity] = useState(product.quantity)
+  const [productQuantity, setProductQuantity] = useState(product.quantity || 0)
+
+  useEffect(() => {
+    setProductQuantity(product.quantity)
+  }, [product.quantity])
 
   //Increase product quantity
   const {
@@ -32,54 +34,93 @@ export default function Product({ ...product }: ICartProduct) {
     context: contextIncreaseProductQuantity,
   } = useMutation({
     mutationFn: async () => {
-      const DB_cart = await getCartFromDB()
-      const updatedProducts = DB_cart
       /* logic to update cart_quantity in DB */
       //update cart quantity first
-      const { data: cart_quantity } = await supabaseClient
+      const updated_cart_quantity: number | undefined = queryClient.getQueryData(["cart_quantity"])
+      const updated_cart_products: ICartProduct[] | undefined = queryClient.getQueryData(["cart_products"])
+
+      /* update cart_products and cart_quantity in DB */
+
+      const { error: cart_quantity_error } = await supabaseClient
         .from("users_cart")
-        .select("cart_quantity")
+        .update({ cart_quantity: updated_cart_quantity })
         .eq("id", userStore.userId)
-        .single()
-      if (cart_quantity?.cart_quantity !== null && cart_quantity?.cart_quantity !== undefined) {
-        const updatedCartQuantity =
-          updatedProducts.findIndex(updatedProduct => updatedProduct.id === product.id) === -1
-            ? cart_quantity.cart_quantity + 1
-            : updatedProducts[updatedProducts.findIndex(updatedProduct => updatedProduct.id === product.id)]
-                .quantity ===
-              updatedProducts[updatedProducts.findIndex(updatedProduct => updatedProduct.id === product.id)].on_stock
-            ? cart_quantity.cart_quantity
-            : cart_quantity.cart_quantity + 1
+      if (cart_quantity_error) throw cart_quantity_error
 
-        /* logic to update cart_products in DB */
-        const productInDBCartIndex = updatedProducts.findIndex(productInCart => productInCart.id === product.id)
-        if (productInDBCartIndex === -1) {
-          //Add new product in DB_cart if it doesn't exist
-          updatedProducts.push({ ...product, quantity: 1 })
-        } else {
-          // If product already exists - update the quantity
-          updatedProducts[productInDBCartIndex].on_stock === updatedProducts[productInDBCartIndex].quantity
-            ? updatedProducts[productInDBCartIndex].quantity
-            : (updatedProducts[productInDBCartIndex].quantity += 1)
-        }
-
-        /* update cart_products and cart_quantity in DB */
-        const { error: cart_quantity_error } = await supabaseClient
-          .from("users_cart")
-          .update({ cart_quantity: updatedCartQuantity })
-          .eq("id", userStore.userId)
-        if (cart_quantity_error) throw cart_quantity_error
-        const { error: users_cart_error } = await supabaseClient
-          .from("users_cart")
-          .update({ cart_products: updatedProducts })
-          .eq("id", userStore.userId)
-        if (users_cart_error) throw users_cart_error
-      }
+      const { error: cart_products_error } = await supabaseClient
+        .from("users_cart")
+        .update({ cart_products: updated_cart_products })
+        .eq("id", userStore.userId)
+      if (cart_products_error) throw cart_products_error
     },
-    onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ["increaseProductQuantity"] })
+    onMutate: () => {
+      /* logic to update cart_quantity optimistically */
+      //update cart quantity first
+      const cart_quantity: number | undefined = queryClient.getQueryData(["cart_quantity"])
+      let updated_cart_quantity = cart_quantity
+      if (productQuantity === product.on_stock) {
+        return updated_cart_quantity
+      } else if (updated_cart_quantity !== undefined) {
+        updated_cart_quantity += 1
+      }
 
-      console.log(83, "{ ...product } - ", { ...product })
+      /* logic to update cart_products optimistically */
+
+      const cart_products: ICartProduct[] | undefined = queryClient.getQueryData(["cart_products"])
+      const updated_cart_products = cart_products
+      if (productQuantity === 0) {
+        //Add product in updated_cart_products if product.quantity === 0 to set it in future
+        updated_cart_products?.push({ ...product, quantity: 1 })
+        setProductQuantity(product.quantity + 1)
+      } else if (productQuantity === product.on_stock) {
+        updated_cart_products
+      } else if (updated_cart_products !== undefined) {
+        updated_cart_products[
+          updated_cart_products.findIndex(productInCart => productInCart.id === product.id)
+        ].quantity += 1
+        setProductQuantity(productQuantity + 1)
+      }
+
+      /* update cart_products and cart_quantity optimistically */
+
+      queryClient.setQueryData(["cart_quantity"], updated_cart_quantity)
+      queryClient.setQueryData(["cart_products"], updated_cart_products)
+      console.log(92, [updated_cart_quantity, updated_cart_products])
+      return updated_cart_quantity
+    },
+    onError: () => {
+      //I have no access to context - so I do rollback manually
+
+      /* logic to rollback cart_quantity  */
+      //update cart quantity first
+      const cart_quantity: number | undefined = queryClient.getQueryData(["cart_quantity"])
+      let previous_cart_quantity = cart_quantity
+      if (productQuantity === product.on_stock) {
+        return previous_cart_quantity
+      } else if (previous_cart_quantity !== undefined) {
+        previous_cart_quantity -= 1
+      }
+
+      /* logic to rollback cart_products */
+
+      const cart_products: ICartProduct[] | undefined = queryClient.getQueryData(["cart_products"])
+      const previous_cart_products = cart_products
+      if (productQuantity - 1 === 0) {
+        //leave products in array that !== product.id
+        previous_cart_products?.filter(productInCart => productInCart.id !== product.id)
+      } else if (productQuantity === product.on_stock) {
+        previous_cart_products
+      } else if (previous_cart_products !== undefined) {
+        previous_cart_products[
+          previous_cart_products.findIndex(productInCart => productInCart.id === product.id)
+        ].quantity -= 1
+        setProductQuantity(productQuantity - 1)
+      }
+
+      /* rollback cart_products and cart_quantity */
+
+      queryClient.setQueryData(["cart_quantity"], previous_cart_quantity)
+      queryClient.setQueryData(["cart_products"], previous_cart_products)
     },
   })
 

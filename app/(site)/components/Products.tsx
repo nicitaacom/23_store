@@ -14,7 +14,7 @@ import { useQuery } from "@tanstack/react-query"
 //TODO - get products from cache (check in future if product was edited - do new request to DB)
 //if no products in cache - fetch from DB
 
-type IProductsResponse = PostgrestSingleResponse<
+export type IProductsResponse = PostgrestSingleResponse<
   {
     id: string
     img_url: string[]
@@ -25,22 +25,29 @@ type IProductsResponse = PostgrestSingleResponse<
     title: string
   }[]
 >
-type ICartResponse = PostgrestSingleResponse<{ cart_products: ICartProduct[] }> | null
+export type ICartProductsResponse = PostgrestSingleResponse<{ cart_products: ICartProduct[] }> | null
 
-export default function Products({ user }: { user: User } | { user: null }) {
-  //output products with product.quantity that I take from users_cart
+export type ICartQuantityResponse = PostgrestSingleResponse<{ cart_quantity: number | null }>
+
+interface ProductsProps {
+  user: User | null
+  products: IProductsResponse
+}
+
+export default function Products({ user, products }: ProductsProps) {
+  //output products with product.quantity that I take from user ? cart_products : anonymousCart.cartProducts
   //set individual quantity for each user in updatedProducts variable
-  const {
-    data: products,
-    isLoading: isLoading_products,
-    isError: isError_products,
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-  } = useQuery({
-    queryKey: ["products"],
+
+  //fetch cart quantity here to get queryData in future without request to DB when increase/decrease product quantity
+  const { data } = useQuery({
+    queryKey: ["cart_quantity"],
     queryFn: async () => {
-      const products = await supabaseClient.from("products").select("*").limit(10)
-      console.log(18, "products - ", products)
-      return products as IProductsResponse | undefined
+      if (user) {
+        const cart_quantity = await supabaseClient.from("users_cart").select("cart_quantity").eq("id", user.id).single()
+        if (cart_quantity.error) throw cart_quantity.error
+        return cart_quantity.data?.cart_quantity
+      }
+      return null
     },
   })
 
@@ -48,25 +55,21 @@ export default function Products({ user }: { user: User } | { user: null }) {
     data: cart_products,
     isLoading: isLoading_cart_products,
     isError: isError_cart_products,
-    // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useQuery({
     queryKey: ["cart_products"],
     queryFn: async () => {
       if (user) {
-        const cart_products = await supabaseClient
-          .from("users_cart")
-          .select("cart_products")
-          .eq("id", user.id ?? "")
-          .single()
-        return cart_products as ICartResponse
+        const cart_products = await supabaseClient.from("users_cart").select("cart_products").single()
+        if (cart_products.error) throw cart_products.error
+        return cart_products.data?.cart_products
       }
       return null
     },
   })
-  const [updatedProducts, setUpdatedProducts] = useState<ICartProduct[] | undefined>(cart_products?.data?.cart_products)
+  const [updatedProducts, setUpdatedProducts] = useState<ICartProduct[] | undefined>(cart_products ?? [])
   const anonymousCart = useAnonymousCartStore()
   useEffect(() => {
-    if (cart_products?.data?.cart_products === undefined) {
+    if (cart_products === undefined) {
       const updatedProducts = products?.data?.map((product: IProduct) => {
         const productQuantity = anonymousCart.cartProducts.find(
           (cartProduct: ICartProduct) => cartProduct.id === product.id,
@@ -79,9 +82,7 @@ export default function Products({ user }: { user: User } | { user: null }) {
       setUpdatedProducts(updatedProducts ?? [])
     } else {
       const updatedProducts = products?.data?.map((product: IProduct) => {
-        const productQuantity = cart_products?.data?.cart_products.find(
-          (cartProduct: ICartProduct) => cartProduct.id === product.id,
-        )
+        const productQuantity = cart_products?.find((cartProduct: ICartProduct) => cartProduct.id === product.id)
         return {
           ...product,
           quantity: productQuantity ? productQuantity.quantity : 0,
@@ -99,15 +100,11 @@ export default function Products({ user }: { user: User } | { user: null }) {
         <h1 className="hidden tablet:flex text-lg">Products:</h1>
       </div>
       <ul className="flex flex-col gap-y-8">
-        {isLoading_products ? (
-          <ProductsSkeleton />
-        ) : (
-          updatedProducts?.map(updatedProduct => (
-            <li key={updatedProduct.id}>
-              <Product {...updatedProduct} />
-            </li>
-          ))
-        )}
+        {updatedProducts?.map(updatedProduct => (
+          <li key={updatedProduct.id}>
+            <Product {...updatedProduct} />
+          </li>
+        ))}
       </ul>
       {/* Pagination bar in future + limit per page + pagination/lazy loading switcher */}
     </div>

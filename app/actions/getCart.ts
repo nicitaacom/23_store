@@ -1,7 +1,6 @@
 "use server"
 
 import { ICartProduct } from "@/interfaces/ICartProduct"
-import { IProduct } from "@/interfaces/IProduct"
 import supabaseServer from "@/utils/supabaseServer"
 import supabaseServerAction from "@/utils/supabaseServerAction"
 
