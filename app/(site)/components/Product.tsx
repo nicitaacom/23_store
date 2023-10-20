@@ -1,13 +1,11 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import axios from "axios"
 
 import { Button, Slider } from "@/components/ui"
 import {
   ClearProductQuantityButton,
   DecreaseProductQuantityButton,
-  IncreaseProductQuantityButton,
   RequestReplanishmentButton,
 } from "@/components/ui/Buttons"
 import Image from "next/image"
@@ -17,15 +15,13 @@ import { useEffect, useState } from "react"
 import useUserStore from "@/store/user/userStore"
 import useAnonymousCartStore from "@/store/user/anonymousCart"
 import supabaseClient from "@/utils/supabaseClient"
-import getCartFromDB from "@/actions/getCart"
-import { ICartProductsResponse, ICartQuantityResponse } from "./Products"
 
 export default function Product({ ...product }: ICartProduct) {
   const queryClient = useQueryClient()
   const userStore = useUserStore()
   const anonymousCart = useAnonymousCartStore()
 
-  const [productQuantity, setProductQuantity] = useState(product.quantity)
+  const [productQuantity, setProductQuantity] = useState(product.quantity || 0)
 
   useEffect(() => {
     setProductQuantity(product.quantity)
@@ -40,71 +36,42 @@ export default function Product({ ...product }: ICartProduct) {
     mutationFn: async () => {
       /* logic to update cart_quantity in DB */
       //update cart quantity first
-      const cart_quantity: ICartQuantityResponse | undefined = queryClient.getQueryData(["cart_quantity"])
-      console.log(43, "cart_quantity - ", cart_quantity)
-      // let updated_cart_quantity = cart_quantity?.data?.cart_quantity
-      // if (productQuantity === 0 && updated_cart_quantity !== null && updated_cart_quantity !== undefined) {
-      //   updated_cart_quantity += 1
-      //   queryClient.setQueryData(["cart_quantity"], updated_cart_quantity)
-      // } else if (productQuantity === product.on_stock) {
-      //   //return because I don't want to do code below
-      //   return updated_cart_quantity
-      // } else if (updated_cart_quantity !== null && updated_cart_quantity !== undefined) {
-      //   updated_cart_quantity += 1
-      //   queryClient.setQueryData(["cart_quantity"], updated_cart_quantity)
-      // }
-      // /* logic to update cart_products in DB */
-
-      // const cart_products: ICartProductsResponse | undefined = queryClient.getQueryData(["cart_products"])
-      // const updated_cart_products = cart_products?.data?.cart_products
-      // if (productQuantity === 0) {
-      //   //Add product in updated_cart_products if product.quantity === 0 to set in in future
-      //   updated_cart_products?.push({ ...product, quantity: 1 })
-      //   setProductQuantity(productQuantity + 1)
-      // } else if (productQuantity === product.on_stock) {
-      //   updated_cart_products
-      // } else if (updated_cart_products !== undefined) {
-      //   updated_cart_products[
-      //     updated_cart_products.findIndex(productInCart => productInCart.id === product.id)
-      //   ].quantity += 1
-      //   setProductQuantity(productQuantity + 1)
-      // }
+      const updated_cart_quantity: number | undefined = queryClient.getQueryData(["cart_quantity"])
+      const updated_cart_products: ICartProduct[] | undefined = queryClient.getQueryData(["cart_products"])
 
       /* update cart_products and cart_quantity in DB */
 
-      //requert to api because cookies form next/headers allowed only in server components
-      //otherwise I allow any user with URL and ANON_KEY modify any cart_quantity with RLS
-      const response = await axios.post("api/update/cart_quantity", { cart_quantity: 12, user_id: userStore.userId })
-      console.log(79, "response - ", response)
+      const { error: cart_quantity_error } = await supabaseClient
+        .from("users_cart")
+        .update({ cart_quantity: updated_cart_quantity })
+        .eq("id", userStore.userId)
+      if (cart_quantity_error) throw cart_quantity_error
 
-      // const { error: users_cart_error } = await supabaseClient
-      //   .from("users_cart")
-      //   .update({ cart_products: updated_cart_products })
-      //   .eq("id", userStore.userId)
-      // if (users_cart_error) throw users_cart_error
-
-      /* if no erros update product.quantity */
+      const { error: cart_products_error } = await supabaseClient
+        .from("users_cart")
+        .update({ cart_products: updated_cart_products })
+        .eq("id", userStore.userId)
+      if (cart_products_error) throw cart_products_error
     },
-    onMutate: async () => {
+    onMutate: () => {
       /* logic to update cart_quantity optimistically */
       //update cart quantity first
-      const cart_quantity: ICartQuantityResponse | undefined = queryClient.getQueryData(["cart_quantity"])
-      let updated_cart_quantity = cart_quantity?.data?.cart_quantity
-      console.log(93, "updated_cart_quantity - ", updated_cart_quantity)
-      if (productQuantity === 0 && updated_cart_quantity !== null && updated_cart_quantity !== undefined) {
-        console.log(95, "updated_cart_quantity - ", updated_cart_quantity)
-      } else if (productQuantity === product.on_stock) {
+      const cart_quantity: number | undefined = queryClient.getQueryData(["cart_quantity"])
+      let updated_cart_quantity = cart_quantity
+      if (productQuantity === product.on_stock) {
         return updated_cart_quantity
-      } else if (updated_cart_quantity !== null && updated_cart_quantity !== undefined) {
+      } else if (updated_cart_quantity !== undefined) {
         updated_cart_quantity += 1
-        console.log(99, "updated_cart_quantity - ", updated_cart_quantity)
       }
+
       /* logic to update cart_products optimistically */
-      const cart_products: ICartProductsResponse | undefined = queryClient.getQueryData(["cart_products"])
-      const updated_cart_products = cart_products?.data?.cart_products
+
+      const cart_products: ICartProduct[] | undefined = queryClient.getQueryData(["cart_products"])
+      const updated_cart_products = cart_products
       if (productQuantity === 0) {
-        //Add product in updated_cart_products if product.quantity === 0 to set in in future
+        //Add product in updated_cart_products if product.quantity === 0 to set it in future
         updated_cart_products?.push({ ...product, quantity: 1 })
+        setProductQuantity(product.quantity + 1)
       } else if (productQuantity === product.on_stock) {
         updated_cart_products
       } else if (updated_cart_products !== undefined) {
@@ -113,25 +80,49 @@ export default function Product({ ...product }: ICartProduct) {
         ].quantity += 1
         setProductQuantity(productQuantity + 1)
       }
+
       /* update cart_products and cart_quantity optimistically */
+
       queryClient.setQueryData(["cart_quantity"], updated_cart_quantity)
       queryClient.setQueryData(["cart_products"], updated_cart_products)
-      console.log(120, queryClient.getQueryData(["cart_quantity"]))
-      if (product.quantity === 0) {
-        //Add new product in anonymous cart if it doesn't exist
-        setProductQuantity((product.quantity += 1))
-      } else {
-        // If product already exists - update the quantity
-        product.on_stock === product.quantity
-          ? setProductQuantity(product.quantity)
-          : setProductQuantity((product.quantity += 1))
-      }
+      console.log(92, [updated_cart_quantity, updated_cart_products])
+      return updated_cart_quantity
     },
     onError: () => {
-      //set previous state
+      //I have no access to context - so I do rollback manually
+
+      /* logic to rollback cart_quantity  */
+      //update cart quantity first
+      const cart_quantity: number | undefined = queryClient.getQueryData(["cart_quantity"])
+      let previous_cart_quantity = cart_quantity
+      if (productQuantity === product.on_stock) {
+        return previous_cart_quantity
+      } else if (previous_cart_quantity !== undefined) {
+        previous_cart_quantity -= 1
+      }
+
+      /* logic to rollback cart_products */
+
+      const cart_products: ICartProduct[] | undefined = queryClient.getQueryData(["cart_products"])
+      const previous_cart_products = cart_products
+      if (productQuantity - 1 === 0) {
+        //leave products in array that !== product.id
+        previous_cart_products?.filter(productInCart => productInCart.id !== product.id)
+      } else if (productQuantity === product.on_stock) {
+        previous_cart_products
+      } else if (previous_cart_products !== undefined) {
+        previous_cart_products[
+          previous_cart_products.findIndex(productInCart => productInCart.id === product.id)
+        ].quantity -= 1
+        setProductQuantity(productQuantity - 1)
+      }
+
+      /* rollback cart_products and cart_quantity */
+
+      queryClient.setQueryData(["cart_quantity"], previous_cart_quantity)
+      queryClient.setQueryData(["cart_products"], previous_cart_products)
     },
   })
-
 
   return (
     <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">

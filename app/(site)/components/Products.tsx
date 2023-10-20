@@ -10,7 +10,6 @@ import { ICartProduct } from "@/interfaces/ICartProduct"
 import useAnonymousCartStore from "@/store/user/anonymousCart"
 import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import axios from "axios"
 
 //TODO - get products from cache (check in future if product was edited - do new request to DB)
 //if no products in cache - fetch from DB
@@ -40,8 +39,7 @@ export default function Products({ user, products }: ProductsProps) {
   //set individual quantity for each user in updatedProducts variable
 
   //fetch cart quantity here to get queryData in future without request to DB when increase/decrease product quantity
-  //fetch through api to keep DB secure with RLS
-  const {} = useQuery({
+  const { data } = useQuery({
     queryKey: ["cart_quantity"],
     queryFn: async () => {
       if (user) {
