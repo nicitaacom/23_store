@@ -90,8 +90,9 @@ export default function Product({ ...product }: ICartProduct) {
           className="w-full tablet:aspect-video h-[300px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit object-cover"
           src={product.img_url[0]}
           alt="image"
-          width={720}
-          height={480}
+          width={480}
+          height={360}
+          priority
         />
       ) : (
         <Slider
