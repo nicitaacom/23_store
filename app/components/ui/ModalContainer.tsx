@@ -41,6 +41,13 @@ export function ModalContainer({ children, modalQuery, className }: ModalContain
     }, 500)
   }, [router, pathname])
 
+  //Close modal on esc
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      closeModal()
+    }
+  })
+
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */
   const modalBgHandler = useSwipeable({
     onTouchStartOrOnMouseDown: () => {
