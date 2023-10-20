@@ -136,7 +136,12 @@ export function AuthModal({ label }: AdminModalProps) {
       const { data: user, error: signUpError } = await supabaseClient.auth.signUp({
         email: email,
         password: password,
-        options: { emailRedirectTo: `${location.origin}/auth/callback` },
+        options: {
+          emailRedirectTo: `${location.origin}/auth/callback`,
+          data: {
+            username:username,
+          },
+        },
       })
       if (signUpError) throw signUpError
       if (user.user) {

@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     //Insert row in users table
     const { error: error_insert_users } = await supabase.from("users").insert({
       id: user.user.id,
-      username: user.user.user_metadata.name,
+      username: user.user.user_metadata.name ?? user.user.user_metadata.username,
       email: user.user.user_metadata.email,
       profile_picture_url: user.user.user_metadata.picture,
     })
