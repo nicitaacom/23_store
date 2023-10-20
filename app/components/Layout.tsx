@@ -22,6 +22,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     // Update mode when darkMode state changes
     htmlElement.classList.toggle("light", !darkMode.isDarkMode)
     htmlElement.classList.toggle("dark", darkMode.isDarkMode)
+
     //remove initial page loading skeleton
     document.getElementById("initial-loading")?.remove()
   }, [darkMode.isDarkMode])

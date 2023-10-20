@@ -25,12 +25,6 @@ export default async function Navbar() {
     data: { user },
   } = await supabaseServer().auth.getUser()
 
-  const { data: username } = await supabaseServer()
-    .from("users")
-    .select("username")
-    .eq("id", user?.id ?? "")
-    .single()
-
   return (
     <NavbarWrapper>
       <div className="flex flex-row gap-x-4 items-center">

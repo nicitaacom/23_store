@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import axios from "axios"
 
 import { Button, Slider } from "@/components/ui"
 import {
@@ -12,11 +13,12 @@ import {
 import Image from "next/image"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { ICartProduct } from "@/interfaces/ICartProduct"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import useUserStore from "@/store/user/userStore"
 import useAnonymousCartStore from "@/store/user/anonymousCart"
 import supabaseClient from "@/utils/supabaseClient"
 import getCartFromDB from "@/actions/getCart"
+import { ICartProductsResponse, ICartQuantityResponse } from "./Products"
 
 export default function Product({ ...product }: ICartProduct) {
   const queryClient = useQueryClient()
@@ -25,6 +27,10 @@ export default function Product({ ...product }: ICartProduct) {
 
   const [productQuantity, setProductQuantity] = useState(product.quantity)
 
+  useEffect(() => {
+    setProductQuantity(product.quantity)
+  }, [product.quantity])
+
   //Increase product quantity
   const {
     mutate: increaseProductQuantity,
@@ -32,56 +38,100 @@ export default function Product({ ...product }: ICartProduct) {
     context: contextIncreaseProductQuantity,
   } = useMutation({
     mutationFn: async () => {
-      const DB_cart = await getCartFromDB()
-      const updatedProducts = DB_cart
       /* logic to update cart_quantity in DB */
       //update cart quantity first
-      const { data: cart_quantity } = await supabaseClient
-        .from("users_cart")
-        .select("cart_quantity")
-        .eq("id", userStore.userId)
-        .single()
-      if (cart_quantity?.cart_quantity !== null && cart_quantity?.cart_quantity !== undefined) {
-        const updatedCartQuantity =
-          updatedProducts.findIndex(updatedProduct => updatedProduct.id === product.id) === -1
-            ? cart_quantity.cart_quantity + 1
-            : updatedProducts[updatedProducts.findIndex(updatedProduct => updatedProduct.id === product.id)]
-                .quantity ===
-              updatedProducts[updatedProducts.findIndex(updatedProduct => updatedProduct.id === product.id)].on_stock
-            ? cart_quantity.cart_quantity
-            : cart_quantity.cart_quantity + 1
+      const cart_quantity: ICartQuantityResponse | undefined = queryClient.getQueryData(["cart_quantity"])
+      console.log(43, "cart_quantity - ", cart_quantity)
+      // let updated_cart_quantity = cart_quantity?.data?.cart_quantity
+      // if (productQuantity === 0 && updated_cart_quantity !== null && updated_cart_quantity !== undefined) {
+      //   updated_cart_quantity += 1
+      //   queryClient.setQueryData(["cart_quantity"], updated_cart_quantity)
+      // } else if (productQuantity === product.on_stock) {
+      //   //return because I don't want to do code below
+      //   return updated_cart_quantity
+      // } else if (updated_cart_quantity !== null && updated_cart_quantity !== undefined) {
+      //   updated_cart_quantity += 1
+      //   queryClient.setQueryData(["cart_quantity"], updated_cart_quantity)
+      // }
+      // /* logic to update cart_products in DB */
 
-        /* logic to update cart_products in DB */
-        const productInDBCartIndex = updatedProducts.findIndex(productInCart => productInCart.id === product.id)
-        if (productInDBCartIndex === -1) {
-          //Add new product in DB_cart if it doesn't exist
-          updatedProducts.push({ ...product, quantity: 1 })
-        } else {
-          // If product already exists - update the quantity
-          updatedProducts[productInDBCartIndex].on_stock === updatedProducts[productInDBCartIndex].quantity
-            ? updatedProducts[productInDBCartIndex].quantity
-            : (updatedProducts[productInDBCartIndex].quantity += 1)
-        }
+      // const cart_products: ICartProductsResponse | undefined = queryClient.getQueryData(["cart_products"])
+      // const updated_cart_products = cart_products?.data?.cart_products
+      // if (productQuantity === 0) {
+      //   //Add product in updated_cart_products if product.quantity === 0 to set in in future
+      //   updated_cart_products?.push({ ...product, quantity: 1 })
+      //   setProductQuantity(productQuantity + 1)
+      // } else if (productQuantity === product.on_stock) {
+      //   updated_cart_products
+      // } else if (updated_cart_products !== undefined) {
+      //   updated_cart_products[
+      //     updated_cart_products.findIndex(productInCart => productInCart.id === product.id)
+      //   ].quantity += 1
+      //   setProductQuantity(productQuantity + 1)
+      // }
 
-        /* update cart_products and cart_quantity in DB */
-        const { error: cart_quantity_error } = await supabaseClient
-          .from("users_cart")
-          .update({ cart_quantity: updatedCartQuantity })
-          .eq("id", userStore.userId)
-        if (cart_quantity_error) throw cart_quantity_error
-        const { error: users_cart_error } = await supabaseClient
-          .from("users_cart")
-          .update({ cart_products: updatedProducts })
-          .eq("id", userStore.userId)
-        if (users_cart_error) throw users_cart_error
-      }
+      /* update cart_products and cart_quantity in DB */
+
+      //requert to api because cookies form next/headers allowed only in server components
+      //otherwise I allow any user with URL and ANON_KEY modify any cart_quantity with RLS
+      const response = await axios.post("api/update/cart_quantity", { cart_quantity: 12, user_id: userStore.userId })
+      console.log(79, "response - ", response)
+
+      // const { error: users_cart_error } = await supabaseClient
+      //   .from("users_cart")
+      //   .update({ cart_products: updated_cart_products })
+      //   .eq("id", userStore.userId)
+      // if (users_cart_error) throw users_cart_error
+
+      /* if no erros update product.quantity */
     },
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ["increaseProductQuantity"] })
-
-      console.log(83, "{ ...product } - ", { ...product })
+      /* logic to update cart_quantity optimistically */
+      //update cart quantity first
+      const cart_quantity: ICartQuantityResponse | undefined = queryClient.getQueryData(["cart_quantity"])
+      let updated_cart_quantity = cart_quantity?.data?.cart_quantity
+      console.log(93, "updated_cart_quantity - ", updated_cart_quantity)
+      if (productQuantity === 0 && updated_cart_quantity !== null && updated_cart_quantity !== undefined) {
+        console.log(95, "updated_cart_quantity - ", updated_cart_quantity)
+      } else if (productQuantity === product.on_stock) {
+        return updated_cart_quantity
+      } else if (updated_cart_quantity !== null && updated_cart_quantity !== undefined) {
+        updated_cart_quantity += 1
+        console.log(99, "updated_cart_quantity - ", updated_cart_quantity)
+      }
+      /* logic to update cart_products optimistically */
+      const cart_products: ICartProductsResponse | undefined = queryClient.getQueryData(["cart_products"])
+      const updated_cart_products = cart_products?.data?.cart_products
+      if (productQuantity === 0) {
+        //Add product in updated_cart_products if product.quantity === 0 to set in in future
+        updated_cart_products?.push({ ...product, quantity: 1 })
+      } else if (productQuantity === product.on_stock) {
+        updated_cart_products
+      } else if (updated_cart_products !== undefined) {
+        updated_cart_products[
+          updated_cart_products.findIndex(productInCart => productInCart.id === product.id)
+        ].quantity += 1
+        setProductQuantity(productQuantity + 1)
+      }
+      /* update cart_products and cart_quantity optimistically */
+      queryClient.setQueryData(["cart_quantity"], updated_cart_quantity)
+      queryClient.setQueryData(["cart_products"], updated_cart_products)
+      console.log(120, queryClient.getQueryData(["cart_quantity"]))
+      if (product.quantity === 0) {
+        //Add new product in anonymous cart if it doesn't exist
+        setProductQuantity((product.quantity += 1))
+      } else {
+        // If product already exists - update the quantity
+        product.on_stock === product.quantity
+          ? setProductQuantity(product.quantity)
+          : setProductQuantity((product.quantity += 1))
+      }
+    },
+    onError: () => {
+      //set previous state
     },
   })
+
 
   return (
     <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
