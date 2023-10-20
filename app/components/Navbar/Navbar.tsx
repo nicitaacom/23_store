@@ -53,7 +53,11 @@ export default async function Navbar() {
           icon={<FiPhoneCall size={28} />}>
           <div className="flex flex-col gap-y-2 justify-center items-center px-4 py-2">
             <div className="flex flex-col justify-center items-center">
-              <Link className="hover:text-brand text-center" href="https://t.me/nicitaacom" target="_blank">
+              <Link
+                className="hover:text-brand text-center"
+                href="https://t.me/nicitaacom"
+                target="_blank"
+                rel="preload">
                 Telegram
               </Link>
               <p className="whitespace-nowrap">(response 8s)</p>

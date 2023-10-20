@@ -57,6 +57,7 @@ export function Slider({ images, title, className = "", containerClassName = "" 
             alt={title}
             width={720}
             height={480}
+            loading="lazy"
           />
         ))}
       </div>
