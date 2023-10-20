@@ -10,7 +10,7 @@ export default function OpenCartModalButton() {
   const updatedPath = pathname + (pathname.includes("?") ? "&" : "?") + "modal=" + "CartModal"
 
   return (
-    <Link href={updatedPath}>
+    <Link href={updatedPath} aria-label="cart">
       <LuShoppingCart className="cursor-pointer hover:brightness-75 duration-300" size={28} />
     </Link>
   )
