@@ -30,7 +30,7 @@ export type ICartQuantityResponse = PostgrestSingleResponse<{ cart_quantity: num
 
 interface ProductsProps {
   user: User | null
-  products: IProduct[]
+  products: IProduct[] | undefined
 }
 
 function Products({ user, products }: ProductsProps) {
@@ -72,7 +72,7 @@ function Products({ user, products }: ProductsProps) {
   const anonymousCart = useAnonymousCartStore()
   useEffect(() => {
     if (cart_products === undefined || cart_products === null) {
-      const updatedProducts = products.map((product: IProduct) => {
+      const updatedProducts = products?.map((product: IProduct) => {
         const productQuantity = anonymousCart.cartProducts.find(
           (cartProduct: ICartProduct) => cartProduct.id === product.id,
         )
