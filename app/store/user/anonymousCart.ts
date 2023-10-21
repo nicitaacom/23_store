@@ -8,7 +8,7 @@ interface AnonymousCartStore {
   cartQuantity: number
   increaseProductQuantity: (product: IProduct) => void
   decreaseProductQuantity: (product: IProduct) => void
-  // clearProductQuantity: (product: IProduct) => void
+  clearProductQuantity: (product: IProduct) => void
   // clearCartQuantity: () => void
 }
 
@@ -42,6 +42,16 @@ function decreaseProductQuantityInLocalStorage(cartProducts: ICartProduct[], pro
   return updatedProducts
 }
 
+function clearCartQuantityInLocalStorage(cartProducts: ICartProduct[], product: IProduct) {
+  let updatedProducts = cartProducts
+  const productInCartIndex = updatedProducts.findIndex(item => item.id === product.id)
+  if (productInCartIndex === -1) return updatedProducts
+  updatedProducts[productInCartIndex].quantity = 0
+  updatedProducts = updatedProducts.filter(product => product.quantity > 0)
+
+  return updatedProducts
+}
+
 type SetState = (fn: (prevState: AnonymousCartStore) => AnonymousCartStore) => void
 
 const anonymousCartStore = (set: SetState): AnonymousCartStore => ({
@@ -66,6 +76,17 @@ const anonymousCartStore = (set: SetState): AnonymousCartStore => ({
       ...state,
       cartProducts: decreaseProductQuantityInLocalStorage(state.cartProducts, product),
       cartQuantity: state.cartQuantity === 0 ? 0 : state.cartQuantity - 1,
+    }))
+  },
+  clearProductQuantity(product) {
+    set((state: AnonymousCartStore) => ({
+      ...state,
+      cartProducts: clearCartQuantityInLocalStorage(state.cartProducts, product),
+      cartQuantity:
+        state.cartProducts.findIndex(cartProduct => cartProduct.id === product.id) === -1
+          ? state.cartQuantity
+          : state.cartQuantity -
+            state.cartProducts[state.cartProducts.findIndex(item => item.id === product.id)].quantity,
     }))
   },
 })

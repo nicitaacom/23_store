@@ -1,13 +1,10 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { MdOutlineDeleteOutline } from "react-icons/md"
 
 import { Button, Slider } from "@/components/ui"
-import {
-  ClearProductQuantityButton,
-  DecreaseProductQuantityButton,
-  RequestReplanishmentButton,
-} from "@/components/ui/Buttons"
+import { RequestReplanishmentButton } from "@/components/ui/Buttons"
 import Image from "next/image"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { ICartProduct } from "@/interfaces/ICartProduct"
@@ -21,10 +18,12 @@ export default function Product({ ...product }: ICartProduct) {
   const userStore = useUserStore()
   const anonymousCart = useAnonymousCartStore()
 
-  const [productQuantity, setProductQuantity] = useState(product.quantity || 0)
+  const [productQuantity, setProductQuantity] = useState(product.quantity)
 
+  //this useEffect needed to display product.quantity when !user
   useEffect(() => {
     setProductQuantity(product.quantity)
+    //TODO - re-render only Product.tsx
   }, [product.quantity])
 
   //Increase product quantity
@@ -79,7 +78,6 @@ export default function Product({ ...product }: ICartProduct) {
 
       queryClient.setQueryData(["cart_quantity"], updated_cart_quantity)
       queryClient.setQueryData(["cart_products"], updated_cart_products)
-      console.log(92, [updated_cart_quantity, updated_cart_products])
       return updated_cart_quantity
     },
     onError: () => {
@@ -196,6 +194,21 @@ export default function Product({ ...product }: ICartProduct) {
     },
   })
 
+  const { mutate: clearProductQuantity, isPending: isPendingClearProductQuantity } = useMutation({
+    mutationFn: async () => {
+      const updated_cart_quantity: number | undefined = queryClient.getQueryData(["cart_quantity"])
+      const updated_cart_products: ICartProduct[] | undefined = queryClient.getQueryData(["cart_products"])
+
+      /* update cart_products and cart_quantity in DB */
+    },
+    onMutate: () => {
+      const updated_cart_quantity: number | undefined = queryClient.getQueryData(["cart_quantity"])
+      const updated_cart_products: ICartProduct[] | undefined = queryClient.getQueryData(["cart_products"])
+
+      /* logic to update product.quantity optimistically */
+    },
+  })
+
   return (
     <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
       {product.img_url.length === 1 ? (
@@ -267,7 +280,15 @@ export default function Product({ ...product }: ICartProduct) {
                 }>
                 -
               </Button>
-              <ClearProductQuantityButton product={product} />
+              <Button
+                className="font-secondary font-thin max-h-[50px]"
+                variant="danger-outline"
+                onClick={() =>
+                  userStore.isAuthenticated ? clearProductQuantity() : anonymousCart.clearProductQuantity(product)
+                }>
+                Clear
+                <MdOutlineDeleteOutline />
+              </Button>
             </div>
           )}
         </section>

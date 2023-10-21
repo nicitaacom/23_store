@@ -8,7 +8,7 @@ import { IProduct } from "@/interfaces/IProduct"
 import { Product } from "."
 import { ICartProduct } from "@/interfaces/ICartProduct"
 import useAnonymousCartStore from "@/store/user/anonymousCart"
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 
 //TODO - get products from cache (check in future if product was edited - do new request to DB)
@@ -25,21 +25,21 @@ export type IProductsResponse = PostgrestSingleResponse<
     title: string
   }[]
 >
-export type ICartProductsResponse = PostgrestSingleResponse<{ cart_products: ICartProduct[] }> | null
 
 export type ICartQuantityResponse = PostgrestSingleResponse<{ cart_quantity: number | null }>
 
 interface ProductsProps {
   user: User | null
-  products: IProductsResponse
+  products: IProduct[]
 }
 
-export default function Products({ user, products }: ProductsProps) {
+function Products({ user, products }: ProductsProps) {
   //output products with product.quantity that I take from user ? cart_products : anonymousCart.cartProducts
   //set individual quantity for each user in updatedProducts variable
 
   //fetch cart quantity here to get queryData in future without request to DB when increase/decrease product quantity
-  const { data } = useQuery({
+
+  const {} = useQuery({
     queryKey: ["cart_quantity"],
     queryFn: async () => {
       if (user) {
@@ -50,6 +50,8 @@ export default function Products({ user, products }: ProductsProps) {
       return null
     },
   })
+
+  //I may try to do request to get products here
 
   const {
     data: cart_products,
@@ -66,11 +68,11 @@ export default function Products({ user, products }: ProductsProps) {
       return null
     },
   })
-  const [updatedProducts, setUpdatedProducts] = useState<ICartProduct[] | undefined>(cart_products ?? [])
+  const [updatedProducts, setUpdatedProducts] = useState<ICartProduct[] | undefined>(cart_products || [])
   const anonymousCart = useAnonymousCartStore()
   useEffect(() => {
-    if (cart_products === undefined) {
-      const updatedProducts = products?.data?.map((product: IProduct) => {
+    if (cart_products === undefined || cart_products === null) {
+      const updatedProducts = products.map((product: IProduct) => {
         const productQuantity = anonymousCart.cartProducts.find(
           (cartProduct: ICartProduct) => cartProduct.id === product.id,
         )
@@ -79,9 +81,9 @@ export default function Products({ user, products }: ProductsProps) {
           quantity: productQuantity ? productQuantity.quantity : 0,
         }
       })
-      setUpdatedProducts(updatedProducts ?? [])
+      setUpdatedProducts(updatedProducts)
     } else {
-      const updatedProducts = products?.data?.map((product: IProduct) => {
+      const updatedProducts = products?.map((product: IProduct) => {
         const productQuantity = cart_products?.find((cartProduct: ICartProduct) => cartProduct.id === product.id)
         return {
           ...product,
@@ -90,7 +92,8 @@ export default function Products({ user, products }: ProductsProps) {
       })
       setUpdatedProducts(updatedProducts ?? [])
     }
-  }, [cart_products, products?.data, anonymousCart.cartQuantity, anonymousCart.cartProducts])
+    //anonymousCart.cartQuantity in deendency required to see changes when I increase product.qauntity when !user
+  }, [anonymousCart.cartProducts, cart_products, products, anonymousCart.cartQuantity])
 
   return (
     <div
@@ -106,7 +109,9 @@ export default function Products({ user, products }: ProductsProps) {
           </li>
         ))}
       </ul>
-      {/* Pagination bar in future + limit per page + pagination/lazy loading switcher */}
+      {/* Pagination bar in future + limit per page */}
     </div>
   )
 }
+
+export default memo(Products)
