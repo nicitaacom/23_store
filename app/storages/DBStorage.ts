@@ -11,6 +11,7 @@ export class DBStorage extends Storage {
       .from("users_cart")
       .update({ cart_products: cartProducts as unknown as Json })
       .eq("id", userId)
+    //TODO - if error make product.quantity color - danger
   }
   async getProducts(): Promise<TRecordCartProduct> {
     const cartDB_response = await supabaseClient.from("users_cart").select("cart_products").single()
