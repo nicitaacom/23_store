@@ -1,8 +1,6 @@
 import Link from "next/link"
-import Image from "next/image"
 
 import { FiPhoneCall } from "react-icons/fi"
-import { AiOutlinePlus } from "react-icons/ai"
 
 import { Switch } from ".."
 import { Language } from "../Language"
@@ -17,8 +15,6 @@ import {
 import NavbarWrapper from "./components/NavbarWrapper"
 import { DropdownContainer } from "../ui/DropdownContainer"
 import supabaseServer from "@/utils/supabaseServer"
-import { DropdownItem } from "../ui/DropdownItem"
-import LogoutDropdownItem from "./components/LogoutDropdownItem"
 
 export default async function Navbar() {
   const {

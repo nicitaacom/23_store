@@ -1,6 +1,4 @@
 "use client"
-
-import supabaseClient from "@/utils/supabaseClient"
 import { PostgrestSingleResponse, User } from "@supabase/supabase-js"
 
 import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
@@ -8,8 +6,10 @@ import { IProduct } from "@/interfaces/IProduct"
 import { Product } from "."
 import { ICartProduct } from "@/interfaces/ICartProduct"
 import useAnonymousCartStore from "@/store/user/anonymousCart"
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { useProductsStore } from "@/store/ui/productsStore"
+import { useQueryCartProducts, useQueryCartQuantity } from "@/hooks/reactQuery"
 
 //TODO - get products from cache (check in future if product was edited - do new request to DB)
 //if no products in cache - fetch from DB
@@ -30,47 +30,24 @@ export type ICartProductsResponse = PostgrestSingleResponse<{ cart_products: ICa
 export type ICartQuantityResponse = PostgrestSingleResponse<{ cart_quantity: number | null }>
 
 interface ProductsProps {
-  user: User | null
-  products: IProductsResponse
+  products: IProduct[] | undefined
+  cart_quantity: number | undefined
+  cart_products: ICartProduct[] | undefined
 }
 
-export default function Products({ user, products }: ProductsProps) {
+function Products({ products, cart_quantity, cart_products }: ProductsProps) {
   //output products with product.quantity that I take from user ? cart_products : anonymousCart.cartProducts
   //set individual quantity for each user in updatedProducts variable
 
-  //fetch cart quantity here to get queryData in future without request to DB when increase/decrease product quantity
-  const { data } = useQuery({
-    queryKey: ["cart_quantity"],
-    queryFn: async () => {
-      if (user) {
-        const cart_quantity = await supabaseClient.from("users_cart").select("cart_quantity").eq("id", user.id).single()
-        if (cart_quantity.error) throw cart_quantity.error
-        return cart_quantity.data?.cart_quantity
-      }
-      return null
-    },
-  })
-
-  const {
-    data: cart_products,
-    isLoading: isLoading_cart_products,
-    isError: isError_cart_products,
-  } = useQuery({
-    queryKey: ["cart_products"],
-    queryFn: async () => {
-      if (user) {
-        const cart_products = await supabaseClient.from("users_cart").select("cart_products").single()
-        if (cart_products.error) throw cart_products.error
-        return cart_products.data?.cart_products
-      }
-      return null
-    },
-  })
-  const [updatedProducts, setUpdatedProducts] = useState<ICartProduct[] | undefined>(cart_products ?? [])
+  //component will be rendered twice because I use 2 store (or because I fire method productsStore.setProducts)
   const anonymousCart = useAnonymousCartStore()
+  const productsStore = useProductsStore()
+
   useEffect(() => {
+    console.log("useEffect")
     if (cart_products === undefined) {
-      const updatedProducts = products?.data?.map((product: IProduct) => {
+      console.log("!user")
+      const updatedProducts = products?.map((product: IProduct) => {
         const productQuantity = anonymousCart.cartProducts.find(
           (cartProduct: ICartProduct) => cartProduct.id === product.id,
         )
@@ -79,18 +56,24 @@ export default function Products({ user, products }: ProductsProps) {
           quantity: productQuantity ? productQuantity.quantity : 0,
         }
       })
-      setUpdatedProducts(updatedProducts ?? [])
+      //I use ! because updatedProducts !== undefined
+      productsStore.setProducts(updatedProducts!)
     } else {
-      const updatedProducts = products?.data?.map((product: IProduct) => {
+      console.log("user")
+      const updatedProducts = products?.map((product: IProduct) => {
         const productQuantity = cart_products?.find((cartProduct: ICartProduct) => cartProduct.id === product.id)
         return {
           ...product,
           quantity: productQuantity ? productQuantity.quantity : 0,
         }
       })
-      setUpdatedProducts(updatedProducts ?? [])
+      productsStore.setProducts(updatedProducts!)
     }
-  }, [cart_products, products?.data, anonymousCart.cartQuantity, anonymousCart.cartProducts])
+    //to prevent too many re-renders error (if you add productsStore in deps)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart_products, products, anonymousCart.cartQuantity, anonymousCart.cartProducts])
+
+  console.log(99, "productsStore.products - ", productsStore.products)
 
   return (
     <div
@@ -100,7 +83,7 @@ export default function Products({ user, products }: ProductsProps) {
         <h1 className="hidden tablet:flex text-lg">Products:</h1>
       </div>
       <ul className="flex flex-col gap-y-8">
-        {updatedProducts?.map(updatedProduct => (
+        {productsStore.products?.map(updatedProduct => (
           <li key={updatedProduct.id}>
             <Product {...updatedProduct} />
           </li>
@@ -110,3 +93,5 @@ export default function Products({ user, products }: ProductsProps) {
     </div>
   )
 }
+
+export default memo(Products)
