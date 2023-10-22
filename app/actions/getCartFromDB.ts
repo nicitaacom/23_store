@@ -1,6 +1,7 @@
 "use server"
 
 import { ICartProduct } from "@/interfaces/ICartProduct"
+import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
 import supabaseServer from "@/utils/supabaseServer"
 import supabaseServerAction from "@/utils/supabaseServerAction"
 
@@ -10,10 +11,10 @@ export default async function getCartFromDB() {
     const { data: cart_products, error } = await supabaseServerAction()
       .from("users_cart")
       .select("cart_products")
-      .eq("id", user?.user?.id)
       .single()
+    console.log(14, "cart_products - ", cart_products)
     if (error) throw error
-    return cart_products?.cart_products as unknown as ICartProduct[]
+    return cart_products?.cart_products as unknown as TRecordCartProduct
   }
-  return []
+  return {}
 }

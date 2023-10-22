@@ -1,6 +1,10 @@
-import { ICartProduct } from "./ICartProduct"
-
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export interface Database {
   public: {
@@ -39,7 +43,7 @@ export interface Database {
             columns: ["owner_username"]
             referencedRelation: "users"
             referencedColumns: ["username"]
-          },
+          }
         ]
       }
       users: {
@@ -70,39 +74,26 @@ export interface Database {
             columns: ["id"]
             referencedRelation: "users"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
       users_cart: {
         Row: {
-          cart_products: ICartProduct[]
-          cart_quantity: number | null
+          cart_products: Json
           created_at: string
           id: string
-          owner_username: string
         }
         Insert: {
-          cart_products?: ICartProduct[]
-          cart_quantity?: number | null
-          created_at?: string
-          id: string
-          owner_username: string
-        }
-        Update: {
-          cart_products?: ICartProduct[]
-          cart_quantity?: number | null
+          cart_products?: Json
           created_at?: string
           id?: string
-          owner_username?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "users_cart_owner_username_fkey"
-            columns: ["owner_username"]
-            referencedRelation: "users"
-            referencedColumns: ["username"]
-          },
-        ]
+        Update: {
+          cart_products?: Json
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

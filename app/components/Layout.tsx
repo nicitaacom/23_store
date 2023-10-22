@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 
 import useDarkMode from "@/store/ui/darkModeStore"
 
@@ -28,16 +26,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [darkMode.isDarkMode])
 
   //don't use const const queryClient = new QueryClient() - https://tanstack.com/query/latest/docs/react/guides/ssr
-  const [queryClient] = useState(() => new QueryClient())
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <div
-        className="bg-background text-title
+    <div
+      className="bg-background text-title
       min-h-screen transition-colors duration-300 pt-[62px]">
-        {children}
-      </div>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+      {children}
+    </div>
   )
 }

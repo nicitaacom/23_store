@@ -139,7 +139,7 @@ export function AuthModal({ label }: AdminModalProps) {
         options: {
           emailRedirectTo: `${location.origin}/auth/callback`,
           data: {
-            username:username,
+            username: username,
           },
         },
       })
