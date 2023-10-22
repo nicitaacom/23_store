@@ -3,9 +3,13 @@
 import { useEffect, useState } from "react"
 
 import useDarkMode from "@/store/ui/darkModeStore"
+import { Portal } from "./Portal"
+import { InitialPageLoadingSkeleton } from "./Skeletons/InitialPageLoadingSkeleton"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const darkMode = useDarkMode()
+
+  const [showSkeleton, setShowSkeleton] = useState(true)
 
   //children is a server component
   //more info - https://www.youtube.com/watch?v=9YuHTGAAyu0
@@ -22,7 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     htmlElement.classList.toggle("dark", darkMode.isDarkMode)
 
     //remove initial page loading skeleton
-    document.getElementById("initial-loading")?.remove()
+    setShowSkeleton(false)
   }, [darkMode.isDarkMode])
 
   //don't use const const queryClient = new QueryClient() - https://tanstack.com/query/latest/docs/react/guides/ssr
@@ -31,6 +35,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div
       className="bg-background text-title
       min-h-screen transition-colors duration-300 pt-[62px]">
+      {showSkeleton && (
+        <Portal>
+          <InitialPageLoadingSkeleton />
+        </Portal>
+      )}
       {children}
     </div>
   )

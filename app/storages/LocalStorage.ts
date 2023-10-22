@@ -3,7 +3,7 @@ import { Storage } from "./Storage"
 
 export class LocalStorage extends Storage {
   saveProducts(cartProducts: TRecordCartProduct): void {
-    typeof window !== undefined ? localStorage.setItem("cart", JSON.stringify(cartProducts)) : false
+    localStorage.setItem("cart", JSON.stringify(cartProducts))
   }
   getProducts(): Promise<TRecordCartProduct> {
     const cart = localStorage.getItem("cart") ?? "{}"
