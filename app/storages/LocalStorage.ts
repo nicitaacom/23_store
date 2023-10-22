@@ -1,3 +1,5 @@
+"use client"
+
 import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
 import { Storage } from "./Storage"
 
