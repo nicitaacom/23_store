@@ -10,22 +10,6 @@ import { Product } from "."
 //TODO - get products from cache (check in future if product was edited - do new request to DB)
 //if no products in cache - fetch from DB
 
-export type IProductsResponse = PostgrestSingleResponse<
-  {
-    id: string
-    img_url: string[]
-    on_stock: number
-    owner_username: string
-    price: number
-    sub_title: string
-    title: string
-  }[]
->
-
-export type ICartProductsResponse = PostgrestSingleResponse<{ cart_products: ICartProduct[] }> | null
-
-export type ICartQuantityResponse = PostgrestSingleResponse<{ cart_quantity: number | null }>
-
 interface ProductsProps {
   products: IDBProduct[] | undefined
 }
