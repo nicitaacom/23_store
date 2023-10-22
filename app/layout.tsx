@@ -18,7 +18,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body>
-        <InitialPageLoadingSkeleton />
+        <div id="portal" />
         <ClientOnly>
           <Navbar />
           <Layout>{children}</Layout>
