@@ -2,7 +2,7 @@ import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
 import { ICartProduct } from "@/interfaces/ICartProduct"
 import useUserStore from "./userStore"
-import getCartFromDB from "@/actions/getCartFromDB"
+import supabaseClient from "@/utils/supabaseClient"
 
 type Products = Record<string, ICartProduct>
 
@@ -135,11 +135,20 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     if (!isAuthenticated) {
       return useCartStore.persist.rehydrate()
     }
-    // const cartDB = await getCartFromDB()
-    // console.log(139, "cartDB - ", cartDB)
+    const cartDB_response = await supabaseClient.from("users_cart").select("cart_products").single()
+    const cartDB = cartDB_response.data?.cart_products as unknown as Record<string, ICartProduct>
+    const cartDB_length = Object.keys(cartDB).length
+    if (cartDB_length === 0) {
+      return
+    }
+
+    set(() => ({
+      products: cartDB,
+    }))
   },
 })
 
-const useCartStore = create(devtools(persist(cartStore, { name: "cart", skipHydration: true })))
+//skipHydration:true - !user - skip read from localstorage
+const useCartStore = create(devtools(cartStore, { name: "cart", skipHydration: true }))
 
 export default useCartStore
