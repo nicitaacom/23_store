@@ -69,7 +69,7 @@ function Products({ products }: ProductsProps) {
           />
         ))}
       </ul>
-      {/* Pagination bar in future + limit per page + pagination/lazy loading switcher */}
+      {/* Pagination bar in future + limit per page */}
     </div>
   )
 }
