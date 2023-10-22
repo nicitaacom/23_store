@@ -68,7 +68,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
 
     if (!product) return
     else {
-      updatedProducts[id].quantity = 0
+      delete updatedProducts[id]
     }
 
     set(() => ({
