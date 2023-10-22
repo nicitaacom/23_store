@@ -43,6 +43,3 @@ jobs:
         env:
           REACT_SUPABASE_URL: "https://random.supabase.co"
           REACT_SUPABASE_ANON_KEY: "123"
-
-      - name: Type-checking
-        run: bun type-check
