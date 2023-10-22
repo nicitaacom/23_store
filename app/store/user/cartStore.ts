@@ -81,6 +81,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     }))
   },
   async initialize() {
+    if (typeof window === undefined) return
     const storage = getStorage()
     const products = await storage.getProducts()
     set(() => ({
@@ -94,6 +95,7 @@ const useCartStore = create(subscribeWithSelector(cartStore))
 useCartStore.subscribe(
   state => state.products,
   products => {
+    if (typeof window === undefined) return
     const storage = getStorage()
     storage.saveProducts(products)
   },
