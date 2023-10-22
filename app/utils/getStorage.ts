@@ -5,5 +5,5 @@ import useUserStore from "@/store/user/userStore"
 export function getStorage() {
   const { isAuthenticated } = useUserStore.getState()
 
-  return isAuthenticated ? new DBStorage() : typeof window !== undefined ? new LocalStorage() : () => {}
+  return isAuthenticated ? new DBStorage() : typeof window !== undefined ? new LocalStorage() : null
 }
