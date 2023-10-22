@@ -1,5 +1,3 @@
-"use client"
-
 import { DBStorage } from "@/storages/DBStorage"
 import { LocalStorage } from "@/storages/LocalStorage"
 import useUserStore from "@/store/user/userStore"
