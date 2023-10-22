@@ -1,12 +1,11 @@
 "use client"
-import { PostgrestSingleResponse, User } from "@supabase/supabase-js"
+import { PostgrestSingleResponse } from "@supabase/supabase-js"
+import { memo, useCallback } from "react"
 
-import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
-import { Product } from "."
 import { ICartProduct } from "@/interfaces/ICartProduct"
-import { memo, useCallback, useEffect, useState } from "react"
-import useCartStore from "@/store/user/cartStore"
 import { IDBProduct } from "@/interfaces/IDBProduct"
+import useCartStore from "@/store/user/cartStore"
+import { Product } from "."
 
 //TODO - get products from cache (check in future if product was edited - do new request to DB)
 //if no products in cache - fetch from DB
@@ -22,6 +21,7 @@ export type IProductsResponse = PostgrestSingleResponse<
     title: string
   }[]
 >
+
 export type ICartProductsResponse = PostgrestSingleResponse<{ cart_products: ICartProduct[] }> | null
 
 export type ICartQuantityResponse = PostgrestSingleResponse<{ cart_quantity: number | null }>
@@ -36,36 +36,6 @@ function Products({ products }: ProductsProps) {
 
   //component will be rendered twice because I use 2 store (or because I fire method productsStore.setProducts)
   const cartStore = useCartStore()
-
-  // useEffect(() => {
-  //   console.log("useEffect")
-  //   if (cart_products === undefined) {
-  //     console.log("!user")
-  //     const updatedProducts = products?.map((product: IProduct) => {
-  //       const productQuantity = anonymousCart.cartProducts.find(
-  //         (cartProduct: ICartProduct) => cartProduct.id === product.id,
-  //       )
-  //       return {
-  //         ...product,
-  //         quantity: productQuantity ? productQuantity.quantity : 0,
-  //       }
-  //     })
-  //     //I use ! because updatedProducts !== undefined
-  //     productsStore.setProducts(updatedProducts!)
-  //   } else {
-  //     console.log("user")
-  //     const updatedProducts = products?.map((product: IProduct) => {
-  //       const productQuantity = cart_products?.find((cartProduct: ICartProduct) => cartProduct.id === product.id)
-  //       return {
-  //         ...product,
-  //         quantity: productQuantity ? productQuantity.quantity : 0,
-  //       }
-  //     })
-  //     productsStore.setProducts(updatedProducts!)
-  //   }
-  //   //to prevent too many re-renders error (if you add productsStore in deps)
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [cart_products, products, anonymousCart.cartQuantity, anonymousCart.cartProducts])
 
   const increaseProductQuantity = useCallback((id: string) => {
     cartStore.increaseProductQuantity(id)

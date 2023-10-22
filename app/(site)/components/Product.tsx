@@ -1,14 +1,10 @@
 "use client"
 
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-
 import { Button, Slider } from "@/components/ui"
 import { RequestReplanishmentButton } from "@/components/ui/Buttons"
 import Image from "next/image"
 import { formatCurrency } from "@/utils/currencyFormatter"
-import { memo, useEffect, useState } from "react"
-import useUserStore from "@/store/user/userStore"
-import { useQueryDecreaseProductQuantity, useQueryIncreaseProductQuantity } from "@/hooks/reactQuery"
+import { memo } from "react"
 import { MdOutlineDeleteOutline } from "react-icons/md"
 import { IProduct } from "@/interfaces/IProduct"
 
@@ -20,12 +16,6 @@ type Props = IProduct & {
 }
 
 function Product({ ...product }: Props) {
-  const userStore = useUserStore()
-  const { mutate: increaseProductQuantity, isPending: isPendingIncreaseProductQuantity } =
-    useQueryIncreaseProductQuantity(product)
-  // const { mutate: decreaseProductQuantity, isPending: isPendingDecreaseProductQuantity } =
-  //   useQueryDecreaseProductQuantity(product)
-
   return (
     <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
       {product.img_url.length === 1 ? (

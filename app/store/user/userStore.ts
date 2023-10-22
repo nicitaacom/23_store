@@ -47,7 +47,7 @@ const useUserStore = create(subscribeWithSelector(devtools(persist(userStore, { 
 setTimeout(() => {
   useUserStore.subscribe(
     state => state.isAuthenticated,
-    isAuthenticated => useCartStore.getState().initialize(isAuthenticated),
+    isAuthenticated => useCartStore.getState().initialize(),
     { fireImmediately: true },
   )
 }, 50)
