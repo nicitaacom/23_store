@@ -1,5 +1,6 @@
 import { create } from "zustand"
-import { devtools, persist } from "zustand/middleware"
+import { devtools, persist, subscribeWithSelector } from "zustand/middleware"
+import useCartStore from "./cartStore"
 
 interface UserStore {
   userId: string
@@ -41,6 +42,14 @@ export const userStore = (set: SetState): UserStore => ({
   },
 })
 
-const useUserStore = create(devtools(persist(userStore, { name: "userStore" })))
+const useUserStore = create(subscribeWithSelector(devtools(persist(userStore, { name: "userStore" }))))
+
+setTimeout(() => {
+  useUserStore.subscribe(
+    state => state.isAuthenticated,
+    isAuthenticated => useCartStore.getState().initialize(isAuthenticated),
+    { fireImmediately: true },
+  )
+}, 50)
 
 export default useUserStore

@@ -3,35 +3,28 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { Button, Slider } from "@/components/ui"
-import {
-  ClearProductQuantityButton,
-  DecreaseProductQuantityButton,
-  RequestReplanishmentButton,
-} from "@/components/ui/Buttons"
+import { RequestReplanishmentButton } from "@/components/ui/Buttons"
 import Image from "next/image"
 import { formatCurrency } from "@/utils/currencyFormatter"
-import { ICartProduct } from "@/interfaces/ICartProduct"
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import useUserStore from "@/store/user/userStore"
-import useAnonymousCartStore from "@/store/user/anonymousCart"
-import supabaseClient from "@/utils/supabaseClient"
 import { useQueryDecreaseProductQuantity, useQueryIncreaseProductQuantity } from "@/hooks/reactQuery"
+import { MdOutlineDeleteOutline } from "react-icons/md"
+import { IProduct } from "@/interfaces/IProduct"
 
-export default function Product({ ...product }: ICartProduct) {
+type Props = IProduct & {
+  quantity: number
+  increaseProductQuantity: (id: string) => void
+  decreaseProductQuantity: (id: string) => void
+  clearProductQuantity: (id: string) => void
+}
+
+function Product({ ...product }: Props) {
   const userStore = useUserStore()
-  const anonymousCart = useAnonymousCartStore()
-
-  console.log("Produt.tsx re-render")
-  const [productQuantity, setProductQuantity] = useState(product.quantity || 0)
-
-  useEffect(() => {
-    setProductQuantity(product.quantity)
-  }, [product.quantity])
-
   const { mutate: increaseProductQuantity, isPending: isPendingIncreaseProductQuantity } =
-    useQueryIncreaseProductQuantity(product, productQuantity, setProductQuantity)
-  const { mutate: decreaseProductQuantity, isPending: isPendingDecreaseProductQuantity } =
-    useQueryDecreaseProductQuantity(product, productQuantity, setProductQuantity)
+    useQueryIncreaseProductQuantity(product)
+  // const { mutate: decreaseProductQuantity, isPending: isPendingDecreaseProductQuantity } =
+  //   useQueryDecreaseProductQuantity(product)
 
   return (
     <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
@@ -69,15 +62,12 @@ export default function Product({ ...product }: ICartProduct) {
         </section>
 
         <section className="min-h-[50px] flex flex-col tablet:flex-row gap-y-4 gap-x-4 justify-between">
-          <div className={`flex flex-col justify-center ${productQuantity === 0 ? "hidden" : "flex"}`}>
-            <h5
-              className={`${
-                isPendingIncreaseProductQuantity || isPendingDecreaseProductQuantity ? "animate-pulse" : ""
-              } text-xl tablet:text-base laptop:text-lg text-center tablet:text-start`}>
-              Quantity: <span>{productQuantity}</span>
+          <div className={`flex flex-col justify-center ${product.quantity === 0 ? "hidden" : "flex"}`}>
+            <h5 className={`text-xl tablet:text-base laptop:text-lg text-center tablet:text-start`}>
+              Quantity: <span>{product.quantity}</span>
             </h5>
             <h5 className="text-xl tablet:text-base laptop:text-lg text-center tablet:text-start flex flex-row justify-center tablet:justify-start">
-              Sub-total:&nbsp;<p>{formatCurrency(productQuantity * product.price)}</p>
+              Sub-total:&nbsp;<p>{formatCurrency(product.quantity * product.price)}</p>
             </h5>
           </div>
           {product.on_stock === 0 ? (
@@ -87,24 +77,26 @@ export default function Product({ ...product }: ICartProduct) {
           ) : (
             <div
               className={`flex flex-row gap-x-2 justify-center tablet:justify-end items-end 
-            ${productQuantity === 0 && "w-full"}`}>
+            ${product.quantity === 0 && "w-full"}`}>
               <Button
                 className="min-w-[50px] max-h-[50px] laptop:w-fit text-2xl"
                 variant="success-outline"
-                onClick={() =>
-                  userStore.isAuthenticated ? increaseProductQuantity() : anonymousCart.increaseProductQuantity(product)
-                }>
+                onClick={() => product.increaseProductQuantity(product.id)}>
                 +
               </Button>
               <Button
                 className="min-w-[50px] max-h-[50px] laptop:w-fit text-2xl"
                 variant="danger-outline"
-                onClick={() =>
-                  userStore.isAuthenticated ? decreaseProductQuantity() : anonymousCart.decreaseProductQuantity(product)
-                }>
+                onClick={() => product.decreaseProductQuantity(product.id)}>
                 -
               </Button>
-              <ClearProductQuantityButton product={product} />
+              <Button
+                className="font-secondary font-thin max-h-[50px]"
+                variant="danger-outline"
+                onClick={() => product.clearProductQuantity(product.id)}>
+                Clear
+                <MdOutlineDeleteOutline />
+              </Button>
             </div>
           )}
         </section>
@@ -112,3 +104,5 @@ export default function Product({ ...product }: ICartProduct) {
     </article>
   )
 }
+
+export default memo(Product)

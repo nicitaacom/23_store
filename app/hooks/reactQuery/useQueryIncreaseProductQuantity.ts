@@ -1,14 +1,10 @@
 import { ICartProduct } from "@/interfaces/ICartProduct"
+import { IProduct } from "@/interfaces/IProduct"
 import useUserStore from "@/store/user/userStore"
 import supabaseClient from "@/utils/supabaseClient"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Dispatch, SetStateAction } from "react"
 
-const useQueryIncreaseProductQuantity = (
-  product: ICartProduct,
-  productQuantity: number,
-  setProductQuantity: Dispatch<SetStateAction<number>>,
-) => {
+const useQueryIncreaseProductQuantity = (product: IProduct) => {
   const queryClient = useQueryClient()
   const userStore = useUserStore()
 
@@ -46,15 +42,15 @@ const useQueryIncreaseProductQuantity = (
       /* logic to update cart_products optimistically */
       const cart_products: ICartProduct[] | undefined = queryClient.getQueryData(["cart_products"])
       let updated_cart_products = cart_products
-      if (productQuantity === 0) {
-        return productQuantity
+      if (product.quantity === 0) {
+        return product.quantity
       } else if (updated_cart_products !== undefined) {
         updated_cart_products[
           updated_cart_products?.findIndex(productInCart => productInCart.id === product.id)
         ].quantity -= 1
         //leave products in cart only if product.quantity > 0
         updated_cart_products = updated_cart_products.filter(productInCart => productInCart.quantity > 0)
-        setProductQuantity(productQuantity - 1)
+        product.quantity = -1
       }
 
       queryClient.setQueryData(["cart_quantity"], updated_cart_quantity)
@@ -74,15 +70,14 @@ const useQueryIncreaseProductQuantity = (
       /* logic to rollback cart_products */
       const cart_products: ICartProduct[] | undefined = queryClient.getQueryData(["cart_products"])
       let updated_cart_products = cart_products
-      if (productQuantity === 0) {
-        return productQuantity
-      } else if (updated_cart_products !== undefined && productQuantity + 1 === 1) {
+      if (product.quantity === 0) {
+        return product.quantity
+      } else if (updated_cart_products !== undefined && product.quantity + 1 === 1) {
         //no way to rollback this because I setProductQuantity(1-1)
       } else if (updated_cart_products !== undefined) {
         updated_cart_products[
           updated_cart_products.findIndex(productInCart => (productInCart.id = product.id))
         ].quantity += 1
-        setProductQuantity(productQuantity + 1)
       }
 
       queryClient.setQueryData(["cart_quantity"], updated_cart_quantity)

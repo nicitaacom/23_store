@@ -1,4 +1,4 @@
-import useAnonymousCartStore from "@/store/user/anonymousCart"
+import useAnonymousCartStore from "@/store/user/cartStore"
 
 export function getAnonymousCart() {
   // eslint-disable-next-line react-hooks/rules-of-hooks

@@ -1,14 +1,11 @@
 import { ICartProduct } from "@/interfaces/ICartProduct"
+import { IProduct } from "@/interfaces/IProduct"
 import useUserStore from "@/store/user/userStore"
 import supabaseClient from "@/utils/supabaseClient"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Dispatch, SetStateAction } from "react"
 
-const useQueryDecreaseProductQuantity = (
-  product: ICartProduct,
-  productQuantity: number,
-  setProductQuantity: Dispatch<SetStateAction<number>>,
-) => {
+const useQueryDecreaseProductQuantity = (product: any) => {
   const queryClient = useQueryClient()
   const userStore = useUserStore()
 
@@ -37,7 +34,7 @@ const useQueryDecreaseProductQuantity = (
       //update cart quantity first
       const cart_quantity: number | undefined = queryClient.getQueryData(["cart_quantity"])
       let updated_cart_quantity = cart_quantity
-      if (productQuantity === product.on_stock) {
+      if (product.quantity === 0) {
         return updated_cart_quantity
       } else if (updated_cart_quantity !== undefined) {
         updated_cart_quantity += 1
