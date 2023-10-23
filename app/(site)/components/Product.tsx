@@ -35,7 +35,7 @@ function Product({ ...product }: Props) {
           title={product.title}
         />
       )}
-      <section className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-4 pt-2 pb-4">
+      <section className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-2 py-2">
         <section className="flex flex-col gap-y-4 tablet:gap-y-0 justify-between items-center tablet:items-start text-brand">
           <div className="flex flex-row gap-x-2 justify-between items-center w-full">
             <h1 className="text-2xl tablet:text-xl desktop:text-2xl">{product.title}</h1>

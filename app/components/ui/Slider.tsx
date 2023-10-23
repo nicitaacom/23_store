@@ -41,12 +41,13 @@ export function Slider({ images, title, className = "", containerClassName = "" 
   }
 
   return (
-    <div className={twMerge(`relative w-full tablet:w-full laptop:w-fit ${containerClassName}`)}>
+    <figure className={twMerge(`relative w-full tablet:w-full laptop:w-fit ${containerClassName}`)}>
       <div
         className={twMerge(
           `relative tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit overflow-hidden ${className}`,
         )}>
         {images.map((image: string, index: number) => (
+          //TODO - add pripority for first two images
           <Image
             key={index}
             className={twMerge(`w-full tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit object-cover
@@ -57,7 +58,7 @@ export function Slider({ images, title, className = "", containerClassName = "" 
             alt={title}
             width={720}
             height={480}
-            loading="lazy"
+            priority
           />
         ))}
       </div>
@@ -71,6 +72,6 @@ export function Slider({ images, title, className = "", containerClassName = "" 
         onClick={goToNextSlide}>
         <AiFillCaretRight className="h-6 w-6 text-white" />
       </button>
-    </div>
+    </figure>
   )
 }

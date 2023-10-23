@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { useSwipeable } from "react-swipeable"
 import { useState } from "react"
 import { IoMdClose } from "react-icons/io"
+import useCartStore from "@/store/user/cartStore"
 
 export default function OpenAreYouSureModalButton() {
   const [showModal, setShowModal] = useState(false)
@@ -23,6 +24,8 @@ export default function OpenAreYouSureModalButton() {
     },
     trackMouse: true,
   })
+
+  const cartStore = useCartStore()
 
   return (
     <>
@@ -59,7 +62,13 @@ export default function OpenAreYouSureModalButton() {
                   <Button variant="info-outline" onClick={() => setShowModal(false)}>
                     Back
                   </Button>
-                  <Button variant="danger">Remove</Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => {
+                      cartStore.clearCart(), setShowModal(false)
+                    }}>
+                    Remove
+                  </Button>
                 </div>
               </div>
             </motion.div>

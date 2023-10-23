@@ -7,7 +7,6 @@ import Navbar from "./components/Navbar/Navbar"
 import { AuthModalContainer, CartModalContainer } from "./components/ui/Modals/ModalContainers"
 import { AuthModal, CartModal } from "./components/ui/Modals"
 import ClientOnly from "./components/ClientOnly"
-import { InitialPageLoadingSkeleton } from "./components/Skeletons/InitialPageLoadingSkeleton"
 
 export const metadata: Metadata = {
   title: "23_store",
