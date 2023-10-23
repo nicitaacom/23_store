@@ -1,12 +1,14 @@
 import Link from "next/link"
+import { Component, FunctionComponent } from "react"
 import { IconType } from "react-icons"
 import { twMerge } from "tailwind-merge"
 
 interface DropdownItemProps {
-  icon: IconType
+  icon: IconType | FunctionComponent
   label: string
   onClick?: () => void
   href?: string
+  target?: "_blank" | "_parent" | "_self" | "_top"
   size?: number
   className?: string
   labelClassName?: string
@@ -17,6 +19,7 @@ export function DropdownItem({
   label,
   size,
   href,
+  target = "_self",
   className = "",
   labelClassName = "",
   onClick,
@@ -28,7 +31,7 @@ export function DropdownItem({
      ${className}`)}
       onClick={onClick}>
       {href ? (
-        <Link className="flex justify-center items-center gap-x-2 px-4 cursor-pointer" href={href}>
+        <Link className="flex justify-center items-center gap-x-2 px-4 cursor-pointer" href={href} target={target}>
           <Icon className="text-icon-color" size={size ? size : 24} />
           <p className={labelClassName}>{label}</p>
         </Link>

@@ -4,8 +4,12 @@ import type { Metadata } from "next"
 
 import { Layout } from "./components"
 import Navbar from "./components/Navbar/Navbar"
-import { AuthModalContainer, CartModalContainer } from "./components/ui/Modals/ModalContainers"
-import { AuthModal, CartModal } from "./components/ui/Modals"
+import {
+  AuthModalContainer,
+  CartModalContainer,
+  ChangeLanguageModalContainer,
+} from "./components/ui/Modals/ModalContainers"
+import { AuthModal, CartModal, ChangeLanguageModal } from "./components/ui/Modals"
 import ClientOnly from "./components/ClientOnly"
 
 export const metadata: Metadata = {
@@ -27,6 +31,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <AuthModalContainer>
             <AuthModal label="Auth" />
           </AuthModalContainer>
+          <ChangeLanguageModalContainer>
+            <ChangeLanguageModal label="Change language" />
+          </ChangeLanguageModalContainer>
         </ClientOnly>
       </body>
     </html>

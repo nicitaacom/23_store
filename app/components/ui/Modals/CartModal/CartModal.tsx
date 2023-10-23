@@ -13,7 +13,6 @@ import { MdOutlineDeleteOutline } from "react-icons/md"
 import { HiOutlineRefresh } from "react-icons/hi"
 
 interface CartModalProps {
-  quantity: number
   label: string
 }
 

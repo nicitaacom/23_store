@@ -4,41 +4,9 @@ import Link from "next/link"
 
 import { BiUpArrow } from "react-icons/bi"
 import { TbWorld } from "react-icons/tb"
+import { languages } from "@/constant/languages"
 
 export function Language({ className }: { className?: string }) {
-  const languages = [
-    {
-      id: 1,
-      label: "Русский",
-      url: "/ru",
-      code: "RU",
-    },
-    {
-      id: 2,
-      label: "English",
-      url: "/",
-      code: "EN",
-    },
-    {
-      id: 3,
-      label: "Deutsch",
-      url: "/de",
-      code: "DE",
-    },
-    {
-      id: 4,
-      label: "Polski",
-      url: "/pl",
-      code: "PL",
-    },
-    {
-      id: 5,
-      label: "Українська",
-      url: "/uk",
-      code: "UK",
-    },
-  ]
-
   const [showDropdown, setShowDropdown] = useState(false)
 
   /* for close on clicking outside */
