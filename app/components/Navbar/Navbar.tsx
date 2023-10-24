@@ -2,7 +2,7 @@ import Link from "next/link"
 
 import { FiPhoneCall } from "react-icons/fi"
 
-import { Switch } from ".."
+import { SwitchDarkMode } from ".."
 import { Language } from "../Language"
 import {
   HamburgerMenu,
@@ -15,6 +15,9 @@ import {
 import NavbarWrapper from "./components/NavbarWrapper"
 import { DropdownContainer } from "../ui/DropdownContainer"
 import supabaseServer from "@/utils/supabaseServer"
+import { TbWorld } from "react-icons/tb"
+import { BiSearchAlt } from "react-icons/bi"
+import { contact } from "@/constant/contacts"
 
 export default async function Navbar() {
   const {
@@ -35,17 +38,19 @@ export default async function Navbar() {
       </div>
 
       {/* ICONS HELP */}
-      <div className="hidden mobile:flex flex-row gap-x-2 items-center ">
-        <Switch />
+      <div className="flex flex-row gap-x-2 items-center ">
+        <SwitchDarkMode className="max-[500px]:hidden" />
+        <BiSearchAlt className="flex tablet:hidden" size={28} />
         <OpenCartModalButton />
         <DropdownContainer
+          classNameDropdownContainer="hidden mobile:flex"
           className="before:translate-x-[-300%] translate-x-[35%] w-[125px]"
           icon={<FiPhoneCall size={28} />}>
           <div className="flex flex-col gap-y-2 justify-center items-center px-4 py-2">
             <div className="flex flex-col justify-center items-center">
               <Link
-                className="hover:text-brand text-center"
-                href="https://t.me/nicitaacom"
+                className="hover:text-brand text-title text-center duration-300"
+                href={contact.telegram}
                 target="_blank"
                 rel="preload">
                 Telegram

@@ -12,6 +12,7 @@ interface CartStore {
   increaseProductQuantity: (id: string) => void
   decreaseProductQuantity: (id: string) => void
   clearProductQuantity: (id: string) => void
+  getProductsPrice: () => number
   hasProducts: () => boolean
   clearCart: () => void
   initialize: () => void
@@ -61,6 +62,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
   },
   decreaseProductQuantity(id: string) {
     const updatedProducts = { ...get().products }
+    let updatedProductsData = [...get().productsData]
 
     const product = updatedProducts[id]
 
@@ -68,31 +70,41 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
 
     if (product.quantity === 1) {
       delete updatedProducts[id]
+      updatedProductsData = updatedProductsData.filter(updatedProduct => updatedProduct.id !== id)
     } else {
       updatedProducts[id].quantity--
     }
 
     set(() => ({
       products: updatedProducts,
+      productsData: updatedProductsData,
     }))
   },
   clearProductQuantity(id: string) {
     const updatedProducts = { ...get().products }
+    let updatedProductsData = [...get().productsData]
 
     const product = updatedProducts[id]
 
     if (!product) return
-    else {
-      delete updatedProducts[id]
-    }
+    delete updatedProducts[id]
+    updatedProductsData = updatedProductsData.filter(updatedProduct => updatedProduct.id !== id)
 
     set(() => ({
       products: updatedProducts,
+      productsData: updatedProductsData,
     }))
+  },
+  getProductsPrice() {
+    return get().productsData.reduce((totalPrice, product) => {
+      const quantity = get().products[product.id].quantity ?? 0
+      return product.on_stock === 0 ? totalPrice : totalPrice + product.price * quantity
+    }, 0)
   },
   clearCart() {
     set(() => ({
       products: {},
+      productsData: [],
     }))
   },
   hasProducts() {

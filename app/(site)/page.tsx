@@ -11,7 +11,7 @@ export default async function Home() {
   const products = products_response.data
 
   return (
-    <div className="text-2xl text-white flex flex-col gap-y-8 justify-between items-center py-12">
+    <div className="max-w-[1024px] text-2xl text-white flex flex-col gap-y-8 justify-between items-center py-12 mx-auto">
       <section className="flex flex-col gap-y-4">
         <Products products={products} />
       </section>

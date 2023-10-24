@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from "framer-motion"
 import { useSwipeable } from "react-swipeable"
 import { useState } from "react"
 import { IoMdClose } from "react-icons/io"
+import useCartStore from "@/store/user/cartStore"
+import { MdOutlineDeleteOutline } from "react-icons/md"
 
 export default function OpenAreYouSureModalButton() {
   const [showModal, setShowModal] = useState(false)
@@ -24,11 +26,15 @@ export default function OpenAreYouSureModalButton() {
     trackMouse: true,
   })
 
+  const cartStore = useCartStore()
+
   return (
     <>
-      <Button className="w-fit" onClick={() => setShowModal(true)}>
+      <Button className="flex flex-row gap-x-1 w-full" variant="danger-outline" onClick={() => setShowModal(true)}>
         Clear cart
+        <MdOutlineDeleteOutline />
       </Button>
+
       <AnimatePresence>
         {showModal && (
           <motion.div
@@ -59,7 +65,13 @@ export default function OpenAreYouSureModalButton() {
                   <Button variant="info-outline" onClick={() => setShowModal(false)}>
                     Back
                   </Button>
-                  <Button variant="danger">Remove</Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => {
+                      cartStore.clearCart(), setShowModal(false)
+                    }}>
+                    Remove
+                  </Button>
                 </div>
               </div>
             </motion.div>

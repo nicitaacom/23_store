@@ -15,9 +15,11 @@ export default function OpenCartModalButton() {
 
   return (
     <Link
-      className="mr-1 cursor-pointer text-title transition-all duration-300
+      className={`mr-1 cursor-pointer text-title transition-all duration-300
         before:absolute before:w-[20px] before:h-[20px] before:bg-brand before:rounded-full before:text-title-foreground
-        before:translate-x-[80%] before:translate-y-[-20%] before:z-[9]"
+        before:translate-x-[80%] before:translate-y-[-20%] before:z-[9] ${
+          cartQuantity === 0 ? "before:hidden" : "before:flex"
+        }`}
       href={updatedPath}
       aria-label="cart">
       <LuShoppingCart className="cursor-pointer hover:brightness-75 duration-300" size={28} />
