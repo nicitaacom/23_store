@@ -19,14 +19,16 @@ function Product({ ...product }: Props) {
   return (
     <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
       {product.img_url.length === 1 ? (
-        <Image
-          className="w-full tablet:aspect-video h-[300px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit object-cover"
-          src={product.img_url[0]}
-          alt="image"
-          width={480}
-          height={360}
-          priority
-        />
+        <figure className="relative w-full tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit object-coverw">
+          <Image
+            className="w-full tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit object-cover"
+            src={product.img_url[0]}
+            alt="image"
+            width={480}
+            height={360}
+            priority
+          />
+        </figure>
       ) : (
         <Slider
           containerClassName="tablet:w-fit"
@@ -35,14 +37,25 @@ function Product({ ...product }: Props) {
           title={product.title}
         />
       )}
-      <section className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-2 py-2">
+      <div className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-2 py-2">
         <section className="flex flex-col gap-y-4 tablet:gap-y-0 justify-between items-center tablet:items-start text-brand">
-          <div className="flex flex-row gap-x-2 justify-between items-center w-full">
-            <h1 className="text-2xl tablet:text-xl desktop:text-2xl">{product.title}</h1>
-            <h1 className="text-2xl tablet:text-lg desktop:text-xl">{formatCurrency(product.price)}</h1>
+          <div className="flex flex-col mobile:flex-row gap-x-2 justify-between items-center w-full">
+            <h1
+              className={`w-full mobile:w-[60%] text-2xl text-center mobile:text-start tablet:text-xl desktop:text-2xl overflow-hidden ${
+                product.on_stock === 0 ? "line-clamp-1" : "line-clamp-2"
+              }`}>
+              {product.title}
+            </h1>
+            <h1 className="w-full mobile:w-[35%] text-2xl text-center mobile:text-end tablet:text-lg desktop:text-xl">
+              {formatCurrency(product.price)}
+            </h1>
           </div>
-          <div className="flex flex-col">
-            <p className="text-lg tablet:text-sm text-subTitle text-center tablet:text-start">{product.sub_title}</p>
+          <div className="w-[70%] flex flex-col">
+            <h1
+              className={`overflow-hidden ${product.on_stock === 0 ? "line-clamp-1" : "line-clamp-2"}
+             text-lg tablet:text-sm text-subTitle text-center tablet:text-start`}>
+              {product.sub_title}
+            </h1>
             <p
               className={`text-lg tablet:text-sm text-subTitle text-center tablet:text-start
             ${product.on_stock === 0 && "text-warning"}`}>
@@ -61,7 +74,7 @@ function Product({ ...product }: Props) {
             </h5>
           </div>
           {product.on_stock === 0 ? (
-            <div className="w-full flex flex-row justify-center tablet:justify-end items-end">
+            <div className="flex flex-row justify-center tablet:justify-end items-end">
               <RequestReplanishmentButton />
             </div>
           ) : (
@@ -90,7 +103,7 @@ function Product({ ...product }: Props) {
             </div>
           )}
         </section>
-      </section>
+      </div>
     </article>
   )
 }

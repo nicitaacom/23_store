@@ -12,6 +12,7 @@ interface CartStore {
   increaseProductQuantity: (id: string) => void
   decreaseProductQuantity: (id: string) => void
   clearProductQuantity: (id: string) => void
+  getProductsPrice: () => number
   hasProducts: () => boolean
   clearCart: () => void
   initialize: () => void
@@ -93,6 +94,12 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
       products: updatedProducts,
       productsData: updatedProductsData,
     }))
+  },
+  getProductsPrice() {
+    return get().productsData.reduce((totalPrice, product) => {
+      const quantity = get().products[product.id].quantity ?? 0
+      return product.on_stock === 0 ? totalPrice : totalPrice + product.price * quantity
+    }, 0)
   },
   clearCart() {
     set(() => ({

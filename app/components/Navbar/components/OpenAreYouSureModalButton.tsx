@@ -6,6 +6,7 @@ import { useSwipeable } from "react-swipeable"
 import { useState } from "react"
 import { IoMdClose } from "react-icons/io"
 import useCartStore from "@/store/user/cartStore"
+import { MdOutlineDeleteOutline } from "react-icons/md"
 
 export default function OpenAreYouSureModalButton() {
   const [showModal, setShowModal] = useState(false)
@@ -29,9 +30,11 @@ export default function OpenAreYouSureModalButton() {
 
   return (
     <>
-      <Button className="w-fit" onClick={() => setShowModal(true)}>
+      <Button className="flex flex-row gap-x-1 w-full" variant="danger-outline" onClick={() => setShowModal(true)}>
         Clear cart
+        <MdOutlineDeleteOutline />
       </Button>
+
       <AnimatePresence>
         {showModal && (
           <motion.div
