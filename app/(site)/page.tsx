@@ -1,6 +1,7 @@
 import supabaseServer from "@/utils/supabaseServer"
 import { Products } from "./components"
 import PaginationControls from "@/components/PaginationControls"
+import { ProductsPerPage } from "@/components/ProductsPerPage"
 
 export default async function Home({
   searchParams,
@@ -14,13 +15,13 @@ export default async function Home({
 
   //Logic for pagination
   const page = Number(searchParams["page"]) || 1
-  const per_page = Number(searchParams["per_page"]) || 5
+  const perPage = Number(searchParams["perPage"]) || 5
 
   const totalItems = products.length
-  const totalPages = Math.ceil(totalItems / per_page)
+  const totalPages = Math.ceil(totalItems / perPage)
 
-  const start = (page - 1) * per_page
-  const end = Math.min(start + per_page, totalItems)
+  const start = (page - 1) * perPage
+  const end = Math.min(start + perPage, totalItems)
 
   const entries = products.slice(start, end)
 
@@ -29,13 +30,16 @@ export default async function Home({
       <section className="flex flex-col gap-y-4">
         <Products products={entries} />
       </section>
-      <PaginationControls
-        hasNextPage={end < totalItems}
-        hasPrevPage={start > 0}
-        currentPage={page}
-        totalPages={totalPages}
-        perPage={per_page}
-      />
+      <div className="flex flex-row gap-x-4 justify-between items-center">
+        <PaginationControls
+          hasNextPage={end < totalItems}
+          hasPrevPage={start > 0}
+          currentPage={page}
+          totalPages={totalPages}
+          perPage={perPage}
+        />
+        <ProductsPerPage />
+      </div>
     </div>
   )
 }

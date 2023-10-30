@@ -1,6 +1,11 @@
+"use client"
+
 import Link from "next/link"
 import React from "react"
 import { FC } from "react"
+import { useSearchParams } from "next/navigation"
+import { Button } from "./ui"
+import { BiSkipPrevious, BiSkipNext } from "react-icons/bi"
 
 interface PaginationControlsProps {
   hasNextPage: boolean
@@ -10,30 +15,28 @@ interface PaginationControlsProps {
   perPage: number
 }
 
-const PaginationControls: FC<PaginationControlsProps> = ({
-  hasNextPage,
-  hasPrevPage,
-  currentPage,
-  totalPages,
-  perPage,
-}) => {
+const PaginationControls: FC<PaginationControlsProps> = ({ hasNextPage, hasPrevPage, currentPage, totalPages }) => {
+  const perPage = useSearchParams().get("perPage")
+
   return (
-    <div className="flex gap-2">
-      <Link
-        className={`bg-blue-500 text-white p-1 ${!hasPrevPage ? "pointer-events-none" : ""}`}
-        href={`/?page=${currentPage - 1}&per_page=${perPage}`}>
-        prev page
-      </Link>
+    <div className="flex flex-row gap-x-4 justify-center items-center">
+      <Button
+        variant="default-outline"
+        className={`border-border-color ${!hasPrevPage ? "pointer-events-none" : ""}`}
+        href={`/?page=${currentPage - 1}&perPage=${perPage}`}>
+        <BiSkipPrevious size={32} />
+      </Button>
 
       <div>
         {currentPage} / {totalPages}
       </div>
 
-      <Link
-        className={`bg-blue-500 text-white p-1 ${!hasNextPage ? "pointer-events-none" : ""}`}
-        href={`/?page=${currentPage + 1}&per_page=${perPage}`}>
-        next page
-      </Link>
+      <Button
+        variant="default-outline"
+        className={`border-border-color ${!hasNextPage ? "pointer-events-none" : ""}`}
+        href={`/?page=${currentPage + 1}&perPage=${perPage}`}>
+        <BiSkipNext size={32} />
+      </Button>
     </div>
   )
 }
