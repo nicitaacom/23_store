@@ -1,20 +1,45 @@
 import supabaseServer from "@/utils/supabaseServer"
 import { Products } from "./components"
-import supabaseClient from "@/utils/supabaseClient"
+import PaginationControls from "@/components/PaginationControls"
+import { ProductsPerPage } from "@/components/ProductsPerPage"
 
-export default async function Home() {
-  //TODO - fix error with supabase cookies (I need supabaseServer to getUser() from cookies)
-  const { data: userResponse } = await supabaseServer().auth.getUser()
-  const user = userResponse.user
-  const products_response = await supabaseServer().from("products").select("*").limit(10)
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+  //Fetching all data from DB
+  const products_response = await supabaseServer().from("products").select("*").order("price", { ascending: true })
   if (products_response.error) throw products_response.error
   const products = products_response.data
+
+  //Logic for pagination
+  const page = Number(searchParams["page"]) || 1
+  const perPage = Number(searchParams["perPage"]) || 5
+
+  const totalItems = products.length
+  const totalPages = Math.ceil(totalItems / perPage)
+
+  const start = (page - 1) * perPage
+  const end = Math.min(start + perPage, totalItems)
+
+  const entries = products.slice(start, end)
 
   return (
     <div className="max-w-[1024px] text-2xl text-white flex flex-col gap-y-8 justify-between items-center py-12 mx-auto">
       <section className="flex flex-col gap-y-4">
-        <Products products={products} />
+        <Products products={entries} />
       </section>
+      <div className="flex flex-row gap-x-4 justify-between items-center">
+        <PaginationControls
+          hasNextPage={end < totalItems}
+          hasPrevPage={start > 0}
+          currentPage={page}
+          totalPages={totalPages}
+          perPage={perPage}
+        />
+        <ProductsPerPage />
+      </div>
     </div>
   )
 }
