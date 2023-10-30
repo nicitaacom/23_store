@@ -22,7 +22,7 @@ const PaginationControls: FC<PaginationControlsProps> = ({ hasNextPage, hasPrevP
     <div className="flex flex-row gap-x-4 justify-center items-center">
       <Button
         variant="default-outline"
-        className={`border-border-color ${!hasPrevPage ? "pointer-events-none" : ""}`}
+        className={`border-border-color ${!hasPrevPage ? "pointer-events-none opacity-50" : ""}`}
         href={`/?page=${currentPage - 1}&perPage=${perPage}`}>
         <BiSkipPrevious size={32} />
       </Button>
@@ -33,7 +33,7 @@ const PaginationControls: FC<PaginationControlsProps> = ({ hasNextPage, hasPrevP
 
       <Button
         variant="default-outline"
-        className={`border-border-color ${!hasNextPage ? "pointer-events-none" : ""}`}
+        className={`border-border-color ${!hasNextPage ? "pointer-events-none opacity-50" : ""}`}
         href={`/?page=${currentPage + 1}&perPage=${perPage}`}>
         <BiSkipNext size={32} />
       </Button>
