@@ -53,7 +53,6 @@ function Products({ products }: ProductsProps) {
           />
         ))}
       </ul>
-      {/* Pagination bar in future + limit per page */}
     </div>
   )
 }
