@@ -1,5 +1,5 @@
 "use client"
-import { SetStateAction, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 
 import { BiUpArrow } from "react-icons/bi"
@@ -74,17 +74,17 @@ export function ProductsPerPage({ className }: { className?: string }) {
           {currentValuePerPage} per page
           <h1 className="uppercase">{perPage.map(perPage => perPage === Number(currentValuePerPage))}</h1>
         </div>
-        <BiUpArrow className="rotate-180" />
+        <BiUpArrow />
       </div>
 
       {/* Dropdown content */}
       <div
-        className={`dropdown absolute top-[100%] left-[-1px] right-[-1px]
+        className={`absolute top-[-600%] left-[-1px] right-[-1px]
       border-[1px] border-solid border-foreground z-10 bg-background
        flex flex-col text-md text-center ${
          showDropdown
-           ? "opacity-100 visible translate-y-[0px] transition-all duration-300"
-           : "opacity-0 invisible translate-y-[-20px] transition-all duration-300"
+           ? "opacity-100 visible translate-y-[5px] transition-all duration-300"
+           : "opacity-0 invisible translate-y-[25px] transition-all duration-300"
        }`}
         onMouseLeave={() => setHover(null)}>
         {perPage.map(perPage => (
