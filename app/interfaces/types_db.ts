@@ -14,7 +14,6 @@ export interface Database {
           id: string
           img_url: string[]
           on_stock: number
-          owner_username: string
           price: number
           sub_title: string
           title: string
@@ -23,7 +22,6 @@ export interface Database {
           id: string
           img_url: string[]
           on_stock: number
-          owner_username: string
           price: number
           sub_title: string
           title?: string
@@ -32,19 +30,11 @@ export interface Database {
           id?: string
           img_url?: string[]
           on_stock?: number
-          owner_username?: string
           price?: number
           sub_title?: string
           title?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "products_owner_username_fkey"
-            columns: ["owner_username"]
-            referencedRelation: "users"
-            referencedColumns: ["username"]
-          }
-        ]
+        Relationships: []
       }
       users: {
         Row: {
