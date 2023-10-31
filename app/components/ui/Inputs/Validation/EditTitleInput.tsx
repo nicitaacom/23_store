@@ -15,6 +15,7 @@ interface InputFormProps {
   required?: boolean
   register: UseFormRegister<FormData>
   startIcon?: React.ReactElement
+  endIcon?: React.ReactElement
   errors: FieldErrors
   placeholder: string
   disabled?: boolean
@@ -30,13 +31,14 @@ interface ValidationRules {
   }
 }
 
-export function ProductInput({
+export function EditInput({
   className = "",
   id,
   type = "text",
   required,
   register,
   startIcon,
+  endIcon,
   errors,
   placeholder,
   disabled,
@@ -81,11 +83,11 @@ export function ProductInput({
     <div className={`relative`}>
       <div className="absolute top-[50%] translate-y-[-50%] translate-x-[50%]">{startIcon}</div>
       <input
-        className={`w-full rounded border-[1px] border-solid bg-transparent px-4 py-2 mb-1 outline-none text-title
-
-            ${startIcon && "pl-10"}
-            ${errors[id] && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0"}
-            ${disabled && "opacity-50 cursor-default pointer-events-none"}
+        className={`rounded bg-transparent py-1 outline-none text-title
+            ${startIcon ? "pl-10" : ""}
+            ${endIcon ? "pr-10" : ""}
+            ${errors[id] ? "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0" : ""}
+            ${disabled ? "opacity-50 cursor-default pointer-events-none" : ""}
             ${className}`}
         id={id}
         type={type}
@@ -115,6 +117,7 @@ export function ProductInput({
           }
         }}
       />
+      <div className="absolute top-[50%] right-2 translate-y-[-50%] translate-x-[50%]">{endIcon}</div>
       {errors[id] && errors[id]?.message && (
         <motion.p className="font-secondary text-danger text-xs" initial={{ x: 0 }} animate={{ x: [0, -2, 2, 0] }}>
           {errors[id]?.message as React.ReactNode}

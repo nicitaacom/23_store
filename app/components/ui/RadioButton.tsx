@@ -4,9 +4,10 @@ interface RadioButton extends React.HTMLAttributes<HTMLInputElement> {
   label: string
   inputName: string
   onChange: (e: ChangeEvent<HTMLInputElement>) => void
+  children?: React.ReactNode
 }
 
-export function RadioButton({ label, inputName, onChange, ...props }: RadioButton) {
+export function RadioButton({ label, inputName, onChange, children, ...props }: RadioButton) {
   return (
     <label
       htmlFor={label}
@@ -24,12 +25,11 @@ export function RadioButton({ label, inputName, onChange, ...props }: RadioButto
       <span
         className={`before:absolute before:border-b-2 before:border-t-0 before:border-border-color before:w-full before:h-[50px]
         before:top-[50%] before:left-[50%] before:translate-x-[-50%] before:translate-y-[-50%]
-
         before:transition-all before:duration-300 
         peer-checked:before:border-brand peer-checked:before:border-b-2
         `}
       />
-      {label}
+      {children ? children : label}
     </label>
   )
 }

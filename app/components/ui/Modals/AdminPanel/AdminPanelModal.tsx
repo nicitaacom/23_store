@@ -9,16 +9,20 @@ import supabaseClient from "@/utils/supabaseClient"
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
 import axios from "axios"
+import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai"
+import { CiEdit } from "react-icons/ci"
 
-import { ProductInput } from "@/components/ui/Inputs/Validation/ProductInput"
-import { ModalContainer } from "../ModalContainer"
+import { ModalContainer } from "../../ModalContainer"
 import useUserStore from "@/store/user/userStore"
-import { Button, RadioButton } from ".."
+import { Button, RadioButton, Slider } from "../.."
+import { IDBProduct } from "@/interfaces/IDBProduct"
+import { useRouter } from "next/navigation"
+import AddProductForm from "./components/AddProductForm"
+import EditProductForm from "./components/EditProductForm"
 
-interface AddProductModalProps {
+interface AdminPanelModalProps {
   label: string
-  isOpen: boolean
-  onClose: () => void
+  ownerProducts: IDBProduct[]
 }
 
 interface FormData {
@@ -28,8 +32,15 @@ interface FormData {
   onStock: number
 }
 
-export function AddProductModal({ label }: AddProductModalProps) {
+export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) {
   const userStore = useUserStore()
+
+  const router = useRouter()
+
+  const { isAuthenticated } = useUserStore()
+  if (!isAuthenticated) {
+    router.push("/?modal=AuthModal&variant=login")
+  }
 
   const [stripe, setStripe] = useState<Stripe | null>(null)
   useEffect(() => {
@@ -37,7 +48,6 @@ export function AddProductModal({ label }: AddProductModalProps) {
       const stripeInstance = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC)
       setStripe(stripeInstance)
     }
-
     initializeStripe()
   }, [])
 
@@ -47,6 +57,8 @@ export function AddProductModal({ label }: AddProductModalProps) {
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
   const dragZone = useRef<HTMLButtonElement | null>(null)
   const [isDraggingg, setIsDragging] = useState(false)
+
+  console.log(53, "ownerProducts - ", ownerProducts)
 
   useEffect(() => {
     const handler = () => {
@@ -125,6 +137,7 @@ export function AddProductModal({ label }: AddProductModalProps) {
           .from("products")
           .insert({
             id: priceResponse.data.id,
+            owner_id: userStore.userId,
             title: title,
             sub_title: subTitle,
             price: price,
@@ -144,22 +157,20 @@ export function AddProductModal({ label }: AddProductModalProps) {
   }
 
   const onSubmit = (data: FormData) => {
-    setIsLoading(true)
     createProduct(images, data.title, data.subTitle, data.price, data.onStock)
-    setIsLoading(false)
   }
 
   return (
     <ModalContainer
-      className={`w-[100vw] max-w-[500px] tablet:max-w-[650px] 
+      className={`w-[100vw] max-w-[768px] tablet:max-w-[650px] 
      bg-primary rounded-md border-[1px] border-solid border-border-color pt-8 `}
-      modalQuery="AddProduct">
+      modalQuery="AdminPanel">
       <div
-        className={`relative flex flex-col items-center w-full pb-8
+        className={`relative flex flex-col justify-center items-center w-full pb-8
         ${isDraggingg ? "overflow-hidden" : "overflow-y-scroll"}
-        ${productAction === "Add product" && "h-[70vh] tablet:max-h-[900px]"}
-        ${productAction === "Edit product" && "h-[50vh] tablet:max-h-[500px]"}
-        ${productAction === "Delete product" && "h-[40vh] tablet:max-h-[400px]"}
+        ${productAction === "Add product" ? "h-[70] tablet:max-h-[900px]" : ""}
+        ${productAction === "Edit product" ? "h-[calc(100vh-32px)] tablet:max-h-[500px]" : ""}
+        ${productAction === "Delete product" ? "h-[40vh] tablet:max-h-[400px]" : ""}
         transition-all duration-500`}>
         <h1 className="text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
         <ul className="flex flex-col tablet:flex-row justify-center mb-8">
@@ -168,14 +179,25 @@ export function AddProductModal({ label }: AddProductModalProps) {
               label="Add product"
               inputName="product"
               onChange={e => setProductAction(e.target.value)}
-              defaultChecked
-            />
+              defaultChecked>
+              <div className="flex flex-row gap-x-2 items-center">
+                Add product <AiOutlinePlus className="text-success" />
+              </div>
+            </RadioButton>
           </li>
           <li>
-            <RadioButton label="Edit product" inputName="product" onChange={e => setProductAction(e.target.value)} />
+            <RadioButton label="Edit product" inputName="product" onChange={e => setProductAction(e.target.value)}>
+              <div className="flex flex-row gap-x-2 items-center">
+                Edit product <CiEdit className="text-warning" />
+              </div>
+            </RadioButton>
           </li>
           <li>
-            <RadioButton label="Delete product" inputName="product" onChange={e => setProductAction(e.target.value)} />
+            <RadioButton label="Delete product" inputName="product" onChange={e => setProductAction(e.target.value)}>
+              <div className="flex flex-row gap-x-2 items-center">
+                Delete product <AiOutlineDelete className="text-danger" />
+              </div>
+            </RadioButton>
           </li>
         </ul>
         {productAction === "Add product" && (
@@ -225,57 +247,27 @@ export function AddProductModal({ label }: AddProductModalProps) {
           </ImageUploading>
         )}
 
-        <form className="flex flex-col gap-y-2 w-[50%]" onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className={`flex flex-col gap-y-2 ${productAction === "Add product" ? "w-[50%]" : "w-[100%]"}`}
+          onSubmit={handleSubmit(onSubmit)}>
           {productAction === "Add product" && (
-            <>
-              <ProductInput
-                id="title"
-                register={register}
-                errors={errors}
-                disabled={isLoading}
-                required
-                placeholder="Product title"
-              />
-              <ProductInput
-                id="subTitle"
-                register={register}
-                errors={errors}
-                disabled={isLoading}
-                required
-                placeholder="Product description"
-              />
-              <ProductInput
-                id="price"
-                type="numeric"
-                register={register}
-                errors={errors}
-                disabled={isLoading}
-                required
-                placeholder="Product price"
-              />
-              <ProductInput
-                id="onStock"
-                type="number"
-                register={register}
-                errors={errors}
-                disabled={isLoading}
-                required
-                placeholder="Amount on stock"
-              />
-              {responseMessage}
-              <Button>Create product</Button>
-            </>
+            <AddProductForm
+              register={register}
+              errors={errors}
+              responseMessage={responseMessage}
+              isLoading={isLoading}
+            />
           )}
 
-          {productAction === "Edit product" && (
-            <>
-              <h1 className="text-center">Edit product content</h1>
-            </>
-          )}
+          {productAction === "Edit product" && <EditProductForm ownerProducts={ownerProducts} />}
 
           {productAction === "Delete product" && (
             <>
-              <h1 className="text-center">Delete product content</h1>
+              {ownerProducts.length > 0 ? (
+                <div>content</div>
+              ) : (
+                <h1 className="pt-24 text-2xl text-center font-bold w-[90%] mx-auto">You have no products to delete</h1>
+              )}
             </>
           )}
         </form>
