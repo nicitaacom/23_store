@@ -2,26 +2,26 @@
 
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
-
+import { twMerge } from "tailwind-merge"
 import { useForm } from "react-hook-form"
 import { Stripe, loadStripe } from "@stripe/stripe-js"
-import supabaseClient from "@/utils/supabaseClient"
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
 import axios from "axios"
 import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai"
 import { CiEdit } from "react-icons/ci"
 
-import { ModalContainer } from "../../ModalContainer"
+import supabaseClient from "@/utils/supabaseClient"
+import { Button, RadioButton } from "@/components/ui"
 import useUserStore from "@/store/user/userStore"
-import { Button, RadioButton, Slider } from "../.."
 import { IDBProduct } from "@/interfaces/IDBProduct"
 import { useRouter } from "next/navigation"
-import AddProductForm from "./components/AddProductForm"
-import EditProductForm from "./components/EditProductForm"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
 import useDragging from "@/hooks/ui/useDragging"
-import { twMerge } from "tailwind-merge"
+
+import { ModalContainer } from "../../ModalContainer"
+import AddProductForm from "./components/AddProductForm"
+import EditProductForm from "./components/EditProductForm"
 
 interface AdminPanelModalProps {
   label: string
