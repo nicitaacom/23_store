@@ -131,7 +131,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
         `w-[100vw] max-w-[768px] max-h-full
       flex flex-col bg-primary rounded-md border-[1px] border-solid border-border-color pt-8`,
         productAction === "Add product" && "tablet:max-w-[650px]",
-        productAction === "Edit product" && "tablet:max-w-full laptop:max-w-[1024px]",
+        productAction === "Edit product" && "tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
       )}
       modalQuery="AdminPanel">
       <h1 className="min-h-[40px] text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
