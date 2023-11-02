@@ -31,7 +31,7 @@ function EditProductForm({ ownerProducts }: EditProductForm) {
   return (
     <>
       {ownerProducts.length > 0 ? (
-        <div className="w-[90%] mx-auto h-[calc(90vh-32px)]">
+        <div className="w-[90%] mx-auto">
           {ownerProducts.map(ownerProduct => (
             <OwnerProduct
               {...ownerProduct}

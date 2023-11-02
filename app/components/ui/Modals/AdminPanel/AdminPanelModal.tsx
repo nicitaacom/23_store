@@ -132,10 +132,10 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
       modalQuery="AdminPanel">
       <div
         className={twMerge(
-          `relative w-full pb-8 flex flex-col justify-center items-center transition-all duration-500`,
+          `relative w-full pb-8 flex flex-col items-center transition-all duration-500`,
           isDraggingg ? "overflow-hidden" : "overflow-y-scroll",
-          productAction === "Add product" && "h-[70] tablet:max-h-[900px]",
-          productAction === "Edit product" && "h-[calc(100vh-32px)] tablet:max-h-[800px]",
+          productAction === "Add product" && "tablet:max-h-[900px]",
+          productAction === "Edit product" && "tablet:max-h-[800px]",
           productAction === "Delete product" && "h-[40vh] tablet:max-h-[400px]",
         )}>
         <h1 className="text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
