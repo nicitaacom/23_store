@@ -19,23 +19,24 @@ import { IDBProduct } from "@/interfaces/IDBProduct"
 import { useRouter } from "next/navigation"
 import AddProductForm from "./components/AddProductForm"
 import EditProductForm from "./components/EditProductForm"
+import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import useDragging from "@/hooks/ui/useDragging"
+import { twMerge } from "tailwind-merge"
 
 interface AdminPanelModalProps {
   label: string
   ownerProducts: IDBProduct[]
 }
 
-interface FormData {
-  title: string
-  subTitle: string
-  price: number
-  onStock: number
-}
-
 export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) {
+  const router = useRouter()
   const userStore = useUserStore()
 
-  const router = useRouter()
+  const [images, setImages] = useState<ImageListType>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [productAction, setProductAction] = useState("Add product")
+  const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
+  const dragZone = useRef<HTMLButtonElement | null>(null)
 
   const { isAuthenticated } = useUserStore()
   if (!isAuthenticated) {
@@ -43,52 +44,6 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
   }
 
   const [stripe, setStripe] = useState<Stripe | null>(null)
-  useEffect(() => {
-    const initializeStripe = async () => {
-      const stripeInstance = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC)
-      setStripe(stripeInstance)
-    }
-    initializeStripe()
-  }, [])
-
-  const [images, setImages] = useState<ImageListType>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [productAction, setProductAction] = useState("Add product")
-  const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
-  const dragZone = useRef<HTMLButtonElement | null>(null)
-  const [isDraggingg, setIsDragging] = useState(false)
-
-  console.log(53, "ownerProducts - ", ownerProducts)
-
-  useEffect(() => {
-    const handler = () => {
-      setIsDragging(true)
-    }
-
-    const leaveHandler = () => {
-      setIsDragging(false)
-    }
-
-    const dropHandler = () => {
-      setIsDragging(false)
-    }
-
-    const dragEndHandler = () => {
-      setIsDragging(false)
-    }
-
-    document.addEventListener("dragover", handler, true)
-    document.addEventListener("dragleave", leaveHandler, true)
-    document.addEventListener("drop", dropHandler, true)
-    document.addEventListener("dragend", dragEndHandler, true)
-
-    return () => {
-      document.removeEventListener("dra", handler)
-      document.removeEventListener("dragleave", leaveHandler)
-      document.removeEventListener("drop", dropHandler)
-      document.removeEventListener("dragend", dragEndHandler)
-    }
-  }, [])
 
   const onChange = (imageList: ImageListType) => {
     setImages(imageList)
@@ -98,7 +53,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>()
+  } = useForm<IFormDataAddProduct>()
 
   function displayResponseMessage(message: React.ReactNode) {
     setResponseMessage(message)
@@ -106,6 +61,16 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
       setResponseMessage(<p></p>)
     }, 5000)
   }
+
+  useEffect(() => {
+    const initializeStripe = async () => {
+      const stripeInstance = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC)
+      setStripe(stripeInstance)
+    }
+    initializeStripe()
+  }, [])
+
+  const { isDraggingg } = useDragging()
 
   async function createProduct(images: ImageListType, title: string, subTitle: string, price: number, onStock: number) {
     try {
@@ -156,7 +121,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
     }
   }
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = (data: IFormDataAddProduct) => {
     createProduct(images, data.title, data.subTitle, data.price, data.onStock)
   }
 
@@ -166,12 +131,13 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
      bg-primary rounded-md border-[1px] border-solid border-border-color pt-8 `}
       modalQuery="AdminPanel">
       <div
-        className={`relative flex flex-col justify-center items-center w-full pb-8
-        ${isDraggingg ? "overflow-hidden" : "overflow-y-scroll"}
-        ${productAction === "Add product" ? "h-[70] tablet:max-h-[900px]" : ""}
-        ${productAction === "Edit product" ? "h-[calc(100vh-32px)] tablet:max-h-[500px]" : ""}
-        ${productAction === "Delete product" ? "h-[40vh] tablet:max-h-[400px]" : ""}
-        transition-all duration-500`}>
+        className={twMerge(
+          `relative w-full pb-8 flex flex-col justify-center items-center transition-all duration-500`,
+          isDraggingg ? "overflow-hidden" : "overflow-y-scroll",
+          productAction === "Add product" && "h-[70] tablet:max-h-[900px]",
+          productAction === "Edit product" && "h-[calc(100vh-32px)] tablet:max-h-[800px]",
+          productAction === "Delete product" && "h-[40vh] tablet:max-h-[400px]",
+        )}>
         <h1 className="text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
         <ul className="flex flex-col tablet:flex-row justify-center mb-8">
           <li>
@@ -200,6 +166,9 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
             </RadioButton>
           </li>
         </ul>
+
+        {/* ADD PRODUCT */}
+
         {productAction === "Add product" && (
           <ImageUploading multiple value={images} onChange={onChange} dataURLKey="data_url">
             {({ imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps }) => (
@@ -259,7 +228,11 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
             />
           )}
 
+          {/* EDIT PRODUCT */}
+
           {productAction === "Edit product" && <EditProductForm ownerProducts={ownerProducts} />}
+
+          {/* DELETE PRODUCT */}
 
           {productAction === "Delete product" && (
             <>

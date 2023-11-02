@@ -94,6 +94,7 @@ export function EditInput({
         autoComplete={id}
         placeholder={placeholder}
         disabled={disabled}
+        autoFocus
         {...register(id, {
           required: required ? requiredMessage : undefined,
           pattern: {

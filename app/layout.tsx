@@ -17,6 +17,20 @@ import getOwnerProducts from "./actions/getOwnerProducts"
 export const metadata: Metadata = {
   title: "23_store",
   description: "Something better than amazon",
+  icons: {
+    icon: [
+      {
+        media: "(prefers-color-scheme: light)",
+        url: "/logo.png",
+        href: "/logo.png",
+      },
+      {
+        media: "(prefers-color-scheme: dark)",
+        url: "/logo-dark.png",
+        href: "/logo-dark.png",
+      },
+    ],
+  },
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
