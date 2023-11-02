@@ -41,7 +41,7 @@ function OwnerProduct({ ...ownerProduct }: Props) {
 
   return (
     <article
-      className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-border-color"
+      className="flex flex-col tablet:flex-row justify-between border border-solid border-border-color"
       ref={ref}
       key={ownerProduct.id}>
       {ownerProduct.img_url.length === 1 ? (
