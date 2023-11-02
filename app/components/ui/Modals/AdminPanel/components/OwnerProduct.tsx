@@ -6,6 +6,7 @@ import { IDBProduct } from "@/interfaces/IDBProduct"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
 
 import { OwnerProductImage } from "./OwnerProductImage"
+import { OwnerProductHeader } from "./OwnerProductHeader"
 
 type Props = IDBProduct & {
   toggleShowTitleInput: (id: string) => void
@@ -50,7 +51,7 @@ function OwnerProduct({ ...ownerProduct }: Props) {
         <Slider images={ownerProduct.img_url} title={ownerProduct.title} />
       )}
       <div className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-2 py-2">
-        <section className="flex flex-col gap-y-4 tablet:gap-y-0 justify-between items-center tablet:items-start text-brand"></section>
+        <OwnerProductHeader title={ownerProduct.title} price={ownerProduct.price} onStock={ownerProduct.on_stock} />
       </div>
     </article>
   )
