@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/Button"
 import useDragging from "@/hooks/ui/useDragging"
 import { twMerge } from "tailwind-merge"
 
-export default function AddProductForm() {
+export function AddProductForm() {
   const userStore = useUserStore()
   const { isDraggingg } = useDragging()
 
@@ -105,14 +105,14 @@ export default function AddProductForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <div className="w-[50%] transition-all duration-1000">
       <ImageUploading multiple value={images} onChange={onChange} dataURLKey="data_url">
         {({ imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps }) => (
-          <div className="w-full flex flex-col items-center justify-center gap-y-4 w-[50%]">
+          <div className="w-full flex flex-col items-center justify-center gap-y-4">
             <Button
               className={`${
                 isDraggingg && "fixed inset-0 z-[101] !bg-[rgba(0,0,0,0.6)]"
-              } image-upload w-full bg-transparent px-16 py-8 text-xl whitespace-nowrap transition-all duration-300`}
+              } image-upload w-full bg-transparent px-16 py-8 text-xl whitespace-nowrap`}
               ref={dragZone}
               onClick={onImageUpload}
               {...dragProps}>
@@ -133,63 +133,61 @@ export default function AddProductForm() {
                   height={0}
                 />
                 <div className="mb-4 flex flex-row items-center justify-center gap-x-4 px-4">
-                  <Button className="w-1/2" onClick={() => onImageUpdate(index)}>
-                    Update
-                  </Button>
-                  <Button className="w-1/2" variant="danger-outline" onClick={() => onImageRemove(index)}>
+                  <Button onClick={() => onImageUpdate(index)}>Update</Button>
+                  <Button variant="danger-outline" onClick={() => onImageRemove(index)}>
                     Remove
                   </Button>
                 </div>
               </div>
             ))}
-            <div className="mb-4 flex w-full flex-row items-center justify-center gap-x-4">
-              <Button className="w-full" variant="danger-outline" onClick={void onImageRemoveAll}>
-                Remove all images
-              </Button>
-            </div>
+            <Button className="w-full mb-4" variant="danger-outline" onClick={void onImageRemoveAll}>
+              Remove all images
+            </Button>
           </div>
         )}
       </ImageUploading>
-      <ProductInput
-        id="title"
-        register={register}
-        errors={errors}
-        disabled={isLoading}
-        required
-        placeholder="Product title"
-      />
-      <ProductInput
-        id="subTitle"
-        register={register}
-        errors={errors}
-        disabled={isLoading}
-        required
-        placeholder="Product description"
-      />
-      <ProductInput
-        id="price"
-        type="numeric"
-        register={register}
-        errors={errors}
-        disabled={isLoading}
-        required
-        placeholder="Product price"
-      />
-      <ProductInput
-        id="onStock"
-        type="number"
-        register={register}
-        errors={errors}
-        disabled={isLoading}
-        required
-        placeholder="Amount on stock"
-      />
-      <div className="text-center">{responseMessage}</div>
-      <Button
-        className={twMerge(`w-full mt-2`, isLoading && "opacity-50 cursor-default pointer-events-none")}
-        disabled={isLoading}>
-        Create product
-      </Button>
-    </form>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <ProductInput
+          id="title"
+          register={register}
+          errors={errors}
+          disabled={isLoading}
+          required
+          placeholder="Product title"
+        />
+        <ProductInput
+          id="subTitle"
+          register={register}
+          errors={errors}
+          disabled={isLoading}
+          required
+          placeholder="Product description"
+        />
+        <ProductInput
+          id="price"
+          type="numeric"
+          register={register}
+          errors={errors}
+          disabled={isLoading}
+          required
+          placeholder="Product price"
+        />
+        <ProductInput
+          id="onStock"
+          type="number"
+          register={register}
+          errors={errors}
+          disabled={isLoading}
+          required
+          placeholder="Amount on stock"
+        />
+        <div className="text-center">{responseMessage}</div>
+        <Button
+          className={twMerge(`w-full mt-2`, isLoading && "opacity-50 cursor-default pointer-events-none")}
+          disabled={isLoading}>
+          Create product
+        </Button>
+      </form>
+    </div>
   )
 }

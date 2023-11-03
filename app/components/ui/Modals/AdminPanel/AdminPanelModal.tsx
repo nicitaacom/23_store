@@ -11,8 +11,9 @@ import { IDBProduct } from "@/interfaces/IDBProduct"
 import { useRouter } from "next/navigation"
 
 import { ModalContainer } from "../../ModalContainer"
-import EditProductForm from "./components/EditProductForm"
-import AddProductForm from "./components/AddProductForm"
+import { EditProductForm } from "./components/EditProductForm"
+import { AddProductForm } from "./components/AddProductForm"
+import { DeleteProductForm } from "./components/DeleteProductForm"
 
 interface AdminPanelModalProps {
   label: string
@@ -33,9 +34,10 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
     <ModalContainer
       className={twMerge(
         `w-[100vw] max-w-[768px] max-h-full
-      flex flex-col bg-primary rounded-md border-[1px] border-solid border-border-color pt-8`,
-        productAction === "Add product" && "tablet:max-w-[650px]",
-        productAction === "Edit product" && "tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
+      flex flex-col bg-primary rounded-md border-[1px] border-solid border-border-color pt-8 transition-all duration-1000`,
+        productAction === "Add product" && "h-[675px] tablet:max-w-[650px]",
+        productAction === "Edit product" && "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
+        productAction === "Delete product" && "h-[400px]",
       )}
       modalQuery="AdminPanel">
       <h1 className="min-h-[40px] text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
@@ -66,34 +68,18 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
           </RadioButton>
         </li>
       </ul>
-      <div
-        className={twMerge(
-          `relative w-full pb-8 flex flex-col items-center transition-all duration-500`,
-          productAction === "Add product" && "tablet:max-h-[900px]",
-          productAction === "Edit product" && "tablet:max-h-[600px]",
-          productAction === "Delete product" && "h-[40vh] tablet:max-h-[400px]",
-        )}>
+      <div className={twMerge(`relative w-full pb-8 flex flex-col items-center overflow-y-auto`)}>
         {/* ADD PRODUCT */}
 
-        <div className={`flex flex-col gap-y-2 ${productAction === "Add product" ? "w-[50%]" : "w-[100%]"}`}>
-          {productAction === "Add product" && <AddProductForm />}
+        {productAction === "Add product" && <AddProductForm />}
 
-          {/* EDIT PRODUCT */}
+        {/* EDIT PRODUCT */}
 
-          {productAction === "Edit product" && <EditProductForm ownerProducts={ownerProducts} />}
+        {productAction === "Edit product" && <EditProductForm ownerProducts={ownerProducts} />}
 
-          {/* DELETE PRODUCT */}
+        {/* DELETE PRODUCT */}
 
-          {productAction === "Delete product" && (
-            <>
-              {ownerProducts.length > 0 ? (
-                <div>content</div>
-              ) : (
-                <h1 className="pt-24 text-2xl text-center font-bold w-[90%] mx-auto">You have no products to delete</h1>
-              )}
-            </>
-          )}
-        </div>
+        {productAction === "Delete product" && <DeleteProductForm ownerProducts={ownerProducts} />}
       </div>
     </ModalContainer>
   )

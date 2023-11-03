@@ -10,11 +10,11 @@ interface EditProductForm {
   ownerProducts: IDBProduct[]
 }
 
-function EditProductForm({ ownerProducts }: EditProductForm) {
+export function EditProductForm({ ownerProducts }: EditProductForm) {
   return (
-    <>
+    <form className="w-[90%] mx-auto">
       {ownerProducts.length > 0 ? (
-        <div className="w-[90%] flex flex-col gap-y-4 mx-auto">
+        <div className="flex flex-col gap-y-4">
           {ownerProducts.map(ownerProduct => (
             <OwnerProduct {...ownerProduct} key={ownerProduct.id} />
           ))}
@@ -22,8 +22,6 @@ function EditProductForm({ ownerProducts }: EditProductForm) {
       ) : (
         <h1 className="pt-24 text-2xl text-center font-bold w-[90%] mx-auto">You have no products to edit</h1>
       )}
-    </>
+    </form>
   )
 }
-
-export default memo(EditProductForm)
