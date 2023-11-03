@@ -69,7 +69,7 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
   }, [isEditing])
 
   return (
-    <h1 className="flex flex-row">
+    <h1 className="flex flex-row justify-center tablet:justify-start mt-4 tablet:mt-0">
       <p className="hidden tablet:block">Description:&nbsp;</p>
       {isEditing ? (
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
