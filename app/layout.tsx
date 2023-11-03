@@ -13,6 +13,7 @@ import {
 import { AdminPanelModal, AuthModal, CartModal, ChangeLanguageModal } from "./components/ui/Modals"
 import ClientOnly from "./components/ClientOnly"
 import getOwnerProducts from "./actions/getOwnerProducts"
+import { ModalsProvider } from "./providers/ModalsProvider"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -42,6 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ClientOnly>
           <Navbar />
           <Layout>{children}</Layout>
+          <ModalsProvider />
           <CartModalContainer>
             <CartModal label="Cart" />
           </CartModalContainer>

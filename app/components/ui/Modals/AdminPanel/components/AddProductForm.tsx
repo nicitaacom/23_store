@@ -115,6 +115,7 @@ export function AddProductForm() {
               } image-upload w-full bg-transparent px-16 py-8 text-xl whitespace-nowrap`}
               ref={dragZone}
               onClick={onImageUpload}
+              disabled={isLoading}
               {...dragProps}>
               <h1 className="pointer-events-none select-none">
                 {isDragging ? "Drop files here" : "Click or Drop here"}
@@ -133,14 +134,20 @@ export function AddProductForm() {
                   height={0}
                 />
                 <div className="mb-4 flex flex-row items-center justify-center gap-x-4 px-4">
-                  <Button onClick={() => onImageUpdate(index)}>Update</Button>
-                  <Button variant="danger-outline" onClick={() => onImageRemove(index)}>
+                  <Button onClick={() => onImageUpdate(index)} disabled={isLoading}>
+                    Update
+                  </Button>
+                  <Button variant="danger-outline" onClick={() => onImageRemove(index)} disabled={isLoading}>
                     Remove
                   </Button>
                 </div>
               </div>
             ))}
-            <Button className="w-full mb-4" variant="danger-outline" onClick={void onImageRemoveAll}>
+            <Button
+              className="w-full mb-4"
+              variant="danger-outline"
+              onClick={void onImageRemoveAll}
+              disabled={isLoading}>
               Remove all images
             </Button>
           </div>

@@ -44,7 +44,6 @@ export function ModalContainer({ children, modalQuery, className }: ModalContain
   //Close modal on esc
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
-      console.log(47, "esc key pressed in ModalContainer.tsx")
       closeModal()
       document.removeEventListener("keydown", handleKeyDown)
     }

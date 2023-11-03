@@ -1,3 +1,5 @@
+import { useRouter } from "next/navigation"
+
 import { IDBProduct } from "@/interfaces/IDBProduct"
 import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
 
@@ -6,6 +8,10 @@ interface DeleteProductForm {
 }
 
 export function DeleteProductForm({ ownerProducts }: DeleteProductForm) {
+  const router = useRouter()
+
+  router.refresh()
+
   return (
     <div className="w-[90%] mx-auto">
       {ownerProducts.length > 0 ? (

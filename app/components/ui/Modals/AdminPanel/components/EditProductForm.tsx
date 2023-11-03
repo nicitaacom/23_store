@@ -1,5 +1,7 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+
 import { IDBProduct } from "@/interfaces/IDBProduct"
 import { OwnerProduct } from "./OwnerProduct"
 
@@ -8,6 +10,10 @@ interface EditProductForm {
 }
 
 export function EditProductForm({ ownerProducts }: EditProductForm) {
+  const router = useRouter()
+
+  router.refresh()
+
   return (
     <div className="w-[90%] mx-auto">
       {ownerProducts.length > 0 ? (

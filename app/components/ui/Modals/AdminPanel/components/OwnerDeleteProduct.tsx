@@ -3,7 +3,6 @@
 import { IDBProduct } from "@/interfaces/IDBProduct"
 import { OwnerProductImage } from "./OwnerProductImage"
 import { Slider } from "@/components/ui"
-import { OwnerProductHeader } from "./OwnerProductHeader"
 import { DeleteProductHeader } from "./DeleteProductHeader"
 
 type Props = IDBProduct
@@ -20,6 +19,7 @@ export function OwnerDeleteProduct({ ...ownerProduct }: Props) {
       )}
       <div className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-2 py-2">
         <DeleteProductHeader
+          id={ownerProduct.id}
           title={ownerProduct.title}
           subTitle={ownerProduct.sub_title}
           price={ownerProduct.price}
