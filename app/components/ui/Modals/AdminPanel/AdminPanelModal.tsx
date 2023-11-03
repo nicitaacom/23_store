@@ -37,7 +37,8 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
       flex flex-col bg-primary rounded-md border-[1px] border-solid border-border-color pt-8 transition-all duration-500`,
         productAction === "Add product" && "h-[675px] tablet:max-w-[650px]",
         productAction === "Edit product" && "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
-        productAction === "Delete product" && "h-[400px]",
+        productAction === "Delete product" &&
+          "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
       )}
       modalQuery="AdminPanel">
       <h1 className="min-h-[40px] text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
