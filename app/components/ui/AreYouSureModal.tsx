@@ -9,13 +9,43 @@ import { IconType } from "react-icons"
 interface ModalContainerProps {
   isOpen: boolean
   label: string | React.ReactNode
-  primaryButtonVariant?: string
+  primaryButtonVariant?:
+    | "link"
+    | "default"
+    | "default-outline"
+    | "info"
+    | "info-outline"
+    | "warning"
+    | "warning-outline"
+    | "danger"
+    | "danger-outline"
+    | "success"
+    | "success-outline"
+    | "nav-link"
+    | "continue-with"
+    | null
+    | undefined
   primaryButtonIcon?: IconType
   primaryButtonAction: () => void
   primaryButtonLabel: string
   secondaryButtonAction: () => void
   secondaryButtonLabel: string
-  secondaryButtonVariant?: string
+  secondaryButtonVariant?:
+    | "link"
+    | "default"
+    | "default-outline"
+    | "info"
+    | "info-outline"
+    | "warning"
+    | "warning-outline"
+    | "danger"
+    | "danger-outline"
+    | "success"
+    | "success-outline"
+    | "nav-link"
+    | "continue-with"
+    | null
+    | undefined
   secondaryButtonIcon?: IconType
   className?: string
 }
