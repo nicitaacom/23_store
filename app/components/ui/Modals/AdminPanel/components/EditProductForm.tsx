@@ -11,36 +11,12 @@ interface EditProductForm {
 }
 
 function EditProductForm({ ownerProducts }: EditProductForm) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [showTitleInput, setShowTitleInput] = useState<Record<string, boolean>>({})
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<IFormDataAddProduct>()
-
-  const toggleShowTitleInput = useCallback((productId: string) => {
-    setShowTitleInput(prevState => ({
-      ...prevState,
-      [productId]: !prevState[productId],
-    }))
-  }, [])
-  console.log("EditProductForm.tsx re-render")
-
   return (
     <>
       {ownerProducts.length > 0 ? (
         <div className="w-[90%] flex flex-col gap-y-4 mx-auto">
           {ownerProducts.map(ownerProduct => (
-            <OwnerProduct
-              {...ownerProduct}
-              register={register}
-              errors={errors}
-              toggleShowTitleInput={toggleShowTitleInput}
-              showTitleInput={showTitleInput[ownerProduct.id]}
-              key={ownerProduct.id}
-            />
+            <OwnerProduct {...ownerProduct} key={ownerProduct.id} />
           ))}
         </div>
       ) : (

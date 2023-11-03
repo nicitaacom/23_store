@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import React from "react"
 import { FieldErrors, UseFormRegister } from "react-hook-form"
 
 interface FormData {
@@ -8,7 +9,7 @@ interface FormData {
   onStock: number
 }
 
-interface InputFormProps {
+interface InputFormProps extends React.InputHTMLAttributes<HTMLInputElement> {
   id: keyof FormData
   className?: string
   type?: string | "numeric"
@@ -31,18 +32,22 @@ interface ValidationRules {
   }
 }
 
-export function EditInput({
-  className = "",
-  id,
-  type = "text",
-  required,
-  register,
-  startIcon,
-  endIcon,
-  errors,
-  placeholder,
-  disabled,
-}: InputFormProps) {
+export const OwnerProductInput = React.forwardRef<HTMLInputElement, InputFormProps>(function OwnerProductInput(
+  {
+    className = "",
+    id,
+    type = "text",
+    required,
+    register,
+    startIcon,
+    endIcon,
+    errors,
+    placeholder,
+    disabled,
+    ...props
+  },
+  ref,
+) {
   const validationRules: ValidationRules = {
     title: {
       required: "This field is required",
@@ -83,7 +88,7 @@ export function EditInput({
     <div className={`relative`}>
       <div className="absolute top-[50%] translate-y-[-50%] translate-x-[50%]">{startIcon}</div>
       <input
-        className={`rounded bg-transparent py-1 outline-none text-title
+        className={`rounded bg-transparent outline-none text-title
             ${startIcon ? "pl-10" : ""}
             ${endIcon ? "pr-10" : ""}
             ${errors[id] ? "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0" : ""}
@@ -117,6 +122,8 @@ export function EditInput({
             }
           }
         }}
+        ref={ref}
+        {...props}
       />
       <div className="absolute top-[50%] right-2 translate-y-[-50%] translate-x-[50%]">{endIcon}</div>
       {errors[id] && errors[id]?.message && (
@@ -126,4 +133,4 @@ export function EditInput({
       )}
     </div>
   )
-}
+})
