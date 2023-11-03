@@ -1,4 +1,5 @@
 import { IDBProduct } from "@/interfaces/IDBProduct"
+import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
 
 interface DeleteProductForm {
   ownerProducts: IDBProduct[]
@@ -6,12 +7,16 @@ interface DeleteProductForm {
 
 export function DeleteProductForm({ ownerProducts }: DeleteProductForm) {
   return (
-    <form>
+    <div className="w-[90%] mx-auto">
       {ownerProducts.length > 0 ? (
-        <div>content</div>
+        <div className="flex flex-col gap-y-4">
+          {ownerProducts.map(ownerProduct => (
+            <OwnerDeleteProduct {...ownerProduct} key={ownerProduct.id} />
+          ))}
+        </div>
       ) : (
         <h1 className="pt-24 text-2xl text-center font-bold w-[90%] mx-auto">You have no products to delete</h1>
       )}
-    </form>
+    </div>
   )
 }

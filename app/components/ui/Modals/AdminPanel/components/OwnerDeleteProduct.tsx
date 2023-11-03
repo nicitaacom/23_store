@@ -1,16 +1,13 @@
-import { memo, useEffect, useRef } from "react"
-import { FieldErrors, Form, UseFormRegister } from "react-hook-form"
+"use client"
 
-import { Slider } from "@/components/ui"
 import { IDBProduct } from "@/interfaces/IDBProduct"
-import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
-
 import { OwnerProductImage } from "./OwnerProductImage"
+import { Slider } from "@/components/ui"
 import { OwnerProductHeader } from "./OwnerProductHeader"
 
 type Props = IDBProduct
 
-export function OwnerProduct({ ...ownerProduct }: Props) {
+export function OwnerDeleteProduct({ ...ownerProduct }: Props) {
   return (
     <article
       className="flex flex-col tablet:flex-row justify-between border border-solid border-border-color"
@@ -21,13 +18,7 @@ export function OwnerProduct({ ...ownerProduct }: Props) {
         <Slider images={ownerProduct.img_url} title={ownerProduct.title} />
       )}
       <div className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-2 py-2">
-        <OwnerProductHeader
-          id={ownerProduct.id}
-          title={ownerProduct.title as keyof IFormDataAddProduct}
-          subTitle={ownerProduct.sub_title}
-          price={ownerProduct.price}
-          onStock={ownerProduct.on_stock}
-        />
+        <div>Header in the future</div>
       </div>
     </article>
   )

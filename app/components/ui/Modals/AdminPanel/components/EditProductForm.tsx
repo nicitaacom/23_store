@@ -1,7 +1,7 @@
 "use client"
 
 import { IDBProduct } from "@/interfaces/IDBProduct"
-import OwnerProduct from "./OwnerProduct"
+import { OwnerProduct } from "./OwnerProduct"
 
 interface EditProductForm {
   ownerProducts: IDBProduct[]
