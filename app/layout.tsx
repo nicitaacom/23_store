@@ -21,8 +21,8 @@ export const metadata: Metadata = {
     icon: [
       {
         media: "(prefers-color-scheme: light)",
-        url: "/logo.png",
-        href: "/logo.png",
+        url: "/logo-light.png",
+        href: "/logo-light.png",
       },
       {
         media: "(prefers-color-scheme: dark)",
