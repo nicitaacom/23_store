@@ -75,7 +75,7 @@ export function ModalContainer({ children, modalQuery, className }: ModalContain
       {shouldClose ||
         (showModal && (
           <motion.div
-            className="fixed inset-[0] bg-[rgba(0,0,0,0.2)] z-[99]
+            className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[99]
          flex justify-center items-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -83,7 +83,7 @@ export function ModalContainer({ children, modalQuery, className }: ModalContain
             transition={{ duration: 0.5 }}
             {...modalBgHandler}>
             <motion.div
-              className={`relative bg-foreground border-[1px] border-border-color rounded-md z-[100] ${className}`}
+              className={`relative bg-foreground border-[1px] border-border-color rounded-md z-[100] shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
