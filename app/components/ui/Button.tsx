@@ -56,7 +56,7 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, children, href, variant, active, target, ...props }, ref) => {
+  ({ className, children, href, variant, active, target, disabled, ...props }, ref) => {
     if (href) {
       return (
         <Link href={href} className={twMerge(buttonVariants({ variant, active, className }))} target={target}>
@@ -65,7 +65,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       )
     }
     return (
-      <button className={twMerge(buttonVariants({ variant, active, className }))} ref={ref} {...props}>
+      <button
+        className={twMerge(
+          buttonVariants({ variant, active, className }),
+          disabled ? "opacity-50 cursor-default pointer-events-none" : "",
+        )}
+        ref={ref}
+        {...props}>
         {children}
       </button>
     )

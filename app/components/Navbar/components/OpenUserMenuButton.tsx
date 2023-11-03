@@ -1,14 +1,16 @@
 "use client"
-import { DropdownContainer, DropdownItem } from "@/components/ui"
-import useUserStore from "@/store/user/userStore"
 import Image from "next/image"
-import { AiOutlinePlus } from "react-icons/ai"
-import LogoutDropdownItem from "./LogoutDropdownItem"
+
+import { BsWindow } from "react-icons/bs"
 import { TbWorld } from "react-icons/tb"
 import { FiPhoneCall } from "react-icons/fi"
-import { SwitchDarkMode } from "@/components"
+
+import useUserStore from "@/store/user/userStore"
 import useDarkMode from "@/store/ui/darkModeStore"
+import LogoutDropdownItem from "./LogoutDropdownItem"
+import { SwitchDarkMode } from "@/components"
 import { contact } from "@/constant/contacts"
+import { DropdownContainer, DropdownItem } from "@/components/ui"
 
 export default function OpenUserMenuButton() {
   const userStore = useUserStore()
@@ -30,7 +32,7 @@ export default function OpenUserMenuButton() {
           />
         </>
       }>
-      <DropdownItem label="Add product" icon={AiOutlinePlus} href="?modal=AddProduct" />
+      <DropdownItem label="Admin panel" icon={BsWindow} href="?modal=AdminPanel" />
       <DropdownItem
         className="flex justify-center mobile:hidden"
         label="Support"

@@ -17,7 +17,7 @@ type Props = IProduct & {
 
 function Product({ ...product }: Props) {
   return (
-    <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-gray-500">
+    <article className="flex flex-col tablet:flex-row justify-between border-t-[1px] border-b-[1px] border-solid border-border-color">
       {product.img_url.length === 1 ? (
         <figure className="relative w-full tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit object-coverw">
           <Image

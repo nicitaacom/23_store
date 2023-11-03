@@ -12,6 +12,8 @@ import { Button, Slider } from "../.."
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { MdOutlineDeleteOutline } from "react-icons/md"
 import { HiOutlineRefresh } from "react-icons/hi"
+import useUserStore from "@/store/user/userStore"
+import { useRouter } from "next/navigation"
 
 interface CartModalProps {
   label: string
@@ -20,7 +22,12 @@ interface CartModalProps {
 export function CartModal({ label }: CartModalProps) {
   const cartStore = useCartStore()
 
+  const router = useRouter()
   console.log("CartModal.tsx re-render")
+  const { isAuthenticated } = useUserStore()
+  if (!isAuthenticated) {
+    router.push("/?modal=AuthModal&variant=login")
+  }
 
   useEffect(() => {
     cartStore.fetchProductsData()

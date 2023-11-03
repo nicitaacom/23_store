@@ -7,10 +7,11 @@ declare global {
     interface ProcessEnv {
       NEXT_PRODUCTION_URL: string
 
-      NEXT_SUPABASE_URL: string
-      NEXT_SUPABASE_ANON_KEY: string
+      NEXT_PUBLIC_SUPABASE_URL: string
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: string
+      SUPABASE_SERVICE_ROLE_KEY: string
 
-      NEXT_STRIPE_PUBLIC: string
+      NEXT_PUBLIC_STRIPE_PUBLIC: string
       NEXT_STRIPE_SECRET: string
 
       NEXT_RESEND_PUBLIC: string

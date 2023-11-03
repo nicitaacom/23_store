@@ -26,17 +26,17 @@ export function DropdownItem({
 }: DropdownItemProps) {
   return (
     <li
-      className={twMerge(`py-2 first:border-none border-t-[1px] border-solid border-border-color
-    hover:brightness-75 transition-all duration-100 z-[1]
+      className={twMerge(`first:border-none border-t-[1px] border-solid border-border-color
+    hover:brightness-75 transition-all duration-100 z-[1] cursor-pointer
      ${className}`)}
       onClick={onClick}>
       {href ? (
-        <Link className="flex justify-center items-center gap-x-2 px-4 cursor-pointer" href={href} target={target}>
+        <Link className="flex justify-center items-center gap-x-2 px-4 py-2" href={href} target={target}>
           <Icon className="text-icon-color" size={size ? size : 24} />
           <p className={labelClassName}>{label}</p>
         </Link>
       ) : (
-        <div className="flex justify-center items-center gap-x-2 px-4 cursor-pointer">
+        <div className="flex justify-center items-center gap-x-2 px-4 py-2">
           <Icon className="text-icon-color" size={size ? size : 24} />
           <p className={labelClassName}>{label}</p>
         </div>
