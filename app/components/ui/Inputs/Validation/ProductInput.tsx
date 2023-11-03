@@ -57,7 +57,7 @@ export const ProductInput = React.forwardRef<HTMLInputElement, InputFormProps>(f
     subTitle: {
       requiredMessage: "This field is required",
       pattern: {
-        value: /^[-()#%/a-zA-Z0-9 ]{0,600}$/,
+        value: /^[-()#%/a-zA-Z0-9\n ]{0,600}$/,
         message: "Enter description 0-600 symbols",
       },
     },
@@ -91,56 +91,103 @@ export const ProductInput = React.forwardRef<HTMLInputElement, InputFormProps>(f
       },
     }),
   }
+  const { ref: textArea, ...textareaRest } = {
+    ...register(id, {
+      required: required ? requiredMessage : undefined,
+      pattern: {
+        value: patternValue,
+        message: patternMessage,
+      },
+    }),
+  }
 
   const inputRef = useRef<HTMLInputElement | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   return (
     <div className={`relative`}>
       <div className="absolute top-[50%] translate-y-[-50%] translate-x-[50%]">{startIcon}</div>
-      <input
-        {...rest}
-        className={twMerge(
-          `rounded bg-transparent outline-none text-title`,
-          startIcon && "pl-10",
-          endIcon && "pr-10",
-          errors[id] && errors[id]?.message && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
-          disabled && "opacity-50 cursor-default pointer-events-none",
-          className,
-        )}
-        id={id}
-        type={type}
-        autoComplete={id}
-        placeholder={placeholder}
-        disabled={disabled}
-        autoFocus
-        {...register(id, {
-          required: required ? requiredMessage : undefined,
-          pattern: {
-            value: patternValue,
-            message: patternMessage,
-          },
-        })}
-        onKeyDown={e => {
-          if (type === "numeric") {
-            const { key, target } = e
-            const { value } = target as HTMLInputElement
-            const regex = /^(?!\..)[0-9.]+$/
+      {id === "subTitle" ? (
+        <textarea
+          {...textareaRest}
+          className={twMerge(
+            `rounded bg-transparent outline-none text-title`,
+            startIcon && "pl-10",
+            endIcon && "pr-10",
+            errors[id] &&
+              errors[id]?.message &&
+              "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
+            disabled && "opacity-50 cursor-default pointer-events-none",
+            className,
+          )}
+          id={id}
+          autoComplete={id}
+          placeholder={placeholder}
+          disabled={disabled}
+          autoFocus
+          {...register("subTitle", {
+            required: required ? requiredMessage : undefined,
+            pattern: {
+              value: patternValue,
+              message: patternMessage,
+            },
+          })}
+          ref={e => {
+            textArea(e)
+            textareaRef.current = e // you can still assign to ref
+          }}
+        />
+      ) : (
+        <input
+          {...rest}
+          className={twMerge(
+            `rounded bg-transparent outline-none text-title`,
+            startIcon && "pl-10",
+            endIcon && "pr-10",
+            errors[id] &&
+              errors[id]?.message &&
+              "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
+            disabled && "opacity-50 cursor-default pointer-events-none",
+            className,
+          )}
+          id={id}
+          type={type}
+          autoComplete={id}
+          placeholder={placeholder}
+          disabled={disabled}
+          autoFocus
+          {...register(id, {
+            required: required ? requiredMessage : undefined,
+            pattern: {
+              value: patternValue,
+              message: patternMessage,
+            },
+          })}
+          onKeyDown={e => {
+            if (type === "numeric") {
+              const { key, target } = e
+              const { value } = target as HTMLInputElement
+              const regex = /^(?!\..)[0-9.]+$/
 
-            if (value.length === 0 && [".", "0"].includes(key)) {
-              e.preventDefault()
-            }
+              if (value.length === 0 && [".", "0"].includes(key)) {
+                e.preventDefault()
+              }
 
-            if (!regex.test(key) && !["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab", "Enter"].includes(key)) {
-              e.preventDefault()
+              if (
+                !regex.test(key) &&
+                !["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab", "Enter"].includes(key)
+              ) {
+                e.preventDefault()
+              }
             }
-          }
-        }}
-        ref={e => {
-          ref(e)
-          inputRef.current = e // you can still assign to ref
-        }}
-        {...props}
-      />
+          }}
+          ref={e => {
+            ref(e)
+            inputRef.current = e // you can still assign to ref
+          }}
+          {...props}
+        />
+      )}
       <div className="absolute top-[50%] right-2 translate-y-[-50%] translate-x-[50%]">{endIcon}</div>
       {errors[id] && errors[id]?.message && (
         <motion.p className="font-secondary text-danger text-xs" initial={{ x: 0 }} animate={{ x: [0, -2, 2, 0] }}>

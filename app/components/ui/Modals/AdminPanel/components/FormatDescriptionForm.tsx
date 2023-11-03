@@ -44,6 +44,9 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
   }
 
   const disableInput = (event: KeyboardEvent) => {
+    if (event.shiftKey && event.key === "Enter") {
+      return
+    }
     if (event.key === "Escape") {
       event.stopPropagation()
       setIsEditing(false)
@@ -69,14 +72,14 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
     <h1 className="flex flex-row">
       <p className="hidden tablet:block">Description:&nbsp;</p>
       {isEditing ? (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>
             <ProductInput
-              className={twMerge(`w-full text-center tablet:text-start`, isLoading && "animate-pulse")}
+              className={twMerge(`border w-full text-center tablet:text-start`, isLoading && "animate-pulse")}
               id="subTitle"
               register={register}
               errors={errors}
-              placeholder={subTitle}
+              placeholder={subTitle + " (use 'Shift + Enter' for a new line)"}
               required
             />
           </div>
