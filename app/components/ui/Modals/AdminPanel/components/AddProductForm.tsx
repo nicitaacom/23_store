@@ -146,8 +146,9 @@ export function AddProductForm() {
           </div>
         )}
       </ImageUploading>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form className="flex flex-col gap-y-2" onSubmit={handleSubmit(onSubmit)}>
         <ProductInput
+          className="border w-full py-1 px-2"
           id="title"
           register={register}
           errors={errors}
@@ -156,6 +157,7 @@ export function AddProductForm() {
           placeholder="Product title"
         />
         <ProductInput
+          className="border w-full py-1 px-2"
           id="subTitle"
           register={register}
           errors={errors}
@@ -164,6 +166,7 @@ export function AddProductForm() {
           placeholder="Product description"
         />
         <ProductInput
+          className="border w-full py-1 px-2"
           id="price"
           type="numeric"
           register={register}
@@ -173,6 +176,7 @@ export function AddProductForm() {
           placeholder="Product price"
         />
         <ProductInput
+          className="border w-full py-1 px-2"
           id="onStock"
           type="number"
           register={register}

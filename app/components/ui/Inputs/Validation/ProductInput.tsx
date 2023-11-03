@@ -1,5 +1,7 @@
 import { motion } from "framer-motion"
+import React, { useRef } from "react"
 import { FieldErrors, UseFormRegister } from "react-hook-form"
+import { twMerge } from "tailwind-merge"
 
 interface FormData {
   title: string
@@ -8,13 +10,14 @@ interface FormData {
   onStock: number
 }
 
-interface InputFormProps {
+interface InputFormProps extends React.InputHTMLAttributes<HTMLInputElement> {
   id: keyof FormData
   className?: string
   type?: string | "numeric"
   required?: boolean
   register: UseFormRegister<FormData>
   startIcon?: React.ReactElement
+  endIcon?: React.ReactElement
   errors: FieldErrors
   placeholder: string
   disabled?: boolean
@@ -22,7 +25,7 @@ interface InputFormProps {
 
 interface ValidationRules {
   [key: string]: {
-    required: string
+    requiredMessage: string
     pattern: {
       value: RegExp
       message: string
@@ -30,41 +33,43 @@ interface ValidationRules {
   }
 }
 
-export function ProductInput({
+export const ProductInput = React.forwardRef<HTMLInputElement, InputFormProps>(function OwnerProductInput({
   className = "",
   id,
   type = "text",
   required,
   register,
   startIcon,
+  endIcon,
   errors,
   placeholder,
   disabled,
-}: InputFormProps) {
+  ...props
+}) {
   const validationRules: ValidationRules = {
     title: {
-      required: "This field is required",
+      requiredMessage: "This field is required",
       pattern: {
         value: /^(?=.*[A-Za-z])[A-Za-z][A-Za-z0-9$()_+ /-]{2,48}$/,
         message: "Enter a product title - a-z - numbers, and #()_ are optional",
       },
     },
     subTitle: {
-      required: "This field is required",
+      requiredMessage: "This field is required",
       pattern: {
         value: /^[-()#%/a-zA-Z0-9 ]{0,600}$/,
         message: "Enter description 0-600 symbols",
       },
     },
     price: {
-      required: "This field is required",
+      requiredMessage: "This field is required",
       pattern: {
         value: /^(?!0\.?$)[1-9][0-9]{0,5}(\.\d{1,2})?$/,
         message: "Enter price from 1 to 999,999 with 2 decimal places",
       },
     },
     onStock: {
-      required: "This field is required",
+      requiredMessage: "This field is required",
       pattern: {
         value: /^(?!0)[0-9.]{1,5}$/,
         message: "Enter how much products on stock - 1 - 99,999",
@@ -73,25 +78,41 @@ export function ProductInput({
   }
 
   const {
-    required: requiredMessage,
+    requiredMessage: requiredMessage,
     pattern: { value: patternValue, message: patternMessage },
   } = validationRules[id]
+
+  const { ref, ...rest } = {
+    ...register(id, {
+      required: required ? requiredMessage : undefined,
+      pattern: {
+        value: patternValue,
+        message: patternMessage,
+      },
+    }),
+  }
+
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   return (
     <div className={`relative`}>
       <div className="absolute top-[50%] translate-y-[-50%] translate-x-[50%]">{startIcon}</div>
       <input
-        className={`w-full rounded border-[1px] border-solid bg-transparent px-4 py-2 mb-1 outline-none text-title
-
-            ${startIcon && "pl-10"}
-            ${errors[id] && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0"}
-            ${disabled && "opacity-50 cursor-default pointer-events-none"}
-            ${className}`}
+        {...rest}
+        className={twMerge(
+          `rounded bg-transparent outline-none text-title`,
+          startIcon && "pl-10",
+          endIcon && "pr-10",
+          errors[id] && errors[id]?.message && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
+          disabled && "opacity-50 cursor-default pointer-events-none",
+          className,
+        )}
         id={id}
         type={type}
         autoComplete={id}
         placeholder={placeholder}
         disabled={disabled}
+        autoFocus
         {...register(id, {
           required: required ? requiredMessage : undefined,
           pattern: {
@@ -114,7 +135,13 @@ export function ProductInput({
             }
           }
         }}
+        ref={e => {
+          ref(e)
+          inputRef.current = e // you can still assign to ref
+        }}
+        {...props}
       />
+      <div className="absolute top-[50%] right-2 translate-y-[-50%] translate-x-[50%]">{endIcon}</div>
       {errors[id] && errors[id]?.message && (
         <motion.p className="font-secondary text-danger text-xs" initial={{ x: 0 }} animate={{ x: [0, -2, 2, 0] }}>
           {errors[id]?.message as React.ReactNode}
@@ -122,4 +149,4 @@ export function ProductInput({
       )}
     </div>
   )
-}
+})
