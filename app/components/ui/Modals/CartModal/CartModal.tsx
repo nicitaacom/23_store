@@ -24,12 +24,11 @@ interface CartModalProps {
   label: string
 }
 
-export function CartModal({ label }: CartModalProps) {  
-  
+export function CartModal({ label }: CartModalProps) {
   const cartStore = useCartStore()
   const toast = useToast()
   const router = useRouter()
-  
+
   const { isAuthenticated } = useUserStore()
 
   if (!isAuthenticated) {
@@ -62,7 +61,7 @@ export function CartModal({ label }: CartModalProps) {
       price: product.id,
       quantity: product.quantity,
     }))
-    .map(item => `stripeProducts=${encodeURIComponent(JSON.stringify(item))}`)
+    .map(item => `${encodeURIComponent(JSON.stringify(item))}`)
     .join("&")
 
   const payPalProductsQuery = cartStore.productsData
@@ -76,6 +75,7 @@ export function CartModal({ label }: CartModalProps) {
     .map(item => `payPalProducts=${encodeURIComponent(JSON.stringify(item))}`)
     .join("&")
 
+  //for metamask
   const amount = cartStore.productsData
     .filter(product => product.on_stock > 0)
     .map(product => product.price * product.quantity)
@@ -220,6 +220,14 @@ export function CartModal({ label }: CartModalProps) {
     setIsConnecting(false)
   }
 
+  /* Stripe implementation */
+
+  async function createCheckoutSession() {
+    const response = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
+    //redirect user to session.url here to avoid 'blocked by CORS' error
+    router.push(response.data)
+  }
+
   return (
     <ModalContainer
       className="w-screen h-screen laptop:max-w-[1024px] laptop:max-h-[640px] pt-8"
@@ -362,7 +370,10 @@ export function CartModal({ label }: CartModalProps) {
                     PayPal
                     <FaPaypal />
                   </Button>
-                  <Button className="flex flex-row gap-x-1 w-full laptop:w-full" variant="info">
+                  <Button
+                    className="flex flex-row gap-x-1 w-full laptop:w-full"
+                    variant="info"
+                    onClick={createCheckoutSession}>
                     Stripe
                     <FaStripeS />
                   </Button>
