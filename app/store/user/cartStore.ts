@@ -8,6 +8,7 @@ import { IProduct } from "@/interfaces/IProduct"
 interface CartStore {
   products: TRecordCartProduct
   productsData: IProduct[]
+  fetchProductsData: () => Promise<void>
   getCartQuantity: () => number
   increaseProductQuantity: (id: string) => void
   decreaseProductQuantity: (id: string) => void
@@ -16,7 +17,6 @@ interface CartStore {
   hasProducts: () => boolean
   clearCart: () => void
   initialize: () => void
-  fetchProductsData: () => Promise<void>
 }
 
 type SetState = (fn: (prevState: CartStore) => Partial<CartStore>) => void
