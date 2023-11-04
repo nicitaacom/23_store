@@ -224,7 +224,7 @@ export function CartModal({ label }: CartModalProps) {
 
   async function createCheckoutSession() {
     if (cartStore.getProductsPrice() > 999999) {
-      toast.show(
+      return toast.show(
         "error",
         "Stripe restrictions",
         <p>
@@ -235,7 +235,7 @@ export function CartModal({ label }: CartModalProps) {
       )
     }
     const response = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
-    //redirect user to session.url here to avoid 'blocked by CORS' error
+    //redirect user to session.url on client side to avoid 'blocked by CORS' error
     router.push(response.data)
   }
 
