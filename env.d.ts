@@ -19,7 +19,7 @@ declare global {
       NEXT_PAYPAL_PUBLIC: string
       NEXT_PAYPAL_SECRET: string
 
-      NEXT_METAMASK_ADRESS: string
+      NEXT_PUBLIC_METAMASK_ADRESS: string
 
       NEXT_COINMARKETCAP_SECRET: string
     }

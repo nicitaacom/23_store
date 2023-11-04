@@ -2,12 +2,12 @@ import { create } from "zustand"
 import { subscribeWithSelector } from "zustand/middleware"
 import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
 import { getStorage } from "@/utils/getStorage"
-import { IDBProduct } from "@/interfaces/IDBProduct"
 import supabaseClient from "@/utils/supabaseClient"
+import { IProduct } from "@/interfaces/IProduct"
 
 interface CartStore {
   products: TRecordCartProduct
-  productsData: IDBProduct[]
+  productsData: IProduct[]
   getCartQuantity: () => number
   increaseProductQuantity: (id: string) => void
   decreaseProductQuantity: (id: string) => void
@@ -29,9 +29,13 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     const ids = Object.keys(get().products)
     const cart_products_data_response = await supabaseClient.from("products").select().in("id", ids)
     const cart_products = cart_products_data_response.data ?? []
-
+    //add quantity to productsData
+    const updated_cart_products = cart_products.map(productData => {
+      const quantity = get().products[productData.id].quantity ?? 0
+      return { ...productData, quantity }
+    })
     set(() => ({
-      productsData: cart_products,
+      productsData: updated_cart_products,
     }))
   },
   getCartQuantity() {

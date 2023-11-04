@@ -1,30 +1,37 @@
 "use client"
 
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { FaBitcoin, FaPaypal, FaStripeS } from "react-icons/fa"
 import Image from "next/image"
 
-import useCartStore from "@/store/user/cartStore"
-import { OpenAreYouSureModalButton } from "@/components/Navbar/components"
-import { ModalContainer } from "../../ModalContainer"
-import EmptyCart from "./EmptyCart"
-import { Button, Slider } from "../.."
-import { formatCurrency } from "@/utils/currencyFormatter"
+import detectEthereumProvider from "@metamask/detect-provider"
 import { MdOutlineDeleteOutline } from "react-icons/md"
 import { HiOutlineRefresh } from "react-icons/hi"
-import useUserStore from "@/store/user/userStore"
+import axios from "axios"
+
+import { formatBalance } from "@/utils/formatMetamaskBalance"
+import useToast from "@/store/ui/useToast"
+import useCartStore from "@/store/user/cartStore"
+import { ModalContainer } from "../../ModalContainer"
+import EmptyCart from "./EmptyCart"
+import { OpenAreYouSureModalButton } from "@/components/Navbar/components"
+import { Button, Slider } from "../.."
+import { formatCurrency } from "@/utils/currencyFormatter"
 import { useRouter } from "next/navigation"
+import useUserStore from "@/store/user/userStore"
 
 interface CartModalProps {
   label: string
 }
 
-export function CartModal({ label }: CartModalProps) {
+export function CartModal({ label }: CartModalProps) {  
+  
   const cartStore = useCartStore()
-
+  const toast = useToast()
   const router = useRouter()
-  console.log("CartModal.tsx re-render")
+  
   const { isAuthenticated } = useUserStore()
+
   if (!isAuthenticated) {
     router.push("/?modal=AuthModal&variant=login")
   }
@@ -47,6 +54,172 @@ export function CartModal({ label }: CartModalProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  /* queries for payment */
+
+  const stripeProductsQuery = cartStore.productsData
+    .filter(product => product.on_stock > 0)
+    .map(product => ({
+      price: product.id,
+      quantity: product.quantity,
+    }))
+    .map(item => `stripeProducts=${encodeURIComponent(JSON.stringify(item))}`)
+    .join("&")
+
+  const payPalProductsQuery = cartStore.productsData
+    .filter(product => product.on_stock > 0)
+    .map(product => ({
+      name: product.title,
+      sku: product.id,
+      price: product.price,
+      quantity: product.quantity,
+    }))
+    .map(item => `payPalProducts=${encodeURIComponent(JSON.stringify(item))}`)
+    .join("&")
+
+  const amount = cartStore.productsData
+    .filter(product => product.on_stock > 0)
+    .map(product => product.price * product.quantity)
+    .reduce((sum, price) => sum + price, 0)
+
+  /* Metamask implementation */
+  const [hasProvider, setHasProvider] = useState<boolean | null>(null)
+  const initialState = { accounts: [], balance: "", chainId: "" }
+  const [wallet, setWallet] = useState(initialState)
+  const [ETHprice, setETHPrice] = useState(0)
+
+  const [isConnecting, setIsConnecting] = useState(false)
+
+  useEffect(() => {
+    const refreshAccounts = (accounts: never[]) => {
+      if (accounts.length > 0) {
+        updateWallet(accounts)
+      } else {
+        // if length 0, user is disconnected
+        setWallet(initialState)
+      }
+    }
+
+    const refreshChain = (chainId: string) => {
+      setWallet(wallet => ({ ...wallet, chainId }))
+    }
+
+    const getProvider = async () => {
+      const provider = await detectEthereumProvider({ silent: true })
+      setHasProvider(Boolean(provider))
+
+      if (provider) {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" })
+        refreshAccounts(accounts)
+        window.ethereum.on("accountsChanged", refreshAccounts)
+        window.ethereum.on("chainChanged", refreshChain)
+      }
+    }
+
+    getProvider()
+
+    return () => {
+      window.ethereum?.removeListener("accountsChanged", refreshAccounts)
+      window.ethereum?.removeListener("chainChanged", refreshChain)
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const updateWallet = async (accounts: never[]) => {
+    const balance = formatBalance(
+      await window.ethereum!.request({
+        method: "eth_getBalance",
+        params: [accounts[0], "latest"],
+      }),
+    )
+    const chainId = await window.ethereum!.request({
+      method: "eth_chainId",
+    })
+    setWallet({ accounts, balance, chainId })
+  }
+
+  async function sendMoney() {
+    setIsConnecting(true)
+
+    try {
+      const response = await axios.post(`${location.origin}/api/coinmarketcap`, {
+        amount: amount,
+        symbol: "USD",
+        convert: "ETH",
+      })
+
+      const ETHPrice = response.data.data[0].quote.ETH.price
+
+      window.ethereum
+        .request({
+          method: "eth_sendTransaction",
+          params: [
+            {
+              from: wallet.accounts[0],
+              to: process.env.NEXT_PUBLIC_METAMASK_ADRESS,
+              gasLimit: "0x5028",
+              maxPriorityFeePerGas: "0x3b9aca00",
+              maxFeePerGas: "0x2540be400",
+              value: BigInt(ETHPrice * 10 ** 18).toString(16),
+            },
+          ],
+        })
+        .then((txHash: string) => {
+          router.push(`${location.origin}/payment?status=success`)
+          console.log("txHash - ", txHash)
+        })
+        .catch((error: Error) => {
+          error.message.includes("MetaMask Tx Signature: User denied transaction signature.")
+            ? toast.show("error", "Transaction error", "User denied transaction signature")
+            : toast.show("error", "Unknown error", error.message)
+        })
+        .finally(() => setIsConnecting(false))
+    } catch (error) {
+      console.log("Error -", error)
+    }
+  }
+
+  const handleConnect = async () => {
+    setIsConnecting(true)
+
+    if (hasProvider === false) {
+      setTimeout(() => {
+        setIsConnecting(false)
+      }, 10000)
+      toast.show(
+        "error",
+        "Metamask not detected",
+        <span className="inline">
+          Please install metamask&nbsp;
+          <Button
+            className="inline w-fit text-info"
+            variant="link"
+            active="active"
+            target="_blank"
+            href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=ext_app_menu">
+            here{" "}
+          </Button>
+          or using&nbsp;
+          <Button
+            className="inline w-fit text-info"
+            variant="link"
+            active="active"
+            target="_blank"
+            href={`${location.origin}/docs/customer/how-to-install-metamask`}>
+            this
+          </Button>{" "}
+          guide
+        </span>,
+        10000,
+      )
+      throw Error("Metamask not detected")
+    }
+
+    await window.ethereum.request({
+      method: "eth_requestAccounts",
+    })
+    setIsConnecting(false)
+  }
+
   return (
     <ModalContainer
       className="w-screen h-screen laptop:max-w-[1024px] laptop:max-h-[640px] pt-8"
@@ -57,7 +230,6 @@ export function CartModal({ label }: CartModalProps) {
           <div className="flex flex-col gap-y-4">
             <section className="flex flex-col gap-y-8 w-[90%] mx-auto">
               {cartStore.productsData.map(productData => {
-                const quantity = cartStore.products[productData.id].quantity ?? 0
                 return (
                   <article
                     className={`relative flex flex-col tablet:flex-row border-[1px] pb-2 tablet:pb-0 overflow-hidden ${
@@ -119,10 +291,10 @@ export function CartModal({ label }: CartModalProps) {
                         {/* FOOTER LEFT - quantity + sub-total */}
                         <div className="flex flex-col items-center tablet:items-start">
                           <h5 className="flex flex-row text-center">
-                            Quantity:&nbsp;<p>{quantity}</p>
+                            Quantity:&nbsp;<p>{productData.quantity}</p>
                           </h5>
                           <h5 className="flex flex-row">
-                            Sub-total:&nbsp;<p>{formatCurrency(quantity * productData.price)}</p>
+                            Sub-total:&nbsp;<p>{formatCurrency(productData.quantity * productData.price)}</p>
                           </h5>
                         </div>
 
@@ -171,7 +343,11 @@ export function CartModal({ label }: CartModalProps) {
                   <OpenAreYouSureModalButton />
                 </div>
                 <div className="grid gap-2 grid-cols-2">
-                  <Button className="flex flex-row gap-x-1 w-full laptop:w-full" variant="info">
+                  <Button
+                    className="flex flex-row gap-x-1 w-full laptop:w-full"
+                    variant="info"
+                    disabled={isConnecting}
+                    onClick={wallet.chainId ? sendMoney : handleConnect}>
                     Metamask
                     <Image className="w-[20px] h-[20px]" width={32} height={32} src="/metamask.png" alt="metamask" />
                   </Button>
