@@ -5,10 +5,13 @@ import { useEffect, useState } from "react"
 import useDarkMode from "@/store/ui/darkModeStore"
 import { Portal } from "./Portal"
 import { InitialPageLoadingSkeleton } from "./Skeletons/InitialPageLoadingSkeleton"
+import useToast from "@/store/ui/useToast"
+import { Toast } from "./ui/Toast"
+import { AnimatePresence } from "framer-motion"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const darkMode = useDarkMode()
-
+  const toast = useToast()
   const [showSkeleton, setShowSkeleton] = useState(true)
 
   //children is a server component
@@ -41,6 +44,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </Portal>
       )}
       {children}
+      <AnimatePresence>{toast.isOpen && <Toast />}</AnimatePresence>
     </div>
   )
 }

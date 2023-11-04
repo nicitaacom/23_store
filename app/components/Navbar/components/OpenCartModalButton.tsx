@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 
 import { LuShoppingCart } from "react-icons/lu"
 
-export default function OpenCartModalButton() {
+export function OpenCartModalButton() {
   const pathname = usePathname()
   const updatedPath = pathname + (pathname.includes("?") ? "&" : "?") + "modal=" + "CartModal"
   const cartStore = useCartStore()

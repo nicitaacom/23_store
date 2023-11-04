@@ -9,7 +9,7 @@ import { twMerge } from "tailwind-merge"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { formatCurrency } from "@/utils/currencyFormatter"
-import supabaseClient from "@/utils/supabaseClient"
+import supabaseClient from "@/libs/supabaseClient"
 
 interface FormatPriceFormProps {
   id: string

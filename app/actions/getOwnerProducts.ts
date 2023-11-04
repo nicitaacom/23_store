@@ -1,4 +1,4 @@
-import supabaseServer from "@/utils/supabaseServer"
+import supabaseServer from "@/libs/supabaseServer"
 
 const getOnwerProducts = async () => {
   const { data: sessionData, error: sessionError } = await supabaseServer().auth.getSession()

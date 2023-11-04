@@ -2,7 +2,7 @@
 
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
 import { AreYouSureModal } from "../AreYouSureModal"
-import supabaseClient from "@/utils/supabaseClient"
+import supabaseClient from "@/libs/supabaseClient"
 import { BiTrash } from "react-icons/bi"
 import { useRouter } from "next/navigation"
 

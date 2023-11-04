@@ -4,7 +4,7 @@ import Image from "next/image"
 import useDarkMode from "@/store/ui/darkModeStore"
 import { useRouter } from "next/navigation"
 
-export default function Logo() {
+export function Logo() {
   const darkMode = useDarkMode()
   const router = useRouter()
   return (

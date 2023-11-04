@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 
-export default function NavbarWrapper({ children }: { children: React.ReactNode }) {
+export function NavbarWrapper({ children }: { children: React.ReactNode }) {
   const [scrollPosition, setScrollPosition] = useState(0)
 
   useEffect(() => {
