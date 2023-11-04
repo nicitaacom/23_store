@@ -8,7 +8,7 @@ import { twMerge } from "tailwind-merge"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
-import supabaseClient from "@/utils/supabaseClient"
+import supabaseClient from "@/libs/supabaseClient"
 
 interface FormatDescriptionFormProps {
   id: string

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import supabaseClient from "@/utils/supabaseClient"
+import supabaseClient from "@/libs/supabaseClient"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 import { useForm } from "react-hook-form"

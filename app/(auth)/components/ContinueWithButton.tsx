@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/Button"
 import Image from "next/image"
-import supabaseClient from "@/utils/supabaseClient"
+import supabaseClient from "@/libs/supabaseClient"
 import React from "react"
 
 interface ContinueWithButtonProps {

@@ -5,7 +5,7 @@ import { useState } from "react"
 
 import { BiSearchAlt } from "react-icons/bi"
 
-export default function NavbarSearch() {
+export function NavbarSearch() {
   const [search, setSearch] = useState("")
   return (
     <Input

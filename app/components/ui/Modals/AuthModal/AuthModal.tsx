@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 
 import { useForm } from "react-hook-form"
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai"
-import supabaseClient from "@/utils/supabaseClient"
+import supabaseClient from "@/libs/supabaseClient"
 import { AuthError } from "@supabase/supabase-js"
 
 import { FormInput } from "../../Inputs/Validation/FormInput"

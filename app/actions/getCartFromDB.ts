@@ -2,8 +2,8 @@
 
 import { ICartProduct } from "@/interfaces/ICartProduct"
 import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
-import supabaseServer from "@/utils/supabaseServer"
-import supabaseServerAction from "@/utils/supabaseServerAction"
+import supabaseServer from "@/libs/supabaseServer"
+import supabaseServerAction from "@/libs/supabaseServerAction"
 
 export default async function getCartFromDB() {
   const { data: user } = await supabaseServer().auth.getUser()
