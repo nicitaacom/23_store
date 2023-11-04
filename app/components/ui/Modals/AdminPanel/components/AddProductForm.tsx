@@ -2,8 +2,8 @@ import { useEffect, useState, useRef } from "react"
 import Image from "next/image"
 import axios from "axios"
 import { useForm } from "react-hook-form"
-import supabaseClient from "@/utils/supabaseClient"
-import { Stripe, loadStripe } from "@stripe/stripe-js"
+import supabaseClient from "@/libs/supabaseClient"
+import { stripe } from "@/libs/stripe"
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
 
@@ -19,19 +19,10 @@ export function AddProductForm() {
   const { isDraggingg } = useDragging()
 
   const [isLoading, setIsLoading] = useState(false)
-  const [stripe, setStripe] = useState<Stripe | null>(null)
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
   const [images, setImages] = useState<ImageListType>([])
 
   const dragZone = useRef<HTMLButtonElement | null>(null)
-
-  useEffect(() => {
-    const initializeStripe = async () => {
-      const stripeInstance = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC)
-      setStripe(stripeInstance)
-    }
-    initializeStripe()
-  }, [])
 
   async function createProduct(images: ImageListType, title: string, subTitle: string, price: number, onStock: number) {
     setIsLoading(true)

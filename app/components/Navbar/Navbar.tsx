@@ -1,9 +1,13 @@
 import Link from "next/link"
-
 import { FiPhoneCall } from "react-icons/fi"
+import { BiSearchAlt } from "react-icons/bi"
 
-import { SwitchDarkMode } from ".."
+import supabaseServer from "@/libs/supabaseServer"
+import { contact } from "@/constant/contacts"
 import { Language } from "../Language"
+import { DropdownContainer } from "../ui/DropdownContainer"
+import { SwitchDarkMode } from ".."
+import { NavbarWrapper } from "./components/NavbarWrapper"
 import {
   HamburgerMenu,
   Logo,
@@ -12,12 +16,6 @@ import {
   OpenCartModalButton,
   OpenUserMenuButton,
 } from "./components"
-import NavbarWrapper from "./components/NavbarWrapper"
-import { DropdownContainer } from "../ui/DropdownContainer"
-import supabaseServer from "@/utils/supabaseServer"
-import { TbWorld } from "react-icons/tb"
-import { BiSearchAlt } from "react-icons/bi"
-import { contact } from "@/constant/contacts"
 
 export default async function Navbar() {
   const {

@@ -2,7 +2,7 @@ import { create } from "zustand"
 import { subscribeWithSelector } from "zustand/middleware"
 import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
 import { getStorage } from "@/utils/getStorage"
-import supabaseClient from "@/utils/supabaseClient"
+import supabaseClient from "@/libs/supabaseClient"
 import { IProduct } from "@/interfaces/IProduct"
 
 interface CartStore {
