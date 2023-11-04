@@ -4,8 +4,6 @@ import { BiTrash } from "react-icons/bi"
 
 import { Button } from "@/components/ui"
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
-import { AreYouSureModal } from "@/components/ui/AreYouSureModal"
-import supabaseClient from "@/utils/supabaseClient"
 
 interface DeleteProductHeaderProps {
   id: string
