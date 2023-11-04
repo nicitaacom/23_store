@@ -223,6 +223,17 @@ export function CartModal({ label }: CartModalProps) {
   /* Stripe implementation */
 
   async function createCheckoutSession() {
+    if (cartStore.getProductsPrice() > 999999) {
+      toast.show(
+        "error",
+        "Stripe restrictions",
+        <p>
+          Stripe limits you to make purchase over 1M$
+          <br /> Delete products in cart total be less $1,000,000
+        </p>,
+        10000,
+      )
+    }
     const response = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
     //redirect user to session.url here to avoid 'blocked by CORS' error
     router.push(response.data)
