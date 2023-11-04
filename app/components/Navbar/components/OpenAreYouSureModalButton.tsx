@@ -8,7 +8,7 @@ import { IoMdClose } from "react-icons/io"
 import useCartStore from "@/store/user/cartStore"
 import { MdOutlineDeleteOutline } from "react-icons/md"
 
-export default function OpenAreYouSureModalButton() {
+export function OpenAreYouSureModalButton() {
   const [showModal, setShowModal] = useState(false)
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */

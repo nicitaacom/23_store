@@ -12,7 +12,7 @@ import { SwitchDarkMode } from "@/components"
 import { contact } from "@/constant/contacts"
 import { DropdownContainer, DropdownItem } from "@/components/ui"
 
-export default function OpenUserMenuButton() {
+export function OpenUserMenuButton() {
   const userStore = useUserStore()
   const mode = useDarkMode()
 
