@@ -12,6 +12,7 @@ export class DBStorage extends Storage {
       .update({ cart_products: cartProducts as unknown as Json })
       .eq("id", userId)
     //TODO - if error make product.quantity color - danger
+    //or its better to use localstorage and even if issues with DB let user to make transaction
   }
   async getProducts(): Promise<TRecordCartProduct> {
     const cartDB_response = await supabaseClient.from("users_cart").select("cart_products").single()

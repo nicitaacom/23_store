@@ -26,6 +26,7 @@ export async function GET(request: Request) {
       email: user.user.user_metadata.email,
       profile_picture_url: user.user.user_metadata.picture,
     })
+
     if (error_insert_users) {
       //if username already exists - rename username
       const { error: error_insert_users_attempt2 } = await supabaseAdmin.from("users").insert({
