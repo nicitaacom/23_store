@@ -1,4 +1,4 @@
 export interface ICartProduct {
-  id: string
+  price_id: string
   quantity: number
 }

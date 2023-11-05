@@ -60,7 +60,8 @@ export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps)
         const updatedUserResponse = await supabaseClient
           .from("products")
           .insert({
-            id: priceResponse.data.id,
+            id: priceResponse.data.product,
+            price_id: priceResponse.data.id,
             owner_id: userStore.userId,
             title: title,
             sub_title: subTitle,

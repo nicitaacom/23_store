@@ -40,7 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const ownerProducts = await getOwnerProducts()
   return (
     <html lang="en">
-      <body style={{ backgroundColor: "#202020" }}>
+      <body>
         <ClientOnly>
           <Navbar />
           <Layout>{children}</Layout>

@@ -16,6 +16,7 @@ export interface Database {
           on_stock: number
           owner_id: string
           price: number
+          price_id: string
           sub_title: string
           title: string
         }
@@ -25,6 +26,7 @@ export interface Database {
           on_stock: number
           owner_id: string
           price: number
+          price_id: string
           sub_title: string
           title?: string
         }
@@ -34,6 +36,7 @@ export interface Database {
           on_stock?: number
           owner_id?: string
           price?: number
+          price_id?: string
           sub_title?: string
           title?: string
         }
