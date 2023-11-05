@@ -12,7 +12,6 @@ export async function POST(req: Request) {
 
   const images = body.images
   const productId = body.productId
-  console.log(14, "productId - ", productId)
 
   try {
     //Create update on Stripe https://stripe.com/docs/api/products/update

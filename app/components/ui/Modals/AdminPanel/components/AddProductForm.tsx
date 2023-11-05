@@ -6,6 +6,7 @@ import supabaseClient from "@/libs/supabaseClient"
 import { stripe } from "@/libs/stripe"
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
+import slugify from "@sindresorhus/slugify"
 
 import useUserStore from "@/store/user/userStore"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
@@ -35,16 +36,19 @@ export function AddProductForm() {
           subTitle: subTitle,
           price: price,
         })
-        console.log(47, "priceResponse - ", priceResponse)
 
         const imagesArray = await Promise.all(
           images.map(async image => {
             if (image?.file && !!userStore.userId) {
               const { data, error } = await supabaseClient.storage
                 .from("public")
-                .upload(`${userStore.userId}/${priceResponse.data.id}`, image.file, {
-                  upsert: true,
-                })
+                .upload(
+                  `${userStore.userId}/${slugify(image.file.name, { separator: "_" })}_${priceResponse.data.id}`,
+                  image.file,
+                  {
+                    upsert: true,
+                  },
+                )
               if (error) throw error
               const response = supabaseClient.storage.from("public").getPublicUrl(data.path)
               return response.data.publicUrl
@@ -68,13 +72,11 @@ export function AddProductForm() {
         if (updatedUserResponse.error) throw updatedUserResponse.error
 
         //update image on stripe
-        const { status } = await axios.post("/api/products/update", {
+        await axios.post("/api/products/update", {
           productId: priceResponse.data.product as string,
           images: imagesArray as string[],
         })
-        if (status === 400 || status === 500) {
-          console.error("error in AddProductForm.tsx - update image on stripe")
-        }
+
         displayResponseMessage(<p className="text-success">Product added</p>)
       } else {
         displayResponseMessage(<p className="text-danger">Upload the image</p>)
@@ -104,7 +106,6 @@ export function AddProductForm() {
   } = useForm<IFormDataAddProduct>()
 
   const onSubmit = (data: IFormDataAddProduct) => {
-    console.log(95, "images - ", images)
     createProduct(images, data.title, data.subTitle, data.price, data.onStock)
   }
 
