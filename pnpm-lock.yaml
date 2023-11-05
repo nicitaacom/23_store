@@ -20,9 +20,6 @@ dependencies:
   '@react-email/tailwind':
     specifier: 0.0.8
     version: 0.0.8
-  '@sindresorhus/slugify':
-    specifier: ^2.2.1
-    version: 2.2.1
   '@stripe/stripe-js':
     specifier: ^2.1.6
     version: 2.1.7
@@ -995,21 +992,6 @@ packages:
     dependencies:
       domhandler: 5.0.3
       selderee: 0.11.0
-    dev: false
-
-  /@sindresorhus/slugify@2.2.1:
-    resolution: {integrity: sha512-MkngSCRZ8JdSOCHRaYd+D01XhvU3Hjy6MGl06zhOk614hp9EOAp5gIkBeQg7wtmxpitU6eAL4kdiRMcJa2dlrw==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@sindresorhus/transliterate': 1.6.0
-      escape-string-regexp: 5.0.0
-    dev: false
-
-  /@sindresorhus/transliterate@1.6.0:
-    resolution: {integrity: sha512-doH1gimEu3A46VX6aVxpHTeHrytJAG6HgdxntYnCFiIFHEM/ZGpG8KiZGBChchjQmG0XFIBL552kBTjVcMZXwQ==}
-    engines: {node: '>=12'}
-    dependencies:
-      escape-string-regexp: 5.0.0
     dev: false
 
   /@stripe/stripe-js@2.1.7:
@@ -2075,11 +2057,6 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
     dev: true
-
-  /escape-string-regexp@5.0.0:
-    resolution: {integrity: sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==}
-    engines: {node: '>=12'}
-    dev: false
 
   /eslint-config-next@13.5.2(eslint@8.49.0)(typescript@5.2.2):
     resolution: {integrity: sha512-kCF7k7fHBtFtxfP6J6AP6Mo0vW3CrFeoIuoZ7NHGIvLFc/RUaIspJ6inO/R33zE1o9t/lbJgTnsqnRB++sxCUQ==}

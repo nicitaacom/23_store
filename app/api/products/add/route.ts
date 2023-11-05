@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 export async function POST(req: Request) {
   const body = await req.json()
 
-  const images: string[] = body.images
+  // const images: string[] = body.images
   const title: string = body.title
   const subTitle: string = body.subTitle
   const price: number = body.price
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
         name: title,
         description: subTitle,
         type: "good",
-        images: images,
+        // images: images,
       },
       {
         headers: {
@@ -60,6 +60,6 @@ export async function POST(req: Request) {
     return NextResponse.json(priceResponse.data, { status: 200 })
   } catch (error: any) {
     console.log(13, "CREATE_PRODUCT_ERROR\n", error.response.data)
-    return new NextResponse(`/api/products/route.ts error (check termianl) ${error.response.data}`, { status: 500 })
+    return new NextResponse(`/api/products/add/route.ts error (check termianl) ${error.response.data}`, { status: 500 })
   }
 }
