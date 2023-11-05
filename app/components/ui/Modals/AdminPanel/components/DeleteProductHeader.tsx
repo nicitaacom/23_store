@@ -2,6 +2,7 @@
 
 import { BiTrash } from "react-icons/bi"
 
+import { formatCurrency } from "@/utils/currencyFormatter"
 import { Button } from "@/components/ui"
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
 
@@ -24,7 +25,8 @@ export function DeleteProductHeader({ id, title, subTitle, onStock, price }: Del
             Title:&nbsp;<h2>{title}</h2>
           </div>
           <div className="flex flex-row text-subTitle">
-            Price:&nbsp;<h2>{price}</h2>
+            <p className="tablet:hidden">Price:&nbsp;</p>
+            <h2>{formatCurrency(price)}</h2>
           </div>
         </div>
         <div className="flex flex-row justify-center tablet:justify-start text-subTitle mt-4 tablet:mt-0">
