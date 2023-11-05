@@ -17,29 +17,13 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  const { data: user } = await supabase.auth.getUser()
-  if (user && user.user) {
-    //Insert row in users table
-    const { error: error_insert_users } = await supabaseAdmin.from("users").insert({
-      id: user.user.id,
-      username: user.user.user_metadata.name ?? user.user.user_metadata.username,
-      email: user.user.user_metadata.email,
-      profile_picture_url: user.user.user_metadata.picture,
-    })
-    if (error_insert_users) {
-      //if username already exists - rename username
-      const { error: error_insert_users_attempt2 } = await supabaseAdmin.from("users").insert({
-        id: user.user.id,
-        username: `renamedUser_${crypto.randomUUID()}`,
-        email: user.user.user_metadata.email,
-        profile_picture_url: user.user.user_metadata.picture,
-      })
-    }
-    //Insert row in users_cart table
-    const { error: error_users_cart_insert } = await supabaseAdmin.from("users_cart").insert({ id: user.user.id })
-  }
+  const {
+    data: { user: user },
+  } = await supabase.auth.getUser()
+  await supabaseAdmin.from("users_cart").insert({ id: user?.id })
+
   return NextResponse.redirect(
-    `${requestUrl.origin}/auth/client?userId=${user?.user?.id}&username=${user.user?.user_metadata.name}
-    &email=${user.user?.user_metadata.email}&profile_picture_url=${user.user?.user_metadata.picture}`,
+    `${requestUrl.origin}/auth/client?userId=${user?.id}&username=${user?.user_metadata.name}
+    &email=${user?.user_metadata.email}&profile_picture_url=${user?.user_metadata.picture}`,
   )
 }

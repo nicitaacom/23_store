@@ -35,7 +35,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
       className={twMerge(
         `w-[100vw] max-w-[768px] max-h-full
       flex flex-col bg-primary rounded-md border-[1px] border-solid border-border-color pt-8 transition-all duration-500`,
-        productAction === "Add product" && "h-[675px] tablet:max-w-[650px]",
+        productAction === "Add product" && "h-[680px] tablet:max-w-[650px]",
         productAction === "Edit product" && "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
         productAction === "Delete product" &&
           "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
@@ -47,7 +47,10 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
           <RadioButton
             label="Add product"
             inputName="product"
-            onChange={e => setProductAction(e.target.value)}
+            onChange={e => {
+              setProductAction(e.target.value)
+              router.refresh()
+            }}
             defaultChecked>
             <div className="flex flex-row gap-x-2 items-center">
               Add product <AiOutlinePlus className="text-success" />
@@ -55,14 +58,26 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
           </RadioButton>
         </li>
         <li>
-          <RadioButton label="Edit product" inputName="product" onChange={e => setProductAction(e.target.value)}>
+          <RadioButton
+            label="Edit product"
+            inputName="product"
+            onChange={e => {
+              setProductAction(e.target.value)
+              router.refresh()
+            }}>
             <div className="flex flex-row gap-x-2 items-center">
               Edit product <CiEdit className="text-warning" />
             </div>
           </RadioButton>
         </li>
         <li>
-          <RadioButton label="Delete product" inputName="product" onChange={e => setProductAction(e.target.value)}>
+          <RadioButton
+            label="Delete product"
+            inputName="product"
+            onChange={e => {
+              setProductAction(e.target.value)
+              router.refresh()
+            }}>
             <div className="flex flex-row gap-x-2 items-center">
               Delete product <AiOutlineDelete className="text-danger" />
             </div>

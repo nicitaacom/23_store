@@ -6,6 +6,7 @@ import supabaseClient from "@/libs/supabaseClient"
 import { stripe } from "@/libs/stripe"
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
+import slugify from "@sindresorhus/slugify"
 
 import useUserStore from "@/store/user/userStore"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
@@ -31,10 +32,12 @@ export function AddProductForm() {
       if (images.length > 0 && stripe) {
         const imagesArray = await Promise.all(
           images.map(async image => {
-            if (image?.file && userStore.userId) {
+            if (image?.file && !!userStore.userId) {
               const { data, error } = await supabaseClient.storage
                 .from("public")
-                .upload(`${userStore.userId}/${image.file.name}`, image.file, { upsert: true })
+                .upload(`${userStore.userId}/${slugify(image.file.name, { separator: "_" })}`, image.file, {
+                  upsert: true,
+                })
               if (error) throw error
 
               const response = supabaseClient.storage.from("public").getPublicUrl(data.path)
@@ -68,7 +71,7 @@ export function AddProductForm() {
         displayResponseMessage(<p className="text-danger">Upload the image</p>)
       }
     } catch (error) {
-      console.log(94, "error - ", error)
+      console.log(94, "createProduct_error - ", error)
     } finally {
       setIsLoading(false)
     }
@@ -92,6 +95,10 @@ export function AddProductForm() {
   } = useForm<IFormDataAddProduct>()
 
   const onSubmit = (data: IFormDataAddProduct) => {
+    console.log(95, "images - ", images)
+    if (images[0].file) {
+      console.log(104, "slugify - ", slugify(images[0].file.name, { separator: "_" }))
+    }
     createProduct(images, data.title, data.subTitle, data.price, data.onStock)
   }
 

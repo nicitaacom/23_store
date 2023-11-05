@@ -1,34 +1,35 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { FaBitcoin, FaPaypal, FaStripeS } from "react-icons/fa"
 import Image from "next/image"
-
-import detectEthereumProvider from "@metamask/detect-provider"
+import { useRouter } from "next/navigation"
+import { FaBitcoin, FaPaypal, FaStripeS } from "react-icons/fa"
 import { MdOutlineDeleteOutline } from "react-icons/md"
 import { HiOutlineRefresh } from "react-icons/hi"
+import detectEthereumProvider from "@metamask/detect-provider"
 import axios from "axios"
 
 import { formatBalance } from "@/utils/formatMetamaskBalance"
+import useUserStore from "@/store/user/userStore"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
-import { ModalContainer } from "../../ModalContainer"
 import EmptyCart from "./EmptyCart"
-import { OpenAreYouSureModalButton } from "@/components/Navbar/components"
-import { Button, Slider } from "../.."
 import { formatCurrency } from "@/utils/currencyFormatter"
-import { useRouter } from "next/navigation"
-import useUserStore from "@/store/user/userStore"
+import { ModalContainer } from "@/components/ui/ModalContainer"
+
+//Are you sure in what - please use clear naming
+import { Button, Slider } from "../.."
+import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 
 interface CartModalProps {
   label: string
 }
 
 export function CartModal({ label }: CartModalProps) {
-  const cartStore = useCartStore()
-  const toast = useToast()
   const router = useRouter()
-
+  const cartStore = useCartStore()
+  const AreYouSureClearCartModal = useAreYouSureClearCartModal()
+  const toast = useToast()
   const { isAuthenticated } = useUserStore()
 
   if (!isAuthenticated) {
@@ -359,7 +360,9 @@ export function CartModal({ label }: CartModalProps) {
                     Total:&nbsp;
                     <span>{formatCurrency(cartStore.getProductsPrice())}</span>
                   </h1>
-                  <OpenAreYouSureModalButton />
+                  <Button variant="danger" onClick={AreYouSureClearCartModal.openModal}>
+                    Clear cart
+                  </Button>
                 </div>
                 <div className="grid gap-2 grid-cols-2">
                   <Button

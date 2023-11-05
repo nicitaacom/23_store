@@ -271,7 +271,6 @@ export function AuthModal({ label }: AdminModalProps) {
   }
 
   const onSubmit = async (data: FormData) => {
-    console.log(data)
     await new Promise(resolve => setTimeout(resolve, 1000))
     if (queryParams === "login") {
       signInWithPassword(data.emailOrUsername, data.password)

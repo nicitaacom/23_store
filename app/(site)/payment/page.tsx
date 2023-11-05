@@ -2,7 +2,6 @@
 
 import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { render } from "@react-email/render"
 import axios from "axios"
 
 import useCartStore from "@/store/user/cartStore"
@@ -28,17 +27,6 @@ export default function Payment() {
   }
 
   cartStore.fetchProductsData()
-
-  const emailMessageString = render(<CheckEmail products={cartStore.productsData} deliveryDate={deliveryDate} />, {
-    pretty: true,
-  })
-
-  const emailData = {
-    from: process.env.NEXT_PUBLIC_SENDER_EMAIL,
-    to: userStore.email,
-    subject: "Payment Status",
-    html: emailMessageString,
-  }
 
   useEffect(() => {
     //send check by email

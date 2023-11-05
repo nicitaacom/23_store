@@ -3,8 +3,8 @@ import supabaseServer from "@/libs/supabaseServer"
 const getOnwerProducts = async () => {
   const { data: sessionData, error: sessionError } = await supabaseServer().auth.getSession()
 
-  if (sessionError || !sessionData.session?.user.id) {
-    console.log(sessionError?.message)
+  if (sessionError) throw new Error("getOnwerProducts_error - ", sessionError)
+  if (!sessionData.session?.user.id) {
     return []
   }
 
