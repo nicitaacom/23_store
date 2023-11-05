@@ -84,7 +84,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
           </RadioButton>
         </li>
       </ul>
-      <div className={twMerge(`relative w-full pb-8 flex flex-col items-center overflow-y-auto`)}>
+      <div className={twMerge(`relative w-full h-full pb-8 flex flex-col items-center overflow-y-auto`)}>
         {/* ADD PRODUCT */}
 
         {productAction === "Add product" && <AddProductForm />}
