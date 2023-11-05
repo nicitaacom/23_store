@@ -112,7 +112,16 @@ export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps)
   return (
     <div className="w-[50%] transition-all duration-1000">
       <ImageUploading multiple value={images} onChange={onChange} dataURLKey="data_url">
-        {({ imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps }) => (
+        {({
+          imageList,
+          onImageUpload,
+          onImageRemoveAll,
+          onImageUpdate,
+          onImageRemove,
+          isDragging,
+          // maxFileSize compress to AVIF in the future ,
+          dragProps,
+        }) => (
           <div className="w-full flex flex-col items-center justify-center gap-y-4">
             <Button
               className={`${

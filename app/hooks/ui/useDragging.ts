@@ -9,7 +9,7 @@ const useDragging = () => {
     }
 
     const leaveHandler = () => {
-      setIsDragging(false)
+      // setIsDragging(false)
     }
 
     const dropHandler = () => {
@@ -21,13 +21,13 @@ const useDragging = () => {
     }
 
     document.addEventListener("dragover", handler, true)
-    document.addEventListener("dragleave", leaveHandler, true)
+    // document.addEventListener("dragleave", leaveHandler, true)
     document.addEventListener("drop", dropHandler, true)
     document.addEventListener("dragend", dragEndHandler, true)
 
     return () => {
       document.removeEventListener("dragover", handler)
-      document.removeEventListener("dragleave", leaveHandler)
+      // document.removeEventListener("dragleave", leaveHandler)
       document.removeEventListener("drop", dropHandler)
       document.removeEventListener("dragend", dragEndHandler)
     }
