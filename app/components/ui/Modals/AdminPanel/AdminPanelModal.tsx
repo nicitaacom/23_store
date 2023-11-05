@@ -47,7 +47,10 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
           <RadioButton
             label="Add product"
             inputName="product"
-            onChange={e => setProductAction(e.target.value)}
+            onChange={e => {
+              setProductAction(e.target.value)
+              router.refresh()
+            }}
             defaultChecked>
             <div className="flex flex-row gap-x-2 items-center">
               Add product <AiOutlinePlus className="text-success" />
@@ -55,14 +58,26 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
           </RadioButton>
         </li>
         <li>
-          <RadioButton label="Edit product" inputName="product" onChange={e => setProductAction(e.target.value)}>
+          <RadioButton
+            label="Edit product"
+            inputName="product"
+            onChange={e => {
+              setProductAction(e.target.value)
+              router.refresh()
+            }}>
             <div className="flex flex-row gap-x-2 items-center">
               Edit product <CiEdit className="text-warning" />
             </div>
           </RadioButton>
         </li>
         <li>
-          <RadioButton label="Delete product" inputName="product" onChange={e => setProductAction(e.target.value)}>
+          <RadioButton
+            label="Delete product"
+            inputName="product"
+            onChange={e => {
+              setProductAction(e.target.value)
+              router.refresh()
+            }}>
             <div className="flex flex-row gap-x-2 items-center">
               Delete product <AiOutlineDelete className="text-danger" />
             </div>

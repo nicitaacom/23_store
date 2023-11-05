@@ -18,17 +18,18 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { ModalContainer } from "@/components/ui/ModalContainer"
 
 //Are you sure in what - please use clear naming
-import { OpenAreYouSureModalButton } from "../AreYouSureDeleteProductModal"
 import { Button, Slider } from "../.."
+import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 
 interface CartModalProps {
   label: string
 }
 
 export function CartModal({ label }: CartModalProps) {
-  const cartStore = useCartStore()
-  const toast = useToast()
   const router = useRouter()
+  const cartStore = useCartStore()
+  const AreYouSureClearCartModal = useAreYouSureClearCartModal()
+  const toast = useToast()
   const { isAuthenticated } = useUserStore()
 
   if (!isAuthenticated) {
@@ -359,7 +360,9 @@ export function CartModal({ label }: CartModalProps) {
                     Total:&nbsp;
                     <span>{formatCurrency(cartStore.getProductsPrice())}</span>
                   </h1>
-                  <OpenAreYouSureModalButton />
+                  <Button variant="danger" onClick={AreYouSureClearCartModal.openModal}>
+                    Clear cart
+                  </Button>
                 </div>
                 <div className="grid gap-2 grid-cols-2">
                   <Button
