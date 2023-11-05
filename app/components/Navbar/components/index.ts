@@ -3,7 +3,7 @@ import { HamburgerMenu } from "./HamburgerMenu"
 import { Logo } from "./Logo"
 import { NavbarSearch } from "./NavbarSearch"
 import { OpenCartModalButton } from "./OpenCartModalButton"
-import { OpenAreYouSureModalButton } from "./OpenAreYouSureModalButton"
+import { OpenAreYouSureModalButton } from "../../ui/Modals/OpenAreYouSureModalButton"
 import { OpenAuthModalButton } from "./OpenAuthModalButton"
 import { OpenUserMenuButton } from "./OpenUserMenuButton"
 

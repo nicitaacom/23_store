@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     )
     //Active product if it not active
     if (!productResponse.data.active) {
-      const activateResponse = await axios.put(
+      await axios.put(
         `https://api.stripe.com/v1/products/${productResponse.data.id}`,
         {
           active: true,
@@ -40,9 +40,6 @@ export async function POST(req: Request) {
           },
         },
       )
-      if (activateResponse.data.active) {
-        console.log("Product activated:", activateResponse.data)
-      }
     }
 
     // Create price for the product

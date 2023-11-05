@@ -68,7 +68,7 @@ export function AddProductForm() {
         displayResponseMessage(<p className="text-danger">Upload the image</p>)
       }
     } catch (error) {
-      console.log(94, "error - ", error)
+      console.log(94, "createProduct_error - ", error)
     } finally {
       setIsLoading(false)
     }

@@ -41,6 +41,7 @@ export interface Database {
           {
             foreignKeyName: "products_owner_id_fkey"
             columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
@@ -49,21 +50,21 @@ export interface Database {
       users: {
         Row: {
           created_at: string
-          email: string | null
+          email: string
           id: string
           profile_picture_url: string | null
           username: string
         }
         Insert: {
           created_at?: string
-          email?: string | null
+          email?: string
           id: string
           profile_picture_url?: string | null
           username: string
         }
         Update: {
           created_at?: string
-          email?: string | null
+          email?: string
           id?: string
           profile_picture_url?: string | null
           username?: string
@@ -72,6 +73,7 @@ export interface Database {
           {
             foreignKeyName: "users_id_fkey"
             columns: ["id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
