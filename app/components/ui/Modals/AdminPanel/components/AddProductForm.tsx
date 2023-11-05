@@ -6,6 +6,7 @@ import supabaseClient from "@/libs/supabaseClient"
 import { stripe } from "@/libs/stripe"
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
+import slugify from "@sindresorhus/slugify"
 
 import useUserStore from "@/store/user/userStore"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
@@ -45,7 +46,7 @@ export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps)
             if (image?.file && !!userStore.userId) {
               const { data, error } = await supabaseClient.storage
                 .from("public")
-                .upload(`${userStore.userId}/${userStore.userId}_${priceResponse.data.id}`, image.file, {
+                .upload(`${userStore.userId}/${slugify(image.file.name)}_${priceResponse.data.id}`, image.file, {
                   upsert: true,
                 })
               if (error) throw error
