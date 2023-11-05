@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react"
 
 import useDarkMode from "@/store/ui/darkModeStore"
-import { Portal } from "./Portal"
-import { InitialPageLoadingSkeleton } from "./Skeletons/InitialPageLoadingSkeleton"
 import useToast from "@/store/ui/useToast"
 import { Toast } from "./ui/Toast"
 import { AnimatePresence } from "framer-motion"
@@ -12,7 +10,6 @@ import { AnimatePresence } from "framer-motion"
 export default function Layout({ children }: { children: React.ReactNode }) {
   const darkMode = useDarkMode()
   const toast = useToast()
-  const [showSkeleton, setShowSkeleton] = useState(true)
 
   //children is a server component
   //more info - https://www.youtube.com/watch?v=9YuHTGAAyu0
@@ -29,7 +26,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     htmlElement.classList.toggle("dark", darkMode.isDarkMode)
 
     //remove initial page loading skeleton
-    setShowSkeleton(false)
   }, [darkMode.isDarkMode])
 
   //don't use const const queryClient = new QueryClient() - https://tanstack.com/query/latest/docs/react/guides/ssr
@@ -38,11 +34,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div
       className="bg-background text-title
       min-h-screen transition-colors duration-300 pt-[62px]">
-      {showSkeleton && (
-        <Portal>
-          <InitialPageLoadingSkeleton />
-        </Portal>
-      )}
       {children}
       <AnimatePresence>{toast.isOpen && <Toast />}</AnimatePresence>
     </div>

@@ -14,6 +14,8 @@ import { AdminPanelModal, AuthModal, CartModal, ChangeLanguageModal } from "./co
 import ClientOnly from "./components/ClientOnly"
 import getOwnerProducts from "./actions/getOwnerProducts"
 import { ModalsProvider } from "./providers/ModalsProvider"
+import { InitialPageLoadingSkeleton } from "./components/Skeletons/InitialPageLoadingSkeleton"
+import { Dispatch, SetStateAction } from "react"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -38,8 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const ownerProducts = await getOwnerProducts()
   return (
     <html lang="en">
-      <body>
-        <div id="portal" />
+      <body style={{ backgroundColor: "#202020" }}>
         <ClientOnly>
           <Navbar />
           <Layout>{children}</Layout>

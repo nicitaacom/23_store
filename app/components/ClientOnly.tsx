@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { InitialPageLoadingSkeleton } from "./Skeletons/InitialPageLoadingSkeleton"
 
 interface ClientOnlyProps {
   children: React.ReactNode
@@ -14,7 +15,7 @@ const ClientOnly: React.FC<ClientOnlyProps> = ({ children }) => {
   }, [])
 
   if (!hasMounted) {
-    return null
+    return <InitialPageLoadingSkeleton />
   }
 
   return <>{children}</>
