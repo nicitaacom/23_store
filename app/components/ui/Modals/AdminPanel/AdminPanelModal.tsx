@@ -35,7 +35,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
       className={twMerge(
         `w-[100vw] max-w-[768px] max-h-full
       flex flex-col bg-primary rounded-md border-[1px] border-solid border-border-color pt-8 transition-all duration-500`,
-        productAction === "Add product" && "h-[675px] tablet:max-w-[650px]",
+        productAction === "Add product" && "h-[680px] tablet:max-w-[650px]",
         productAction === "Edit product" && "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
         productAction === "Delete product" &&
           "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
