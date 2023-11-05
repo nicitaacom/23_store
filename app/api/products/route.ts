@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET}`,
+          Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
           "Content-Type": "application/x-www-form-urlencoded",
         },
       },
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         },
         {
           headers: {
-            Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET}`,
+            Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
             "Content-Type": "application/x-www-form-urlencoded",
           },
         },
@@ -52,14 +52,14 @@ export async function POST(req: Request) {
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET}`,
+          Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
           "Content-Type": "application/x-www-form-urlencoded",
         },
       },
     )
     return NextResponse.json(priceResponse.data, { status: 200 })
-  } catch (error) {
-    console.log(13, "PRODUCTS_ERROR", error)
-    return new NextResponse("Products error", { status: 500 })
+  } catch (error: any) {
+    console.log(13, "CREATE_PRODUCT_ERROR\n", error.response.data)
+    return new NextResponse(`/api/products/route.ts error (check termianl) ${error.response.data}`, { status: 500 })
   }
 }
