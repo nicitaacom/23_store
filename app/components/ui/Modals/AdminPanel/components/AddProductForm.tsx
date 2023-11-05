@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, Dispatch, SetStateAction } from "react"
 import Image from "next/image"
 import axios from "axios"
 import { useForm } from "react-hook-form"
@@ -14,11 +14,15 @@ import { Button } from "@/components/ui/Button"
 import useDragging from "@/hooks/ui/useDragging"
 import { twMerge } from "tailwind-merge"
 
-export function AddProductForm() {
+interface AddProductFormProps {
+  isLoading: boolean
+  setIsLoading: Dispatch<SetStateAction<boolean>>
+}
+
+export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps) {
   const userStore = useUserStore()
   const { isDraggingg } = useDragging()
 
-  const [isLoading, setIsLoading] = useState(false)
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
   const [images, setImages] = useState<ImageListType>([])
 

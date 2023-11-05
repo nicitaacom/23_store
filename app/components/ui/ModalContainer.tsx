@@ -11,9 +11,10 @@ interface ModalContainerProps {
   children: React.ReactNode
   modalQuery: string
   className?: string
+  preventClose?: boolean
 }
 
-export function ModalContainer({ children, modalQuery, className }: ModalContainerProps) {
+export function ModalContainer({ children, modalQuery, className, preventClose }: ModalContainerProps) {
   const pathname = usePathname()
   const router = useRouter()
   const queryParams = useSearchParams()
@@ -32,6 +33,13 @@ export function ModalContainer({ children, modalQuery, className }: ModalContain
     }
   }, [showModal])
 
+  //correct way to add event listener to listen keydown
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preventClose])
+
   // Close modal and redirect on close
   const closeModal = useCallback(() => {
     document.body.removeAttribute("style")
@@ -43,12 +51,10 @@ export function ModalContainer({ children, modalQuery, className }: ModalContain
 
   //Close modal on esc
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
+    if (event.key === "Escape" && !preventClose) {
       closeModal()
-      document.removeEventListener("keydown", handleKeyDown)
     }
   }
-  document.addEventListener("keydown", handleKeyDown)
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */
   const modalBgHandler = useSwipeable({
