@@ -14,6 +14,8 @@ import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { Button } from "@/components/ui/Button"
 import useDragging from "@/hooks/ui/useDragging"
 import { twMerge } from "tailwind-merge"
+import { useRouter } from "next/navigation"
+import useCartStore from "@/store/user/cartStore"
 
 interface AddProductFormProps {
   isLoading: boolean
@@ -21,6 +23,7 @@ interface AddProductFormProps {
 }
 
 export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps) {
+  const router = useRouter()
   const userStore = useUserStore()
   const { isDraggingg } = useDragging()
 
@@ -79,6 +82,7 @@ export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps)
         })
 
         displayResponseMessage(<p className="text-success">Product added</p>)
+        router.refresh()
       } else {
         displayResponseMessage(<p className="text-danger">Upload the image</p>)
       }
