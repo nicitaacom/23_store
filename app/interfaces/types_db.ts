@@ -57,7 +57,7 @@ export interface Database {
           id: string
         }
         Insert: {
-          cart_products: Json
+          cart_products?: Json
           created_at?: string
           id: string
         }
