@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react"
+import { IoMdClose } from "react-icons/io"
+import { IconType } from "react-icons"
 import { useSwipeable } from "react-swipeable"
 import { AnimatePresence, motion } from "framer-motion"
-import { IoMdClose } from "react-icons/io"
+import { twMerge } from "tailwind-merge"
 
 import { Button } from "."
-import { IconType } from "react-icons"
 
 interface ModalContainerProps {
   isOpen: boolean
+  isLoading?: boolean
   label: string | React.ReactNode
   primaryButtonVariant?:
     | "link"
@@ -52,6 +54,7 @@ interface ModalContainerProps {
 
 export function AreYouSureModal({
   isOpen,
+  isLoading,
   label,
   primaryButtonVariant,
   primaryButtonIcon: PrimaryButtonIcon,
@@ -65,7 +68,7 @@ export function AreYouSureModal({
 }: ModalContainerProps) {
   const [showModal, setShowModal] = useState(isOpen)
 
-  /* onOpen - show modal - disable scroll and scrollbar - hide navbar - show bg */
+  /* onOpen - show modal - disable scroll and scrollbar */
   useEffect(() => {
     setShowModal(isOpen)
     if (isOpen) {
@@ -74,7 +77,14 @@ export function AreYouSureModal({
     }
   }, [isOpen])
 
-  /* onClose - close modal - show navbar - show scrollbar */
+  //correct way to add event listener to listen keydown
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading])
+
+  /* onClose - close modal - show scrollbar */
   function closeModal() {
     secondaryButtonAction()
     document.body.removeAttribute("style")
@@ -82,13 +92,13 @@ export function AreYouSureModal({
 
   //Close modal on esc
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      event.stopPropagation()
+    //TODO - block esc key if isLoading (in ModalContainer.tsx)
+    if (event.key === "Escape" && !isLoading) {
+      //stopImmediatePropagation required to prevent close first opened modal (ModalContainer.tsx)
+      event.stopImmediatePropagation()
       closeModal()
-      document.removeEventListener("keydown", handleKeyDown)
     }
   }
-  document.addEventListener("keydown", handleKeyDown)
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */
   const modalBgHandler = useSwipeable({
@@ -124,7 +134,10 @@ export function AreYouSureModal({
             transition={{ duration: 0.5 }}
             {...modalHandler}>
             <IoMdClose
-              className="absolute right-[0] top-[0] border-b-[1px] border-l-[1px] text-icon-color border-border-color rounded-bl-md cursor-pointer"
+              className={twMerge(
+                `absolute right-[0] top-[0] border-b-[1px] border-l-[1px] text-icon-color border-border-color rounded-bl-md cursor-pointer`,
+                isLoading && "opacity-50 cursor-default pointer-events-none",
+              )}
               size={32}
               onClick={closeModal}
             />
@@ -134,13 +147,15 @@ export function AreYouSureModal({
                 <Button
                   className="flex flex-row gap-x-1"
                   variant={secondaryButtonVariant ? secondaryButtonVariant : "default-outline"}
-                  onClick={secondaryButtonAction}>
+                  onClick={secondaryButtonAction}
+                  disabled={isLoading}>
                   {secondaryButtonLabel} {SecondaryButtonIcon && <SecondaryButtonIcon />}
                 </Button>
                 <Button
                   className="flex flex-row gap-x-1"
                   variant={primaryButtonVariant ? primaryButtonVariant : "info"}
-                  onClick={primaryButtonAction}>
+                  onClick={primaryButtonAction}
+                  disabled={isLoading}>
                   {primaryButtonLabel} {PrimaryButtonIcon && <PrimaryButtonIcon />}
                 </Button>
               </div>

@@ -2,19 +2,19 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-
-import { AnimatePresence, motion } from "framer-motion"
-import { useSwipeable } from "react-swipeable"
 import { IoMdClose } from "react-icons/io"
+import { useSwipeable } from "react-swipeable"
+import { twMerge } from "tailwind-merge"
+import { AnimatePresence, motion } from "framer-motion"
 
 interface ModalContainerProps {
   children: React.ReactNode
   modalQuery: string
   className?: string
-  preventClose?: boolean
+  isLoading?: boolean
 }
 
-export function ModalContainer({ children, modalQuery, className, preventClose }: ModalContainerProps) {
+export function ModalContainer({ children, modalQuery, className, isLoading }: ModalContainerProps) {
   const pathname = usePathname()
   const router = useRouter()
   const queryParams = useSearchParams()
@@ -38,7 +38,7 @@ export function ModalContainer({ children, modalQuery, className, preventClose }
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preventClose])
+  }, [isLoading])
 
   // Close modal and redirect on close
   const closeModal = useCallback(() => {
@@ -51,7 +51,7 @@ export function ModalContainer({ children, modalQuery, className, preventClose }
 
   //Close modal on esc
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape" && !preventClose) {
+    if (event.key === "Escape" && !isLoading) {
       closeModal()
     }
   }
@@ -95,7 +95,10 @@ export function ModalContainer({ children, modalQuery, className, preventClose }
               transition={{ duration: 0.5 }}
               {...modalHandler}>
               <IoMdClose
-                className="absolute right-[0] top-[0] border-b-[1px] border-l-[1px] text-icon-color border-border-color rounded-bl-md cursor-pointer"
+                className={twMerge(
+                  `absolute right-[0] top-[0] border-b-[1px] border-l-[1px] text-icon-color border-border-color rounded-bl-md cursor-pointer`,
+                  isLoading && "opacity-50 cursor-default pointer-events-none",
+                )}
                 size={32}
                 onClick={closeModal}
               />
