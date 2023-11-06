@@ -68,7 +68,7 @@ export function AreYouSureModal({
 }: ModalContainerProps) {
   const [showModal, setShowModal] = useState(isOpen)
 
-  /* onOpen - show modal - disable scroll and scrollbar - hide navbar - show bg */
+  /* onOpen - show modal - disable scroll and scrollbar */
   useEffect(() => {
     setShowModal(isOpen)
     if (isOpen) {
@@ -84,7 +84,7 @@ export function AreYouSureModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading])
 
-  /* onClose - close modal - show navbar - show scrollbar */
+  /* onClose - close modal - show scrollbar */
   function closeModal() {
     secondaryButtonAction()
     document.body.removeAttribute("style")
@@ -93,8 +93,9 @@ export function AreYouSureModal({
   //Close modal on esc
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape" && !isLoading) {
+      //stopImmediatePropagation required to prevent close first opened modal (ModalContainer.tsx)
+      event.stopImmediatePropagation()
       closeModal()
-      document.removeEventListener("keydown", handleKeyDown)
     }
   }
 
