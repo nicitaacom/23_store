@@ -47,6 +47,13 @@
   }
 }
 
+html,
+body,
+:root {
+  height: 100%;
+  background-color: #202020;
+}
+
 * {
   border-color: hsl(var(--border-color));
 }

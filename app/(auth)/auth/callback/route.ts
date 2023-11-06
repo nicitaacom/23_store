@@ -20,7 +20,9 @@ export async function GET(request: Request) {
   const {
     data: { user: user },
   } = await supabase.auth.getUser()
-  await supabaseAdmin.from("users_cart").insert({ id: user?.id })
+  if (user) {
+    await supabaseAdmin.from("users_cart").insert({ id: user?.id })
+  }
 
   return NextResponse.redirect(
     `${requestUrl.origin}/auth/client?userId=${user?.id}&username=${user?.user_metadata.name}

@@ -16,6 +16,7 @@ export interface Database {
           on_stock: number
           owner_id: string
           price: number
+          price_id: string
           sub_title: string
           title: string
         }
@@ -25,6 +26,7 @@ export interface Database {
           on_stock: number
           owner_id: string
           price: number
+          price_id: string
           sub_title: string
           title?: string
         }
@@ -34,6 +36,7 @@ export interface Database {
           on_stock?: number
           owner_id?: string
           price?: number
+          price_id?: string
           sub_title?: string
           title?: string
         }
@@ -41,38 +44,6 @@ export interface Database {
           {
             foreignKeyName: "products_owner_id_fkey"
             columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      users: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          profile_picture_url: string | null
-          username: string
-        }
-        Insert: {
-          created_at?: string
-          email?: string
-          id: string
-          profile_picture_url?: string | null
-          username: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          profile_picture_url?: string | null
-          username?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "users_id_fkey"
-            columns: ["id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -88,14 +59,22 @@ export interface Database {
         Insert: {
           cart_products?: Json
           created_at?: string
-          id?: string
+          id: string
         }
         Update: {
           cart_products?: Json
           created_at?: string
           id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_cart_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {

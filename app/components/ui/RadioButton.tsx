@@ -1,18 +1,23 @@
 import { ChangeEvent } from "react"
+import { twMerge } from "tailwind-merge"
 
 interface RadioButton extends React.HTMLAttributes<HTMLInputElement> {
   label: string
   inputName: string
   onChange: (e: ChangeEvent<HTMLInputElement>) => void
   children?: React.ReactNode
+  disabled?: boolean
 }
 
-export function RadioButton({ label, inputName, onChange, children, ...props }: RadioButton) {
+export function RadioButton({ label, inputName, onChange, children, disabled, ...props }: RadioButton) {
   return (
     <label
       htmlFor={label}
-      className="relative cursor-pointer flex items-center justify-center mt-2 tablet:mt-0 px-4 py-2
-    transition-all duration-300">
+      className={twMerge(
+        `relative cursor-pointer flex items-center justify-center mt-2 tablet:mt-0 px-4 py-2
+    transition-all duration-300`,
+        disabled && "opacity-50 pointer-events-none cursor-default",
+      )}>
       <input
         type="radio"
         name={inputName}
@@ -20,6 +25,7 @@ export function RadioButton({ label, inputName, onChange, children, ...props }: 
         id={label}
         className="hidden peer"
         onChange={onChange}
+        disabled={disabled}
         {...props}
       />
       <span

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, Dispatch, SetStateAction } from "react"
 import Image from "next/image"
 import axios from "axios"
 import { useForm } from "react-hook-form"
@@ -14,12 +14,19 @@ import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { Button } from "@/components/ui/Button"
 import useDragging from "@/hooks/ui/useDragging"
 import { twMerge } from "tailwind-merge"
+import { useRouter } from "next/navigation"
+import useCartStore from "@/store/user/cartStore"
 
-export function AddProductForm() {
+interface AddProductFormProps {
+  isLoading: boolean
+  setIsLoading: Dispatch<SetStateAction<boolean>>
+}
+
+export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps) {
+  const router = useRouter()
   const userStore = useUserStore()
   const { isDraggingg } = useDragging()
 
-  const [isLoading, setIsLoading] = useState(false)
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
   const [images, setImages] = useState<ImageListType>([])
 
@@ -30,33 +37,34 @@ export function AddProductForm() {
     try {
       //Check images length and is stripe mounted
       if (images.length > 0 && stripe) {
-        const imagesArray = await Promise.all(
-          images.map(async image => {
-            if (image?.file && !!userStore.userId) {
-              const { data, error } = await supabaseClient.storage
-                .from("public")
-                .upload(`${userStore.userId}/${slugify(image.file.name, { separator: "_" })}`, image.file, {
-                  upsert: true,
-                })
-              if (error) throw error
-
-              const response = supabaseClient.storage.from("public").getPublicUrl(data.path)
-              return response.data.publicUrl
-            }
-          }),
-        )
-        //create product
-        const priceResponse = await axios.post("/api/products", {
-          images: imagesArray,
+        //create product on stripe
+        const priceResponse = await axios.post("/api/products/add", {
           title: title,
           subTitle: subTitle,
           price: price,
         })
 
+        const imagesArray = await Promise.all(
+          images.map(async image => {
+            if (image?.file && !!userStore.userId) {
+              const { data, error } = await supabaseClient.storage
+                .from("public")
+                .upload(`${userStore.userId}/${slugify(image.file.name)}_${priceResponse.data.id}`, image.file, {
+                  upsert: true,
+                })
+              if (error) throw error
+              const response = supabaseClient.storage.from("public").getPublicUrl(data.path)
+              return response.data.publicUrl
+            }
+          }),
+        )
+
+        //insert in 'products' table
         const updatedUserResponse = await supabaseClient
           .from("products")
           .insert({
-            id: priceResponse.data.id,
+            id: priceResponse.data.product,
+            price_id: priceResponse.data.id,
             owner_id: userStore.userId,
             title: title,
             sub_title: subTitle,
@@ -66,7 +74,15 @@ export function AddProductForm() {
           })
           .eq("user_id", userStore.userId)
         if (updatedUserResponse.error) throw updatedUserResponse.error
+
+        //update image on stripe
+        await axios.post("/api/products/update", {
+          productId: priceResponse.data.product as string,
+          images: imagesArray as string[],
+        })
+
         displayResponseMessage(<p className="text-success">Product added</p>)
+        router.refresh()
       } else {
         displayResponseMessage(<p className="text-danger">Upload the image</p>)
       }
@@ -95,17 +111,22 @@ export function AddProductForm() {
   } = useForm<IFormDataAddProduct>()
 
   const onSubmit = (data: IFormDataAddProduct) => {
-    console.log(95, "images - ", images)
-    if (images[0].file) {
-      console.log(104, "slugify - ", slugify(images[0].file.name, { separator: "_" }))
-    }
     createProduct(images, data.title, data.subTitle, data.price, data.onStock)
   }
 
   return (
     <div className="w-[50%] transition-all duration-1000">
       <ImageUploading multiple value={images} onChange={onChange} dataURLKey="data_url">
-        {({ imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps }) => (
+        {({
+          imageList,
+          onImageUpload,
+          onImageRemoveAll,
+          onImageUpdate,
+          onImageRemove,
+          isDragging,
+          // maxFileSize compress to AVIF in the future ,
+          dragProps,
+        }) => (
           <div className="w-full flex flex-col items-center justify-center gap-y-4">
             <Button
               className={`${

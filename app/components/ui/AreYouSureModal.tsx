@@ -129,7 +129,7 @@ export function AreYouSureModal({
               onClick={closeModal}
             />
             <div className="flex flex-col gap-y-4 pt-6 px-4 pb-8 max-w-[600px]">
-              <h1 className="py-2 text-2xl text-center">{label}</h1>
+              <div className="py-2 text-2xl text-center text-title">{label}</div>
               <div className="flex flex-row gap-x-2 justify-center tablet:justify-end">
                 <Button
                   className="flex flex-row gap-x-1"
