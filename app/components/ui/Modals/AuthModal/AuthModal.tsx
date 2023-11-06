@@ -64,7 +64,8 @@ export function AuthModal({ label }: AdminModalProps) {
         if (signInError) throw signInError
 
         if (user.user) {
-          //store info somewhere (e.g in localStorage with zustand)
+          const { data: metadata } = await supabaseClient.auth.getUser()
+          console.log(68, "metadata - ", metadata)
           displayResponseMessage(<p className="text-success">You are logged in</p>)
           reset()
           router.refresh()
@@ -145,15 +146,8 @@ export function AuthModal({ label }: AdminModalProps) {
       })
       if (signUpError) throw signUpError
       if (user.user) {
-        //Insert row in users table
-        const { error: errorUsersInsert } = await supabaseClient
-          .from("users")
-          .insert({ id: user.user.id, username: username, email: email })
-        if (errorUsersInsert) throw errorUsersInsert
         //Insert row in users_cart table
-        const { error: errorUsersCartInsert } = await supabaseClient
-          .from("users_cart")
-          .insert({ owner_username: username, id: user.user.id })
+        const { error: errorUsersCartInsert } = await supabaseClient.from("users_cart").insert({ id: user.user.id })
         if (errorUsersCartInsert) throw errorUsersCartInsert
 
         setResponseMessage(<p className="text-success">Check your email</p>)
