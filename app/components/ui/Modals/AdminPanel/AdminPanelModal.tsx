@@ -1,14 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
-import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai"
 import { CiEdit } from "react-icons/ci"
+import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai"
 
 import { RadioButton } from "@/components/ui"
 import useUserStore from "@/store/user/userStore"
 import { IDBProduct } from "@/interfaces/IDBProduct"
-import { useRouter } from "next/navigation"
 
 import { ModalContainer } from "../../ModalContainer"
 import { EditProductForm } from "./components/EditProductForm"
@@ -24,11 +24,15 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
   const router = useRouter()
 
   const [productAction, setProductAction] = useState("Add product")
+  const [isLoading, setIsLoading] = useState(false)
 
   const { isAuthenticated } = useUserStore()
-  if (!isAuthenticated) {
-    router.push("/?modal=AuthModal&variant=login")
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/?modal=AuthModal&variant=login")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <ModalContainer
@@ -40,7 +44,8 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
         productAction === "Delete product" &&
           "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
       )}
-      modalQuery="AdminPanel">
+      modalQuery="AdminPanel"
+      preventClose={isLoading}>
       <h1 className="min-h-[40px] text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
       <ul className="min-h-[144px] tablet:min-h-[50px] flex flex-col tablet:flex-row justify-center mb-8">
         <li>
@@ -51,6 +56,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
               setProductAction(e.target.value)
               router.refresh()
             }}
+            disabled={isLoading}
             defaultChecked>
             <div className="flex flex-row gap-x-2 items-center">
               Add product <AiOutlinePlus className="text-success" />
@@ -64,7 +70,8 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
             onChange={e => {
               setProductAction(e.target.value)
               router.refresh()
-            }}>
+            }}
+            disabled={isLoading}>
             <div className="flex flex-row gap-x-2 items-center">
               Edit product <CiEdit className="text-warning" />
             </div>
@@ -77,7 +84,8 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
             onChange={e => {
               setProductAction(e.target.value)
               router.refresh()
-            }}>
+            }}
+            disabled={isLoading}>
             <div className="flex flex-row gap-x-2 items-center">
               Delete product <AiOutlineDelete className="text-danger" />
             </div>
@@ -87,7 +95,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
       <div className={twMerge(`relative w-full h-full pb-8 flex flex-col items-center overflow-y-auto`)}>
         {/* ADD PRODUCT */}
 
-        {productAction === "Add product" && <AddProductForm />}
+        {productAction === "Add product" && <AddProductForm isLoading={isLoading} setIsLoading={setIsLoading} />}
 
         {/* EDIT PRODUCT */}
 

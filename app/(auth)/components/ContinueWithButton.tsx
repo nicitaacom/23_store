@@ -37,7 +37,14 @@ export default function ContinueWithButton({ href, provider, className }: Contin
         ) : provider === "faceit" ? (
           <Image src="/faceit.png" alt="Continue with Faceit" width={24} height={24} priority />
         ) : (
-          <Image src="/twitter.png" alt="Continue with Twitter" width={24} height={24} priority />
+          <Image
+            className="w-[24px] h-[19px]"
+            src="/twitter.png"
+            alt="Continue with Twitter"
+            width={24}
+            height={19}
+            priority
+          />
         )}
       </Button>
     </form>

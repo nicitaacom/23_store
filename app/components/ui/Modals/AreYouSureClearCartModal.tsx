@@ -12,7 +12,7 @@ export function AreYouSureClearCartButton() {
   return (
     <AreYouSureModal
       isOpen={areYouSuteClearCartModal.isOpen}
-      label={<h1>Are you sure you want to clear cart?</h1>}
+      label={"Are you sure you want to clear cart?"}
       primaryButtonVariant="danger"
       primaryButtonAction={cartStore.clearCart}
       primaryButtonLabel="Delete"

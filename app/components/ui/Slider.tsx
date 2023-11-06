@@ -63,12 +63,12 @@ export function Slider({ images, title, className = "", containerClassName = "" 
         ))}
       </div>
       <button
-        className="absolute top-0 bottom-0 left-0 w-[40px] bg-[rgba(0,0,0,0.2)] flex justify-center items-center"
+        className="absolute z-[88] top-0 bottom-0 left-0 w-[40px] bg-[rgba(0,0,0,0.4)] flex justify-center items-center"
         onClick={goToPreviousSlide}>
         <AiFillCaretLeft className="h-6 w-6 text-white" />
       </button>
       <button
-        className="absolute top-0 bottom-0 right-0 w-[40px] bg-[rgba(0,0,0,0.2)] flex justify-center items-center"
+        className="absolute z-[88] top-0 bottom-0 right-0 w-[40px] bg-[rgba(0,0,0,0.4)] flex justify-center items-center"
         onClick={goToNextSlide}>
         <AiFillCaretRight className="h-6 w-6 text-white" />
       </button>

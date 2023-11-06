@@ -33,7 +33,7 @@ interface ValidationRules {
   }
 }
 
-export const ProductInput = React.forwardRef<HTMLInputElement, InputFormProps>(function OwnerProductInput({
+export function ProductInput({
   className = "",
   id,
   type = "text",
@@ -45,7 +45,7 @@ export const ProductInput = React.forwardRef<HTMLInputElement, InputFormProps>(f
   placeholder,
   disabled,
   ...props
-}) {
+}: InputFormProps) {
   const validationRules: ValidationRules = {
     title: {
       requiredMessage: "This field is required",
@@ -134,7 +134,8 @@ export const ProductInput = React.forwardRef<HTMLInputElement, InputFormProps>(f
           })}
           ref={e => {
             textArea(e)
-            textareaRef.current = e // you can still assign to ref
+            textareaRef.current = e // you can still assign to ref issue
+            //https://github.com/orgs/react-hook-form/discussions/11137
           }}
         />
       ) : (
@@ -196,4 +197,4 @@ export const ProductInput = React.forwardRef<HTMLInputElement, InputFormProps>(f
       )}
     </div>
   )
-})
+}

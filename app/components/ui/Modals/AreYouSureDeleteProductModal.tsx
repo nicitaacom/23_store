@@ -2,9 +2,9 @@
 
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
 import { AreYouSureModal } from "../AreYouSureModal"
-import supabaseClient from "@/libs/supabaseClient"
 import { BiTrash } from "react-icons/bi"
 import { useRouter } from "next/navigation"
+import axios from "axios"
 
 export function AreYouSureDeleteProductModal() {
   const router = useRouter()
@@ -12,8 +12,10 @@ export function AreYouSureDeleteProductModal() {
   const { title, id } = useAreYouSureDeleteProductModal()
 
   async function deleteProduct() {
-    const { error: deleteError } = await supabaseClient.from("products").delete().eq("id", id)
-    if (deleteError) throw deleteError
+    //archive product on stripe first and then in DB
+    await axios.post("/api/products/delete", { id: id })
+
+    //close modal and refresh - so user immediately see changes
     areYouSureDeleteProductModal.closeModal()
     router.refresh()
   }
