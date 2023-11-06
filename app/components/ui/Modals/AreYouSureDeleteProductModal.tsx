@@ -1,11 +1,12 @@
 "use client"
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { BiTrash } from "react-icons/bi"
+import axios from "axios"
+
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
 import { AreYouSureModal } from "../AreYouSureModal"
-import { BiTrash } from "react-icons/bi"
-import { useRouter } from "next/navigation"
-import axios from "axios"
-import { useState } from "react"
 
 export function AreYouSureDeleteProductModal() {
   const router = useRouter()
