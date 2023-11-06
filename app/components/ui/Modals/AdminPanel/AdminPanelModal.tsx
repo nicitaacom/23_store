@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
-import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai"
 import { CiEdit } from "react-icons/ci"
+import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai"
 
 import { RadioButton } from "@/components/ui"
 import useUserStore from "@/store/user/userStore"
 import { IDBProduct } from "@/interfaces/IDBProduct"
-import { useRouter } from "next/navigation"
 
 import { ModalContainer } from "../../ModalContainer"
 import { EditProductForm } from "./components/EditProductForm"
@@ -27,9 +27,12 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
   const [isLoading, setIsLoading] = useState(false)
 
   const { isAuthenticated } = useUserStore()
-  if (!isAuthenticated) {
-    router.push("/?modal=AuthModal&variant=login")
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/?modal=AuthModal&variant=login")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <ModalContainer
