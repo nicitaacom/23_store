@@ -7,10 +7,12 @@ import axios from "axios"
 
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
 import { AreYouSureModal } from "../AreYouSureModal"
+import useCartStore from "@/store/user/cartStore"
 
 export function AreYouSureDeleteProductModal() {
   const router = useRouter()
   const areYouSureDeleteProductModal = useAreYouSureDeleteProductModal()
+  const cartStore = useCartStore()
   const { title, id } = useAreYouSureDeleteProductModal()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -21,6 +23,7 @@ export function AreYouSureDeleteProductModal() {
 
     //close modal and refresh - so user immediately see changes
     areYouSureDeleteProductModal.closeModal()
+    cartStore.fetchProductsData()
     router.refresh()
     setIsLoading(false)
   }

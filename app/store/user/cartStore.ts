@@ -4,6 +4,7 @@ import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
 import { getStorage } from "@/utils/getStorage"
 import supabaseClient from "@/libs/supabaseClient"
 import { IProduct } from "@/interfaces/IProduct"
+import useUserStore from "./userStore"
 
 interface CartStore {
   products: TRecordCartProduct
@@ -34,7 +35,24 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
       const quantity = get().products[productData.id].quantity ?? 0
       return { ...productData, quantity }
     })
+    //for case if product owner deleted prodcut - update column in 'cart_products'
+    const updatedIds = cart_products.map(productData => productData.id)
+    const filtered_products = Object.keys(get().products)
+      .filter(key => updatedIds.includes(key))
+      .reduce((obj: any, key) => {
+        obj[key] = get().products[key]
+        return obj
+      }, {})
+    const { userId } = useUserStore.getState()
+    if (userId) {
+      const { error: update_cart_products_error } = await supabaseClient
+        .from("users_cart")
+        .update({ cart_products: filtered_products })
+        .eq("id", userId)
+      if (update_cart_products_error) throw update_cart_products_error
+    }
     set(() => ({
+      products: filtered_products,
       productsData: updated_cart_products,
     }))
   },
@@ -48,15 +66,23 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
 
   increaseProductQuantity(id: string) {
     const updatedProducts = { ...get().products }
+    let updatedProductsData = [...get().productsData]
 
     const product = updatedProducts[id]
 
     if (product) {
       updatedProducts[id].quantity++
+      updatedProductsData.map(updatedProduct => {
+        if (updatedProduct.id === id) {
+          return { ...updatedProduct, quantity: updatedProduct.quantity++ }
+        } else return updatedProduct
+      })
     } else {
       updatedProducts[id] = {
         id,
         quantity: 1,
+        //no sence to create logic because I don't add product in cart
+        //I can add prodcut in store
       }
     }
 
@@ -77,6 +103,11 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
       updatedProductsData = updatedProductsData.filter(updatedProduct => updatedProduct.id !== id)
     } else {
       updatedProducts[id].quantity--
+      updatedProductsData.map(updatedProduct => {
+        if (updatedProduct.id === id) {
+          return { ...updatedProduct, quantity: updatedProduct.quantity-- }
+        }
+      })
     }
 
     set(() => ({
