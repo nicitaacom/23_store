@@ -28,7 +28,7 @@ export interface Database {
           price: number
           price_id: string
           sub_title: string
-          title?: string
+          title: string
         }
         Update: {
           id?: string
