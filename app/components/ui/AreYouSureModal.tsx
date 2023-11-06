@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react"
+import { IoMdClose } from "react-icons/io"
+import { IconType } from "react-icons"
 import { useSwipeable } from "react-swipeable"
 import { AnimatePresence, motion } from "framer-motion"
-import { IoMdClose } from "react-icons/io"
+import { twMerge } from "tailwind-merge"
 
 import { Button } from "."
-import { IconType } from "react-icons"
-import { twMerge } from "tailwind-merge"
 
 interface ModalContainerProps {
   isOpen: boolean

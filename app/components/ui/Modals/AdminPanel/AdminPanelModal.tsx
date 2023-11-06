@@ -45,7 +45,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
           "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
       )}
       modalQuery="AdminPanel"
-      preventClose={isLoading}>
+      isLoading={isLoading}>
       <h1 className="min-h-[40px] text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
       <ul className="min-h-[144px] tablet:min-h-[50px] flex flex-col tablet:flex-row justify-center mb-8">
         <li>
