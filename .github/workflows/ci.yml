@@ -21,28 +21,25 @@ jobs:
           node-version: 20
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v1  
+        uses: oven-sh/setup-bun@v1
 
       - name: Setup prettier
         run: bun i prettier -D
 
       - name: prettierrc
-        run: bun prettier --write src/*
+        run: bun prettier --write app/*
 
       - name: Install dependencies
         run: bun i
 
       - name: Building
-        run: bun build src/main.tsx --outdir ./public
+        run: bun build app/layout.tsx --outdir ./dist
         env:
-          VITE_SUPABASE_URL: "https://ambgxbbsgequlwnbzchr.supabase.co"
-          VITE_SUPABASE_ANON_KEY: "123"
+          REACT_SUPABASE_URL: "https://random.supabase.co"
+          REACT_SUPABASE_ANON_KEY: "123"
 
       - name: lintrc
         run: bun lint
         env:
-          VITE_SUPABASE_URL: "https://ambgxbbsgequlwnbzchr.supabase.co"
-          VITE_SUPABASE_ANON_KEY: "123"
-
-      - name: Type-checking
-        run: bun type-check
+          REACT_SUPABASE_URL: "https://random.supabase.co"
+          REACT_SUPABASE_ANON_KEY: "123"

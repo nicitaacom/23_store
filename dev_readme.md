@@ -1,10 +1,21 @@
-# Problem
+## Problem
 
-# Solution
+Buy and sell something
 
-# Usage
+## Solution
 
+Create this site that better other ones where everybody can buy or sell something
+Site created with focus on performance
 
+## Live demo - performance - 83 mobile / 96 desktop
+
+https://23-store.vercel.app/
+
+## Use supabaseServer like this
+
+```tsx
+const user = await supabaseServer().auth.getUser()
+```
 
 ## Usage for colors :root
 
@@ -27,18 +38,19 @@ info - info button - link - any info or cta info<br/>
 
 hover - brightness-75<br/>
 color - if the same with something else
-*/
+\*/
 
 <br/>
 <br/>
 
-## Usage for folder stucture 
+## Usage for folder stucture
 
 ```
 To keep it simple and maintainable I use next folder structure:
 ```
 
 ### Basic rules (applies to every rule below)
+
 Every folder should have index.ts<br/>
 Every folder should have related to functionality name</br>
 Every file should have related to functionality folder
@@ -63,7 +75,6 @@ something that appears only in 1 page and looks massy (more than ~50 lines)
 
 <br/>
 
-
 ### hooks
 
 **src/hooks/**</br>
@@ -71,15 +82,15 @@ something that appears only in 1 page and looks massy (more than ~50 lines)
 
 <br/>
 
-
 ### store
+
 Every store which have `persist` method from zustand should have key
 word 'Store' at the end<br/>
 Every store that have similar to hook functionality should have key word
- 'use' at the beggining only in filename<br/>
+'use' at the beggining only in filename<br/>
 
 <br/>
 
-
 ### utils
+
 I haven't a lot of utils now so right now there is no folder structure for that - in case it grow applies the same folder structure as above
