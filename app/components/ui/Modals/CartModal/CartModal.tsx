@@ -28,7 +28,7 @@ interface CartModalProps {
 export function CartModal({ label }: CartModalProps) {
   const router = useRouter()
   const cartStore = useCartStore()
-  const AreYouSureClearCartModal = useAreYouSureClearCartModal()
+  const areYouSureClearCartModal = useAreYouSureClearCartModal()
   const toast = useToast()
   const { isAuthenticated } = useUserStore()
 
@@ -360,7 +360,7 @@ export function CartModal({ label }: CartModalProps) {
                     Total:&nbsp;
                     <span>{formatCurrency(cartStore.getProductsPrice())}</span>
                   </h1>
-                  <Button variant="danger" onClick={AreYouSureClearCartModal.openModal}>
+                  <Button variant="danger" onClick={areYouSureClearCartModal.openModal}>
                     Clear cart
                   </Button>
                 </div>
