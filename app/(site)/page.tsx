@@ -3,11 +3,11 @@ import { Products } from "./components"
 import PaginationControls from "@/components/PaginationControls"
 import { ProductsPerPage } from "@/components/ProductsPerPage"
 
-export default async function Home({
-  searchParams,
-}: {
+interface SearchProps {
   searchParams: { [key: string]: string | string[] | undefined }
-}) {
+}
+
+export default async function Home({ searchParams }: SearchProps) {
   //Fetching all data from DB
   const products_response = await supabaseServer().from("products").select("*").order("price", { ascending: true })
   if (products_response.error) throw products_response.error
