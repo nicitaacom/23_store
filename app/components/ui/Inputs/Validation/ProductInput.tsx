@@ -57,7 +57,7 @@ export function ProductInput({
     subTitle: {
       requiredMessage: "This field is required",
       pattern: {
-        value: /^[-()#%/a-zA-Z0-9\n ]{0,600}$/,
+        value: /^[-()#%/"'`~\[\]a-zA-Z0-9\n ]{0,600}$/,
         message: "Enter description 0-600 symbols",
       },
     },
