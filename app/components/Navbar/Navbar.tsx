@@ -16,6 +16,7 @@ import {
   OpenCartModalButton,
   OpenUserMenuButton,
 } from "./components"
+import { CtrlKBadge } from "./components/CtrlKBadge"
 
 export default async function Navbar() {
   const {
@@ -31,7 +32,9 @@ export default async function Navbar() {
       </div>
       {/* SEARCH + LANGUAGE */}
       <div className="flex flex-row gap-x-2">
-        <NavbarSearch />
+        <NavbarSearch>
+          <CtrlKBadge />
+        </NavbarSearch>
         <Language className="hidden laptop:flex" />
       </div>
 

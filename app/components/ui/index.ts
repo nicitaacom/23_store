@@ -1,7 +1,7 @@
 import { Button } from "./Button"
 import { DropdownContainer } from "./DropdownContainer"
 import { DropdownItem } from "./DropdownItem"
-import { ModalQueryContainer } from "./ModalQueryContainer"
+import { ModalQueryContainer } from "./Modals/ModalContainers/ModalQueryContainer"
 import { Checkbox } from "./Checkbox"
 import { Slider } from "./Slider"
 import { RadioButton } from "./RadioButton"

@@ -10,7 +10,7 @@ import { RadioButton } from "@/components/ui"
 import useUserStore from "@/store/user/userStore"
 import { IDBProduct } from "@/interfaces/IDBProduct"
 
-import { ModalQueryContainer } from "../../ModalQueryContainer"
+import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { EditProductForm } from "./components/EditProductForm"
 import { AddProductForm } from "./components/AddProductForm"
 import { DeleteProductForm } from "./components/DeleteProductForm"

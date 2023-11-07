@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { BiTrash } from "react-icons/bi"
 import axios from "axios"
 
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
-import { AreYouSureModal } from "../AreYouSureModal"
+import { AreYouSureModalContainer } from "./ModalContainers/AreYouSureModalContainer"
 import useCartStore from "@/store/user/cartStore"
 
 export function AreYouSureDeleteProductModal() {
@@ -15,6 +15,16 @@ export function AreYouSureDeleteProductModal() {
   const cartStore = useCartStore()
   const { title, id } = useAreYouSureDeleteProductModal()
   const [isLoading, setIsLoading] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsLoading(true)
+  }, [])
+  // to prevent SSR because if I render this modal I trigger useEffect
+  // that trigger document.addEventListener on esc (I need close ctrlK modal on esc press)
+  if (!isMounted) {
+    return null
+  }
 
   async function deleteProduct() {
     setIsLoading(true)
@@ -29,7 +39,7 @@ export function AreYouSureDeleteProductModal() {
   }
 
   return (
-    <AreYouSureModal
+    <AreYouSureModalContainer
       isOpen={areYouSureDeleteProductModal.isOpen}
       isLoading={isLoading}
       label={

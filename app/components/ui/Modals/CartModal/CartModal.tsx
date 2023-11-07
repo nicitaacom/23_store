@@ -166,7 +166,7 @@ export function CartModal({ label }: CartModalProps) {
         })
         .then((txHash: string) => {
           router.push(`${location.origin}/payment?status=success`)
-          console.log("txHash - ", txHash)
+          console.log(169, "You may use txHash as check QR code or payment identifier - ", txHash)
         })
         .catch((error: Error) => {
           error.message.includes("MetaMask Tx Signature: User denied transaction signature.")
@@ -175,7 +175,7 @@ export function CartModal({ label }: CartModalProps) {
         })
         .finally(() => setIsConnecting(false))
     } catch (error) {
-      console.log("Error -", error)
+      console.log(178, "Payment with metamask error -", error)
     }
   }
 
