@@ -1,6 +1,6 @@
 "use client"
 
-import useCloseOnClickOutlise from "@/hooks/ui/useCloseOnClickOutside"
+import useAvatarDropdownClose from "@/hooks/ui/useAvatarDropdownClose"
 import { twMerge } from "tailwind-merge"
 
 interface DropdownContainerProps {
@@ -18,11 +18,11 @@ export function DropdownContainer({
   className = "",
   classNameDropdownContainer = "",
 }: DropdownContainerProps) {
-  const { isDropdown, dropdownContainerRef, setIsDropdown } = useCloseOnClickOutlise()
+  const { isDropdown, toggle, avatarDropdownRef } = useAvatarDropdownClose()
 
   return (
-    <div className={`relative z-10 ${classNameDropdownContainer}`} ref={dropdownContainerRef}>
-      <div className="cursor-pointer hover:brightness-75 duration-300" onClick={() => setIsDropdown(!isDropdown)}>
+    <div className={`relative z-10 ${classNameDropdownContainer}`} ref={avatarDropdownRef}>
+      <div className="cursor-pointer hover:brightness-75 duration-300" onClick={toggle}>
         {icon}
       </div>
 

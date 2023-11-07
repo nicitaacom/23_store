@@ -1,13 +1,15 @@
 import { create } from "zustand"
 
 type AvatarDropdownStore = {
-  isOpen: boolean
-  openModal: () => void
-  closeModal: () => void
+  isDropdown: boolean
+  openDropdown: () => void
+  closeDropdown: () => void
+  toggle: () => void
 }
 
-export const useAvatarDropdown = create<AvatarDropdownStore>()(set => ({
-  isOpen: false,
-  openModal: () => set({ isOpen: true }),
-  closeModal: () => set({ isOpen: false }),
+export const useAvatarDropdown = create<AvatarDropdownStore>()((set, get) => ({
+  isDropdown: false,
+  openDropdown: () => set({ isDropdown: true }),
+  closeDropdown: () => set({ isDropdown: false }),
+  toggle: () => set({ isDropdown: !get().isDropdown }),
 }))

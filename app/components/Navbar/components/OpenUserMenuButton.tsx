@@ -12,11 +12,23 @@ import { SwitchDarkMode } from "@/components"
 import { contact } from "@/constant/contacts"
 import { DropdownContainer, DropdownItem } from "@/components/ui"
 import { useAvatarDropdown } from "@/store/ui/avatarDropdown"
+import { useRouter } from "next/navigation"
 
 export function OpenUserMenuButton() {
+  const router = useRouter()
   const avatarDropdown = useAvatarDropdown()
   const userStore = useUserStore()
   const mode = useDarkMode()
+
+  function openAdminPanel() {
+    router.push("?modal=AdminPanel")
+    avatarDropdown.closeDropdown()
+  }
+
+  function openChangeLanguageModal() {
+    router.push("?modal=ChangeLanguage")
+    avatarDropdown.closeDropdown()
+  }
 
   return (
     <DropdownContainer
@@ -34,7 +46,7 @@ export function OpenUserMenuButton() {
           />
         </>
       }>
-      <DropdownItem label="Admin panel" icon={BsWindow} href="?modal=AdminPanel" />
+      <DropdownItem label="Admin panel" icon={BsWindow} onClick={openAdminPanel} />
       <DropdownItem
         className="flex justify-center mobile:hidden"
         label="Support"
@@ -42,7 +54,7 @@ export function OpenUserMenuButton() {
         href={contact.telegram}
         target="_blank"
       />
-      <DropdownItem label="Change language" icon={TbWorld} href="?modal=ChangeLanguage" />
+      <DropdownItem label="Change language" icon={TbWorld} onClick={openChangeLanguageModal} />
       <DropdownItem
         className="min-[501px]:hidden"
         label="Dark mode"
