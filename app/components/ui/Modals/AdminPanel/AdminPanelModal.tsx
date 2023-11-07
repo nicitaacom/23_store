@@ -10,7 +10,7 @@ import { RadioButton } from "@/components/ui"
 import useUserStore from "@/store/user/userStore"
 import { IDBProduct } from "@/interfaces/IDBProduct"
 
-import { ModalContainer } from "../../ModalContainer"
+import { ModalQueryContainer } from "../../ModalQueryContainer"
 import { EditProductForm } from "./components/EditProductForm"
 import { AddProductForm } from "./components/AddProductForm"
 import { DeleteProductForm } from "./components/DeleteProductForm"
@@ -35,7 +35,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
   }, [])
 
   return (
-    <ModalContainer
+    <ModalQueryContainer
       className={twMerge(
         `w-[100vw] max-w-[768px] max-h-full
       flex flex-col bg-primary rounded-md border-[1px] border-solid border-border-color pt-8 transition-all duration-500`,
@@ -105,6 +105,6 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
 
         {productAction === "Delete product" && <DeleteProductForm ownerProducts={ownerProducts} />}
       </div>
-    </ModalContainer>
+    </ModalQueryContainer>
   )
 }

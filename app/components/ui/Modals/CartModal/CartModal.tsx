@@ -15,11 +15,11 @@ import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
 import EmptyCart from "./EmptyCart"
 import { formatCurrency } from "@/utils/currencyFormatter"
-import { ModalContainer } from "@/components/ui/ModalContainer"
 
 //Are you sure in what - please use clear naming
 import { Button, Slider } from "../.."
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
+import { ModalQueryContainer } from "../../ModalQueryContainer"
 
 interface CartModalProps {
   label: string
@@ -241,7 +241,7 @@ export function CartModal({ label }: CartModalProps) {
   }
 
   return (
-    <ModalContainer
+    <ModalQueryContainer
       className="w-screen h-screen laptop:max-w-[1024px] laptop:max-h-[640px] pt-8"
       modalQuery="CartModal">
       <div className="relative flex flex-col gap-y-8 pb-8 w-full h-full overflow-y-scroll">
@@ -399,6 +399,6 @@ export function CartModal({ label }: CartModalProps) {
           <EmptyCart />
         )}
       </div>
-    </ModalContainer>
+    </ModalQueryContainer>
   )
 }
