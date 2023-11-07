@@ -7,8 +7,8 @@ interface UserStore {
   isAuthenticated: boolean
   username: string
   email: string
-  profilePictureUrl: string
-  setUser: (userId: string, username: string, email: string, profilePictureUrl: string) => void
+  avatarUrl: string
+  setUser: (userId: string, username: string, email: string, avatarUrl: string) => void
   logoutUser: () => void
 }
 
@@ -19,15 +19,15 @@ export const userStore = (set: SetState): UserStore => ({
   isAuthenticated: false,
   username: "",
   email: "",
-  profilePictureUrl: "",
-  setUser(userId: string, username: string, email: string, profilePictureUrl: string) {
+  avatarUrl: "",
+  setUser(userId: string, username: string, email: string, avatarUrl: string) {
     set((state: UserStore) => ({
       ...state,
       userId: userId,
       isAuthenticated: true,
       username: username,
       email: email,
-      profilePictureUrl: profilePictureUrl,
+      avatarUrl: avatarUrl,
     }))
   },
   logoutUser() {
@@ -37,7 +37,7 @@ export const userStore = (set: SetState): UserStore => ({
       isAuthenticated: false,
       username: "",
       email: "",
-      profilePictureUrl: "",
+      avatarUrl: "",
     }))
   },
 })

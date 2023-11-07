@@ -11,8 +11,10 @@ import LogoutDropdownItem from "./LogoutDropdownItem"
 import { SwitchDarkMode } from "@/components"
 import { contact } from "@/constant/contacts"
 import { DropdownContainer, DropdownItem } from "@/components/ui"
+import { useAvatarDropdown } from "@/store/ui/avatarDropdown"
 
 export function OpenUserMenuButton() {
+  const avatarDropdown = useAvatarDropdown()
   const userStore = useUserStore()
   const mode = useDarkMode()
 
@@ -25,7 +27,7 @@ export function OpenUserMenuButton() {
         <>
           <Image
             className="w-[32px] h-[32px] rounded-full"
-            src={userStore.profilePictureUrl ? userStore.profilePictureUrl : "/placeholder.jpg"}
+            src={userStore.avatarUrl ? userStore.avatarUrl : "/placeholder.jpg"}
             alt="user logo"
             width={32}
             height={32}
