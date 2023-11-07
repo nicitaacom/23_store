@@ -1,3 +1,39 @@
+## Pull requests
+
+[PR#59]-imp-close_avatar_dropdown_on_item_click
+In case task related to this PR done you - in [] you write PR and number of this PR
+
+[PR#59-UPD]-imp-close_avatar_dropdown_on_item_click
+In case task not done every day when you finish coding you do this PR - in [] you write PR and number of this PR and -UPD
+
+## Github projects
+
+### Task naming
+
+in case you need to create some task you name this task like below
+add-close_authModal_button
+imp-close_avatarDropdown_onClickOutside
+add-root-open_supportModal_button
+add-ProductTSX-requestReplanishment_button
+add-open_supporDropdown_button_UI+logic
+imp-auth
+fix-sendEmailToUnauthorizedUser_afterPayment
+More examples - https://github.com/users/nicitaacom/projects/5/views/1?sortedBy%5Bdirection%5D=desc&sortedBy%5BcolumnId%5D=59471618&pane=issue
+
+1. Start with **add** if you need to add smth and **imp** if you need to improve and **fix** if you need to fix smth
+2. Add 3-4 _snake_case_ worlds what do you want to add
+   Basicaly on:
+   firstWorld you write logic that object should do e.g close
+
+   secondWorld you write where it should be e.g authModal
+
+   thirdWorld you write object that do something e.g button
+
+   fourthWorld you write condition e.g onCloseOutside
+
+3. Just check more examples - to get understanding (because for example not always you should write)
+   in which file you need imp or fix smth because it may obvioulsy
+
 To write documentation for your project, you can follow these guidelines:
 
 a. Start with an overview: Provide an introduction to your E-commerce project, describing its purpose and goals. Explain the technologies and frameworks you used.
@@ -28,3 +64,4 @@ j. Deployment: Explain how to deploy your project to a live environment. Include
 
 From me:
 1)I want add somewhere how to use supabase (select column row etc) - it may be dev_reamde.md in libs folder
+2)add-guide_for_env
