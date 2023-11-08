@@ -56,7 +56,7 @@ body,
   /* This is strongly recommended when modal isOpen */
   /* overflow-y: auto; */
   /* Red color because user should not see this */
-  background-color: red;
+  background-color: green;
 }
 
 * {
