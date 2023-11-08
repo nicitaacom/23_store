@@ -25,7 +25,7 @@ export function FormatTitleForm({ id, title }: FormatTitleFormpProps) {
 
   async function updateTitle(title: string) {
     setIsLoading(true)
-    const updateTitleResponse = await axios.post("/api/products/update", {
+    await axios.post("/api/products/update", {
       productId: id,
       title: title,
     } as TUpdateProductRequest)

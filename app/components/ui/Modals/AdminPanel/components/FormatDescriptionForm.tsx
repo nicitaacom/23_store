@@ -9,6 +9,8 @@ import { twMerge } from "tailwind-merge"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
 import supabaseClient from "@/libs/supabaseClient"
+import axios from "axios"
+import { TUpdateProductRequest } from "@/api/products/update/route"
 
 interface FormatDescriptionFormProps {
   id: string
@@ -23,7 +25,7 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
 
   async function updateTitle(subTitle: string) {
     setIsLoading(true)
-    await supabaseClient.from("products").update({ sub_title: subTitle }).eq("id", id)
+    await axios.post("/api/products/update", { productId: id, subTitle: subTitle } as TUpdateProductRequest)
     setIsEditing(false)
     setIsLoading(false)
     router.refresh()

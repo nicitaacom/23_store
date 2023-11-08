@@ -82,6 +82,14 @@ export async function POST(req: Request) {
     if (subTitle) {
       //Update on Stripe https://stripe.com/docs/api/products/update
       const productResponse = await stripe.products.update(productId, { description: subTitle })
+      const { error: update_description_error } = await supabaseServerAction()
+        .from("products")
+        .update({ sub_title: subTitle })
+        .eq("id", productId)
+      if (update_description_error)
+        throw new Error(
+          `update product sub_title \n Path:/api/products/update/route.ts \n Error message:\n ${update_description_error.message}`,
+        )
 
       //Active product if it not active
       if (!productResponse.active) {
