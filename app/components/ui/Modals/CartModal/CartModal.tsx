@@ -76,12 +76,6 @@ export function CartModal({ label }: CartModalProps) {
     .map(item => `payPalProducts=${encodeURIComponent(JSON.stringify(item))}`)
     .join("&")
 
-  //for metamask
-  const amount = cartStore.productsData
-    .filter(product => product.on_stock > 0)
-    .map(product => product.price * product.quantity)
-    .reduce((sum, price) => sum + price, 0)
-
   /* Metamask implementation */
   const [hasProvider, setHasProvider] = useState<boolean | null>(null)
   const initialState = { accounts: [], balance: "", chainId: "" }
@@ -143,11 +137,10 @@ export function CartModal({ label }: CartModalProps) {
 
     try {
       const response = await axios.post(`${location.origin}/api/coinmarketcap`, {
-        amount: amount,
+        amount: cartStore.getProductsPrice(),
         symbol: "USD",
         convert: "ETH",
       })
-
       const ETHPrice = response.data.data[0].quote.ETH.price
 
       window.ethereum
@@ -166,6 +159,7 @@ export function CartModal({ label }: CartModalProps) {
         })
         .then((txHash: string) => {
           router.push(`${location.origin}/payment?status=success`)
+          //TODO - add this txHash to query params when I check is payment with metamask is actually work
           console.log(169, "You may use txHash as check QR code or payment identifier - ", txHash)
         })
         .catch((error: Error) => {
@@ -174,8 +168,8 @@ export function CartModal({ label }: CartModalProps) {
             : toast.show("error", "Unknown error", error.message)
         })
         .finally(() => setIsConnecting(false))
-    } catch (error) {
-      console.log(178, "Payment with metamask error -", error)
+    } catch (error: any) {
+      toast.show("error", "Failed to pay with metamask", error.message as string)
     }
   }
 
