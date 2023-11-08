@@ -17,6 +17,7 @@ export function AreYouSureClearCartButton() {
       primaryButtonAction={cartStore.clearCart}
       primaryButtonLabel="Delete"
       secondaryButtonAction={areYouSuteClearCartModal.closeModal}
-      secondaryButtonLabel="Back"></AreYouSureModalContainer>
+      secondaryButtonLabel="Back"
+    />
   )
 }
