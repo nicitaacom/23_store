@@ -170,6 +170,7 @@ export function CartModal({ label }: CartModalProps) {
         .finally(() => setIsConnecting(false))
     } catch (error: any) {
       toast.show("error", "Failed to pay with metamask", error.message as string)
+      setIsConnecting(false)
     }
   }
 
