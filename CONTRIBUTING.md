@@ -6,6 +6,12 @@ In case task related to this PR done you - in [] you write PR and number of this
 [PR#59-UPD]-imp-close_avatar_dropdown_on_item_click
 In case task not done every day when you finish coding you do this PR - in [] you write PR and number of this PR and -UPD
 
+<br/>
+
+---
+
+<br/>
+
 ## Github projects
 
 ### Task naming
@@ -33,6 +39,27 @@ More examples - https://github.com/users/nicitaacom/projects/5/views/1?sortedBy%
 
 3. Just check more examples - to get understanding (because for example not always you should write)
    in which file you need imp or fix smth because it may obvioulsy
+
+### Commit naming
+
+style: mb-8 instead of pb-8
+chore: AvatarDropdown.tsx incapsulated
+chore: ModalContainer renamed to ModalQueryContainer
+upd: store for avatarDropdown created
+feat: close avatarDropdown on DropdownItem click
+docs: commit naming add
+
+1. chore - for update that doesn't affect on user
+2. style - only styling changes
+3. upd - some minor changes that leads to feat
+4. feat - for some ready feature
+5. docs - for docs changes
+
+<br/>
+
+---
+
+<br/>
 
 To write documentation for your project, you can follow these guidelines:
 
