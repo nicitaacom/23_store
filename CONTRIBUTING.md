@@ -55,6 +55,18 @@ docs: commit naming add
 4. feat - for some ready feature
 5. docs - for docs changes
 
+### Updating from development
+
+I use github desktop so I write for this (if you prefer to use terminal do it through teminal)
+
+1. ctrl+shift+u
+2. click 'Push'
+3. click 'History'
+4. RMB on last commit
+5. Amend commit
+6. Edit commit message to 'Update from 'development'
+7. Click 'Force push origin'
+
 <br/>
 
 ---
