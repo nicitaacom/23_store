@@ -36,7 +36,6 @@ export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps)
   async function createProduct(images: ImageListType, title: string, subTitle: string, price: number, onStock: number) {
     setIsLoading(true)
     try {
-      throw Error("test error message")
       //Check images length and is stripe mounted
       if (images.length > 0 && stripe) {
         //create product on stripe
