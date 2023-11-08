@@ -71,14 +71,9 @@ export function AreYouSureModalContainer({
   const [showModal, setShowModal] = useState(isOpen)
   console.log("showModal - ", showModal)
 
-  /* onOpen - show modal - disable scroll and scrollbar */
+  /* onOpen - show modal */
   useEffect(() => {
     setShowModal(isOpen)
-    if (isOpen) {
-      document.body.style.overflow = "hidden"
-      document.body.style.width = "calc(100% - 16px)"
-      document.getElementById("nav")!.style.width = "calc(100% - 16px)"
-    }
   }, [isOpen])
 
   //correct way to add event listener to listen keydown
@@ -91,8 +86,6 @@ export function AreYouSureModalContainer({
   /* onClose - close modal - show scrollbar */
   function closeModal() {
     secondaryButtonAction()
-    document.body.removeAttribute("style")
-    document.getElementById("nav")!.removeAttribute("style")
   }
 
   //Close modal on esc
