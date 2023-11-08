@@ -92,7 +92,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
           </RadioButton>
         </li>
       </ul>
-      <div className={twMerge(`relative w-full h-full mb-8 flex flex-col items-center overflow-y-auto`)}>
+      <div className={twMerge(`relative w-full h-full flex flex-col items-center overflow-y-auto`)}>
         {/* ADD PRODUCT */}
 
         {productAction === "Add product" && <AddProductForm isLoading={isLoading} setIsLoading={setIsLoading} />}
