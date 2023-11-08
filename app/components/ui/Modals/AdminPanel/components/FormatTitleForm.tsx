@@ -2,13 +2,15 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import supabaseClient from "@/libs/supabaseClient"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 import { useForm } from "react-hook-form"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import axios from "axios"
+import { TUpdateProductRequest } from "@/api/products/update/route"
+import useToast from "@/store/ui/useToast"
 
 interface FormatTitleFormpProps {
   id: string
@@ -23,10 +25,13 @@ export function FormatTitleForm({ id, title }: FormatTitleFormpProps) {
 
   async function updateTitle(title: string) {
     setIsLoading(true)
-    await supabaseClient.from("products").update({ title: title }).eq("id", id)
+    const updateTitleResponse = await axios.post("/api/products/update", {
+      productId: id,
+      title: title,
+    } as TUpdateProductRequest)
+    router.refresh()
     setIsEditing(false)
     setIsLoading(false)
-    router.refresh()
   }
 
   const {
