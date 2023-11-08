@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/Button"
 import useDragging from "@/hooks/ui/useDragging"
 import { twMerge } from "tailwind-merge"
 import { useRouter } from "next/navigation"
-import useCartStore from "@/store/user/cartStore"
+import useToast from "@/store/ui/useToast"
 
 interface AddProductFormProps {
   isLoading: boolean
@@ -25,6 +25,7 @@ interface AddProductFormProps {
 export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps) {
   const router = useRouter()
   const userStore = useUserStore()
+  const toast = useToast()
   const { isDraggingg } = useDragging()
 
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
@@ -35,6 +36,7 @@ export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps)
   async function createProduct(images: ImageListType, title: string, subTitle: string, price: number, onStock: number) {
     setIsLoading(true)
     try {
+      throw Error("test error message")
       //Check images length and is stripe mounted
       if (images.length > 0 && stripe) {
         //create product on stripe
@@ -87,7 +89,7 @@ export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps)
         displayResponseMessage(<p className="text-danger">Upload the image</p>)
       }
     } catch (error) {
-      console.log(94, "createProduct_error - ", error)
+      toast.show("error", "Failed to add product")
     } finally {
       setIsLoading(false)
     }
