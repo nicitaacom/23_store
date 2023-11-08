@@ -1,7 +1,9 @@
 "use client"
 
-import { AreYouSureDeleteProductModal } from "@/components/ui/Modals/AreYouSureDeleteProductModal"
 import { useEffect, useState } from "react"
+
+import { AreYouSureDeleteProductModal } from "@/components/ui/Modals/AreYouSureDeleteProductModal"
+import { CtrlKModal } from "@/components/ui/Modals/CtrlKModal"
 
 export function ModalsProvider() {
   const [isMounted, setIsMounted] = useState(false)
@@ -18,6 +20,7 @@ export function ModalsProvider() {
     <>
       {/* <AreYouSureClearCartModal/> */}
       <AreYouSureDeleteProductModal />
+      <CtrlKModal />
     </>
   )
 }

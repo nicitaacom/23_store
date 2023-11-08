@@ -26,6 +26,6 @@ export async function GET(request: Request) {
 
   return NextResponse.redirect(
     `${requestUrl.origin}/auth/client?userId=${user?.id}&username=${user?.user_metadata.name}
-    &email=${user?.user_metadata.email}&profile_picture_url=${user?.user_metadata.picture}`,
+    &email=${user?.user_metadata.email}&avatar_url=${user?.user_metadata.picture}`,
   )
 }

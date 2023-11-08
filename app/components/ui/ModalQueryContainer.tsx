@@ -7,14 +7,14 @@ import { useSwipeable } from "react-swipeable"
 import { twMerge } from "tailwind-merge"
 import { AnimatePresence, motion } from "framer-motion"
 
-interface ModalContainerProps {
+interface ModalQueryContainerProps {
   children: React.ReactNode
   modalQuery: string
   className?: string
   isLoading?: boolean
 }
 
-export function ModalContainer({ children, modalQuery, className, isLoading }: ModalContainerProps) {
+export function ModalQueryContainer({ children, modalQuery, className, isLoading }: ModalQueryContainerProps) {
   const pathname = usePathname()
   const router = useRouter()
   const queryParams = useSearchParams()

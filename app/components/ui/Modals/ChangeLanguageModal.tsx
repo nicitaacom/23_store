@@ -1,15 +1,15 @@
-import { ModalContainer } from "../ModalContainer"
+import { ModalQueryContainer } from "./ModalContainers/ModalQueryContainer"
 import { Button } from ".."
 import { languages } from "@/constant/languages"
 import Image from "next/image"
 
-interface NameModalProps {
+interface ChangeLanguageModalProps {
   label: string
 }
 
-export function ChangeLanguageModal({ label }: NameModalProps) {
+export function ChangeLanguageModal({ label }: ChangeLanguageModalProps) {
   return (
-    <ModalContainer className="w-full max-w-[450px] py-4" modalQuery="ChangeLanguage">
+    <ModalQueryContainer className="w-full max-w-[450px] py-4" modalQuery="ChangeLanguage">
       {/* ANY CONTENT (to keep consistent keep {label})*/}
       <div className="flex flex-col gap-y-2">
         <h1 className="flex justify-center text-2xl">{label}</h1>
@@ -22,6 +22,6 @@ export function ChangeLanguageModal({ label }: NameModalProps) {
           ))}
         </ul>
       </div>
-    </ModalContainer>
+    </ModalQueryContainer>
   )
 }

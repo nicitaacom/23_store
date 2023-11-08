@@ -18,8 +18,9 @@ export function NavbarWrapper({ children }: { children: React.ReactNode }) {
   }, [])
   return (
     <nav
-      className={`fixed flex flex-row justify-between items-center 
-    px-4 tablet:px-6 laptop:px-8 py-2 max-h-[64px] mx-auto z-[99] text-title w-full transition-all duration-300
+      id="nav"
+      className={`relative w-full min-h-[64px] flex flex-row justify-between items-center 
+    px-4 tablet:px-6 laptop:px-8 py-2 mx-auto z-[99] text-title transition-colors duration-300
     ${scrollPosition < 40 ? "bg-background" : "bg-foreground"}`}>
       {children}
     </nav>

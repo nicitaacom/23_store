@@ -15,11 +15,11 @@ import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
 import EmptyCart from "./EmptyCart"
 import { formatCurrency } from "@/utils/currencyFormatter"
-import { ModalContainer } from "@/components/ui/ModalContainer"
 
 //Are you sure in what - please use clear naming
 import { Button, Slider } from "../.."
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
+import { ModalQueryContainer } from "../../ModalQueryContainer"
 
 interface CartModalProps {
   label: string
@@ -28,7 +28,7 @@ interface CartModalProps {
 export function CartModal({ label }: CartModalProps) {
   const router = useRouter()
   const cartStore = useCartStore()
-  const AreYouSureClearCartModal = useAreYouSureClearCartModal()
+  const areYouSureClearCartModal = useAreYouSureClearCartModal()
   const toast = useToast()
   const { isAuthenticated } = useUserStore()
 
@@ -166,7 +166,7 @@ export function CartModal({ label }: CartModalProps) {
         })
         .then((txHash: string) => {
           router.push(`${location.origin}/payment?status=success`)
-          console.log("txHash - ", txHash)
+          console.log(169, "You may use txHash as check QR code or payment identifier - ", txHash)
         })
         .catch((error: Error) => {
           error.message.includes("MetaMask Tx Signature: User denied transaction signature.")
@@ -175,7 +175,7 @@ export function CartModal({ label }: CartModalProps) {
         })
         .finally(() => setIsConnecting(false))
     } catch (error) {
-      console.log("Error -", error)
+      console.log(178, "Payment with metamask error -", error)
     }
   }
 
@@ -241,7 +241,7 @@ export function CartModal({ label }: CartModalProps) {
   }
 
   return (
-    <ModalContainer
+    <ModalQueryContainer
       className="w-screen h-screen laptop:max-w-[1024px] laptop:max-h-[640px] pt-8"
       modalQuery="CartModal">
       <div className="relative flex flex-col gap-y-8 pb-8 w-full h-full overflow-y-scroll">
@@ -360,7 +360,7 @@ export function CartModal({ label }: CartModalProps) {
                     Total:&nbsp;
                     <span>{formatCurrency(cartStore.getProductsPrice())}</span>
                   </h1>
-                  <Button variant="danger" onClick={AreYouSureClearCartModal.openModal}>
+                  <Button variant="danger" onClick={areYouSureClearCartModal.openModal}>
                     Clear cart
                   </Button>
                 </div>
@@ -399,6 +399,6 @@ export function CartModal({ label }: CartModalProps) {
           <EmptyCart />
         )}
       </div>
-    </ModalContainer>
+    </ModalQueryContainer>
   )
 }

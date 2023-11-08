@@ -9,8 +9,14 @@ interface SearchPageProps {
 }
 
 export function generateMetadata({ searchParams: { query } }: SearchPageProps): Metadata {
+  if (query === undefined) {
+    return {
+      title: `Search - 23_store`,
+    }
+  }
+
   return {
-    title: `Search ${query} - Flowmazon`,
+    title: `Search ${query} - 23_store`,
   }
 }
 
