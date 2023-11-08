@@ -41,6 +41,10 @@ export function ModalQueryContainer({ children, modalQuery, className, isLoading
 
   //Close modal on esc
   const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
+      //to prevent focus state on browser searchbar
+      event.preventDefault()
+    }
     if (event.key === "Escape" && !isLoading) {
       closeModal()
     }
