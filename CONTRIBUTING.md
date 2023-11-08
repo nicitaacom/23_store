@@ -55,6 +55,10 @@ docs: commit naming add
 4. feat - for some ready feature
 5. docs - for docs changes
 
+### Branch naming
+
+Just name your branch as task name e.g `imp-close_avatarDropdown_onClickOutside`
+
 ### Updating from development
 
 I use github desktop so I write for this (if you prefer to use terminal do it through teminal)
