@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 
 import useDarkMode from "@/store/ui/darkModeStore"
 import useToast from "@/store/ui/useToast"

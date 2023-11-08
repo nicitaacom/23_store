@@ -28,9 +28,9 @@ export function Toast() {
           {subTitle ? (
             subTitle
           ) : error ? (
-            <p>
+            <p className="flex flex-wrap">
               Unknown error please contact -&nbsp;
-              <Button className="text-info" href="t.me/nicitaacom">
+              <Button className="inline-block text-info" variant="link" href="t.me/nicitaacom">
                 Admin
               </Button>
             </p>
