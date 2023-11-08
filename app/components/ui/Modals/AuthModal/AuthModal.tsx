@@ -65,7 +65,7 @@ export function AuthModal({ label }: AdminModalProps) {
 
         if (user.user) {
           const { data: metadata } = await supabaseClient.auth.getUser()
-          console.log(68, "metadata - ", metadata)
+          // TODO - set metadata with userStore.setUser
           displayResponseMessage(<p className="text-success">You are logged in</p>)
           reset()
           router.refresh()
@@ -73,7 +73,6 @@ export function AuthModal({ label }: AdminModalProps) {
       } catch (error: unknown) {
         if (error instanceof Error) {
           displayResponseMessage(<p className="text-danger">{error.message}</p>)
-          console.error("Login with email - ", error)
         } else {
           displayResponseMessage(
             <p className="text-danger">
@@ -83,7 +82,6 @@ export function AuthModal({ label }: AdminModalProps) {
               </Button>
             </p>,
           )
-          console.error("Unknown error - ", error)
         }
       }
     }
@@ -116,7 +114,6 @@ export function AuthModal({ label }: AdminModalProps) {
       } catch (error: unknown) {
         if (error instanceof Error) {
           displayResponseMessage(<p className="text-danger">{error.message}</p>)
-          console.error("Login with email - ", error)
         } else {
           displayResponseMessage(
             <p className="text-danger">
@@ -126,7 +123,6 @@ export function AuthModal({ label }: AdminModalProps) {
               </Button>
             </p>,
           )
-          console.error("Unknown error - ", error)
         }
       }
     }
@@ -171,7 +167,6 @@ export function AuthModal({ label }: AdminModalProps) {
         } else {
           displayResponseMessage(<p className="text-danger">{error.message}</p>)
         }
-        console.error("Login with email - ", error)
       } else {
         displayResponseMessage(
           <p className="text-danger">
@@ -181,7 +176,6 @@ export function AuthModal({ label }: AdminModalProps) {
             </Button>
           </p>,
         )
-        console.error("Unknown error - ", error)
       }
     }
   }
@@ -197,7 +191,6 @@ export function AuthModal({ label }: AdminModalProps) {
     } catch (error) {
       if (error instanceof Error) {
         displayResponseMessage(<p className="text-danger">{error.message}</p>)
-        console.error("Login with email - ", error)
       } else {
         displayResponseMessage(
           <p className="text-danger">
@@ -207,7 +200,6 @@ export function AuthModal({ label }: AdminModalProps) {
             </Button>
           </p>,
         )
-        console.error("Unknown error - ", error)
       }
     }
   }
@@ -222,7 +214,6 @@ export function AuthModal({ label }: AdminModalProps) {
     } catch (error) {
       if (error instanceof Error) {
         displayResponseMessage(<p className="text-danger">{error.message}</p>)
-        console.error("Login with email - ", error)
       } else {
         displayResponseMessage(
           <p className="text-danger">
@@ -232,7 +223,6 @@ export function AuthModal({ label }: AdminModalProps) {
             </Button>
           </p>,
         )
-        console.error("Unknown error - ", error)
       }
     }
   }
@@ -246,10 +236,8 @@ export function AuthModal({ label }: AdminModalProps) {
     } catch (error) {
       if (error instanceof Error && error.message === "New password should be different from the old password.") {
         displayResponseMessage(<p className="text-danger">Its already your password - enter new one</p>)
-        console.error("Login with email - ", error)
       } else if (error instanceof Error) {
         displayResponseMessage(<p className="text-danger">{error.message}</p>)
-        console.error("Login with email - ", error)
       } else {
         displayResponseMessage(
           <p className="text-danger">
@@ -259,7 +247,6 @@ export function AuthModal({ label }: AdminModalProps) {
             </Button>
           </p>,
         )
-        console.error("Unknown error - ", error)
       }
     }
   }
