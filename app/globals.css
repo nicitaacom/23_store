@@ -51,7 +51,12 @@ html,
 body,
 :root {
   height: 100%;
-  background-color: #202020;
+  width: 100%;
+  overflow: hidden;
+  /* This is strongly recommended when modal isOpen */
+  /* overflow-y: auto; */
+  /* Red color because user should not see this */
+  background-color: red;
 }
 
 * {

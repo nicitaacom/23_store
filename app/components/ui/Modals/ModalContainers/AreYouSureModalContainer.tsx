@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import { IoMdClose } from "react-icons/io"
 import { IconType } from "react-icons"
@@ -5,9 +7,9 @@ import { useSwipeable } from "react-swipeable"
 import { AnimatePresence, motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 
-import { Button } from "."
+import { Button } from "../.."
 
-interface ModalContainerProps {
+interface AreYouSureModalContainerProps {
   isOpen: boolean
   isLoading?: boolean
   label: string | React.ReactNode
@@ -52,9 +54,9 @@ interface ModalContainerProps {
   className?: string
 }
 
-export function AreYouSureModal({
-  isOpen,
-  isLoading,
+export function AreYouSureModalContainer({
+  isOpen = false,
+  isLoading = false,
   label,
   primaryButtonVariant,
   primaryButtonIcon: PrimaryButtonIcon,
@@ -65,15 +67,17 @@ export function AreYouSureModal({
   secondaryButtonAction,
   secondaryButtonLabel,
   className,
-}: ModalContainerProps) {
+}: AreYouSureModalContainerProps) {
   const [showModal, setShowModal] = useState(isOpen)
+  console.log(72, "showModal - ", showModal)
 
   /* onOpen - show modal - disable scroll and scrollbar */
   useEffect(() => {
     setShowModal(isOpen)
     if (isOpen) {
       document.body.style.overflow = "hidden"
-      document.body.style.width = "calc(100% - 17px)"
+      document.body.style.width = "calc(100% - 16px)"
+      document.getElementById("nav")!.style.width = "calc(100% - 16px)"
     }
   }, [isOpen])
 
@@ -88,6 +92,7 @@ export function AreYouSureModal({
   function closeModal() {
     secondaryButtonAction()
     document.body.removeAttribute("style")
+    document.getElementById("nav")!.removeAttribute("style")
   }
 
   //Close modal on esc

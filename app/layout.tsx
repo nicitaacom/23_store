@@ -3,7 +3,6 @@ import "./globals.css"
 import type { Metadata } from "next"
 
 import { Layout } from "./components"
-import Navbar from "./components/Navbar/Navbar"
 import {
   AdminPanelModalContainer,
   AuthModalContainer,
@@ -14,8 +13,7 @@ import { AdminPanelModal, AuthModal, CartModal, ChangeLanguageModal } from "./co
 import ClientOnly from "./components/ClientOnly"
 import getOwnerProducts from "./actions/getOwnerProducts"
 import { ModalsProvider } from "./providers/ModalsProvider"
-import { InitialPageLoadingSkeleton } from "./components/Skeletons/InitialPageLoadingSkeleton"
-import { Dispatch, SetStateAction } from "react"
+import Navbar from "./components/Navbar/Navbar"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -42,8 +40,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en">
       <body>
         <ClientOnly>
-          <Navbar />
-          <Layout>{children}</Layout>
+          <Layout>
+            <Navbar />
+            {children}
+          </Layout>
           <ModalsProvider />
           <CartModalContainer>
             <CartModal label="Cart" />

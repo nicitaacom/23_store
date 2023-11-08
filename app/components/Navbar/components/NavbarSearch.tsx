@@ -17,12 +17,13 @@ async function searchProducts(formData: FormData) {
   }
 }
 
-export function NavbarSearch() {
+export function NavbarSearch({ children: Children }: { children: React.ReactNode }) {
   return (
     <form action={searchProducts}>
       <SearchInput
         className="hidden tablet:flex w-[40vw] max-w-[600px]"
         startIcon={<BiSearchAlt size={24} />}
+        endIcon={Children}
         name="searchQuery"
         placeholder="Search..."
       />

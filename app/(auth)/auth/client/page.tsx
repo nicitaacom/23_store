@@ -11,9 +11,9 @@ export default function Page() {
   const userId = useSearchParams().get("userId")
   const username = useSearchParams().get("username")
   const email = useSearchParams().get("email")
-  const profile_picture_url = useSearchParams().get("profile_picture_url")
+  const avatar_url = useSearchParams().get("avatar_url")
   useEffect(() => {
-    userStore.setUser(userId ?? "", username ?? "", email ?? "", profile_picture_url ?? "")
+    userStore.setUser(userId ?? "", username ?? "", email ?? "", avatar_url ?? "")
     router.push("/")
     //to prevent error about too many re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps

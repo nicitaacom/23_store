@@ -5,6 +5,7 @@ interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   type?: string
   className?: string
   startIcon?: React.ReactElement
+  endIcon?: React.ReactNode
   pattern?: string
   name?: string
   required?: boolean
@@ -14,6 +15,7 @@ export function SearchInput({
   type = "text",
   className = "",
   startIcon,
+  endIcon,
   pattern,
   required = false,
   name,
@@ -32,6 +34,7 @@ export function SearchInput({
         required={required}
         {...props}
       />
+      <div className="absolute right-0 top-[50%] translate-y-[-55%] translate-x-[-25%]">{endIcon}</div>
     </div>
   )
 }
