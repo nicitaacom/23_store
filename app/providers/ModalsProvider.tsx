@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { AreYouSureDeleteProductModal } from "@/components/ui/Modals/AreYouSureDeleteProductModal"
 import { CtrlKModal } from "@/components/ui/Modals/CtrlKModal"
 
+//This provider uses only for modals based on useState
 export function ModalsProvider() {
   const [isMounted, setIsMounted] = useState(false)
 
