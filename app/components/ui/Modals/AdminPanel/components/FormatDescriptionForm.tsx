@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation"
 import { CiEdit } from "react-icons/ci"
 import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
+import axios from "axios"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
-import supabaseClient from "@/libs/supabaseClient"
-import axios from "axios"
 import { TUpdateProductRequest } from "@/api/products/update/route"
 
 interface FormatDescriptionFormProps {
