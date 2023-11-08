@@ -11,10 +11,11 @@ import { AuthError } from "@supabase/supabase-js"
 
 import { FormInput } from "../../Inputs/Validation/FormInput"
 import ContinueWithButton from "@/(auth)/components/ContinueWithButton"
-import { Button, Checkbox, ModalQueryContainer } from "../.."
+import { Button, Checkbox } from "../.."
 import { Timer } from "@/(auth)/components"
 import useDarkMode from "@/store/ui/darkModeStore"
 import useUserStore from "@/store/user/userStore"
+import { ModalQueryContainer } from "../ModalContainers"
 
 interface AdminModalProps {
   label: string
