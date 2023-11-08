@@ -2,18 +2,11 @@ import "./globals.css"
 
 import type { Metadata } from "next"
 
-import { Layout } from "./components"
-import {
-  AdminPanelModalContainer,
-  AuthModalContainer,
-  CartModalContainer,
-  ChangeLanguageModalContainer,
-} from "./components/ui/Modals/ModalContainers"
-import { AdminPanelModal, AuthModal, CartModal, ChangeLanguageModal } from "./components/ui/Modals"
-import ClientOnly from "./components/ClientOnly"
 import getOwnerProducts from "./actions/getOwnerProducts"
-import { ModalsProvider } from "./providers/ModalsProvider"
+import { Layout } from "./components"
+import ClientOnly from "./components/ClientOnly"
 import Navbar from "./components/Navbar/Navbar"
+import { ModalsProvider, ModalsQueryProvider } from "./providers"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -45,18 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {children}
           </Layout>
           <ModalsProvider />
-          <CartModalContainer>
-            <CartModal label="Cart" />
-          </CartModalContainer>
-          <AuthModalContainer>
-            <AuthModal label="Auth" />
-          </AuthModalContainer>
-          <ChangeLanguageModalContainer>
-            <ChangeLanguageModal label="Change language" />
-          </ChangeLanguageModalContainer>
-          <AdminPanelModalContainer>
-            <AdminPanelModal label="Add product" ownerProducts={ownerProducts ?? []} />
-          </AdminPanelModalContainer>
+          <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
         </ClientOnly>
       </body>
     </html>
