@@ -80,7 +80,6 @@ export function CartModal({ label }: CartModalProps) {
   const [hasProvider, setHasProvider] = useState<boolean | null>(null)
   const initialState = { accounts: [], balance: "", chainId: "" }
   const [wallet, setWallet] = useState(initialState)
-  const [ETHprice, setETHPrice] = useState(0)
 
   const [isConnecting, setIsConnecting] = useState(false)
 
