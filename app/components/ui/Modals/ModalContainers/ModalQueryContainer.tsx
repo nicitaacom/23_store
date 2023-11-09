@@ -31,8 +31,6 @@ export function ModalQueryContainer({ children, modalQuery, className, isLoading
 
   // Close modal and redirect on close
   const closeModal = useCallback(() => {
-    document.body.removeAttribute("style")
-    document.getElementById("nav")!.removeAttribute("style")
     setShouldClose(true)
     setTimeout(() => {
       router.push(pathname)
