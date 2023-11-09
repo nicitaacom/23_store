@@ -60,7 +60,6 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
   useEffect(() => {
     const ref = inputRef.current
     // https://github.com/react-hook-form/react-hook-form/issues/11135
-    // console.log(62, "inputRef.current - ", inputRef.current)
     if (inputRef.current) {
       inputRef.current.addEventListener("keydown", disableInput)
     }

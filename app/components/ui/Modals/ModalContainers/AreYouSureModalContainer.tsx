@@ -69,7 +69,7 @@ export function AreYouSureModalContainer({
   className,
 }: AreYouSureModalContainerProps) {
   const [showModal, setShowModal] = useState(isOpen)
-  console.log(72, "showModal - ", showModal)
+  console.log("showModal - ", showModal)
 
   /* onOpen - show modal - disable scroll and scrollbar */
   useEffect(() => {

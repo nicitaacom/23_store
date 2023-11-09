@@ -24,20 +24,20 @@ export function Toast() {
       </div>
       <div className="flex flex-col w-full">
         <h1 className={`text-title font-bold`}>{title ? title : success ? "Success" : "Error"}</h1>
-        <p className="text-subTitle">
+        <div className="text-subTitle">
           {subTitle ? (
             subTitle
           ) : error ? (
-            <p>
+            <p className="flex flex-wrap">
               Unknown error please contact -&nbsp;
-              <Button className="text-info" href="t.me/nicitaacom">
+              <Button className="inline-block text-info" variant="link" href="t.me/nicitaacom">
                 Admin
               </Button>
             </p>
           ) : (
             <p>Just success</p>
           )}
-        </p>
+        </div>
       </div>
     </motion.div>
   )
