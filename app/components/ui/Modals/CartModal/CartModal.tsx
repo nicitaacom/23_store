@@ -19,7 +19,7 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 //Are you sure in what - please use clear naming
 import { Button, Slider } from "../.."
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
-import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers/ModalQueryContainer"
+import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 
 interface CartModalProps {
   label: string
