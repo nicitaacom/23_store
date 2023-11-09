@@ -69,7 +69,6 @@ export function AreYouSureModalContainer({
   className,
 }: AreYouSureModalContainerProps) {
   const [showModal, setShowModal] = useState(isOpen)
-  console.log("showModal - ", showModal)
 
   /* onOpen - show modal */
   useEffect(() => {
