@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { IoMdClose } from "react-icons/io"
 import { IconType } from "react-icons"
 import { useSwipeable } from "react-swipeable"
