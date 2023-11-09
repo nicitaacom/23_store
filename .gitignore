@@ -24,12 +24,30 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# vercel
-.vercel
+# framework
+/node_modules
+server/.env
+node_modules
+dist
+dist-ssr
+*.local
+.vscode
+.next
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# dependencies
+/.react-email
+
+# env
+.env
+.env.local
