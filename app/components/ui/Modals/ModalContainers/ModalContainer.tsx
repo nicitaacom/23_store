@@ -18,7 +18,7 @@ interface ModalContainerProps {
 export function ModalContainer({ isOpen, isLoading, onClose, className, label, children }: ModalContainerProps) {
   const [showModal, setShowModal] = useState(isOpen)
 
-  /* onOpen - show modal - disable scroll and scrollbar */
+  /* onOpen - show modal */
   useEffect(() => {
     setShowModal(isOpen)
   }, [isOpen])

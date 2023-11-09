@@ -18,7 +18,7 @@ export function AreYouSureDeleteProductModal() {
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    setIsLoading(true)
+    setIsMounted(true)
   }, [])
   // to prevent SSR because if I render this modal I trigger useEffect
   // that trigger document.addEventListener on esc (I need close ctrlK modal on esc press)
