@@ -16,13 +16,6 @@ interface ModalContainerProps {
 }
 
 export function ModalContainer({ isOpen, isLoading, onClose, className, label, children }: ModalContainerProps) {
-  const [showModal, setShowModal] = useState(isOpen)
-
-  /* onOpen - show modal */
-  useEffect(() => {
-    setShowModal(isOpen)
-  }, [isOpen])
-
   //correct way to add event listener to listen keydown
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown)
@@ -60,7 +53,7 @@ export function ModalContainer({ isOpen, isLoading, onClose, className, label, c
 
   return (
     <AnimatePresence>
-      {showModal && (
+      {isOpen && (
         <motion.div
           className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[99]
          flex justify-center items-center"

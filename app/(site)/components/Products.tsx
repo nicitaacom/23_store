@@ -1,8 +1,6 @@
 "use client"
-import { PostgrestSingleResponse } from "@supabase/supabase-js"
 import { memo, useCallback } from "react"
 
-import { ICartProduct } from "@/interfaces/ICartProduct"
 import { IDBProduct } from "@/interfaces/IDBProduct"
 import useCartStore from "@/store/user/cartStore"
 import { Product } from "."
