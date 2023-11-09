@@ -14,7 +14,7 @@ interface ModalQueryContainerProps {
   isLoading?: boolean
 }
 
-export function ModalQueryContainer({ children, modalQuery, className, isLoading = false }: ModalQueryContainerProps) {
+export function ModalQueryContainer({ children, modalQuery, className, isLoading }: ModalQueryContainerProps) {
   const pathname = usePathname()
   const router = useRouter()
   const queryParams = useSearchParams()
@@ -24,8 +24,9 @@ export function ModalQueryContainer({ children, modalQuery, className, isLoading
 
   //correct way to add event listener to listen keydown
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
+    //event listener required because I add event listener on document in AreYouSureModalContainer
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading])
 

@@ -68,19 +68,14 @@ export function AreYouSureModalContainer({
   secondaryButtonLabel,
   className,
 }: AreYouSureModalContainerProps) {
-  const [showModal, setShowModal] = useState(isOpen)
-
-  /* onOpen - show modal */
-  useEffect(() => {
-    setShowModal(isOpen)
-  }, [isOpen])
-
   //correct way to add event listener to listen keydown
   useEffect(() => {
+    //line below needed to don't add event listener (you may uncomment it and try to close modal)
+    if (!isOpen) return
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading])
+  }, [isLoading, isOpen])
 
   /* onClose - close modal - show scrollbar */
   function closeModal() {
@@ -114,7 +109,7 @@ export function AreYouSureModalContainer({
 
   return (
     <AnimatePresence>
-      {showModal && (
+      {isOpen && (
         <motion.div
           className="fixed inset-[0] bg-[rgba(0,0,0,0.2)] z-[2000]
          flex justify-center items-center"
