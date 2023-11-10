@@ -10,7 +10,7 @@ export function CtrlKModal() {
 
   return (
     <ModalContainer
-      className="relative w-full max-w-[450px] py-4"
+      className="relative w-full max-w-[450px]"
       isOpen={ctrlKModal.isOpen}
       onClose={ctrlKModal.closeModal}>
       <div className="flex flex-col gap-y-2">
