@@ -32,8 +32,8 @@ export function ProductsPerPage({ className }: { className?: string }) {
 
   /* for closing on esc */
   useEffect(() => {
-    const handleKeyDown = (evt: KeyboardEvent) => {
-      if (evt.keyCode === 27) {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
         setShowDropdown(false)
       }
     }
