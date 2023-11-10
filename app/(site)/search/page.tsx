@@ -3,7 +3,6 @@ import { Metadata } from "next"
 import supabaseServer from "@/libs/supabaseServer"
 
 import { Products } from "../components"
-import { NoProductsFound } from "./NoProductsFound"
 
 interface SearchPageProps {
   searchParams: { query: string }
@@ -33,7 +32,7 @@ export default async function SearchPage({ searchParams: { query } }: SearchPage
   const products = products_response.data
 
   if (products.length === 0) {
-    return <NoProductsFound />
+    return <div className="text-center">No products found</div>
   }
 
   return (
