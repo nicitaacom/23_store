@@ -8,8 +8,6 @@ export function CtrlKBadge() {
   const ctrlKModal = useCtrlKModal()
   const params = useSearchParams().get("modal")
 
-  const params = useSearchParams().get("modal")
-
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey) && !params) {
