@@ -73,8 +73,8 @@ export async function POST(req: Request) {
       //Active product if it not active
       if (!productResponse.active) {
         stripe.products.update(productId, { active: true })
-        return NextResponse.json(productResponse, { status: 200 })
       }
+      return NextResponse.json(productResponse, { status: 200 })
     }
 
     /* UPDATE PRICE */
