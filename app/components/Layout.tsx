@@ -28,8 +28,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     //remove initial page loading skeleton
   }, [darkMode.isDarkMode])
 
-  //don't use const const queryClient = new QueryClient() - https://tanstack.com/query/latest/docs/react/guides/ssr
-
   return (
     <div
       className="flex flex-col w-full overflow-hidden min-h-screen
