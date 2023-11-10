@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation"
 import { CiEdit } from "react-icons/ci"
 import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
+import axios from "axios"
 
+import { TUpdateProductRequest } from "@/api/products/update/route"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { formatCurrency } from "@/utils/currencyFormatter"
-import supabaseClient from "@/libs/supabaseClient"
 
 interface FormatPriceFormProps {
   id: string
@@ -24,7 +25,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
 
   async function updateTitle(price: number) {
     setIsLoading(true)
-    await supabaseClient.from("products").update({ price: price }).eq("id", id)
+    await axios.post("/api/products/update", { productId: id, price: price } as TUpdateProductRequest)
     setIsEditing(false)
     setIsLoading(false)
     router.refresh()
@@ -50,8 +51,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
       setIsEditing(false)
     }
     if (event.key === "Enter") {
-      const onSubmitForm = handleSubmit(onSubmit)
-      onSubmitForm() // Call the onSubmit function directly
+      handleSubmit(onSubmit)
     }
   }
 
@@ -63,7 +63,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
     }
     return () => ref?.removeEventListener("keydown", disableInput)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditing])
+  }, [])
 
   return (
     <h1 className="flex flex-row">
