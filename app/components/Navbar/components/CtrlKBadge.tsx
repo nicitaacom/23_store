@@ -7,7 +7,6 @@ import { useEffect } from "react"
 export function CtrlKBadge() {
   const ctrlKModal = useCtrlKModal()
   const params = useSearchParams().get("modal")
-  console.log("searchParams - ", params)
 
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
