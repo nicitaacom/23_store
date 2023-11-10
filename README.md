@@ -140,3 +140,11 @@ It may be your email based on your domain like youremail@yourdomain.smth
 ```
 pnpm dev
 ```
+
+<br/>
+<br/>
+<br/>
+
+# Feedback
+
+If you found some bug/issue - just go ahead and open a new issue
