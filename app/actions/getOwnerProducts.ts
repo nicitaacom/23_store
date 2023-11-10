@@ -12,6 +12,7 @@ const getOnwerProducts = async () => {
     .from("products")
     .select("*")
     .eq("owner_id", sessionData.session?.user?.id)
+    .order("price", { ascending: true })
 
   return data
 }

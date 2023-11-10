@@ -26,17 +26,20 @@ export const useToast = create<MessageStore>((set, get) => ({
   error: false,
   success: false,
   _subTitle: "",
-  show: (status: string, _title?: string, _subTitle?: React.ReactNode, timeoutInMs?: number) => {
-    set({ isOpen: !get().isOpen }),
-      status === "success" ? set({ error: false, success: true }) : set({ error: true, success: false })
-    set({ title: _title }),
-      set({ subTitle: _subTitle }),
-      setTimeout(
-        () => {
-          set({ isOpen: !get().isOpen })
-        },
-        timeoutInMs ? timeoutInMs : 5000,
-      )
+  show(status: string, _title?: string, _subTitle?: React.ReactNode, timeoutInMs?: number) {
+    set({
+      isOpen: !get().isOpen,
+      error: status === "success" ? false : true,
+      success: status === "success" ? true : false,
+      title: _title,
+      subTitle: _subTitle,
+    })
+    setTimeout(
+      () => {
+        set({ isOpen: !get().isOpen })
+      },
+      timeoutInMs ? timeoutInMs : 5000,
+    )
   },
 }))
 
