@@ -15,7 +15,7 @@ export function CtrlKModal() {
       onClose={ctrlKModal.closeModal}>
       <div className="flex flex-col gap-y-2">
         <h1 className="flex justify-center">Search for products</h1>
-        <SearchInput className="" startIcon={<BiSearchAlt size={24} />} name="searchQuery" placeholder="Search..." />
+        <SearchInput startIcon={<BiSearchAlt size={24} />} name="searchQuery" placeholder="Search..." />
       </div>
     </ModalContainer>
   )
