@@ -32,6 +32,7 @@ export function SearchInput({
         pattern={pattern}
         name={name}
         required={required}
+        autoFocus
         {...props}
       />
       <div className="absolute right-0 top-[50%] translate-y-[-55%] translate-x-[-25%]">{endIcon}</div>
