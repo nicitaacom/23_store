@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       )
 
     if (data?.img_url) {
-      //get all the parts after the last occurrence of the second part of the URL
+      //get all the parts after the last occurrence of the second part of the URL (last two parts of URL https://smth/part1/part2)
       const imageUrls = data.img_url.map(url => {
         const parts = url.split("/")
         const lastTwoParts = parts.slice(-2).join("/")
