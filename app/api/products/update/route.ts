@@ -1,6 +1,5 @@
 import { stripe } from "@/libs/stripe"
 import supabaseServerAction from "@/libs/supabaseServerAction"
-import axios from "axios"
 import { NextResponse } from "next/server"
 
 export type TUpdateProductRequest = {
@@ -30,18 +29,7 @@ export async function POST(req: Request) {
 
       //Active product if it not active
       if (!productResponse.active) {
-        await axios.put(
-          `https://api.stripe.com/v1/products/${productResponse.id}`,
-          {
-            active: true,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          },
-        )
+        stripe.products.update(productId, { active: true })
       }
       return NextResponse.json(productResponse, { status: 200 })
     }
@@ -62,18 +50,9 @@ export async function POST(req: Request) {
         )
       if (!productResponse.active) {
         //Active product if it not active
-        await axios.put(
-          `https://api.stripe.com/v1/products/${productResponse.id}`,
-          {
-            active: true,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          },
-        )
+        if (!productResponse.active) {
+          stripe.products.update(productId, { active: true })
+        }
       }
       return NextResponse.json(productResponse, { status: 200 })
     }
@@ -93,20 +72,9 @@ export async function POST(req: Request) {
 
       //Active product if it not active
       if (!productResponse.active) {
-        await axios.put(
-          `https://api.stripe.com/v1/products/${productResponse.id}`,
-          {
-            active: true,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          },
-        )
+        stripe.products.update(productId, { active: true })
+        return NextResponse.json(productResponse, { status: 200 })
       }
-      return NextResponse.json(productResponse, { status: 200 })
     }
 
     /* UPDATE PRICE */
@@ -114,61 +82,45 @@ export async function POST(req: Request) {
       //Updating price on stripe its another process - first you archive this product
       //then you create new product with updated price - BS - lmao
 
-      //Delete existing product
-      await axios.post("/api/products/delete", { id: productId })
+      // Get data from DB to create new product on stripe
+      const { data: product } = await supabaseServerAction().from("products").select("*").eq("id", productId).single()
+      console.log(87, "product - ", product)
 
-      //Create new product with updated price
-      const { data: title_DB } = await supabaseServerAction().from("products").select("title").eq("id", productId)
-      const productResponse = await axios.post(
-        "https://api.stripe.com/v1/products",
-        {
-          name: title_DB,
-          description: "to change product price",
-          type: "good",
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        },
-      )
-      const priceResponse = await axios.post(
-        "https://api.stripe.com/v1/prices",
-        {
-          unit_amount: price * 100, // Convert to cents
+      // Create new product on stripe
+      if (product) {
+        const productResponse = await stripe.products.create({
+          name: product?.title,
+          description: product?.sub_title,
+          images: product.img_url,
+        })
+        console.log(95, "productResponse - ", productResponse)
+
+        // Active product if it not active
+        if (!productResponse.active) {
+          await stripe.products.update(productResponse.id, { active: true })
+        }
+
+        // Create price for created product on stripe
+        const priceResponse = await stripe.prices.create({
+          product: productResponse.id,
+          unit_amount: price * 100,
           currency: "usd",
-          product: productResponse.data.id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        },
-      )
-      console.log(132, "priceResponse - ", priceResponse)
-      //Archive product
-      if (productResponse.data.active) {
-        await axios.put(
-          `https://api.stripe.com/v1/products/${productResponse.data.id}`,
-          {
-            active: false,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          },
-        )
+        })
+        console.log(94, "priceResponse - ", priceResponse)
+
+        // Archive current product on stripe
+        await stripe.products.update(productId, { active: false })
+
+        // Update id and price_id in DB to associate new product on stripe with product in DB
+        await supabaseServerAction()
+          .from("products")
+          .update({ id: productResponse.id, price_id: priceResponse.id, price: price })
+          .eq("id", productId)
+
+        return NextResponse.json(productResponse, { status: 200 })
+      } else {
+        throw new Error(`Update price\n Product with id ${productId} not found in DB\n`)
       }
-      console.log(147, "productResponse.data - ", productResponse.data)
-      //Update on Stripe https://stripe.com/docs/api/products/update
-      const priceUpdateResponse = await stripe.products.update(productId, {
-        default_price: productResponse.data.default_price,
-      })
-      return NextResponse.json(priceUpdateResponse, { status: 200 })
     }
   } catch (error: any) {
     console.log(13, "UPDATE_PRODUCT_ERROR\n", error.response.data)
