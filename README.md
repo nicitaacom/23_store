@@ -1,7 +1,7 @@
 # What inside? <br/> <sub> https://23-store.vercel.app/ </sub>
 
-![work in progress](https://i.imgur.com/2hHq62J.jpg)
-// TODO - Video in the future here
+[![preview-alt-text](https://i.imgur.com/yc1qyEf.png)](https://streamable.com/1zdhl7)
+
 <br/>
 <br/>
 <br/>
