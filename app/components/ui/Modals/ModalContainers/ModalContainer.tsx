@@ -78,7 +78,7 @@ export function ModalContainer({ isOpen, isLoading, onClose, className, label, c
               onClick={closeModal}
             />
             <div className="flex flex-col gap-y-4 pt-6 px-4 pb-8 max-w-[600px]">
-              <div className="py-2 text-2xl text-center text-title">{label}</div>
+              {label && <div className="py-2 text-2xl text-center text-title">{label}</div>}
               {children}
             </div>
           </motion.div>
