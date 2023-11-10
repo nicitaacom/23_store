@@ -59,7 +59,7 @@ export function CartModal({ label }: CartModalProps) {
   const stripeProductsQuery = cartStore.productsData
     .filter(product => product.on_stock > 0)
     .map(product => ({
-      price: product.id,
+      price: product.price_id,
       quantity: product.quantity,
     }))
     .map(item => `${encodeURIComponent(JSON.stringify(item))}`)
