@@ -46,9 +46,9 @@ export async function POST(req: Request) {
     const priceResponse = await axios.post(
       "https://api.stripe.com/v1/prices",
       {
+        product: productResponse.data.id,
         unit_amount: price * 100, // Convert to cents
         currency: "usd",
-        product: productResponse.data.id,
       },
       {
         headers: {
