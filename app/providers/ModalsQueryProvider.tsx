@@ -21,7 +21,6 @@ export function ModalsQueryProvider({ ownerProducts }: { ownerProducts: IDBProdu
   if (searchParams.getAll("modal").includes("AdminPanel")) {
     return <AdminPanelModal label="Admin Panel" ownerProducts={ownerProducts} />
   }
-
   if (searchParams.getAll("modal").includes("AuthModal")) {
     return <AuthModal label="Auth" />
   }
