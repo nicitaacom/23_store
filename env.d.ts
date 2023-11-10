@@ -15,7 +15,7 @@ declare global {
       NEXT_STRIPE_SECRET_KEY: string
 
       NEXT_RESEND_PUBLIC: string
-      NEXT_PUBLIC_SENDER_EMAIL: string
+      NEXT_PUBLIC_SUPPORT_EMAIL: string
 
       NEXT_PAYPAL_PUBLIC: string
       NEXT_PAYPAL_SECRET: string

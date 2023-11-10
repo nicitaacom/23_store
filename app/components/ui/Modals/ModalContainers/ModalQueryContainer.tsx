@@ -14,7 +14,7 @@ interface ModalQueryContainerProps {
   isLoading?: boolean
 }
 
-export function ModalQueryContainer({ children, modalQuery, className, isLoading = false }: ModalQueryContainerProps) {
+export function ModalQueryContainer({ children, modalQuery, className, isLoading }: ModalQueryContainerProps) {
   const pathname = usePathname()
   const router = useRouter()
   const queryParams = useSearchParams()
@@ -24,15 +24,14 @@ export function ModalQueryContainer({ children, modalQuery, className, isLoading
 
   //correct way to add event listener to listen keydown
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
+    //event listener required because I add event listener on document in AreYouSureModalContainer
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading])
 
   // Close modal and redirect on close
   const closeModal = useCallback(() => {
-    document.body.removeAttribute("style")
-    document.getElementById("nav")!.removeAttribute("style")
     setShouldClose(true)
     setTimeout(() => {
       router.push(pathname)
@@ -82,7 +81,7 @@ export function ModalQueryContainer({ children, modalQuery, className, isLoading
             transition={{ duration: 0.5 }}
             {...modalBgHandler}>
             <motion.div
-              className={`relative bg-foreground border-[1px] border-border-color rounded-md z-[100] py-8 shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
+              className={`relative bg-foreground border-[1px] border-border-color rounded-md py-8 z-[100] shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}

@@ -6,6 +6,7 @@ import { useEffect } from "react"
 
 export function CtrlKBadge() {
   const ctrlKModal = useCtrlKModal()
+  const params = useSearchParams().get("modal")
 
   const params = useSearchParams().get("modal")
 

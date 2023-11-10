@@ -16,13 +16,6 @@ interface ModalContainerProps {
 }
 
 export function ModalContainer({ isOpen, isLoading, onClose, className, label, children }: ModalContainerProps) {
-  const [showModal, setShowModal] = useState(isOpen)
-
-  /* onOpen - show modal - disable scroll and scrollbar */
-  useEffect(() => {
-    setShowModal(isOpen)
-  }, [isOpen])
-
   //correct way to add event listener to listen keydown
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown)
@@ -60,7 +53,7 @@ export function ModalContainer({ isOpen, isLoading, onClose, className, label, c
 
   return (
     <AnimatePresence>
-      {showModal && (
+      {isOpen && (
         <motion.div
           className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[99]
          flex justify-center items-center"
@@ -70,7 +63,7 @@ export function ModalContainer({ isOpen, isLoading, onClose, className, label, c
           transition={{ duration: 0.25 }}
           {...modalBgHandler}>
           <motion.div
-            className={`relative bg-foreground border-[1px] border-border-color rounded-md z-[100] py-8 shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
+            className={`relative bg-foreground border-[1px] border-border-color rounded-md py-8 z-[100] shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
@@ -84,8 +77,8 @@ export function ModalContainer({ isOpen, isLoading, onClose, className, label, c
               size={32}
               onClick={closeModal}
             />
-            <div className="flex flex-col gap-y-4 pt-6 px-4 pb-8 max-w-[600px]">
-              <div className="py-2 text-2xl text-center text-title">{label}</div>
+            <div className="flex flex-col gap-y-4 px-4 max-w-[600px]">
+              {label && <div className="py-2 text-2xl text-center text-title">{label}</div>}
               {children}
             </div>
           </motion.div>
