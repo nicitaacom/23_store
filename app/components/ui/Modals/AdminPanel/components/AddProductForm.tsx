@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, Dispatch, SetStateAction } from "react"
+import { useState, useRef, Dispatch, SetStateAction } from "react"
 import Image from "next/image"
 import axios from "axios"
 import { useForm } from "react-hook-form"
