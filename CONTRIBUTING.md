@@ -16,9 +16,11 @@
 
 ![create branch name as task name](https://i.imgur.com/fcuUNur.png)
 
-## Read CONTRIBUTING.md file
+## Read CONTRIBUTING.md file and README.md
 
-Read `Pull requests` and `Commit naming`
+After you fork this repository and created branch - set up .env using `README.md`
+
+After you done with .env - read `Pull requests` and `Commit naming`
 
 ## Keep in mind that I reject your PR if you will do all changes in 1 file
 
