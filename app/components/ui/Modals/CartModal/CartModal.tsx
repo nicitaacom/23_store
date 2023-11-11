@@ -14,6 +14,7 @@ import useUserStore from "@/store/user/userStore"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
 import { formatCurrency } from "@/utils/currencyFormatter"
+import { TPayPalProductsQuery } from "@/api/create-paypal-session/route"
 
 //Are you sure in what - please use clear naming
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
@@ -69,12 +70,10 @@ export function CartModal({ label }: CartModalProps) {
   const payPalProductsQuery = cartStore.productsData
     .filter(product => product.on_stock > 0)
     .map(product => ({
-      name: product.title,
-      sku: product.id,
-      price: product.price,
+      price: product.price_id,
       quantity: product.quantity,
     }))
-    .map(item => `payPalProducts=${encodeURIComponent(JSON.stringify(item))}`)
+    .map(item => `${encodeURIComponent(JSON.stringify(item))}`)
     .join("&")
 
   /* Metamask implementation */
@@ -230,9 +229,17 @@ export function CartModal({ label }: CartModalProps) {
         10000,
       )
     }
-    const response = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
+    const stripeResponse = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
     //redirect user to session.url on client side to avoid 'blocked by CORS' error
-    router.push(response.data)
+    router.push(stripeResponse.data)
+  }
+
+  async function createPayPalSessionWithStripe() {
+    const payPalResponse = await axios.post("/api/create-paypal-session", {
+      payPalProductsQuery,
+    } as TPayPalProductsQuery)
+    //redirect user to session.url on client side to avoid 'blocked by CORS' error
+    router.push(payPalResponse.data)
   }
 
   return (
@@ -366,7 +373,10 @@ export function CartModal({ label }: CartModalProps) {
                       <div className="tooltiptext bg-background whitespace-nowrap">I need ca 100$ to create it</div>
                     </Button>
                   </div>
-                  <Button className="flex flex-row gap-x-1 w-full laptop:w-full" variant="info">
+                  <Button
+                    className="flex flex-row gap-x-1 w-full laptop:w-full"
+                    variant="info"
+                    onClick={createPayPalSessionWithStripe}>
                     PayPal
                     <FaPaypal />
                   </Button>
