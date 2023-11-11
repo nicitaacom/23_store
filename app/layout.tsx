@@ -3,10 +3,11 @@ import "./globals.css"
 import type { Metadata } from "next"
 
 import getOwnerProducts from "./actions/getOwnerProducts"
-import { Layout } from "./components"
+import getConversationId from "./actions/getConversationId"
 import ClientOnly from "./components/ClientOnly"
-import Navbar from "./components/Navbar/Navbar"
+import { Layout } from "./components"
 import { ModalsProvider, ModalsQueryProvider } from "./providers"
+import Navbar from "./components/Navbar/Navbar"
 import { SupportButton } from "./components/SupportButton"
 
 export const metadata: Metadata = {
@@ -30,6 +31,8 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const ownerProducts = await getOwnerProducts()
+  const conversationId = getConversationId()
+
   return (
     <html lang="en">
       <body>
@@ -40,7 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </Layout>
           <ModalsProvider />
           <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
-          <SupportButton />
+          <SupportButton conversationId={conversationId} />
         </ClientOnly>
       </body>
     </html>
