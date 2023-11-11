@@ -1,12 +1,20 @@
+"use client"
+
 import Link from "next/link"
 import { FiPhoneCall } from "react-icons/fi"
 
 import { contact } from "@/constant/contacts"
 import { DropdownContainer } from "@/components/ui"
+import useContactDropdownClose from "@/hooks/ui/useContactDropdownClose"
 
-export function SupportButton() {
+export function ContactButton() {
+  const { isDropdown, openDropdown, closeDropdown, toggle, contactDropdownRef } = useContactDropdownClose()
+
   return (
     <DropdownContainer
+      isDropdown={isDropdown}
+      toggle={toggle}
+      dropdownRef={contactDropdownRef}
       classNameDropdownContainer="hidden mobile:flex"
       className="before:translate-x-[-300%] translate-x-[35%] w-[125px]"
       icon={<FiPhoneCall size={28} />}>
