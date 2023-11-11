@@ -7,6 +7,7 @@ import { Layout } from "./components"
 import ClientOnly from "./components/ClientOnly"
 import Navbar from "./components/Navbar/Navbar"
 import { ModalsProvider, ModalsQueryProvider } from "./providers"
+import { SupportButton } from "./components/SupportButton"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -39,6 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </Layout>
           <ModalsProvider />
           <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
+          <SupportButton />
         </ClientOnly>
       </body>
     </html>
