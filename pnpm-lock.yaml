@@ -34,7 +34,7 @@ dependencies:
     version: 2.38.1
   autoprefixer:
     specifier: 10.4.16
-    version: 10.4.16(postcss@8.4.30)
+    version: 10.4.16(postcss@8.4.31)
   axios:
     specifier: ^1.6.0
     version: 1.6.0
@@ -48,8 +48,8 @@ dependencies:
     specifier: 14.0.0
     version: 14.0.0(react-dom@18.2.0)(react@18.2.0)
   postcss:
-    specifier: 8.4.30
-    version: 8.4.30
+    specifier: 8.4.31
+    version: 8.4.31
   react:
     specifier: 18.2.0
     version: 18.2.0
@@ -1388,7 +1388,7 @@ packages:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
     dev: false
 
-  /autoprefixer@10.4.16(postcss@8.4.30):
+  /autoprefixer@10.4.16(postcss@8.4.31):
     resolution: {integrity: sha512-7vd3UC6xKp0HLfua5IjZlcXvGAGy7cBAXTg2lyQ/8WpNhd6SiZ8Be+xm3FyBSYJx5GKcpRCzBh7RH4/0dnY+uQ==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
@@ -1400,7 +1400,7 @@ packages:
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.0
-      postcss: 8.4.30
+      postcss: 8.4.31
       postcss-value-parser: 4.2.0
     dev: false
 
