@@ -27,16 +27,20 @@ export async function POST(request: Request) {
   //parsing string to convert string type to json type
   const productsJsonArray: stripeProductType[] = productsStringArray.map(product => JSON.parse(product))
 
-  // const checkoutSession = await stripe.checkout.sessions.create({
-  //   payment_method_types: ["paypal"],
-  //   mode: "payment",
-  //   customer: customer.id,
-  //   success_url: `${getURL()}/payment/?status=success?session_id={CHECKOUT_SESSION_ID}`,
-  //   cancel_url: `${getURL()}/payment/?status=canceled`,
-  // })
-
-  // const session = await stripe.checkout.sessions.retrieve("{{SESSION_ID}}", {
-  //   expand: ["setup_intent"],
-  // })
-  return NextResponse.json({ productsJsonArray }, { status: 200 })
+  // I used this strange guide on unknown language without way to change language
+  // https://stripe.com/docs/payments/paypal/set-up-future-payments
+  // But I decided to do it as in 'create-checkout-session' route but only with `payment_method_types` paypal
+  const checkoutSession = await stripe.checkout.sessions.create({
+    payment_method_types: ["paypal"],
+    mode: "payment",
+    customer: customer.id,
+    line_items: productsJsonArray,
+    success_url: `${getURL()}/payment/?status=success`,
+    cancel_url: `${getURL()}/payment/?status=canceled`,
+  })
+  if (checkoutSession.url) {
+    return NextResponse.json(checkoutSession.url)
+  } else {
+    return new NextResponse("No session url - please check create-checkout-session route", { status: 500 })
+  }
 }

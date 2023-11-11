@@ -69,9 +69,7 @@ export function CartModal({ label }: CartModalProps) {
   const payPalProductsQuery = cartStore.productsData
     .filter(product => product.on_stock > 0)
     .map(product => ({
-      name: product.title,
-      sku: product.id,
-      price: product.price,
+      price: product.price_id,
       quantity: product.quantity,
     }))
     .map(item => `${encodeURIComponent(JSON.stringify(item))}`)
@@ -234,6 +232,7 @@ export function CartModal({ label }: CartModalProps) {
     //redirect user to session.url on client side to avoid 'blocked by CORS' error
     router.push(stripeResponse.data)
   }
+
   async function createPayPalSessionWithStripe() {
     const payPalResponse = await axios.post("/api/create-paypal-session", {
       payPalProductsQuery,
