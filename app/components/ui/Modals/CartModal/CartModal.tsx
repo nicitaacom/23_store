@@ -229,9 +229,15 @@ export function CartModal({ label }: CartModalProps) {
         10000,
       )
     }
-    const response = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
+    const stripeResponse = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
     //redirect user to session.url on client side to avoid 'blocked by CORS' error
-    router.push(response.data)
+    router.push(stripeResponse.data)
+  }
+
+  async function createPayPalSession() {
+    const payPalResponse = await axios.post("/api/create-paypal-session", { payPalProductsQuery })
+    //redirect user to session.url on client side to avoid 'blocked by CORS' error
+    router.push(payPalResponse.data)
   }
 
   return (
@@ -374,7 +380,10 @@ export function CartModal({ label }: CartModalProps) {
                       <div className="tooltiptext bg-background whitespace-nowrap">I need ca 100$ to create it</div>
                     </Button>
                   </div>
-                  <Button className="flex flex-row gap-x-1 w-full laptop:w-full" variant="info">
+                  <Button
+                    className="flex flex-row gap-x-1 w-full laptop:w-full"
+                    variant="info"
+                    onClick={createPayPalSession}>
                     PayPal
                     <FaPaypal />
                   </Button>
