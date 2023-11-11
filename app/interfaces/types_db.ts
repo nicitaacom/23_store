@@ -9,6 +9,38 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      messages: {
+        Row: {
+          body: string | null
+          conversation_id: string | null
+          created_at: string
+          id: number
+          sender_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: number
+          sender_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: number
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       products: {
         Row: {
           id: string
