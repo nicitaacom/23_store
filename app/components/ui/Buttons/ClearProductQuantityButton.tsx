@@ -1,7 +1,6 @@
 "use client"
 
 import { MdOutlineDeleteOutline } from "react-icons/md"
-
 import { Button } from ".."
 
 export function ClearProductQuantityButton({ onClick }: { onClick: () => void }) {
