@@ -20,6 +20,7 @@ import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { Button, Slider } from "../.."
 import EmptyCart from "./EmptyCart"
+import { TPayPalProductsQuery } from "@/api/create-paypal-session/route"
 
 interface CartModalProps {
   label: string
@@ -73,7 +74,7 @@ export function CartModal({ label }: CartModalProps) {
       price: product.price,
       quantity: product.quantity,
     }))
-    .map(item => `payPalProducts=${encodeURIComponent(JSON.stringify(item))}`)
+    .map(item => `${encodeURIComponent(JSON.stringify(item))}`)
     .join("&")
 
   /* Metamask implementation */
@@ -233,9 +234,10 @@ export function CartModal({ label }: CartModalProps) {
     //redirect user to session.url on client side to avoid 'blocked by CORS' error
     router.push(stripeResponse.data)
   }
-
-  async function createPayPalSession() {
-    const payPalResponse = await axios.post("/api/create-paypal-session", { payPalProductsQuery })
+  async function createPayPalSessionWithStripe() {
+    const payPalResponse = await axios.post("/api/create-paypal-session", {
+      payPalProductsQuery,
+    } as TPayPalProductsQuery)
     //redirect user to session.url on client side to avoid 'blocked by CORS' error
     router.push(payPalResponse.data)
   }
@@ -383,7 +385,7 @@ export function CartModal({ label }: CartModalProps) {
                   <Button
                     className="flex flex-row gap-x-1 w-full laptop:w-full"
                     variant="info"
-                    onClick={createPayPalSession}>
+                    onClick={createPayPalSessionWithStripe}>
                     PayPal
                     <FaPaypal />
                   </Button>
