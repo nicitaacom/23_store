@@ -14,13 +14,14 @@ import useUserStore from "@/store/user/userStore"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
 import { formatCurrency } from "@/utils/currencyFormatter"
+import { TPayPalProductsQuery } from "@/api/create-paypal-session/route"
 
 //Are you sure in what - please use clear naming
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { Button, Slider } from "../.."
 import EmptyCart from "./EmptyCart"
-import { TPayPalProductsQuery } from "@/api/create-paypal-session/route"
+import { ClearProductQuantityButton, DecreaseProductQuantityButton, IncreaseProductQuantityButton } from "../../Buttons"
 
 interface CartModalProps {
   label: string
@@ -323,18 +324,9 @@ export function CartModal({ label }: CartModalProps) {
                         <div className="flex flex-row gap-x-2 justify-center tablet:justify-end max-h-[48px]">
                           {productData.on_stock > 0 && (
                             <>
-                              <Button
-                                className="min-w-[50px] max-h-[50px] laptop:w-fit text-2xl"
-                                variant="success-outline"
-                                onClick={() => increaseProductQuantity(productData.id)}>
-                                +
-                              </Button>
-                              <Button
-                                className="min-w-[50px] max-h-[50px] laptop:w-fit text-2xl"
-                                variant="danger-outline"
-                                onClick={() => decreaseProductQuantity(productData.id)}>
-                                -
-                              </Button>
+                              <IncreaseProductQuantityButton onClick={() => increaseProductQuantity(productData.id)} />
+                              <DecreaseProductQuantityButton onClick={() => decreaseProductQuantity(productData.id)} />
+                              <ClearProductQuantityButton onClick={() => clearProductQuantity(productData.id)} />
                             </>
                           )}
                           <Button

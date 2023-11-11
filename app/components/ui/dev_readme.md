@@ -14,8 +14,6 @@ In this folder you put all buttons that repeats across site e.g:<br/>
 `ClearProductQuantity`<br/>
 `RequestReplanishment`
 
-[imp-DYOR_buttons](https://github.com/users/nicitaacom/projects/5/views/1?pane=issue&itemId=44292532&sortedBy%5Bdirection%5D=desc&sortedBy%5BcolumnId%5D=59471618)
-
 ### Usage for Inputs folder
 
 Inputs/Validation - in this folder input that requires any validation

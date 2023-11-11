@@ -1,12 +1,17 @@
 "use client"
 
-import { Button, Slider } from "@/components/ui"
-import { RequestReplanishmentButton } from "@/components/ui/Buttons"
-import Image from "next/image"
-import { formatCurrency } from "@/utils/currencyFormatter"
 import { memo } from "react"
-import { MdOutlineDeleteOutline } from "react-icons/md"
+import Image from "next/image"
+
+import { formatCurrency } from "@/utils/currencyFormatter"
 import { IProduct } from "@/interfaces/IProduct"
+import { Slider } from "@/components/ui"
+import {
+  IncreaseProductQuantityButton,
+  ClearProductQuantityButton,
+  DecreaseProductQuantityButton,
+  RequestReplanishmentButton,
+} from "@/components/ui/Buttons"
 
 type Props = IProduct & {
   quantity: number
@@ -81,25 +86,9 @@ function Product({ ...product }: Props) {
             <div
               className={`flex flex-row gap-x-2 justify-center tablet:justify-end items-end 
             ${product.quantity === 0 && "w-full"}`}>
-              <Button
-                className="min-w-[50px] max-h-[50px] laptop:w-fit text-2xl"
-                variant="success-outline"
-                onClick={() => product.increaseProductQuantity(product.id)}>
-                +
-              </Button>
-              <Button
-                className="min-w-[50px] max-h-[50px] laptop:w-fit text-2xl"
-                variant="danger-outline"
-                onClick={() => product.decreaseProductQuantity(product.id)}>
-                -
-              </Button>
-              <Button
-                className="font-secondary font-thin max-h-[50px]"
-                variant="danger-outline"
-                onClick={() => product.clearProductQuantity(product.id)}>
-                Clear
-                <MdOutlineDeleteOutline />
-              </Button>
+              <IncreaseProductQuantityButton onClick={() => product.increaseProductQuantity(product.id)} />
+              <DecreaseProductQuantityButton onClick={() => product.decreaseProductQuantity(product.id)} />
+              <ClearProductQuantityButton onClick={() => product.clearProductQuantity(product.id)} />
             </div>
           )}
         </section>
