@@ -10,7 +10,6 @@ interface ChangeLanguageModalProps {
 export function ChangeLanguageModal({ label }: ChangeLanguageModalProps) {
   return (
     <ModalQueryContainer className="w-full max-w-[450px] py-4" modalQuery="ChangeLanguage">
-      {/* ANY CONTENT (to keep consistent keep {label})*/}
       <div className="flex flex-col gap-y-2">
         <h1 className="flex justify-center text-2xl">{label}</h1>
         <ul className="flex flex-col gap-y-2 items-center">
