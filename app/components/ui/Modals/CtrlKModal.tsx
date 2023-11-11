@@ -7,7 +7,7 @@ import { redirect } from "next/navigation"
 export function CtrlKModal() {
   const ctrlKModal = useCtrlKModal()
 
-  async function searchProducts(formData: FormData) {
+  function searchProducts(formData: FormData) {
     const searchQuery = formData.get("searchQuery")?.toString()
 
     ctrlKModal.closeModal()

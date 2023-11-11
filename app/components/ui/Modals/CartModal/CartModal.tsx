@@ -13,13 +13,13 @@ import { formatBalance } from "@/utils/formatMetamaskBalance"
 import useUserStore from "@/store/user/userStore"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
-import EmptyCart from "./EmptyCart"
 import { formatCurrency } from "@/utils/currencyFormatter"
 
 //Are you sure in what - please use clear naming
-import { Button, Slider } from "../.."
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
+import { Button, Slider } from "../.."
+import EmptyCart from "./EmptyCart"
 
 interface CartModalProps {
   label: string

@@ -1,4 +1,3 @@
-import { ICartProduct } from "@/interfaces/ICartProduct"
 import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
 
 export abstract class Storage {

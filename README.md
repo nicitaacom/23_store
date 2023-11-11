@@ -1,6 +1,6 @@
 # What inside? <br/> <sub> https://23-store.vercel.app/ </sub>
 
-[![preview-alt-text](https://i.imgur.com/yc1qyEf.png)](https://streamable.com/1zdhl7)
+[![preview-alt-text](https://i.imgur.com/F9FiGHK.jpg)](https://streamable.com/1zdhl7)
 
 <br/>
 <br/>
@@ -140,3 +140,11 @@ It may be your email based on your domain like youremail@yourdomain.smth
 ```
 pnpm dev
 ```
+
+<br/>
+<br/>
+<br/>
+
+# Feedback
+
+If you found some bug/issue - just go ahead and open a new issue

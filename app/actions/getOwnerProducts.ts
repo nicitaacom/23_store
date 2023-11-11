@@ -1,9 +1,9 @@
 import supabaseServer from "@/libs/supabaseServer"
 
-const getOnwerProducts = async () => {
+const getOwnerProducts = async () => {
   const { data: sessionData, error: sessionError } = await supabaseServer().auth.getSession()
 
-  if (sessionError) throw new Error("getOnwerProducts_error - ", sessionError)
+  if (sessionError) throw new Error("getOwnerProducts_error - ", sessionError)
   if (!sessionData.session?.user.id) {
     return []
   }
@@ -17,4 +17,4 @@ const getOnwerProducts = async () => {
   return data
 }
 
-export default getOnwerProducts
+export default getOwnerProducts

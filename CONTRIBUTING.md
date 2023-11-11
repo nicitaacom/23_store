@@ -1,10 +1,88 @@
+## How to strat contributing to this project
+
+### Fork repository
+
+![fork repository](https://i.imgur.com/pjBCqGC.png)
+
+## Clone forked repository
+
+![clone forked repository](https://i.imgur.com/2IsIuv0.png)
+
+## Pick up any task on your choise - https://github.com/users/nicitaacom/projects/5
+
+![pick up any task on your choise](https://i.imgur.com/W2wxz9g.png)
+
+## Create branch name as task name
+
+![create branch name as task name](https://i.imgur.com/fcuUNur.png)
+
+## Read CONTRIBUTING.md file and README.md
+
+After you fork this repository and created branch - set up .env using `README.md`
+
+After you done with .env - read `Pull requests` and `Commit naming`
+
+## Keep in mind that I reject your PR if you will do all changes in 1 file
+
+That's why do commits as small as possible for this check [this video](https://www.youtube.com/watch?v=Dy5t_H2PRrk&ab_channel=EricMurphy)
+
+## Create PR
+
+If you done with your changes - jsut go ahead and crete PR
+
+![create PR](https://i.imgur.com/vqDYeJ8.png)
+
+<br/>
+
+---
+
+<br/>
+
 ## Pull requests
+
+### Pull requests naming
 
 [PR#59]-imp-close_avatar_dropdown_on_item_click
 In case task related to this PR done you - in [] you write PR and number of this PR
 
 [PR#59-UPD]-imp-close_avatar_dropdown_on_item_click
 In case task not done every day when you finish coding you do this PR - in [] you write PR and number of this PR and -UPD
+
+### Pull requests description
+
+**Use descripion template below**
+
+Please don't write in `1. Change title` `2. Chnage title` etc `chore` / `style`<br/>
+Write `fix` / `feat` / `docs` instead
+
+```md
+# Changes
+
+### 1. Change
+
+which problem was solved
+video/screenshot (preffered)
+
+<br/>
+
+---
+
+<br/>
+
+# Result (n days)
+
+video/screenshot
+
+<br/>
+
+---
+
+<br/>
+
+**Github task** -
+This task done - delete this branch and move task to 'Done'
+This task not done and created to keep 'development' branch up to date - don't delete this branch
+```
 
 <br/>
 
@@ -77,34 +155,14 @@ I use github desktop so I write for this (if you prefer to use terminal do it th
 
 <br/>
 
-To write documentation for your project, you can follow these guidelines:
+## Folder structure
 
-a. Start with an overview: Provide an introduction to your E-commerce project, describing its purpose and goals. Explain the technologies and frameworks you used.
+### Imports
 
-b. Installation and setup: Provide step-by-step instructions on how to install and set up your project. Include any specific dependencies or global configurations needed.
+![imports structure](https://i.imgur.com/1LEoZ8K.png)
 
-c. Folder structure: Explain the structure of your projects folders and files. Describe the purpose of each folder or file and how they relate to each other.
-Say how I use imports like (react - dependencies - custom)
-Say that I name my interfaces like so
-IInterface - interface that has export and uses 2+ times in project
-InterfaceProps - interface that use in props
-interfaceType - type of some interface (it some data from exising interface - provide example)
+### How to undertand what's going on
 
-d. Components: Document the components you have created, including their purpose, props, and examples of usage. Explain how to use and customize each component, and provide code snippets when applicable.
-
-e. Pages: Describe the different pages in your e-commerce application, their purpose, and the components they use.
-
-f. Store (State management): Explain how you are managing state in your project, specifically focusing on the usage of Zustand and how it handles global state.
-
-g. APIs and External Services: Document any APIs or external services that your project relies on, such as Supabase or Stripe. Explain how to integrate these services into your project and provide relevant code examples.
-Data fetching: Explain how you fetch data from Supabase or other APIs. Provide examples of API calls and how you handle the data received.
-
-h. Forms and Validation: Describe how you are handling form submission and validation using React Hook Form. Include examples and explanations for different types of form fields.
-
-i. Emails and Notifications: Explain how you are sending emails and notifications in your project. Describe the technologies you are using (such as React Email and Resend) and provide code examples for sending different types of emails.
-
-j. Deployment: Explain how to deploy your project to a live environment. Include any necessary configurations or deployment strategies specific to your project.
-
-From me:
-1)I want add somewhere how to use supabase (select column row etc) - it may be dev_reamde.md in libs folder
-2)add-guide_for_env
+In each folder I have `dev_readme.md` file - so you can understnad what's going on in each folder of my project
+Note: You don't need to read all `dev_readme.md` files - do it if needed
+I mean if it not related to your task you may don't read about it
