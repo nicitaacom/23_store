@@ -18,7 +18,12 @@ export function OwnerProduct({ ...ownerProduct }: Props) {
       {ownerProduct.img_url.length === 1 ? (
         <OwnerProductImage imgUrl={ownerProduct.img_url[0]} />
       ) : (
-        <Slider images={ownerProduct.img_url} title={ownerProduct.title} />
+        <Slider
+          containerClassName="h-[300px] tablet:w-fit tablet:h-[125px] laptop:h-[150px]"
+          className="h-[300px] tablet:h-[125px] laptop:h-[150px] desktop:h-[150px]"
+          images={ownerProduct.img_url}
+          title={ownerProduct.title}
+        />
       )}
       <div className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-2 py-2">
         <OwnerProductHeader

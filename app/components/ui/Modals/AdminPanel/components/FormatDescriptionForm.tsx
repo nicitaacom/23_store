@@ -86,7 +86,7 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
         </form>
       ) : (
         <div className="flex flex-row gap-x-2 items-center" role="button" onClick={enableInput}>
-          {subTitle}
+          <h2 className="text-center">{subTitle}</h2>
           <CiEdit />
         </div>
       )}
