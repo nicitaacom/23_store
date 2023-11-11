@@ -9,6 +9,9 @@ interface DropdownContainerProps {
   className?: string
   classNameDropdownContainer?: string
   username?: string | undefined
+  isDropdown: boolean
+  toggle: () => void
+  dropdownRef: React.RefObject<HTMLDivElement>
 }
 
 export function DropdownContainer({
@@ -17,11 +20,12 @@ export function DropdownContainer({
   username,
   className = "",
   classNameDropdownContainer = "",
+  isDropdown,
+  toggle,
+  dropdownRef,
 }: DropdownContainerProps) {
-  const { isDropdown, toggle, avatarDropdownRef } = useAvatarDropdownClose()
-
   return (
-    <div className={`relative z-10 ${classNameDropdownContainer}`} ref={avatarDropdownRef}>
+    <div className={`relative z-10 ${classNameDropdownContainer}`} ref={dropdownRef}>
       <div className="cursor-pointer hover:brightness-75 duration-300" onClick={toggle}>
         {icon}
       </div>
