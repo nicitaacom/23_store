@@ -2,15 +2,15 @@
 
 import { useEffect, useRef } from "react"
 
-import { useAvatarDropdown } from "@/store/ui/avatarDropdown"
+import { useContactDropdown } from "@/store/ui/contactDropdown"
 
-const useAvatarDropdownClose = () => {
-  const avatarDropdownRef = useRef<HTMLDivElement>(null)
-  const { isDropdown, openDropdown, closeDropdown, toggle } = useAvatarDropdown()
+const useContactDropdownClose = () => {
+  const contactDropdownRef = useRef<HTMLDivElement>(null)
+  const { isDropdown, openDropdown, closeDropdown, toggle } = useContactDropdown()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (avatarDropdownRef.current && !avatarDropdownRef.current.contains(event.target as Node)) {
+      if (contactDropdownRef.current && !contactDropdownRef.current.contains(event.target as Node)) {
         closeDropdown()
       }
     }
@@ -31,7 +31,7 @@ const useAvatarDropdownClose = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return { isDropdown, openDropdown, closeDropdown, toggle, avatarDropdownRef }
+  return { isDropdown, openDropdown, closeDropdown, toggle, contactDropdownRef }
 }
 
-export default useAvatarDropdownClose
+export default useContactDropdownClose
