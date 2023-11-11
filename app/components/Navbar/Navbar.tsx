@@ -5,15 +5,15 @@ import { Language } from "../Language"
 import { SwitchDarkMode } from ".."
 import { NavbarWrapper } from "./components/NavbarWrapper"
 import {
+  AvatarDropdown,
   HamburgerMenu,
   Logo,
   NavbarSearch,
   OpenAuthModalButton,
   OpenCartModalButton,
-  OpenUserMenuButton,
 } from "./components"
 import { CtrlKBadge } from "./components/CtrlKBadge"
-import { SupportButton } from "./components/SupportButton"
+import { ContactButton } from "./components/ContactButton"
 
 export default async function Navbar() {
   const {
@@ -40,8 +40,8 @@ export default async function Navbar() {
         <SwitchDarkMode className="max-[500px]:hidden" />
         <BiSearchAlt className="flex tablet:hidden" size={28} />
         <OpenCartModalButton />
-        <SupportButton />
-        {user ? <OpenUserMenuButton /> : <OpenAuthModalButton />}
+        <ContactButton />
+        {user ? <AvatarDropdown /> : <OpenAuthModalButton />}
       </div>
     </NavbarWrapper>
   )

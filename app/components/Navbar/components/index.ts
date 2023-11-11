@@ -4,14 +4,6 @@ import { Logo } from "./Logo"
 import { NavbarSearch } from "./NavbarSearch"
 import { OpenCartModalButton } from "./OpenCartModalButton"
 import { OpenAuthModalButton } from "./OpenAuthModalButton"
-import { OpenUserMenuButton } from "./OpenUserMenuButton"
+import { AvatarDropdown } from "./AvatarDropdown"
 
-export {
-  NavbarWrapper,
-  HamburgerMenu,
-  Logo,
-  NavbarSearch,
-  OpenCartModalButton,
-  OpenAuthModalButton,
-  OpenUserMenuButton,
-}
+export { NavbarWrapper, HamburgerMenu, Logo, NavbarSearch, OpenCartModalButton, OpenAuthModalButton, AvatarDropdown }
