@@ -11,35 +11,30 @@ export interface Database {
     Tables: {
       messages: {
         Row: {
-          body: string | null
-          conversation_id: string | null
+          body: string
+          conversation_id: string
           created_at: string
-          id: number
-          sender_id: string | null
+          id: string
+          is_closed_conversation: boolean
+          sender_id: string
         }
         Insert: {
-          body?: string | null
-          conversation_id?: string | null
+          body: string
+          conversation_id: string
           created_at?: string
-          id?: number
-          sender_id?: string | null
+          id?: string
+          is_closed_conversation?: boolean
+          sender_id: string
         }
         Update: {
-          body?: string | null
-          conversation_id?: string | null
+          body?: string
+          conversation_id?: string
           created_at?: string
-          id?: number
-          sender_id?: string | null
+          id?: string
+          is_closed_conversation?: boolean
+          sender_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
       products: {
         Row: {
