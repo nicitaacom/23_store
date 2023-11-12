@@ -12,6 +12,7 @@ import { Input } from "../ui/Inputs"
 import { Button, DropdownContainer } from "../ui"
 
 import { MessageBox } from "./components/MessageBox"
+import { useRouter } from "next/navigation"
 
 interface SupportButtonProps {
   conversationId: string
@@ -21,7 +22,9 @@ interface SupportButtonProps {
 export function SupportButton({ conversationId, initialMessages }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
+  const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
   const [userMessage, setUserMessage] = useState("")
   const userStore = useUserStore()
 
@@ -30,18 +33,30 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
   useEffect(() => {
     setTimeout(() => {
       inputRef.current?.focus()
-      //Timeout needed for focus - without it foucs doesn't work
+      //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
+
+      if (bottomRef.current) {
+        bottomRef.current.scrollTop = bottomRef.current.scrollHeight
+      }
     }, 25)
   }, [isDropdown])
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault()
+    setUserMessage("")
     if (conversationId && senderId) {
-      const { data, error } = await supabaseClient
+      await supabaseClient
         .from("messages")
         .insert({ body: userMessage, sender_id: senderId, conversation_id: conversationId })
-      console.log(29, "data - ", data)
-      console.log(30, "error - ", error)
+
+      router.refresh()
+
+      setTimeout(() => {
+        console.log("scroll into view")
+        if (bottomRef.current) {
+          bottomRef.current.scrollTop = bottomRef.current.scrollHeight
+        }
+      }, 350)
     } else {
       console.log(32, "no senderId")
     }
@@ -67,8 +82,8 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
       }>
       <section className="h-[490px] w-[400px] px-4 py-4 flex flex-col justify-between">
         <h1 className="text-center text-[1.4rem] font-semibold">Response ~15s</h1>
-        <form className="flex flex-col gap-y-2 justify-between h-full" onSubmit={sendMessage}>
-          <div className="flex flex-col gap-y-2">
+        <form className="flex flex-col gap-y-2 justify-between h-full pb-8" onSubmit={sendMessage}>
+          <div className="flex flex-col gap-y-2 hide-scrollbar pb-4" ref={bottomRef}>
             {initialMessages.map((initialMessage, index) => (
               <MessageBox key={initialMessage.id} isLast={index === initialMessages.length - 1} data={initialMessage} />
             ))}
