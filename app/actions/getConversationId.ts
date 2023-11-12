@@ -1,6 +1,7 @@
 import supabaseAdmin from "@/libs/supabaseAdmin"
 import supabaseServer from "@/libs/supabaseServer"
 import { getCookie } from "@/utils/helpersSSR"
+import { setCookie } from "@/utils/setCookie"
 
 const getConversationId = async () => {
   const { data: userSessionData, error: userSessionError } = await supabaseServer().auth.getSession()
@@ -9,6 +10,7 @@ const getConversationId = async () => {
 
   const userId =
     userSessionData.session?.user.id === undefined ? getCookie("anonymousId")?.value : userSessionData.session?.user.id
+
   try {
     const { data, error } = await supabaseAdmin
       .from("messages")
@@ -25,8 +27,8 @@ const getConversationId = async () => {
       // Return the existing open conversationId
       return data[0].conversation_id
     } else {
-      // Return a new conversationId if no open conversation is found
-      return crypto.randomUUID()
+      //return value from cookies if no coversationId (I create cookie for coversationId in Layout.tsx)
+      return getCookie("conversationId")?.value
     }
   } catch (error) {
     console.error("Error - ", error)
