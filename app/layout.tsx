@@ -8,7 +8,8 @@ import ClientOnly from "./components/ClientOnly"
 import { Layout } from "./components"
 import { ModalsProvider, ModalsQueryProvider } from "./providers"
 import Navbar from "./components/Navbar/Navbar"
-import { SupportButton } from "./components/SupportButton"
+import { SupportButton } from "./components/SupportButton/SupportButton"
+import getInitialMessages from "./actions/getInitialMessages"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -44,7 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </Layout>
           <ModalsProvider />
           <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
-          <SupportButton conversationId={conversationId ?? ""} />
+          <SupportButton initialMessages={initialMessages ?? []} conversationId={conversationId ?? ""} />
         </ClientOnly>
       </body>
     </html>
