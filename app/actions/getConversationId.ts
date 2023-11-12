@@ -1,7 +1,6 @@
 import supabaseAdmin from "@/libs/supabaseAdmin"
 import supabaseServer from "@/libs/supabaseServer"
 import { getCookie } from "@/utils/helpersSSR"
-import { setCookie } from "@/utils/setCookie"
 
 const getConversationId = async () => {
   const { data: userSessionData, error: userSessionError } = await supabaseServer().auth.getSession()
