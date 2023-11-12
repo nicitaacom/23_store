@@ -7,7 +7,6 @@ import { formatTime } from "@/utils/formatTime"
 import { getCookie } from "@/utils/helpersCSR"
 import Image from "next/image"
 import { useEffect } from "react"
-import { BsCheck2 } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
 
 interface MessageBoxProps {
@@ -31,7 +30,7 @@ export function MessageBox({ isLast, data }: MessageBoxProps) {
   return (
     <div className={twMerge(`flex gap-x-2`, isOwn && "justify-end")}>
       <Image
-        className="rounded-full select-none pointer-events-none order-last"
+        className="w-[42px] h-[42px] mt-1 rounded-full select-none pointer-events-none order-last"
         src={
           userStore.isAuthenticated
             ? userStore.avatarUrl
