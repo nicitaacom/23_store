@@ -8,6 +8,15 @@ import { Toast } from "./ui/Toast"
 import { AnimatePresence } from "framer-motion"
 import { setCookie } from "@/utils/helpers"
 
+export function getCookie(name: string) {
+  const value = "; " + document.cookie
+  const parts = value.split("; " + name + "=")
+
+  if (parts.length == 2) {
+    return parts.pop()?.split(";").shift()
+  }
+}
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const darkMode = useDarkMode()
   const toast = useToast()
@@ -27,7 +36,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     htmlElement.classList.toggle("dark", darkMode.isDarkMode)
 
     // set anonymousId cookie to getConversationId
-    setCookie("anonymousId", `anonymousId_${crypto.randomUUID()}`)
+    if (!getCookie("anonymousId")) {
+      setCookie("anonymousId", `anonymousId_${crypto.randomUUID()}`)
+    }
   }, [darkMode.isDarkMode])
 
   return (
