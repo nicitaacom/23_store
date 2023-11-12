@@ -3,18 +3,20 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { BiSupport } from "react-icons/bi"
+import { find } from "lodash"
 import axios from "axios"
 
-import { pusherClient } from "@/libs/pusher"
 import { IMessage } from "@/interfaces/IMessage"
+import { TAPITelegram } from "@/api/telegram/route"
+import { pusherClient } from "@/libs/pusher"
 import { getCookie } from "@/utils/helpersCSR"
 import useUserStore from "@/store/user/userStore"
 import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
-import { Input } from "../ui/Inputs"
+import { telegramMessage } from "@/constant/telegram"
 
+import { Input } from "../ui/Inputs"
 import { Button, DropdownContainer } from "../ui"
 import { MessageBox } from "./components/MessageBox"
-import { find } from "lodash"
 
 interface SupportButtonProps {
   conversationId: string
@@ -24,23 +26,31 @@ interface SupportButtonProps {
 export function SupportButton({ conversationId, initialMessages }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
+  const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState(initialMessages)
   const [userMessage, setUserMessage] = useState("")
   const userStore = useUserStore()
 
-  const senderId = userStore.userId ? userStore.userId : getCookie("anonymousId")
+  const senderId = userStore.userId || getCookie("anonymousId")
 
   //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
   useEffect(() => {
+    if (isDropdown && !conversationId) {
+      ;(async () => {
+        await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
+        router.refresh()
+      })()
+    }
+
     setTimeout(() => {
       inputRef.current?.focus()
-
       if (bottomRef.current) {
         bottomRef.current.scrollTop = bottomRef.current.scrollHeight
       }
     }, 25)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDropdown])
 
   useEffect(() => {
@@ -50,7 +60,7 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
     }
 
     const messagehandler = (message: IMessage) => {
-      //axios.post('api/messages/{conversationId}/seen')
+      //TODO - axios.post('api/messages/{conversationId}/seen')
       setMessages(current => {
         if (find(current, { id: message.id })) {
           return current
@@ -76,17 +86,19 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
   }, [conversationId])
 
   async function sendMessage(e: React.FormEvent) {
+    // Return a new conversationId if no open conversation is found
+
     e.preventDefault()
     setUserMessage("")
     if (conversationId && senderId) {
       axios.post("/api/messages", { body: userMessage, conversationId: conversationId, senderId: senderId })
 
       if (bottomRef.current) {
-        bottomRef.current.scrollTop = bottomRef.current.scrollHeight
+        bottomRef.current?.scrollTo(0, bottomRef.current.scrollHeight)
         bottomRef.current.scrollIntoView()
       }
     } else {
-      console.log(32, "no senderId")
+      console.log("no conversationId or userId")
     }
   }
 
@@ -96,7 +108,7 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
     <DropdownContainer
       className="w-[280px] mobile:w-[375px] top-[-480px] mobile:top-[-570px] desktop:top-[-585px]
        translate-x-[-32.5px] desktop:translate-x-[-40px] before:translate-y-[402px] mobile:before:translate-y-[492px]
-       before:border-l-0 before:border-t-0 before:border-r before:border-b"
+       before:border-l-0 before:border-t-0 before:border-r before:border-b before:bg-foreground-accent"
       classNameIsDropdownTrue="translate-y-[-4px]"
       classNameIsDropdownFalse="translate-y-[5px]"
       isDropdown={isDropdown}
@@ -109,16 +121,17 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
           <BiSupport className="text-icon-color w-[24px] h-[24px] desktop:w-[32px] desktop:h-[32px]" />
         </Button>
       }>
-      <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] px-4 py-4 flex flex-col justify-between">
-        <h1 className="text-center text-[1.4rem] font-semibold">Response ~15s</h1>
-        <form className="flex flex-col gap-y-2 justify-between h-full pb-8" onSubmit={sendMessage}>
-          <div className="flex flex-col gap-y-2 hide-scrollbar pb-4" ref={bottomRef}>
+      <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col justify-between">
+        <h1 className="text-center text-[1.4rem] font-semibold shadow-md py-1">Response ~15s</h1>
+        <form className="flex flex-col justify-between h-full" onSubmit={sendMessage}>
+          <div className="h-[385px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
             {messages.map((initialMessage, index) => (
               <MessageBox key={initialMessage.id} isLast={index === initialMessages.length - 1} data={initialMessage} />
             ))}
           </div>
           <Input
-            className="w-full"
+            //-2px because it don't calculate border-width 1px
+            className="w-[calc(100%-2px)] px-4 py-2 bg-foreground-accent shadow-md"
             value={userMessage}
             onChange={e => setUserMessage(e.target.value)}
             placeholder="Enter your message..."
