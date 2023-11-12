@@ -199,6 +199,17 @@ input::-webkit-inner-spin-button {
   display: flex;
 }
 
+/* Hide scrollbar */
+.hide-scrollbar {
+  overflow-y: scroll;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  /* WebKit */
+  width: 0;
+  height: 0;
+}
 /* ===== Scrollbar CSS ===== */
 /* Firefox */
 @media (min-width: 1024px) {
