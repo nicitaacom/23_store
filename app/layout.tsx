@@ -31,7 +31,8 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const ownerProducts = await getOwnerProducts()
-  const conversationId = getConversationId()
+  const conversationId = await getConversationId()
+  const initialMessages = await getInitialMessages()
 
   return (
     <html lang="en">
@@ -43,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </Layout>
           <ModalsProvider />
           <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
-          <SupportButton conversationId={conversationId} />
+          <SupportButton conversationId={conversationId ?? ""} />
         </ClientOnly>
       </body>
     </html>
