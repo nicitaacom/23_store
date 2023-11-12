@@ -1,24 +1,38 @@
 "use client"
 
+import { useEffect, useRef, useState } from "react"
 import { BiSupport } from "react-icons/bi"
 
-import { Button, DropdownContainer } from "./ui"
-import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
-import { Input } from "./ui/Inputs"
-import { useState } from "react"
-import supabaseClient from "@/libs/supabaseClient"
+import { IMessage } from "@/interfaces/IMessage"
+import { getCookie } from "@/utils/helpersCSR"
 import useUserStore from "@/store/user/userStore"
-import { getCookie } from "./Layout"
+import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
+import supabaseClient from "@/libs/supabaseClient"
+import { Input } from "../ui/Inputs"
+import { Button, DropdownContainer } from "../ui"
 
-export function SupportButton({ conversationId }: { conversationId: string }) {
+import { MessageBox } from "./components/MessageBox"
+
+interface SupportButtonProps {
+  conversationId: string
+  initialMessages: IMessage[]
+}
+
+export function SupportButton({ conversationId, initialMessages }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
+  const inputRef = useRef<HTMLInputElement>(null)
   const [userMessage, setUserMessage] = useState("")
   const userStore = useUserStore()
-  console.log(17, "conversationId - ", conversationId)
 
   const senderId = userStore.userId ? userStore.userId : getCookie("anonymousId")
-  console.log(21, "senderId - ", senderId)
+
+  useEffect(() => {
+    setTimeout(() => {
+      inputRef.current?.focus()
+      //Timeout needed for focus - without it foucs doesn't work
+    }, 25)
+  }, [isDropdown])
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault()
@@ -53,12 +67,18 @@ export function SupportButton({ conversationId }: { conversationId: string }) {
       }>
       <section className="h-[490px] w-[400px] px-4 py-4 flex flex-col justify-between">
         <h1 className="text-center text-[1.4rem] font-semibold">Response ~15s</h1>
-        <form className="flex flex-row gap-x-2 items-center" onSubmit={sendMessage}>
+        <form className="flex flex-col gap-y-2 justify-between h-full" onSubmit={sendMessage}>
+          <div className="flex flex-col gap-y-2">
+            {initialMessages.map((initialMessage, index) => (
+              <MessageBox key={initialMessage.id} isLast={index === initialMessages.length - 1} data={initialMessage} />
+            ))}
+          </div>
           <Input
             className="w-full"
             value={userMessage}
             onChange={e => setUserMessage(e.target.value)}
             placeholder="Enter your message..."
+            ref={inputRef}
           />
         </form>
       </section>
