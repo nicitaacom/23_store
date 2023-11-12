@@ -23,6 +23,10 @@ declare global {
       NEXT_PUBLIC_METAMASK_ADRESS: string
 
       NEXT_COINMARKETCAP_SECRET: string
+
+      PUSHER_APP_ID: string
+      NEXT_PUBLIC_PUSHER_APP_KEY: string
+      PUSHER_SECRET: string
     }
   }
 }
