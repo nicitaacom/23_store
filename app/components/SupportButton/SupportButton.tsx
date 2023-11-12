@@ -94,7 +94,8 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
   //w-[400px] should be = section w-[400px]
   return (
     <DropdownContainer
-      className="w-[400px] top-[-585px] translate-x-[-30px] before:translate-y-[492px]
+      className="w-[280px] mobile:w-[375px] top-[-480px] mobile:top-[-570px] desktop:top-[-585px]
+       translate-x-[-32.5px] desktop:translate-x-[-40px] before:translate-y-[402px] mobile:before:translate-y-[492px]
        before:border-l-0 before:border-t-0 before:border-r before:border-b"
       classNameIsDropdownTrue="translate-y-[-4px]"
       classNameIsDropdownFalse="translate-y-[5px]"
@@ -108,7 +109,7 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
           <BiSupport className="text-icon-color w-[24px] h-[24px] desktop:w-[32px] desktop:h-[32px]" />
         </Button>
       }>
-      <section className="h-[490px] w-[400px] px-4 py-4 flex flex-col justify-between">
+      <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] px-4 py-4 flex flex-col justify-between">
         <h1 className="text-center text-[1.4rem] font-semibold">Response ~15s</h1>
         <form className="flex flex-col gap-y-2 justify-between h-full pb-8" onSubmit={sendMessage}>
           <div className="flex flex-col gap-y-2 hide-scrollbar pb-4" ref={bottomRef}>
