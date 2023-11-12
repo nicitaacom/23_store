@@ -8,18 +8,29 @@ import { Input } from "./ui/Inputs"
 import { useState } from "react"
 import supabaseClient from "@/libs/supabaseClient"
 import useUserStore from "@/store/user/userStore"
-import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies"
+import { getCookie } from "./Layout"
 
-export function SupportButton({ conversationId }: { conversationId: Promise<string | RequestCookie | undefined> }) {
+export function SupportButton({ conversationId }: { conversationId: string }) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
   const [userMessage, setUserMessage] = useState("")
   const userStore = useUserStore()
+  console.log(17, "conversationId - ", conversationId)
 
-  const senderId = userStore.userId ? userStore.userId : `anonymous_${crypto.randomUUID()}`
+  const senderId = userStore.userId ? userStore.userId : getCookie("anonymousId")
+  console.log(21, "senderId - ", senderId)
 
-  async function sendMessage() {
-    const { data, error } = await supabaseClient.from("messages").insert({ body: userMessage, sender_id: senderId })
+  async function sendMessage(e: React.FormEvent) {
+    e.preventDefault()
+    if (conversationId && senderId) {
+      const { data, error } = await supabaseClient
+        .from("messages")
+        .insert({ body: userMessage, sender_id: senderId, conversation_id: conversationId })
+      console.log(29, "data - ", data)
+      console.log(30, "error - ", error)
+    } else {
+      console.log(32, "no senderId")
+    }
   }
 
   //before:translate-y-[402px] should be +2px then <section className="h-[400px]
@@ -35,7 +46,7 @@ export function SupportButton({ conversationId }: { conversationId: Promise<stri
       dropdownRef={supportDropdownRef}
       icon={
         <Button
-          className="w-[48px] h-[48px] desktop:w-[64px] desktop:h-[64px] fixed bottom-4 right-4 rounded-full border border-border-color"
+          className="w-[48px] h-[48px] desktop:w-[64px] desktop:h-[64px] fixed bottom-4 right-6 rounded-full border border-border-color"
           variant="outline">
           <BiSupport className="text-icon-color w-[24px] h-[24px] desktop:w-[32px] desktop:h-[32px]" />
         </Button>
