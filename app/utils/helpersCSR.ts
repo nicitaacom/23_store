@@ -1,5 +1,3 @@
-import { cookies } from "next/headers"
-
 export const getURL = () => {
   let url = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_VERCEL_URL ?? "http://localhost:3000"
 
@@ -18,4 +16,13 @@ export function setCookie(name: string, val: string) {
 
   // Set it
   document.cookie = name + "=" + value + "; expires=" + date.toUTCString() + "; path=/"
+}
+
+export function getCookie(name: string) {
+  const value = "; " + document.cookie
+  const parts = value.split("; " + name + "=")
+
+  if (parts.length == 2) {
+    return parts.pop()?.split(";").shift()
+  }
 }
