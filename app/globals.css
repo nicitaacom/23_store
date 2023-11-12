@@ -10,6 +10,7 @@
     --brand: 137deg 82% 22%;
     --background: 0deg 0% 93%;
     --foreground: 0deg 0% 84%;
+    --foreground-accent: 0deg 0% 75%;
     --foreground-hover: 0deg 0% 74%; /* for skeleton */
     --title: 0deg 0% 12%;
     --title-foreground: 0deg 0% 90%;
@@ -30,6 +31,7 @@
     --brand: 137deg 82% 52%;
     --background: 0deg 0% 7%;
     --foreground: 0deg 0% 16%;
+    --foreground-accent: 0deg 0% 25%;
     --foreground-hover: 0deg 0% 26%; /* for skeleton */
     --title: 0deg 0% 88%;
     --title-foreground: 0deg 0% 10%;

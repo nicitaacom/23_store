@@ -22,6 +22,7 @@ const config: Config = {
         brand: "hsl(var(--brand) / 1)",
         background: "hsl(var(--background) / 1)",
         foreground: "hsl(var(--foreground) / 1)",
+        "foreground-accent": "hsl(var(--foreground-accent) / 1)",
         title: "hsl(var(--title) / 1)",
         "title-foreground": "hsl(var(--title-foreground) / 1)",
         subTitle: "hsl(var(--subTitle) / 1)",
