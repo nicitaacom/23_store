@@ -17,6 +17,10 @@ and get output from this 11/24/2023 to this 24.11.2023
 This file needed to fomat metamask balance
 (I copy pasted this file from [this guide](https://docs.metamask.io/wallet/tutorials/react-dapp-local-state/#5-manage-more-metamask-state))
 
+## Usage for formatTime
+
+This function turns this `2023-11-12T08:41:03.348842+00:00` into `09:41`
+
 ## Usage for getStorage
 
 Just incaplulated logic to do stuff related to getting and setting cart
