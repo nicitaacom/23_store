@@ -1,12 +1,11 @@
 "use client"
 
 import { IMessage } from "@/interfaces/IMessage"
-import supabaseClient from "@/libs/supabaseClient"
 import useDarkMode from "@/store/ui/darkModeStore"
 import useUserStore from "@/store/user/userStore"
+import { formatTime } from "@/utils/formatTime"
 import { getCookie } from "@/utils/helpersCSR"
 import Image from "next/image"
-import { BiUserCircle } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
 
 interface MessageBoxProps {
@@ -24,9 +23,9 @@ export function MessageBox({ isLast, data }: MessageBoxProps) {
   const message = twMerge(isOwn ? "bg-info text-title" : "bg-foreground")
 
   return (
-    <div className={twMerge(`flex`, isOwn && "justify-end")}>
+    <div className={twMerge(`flex gap-x-2`, isOwn && "justify-end")}>
       <Image
-        className="rounded-full select-none pointer-events-none"
+        className="rounded-full select-none pointer-events-none order-last"
         src={
           userStore.isAuthenticated
             ? userStore.avatarUrl
@@ -37,9 +36,18 @@ export function MessageBox({ isLast, data }: MessageBoxProps) {
             : "/BiUserCircle-light.svg"
         }
         alt="user-image"
-        width={42}
-        height={42}
+        width={46}
+        height={46}
       />
+      <div className="flex flex-col items-end px-1 py-0.5">
+        <p className="text-xs">{formatTime(data.created_at)}</p>
+        <p
+          className="relative border-2 text-end w-fit text-title-foreground px-2 py-0.5 bg-info rounded-lg
+         before:w-3 before:h-3 before:bg-info before:border-l-2 before:border-t-2 before:border-solid before:border-border-color
+       before:rotate-[195deg] before:rounded-r-full before:absolute before:translate-y-[150%] before:right-[-6px] before:translate-x-[-50%]">
+          {data.body}
+        </p>
+      </div>
     </div>
   )
 }
