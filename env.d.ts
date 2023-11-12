@@ -27,6 +27,9 @@ declare global {
       PUSHER_APP_ID: string
       NEXT_PUBLIC_PUSHER_APP_KEY: string
       PUSHER_SECRET: string
+
+      NEXT_TELEGRAM_BOT_TOKEN: string
+      NEXT_TELEGRAM_CHAT_ID: string
     }
   }
 }
