@@ -1,11 +1,6 @@
 import supabaseAdmin from "@/libs/supabaseAdmin"
 import supabaseServer from "@/libs/supabaseServer"
-import { cookies } from "next/headers"
-
-export function getCookie(name: string) {
-  const cookieStore = cookies()
-  return cookieStore.get(name)
-}
+import { getCookie } from "@/utils/helpersSSR"
 
 const getConversationId = async () => {
   const { data: userSessionData, error: userSessionError } = await supabaseServer().auth.getSession()
@@ -28,7 +23,6 @@ const getConversationId = async () => {
 
     if (data && data.length > 0) {
       // Return the existing open conversationId
-      console.log(32, "data[0].conversation_id - ", data[0].conversation_id)
       return data[0].conversation_id
     } else {
       // Return a new conversationId if no open conversation is found
