@@ -6,6 +6,8 @@ import useUserStore from "@/store/user/userStore"
 import { formatTime } from "@/utils/formatTime"
 import { getCookie } from "@/utils/helpersCSR"
 import Image from "next/image"
+import { useEffect } from "react"
+import { BsCheck2 } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
 
 interface MessageBoxProps {
@@ -21,6 +23,10 @@ export function MessageBox({ isLast, data }: MessageBoxProps) {
   const isOwn = userId === data.sender_id
 
   const message = twMerge(isOwn ? "bg-info text-title" : "bg-foreground")
+
+  useEffect(() => {
+    //axios.post('/api/messages/seen')
+  }, [])
 
   return (
     <div className={twMerge(`flex gap-x-2`, isOwn && "justify-end")}>
@@ -39,14 +45,16 @@ export function MessageBox({ isLast, data }: MessageBoxProps) {
         width={46}
         height={46}
       />
-      <div className="flex flex-col items-end px-1 py-0.5">
+      <div className="relative flex flex-col items-end px-1 py-0.5">
         <p className="text-xs">{formatTime(data.created_at)}</p>
         <p
-          className="relative border-2 text-end w-fit text-title-foreground px-2 py-0.5 bg-info rounded-lg
+          className="relative w-fit  border-2 text-start text-title-foreground pl-2 pr-3 pt-0.5 pb-1 bg-info rounded-lg
          before:w-3 before:h-3 before:bg-info before:border-l-2 before:border-t-2 before:border-solid before:border-border-color
-       before:rotate-[195deg] before:rounded-r-full before:absolute before:translate-y-[150%] before:right-[-6px] before:translate-x-[-50%]">
+       before:rotate-[195deg] before:rounded-r-full before:absolute before:bottom-[-4px] before:right-[-6px] before:translate-x-[-50%]">
           {data.body}
         </p>
+        {/* TODO - seen in the future */}
+        {/* <BsCheck2 className="absolute bottom-[2px] right-2 " /> */}
       </div>
     </div>
   )
