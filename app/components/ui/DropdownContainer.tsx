@@ -11,7 +11,7 @@ interface DropdownContainerProps {
   classNameIsDropdownTrue?: string
   classNameIsDropdownFalse?: string
   username?: string | undefined
-
+  onClick?: () => void
   isDropdown: boolean
   toggle: () => void
   dropdownRef: React.RefObject<HTMLDivElement>
@@ -27,11 +27,19 @@ export function DropdownContainer({
   classNameIsDropdownFalse,
   isDropdown,
   toggle,
+  onClick,
   dropdownRef,
 }: DropdownContainerProps) {
+  const handleClick = () => {
+    if (onClick) {
+      onClick()
+    }
+    toggle()
+  }
+
   return (
     <div className={`relative z-10 ${classNameDropdownContainer}`} ref={dropdownRef}>
-      <div className="cursor-pointer hover:brightness-75 duration-300" onClick={toggle}>
+      <div className="cursor-pointer hover:brightness-75 duration-300" onClick={handleClick}>
         {icon}
       </div>
 
