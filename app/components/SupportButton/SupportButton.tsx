@@ -1,18 +1,20 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import { BiSupport } from "react-icons/bi"
+import axios from "axios"
 
+import { pusherClient } from "@/libs/pusher"
 import { IMessage } from "@/interfaces/IMessage"
 import { getCookie } from "@/utils/helpersCSR"
 import useUserStore from "@/store/user/userStore"
 import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
-import supabaseClient from "@/libs/supabaseClient"
 import { Input } from "../ui/Inputs"
-import { Button, DropdownContainer } from "../ui"
 
+import { Button, DropdownContainer } from "../ui"
 import { MessageBox } from "./components/MessageBox"
-import { useRouter } from "next/navigation"
+import { find } from "lodash"
 
 interface SupportButtonProps {
   conversationId: string
@@ -22,18 +24,18 @@ interface SupportButtonProps {
 export function SupportButton({ conversationId, initialMessages }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
-  const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = useState(initialMessages)
   const [userMessage, setUserMessage] = useState("")
   const userStore = useUserStore()
 
   const senderId = userStore.userId ? userStore.userId : getCookie("anonymousId")
 
+  //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
   useEffect(() => {
     setTimeout(() => {
       inputRef.current?.focus()
-      //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
 
       if (bottomRef.current) {
         bottomRef.current.scrollTop = bottomRef.current.scrollHeight
@@ -41,22 +43,48 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
     }, 25)
   }, [isDropdown])
 
+  useEffect(() => {
+    pusherClient.subscribe(conversationId)
+    if (bottomRef.current) {
+      bottomRef.current.scrollTop = bottomRef.current.scrollHeight
+    }
+
+    const messagehandler = (message: IMessage) => {
+      //axios.post('api/messages/{conversationId}/seen')
+      setMessages(current => {
+        if (find(current, { id: message.id })) {
+          return current
+        }
+
+        return [...current, message]
+      })
+
+      //Timeout is required here because without it scroll to bottom doesn't work
+      setTimeout(() => {
+        if (bottomRef.current) {
+          bottomRef.current.scrollTop = bottomRef.current.scrollHeight
+        }
+      }, 10)
+    }
+
+    pusherClient.bind("messages:new", messagehandler)
+
+    return () => {
+      pusherClient.unsubscribe(conversationId)
+      pusherClient.unbind("messages:new", messagehandler)
+    }
+  }, [conversationId])
+
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault()
     setUserMessage("")
     if (conversationId && senderId) {
-      await supabaseClient
-        .from("messages")
-        .insert({ body: userMessage, sender_id: senderId, conversation_id: conversationId })
+      axios.post("/api/messages", { body: userMessage, conversationId: conversationId, senderId: senderId })
 
-      router.refresh()
-
-      setTimeout(() => {
-        console.log("scroll into view")
-        if (bottomRef.current) {
-          bottomRef.current.scrollTop = bottomRef.current.scrollHeight
-        }
-      }, 350)
+      if (bottomRef.current) {
+        bottomRef.current.scrollTop = bottomRef.current.scrollHeight
+        bottomRef.current.scrollIntoView()
+      }
     } else {
       console.log(32, "no senderId")
     }
@@ -84,7 +112,7 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
         <h1 className="text-center text-[1.4rem] font-semibold">Response ~15s</h1>
         <form className="flex flex-col gap-y-2 justify-between h-full pb-8" onSubmit={sendMessage}>
           <div className="flex flex-col gap-y-2 hide-scrollbar pb-4" ref={bottomRef}>
-            {initialMessages.map((initialMessage, index) => (
+            {messages.map((initialMessage, index) => (
               <MessageBox key={initialMessage.id} isLast={index === initialMessages.length - 1} data={initialMessage} />
             ))}
           </div>
