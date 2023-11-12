@@ -1,4 +1,4 @@
-import { type ChangeEvent } from "react"
+import { forwardRef, type ChangeEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
 interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
@@ -11,7 +11,7 @@ interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   required?: boolean
 }
 
-export function Input({
+function Input({
   type = "text",
   value,
   onChange,
@@ -50,3 +50,5 @@ export function Input({
     </div>
   )
 }
+
+export default forwardRef(Input)
