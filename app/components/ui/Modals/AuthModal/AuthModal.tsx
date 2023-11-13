@@ -4,11 +4,13 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { usePathname, useSearchParams } from "next/navigation"
 
+import axios from "axios"
 import { useForm } from "react-hook-form"
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai"
 import supabaseClient from "@/libs/supabaseClient"
 import { AuthError } from "@supabase/supabase-js"
 
+import { TAPIAuthRegister } from "@/api/auth/register/route"
 import useDarkMode from "@/store/ui/darkModeStore"
 import useUserStore from "@/store/user/userStore"
 import ContinueWithButton from "@/(auth)/components/ContinueWithButton"
@@ -17,6 +19,7 @@ import { Button, Checkbox } from "../.."
 import { Timer } from "@/(auth)/components"
 import { ModalQueryContainer } from "../ModalContainers"
 import { twMerge } from "tailwind-merge"
+import { getURL } from "@/utils/helpersCSR"
 
 interface AdminModalProps {
   label: string
@@ -79,12 +82,12 @@ export function AuthModal({ label }: AdminModalProps) {
           )
         } else {
           displayResponseMessage(
-            <p className="text-danger">
-              An unknown error occurred - contact admin
-              <Button href="https://t.me/nicitaacom" variant="link">
+            <div className="text-danger flex flex-row">
+              <p>An unknown error occurred - contact admin&nbsp;</p>
+              <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
                 here
               </Button>
-            </p>,
+            </div>,
           )
         }
       }
@@ -138,17 +141,16 @@ export function AuthModal({ label }: AdminModalProps) {
         email: email,
         password: password,
         options: {
-          emailRedirectTo: `${location.origin}/auth/callback`,
+          emailRedirectTo: `${getURL()}/auth/callback`,
           data: {
             username: username,
           },
         },
       })
-      if (signUpError) throw signUpError
+      if (signUpError) throw new Error(`signUpError - ${signUpError}`)
       if (user.user) {
         //Insert row in users_cart table
-        const { error: errorUsersCartInsert } = await supabaseClient.from("users_cart").insert({ id: user.user.id })
-        if (errorUsersCartInsert) throw errorUsersCartInsert
+        await axios.post("/api/auth/register", { id: user.user.id } as TAPIAuthRegister)
 
         setResponseMessage(<p className="text-success">Check your email</p>)
         setTimeout(() => {
@@ -173,12 +175,12 @@ export function AuthModal({ label }: AdminModalProps) {
         }
       } else {
         displayResponseMessage(
-          <p className="text-danger">
-            An unknown error occurred - contact admin
-            <Button href="https://t.me/nicitaacom" variant="link">
+          <div className="text-danger flex flex-row">
+            <p>An unknown error occurred - contact admin&nbsp;</p>
+            <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
               here
             </Button>
-          </p>,
+          </div>,
         )
       }
     }
@@ -197,12 +199,12 @@ export function AuthModal({ label }: AdminModalProps) {
         displayResponseMessage(<p className="text-danger">{error.message}</p>)
       } else {
         displayResponseMessage(
-          <p className="text-danger">
-            An unknown error occurred - contact admin
-            <Button href="https://t.me/nicitaacom" variant="link">
+          <div className="text-danger flex flex-row">
+            <p>An unknown error occurred - contact admin&nbsp;</p>
+            <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
               here
             </Button>
-          </p>,
+          </div>,
         )
       }
     }
@@ -220,12 +222,12 @@ export function AuthModal({ label }: AdminModalProps) {
         displayResponseMessage(<p className="text-danger">{error.message}</p>)
       } else {
         displayResponseMessage(
-          <p className="text-danger">
-            An unknown error occurred - contact admin
-            <Button href="https://t.me/nicitaacom" variant="link">
+          <div className="text-danger flex flex-row">
+            <p>An unknown error occurred - contact admin&nbsp;</p>
+            <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
               here
             </Button>
-          </p>,
+          </div>,
         )
       }
     }
@@ -244,12 +246,12 @@ export function AuthModal({ label }: AdminModalProps) {
         displayResponseMessage(<p className="text-danger">{error.message}</p>)
       } else {
         displayResponseMessage(
-          <p className="text-danger">
-            An unknown error occurred - contact admin
-            <Button href="https://t.me/nicitaacom" variant="link">
+          <div className="text-danger flex flex-row">
+            <p>An unknown error occurred - contact admin&nbsp;</p>
+            <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
               here
             </Button>
-          </p>,
+          </div>,
         )
       }
     }
@@ -261,7 +263,7 @@ export function AuthModal({ label }: AdminModalProps) {
       signInWithPassword(data.emailOrUsername, data.password)
     } else if (queryParams === "register") {
       signUp(data.username, data.email, data.password)
-      reset()
+      // reset()
     } else if (queryParams === "recover") {
       recoverPassword(data.email)
       reset()
@@ -274,7 +276,7 @@ export function AuthModal({ label }: AdminModalProps) {
     <ModalQueryContainer
       className={twMerge(
         `w-[100vw] max-w-[500px] tablet:max-w-[650px] transition-all duration-300`,
-        queryParams === "login" ? "h-[570px]" : queryParams === "register" ? "h-[625px]" : "h-[325px]",
+        queryParams === "login" ? "h-[570px]" : queryParams === "register" ? "h-[645px]" : "h-[325px]",
 
         //for login height when errors
         queryParams === "login" && (errors.emailOrUsername || errors.password) && "!h-[620px]",
