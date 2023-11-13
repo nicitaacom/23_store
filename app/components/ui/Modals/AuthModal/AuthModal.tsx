@@ -117,12 +117,12 @@ export function AuthModal({ label }: AdminModalProps) {
           displayResponseMessage(<p className="text-danger">{error.message}</p>)
         } else {
           displayResponseMessage(
-            <p className="text-danger">
-              An unknown error occurred - contact admin
-              <Button href="https://t.me/nicitaacom" variant="link">
+            <div className="text-danger flex flex-row">
+              <p>An unknown error occurred - contact admin&nbsp;</p>
+              <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
                 here
               </Button>
-            </p>,
+            </div>,
           )
         }
       }
