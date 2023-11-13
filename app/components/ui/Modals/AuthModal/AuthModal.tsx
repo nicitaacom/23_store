@@ -16,6 +16,7 @@ import { FormInput } from "../../Inputs/Validation/FormInput"
 import { Button, Checkbox } from "../.."
 import { Timer } from "@/(auth)/components"
 import { ModalQueryContainer } from "../ModalContainers"
+import { twMerge } from "tailwind-merge"
 
 interface AdminModalProps {
   label: string
@@ -269,21 +270,19 @@ export function AuthModal({ label }: AdminModalProps) {
 
   return (
     <ModalQueryContainer
-      className={`w-[100vw] max-w-[500px] tablet:max-w-[650px]
-    ${queryParams === "login" ? "h-[550px]" : queryParams === "register" ? "h-[625px]" : "h-[325px]"}
-${
-  //for login height when errors
-  queryParams === "login" && (errors.emailOrUsername || errors.password) && "!h-[610px]"
-}
-${
-  //for register height when errors
-  queryParams === "register" && (errors.email || errors.password) && "!h-[700px]"
-} 
-${
-  //for reset-password height when errors
-  queryParams === "reset-password" && errors.password && "!h-[350px]"
-}
-transition-all duration-500`}
+      className={twMerge(
+        `w-[100vw] max-w-[500px] tablet:max-w-[650px] transition-all duration-300`,
+        queryParams === "login" ? "h-[570px]" : queryParams === "register" ? "h-[625px]" : "h-[325px]",
+
+        //for login height when errors
+        queryParams === "login" && (errors.emailOrUsername || errors.password) && "!h-[620px]",
+
+        //for register height when errors
+        queryParams === "register" && (errors.email || errors.password) && "!h-[700px]",
+
+        //for reset-password height when errors
+        queryParams === "reset-password" && errors.password && "!h-[350px]",
+      )}
       modalQuery="AuthModal">
       <div className="flex flex-col justify-center gap-y-2 w-[90%] mx-auto">
         <div className="flex flex-row gap-x-1 items-center h-[100px]">
