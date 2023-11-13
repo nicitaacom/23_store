@@ -74,7 +74,9 @@ export function AuthModal({ label }: AdminModalProps) {
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
-          displayResponseMessage(<p className="text-danger">{error.message}</p>)
+          displayResponseMessage(
+            <p className="text-danger">{error.message === "Invalid login credentials" && "Wrong email or password"}</p>,
+          )
         } else {
           displayResponseMessage(
             <p className="text-danger">
