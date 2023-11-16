@@ -3,15 +3,23 @@ import { NextResponse } from "next/server"
 
 export type TAPIAuthRegister = {
   id: string
+  username: string
+  email: string
 }
 
 export async function POST(req: Request) {
   const body: TAPIAuthRegister = await req.json()
 
-  const { data, error } = await supabaseAdmin.from("users_cart").insert({ id: body.id })
+  const { data: insertInUsers, error: insertInUsersError } = await supabaseAdmin
+    .from("users")
+    .insert({ id: body.id, username: body.username, email: body.email })
+  console.log(13, "insertInUsers - ", insertInUsers)
+  console.log(14, "insertInUsersError - ", insertInUsersError)
+  const { data: insertInUsersCart, error: insertInUsersCartError } = await supabaseAdmin
+    .from("users_cart")
+    .insert({ id: body.id })
+  console.log(13, "insertInUsersCart - ", insertInUsersCart)
+  console.log(14, "insertInUsersCartError - ", insertInUsersCartError)
 
-  console.log(13, "data - ", data)
-  console.log(14, "error - ", error)
-
-  return NextResponse.json({ data })
+  return NextResponse.json({ insertInUsersCart })
 }
