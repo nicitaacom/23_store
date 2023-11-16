@@ -77,6 +77,38 @@ export interface Database {
           }
         ]
       }
+      users: {
+        Row: {
+          avatarurl: string | null
+          email: string
+          id: string
+          role: string
+          username: string
+        }
+        Insert: {
+          avatarurl?: string | null
+          email: string
+          id: string
+          role?: string
+          username: string
+        }
+        Update: {
+          avatarurl?: string | null
+          email?: string
+          id?: string
+          role?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       users_cart: {
         Row: {
           cart_products: Json
