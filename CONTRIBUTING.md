@@ -166,3 +166,15 @@ I use github desktop so I write for this (if you prefer to use terminal do it th
 In each folder I have `dev_readme.md` file - so you can understnad what's going on in each folder of my project
 Note: You don't need to read all `dev_readme.md` files - do it if needed
 I mean if it not related to your task you may don't read about it
+
+## Write your own docs
+
+Wirte docs in style
+`What problem if solves`
+Your docs how to use something
+
+For example:
+This file needed to format price from `199999.99` to this `$1,999,99.99`
+or
+I use this component to show how much products will be shown per page
+I added this component because some users may be annoyed with clicking '>' button
