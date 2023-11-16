@@ -9,17 +9,17 @@ import { useForm } from "react-hook-form"
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai"
 import supabaseClient from "@/libs/supabaseClient"
 import { AuthError } from "@supabase/supabase-js"
+import { twMerge } from "tailwind-merge"
 
 import { TAPIAuthRegister } from "@/api/auth/register/route"
+import { getURL } from "@/utils/helpers"
 import useDarkMode from "@/store/ui/darkModeStore"
 import useUserStore from "@/store/user/userStore"
 import ContinueWithButton from "@/(auth)/components/ContinueWithButton"
-import { FormInput } from "../../Inputs/Validation/FormInput"
-import { Button, Checkbox } from "../.."
+import { FormInput } from "@/components/ui/Inputs/Validation/FormInput"
+import { Button, Checkbox } from "@/components/ui"
 import { Timer } from "@/(auth)/components"
-import { ModalQueryContainer } from "../ModalContainers"
-import { twMerge } from "tailwind-merge"
-import { getURL } from "@/utils/helpersCSR"
+import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
 
 interface AdminModalProps {
   label: string
@@ -141,7 +141,7 @@ export function AuthModal({ label }: AdminModalProps) {
         email: email,
         password: password,
         options: {
-          emailRedirectTo: `${getURL()}/auth/callback`,
+          emailRedirectTo: `${getURL()}auth/callback`,
           data: {
             username: username,
           },
@@ -150,7 +150,11 @@ export function AuthModal({ label }: AdminModalProps) {
       if (signUpError) throw new Error(`signUpError - ${signUpError}`)
       if (user.user) {
         //Insert row in users_cart table
-        await axios.post("/api/auth/register", { id: user.user.id } as TAPIAuthRegister)
+        await axios.post("/api/auth/register", {
+          id: user.user.id,
+          email: email,
+          username: username,
+        } as TAPIAuthRegister)
 
         setResponseMessage(<p className="text-success">Check your email</p>)
         setTimeout(() => {
