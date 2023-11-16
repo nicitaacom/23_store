@@ -34,12 +34,17 @@ interface FormData {
 
 export function AuthModal({ label }: AdminModalProps) {
   const router = useRouter()
+  // const emailInputRef = useRef<HTMLInputElement>(null)
   const pathname = usePathname()
   const queryParams = useSearchParams().get("variant")
-  const userStore = useUserStore()
   const darkMode = useDarkMode()
+
   const [isChecked, setIsChecked] = useState(false)
+  const [isEmailSent, setIsEmailSent] = useState(false)
+  const [isAuthCompleted, setIsAuthCompleted] = useState(false)
+  const [isRecoverCompleted, setIsRecoverCompleted] = useState(false)
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
+
   //for case when user click 'Forgot password?' or 'Create account' and some data in responseMessage
   useEffect(() => {
     setResponseMessage(<p></p>)
@@ -279,17 +284,23 @@ export function AuthModal({ label }: AdminModalProps) {
   return (
     <ModalQueryContainer
       className={twMerge(
-        `w-[100vw] max-w-[500px] tablet:max-w-[650px] transition-all duration-300`,
-        queryParams === "login" ? "h-[570px]" : queryParams === "register" ? "h-[645px]" : "h-[325px]",
+        `w-[500px] transition-all duration-300`,
+        queryParams === "login" ? "h-[550px]" : queryParams === "register" ? "h-[625px]" : "h-[325px]",
 
         //for login height when errors
-        queryParams === "login" && (errors.emailOrUsername || errors.password) && "!h-[620px]",
+        queryParams === "login" && (errors.emailOrUsername || errors.password) && "!h-[610px]",
 
         //for register height when errors
-        queryParams === "register" && (errors.email || errors.password) && "!h-[700px]",
+        queryParams === "register" && (errors.email || errors.password) && "!h-[720px]",
 
-        //for reset-password height when errors
-        queryParams === "reset-password" && errors.password && "!h-[350px]",
+        //for recover height when errors
+        queryParams === "recover" && errors.password && "!h-[350px]",
+
+        //for recover height when errors
+        queryParams === "resetPassword" && errors.password && "!h-[370px]",
+
+        //for auth completed height
+        queryParams === "authCompleted" && "!h-[250px]",
       )}
       modalQuery="AuthModal">
       <div className="flex flex-col justify-center gap-y-2 w-[90%] mx-auto">
