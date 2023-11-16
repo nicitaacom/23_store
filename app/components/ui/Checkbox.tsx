@@ -31,7 +31,7 @@ export function Checkbox({
         {label}
       </label>
       {isChecked && (
-        <BsCheckLg className="absolute left-[2px] bottom-[3px] text-black pointer-events-none select-none" />
+        <BsCheckLg className="absolute left-[2px] bottom-[2px] text-black pointer-events-none select-none" />
       )}
     </div>
   )
