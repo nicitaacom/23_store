@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { stripe } from "@/libs/stripe"
-import { getURL } from "@/utils/helpersSSR"
+import { getURL } from "@/utils/helpers"
 
 type stripeProductType = {
   price: string
