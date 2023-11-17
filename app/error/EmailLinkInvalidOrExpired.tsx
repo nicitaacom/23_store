@@ -8,19 +8,25 @@ export function EmailLinkInvalidOrExpired() {
 
   return (
     <div className="flex flex-col gap-y-4 items-center justify-center">
-      <Image
-        src={
-          isDarkMode
-            ? "/errors/email-link-invalid-or-has-expired-dark.jpg"
-            : "/errors/email-link-invalid-or-has-expired-light.jpg"
-        }
-        alt="invalid-flow-state-found"
-        width={1920}
-        height={386}
-      />
+      <div
+        className={`w-full h-[35vh] relative ${
+          isDarkMode ? "bg-[#0a6624]" : "bg-[#20e959]"
+        } flex justify-center items-center`}>
+        <Image
+          className="w-[100px] laptop:w-[125px] desktop:w-[150px]"
+          src={
+            isDarkMode
+              ? "/errors/email-link-invalid-or-has-expired-icon-dark.png"
+              : "/errors/email-link-invalid-or-has-expired-icon-light.png"
+          }
+          alt="invalid-flow-state-found"
+          width={1920}
+          height={386}
+        />
+      </div>
       <p className="text-danger">Email link is invalid or has expired</p>
-      <p>Try again and use link that you become ASAP</p>
-      <p>Also don&apos;t use link that you already used</p>
+      <p className="text-center">Try again and use link that you become ASAP</p>
+      <p className="text-center">Also don&apos;t use link that you already used</p>
       <BackToMainButton />
     </div>
   )
