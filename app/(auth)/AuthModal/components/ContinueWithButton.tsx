@@ -9,21 +9,21 @@ interface ContinueWithButtonProps {
   href?: string
 }
 
-export default function ContinueWithButton({ href, provider, className }: ContinueWithButtonProps) {
+export function ContinueWithButton({ href, provider, className }: ContinueWithButtonProps) {
   async function continueWith(e: React.FormEvent) {
     e.preventDefault()
     if (provider === "google") {
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${location.origin}/auth/callback/` },
+        options: { redirectTo: `${location.origin}/auth/callback/oauth?provider=google` },
       })
       if (error) throw error
     } else if (provider === "faceit") {
-      //do stuff
+      // TODO - add faceit provider
     } else if (provider === "twitter") {
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "twitter",
-        options: { redirectTo: `${location.origin}/auth/callback/` },
+        options: { redirectTo: `${location.origin}/auth/callback/oauth?provider=twitter` },
       })
       if (error) throw error
     }
