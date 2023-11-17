@@ -1,4 +1,6 @@
-import { useRouter, useSearchParams } from "next/navigation"
+"use client"
+
+import { useSearchParams } from "next/navigation"
 
 import { EmailLinkInvalidOrExpired } from "./EmailLinkInvalidOrExpired"
 import { ExchangeCookiesError } from "./ExchangeCookiesError"
@@ -6,7 +8,6 @@ import { AuthNotCompleted } from "./AuthNotCompleted"
 import { BackToMainButton } from "./components/BackToMainButton"
 
 export default function Error() {
-  const router = useRouter()
   const error_description = useSearchParams().get("error_description")
 
   if (error_description === "Email link is invalid or has expired") {
