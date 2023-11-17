@@ -8,19 +8,22 @@ export function ExchangeCookiesError({ message }: { message?: string }) {
 
   return (
     <div className="flex flex-col gap-y-4 items-center justify-center">
-      <Image
-        src={
-          isDarkMode
-            ? "/errors/user-not-found-after-exchanging-cookies-dark.jpg"
-            : "/errors/user-not-found-after-exchanging-cookies-light.jpg"
-        }
-        alt="invalid-flow-state-found"
-        width={1920}
-        height={386}
-      />
-      <p className="text-danger">{message ? message : "No user found when exchanging cookies"}</p>
-      <p>You might verified your email on new device or in incognito mode</p>
-      <p>To get support contact us here - {process.env.NEXT_PUBLIC_SUPPORT_EMAIL}</p>
+      <div className="w-full h-[35vh] relative bg-brand flex justify-center items-center">
+        <Image
+          className="w-[200px] laptop:w-[250px] desktop:w-[300px]"
+          src={
+            isDarkMode
+              ? "/errors/user-not-found-after-exchanging-cookies-icon-dark.png"
+              : "/errors/user-not-found-after-exchanging-cookies-icon-light.png"
+          }
+          alt="invalid-flow-state-found"
+          width={300}
+          height={226}
+        />
+      </div>
+      <p className="text-danger text-center">{message ? message : "No user found when exchanging cookies"}</p>
+      <p className="text-center">You might verified your email on new device or in incognito mode</p>
+      <p className="text-center">To get support contact us here - {process.env.NEXT_PUBLIC_SUPPORT_EMAIL}</p>
       <BackToMainButton />
     </div>
   )
