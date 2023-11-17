@@ -1,5 +1,12 @@
 ## Usage for callback folder
 
+I use callback folder **only** for callbacks (its where 3rd party site) for example:
+
+1. User click 'verify my email' button (its callback because user click it on gmail.com or another email site)
+2. User click 'continue with google' button (its callback because when user choose account he click 'user account' button on 3rd party site)
+   ![user account button](https://i.imgur.com/LBbyITy.png)
+3. User click 'recover my password' button - as well as 1 (user click this button on gmail.com - that's why its callback)
+
 ### Usage for callback/credentials/route.ts
 
 This route required for case when user click 'verify email' button on email (e.g gmail.com)
@@ -28,12 +35,12 @@ This route required for case when user click 'continue with google' or 'continue
 
 This is `/auth/callback/completed` route that user see when verified email without errors
 
-## Usage for recover folder
+## Usage for callback/recover/route.ts
 
 I use this route if user decide to change password
 In this route I:
 
-1. Throw error supabase throw error because link to recover password was used or expired
+1. Throw error if supabase throw error because link to recover password was used or expired
 2. Exchange cookies to get session data (and set session in cookies)
 3. If 'credentials' provider doesn't exist - add 'credentials' provider to `providers` column in DB
 4. Save email in cookies to tiger pusher to action like 'your password changed - stay safe'
