@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const body: TAPIAuthLogin = await req.json()
 
   try {
-    // Check is user with this email exist
+    // Check is user with this email doesn't exist
     const { data: email_response, error: emailSelectError } = await supabaseAdmin
       .from("users")
       .select("email")
@@ -33,7 +33,15 @@ export async function POST(req: Request) {
       .single()
     const providers = provider_response?.providers
 
-    return NextResponse.json({ providers: providers })
+    // Return username to set it in localstorage with zustand
+    const { data: username_response } = await supabaseAdmin
+      .from("users")
+      .select("username")
+      .eq("email", body.email)
+      .single()
+    const username = username_response?.username
+
+    return NextResponse.json({ providers: providers, username: username })
   } catch (error: any) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 })
