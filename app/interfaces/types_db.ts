@@ -79,23 +79,32 @@ export interface Database {
       }
       users: {
         Row: {
-          avatarurl: string | null
+          avatar_url: string | null
+          created_at: string
           email: string
+          email_confirmed_at: string | null
           id: string
+          providers: string[] | null
           role: string
           username: string
         }
         Insert: {
-          avatarurl?: string | null
+          avatar_url?: string | null
+          created_at?: string
           email: string
+          email_confirmed_at?: string | null
           id: string
+          providers?: string[] | null
           role?: string
           username: string
         }
         Update: {
-          avatarurl?: string | null
+          avatar_url?: string | null
+          created_at?: string
           email?: string
+          email_confirmed_at?: string | null
           id?: string
+          providers?: string[] | null
           role?: string
           username?: string
         }
