@@ -2,14 +2,12 @@ import "./globals.css"
 
 import type { Metadata } from "next"
 
-import getOwnerProducts from "./actions/getOwnerProducts"
 import getConversationId from "./actions/getConversationId"
+import getInitialMessages from "./actions/getInitialMessages"
+
 import ClientOnly from "./components/ClientOnly"
 import { Layout } from "./components"
-import { ModalsProvider, ModalsQueryProvider } from "./providers"
-import Navbar from "./components/Navbar/Navbar"
 import { SupportButton } from "./components/SupportButton/SupportButton"
-import getInitialMessages from "./actions/getInitialMessages"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -31,7 +29,6 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const ownerProducts = await getOwnerProducts()
   const conversationId = await getConversationId()
   const initialMessages = await getInitialMessages()
 
@@ -39,12 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en">
       <body>
         <ClientOnly>
-          <Layout>
-            <Navbar />
-            {children}
-          </Layout>
-          <ModalsProvider />
-          <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
+          <Layout>{children}</Layout>
           <SupportButton initialMessages={initialMessages ?? []} conversationId={conversationId ?? ""} />
         </ClientOnly>
       </body>
