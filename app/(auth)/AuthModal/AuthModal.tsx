@@ -18,9 +18,11 @@ import { getCookie } from "@/utils/helpersCSR"
 import useDarkMode from "@/store/ui/darkModeStore"
 import { FormInput } from "../../components/ui/Inputs/Validation/FormInput"
 import { Button, Checkbox } from "../../components/ui"
-import ContinueWithButton from "@/(auth)/components/ContinueWithButton"
-import { Timer } from "@/(auth)/components"
+import { ContinueWithButton } from "@/(auth)/AuthModal/components"
+import { Timer } from "@/(auth)/AuthModal/components"
 import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
+import useUserStore from "@/store/user/userStore"
+import { revalidatePath } from "next/cache"
 
 interface AdminModalProps {
   label: string
@@ -38,6 +40,7 @@ export function AuthModal({ label }: AdminModalProps) {
   const pathname = usePathname()
   const queryParams = useSearchParams().get("variant")
   const darkMode = useDarkMode()
+  const userStore = useUserStore()
 
   const [isChecked, setIsChecked] = useState(false)
   const [isEmailSent, setIsEmailSent] = useState(false)
@@ -63,6 +66,13 @@ export function AuthModal({ label }: AdminModalProps) {
   function displayResponseMessage(message: React.ReactNode) {
     setResponseMessage(message)
   }
+
+  useEffect(() => {
+    //hide response message to prevent overflow because too much errors
+    if (errors.email || errors.password || errors.username) {
+      displayResponseMessage(<p></p>)
+    }
+  }, [errors.email, errors.password, errors.username])
 
   useEffect(() => {
     if (isAuthCompleted) router.push("?modal=AuthModal&variant=authCompleted")
@@ -101,16 +111,16 @@ export function AuthModal({ label }: AdminModalProps) {
   }, [getValues, isRecoverCompleted, router])
 
   async function signInWithPassword(email: string, password: string) {
-    //Check user wants login with email or username
     try {
+      // Check is user with this email doesn't exist and return providers and username
       const response = await axios.post("/api/auth/login", { email: email } as TAPIAuthLogin)
-
       const { data: user, error: signInError } = await supabaseClient.auth.signInWithPassword({
         email: email,
         password: password,
       })
+
       // Check if user with this email already exists (if user first time auth with OAuth)
-      // Throw error if user exist with oauth provider
+      // Throw error if user with this email exist with oauth providers (only) - or wrong email/password
       if (signInError) {
         const isCredentialsProvider = response.data.providers?.includes("credentials")
         const isOnlyGoogleProvider =
@@ -121,14 +131,23 @@ export function AuthModal({ label }: AdminModalProps) {
           isCredentialsProvider
             ? `Wrong email or password`
             : isOnlyGoogleProvider
-            ? "You already have account with google"
-            : `You already have an account with ${response.data.providers}`,
+              ? "You already have account with google"
+              : `You already have an account with ${response.data.providers}`,
         )
       }
 
-      if (user.user) {
-        //store info somewhere (e.g in localStorage with zustand)
+      // Set user data in localstorage
+      if (user.user && response.data.username) {
+        userStore.setUser(
+          user.user.id,
+          response.data.username,
+          email,
+          user.user.user_metadata.avatar_url ||
+            user.user?.identities![0]?.identity_data?.avatar_url ||
+            user.user?.identities![1]?.identity_data?.avatar_url,
+        )
         reset()
+        router.refresh() //refresh to show avatarUrl in navbar
 
         displayResponseMessage(
           <div className="text-success flex flex-col justify-center items-center">
@@ -136,6 +155,16 @@ export function AuthModal({ label }: AdminModalProps) {
             <Timer label="I close this modal in" seconds={5} action={() => router.replace("/")} />
           </div>,
         )
+      } else {
+        displayResponseMessage(
+          <div className="text-danger flex flex-row">
+            <p>No user or username found - contact admin&nbsp;</p>
+            <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
+              here
+            </Button>
+          </div>,
+        )
+        return
       }
     } catch (error) {
       if (error instanceof Error && error.message === "Invalid login credentials") {
@@ -193,7 +222,7 @@ export function AuthModal({ label }: AdminModalProps) {
       setTimeout(() => {
         setResponseMessage(
           <div className="flex flex-row">
-            Don&apos;t revice email?&nbsp;
+            <p>Don&apos;t revice email?&nbsp;</p>
             <Timer label="resend in" seconds={20}>
               <Button type="button" variant="link" onClick={() => resendVerificationEmail(email)}>
                 resend
@@ -277,7 +306,7 @@ export function AuthModal({ label }: AdminModalProps) {
   async function recoverPassword(email: string) {
     try {
       const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: `${location.origin}/auth/recover`,
+        redirectTo: `${location.origin}/auth/callback/recover`,
       })
       if (error) throw error
 
@@ -356,16 +385,24 @@ export function AuthModal({ label }: AdminModalProps) {
     <ModalQueryContainer
       className={twMerge(
         `w-[500px] transition-all duration-300`,
-        queryParams === "login" ? "h-[585px]" : queryParams === "register" ? "h-[670px]" : "h-[350px]",
+        queryParams === "login"
+          ? "h-[550px]"
+          : queryParams === "register"
+            ? "h-[625px]"
+            : queryParams === "resetPassword"
+              ? "h-[310px]"
+              : "h-[290px]",
 
-        //for login height when errors
-        queryParams === "login" && errors.password && "!h-[610px]",
+        //for login height when errors x1
+        queryParams === "login" && errors.password && "!h-[570px]",
+        //for login height when errors x2
+        queryParams === "login" && errors.password && errors.email && "!h-[590px]",
 
         //for register height when errors
         queryParams === "register" && (errors.email || errors.password) && "!h-[720px]",
 
         //for recover height when errors
-        queryParams === "recover" && errors.email && "!h-[380px]",
+        queryParams === "recover" && errors.email && "!h-[320px]",
 
         //for resetPassword height when errors
         queryParams === "resetPassword" && errors.password && "!h-[390px]",
@@ -375,24 +412,44 @@ export function AuthModal({ label }: AdminModalProps) {
       )}
       modalQuery="AuthModal">
       <div className="flex flex-col justify-center gap-y-2 w-[90%] mx-auto">
-        <div className="flex flex-row gap-x-4 items-center h-[100px]">
+        <div
+          className={twMerge(
+            `flex flex-row gap-x-4 items-center w-full`,
+            isAuthCompleted ? "justify-center" : "justify-start",
+            (queryParams === "login" || queryParams === "register") && "mb-8",
+            (errors.email || errors.password) && "!mb-4",
+          )}>
           <Image
-            className="w-[40px] h-[57px]"
-            src={darkMode.isDarkMode ? "/logo-dark.png" : "/logo-light.png"}
+            className={twMerge(`${isAuthCompleted || isRecoverCompleted ? "w-[48px] h-[48px]" : "w-[57px] h-[40px]"}`)}
+            src={
+              isAuthCompleted
+                ? darkMode.isDarkMode
+                  ? "/authentication-completed-dark.png"
+                  : "/authentication-completed-light.png"
+                : isRecoverCompleted
+                  ? darkMode.isDarkMode
+                    ? "/recover-completed-dark.png"
+                    : "/recover-completed-light.png"
+                  : darkMode.isDarkMode
+                    ? "/logo-dark.png"
+                    : "/logo-light.png"
+            }
             alt="logo"
-            width={40}
-            height={57}
+            width={64}
+            height={64}
           />
           <h1 className="text-4xl font-bold">
             {queryParams === "login"
               ? "Login"
               : queryParams === "register"
-              ? "Register"
-              : queryParams === "recover"
-              ? "Recover"
-              : queryParams === "resetPassword"
-              ? "Reset pasword"
-              : "Auth completed"}
+                ? "Register"
+                : queryParams === "recover"
+                  ? "Recover"
+                  : queryParams === "resetPassword"
+                    ? "Reset pasword"
+                    : queryParams === "recoverCompleted"
+                      ? "Recover completed"
+                      : "Auth completed"}
           </h1>
         </div>
 
@@ -470,10 +527,10 @@ export function AuthModal({ label }: AdminModalProps) {
                 {queryParams === "login"
                   ? "Login"
                   : queryParams === "register"
-                  ? "Register"
-                  : queryParams === "recover" || queryParams === "resetPassword"
-                  ? "Reset password"
-                  : "Send email"}
+                    ? "Register"
+                    : queryParams === "recover" || queryParams === "resetPassword"
+                      ? "Reset password"
+                      : "Send email"}
               </Button>
               <div className="flex justify-center text-center">{responseMessage}</div>
             </form>
@@ -501,14 +558,14 @@ export function AuthModal({ label }: AdminModalProps) {
             )}
           </>
         ) : queryParams === "authCompleted" && isAuthCompleted === true ? (
-          <div className="flex flex-col w-full">
-            <p>image</p>
-            <p className="text-success">Auth completed - thank you!</p>
+          <div className="text-success flex flex-col justify-center w-full h-[150px]">
+            <p className="text-success text-center text-xl">Mission passed!</p>
+            <p className="text-success text-center">respect+</p>
           </div>
         ) : queryParams === "recoverCompleted" && isRecoverCompleted === true ? (
-          <div className="w-full h-[150px] flex flex-col gap-y-4 justify-center items-center">
-            <p>image</p>
-            <p className="text-success">Password recovered - stay safe!</p>
+          <div className="text-success flex flex-col justify-center gap-y-2 w-full h-[150px]">
+            <p className="text-success text-center text-xl">Recover completed</p>
+            <p className="text-success text-center">Stay safe!</p>
           </div>
         ) : (
           <h1 className="w-full h-[125px] flex justify-center items-center">
