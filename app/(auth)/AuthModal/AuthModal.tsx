@@ -4,20 +4,21 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { usePathname, useSearchParams } from "next/navigation"
 
-import axios from "axios"
 import { useForm } from "react-hook-form"
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai"
 import supabaseClient from "@/libs/supabaseClient"
-import { AuthError } from "@supabase/supabase-js"
+import axios, { AxiosError } from "axios"
 import { twMerge } from "tailwind-merge"
+import { pusherClient } from "@/libs/pusher"
 
 import { TAPIAuthRegister } from "@/api/auth/register/route"
-import { getURL } from "@/utils/helpers"
+import { TAPIAuthRecover } from "../../api/auth/recover/route"
+import { TAPIAuthLogin } from "@/api/auth/login/route"
+import { getCookie } from "@/utils/helpersCSR"
 import useDarkMode from "@/store/ui/darkModeStore"
-import useUserStore from "@/store/user/userStore"
+import { FormInput } from "../../components/ui/Inputs/Validation/FormInput"
+import { Button, Checkbox } from "../../components/ui"
 import ContinueWithButton from "@/(auth)/components/ContinueWithButton"
-import { FormInput } from "@/components/ui/Inputs/Validation/FormInput"
-import { Button, Checkbox } from "@/components/ui"
 import { Timer } from "@/(auth)/components"
 import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
 
@@ -28,7 +29,6 @@ interface AdminModalProps {
 interface FormData {
   username: string
   email: string
-  emailOrUsername: string
   password: string
 }
 
@@ -55,6 +55,8 @@ export function AuthModal({ label }: AdminModalProps) {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    trigger,
+    getValues,
   } = useForm<FormData>()
 
   //when user submit form and got response message from server
@@ -62,126 +64,158 @@ export function AuthModal({ label }: AdminModalProps) {
     setResponseMessage(message)
   }
 
-  async function signInWithPassword(emailOrUsername: string, password: string) {
-    //Check user wants login with email or username
-    const isEmail = emailOrUsername.includes("@")
-    if (isEmail) {
-      try {
-        const { data: user, error: signInError } = await supabaseClient.auth.signInWithPassword({
-          email: emailOrUsername,
-          password: password,
-        })
-        if (signInError) throw signInError
+  useEffect(() => {
+    if (isAuthCompleted) router.push("?modal=AuthModal&variant=authCompleted")
+    // else router.push("?modal=AuthModal&variant=login")
+  }, [isAuthCompleted, router])
 
-        if (user.user) {
-          const { data: metadata } = await supabaseClient.auth.getUser()
-          // TODO - set metadata with userStore.setUser
-          displayResponseMessage(<p className="text-success">You are logged in</p>)
-          reset()
-          router.refresh()
-        }
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          displayResponseMessage(
-            <p className="text-danger">{error.message === "Invalid login credentials" && "Wrong email or password"}</p>,
-          )
-        } else {
-          displayResponseMessage(
-            <div className="text-danger flex flex-row">
-              <p>An unknown error occurred - contact admin&nbsp;</p>
-              <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
-                here
-              </Button>
-            </div>,
-          )
-        }
-      }
+  // Show 'Auth completed' message if user verified email
+  useEffect(() => {
+    function authCompletedHandler() {
+      setIsAuthCompleted(true)
     }
-    //If user want to login with username
-    else {
-      try {
-        //Find email that matches username
-        const { data: email, error: emailSelectError } = await supabaseClient
-          .from("users")
-          .select("email")
-          .eq("username", emailOrUsername)
-        if (emailSelectError) throw emailSelectError
 
-        //Login user with email&password
-        if (email && email.length > 0) {
-          const { data: user, error: signInError } = await supabaseClient.auth.signInWithPassword({
-            email: email[0].email!, //email 100% !== null because email && email.length >0 (thats why I use !)
-            password: password,
-          })
-          if (signInError) throw signInError
-          //I don't store user info in localstorage because zustand requires 'use client'
-          //and I can use SSR with request to DB - anyway its renders on a server so I still get better performance
-          if (user.user) {
-            displayResponseMessage(<p className="text-success">You are logged in</p>)
-            router.refresh()
-          }
-        } else {
-          displayResponseMessage(<p className="text-danger">No user with this username</p>)
-        }
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          displayResponseMessage(<p className="text-danger">{error.message}</p>)
-        } else {
+    pusherClient.bind("auth:completed", authCompletedHandler)
+    return () => {
+      if (getValues("email")) {
+        pusherClient.unsubscribe(getValues("email"))
+      }
+      pusherClient.unbind("auth:completed", authCompletedHandler)
+    }
+  }, [getValues])
+
+  // Show 'Recover completed' if user changed password in another window
+  useEffect(() => {
+    if (isRecoverCompleted) router.push("?modal=AuthModal&variant=recoverCompleted")
+
+    function recoverCompletedHandler() {
+      setIsRecoverCompleted(true)
+    }
+    pusherClient.bind("recover:completed", recoverCompletedHandler)
+    return () => {
+      if (getValues("email")) {
+        pusherClient.unsubscribe(getValues("email"))
+      }
+      pusherClient.unbind("recover:completed", recoverCompletedHandler)
+    }
+  }, [getValues, isRecoverCompleted, router])
+
+  async function signInWithPassword(email: string, password: string) {
+    //Check user wants login with email or username
+    try {
+      const response = await axios.post("/api/auth/login", { email: email } as TAPIAuthLogin)
+
+      const { data: user, error: signInError } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password,
+      })
+      // Check if user with this email already exists (if user first time auth with OAuth)
+      // Throw error if user exist with oauth provider
+      if (signInError) {
+        const isCredentialsProvider = response.data.providers?.includes("credentials")
+        const isOnlyGoogleProvider =
+          Array.isArray(response.data.providers) &&
+          response.data.providers.length === 1 &&
+          response.data.providers[0] === "google"
+        throw new Error(
+          isCredentialsProvider
+            ? `Wrong email or password`
+            : isOnlyGoogleProvider
+            ? "You already have account with google"
+            : `You already have an account with ${response.data.providers}`,
+        )
+      }
+
+      if (user.user) {
+        //store info somewhere (e.g in localStorage with zustand)
+        reset()
+
+        displayResponseMessage(
+          <div className="text-success flex flex-col justify-center items-center">
+            You are logged in - you may close this modal
+            <Timer label="I close this modal in" seconds={5} action={() => router.replace("/")} />
+          </div>,
+        )
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === "Invalid login credentials") {
+        displayResponseMessage(<p className="text-danger">Wrong email or password</p>)
+      } else if (error instanceof AxiosError) {
+        displayResponseMessage(<p className="text-danger">{error.response?.data.error}</p>)
+      } else if (error instanceof Error) {
+        if (error.message === "You already have account with google") {
           displayResponseMessage(
-            <div className="text-danger flex flex-row">
-              <p>An unknown error occurred - contact admin&nbsp;</p>
-              <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
-                here
+            <div className="flex flex-col justify-center items-center">
+              <p className="text-danger">You already have account with google</p>
+              <Button
+                variant="link"
+                onClick={async () =>
+                  await supabaseClient.auth.signInWithOAuth({
+                    provider: "google",
+                    options: { redirectTo: `${location.origin}/auth/callback/oauth?provider=google` },
+                  })
+                }>
+                continue with google?
               </Button>
             </div>,
           )
-        }
+        } else displayResponseMessage(<p className="text-danger">{error.message}</p>)
+      } else {
+        displayResponseMessage(
+          <div className="text-danger flex flex-row">
+            <p>An unknown error occurred - contact admin&nbsp;</p>
+            <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
+              here
+            </Button>
+          </div>,
+        )
       }
     }
   }
 
   async function signUp(username: string, email: string, password: string) {
     try {
-      const { data: user, error: signUpError } = await supabaseClient.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          emailRedirectTo: `${getURL()}auth/callback`,
-          data: {
-            username: username,
-          },
-        },
-      })
-      if (signUpError) throw new Error(`signUpError - ${signUpError}`)
-      if (user.user) {
-        //Insert row in users_cart table
-        await axios.post("/api/auth/register", {
-          id: user.user.id,
-          email: email,
+      const signUpResponse = await axios
+        .post("/api/auth/register", {
           username: username,
+          email: email,
+          password: password,
         } as TAPIAuthRegister)
+        .catch(error => {
+          throw error
+        })
 
-        setResponseMessage(<p className="text-success">Check your email</p>)
-        setTimeout(() => {
-          setResponseMessage(
-            <div className="flex flex-row text-title">
-              Don&apos;t revice email?&nbsp;
-              <Timer label="resend in" seconds={60}>
-                <Button type="button" variant="link" onClick={() => resendVerificationEmail(email)}>
-                  resend
-                </Button>
-              </Timer>
+      setIsEmailSent(true)
+      if (getValues("email")) {
+        pusherClient.subscribe(getValues("email"))
+      }
+      setResponseMessage(<p className="text-success">Check your email</p>)
+      setTimeout(() => {
+        setResponseMessage(
+          <div className="flex flex-row">
+            Don&apos;t revice email?&nbsp;
+            <Timer label="resend in" seconds={20}>
+              <Button type="button" variant="link" onClick={() => resendVerificationEmail(email)}>
+                resend
+              </Button>
+            </Timer>
+          </div>,
+        )
+      }, 5000)
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.data.error === "User exists - check your email\n You might not verified your email") {
+          displayResponseMessage(
+            <div className="flex flex-col justify-center items-center">
+              <p className="text-danger">User exists - check your email</p>
+              <p className="text-danger">You might not verified your email</p>
             </div>,
           )
-        }, 5000)
-      }
-    } catch (error: unknown) {
-      if (error instanceof AuthError) {
-        if (error.message.includes("duplicate key value violates unique constraint")) {
-          displayResponseMessage(<p className="text-danger">User with this username/email already exists.</p>)
         } else {
-          displayResponseMessage(<p className="text-danger">{error.message}</p>)
+          displayResponseMessage(<p className="text-danger">{error.response?.data.error}</p>)
         }
+      } else if (error instanceof Error) {
+        displayResponseMessage(<p className="text-danger">{error.message}</p>)
       } else {
         displayResponseMessage(
           <div className="text-danger flex flex-row">
@@ -197,12 +231,33 @@ export function AuthModal({ label }: AdminModalProps) {
 
   async function resendVerificationEmail(email: string) {
     try {
-      const { error } = await supabaseClient.auth.resend({
+      const { error: resendError } = await supabaseClient.auth.resend({
         type: "signup",
         email: email,
       })
-      if (error) throw error
-      displayResponseMessage(<p className="text-success">Message resended</p>)
+      if (resendError) throw resendError
+
+      displayResponseMessage(
+        <div className="flex flex-col">
+          <div className="text-success flex flex-row justify-center">
+            <p>Email resended -&nbsp;</p>
+            <Button
+              className="text-brand"
+              variant="link"
+              type="button"
+              onClick={() => {
+                setIsEmailSent(false)
+                setTimeout(() => {
+                  // TODO - fix because it doesn't set input.focus()
+                  trigger("email", { shouldFocus: true })
+                }, 50)
+              }}>
+              change email
+            </Button>
+          </div>
+          <p>If you don&apos;t recieve an email - check &apos;Spam&apos; and &apos;All mail&apos;</p>
+        </div>,
+      )
     } catch (error) {
       if (error instanceof Error) {
         displayResponseMessage(<p className="text-danger">{error.message}</p>)
@@ -222,9 +277,14 @@ export function AuthModal({ label }: AdminModalProps) {
   async function recoverPassword(email: string) {
     try {
       const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: `${location.origin}/?modal=AuthModal&variant=reset-password`,
+        redirectTo: `${location.origin}/auth/recover`,
       })
       if (error) throw error
+
+      if (getValues("email")) {
+        pusherClient.subscribe(getValues("email"))
+      }
+
       displayResponseMessage(<p className="text-success">Check your email</p>)
     } catch (error) {
       if (error instanceof Error) {
@@ -244,13 +304,24 @@ export function AuthModal({ label }: AdminModalProps) {
 
   async function resetPassword(password: string) {
     try {
-      const { error } = await supabaseClient.auth.updateUser({ password: password })
-      if (error) throw error
-      displayResponseMessage(<p className="text-success">Your password changed</p>)
-      router.push("/")
+      // IMP - check in open and closed databases for this password (enterprice)
+      const response = await axios.post("api/auth/recover", {
+        email: getCookie("email"),
+        password: password,
+      } as TAPIAuthRecover)
+
+      //TODO - set response.data in store (userStore.setUser()) - and set data from response
+
+      displayResponseMessage(
+        <div className="text-success flex flex-col justify-center items-center">
+          Your password changed - you may close this window
+          <Timer label="I close this modal in" seconds={7} action={() => router.replace("/")} />
+        </div>,
+      )
     } catch (error) {
-      if (error instanceof Error && error.message === "New password should be different from the old password.") {
-        displayResponseMessage(<p className="text-danger">Its already your password - enter new one</p>)
+      //This is required to show custom error message (check api/dev_readme.md)
+      if (error instanceof AxiosError) {
+        displayResponseMessage(<p className="text-danger">{error.response?.data.error}</p>)
       } else if (error instanceof Error) {
         displayResponseMessage(<p className="text-danger">{error.message}</p>)
       } else {
@@ -267,16 +338,16 @@ export function AuthModal({ label }: AdminModalProps) {
   }
 
   const onSubmit = async (data: FormData) => {
-    await new Promise(resolve => setTimeout(resolve, 1000))
     if (queryParams === "login") {
-      signInWithPassword(data.emailOrUsername, data.password)
+      await signInWithPassword(data.email, data.password)
     } else if (queryParams === "register") {
-      signUp(data.username, data.email, data.password)
+      await signUp(data.username, data.email, data.password)
       // reset()
     } else if (queryParams === "recover") {
-      recoverPassword(data.email)
+      router.refresh()
+      await recoverPassword(data.email)
       reset()
-    } else {
+    } else if (queryParams === "resetPassword") {
       resetPassword(data.password)
     }
   }
@@ -285,48 +356,55 @@ export function AuthModal({ label }: AdminModalProps) {
     <ModalQueryContainer
       className={twMerge(
         `w-[500px] transition-all duration-300`,
-        queryParams === "login" ? "h-[550px]" : queryParams === "register" ? "h-[625px]" : "h-[325px]",
+        queryParams === "login" ? "h-[585px]" : queryParams === "register" ? "h-[670px]" : "h-[350px]",
 
         //for login height when errors
-        queryParams === "login" && (errors.emailOrUsername || errors.password) && "!h-[610px]",
+        queryParams === "login" && errors.password && "!h-[610px]",
 
         //for register height when errors
         queryParams === "register" && (errors.email || errors.password) && "!h-[720px]",
 
         //for recover height when errors
-        queryParams === "recover" && errors.password && "!h-[350px]",
+        queryParams === "recover" && errors.email && "!h-[380px]",
 
-        //for recover height when errors
-        queryParams === "resetPassword" && errors.password && "!h-[370px]",
+        //for resetPassword height when errors
+        queryParams === "resetPassword" && errors.password && "!h-[390px]",
 
         //for auth completed height
         queryParams === "authCompleted" && "!h-[250px]",
       )}
       modalQuery="AuthModal">
       <div className="flex flex-col justify-center gap-y-2 w-[90%] mx-auto">
-        <div className="flex flex-row gap-x-1 items-center h-[100px]">
-          <Image src={darkMode.isDarkMode ? "/logo-dark.png" : "/logo-light.png"} alt="logo" width={60} height={44} />
-          <h1 className="text-3xl font-bold pb-2">
-            {queryParams === "login" ? "Login" : queryParams === "register" ? "Register" : "Recover"}
+        <div className="flex flex-row gap-x-4 items-center h-[100px]">
+          <Image
+            className="w-[40px] h-[57px]"
+            src={darkMode.isDarkMode ? "/logo-dark.png" : "/logo-light.png"}
+            alt="logo"
+            width={40}
+            height={57}
+          />
+          <h1 className="text-4xl font-bold">
+            {queryParams === "login"
+              ? "Login"
+              : queryParams === "register"
+              ? "Register"
+              : queryParams === "recover"
+              ? "Recover"
+              : queryParams === "resetPassword"
+              ? "Reset pasword"
+              : "Auth completed"}
           </h1>
         </div>
 
-        {queryParams === "login" || "register" || "recover" ? (
+        {queryParams === "login" ||
+        queryParams === "register" ||
+        queryParams === "recover" ||
+        queryParams === "resetPassword" ? (
           <>
-            <form className="relative w-full flex flex-col gap-y-2 mb-4" onSubmit={handleSubmit(onSubmit)}>
-              {queryParams === "register" && (
-                <FormInput
-                  endIcon={<AiOutlineUser size={24} />}
-                  register={register}
-                  errors={errors}
-                  id="username"
-                  label="Username"
-                  placeholder="HANTARESpeek"
-                  disabled={isSubmitting}
-                  required
-                />
-              )}
-              {queryParams !== "login" && queryParams !== "reset-password" && (
+            <form
+              className="relative max-w-[450px] w-[75vw] flex flex-col gap-y-2 mb-4"
+              onSubmit={handleSubmit(onSubmit)}>
+              {queryParams !== "resetPassword" && (
                 <FormInput
                   endIcon={<AiOutlineMail size={24} />}
                   register={register}
@@ -334,19 +412,7 @@ export function AuthModal({ label }: AdminModalProps) {
                   id="email"
                   label="Email"
                   placeholder="user@big.com"
-                  disabled={isSubmitting}
-                  required
-                />
-              )}
-              {queryParams === "login" && (
-                <FormInput
-                  endIcon={<AiOutlineUser size={24} />}
-                  register={register}
-                  errors={errors}
-                  id="emailOrUsername"
-                  label="Email or username"
-                  placeholder="HANTARESpeek"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isEmailSent}
                   required
                 />
               )}
@@ -358,14 +424,30 @@ export function AuthModal({ label }: AdminModalProps) {
                   id="password"
                   label="Password"
                   type="password"
-                  placeholder={queryParams === "reset-password" ? "NeW-RaNd0m_PasWorD" : "RaNd0m_PasWorD"}
-                  disabled={isSubmitting}
+                  placeholder={
+                    queryParams === "register" || queryParams === "resetPassword"
+                      ? "NeW-RaNd0m_PasWorD"
+                      : "RaNd0m_PasWorD"
+                  }
+                  disabled={isSubmitting || isEmailSent}
+                  required
+                />
+              )}
+              {queryParams === "register" && (
+                <FormInput
+                  endIcon={<AiOutlineUser size={24} />}
+                  register={register}
+                  errors={errors}
+                  id="username"
+                  label="Username"
+                  placeholder="HANTARESpeek"
+                  disabled={isSubmitting || isEmailSent}
                   required
                 />
               )}
               {/* LOGIN-BODY-HELP */}
               <div className="flex justify-between mb-2">
-                <div className={`${(queryParams === "recover" || queryParams === "reset-password") && "invisible"}`}>
+                <div className={twMerge(`invisible`, queryParams === "login" && "visible")}>
                   {/* 'Remember me' now checkbox do nothing - expected !isChecked 1m jwt - isChecked 3m jwt */}
                   <Checkbox
                     className="bg-background cursor-pointer"
@@ -384,12 +466,12 @@ export function AuthModal({ label }: AdminModalProps) {
                 )}
               </div>
 
-              <Button variant="default-outline" disabled={isSubmitting}>
+              <Button variant="default-outline" disabled={isSubmitting || isEmailSent}>
                 {queryParams === "login"
                   ? "Login"
                   : queryParams === "register"
                   ? "Register"
-                  : queryParams === "reset-password"
+                  : queryParams === "recover" || queryParams === "resetPassword"
                   ? "Reset password"
                   : "Send email"}
               </Button>
@@ -405,29 +487,33 @@ export function AuthModal({ label }: AdminModalProps) {
                     isSubmitting && "opacity-50 cursor-default pointer-events-none"
                   }`}>
                   <ContinueWithButton provider="google" />
-                  <ContinueWithButton
-                    className="opacity-75 cursor-pointer"
-                    href="https://github.com/vercel/next.js/issues/56832"
-                    provider="faceit"
-                  />
-                  <div className="tooltip">
-                    <ContinueWithButton className="opacity-75 cursor-pointer" provider="twitter" />
-                    <div className="tooltiptext opacity-75 cursor-pointer bg-background whitespace-nowrap">
-                      Supabase issue
-                    </div>
-                  </div>
+                  <ContinueWithButton provider="faceit" />
+                  <ContinueWithButton provider="twitter" />
                 </div>
                 <Button
-                  className="pr-1"
+                  className={twMerge(`pr-1`, isEmailSent && "opacity-50 pointer-events-none cursor-default")}
                   href={`${pathname}?modal=AuthModal&variant=${queryParams === "login" ? "register" : "login"}`}
-                  variant="link">
+                  variant="link"
+                  disabled={isEmailSent}>
                   {queryParams === "login" ? "Create account" : "Login"}
                 </Button>
               </section>
             )}
           </>
+        ) : queryParams === "authCompleted" && isAuthCompleted === true ? (
+          <div className="flex flex-col w-full">
+            <p>image</p>
+            <p className="text-success">Auth completed - thank you!</p>
+          </div>
+        ) : queryParams === "recoverCompleted" && isRecoverCompleted === true ? (
+          <div className="w-full h-[150px] flex flex-col gap-y-4 justify-center items-center">
+            <p>image</p>
+            <p className="text-success">Password recovered - stay safe!</p>
+          </div>
         ) : (
-          <h1>Now change query params back to &variant=login :) </h1>
+          <h1 className="w-full h-[125px] flex justify-center items-center">
+            Now change query params back to &variant=login :)
+          </h1>
         )}
       </div>
     </ModalQueryContainer>
