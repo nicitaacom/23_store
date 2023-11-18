@@ -108,7 +108,7 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
     <DropdownContainer
       className="w-[280px] mobile:w-[375px] top-[-480px] mobile:top-[-570px] desktop:top-[-585px]
        translate-x-[-32.5px] desktop:translate-x-[-40px] before:translate-y-[402px] mobile:before:translate-y-[492px]
-       before:border-l-0 before:border-t-0 before:border-r before:border-b before:bg-foreground-accent"
+       before:border-l-0 before:border-t-0 before:border-r before:border-b before:bg-foreground-accent before:z-[2]"
       classNameIsDropdownTrue="translate-y-[-4px]"
       classNameIsDropdownFalse="translate-y-[5px]"
       isDropdown={isDropdown}
