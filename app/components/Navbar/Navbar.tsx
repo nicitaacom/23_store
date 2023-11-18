@@ -4,14 +4,7 @@ import supabaseServer from "@/libs/supabaseServer"
 import { Language } from "../Language"
 import { SwitchDarkMode } from ".."
 import { NavbarWrapper } from "./components/NavbarWrapper"
-import {
-  AvatarDropdown,
-  HamburgerMenu,
-  Logo,
-  NavbarSearch,
-  OpenAuthModalButton,
-  OpenCartModalButton,
-} from "./components"
+import { AvatarDropdown, HamburgerMenu, Logo, NavbarSearch, OpenAuthModalButton, CartIcon } from "./components"
 import { CtrlKBadge } from "./components/CtrlKBadge"
 import { ContactButton } from "./components/ContactButton"
 
@@ -50,7 +43,7 @@ export default async function Navbar() {
       <div className="flex flex-row gap-x-2 items-center ">
         <SwitchDarkMode className="max-[500px]:hidden" />
         <BiSearchAlt className="flex tablet:hidden" size={28} />
-        <OpenCartModalButton />
+        <CartIcon />
         <ContactButton />
         {user ? <AvatarDropdown role={role} /> : <OpenAuthModalButton />}
       </div>
