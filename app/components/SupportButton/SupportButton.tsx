@@ -116,9 +116,9 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
       dropdownRef={supportDropdownRef}
       icon={
         <Button
-          className="w-[48px] h-[48px] desktop:w-[64px] desktop:h-[64px] fixed bottom-4 right-6 rounded-full border border-border-color"
+          className="w-[48px] h-[48px] px-3 desktop:px-4 desktop:w-[64px] desktop:h-[64px] fixed bottom-4 right-6 rounded-full border border-border-color"
           variant="default-outline">
-          <BiSupport className="text-icon-color w-[24px] h-[24px] desktop:w-[32px] desktop:h-[32px]" />
+          <BiSupport className="text-icon-color w-[32px] h-[32px] desktop:w-[32px] desktop:h-[32px]" />
         </Button>
       }>
       <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col justify-between">
