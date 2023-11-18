@@ -386,7 +386,7 @@ export function AuthModal({ label }: AdminModalProps) {
       className={twMerge(
         `w-[500px] transition-all duration-300`,
         queryParams === "login"
-          ? "h-[550px]"
+          ? "h-[560px]"
           : queryParams === "register"
             ? "h-[625px]"
             : queryParams === "resetPassword"
