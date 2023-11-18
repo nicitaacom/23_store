@@ -16,17 +16,24 @@ import { CtrlKBadge } from "./components/CtrlKBadge"
 import { ContactButton } from "./components/ContactButton"
 import supabaseAdmin from "@/libs/supabaseAdmin"
 
+async function serverAction(user_id: string): Promise<string> {
+  "use server"
+  const { data: role_response, error: role_error } = await supabaseAdmin
+    .from("users")
+    .select("role")
+    .eq("id", user_id)
+    .single()
+  if (role_error) throw role_error
+  const role = role_response.role
+  return role
+}
+
 export default async function Navbar() {
   const {
     data: { user },
   } = await supabaseServer().auth.getUser()
 
-  const { data: role_response, error: role_error } = await supabaseAdmin
-    .from("users")
-    .select("role")
-    .eq("id", user?.id ?? "")
-    .single()
-  if (role_error) throw role_error
+  const role = await serverAction(user?.id ?? "")
 
   return (
     <NavbarWrapper>
@@ -49,7 +56,7 @@ export default async function Navbar() {
         <BiSearchAlt className="flex tablet:hidden" size={28} />
         <OpenCartModalButton />
         <ContactButton />
-        {user ? <AvatarDropdown /> : <OpenAuthModalButton />}
+        {user ? <AvatarDropdown role={role} /> : <OpenAuthModalButton />}
       </div>
     </NavbarWrapper>
   )

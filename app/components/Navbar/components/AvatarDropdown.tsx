@@ -15,7 +15,7 @@ import { DropdownContainer, DropdownItem } from "@/components/ui"
 import { useRouter } from "next/navigation"
 import useAvatarDropdownClose from "@/hooks/ui/useAvatarDropdownClose"
 
-export function AvatarDropdown() {
+export function AvatarDropdown({ role }: { role: string }) {
   const router = useRouter()
   const { isDropdown, openDropdown, closeDropdown, toggle, avatarDropdownRef } = useAvatarDropdownClose()
   const userStore = useUserStore()
