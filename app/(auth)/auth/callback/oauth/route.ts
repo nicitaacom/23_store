@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const error_description = requestUrl.searchParams.get("error_description")
   if (error_description) {
     const supabase_error_description = encodeURIComponent(error_description)
-    return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${supabase_error_description}`)
+    return NextResponse.redirect(`${getURL()}/error?error_description=${supabase_error_description}`)
   }
 
   if (code) {
