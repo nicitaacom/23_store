@@ -7,9 +7,10 @@
 /* if you do any changes here it requires manually changes in Skeleton*/
 @layer base {
   :root {
-    --brand: 137deg 82% 22%;
+    --brand: 137deg 82% 22%; /* 0a6624 */
     --background: 0deg 0% 93%;
     --foreground: 0deg 0% 84%;
+    --foreground-accent: 0deg 0% 75%;
     --foreground-hover: 0deg 0% 74%; /* for skeleton */
     --title: 0deg 0% 12%;
     --title-foreground: 0deg 0% 90%;
@@ -17,7 +18,7 @@
 
     /* The same colors */
     --border-color: 0deg 0% 40%; /*subTitle*/
-    --icon-color: 0deg 0% 12%; /* title */
+    --icon-color: 0deg 0% 12%; /* title 1f1f1f */
 
     /* Support colors */
     --info: 219deg 65% 36%;
@@ -27,9 +28,10 @@
   }
   /* I did it using rgb color picker and contrast checker */
   .dark {
-    --brand: 137deg 82% 52%;
+    --brand: 137deg 82% 52%; /* 20e959 */
     --background: 0deg 0% 7%;
     --foreground: 0deg 0% 16%;
+    --foreground-accent: 0deg 0% 25%;
     --foreground-hover: 0deg 0% 26%; /* for skeleton */
     --title: 0deg 0% 88%;
     --title-foreground: 0deg 0% 10%;
@@ -37,7 +39,7 @@
 
     /* The same colors */
     --border-color: 0deg 0% 60%; /*subTitle*/
-    --icon-color: 0deg 0% 88%; /* title */
+    --icon-color: 0deg 0% 88%; /* title e0e0e0 */
 
     /* Support colors */
     --info: 219deg 83% 72%;
@@ -199,6 +201,17 @@ input::-webkit-inner-spin-button {
   display: flex;
 }
 
+/* Hide scrollbar */
+.hide-scrollbar {
+  overflow-y: scroll;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  /* WebKit */
+  width: 0;
+  height: 0;
+}
 /* ===== Scrollbar CSS ===== */
 /* Firefox */
 @media (min-width: 1024px) {

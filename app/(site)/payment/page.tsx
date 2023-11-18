@@ -6,7 +6,6 @@ import axios from "axios"
 
 import useCartStore from "@/store/user/cartStore"
 import useUserStore from "@/store/user/userStore"
-import { getURL } from "@/utils/helpers"
 import useToast from "@/store/ui/useToast"
 import { formatDeliveryDate } from "@/utils/formatDeliveryDate"
 import CheckEmail from "@/emails/CheckEmail"
@@ -16,7 +15,7 @@ export default function Payment() {
   const toast = useToast()
   const cartStore = useCartStore()
   const userStore = useUserStore()
-  const url = getURL()
+
   const params = useSearchParams().get("status")
 
   const deliveryDate = formatDeliveryDate()

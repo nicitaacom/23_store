@@ -57,11 +57,14 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     }))
   },
   getCartQuantity() {
-    return Object.keys(get().products).reduce((accum, current) => {
-      const { quantity } = get().products[current]
-      accum += quantity
-      return accum
-    }, 0)
+    //I check get().products because when I authenticated I got error
+    return get().products
+      ? Object.keys(get().products).reduce((accum, current) => {
+          const { quantity } = get().products[current]
+          accum += quantity
+          return accum
+        }, 0)
+      : 0
   },
 
   increaseProductQuantity(id: string) {

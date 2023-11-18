@@ -1,5 +1,8 @@
-import { useAvatarDropdown } from "@/store/ui/avatarDropdown"
+"use client"
+
 import { useEffect, useRef } from "react"
+
+import { useAvatarDropdown } from "@/store/ui/avatarDropdown"
 
 const useAvatarDropdownClose = () => {
   const avatarDropdownRef = useRef<HTMLDivElement>(null)

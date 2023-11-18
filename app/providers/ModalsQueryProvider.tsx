@@ -1,6 +1,7 @@
 "use client"
 
-import { AdminPanelModal, AuthModal, CartModal, ChangeLanguageModal } from "@/components/ui/Modals"
+import { AuthModal } from "@/(auth)/AuthModal/AuthModal"
+import { AdminPanelModal, CartModal, ChangeLanguageModal } from "@/components/ui/Modals"
 import { IDBProduct } from "@/interfaces/IDBProduct"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"

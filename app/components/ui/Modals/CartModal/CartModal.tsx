@@ -360,8 +360,8 @@ export function CartModal({ label }: CartModalProps) {
                 <div className="grid gap-2 grid-cols-2">
                   <Button
                     className="flex flex-row gap-x-1 w-full laptop:w-full"
-                    variant="info"
                     disabled={isConnecting}
+                    variant="info"
                     onClick={wallet.chainId ? sendMoney : handleConnect}>
                     Metamask
                     <Image className="w-[20px] h-[20px]" width={32} height={32} src="/metamask.png" alt="metamask" />

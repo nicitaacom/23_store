@@ -6,6 +6,7 @@ import useDarkMode from "@/store/ui/darkModeStore"
 import useToast from "@/store/ui/useToast"
 import { Toast } from "./ui/Toast"
 import { AnimatePresence } from "framer-motion"
+import { getCookie, setCookie } from "@/utils/helpersCSR"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const darkMode = useDarkMode()
@@ -25,7 +26,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     htmlElement.classList.toggle("light", !darkMode.isDarkMode)
     htmlElement.classList.toggle("dark", darkMode.isDarkMode)
 
-    //remove initial page loading skeleton
+    // set anonymousId cookie to getConversationId
+    if (!getCookie("anonymousId")) {
+      setCookie("anonymousId", `anonymousId_${crypto.randomUUID()}`)
+    }
+    if (!getCookie("conversationId")) {
+      setCookie("conversationId", crypto.randomUUID())
+    }
   }, [darkMode.isDarkMode])
 
   return (

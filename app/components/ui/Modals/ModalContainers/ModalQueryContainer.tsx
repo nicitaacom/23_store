@@ -73,7 +73,7 @@ export function ModalQueryContainer({ children, modalQuery, className, isLoading
       {shouldClose ||
         (showModal && (
           <motion.div
-            className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[99]
+            className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[101]
          flex justify-center items-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

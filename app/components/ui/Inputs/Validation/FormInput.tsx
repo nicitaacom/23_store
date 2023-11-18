@@ -3,7 +3,7 @@ import { FieldErrors, UseFormRegister } from "react-hook-form"
 interface FormData {
   username: string
   email: string
-  emailOrUsername: string
+  emailOrUsername?: string
   password: string
 }
 
