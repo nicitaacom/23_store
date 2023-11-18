@@ -182,7 +182,7 @@ export function AuthModal({ label }: AdminModalProps) {
                 onClick={async () =>
                   await supabaseClient.auth.signInWithOAuth({
                     provider: "google",
-                    options: { redirectTo: `${getURL()}/auth/callback/oauth?provider=google` },
+                    options: { redirectTo: `${getURL()}auth/callback/oauth?provider=google` },
                   })
                 }>
                 continue with google?
@@ -264,6 +264,9 @@ export function AuthModal({ label }: AdminModalProps) {
       const { error: resendError } = await supabaseClient.auth.resend({
         type: "signup",
         email: email,
+        options: {
+          emailRedirectTo: `${getURL()}auth/callback/credentials`,
+        },
       })
       if (resendError) throw resendError
 
@@ -307,7 +310,7 @@ export function AuthModal({ label }: AdminModalProps) {
   async function recoverPassword(email: string) {
     try {
       const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: `${getURL()}/auth/callback/recover`,
+        redirectTo: `${getURL()}auth/callback/recover`,
       })
       if (error) throw error
 
