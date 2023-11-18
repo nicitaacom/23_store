@@ -1,5 +1,3 @@
-"use server"
-
 import { BiSearchAlt } from "react-icons/bi"
 
 import supabaseServer from "@/libs/supabaseServer"
@@ -16,14 +14,13 @@ import {
 } from "./components"
 import { CtrlKBadge } from "./components/CtrlKBadge"
 import { ContactButton } from "./components/ContactButton"
-import supabaseAdmin from "@/libs/supabaseAdmin"
 
 export default async function Navbar() {
   const {
     data: { user },
   } = await supabaseServer().auth.getUser()
 
-  const { data: role_response, error: role_error } = await supabaseAdmin
+  const { data: role_response, error: role_error } = await supabaseServer()
     .from("users")
     .select("role")
     .eq("id", user?.id ?? "")
