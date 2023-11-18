@@ -52,6 +52,6 @@ export async function GET(request: Request) {
     }
   } else {
     const error_description = encodeURIComponent("No user found after exchanging cookies for registration")
-    return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`)
+    return NextResponse.redirect(`${getURL()}/error?error_description=${error_description}`)
   }
 }
