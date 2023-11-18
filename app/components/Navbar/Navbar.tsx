@@ -20,13 +20,6 @@ export default async function Navbar() {
     data: { user },
   } = await supabaseServer().auth.getUser()
 
-  const { data: role_response, error: role_error } = await supabaseServer()
-    .from("users")
-    .select("role")
-    .eq("id", user?.id ?? "")
-    .single()
-  if (role_error) throw role_error
-
   return (
     <NavbarWrapper>
       <div className="flex flex-row gap-x-4 items-center">
@@ -48,7 +41,7 @@ export default async function Navbar() {
         <BiSearchAlt className="flex tablet:hidden" size={28} />
         <OpenCartModalButton />
         <ContactButton />
-        {user ? <AvatarDropdown role={role_response.role} /> : <OpenAuthModalButton />}
+        {user ? <AvatarDropdown /> : <OpenAuthModalButton />}
       </div>
     </NavbarWrapper>
   )

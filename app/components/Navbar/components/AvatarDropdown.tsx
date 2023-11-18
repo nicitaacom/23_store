@@ -15,7 +15,7 @@ import { DropdownContainer, DropdownItem } from "@/components/ui"
 import { useRouter } from "next/navigation"
 import useAvatarDropdownClose from "@/hooks/ui/useAvatarDropdownClose"
 
-export function AvatarDropdown({ role }: { role: string }) {
+export function AvatarDropdown() {
   const router = useRouter()
   const { isDropdown, openDropdown, closeDropdown, toggle, avatarDropdownRef } = useAvatarDropdownClose()
   const userStore = useUserStore()
@@ -50,15 +50,6 @@ export function AvatarDropdown({ role }: { role: string }) {
           />
         </>
       }>
-      {role === "SUPPORT" && (
-        <DropdownItem
-          label="Support chat"
-          icon={IoChatboxEllipsesOutline}
-          onClick={() => {
-            router.push("/support/chat")
-          }}
-        />
-      )}
       <DropdownItem label="Admin panel" icon={BsWindow} onClick={openAdminPanel} />
       <DropdownItem
         className="flex justify-center mobile:hidden"
