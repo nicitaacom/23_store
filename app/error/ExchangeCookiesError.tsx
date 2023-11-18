@@ -8,7 +8,10 @@ export function ExchangeCookiesError({ message }: { message?: string }) {
 
   return (
     <div className="flex flex-col gap-y-4 items-center justify-center">
-      <div className="w-full h-[35vh] relative bg-brand flex justify-center items-center">
+      <div
+        className={`w-full h-[35vh] relative ${
+          isDarkMode ? "bg-[#0a6624]" : "bg-[#20e959]"
+        } flex justify-center items-center`}>
         <Image
           className="w-[200px] laptop:w-[250px] desktop:w-[300px]"
           src={
