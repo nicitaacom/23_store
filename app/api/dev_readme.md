@@ -80,7 +80,7 @@ Below you see example if you handle error (you know error message and why this e
 
 ```ts
 const error_description = encodeURIComponent("No user found after exchanging cookies for recovering")
-return NextResponse.redirect(`${getURL()}/error?error_description=${error_description}`)
+return NextResponse.redirect(`${getURL()}error?error_description=${error_description}`)
 ```
 
 ### On client

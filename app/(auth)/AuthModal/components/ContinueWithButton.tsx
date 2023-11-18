@@ -16,7 +16,7 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
     if (provider === "google") {
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${getURL()}/auth/callback/oauth?provider=google` },
+        options: { redirectTo: `${getURL()}auth/callback/oauth?provider=google` },
       })
       if (error) throw error
     } else if (provider === "faceit") {
@@ -24,7 +24,7 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
     } else if (provider === "twitter") {
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "twitter",
-        options: { redirectTo: `${getURL()}/auth/callback/oauth?provider=twitter` },
+        options: { redirectTo: `${getURL()}auth/callback/oauth?provider=twitter` },
       })
       if (error) throw error
     }

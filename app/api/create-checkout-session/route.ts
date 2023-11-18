@@ -26,8 +26,8 @@ export async function POST(request: Request) {
       billing_address_collection: "required",
       line_items: productsJsonArray,
       mode: "payment",
-      success_url: `${getURL()}/payment/?status=success`,
-      cancel_url: `${getURL()}/payment/?status=canceled`,
+      success_url: `${getURL()}payment/?status=success`,
+      cancel_url: `${getURL()}payment/?status=canceled`,
       shipping_address_collection: {
         allowed_countries: ["DE"],
       },
