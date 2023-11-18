@@ -20,13 +20,16 @@ export default async function Navbar() {
     data: { user },
   } = await supabaseServer().auth.getUser()
 
-  const { data: role_response, error: role_error } = await supabaseServer()
-    .from("users")
-    .select("role")
-    .eq("id", user?.id ?? "")
-    .single()
-  if (role_error) throw role_error
-  const role = role_response.role
+  let role = "USER"
+  if (user && user.id) {
+    const { data: role_response, error: role_error } = await supabaseServer()
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single()
+    if (role_error) throw role_error
+    role = role_response.role
+  }
 
   return (
     <NavbarWrapper>
