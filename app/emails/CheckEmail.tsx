@@ -156,13 +156,13 @@ export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
             }}>
             <tr>
               <td>
-                <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}/support`}>
+                <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}support`}>
                   Support
                 </Link>
-                <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}/feedback`}>
+                <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}feedback`}>
                   Feedback
                 </Link>
-                <Link className="m-0 text-[#407ded] text-sm text-center" href={`${getURL()}/track-order`}>
+                <Link className="m-0 text-[#407ded] text-sm text-center" href={`${getURL()}track-order`}>
                   Track order
                 </Link>
               </td>
