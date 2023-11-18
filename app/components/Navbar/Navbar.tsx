@@ -1,3 +1,5 @@
+"use server"
+
 import { BiSearchAlt } from "react-icons/bi"
 
 import supabaseServer from "@/libs/supabaseServer"
