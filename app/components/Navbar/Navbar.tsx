@@ -14,11 +14,19 @@ import {
 } from "./components"
 import { CtrlKBadge } from "./components/CtrlKBadge"
 import { ContactButton } from "./components/ContactButton"
+import supabaseAdmin from "@/libs/supabaseAdmin"
 
 export default async function Navbar() {
   const {
     data: { user },
   } = await supabaseServer().auth.getUser()
+
+  const { data: role_response, error: role_error } = await supabaseAdmin
+    .from("users")
+    .select("role")
+    .eq("id", user?.id ?? "")
+    .single()
+  if (role_error) throw role_error
 
   return (
     <NavbarWrapper>
