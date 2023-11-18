@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   // 1. Redirect to error page if supabase throw error on recover
   const error_description = requestUrl.searchParams.get("error_description")
   if (error_description) {
-    return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`) //throw error like this
+    return NextResponse.redirect(`${getURL()}/error?error_description=${error_description}`) //throw error like this
   }
   if (code) {
     // 2. Exchange cookies to set session and get session data
