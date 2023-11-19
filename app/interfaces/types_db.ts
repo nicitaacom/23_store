@@ -9,33 +9,6 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      messages: {
-        Row: {
-          body: string
-          conversation_id: string
-          created_at: string
-          id: string
-          is_closed_conversation: boolean
-          sender_id: string
-        }
-        Insert: {
-          body: string
-          conversation_id: string
-          created_at?: string
-          id?: string
-          is_closed_conversation?: boolean
-          sender_id: string
-        }
-        Update: {
-          body?: string
-          conversation_id?: string
-          created_at?: string
-          id?: string
-          is_closed_conversation?: boolean
-          sender_id?: string
-        }
-        Relationships: []
-      }
       products: {
         Row: {
           id: string
@@ -76,6 +49,36 @@ export interface Database {
             referencedColumns: ["id"]
           }
         ]
+      }
+      tickets: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_open: boolean
+          sender_id: string
+          sender_username: string
+          ticket_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_open?: boolean
+          sender_id: string
+          sender_username: string
+          ticket_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_open?: boolean
+          sender_id?: string
+          sender_username?: string
+          ticket_id?: string
+        }
+        Relationships: []
       }
       users: {
         Row: {
