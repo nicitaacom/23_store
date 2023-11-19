@@ -1,8 +1,8 @@
 export function DesktopSidebar() {
   return (
-    <div className="hidden laptop:block h-full shadow-[1px_3px_5px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[99]">
+    <aside className="hidden laptop:block h-full shadow-[1px_3px_5px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[99]">
       <nav className="flex flex-col">
-        <div className="relative px-4 py-2 hover:bg-foreground-accent duration-150 cursor-pointer">
+        <div className="relative px-4 py-2 hover:bg-foreground-accent bg-brand/20 duration-150 cursor-pointer">
           <h3 className="font-semibold">Username</h3>
           <p className="text-sm">Last message </p>
           <div
@@ -68,6 +68,6 @@ export function DesktopSidebar() {
           <div className="" />
         </div>
       </nav>
-    </div>
+    </aside>
   )
 }
