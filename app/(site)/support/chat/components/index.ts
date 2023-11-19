@@ -1,3 +1,6 @@
-export { Sidebar } from "./Sidebar"
+export { ConversationsList } from "./ConversationsList"
 export { DesktopSidebar } from "./DesktopSidebar"
 export { MobileSidebar } from "./MobileSidebar"
+export { MessagesHeader } from "./MessagesHeader"
+export { MessagesBody } from "./MessagesBody"
+export { MessageInput } from "./MessageInput"
