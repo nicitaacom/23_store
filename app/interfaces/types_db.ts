@@ -9,6 +9,54 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          images: string[] | null
+          seen: boolean
+          sender_id: string
+          sender_username: string
+          ticket_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          images?: string[] | null
+          seen?: boolean
+          sender_id: string
+          sender_username: string
+          ticket_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          images?: string[] | null
+          seen?: boolean
+          sender_id?: string
+          sender_username?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       products: {
         Row: {
           id: string
@@ -52,31 +100,22 @@ export interface Database {
       }
       tickets: {
         Row: {
-          body: string
           created_at: string
           id: string
           is_open: boolean
-          sender_id: string
-          sender_username: string
-          ticket_id: string
+          owner_username: string
         }
         Insert: {
-          body: string
           created_at?: string
           id?: string
           is_open?: boolean
-          sender_id: string
-          sender_username: string
-          ticket_id: string
+          owner_username: string
         }
         Update: {
-          body?: string
           created_at?: string
           id?: string
           is_open?: boolean
-          sender_id?: string
-          sender_username?: string
-          ticket_id?: string
+          owner_username?: string
         }
         Relationships: []
       }
