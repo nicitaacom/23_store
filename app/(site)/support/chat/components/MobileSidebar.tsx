@@ -1,6 +1,6 @@
 export function MobileSidebar() {
   return (
-    <div className="block laptop:hidden h-full">
+    <aside className="block laptop:hidden w-full h-full">
       <nav className="flex flex-col gap-y-4 justify-center items-center px-16">
         <div className="relative w-full border border-border-color text-center pl-4 pr-8 py-2">
           <h3 className="font-semibold truncate">Username-extra-long</h3>
@@ -47,6 +47,6 @@ export function MobileSidebar() {
         <div className="w-full border border-border-color text-subTitle text-center px-4 py-2">Username</div>
         <div className="w-full border border-border-color text-subTitle text-center px-4 py-2">Username</div>
       </nav>
-    </div>
+    </aside>
   )
 }
