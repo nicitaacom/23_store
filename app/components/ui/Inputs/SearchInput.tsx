@@ -1,4 +1,3 @@
-import { type ChangeEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
 interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
