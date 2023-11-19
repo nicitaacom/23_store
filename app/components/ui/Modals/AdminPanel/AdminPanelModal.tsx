@@ -4,7 +4,8 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 import { CiEdit } from "react-icons/ci"
-import { AiOutlinePlus, AiOutlineDelete } from "react-icons/ai"
+import { AiOutlinePlus } from "react-icons/ai"
+import { MdOutlineDelete } from "react-icons/md"
 
 import { RadioButton } from "@/components/ui"
 import useUserStore from "@/store/user/userStore"
@@ -87,7 +88,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
             }}
             disabled={isLoading}>
             <div className="flex flex-row gap-x-2 items-center">
-              Delete product <AiOutlineDelete className="text-danger" />
+              Delete product <MdOutlineDelete className="text-danger" />
             </div>
           </RadioButton>
         </li>
