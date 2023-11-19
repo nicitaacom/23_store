@@ -55,7 +55,7 @@ export function AvatarDropdown({ role }: { role: string }) {
           label="Support chat"
           icon={IoChatboxEllipsesOutline}
           onClick={() => {
-            router.push("/support/chat")
+            router.push("/support/tickets")
           }}
         />
       )}

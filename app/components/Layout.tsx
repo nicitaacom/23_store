@@ -26,12 +26,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     htmlElement.classList.toggle("light", !darkMode.isDarkMode)
     htmlElement.classList.toggle("dark", darkMode.isDarkMode)
 
-    // set anonymousId cookie to getConversationId
+    // set anonymousId cookie to getTicketId
     if (!getCookie("anonymousId")) {
       setCookie("anonymousId", `anonymousId_${crypto.randomUUID()}`)
     }
-    if (!getCookie("conversationId")) {
-      setCookie("conversationId", crypto.randomUUID())
+    if (!getCookie("ticketId")) {
+      setCookie("ticketId", crypto.randomUUID())
     }
   }, [darkMode.isDarkMode])
 

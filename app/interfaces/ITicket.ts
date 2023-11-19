@@ -1,8 +1,6 @@
-export interface IConversation {
+export interface ITicket {
   id: string
-  sender_username: string
   created_at: string
-  conversation_id: string
-  body: string
-  is_closed_conversation: boolean
+  is_open: boolean
+  owner_username: string
 }

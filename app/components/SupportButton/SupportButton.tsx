@@ -17,13 +17,14 @@ import { telegramMessage } from "@/constant/telegram"
 import { Input } from "../ui/Inputs"
 import { Button, DropdownContainer } from "../ui"
 import { MessageBox } from "./components/MessageBox"
+import { TAPIMessages } from "@/api/messages/route"
 
 interface SupportButtonProps {
-  conversationId: string
+  ticketId: string
   initialMessages: IMessage[]
 }
 
-export function SupportButton({ conversationId, initialMessages }: SupportButtonProps) {
+export function SupportButton({ ticketId, initialMessages }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
   const router = useRouter()
@@ -37,7 +38,7 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
 
   //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
   useEffect(() => {
-    if (isDropdown && !conversationId) {
+    if (isDropdown && !ticketId) {
       ;(async () => {
         await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
         router.refresh()
@@ -54,13 +55,13 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
   }, [isDropdown])
 
   useEffect(() => {
-    pusherClient.subscribe(conversationId)
+    pusherClient.subscribe(ticketId)
     if (bottomRef.current) {
       bottomRef.current.scrollTop = bottomRef.current.scrollHeight
     }
 
     const messagehandler = (message: IMessage) => {
-      //TODO - axios.post('api/messages/{conversationId}/seen')
+      //TODO - axios.post('api/messages/{ticketId}/seen')
       setMessages(current => {
         if (find(current, { id: message.id })) {
           return current
@@ -80,25 +81,29 @@ export function SupportButton({ conversationId, initialMessages }: SupportButton
     pusherClient.bind("messages:new", messagehandler)
 
     return () => {
-      pusherClient.unsubscribe(conversationId)
+      pusherClient.unsubscribe(ticketId)
       pusherClient.unbind("messages:new", messagehandler)
     }
-  }, [conversationId])
+  }, [ticketId])
 
   async function sendMessage(e: React.FormEvent) {
-    // Return a new conversationId if no open conversation is found
+    // Return a new ticketId if no open ticket is found
 
     e.preventDefault()
     setUserMessage("")
-    if (conversationId && senderId) {
-      axios.post("/api/messages", { body: userMessage, conversationId: conversationId, senderId: senderId })
+    if (ticketId && senderId) {
+      axios.post("/api/messages", {
+        body: userMessage,
+        ticketId: ticketId,
+        senderId: senderId,
+      } as TAPIMessages)
 
       if (bottomRef.current) {
         bottomRef.current?.scrollTo(0, bottomRef.current.scrollHeight)
         bottomRef.current.scrollIntoView()
       }
     } else {
-      console.log("no conversationId or userId")
+      console.log("no ticketId or userId")
     }
   }
 

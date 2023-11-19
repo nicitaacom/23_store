@@ -2,7 +2,7 @@ import "./globals.css"
 
 import type { Metadata } from "next"
 
-import getConversationId from "./actions/getConversationId"
+import getTicketId from "./actions/getTicketId"
 import getInitialMessages from "./actions/getInitialMessages"
 
 import ClientOnly from "./components/ClientOnly"
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const conversationId = await getConversationId()
+  const ticketId = await getTicketId()
   const initialMessages = await getInitialMessages()
 
   return (
@@ -37,7 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <ClientOnly>
           <Layout>{children}</Layout>
-          <SupportButton initialMessages={initialMessages ?? []} conversationId={conversationId ?? ""} />
+          <SupportButton initialMessages={initialMessages ?? []} ticketId={ticketId ?? ""} />
         </ClientOnly>
       </body>
     </html>

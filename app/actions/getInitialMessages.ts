@@ -7,7 +7,7 @@ const getInitialMessages = async () => {
 
   if (userSessionError) {
     console.log(10, "userSessionError - ", userSessionError)
-    throw new Error("getConversationId error - ", userSessionError)
+    throw new Error("getTicketId error - ", userSessionError)
   }
 
   const userId =
@@ -17,7 +17,7 @@ const getInitialMessages = async () => {
   const { data: messages, error } = await supabaseServer()
     .from("messages")
     .select("*")
-    .eq("sender_id", userId as string)
+    .eq("sender_username", userId as string)
   if (error) {
     console.log(22, "error - ", error)
     throw error

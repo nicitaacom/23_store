@@ -1,5 +1,5 @@
 import supabaseServer from "@/libs/supabaseServer"
-import { ConversationsList } from "./components/ConversationsList"
+import { TicketsList } from "./components/TicketsList"
 import { redirect } from "next/navigation"
 
 export default async function SupportChatLayout({ children }: { children: React.ReactNode }) {
@@ -15,5 +15,5 @@ export default async function SupportChatLayout({ children }: { children: React.
     redirect("/")
   }
 
-  return <ConversationsList>{children}</ConversationsList>
+  return <TicketsList>{children}</TicketsList>
 }

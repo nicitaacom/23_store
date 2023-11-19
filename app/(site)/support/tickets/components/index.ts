@@ -1,4 +1,4 @@
-export { ConversationsList } from "./ConversationsList"
+export { TicketsList } from "./TicketsList"
 export { DesktopSidebar } from "./DesktopSidebar"
 export { MobileSidebar } from "./MobileSidebar"
 export { MessagesHeader } from "./MessagesHeader"
