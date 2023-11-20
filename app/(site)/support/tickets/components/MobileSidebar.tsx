@@ -1,7 +1,11 @@
 "use client"
 
-import { ITicket } from "@/interfaces/ITicket"
 import { useRouter } from "next/navigation"
+
+import { ITicket } from "@/interfaces/ITicket"
+import useTicket from "@/hooks/support/useTicket"
+import { twMerge } from "tailwind-merge"
+import { divide } from "lodash"
 
 interface MobileSidebarProps {
   tickets: ITicket[] | undefined
@@ -10,8 +14,10 @@ interface MobileSidebarProps {
 export function MobileSidebar({ tickets }: MobileSidebarProps) {
   const router = useRouter()
 
+  const { isOpen } = useTicket()
+
   return (
-    <aside className="block laptop:hidden w-full h-full">
+    <aside className={twMerge(`block laptop:hidden w-full h-full`, isOpen && "hidden")}>
       <nav className="flex flex-col gap-y-4 justify-center items-center px-16">
         {tickets?.map(ticket => (
           <li
