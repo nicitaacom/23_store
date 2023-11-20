@@ -77,6 +77,9 @@ export async function GET(request: Request) {
             })
             .eq("id", response.data.user.id)
         }
+      } else {
+        // If row doesn't exist - this user login with OAuth first time so he haven't rows in other tables
+        await supabaseAdmin.from("users_cart").insert({ id: response.data.user.id })
       }
       return NextResponse.redirect(
         `${requestUrl.origin}/auth/completed?code=${code}&provider=${provider}&userId=${response?.data.user
