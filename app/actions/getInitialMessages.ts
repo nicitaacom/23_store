@@ -1,26 +1,26 @@
+import supabaseAdmin from "@/libs/supabaseAdmin"
 import supabaseServer from "@/libs/supabaseServer"
 import { getCookie } from "@/utils/helpersSSR"
 
 const getInitialMessages = async () => {
   //get userId to fetch messages by userId
-  const { data: userSessionData, error: userSessionError } = await supabaseServer().auth.getSession()
+  const {
+    data: { user },
+  } = await supabaseServer().auth.getUser()
 
-  if (userSessionError) {
-    console.log(10, "userSessionError - ", userSessionError)
-    throw new Error("getConversationId error - ", userSessionError)
-  }
+  const userId = user?.id === undefined ? getCookie("anonymousId")?.value : user.id
 
-  const userId =
-    userSessionData.session?.user.id === undefined ? getCookie("anonymousId")?.value : userSessionData.session?.user.id
-
-  // fetch messages by userId
-  const { data: messages, error } = await supabaseServer()
+  // get messages by userId
+  const { data: messages, error: messages_error } = await supabaseAdmin // because may be anonymousId that not matches RLS (sender_id = auth.uid())
     .from("messages")
     .select("*")
     .eq("sender_id", userId as string)
-  if (error) {
-    console.log(22, "error - ", error)
-    throw error
+  if (messages_error) {
+    console.log(22, "messages_error - ", messages_error)
+    throw messages_error
+  }
+  if (messages && messages.length === 0) {
+    return null
   }
   return messages
 }

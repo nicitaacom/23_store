@@ -1,8 +1,9 @@
 export interface IMessage {
-  created_at: string
-  conversation_id: string
-  body: string
-  sender_id: string
-  is_closed_conversation: boolean
   id: string
+  created_at: string
+  ticket_id: string
+  sender_id: string
+  sender_username: string
+  body: string
+  images?: string[] | null
 }

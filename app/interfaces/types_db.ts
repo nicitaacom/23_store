@@ -12,29 +12,43 @@ export interface Database {
       messages: {
         Row: {
           body: string
-          conversation_id: string
           created_at: string
           id: string
-          is_closed_conversation: boolean
+          images: string[] | null
+          seen: boolean
           sender_id: string
+          sender_username: string
+          ticket_id: string
         }
         Insert: {
           body: string
-          conversation_id: string
           created_at?: string
           id?: string
-          is_closed_conversation?: boolean
+          images?: string[] | null
+          seen?: boolean
           sender_id: string
+          sender_username: string
+          ticket_id: string
         }
         Update: {
           body?: string
-          conversation_id?: string
           created_at?: string
           id?: string
-          is_closed_conversation?: boolean
+          images?: string[] | null
+          seen?: boolean
           sender_id?: string
+          sender_username?: string
+          ticket_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       products: {
         Row: {
@@ -76,6 +90,30 @@ export interface Database {
             referencedColumns: ["id"]
           }
         ]
+      }
+      tickets: {
+        Row: {
+          created_at: string
+          id: string
+          is_open: boolean
+          owner_id: string
+          owner_username: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          is_open?: boolean
+          owner_id: string
+          owner_username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_open?: boolean
+          owner_id?: string
+          owner_username?: string
+        }
+        Relationships: []
       }
       users: {
         Row: {

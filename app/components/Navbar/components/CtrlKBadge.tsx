@@ -20,5 +20,5 @@ export function CtrlKBadge() {
     return () => document.removeEventListener("keydown", handleKeydown)
   }, [ctrlKModal, ctrlKModal.toggle, params])
 
-  return <div className="bg-icon-color rounded inline-block text-title-foreground px-[4px] py-[2px[">⌘+K</div>
+  return <div className="bg-foreground-accent rounded inline-block text-title px-[4px]">⌘+K</div>
 }

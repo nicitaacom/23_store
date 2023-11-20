@@ -30,15 +30,17 @@ export function MessageBox({ isLast, data }: MessageBoxProps) {
   return (
     <div className={twMerge(`flex gap-x-2`, isOwn && "justify-end")}>
       <Image
-        className="w-[42px] h-[42px] mt-1 rounded-full select-none pointer-events-none order-last"
+        className={`w-[42px] h-[42px] mt-1 rounded-full select-none pointer-events-none ${
+          isOwn ? "order-last" : "order-first"
+        }`}
         src={
           userStore.isAuthenticated
             ? userStore.avatarUrl
               ? userStore.avatarUrl
               : "/placeholder.jpg"
             : isDarkMode
-            ? "/BiUserCircle-dark.svg"
-            : "/BiUserCircle-light.svg"
+              ? "/BiUserCircle-dark.svg"
+              : "/BiUserCircle-light.svg"
         }
         alt="user-image"
         width={46}

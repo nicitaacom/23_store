@@ -4,6 +4,7 @@ import Image from "next/image"
 import { BsWindow } from "react-icons/bs"
 import { TbWorld } from "react-icons/tb"
 import { FiPhoneCall } from "react-icons/fi"
+import { IoChatboxEllipsesOutline } from "react-icons/io5"
 
 import useUserStore from "@/store/user/userStore"
 import useDarkMode from "@/store/ui/darkModeStore"
@@ -14,7 +15,7 @@ import { DropdownContainer, DropdownItem } from "@/components/ui"
 import { useRouter } from "next/navigation"
 import useAvatarDropdownClose from "@/hooks/ui/useAvatarDropdownClose"
 
-export function AvatarDropdown() {
+export function AvatarDropdown({ role }: { role: string }) {
   const router = useRouter()
   const { isDropdown, openDropdown, closeDropdown, toggle, avatarDropdownRef } = useAvatarDropdownClose()
   const userStore = useUserStore()
@@ -49,6 +50,15 @@ export function AvatarDropdown() {
           />
         </>
       }>
+      {role === "SUPPORT" && (
+        <DropdownItem
+          label="Support chat"
+          icon={IoChatboxEllipsesOutline}
+          onClick={() => {
+            router.push("/support/tickets")
+          }}
+        />
+      )}
       <DropdownItem label="Admin panel" icon={BsWindow} onClick={openAdminPanel} />
       <DropdownItem
         className="flex justify-center mobile:hidden"
