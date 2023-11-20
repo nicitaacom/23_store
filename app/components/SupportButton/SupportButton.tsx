@@ -19,24 +19,31 @@ import { Input } from "../ui/Inputs"
 import { MessageBox } from "./components/MessageBox"
 import supabaseClient from "@/libs/supabaseClient"
 import { Button, DropdownContainer } from "../ui"
+import { MessageInput } from "../ui/Inputs/MessageInput"
+import { FieldValues, useForm } from "react-hook-form"
+import { IFormDataMessage } from "@/interfaces/IFormDataMessage"
 
 interface SupportButtonProps {
   initialMessages: IMessage[]
   ticketId: string
 }
 
+interface Formdata {
+  message: string
+}
+
 export function SupportButton({ initialMessages, ticketId }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
-  const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState(initialMessages)
-  const [userMessage, setUserMessage] = useState("")
   const userStore = useUserStore()
 
   const senderId = userStore.userId || getCookie("anonymousId")
   const senderUsername = userStore.username || getCookie("anonymousId")
+
+  const { handleSubmit, register } = useForm<IFormDataMessage>()
 
   useEffect(() => {
     //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
@@ -81,9 +88,9 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
     }
   }, [messages, ticketId])
 
-  async function sendMessage(e: React.FormEvent) {
+  async function sendMessage(data: IFormDataMessage) {
     // Insert a new ticketId and send message in telegram if no open ticket is found
-    e.preventDefault()
+
     if (initialMessages.length === 0) {
       console.log(88, "insert first message")
       //send message in telegram
@@ -95,7 +102,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         ticketId: ticketId,
         senderId: senderId,
         senderUsername: senderUsername,
-        body: userMessage,
+        body: data.message,
       } as TAPIMessages)
       await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
       // random id because after inserting in 'tickets' no response with generated ticket.id
@@ -106,7 +113,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         ticketId: ticketId,
         senderId: senderId,
         senderUsername: senderUsername,
-        body: userMessage,
+        body: data.message,
       } as TAPIMessages)
       // scroll to bottom to show last messages
       if (bottomRef.current) {
@@ -114,7 +121,6 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         bottomRef.current.scrollIntoView()
       }
     }
-    setUserMessage("")
   }
 
   //before:translate-y-[402px] should be +2px then <section className="h-[400px]
@@ -138,8 +144,8 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       }>
       <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col justify-between">
         <h1 className="text-center text-[1.4rem] font-semibold shadow-md py-1">Response ~15s</h1>
-        <form className="flex flex-col justify-between h-full" onSubmit={sendMessage}>
-          <div className="h-[385px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
+        <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit(sendMessage)}>
+          <div className="h-[280px] mobile:h-[370px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
             {messages.map((message, index) => {
               console.log(157, message.id)
               return (
@@ -147,13 +153,11 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
               )
             })}
           </div>
-          <Input
+          <MessageInput
             //-2px because it don't calculate border-width 1px
-            className="w-[calc(100%-2px)] px-4 py-2 bg-foreground-accent shadow-md"
-            value={userMessage}
-            onChange={e => setUserMessage(e.target.value)}
-            placeholder="Enter your message..."
-            ref={inputRef}
+            className="px-4 py-2 bg-foreground-accent shadow-md"
+            id="message"
+            register={register}
           />
         </form>
       </section>
