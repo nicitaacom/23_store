@@ -18,6 +18,7 @@ export async function POST(req: Request) {
   const now = new Date()
   const timestampString = now.toISOString().replace("T", " ").replace("Z", "+00")
 
+  // random id because after inserting in 'tickets' no response from supabase with generated ticket.id
   const newMessage = {
     id: crypto.randomUUID(), // needed to set in cuurent pusher channel (for key prop in react)
     created_at: timestampString,

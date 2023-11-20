@@ -90,32 +90,29 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
 
   async function sendMessage(data: IFormDataMessage) {
     // Insert a new ticketId and send message in telegram if no open ticket is found
-
     if (initialMessages.length === 0) {
-      console.log(88, "insert first message")
-      //send message in telegram
+      // 1. Insert row in table 'tickets'
       await supabaseClient
         .from("tickets")
         .insert({ id: ticketId, owner_username: senderUsername!, owner_id: senderId! })
-      // here is might be errror because type of sender_id is uuid - send it from anonymous user
+      // 2. Insert message in table 'messages'
       await axios.post("/api/messages", {
         ticketId: ticketId,
         senderId: senderId,
         senderUsername: senderUsername,
         body: data.message,
       } as TAPIMessages)
+      // 3. Send message in telegram
       await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
-      // random id because after inserting in 'tickets' no response with generated ticket.id
-      // insert row in table 'tickets'
     } else {
-      console.log(116, "else insert message")
+      // 1. Insert message in table 'messages'
       await axios.post("/api/messages", {
         ticketId: ticketId,
         senderId: senderId,
         senderUsername: senderUsername,
         body: data.message,
       } as TAPIMessages)
-      // scroll to bottom to show last messages
+      // 2. Scroll to bottom to show last messages
       if (bottomRef.current) {
         bottomRef.current?.scrollTo(0, bottomRef.current.scrollHeight)
         bottomRef.current.scrollIntoView()
