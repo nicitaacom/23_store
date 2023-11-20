@@ -8,8 +8,8 @@ export function NoTicketFound({ ticketId }: { ticketId: string }) {
   const { isDarkMode } = useDarkMode()
 
   return (
-    <div
-      className="bg-foreground-accent w-full h-full flex flex-col gap-y-16 justify-center items-center
+    <main
+      className="w-full h-full laptop:w-[calc(100%-16rem)] bg-foreground-accent flex flex-col gap-y-16 justify-center items-center
     shadow-[inset_0px_8px_6px_rgba(0,0,0,0.4)] pb-8 z-[100]">
       <Image
         className="hidden mobile:block ml-6 w-[360px] h-[180px] laptop:w-[480px] laptop:h-[240px]"
@@ -22,6 +22,6 @@ export function NoTicketFound({ ticketId }: { ticketId: string }) {
         <h1 className="text-lg laptop:text-2xl">No ticket found with id {ticketId}</h1>
         <BackToTickets />
       </div>
-    </div>
+    </main>
   )
 }
