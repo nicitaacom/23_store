@@ -1,6 +1,7 @@
 // import getAllMessages from "@/actions/getAllMessages"
 import supabaseAdmin from "@/libs/supabaseAdmin"
 import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
+import { twMerge } from "tailwind-merge"
 
 export default async function ChatPage({ params }: { params: { ticketId: string } }) {
   // const messages = await getTicketData()
@@ -9,11 +10,16 @@ export default async function ChatPage({ params }: { params: { ticketId: string 
 
   if (data) {
     return (
-      <div className="bg-foreground-accent w-full h-full flex flex-col justify-between items-center z-[100]">
+      <main
+        className={twMerge(
+          `hidden w-full h-full laptop:w-[calc(100%-16rem)] bg-foreground-accent
+       flex-col justify-between items-center z-[100]`,
+          params.ticketId && "flex",
+        )}>
         <MessagesHeader />
         <MessagesBody />
         <MessagesFooter />
-      </div>
+      </main>
     )
   } else {
     // if !ticket (e.g 093jf0e) - return NoTicketFound
