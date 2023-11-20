@@ -87,15 +87,6 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
     if (initialMessages.length === 0) {
       console.log(88, "insert first message")
       //send message in telegram
-      const firstMessage = {
-        id: ticketId,
-        created_at: JSON.stringify(Date.now()),
-        ticket_id: ticketId,
-        sender_id: senderId!,
-        sender_username: senderUsername!,
-        body: userMessage,
-      }
-
       await supabaseClient
         .from("tickets")
         .insert({ id: ticketId, owner_username: senderUsername!, owner_id: senderId! })
@@ -109,10 +100,6 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
       // random id because after inserting in 'tickets' no response with generated ticket.id
       // insert row in table 'tickets'
-
-      // TODO - check why I need router.refresh()
-      console.log(108, "initialMessages - ", initialMessages)
-      router.refresh()
     } else {
       console.log(116, "else insert message")
       await axios.post("/api/messages", {
