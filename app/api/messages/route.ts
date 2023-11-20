@@ -1,6 +1,5 @@
 import { pusherServer } from "@/libs/pusher"
 import supabaseAdmin from "@/libs/supabaseAdmin"
-import { formatTime } from "@/utils/formatTime"
 import { NextResponse } from "next/server"
 
 export type TAPIMessages = {
@@ -28,8 +27,6 @@ export async function POST(req: Request) {
     body: body,
     images: images,
   }
-
-  console.log(26, "newMessage - ", newMessage)
 
   //TODO - updated converstaion in the future - https://youtu.be/PGPGcKBpAk8?t=28253
 
