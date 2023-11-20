@@ -43,7 +43,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
   const senderId = userStore.userId || getCookie("anonymousId")
   const senderUsername = userStore.username || getCookie("anonymousId")
 
-  const { handleSubmit, register } = useForm<IFormDataMessage>()
+  const { handleSubmit, register, reset } = useForm<IFormDataMessage>()
 
   useEffect(() => {
     //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
@@ -118,6 +118,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         bottomRef.current.scrollIntoView()
       }
     }
+    reset()
   }
 
   //before:translate-y-[402px] should be +2px then <section className="h-[400px]
