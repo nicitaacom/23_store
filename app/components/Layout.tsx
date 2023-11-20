@@ -30,9 +30,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (!getCookie("anonymousId")) {
       setCookie("anonymousId", `anonymousId_${crypto.randomUUID()}`)
     }
-    if (!getCookie("ticketId")) {
-      setCookie("ticketId", crypto.randomUUID())
-    }
   }, [darkMode.isDarkMode])
 
   return (
