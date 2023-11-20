@@ -24,12 +24,13 @@ const getTicketId = async () => {
       // Return the existing open ticketId
       return ticket_id.id
     } else {
-      // return null because I want to create ticket only on first message
-      return null
+      // return ticket id because if return null I don't subscribe pusher to this channel
+      // I still can send telegram message on first message in messages.length === 0
+      return crypto.randomUUID()
     }
   } catch (error) {
     console.error(36, "Error - ", error)
-    return null
+    return crypto.randomUUID()
   }
 }
 
