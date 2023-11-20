@@ -15,10 +15,9 @@ export default async function ChatPage({ params }: { params: { ticketId: string 
         <MessagesFooter />
       </div>
     )
-  }
-  // if !ticket (e.g 093jf0e) - return NoTicketFound
-  else {
-    ;<NoTicketFound />
+  } else {
+    // if !ticket (e.g 093jf0e) - return NoTicketFound
+    return <NoTicketFound ticketId={params.ticketId} />
   }
 }
 
