@@ -21,7 +21,7 @@ export default async function SupportChatLayout({ children }: { children: React.
     <div className="relative h-[calc(100vh-64px)] flex">
       <DesktopSidebar />
       <MobileSidebar tickets={tickets} />
-      <main className="hidden laptop:flex w-[calc(100%-16rem)] h-full">{children}</main>
+      <main className="flex w-full laptop:w-[calc(100%-16rem)] h-full">{children}</main>
     </div>
   )
 }
