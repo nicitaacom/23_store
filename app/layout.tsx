@@ -37,7 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <ClientOnly>
           <Layout>{children}</Layout>
-          <SupportButton initialMessages={initialMessages ?? []} ticketId={ticketId ?? ""} />
+          <SupportButton initialMessages={initialMessages ?? []} ticketId={ticketId} />
         </ClientOnly>
       </body>
     </html>
