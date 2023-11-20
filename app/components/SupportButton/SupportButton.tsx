@@ -6,8 +6,9 @@ import { BiSupport } from "react-icons/bi"
 import { find } from "lodash"
 import axios from "axios"
 
-import { IMessage } from "@/interfaces/IMessage"
+import { TAPIMessages } from "@/api/messages/route"
 import { TAPITelegram } from "@/api/telegram/route"
+import { IMessage } from "@/interfaces/IMessage"
 import { pusherClient } from "@/libs/pusher"
 import { getCookie } from "@/utils/helpersCSR"
 import useUserStore from "@/store/user/userStore"
@@ -15,16 +16,16 @@ import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
 import { telegramMessage } from "@/constant/telegram"
 
 import { Input } from "../ui/Inputs"
-import { Button, DropdownContainer } from "../ui"
 import { MessageBox } from "./components/MessageBox"
-import { TAPIMessages } from "@/api/messages/route"
+import supabaseClient from "@/libs/supabaseClient"
+import { Button, DropdownContainer } from "../ui"
 
 interface SupportButtonProps {
-  ticketId: string
   initialMessages: IMessage[]
+  ticketId: string
 }
 
-export function SupportButton({ ticketId, initialMessages }: SupportButtonProps) {
+export function SupportButton({ initialMessages, ticketId }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
   const router = useRouter()
@@ -35,16 +36,10 @@ export function SupportButton({ ticketId, initialMessages }: SupportButtonProps)
   const userStore = useUserStore()
 
   const senderId = userStore.userId || getCookie("anonymousId")
+  const senderUsername = userStore.username || getCookie("anonymousId")
 
-  //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
   useEffect(() => {
-    if (isDropdown && !ticketId) {
-      ;(async () => {
-        await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
-        router.refresh()
-      })()
-    }
-
+    //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
     setTimeout(() => {
       inputRef.current?.focus()
       if (bottomRef.current) {
@@ -84,27 +79,55 @@ export function SupportButton({ ticketId, initialMessages }: SupportButtonProps)
       pusherClient.unsubscribe(ticketId)
       pusherClient.unbind("messages:new", messagehandler)
     }
-  }, [ticketId])
+  }, [messages, ticketId])
 
   async function sendMessage(e: React.FormEvent) {
-    // Return a new ticketId if no open ticket is found
-
+    // Insert a new ticketId and send message in telegram if no open ticket is found
     e.preventDefault()
-    setUserMessage("")
-    if (ticketId && senderId) {
-      axios.post("/api/messages", {
+    if (initialMessages.length === 0) {
+      console.log(88, "insert first message")
+      //send message in telegram
+      const firstMessage = {
+        id: ticketId,
+        created_at: JSON.stringify(Date.now()),
+        ticket_id: ticketId,
+        sender_id: senderId!,
+        sender_username: senderUsername!,
         body: userMessage,
+      }
+
+      await supabaseClient
+        .from("tickets")
+        .insert({ id: ticketId, owner_username: senderUsername!, owner_id: senderId! })
+      // here is might be errror because type of sender_id is uuid - send it from anonymous user
+      await axios.post("/api/messages", {
         ticketId: ticketId,
         senderId: senderId,
+        senderUsername: senderUsername,
+        body: userMessage,
       } as TAPIMessages)
+      await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
+      // random id because after inserting in 'tickets' no response with generated ticket.id
+      // insert row in table 'tickets'
 
+      // TODO - check why I need router.refresh()
+      console.log(108, "initialMessages - ", initialMessages)
+      router.refresh()
+    } else {
+      console.log(116, "else insert message")
+      await axios.post("/api/messages", {
+        ticketId: ticketId,
+        senderId: senderId,
+        senderUsername: senderUsername,
+        body: userMessage,
+      } as TAPIMessages)
+      // scroll to bottom to show last messages
       if (bottomRef.current) {
         bottomRef.current?.scrollTo(0, bottomRef.current.scrollHeight)
         bottomRef.current.scrollIntoView()
       }
-    } else {
-      console.log("no ticketId or userId")
     }
+    setUserMessage("")
   }
 
   //before:translate-y-[402px] should be +2px then <section className="h-[400px]
@@ -130,9 +153,12 @@ export function SupportButton({ ticketId, initialMessages }: SupportButtonProps)
         <h1 className="text-center text-[1.4rem] font-semibold shadow-md py-1">Response ~15s</h1>
         <form className="flex flex-col justify-between h-full" onSubmit={sendMessage}>
           <div className="h-[385px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
-            {messages.map((initialMessage, index) => (
-              <MessageBox key={initialMessage.id} isLast={index === initialMessages.length - 1} data={initialMessage} />
-            ))}
+            {messages.map((message, index) => {
+              console.log(157, message.id)
+              return (
+                <MessageBox key={message.id} isLast={index === (initialMessages?.length ?? 0) - 1} data={message} />
+              )
+            })}
           </div>
           <Input
             //-2px because it don't calculate border-width 1px
