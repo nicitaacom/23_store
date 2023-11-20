@@ -1,6 +1,7 @@
-import supabaseServer from "@/libs/supabaseServer"
 import { redirect } from "next/navigation"
+
 import getTickets from "@/actions/getTickets"
+import supabaseServer from "@/libs/supabaseServer"
 import { DesktopSidebar, MobileSidebar } from "./components"
 
 export default async function SupportChatLayout({ children }: { children: React.ReactNode }) {
@@ -21,7 +22,7 @@ export default async function SupportChatLayout({ children }: { children: React.
     <div className="relative h-[calc(100vh-64px)] flex">
       <DesktopSidebar />
       <MobileSidebar tickets={tickets} />
-      <main className="flex w-full laptop:w-[calc(100%-16rem)] h-full">{children}</main>
+      {children}
     </div>
   )
 }
