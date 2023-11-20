@@ -21,7 +21,7 @@ export interface Database {
           ticket_id: string
         }
         Insert: {
-          body?: string
+          body: string
           created_at?: string
           id?: string
           images?: string[] | null
@@ -41,13 +41,6 @@ export interface Database {
           ticket_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "messages_ticket_id_fkey"
             columns: ["ticket_id"]
