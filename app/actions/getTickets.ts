@@ -5,7 +5,7 @@ const getTickets = async () => {
   const { data: tickets_response, error: tickets_error } = await supabaseAdmin.from("tickets").select("*")
 
   if (tickets_error) {
-    console.log(6, "messages_error - ", tickets_error)
+    console.log(6, "tickets error - ", tickets_error)
     throw tickets_error
   }
 
