@@ -21,7 +21,7 @@ export interface Database {
           ticket_id: string
         }
         Insert: {
-          body: string
+          body?: string
           created_at?: string
           id?: string
           images?: string[] | null
@@ -103,18 +103,21 @@ export interface Database {
           created_at: string
           id: string
           is_open: boolean
+          owner_id: string
           owner_username: string
         }
         Insert: {
           created_at?: string
-          id?: string
+          id: string
           is_open?: boolean
+          owner_id: string
           owner_username: string
         }
         Update: {
           created_at?: string
           id?: string
           is_open?: boolean
+          owner_id?: string
           owner_username?: string
         }
         Relationships: []
