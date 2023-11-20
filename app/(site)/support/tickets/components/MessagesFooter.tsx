@@ -1,20 +1,19 @@
-"use client"
-
-import { useForm } from "react-hook-form"
-
-import { IFormDataMessage } from "@/interfaces/IFormDataMessage"
-import { MessageInput } from "."
-
 export function MessagesFooter() {
-  const { handleSubmit, register } = useForm<IFormDataMessage>()
+  async function sendMessage(formData: FormData) {
+    "use server"
+    const inputValue = formData.get("message")?.toString()
 
-  async function sendMessage(data: IFormDataMessage) {
     // TODO - send message logic
   }
 
   return (
-    <form onSubmit={handleSubmit(sendMessage)}>
-      <MessageInput id="message" register={register} />
+    <form className="w-full p-4 bg-foreground" action={sendMessage}>
+      <input
+        className="w-full rounded border border-solid bg-transparent px-4 py-2 mb-1 outline-none text-title"
+        type="text"
+        name="message"
+        placeholder="Enter message..."
+      />
     </form>
   )
 }
