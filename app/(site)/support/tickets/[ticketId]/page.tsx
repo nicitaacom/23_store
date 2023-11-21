@@ -2,10 +2,10 @@
 import supabaseAdmin from "@/libs/supabaseAdmin"
 import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
 import { twMerge } from "tailwind-merge"
-import getMessagesByTicketId from "@/actions/getMessagesByTicketId"
+import getInitialMessagesByTicketId from "@/actions/getMessagesByTicketId"
 
 export default async function ChatPage({ params }: { params: { ticketId: string } }) {
-  const messages = await getMessagesByTicketId(params.ticketId)
+  const initial_messages = await getInitialMessagesByTicketId(params.ticketId)
 
   const { data: ticket_response, error: no_ticket_found } = await supabaseAdmin
     .from("tickets")
@@ -22,8 +22,8 @@ export default async function ChatPage({ params }: { params: { ticketId: string 
           params.ticketId && "flex",
         )}>
         <MessagesHeader owner_username={ticket_response.owner_username} />
-        <MessagesBody messages={messages ?? []} />
-        <MessagesFooter />
+        <MessagesBody ticket_id={ticket_response.id} initialMessages={initial_messages ?? []} />
+        <MessagesFooter ticket_id={ticket_response.id} />
       </main>
     )
   } else if (no_ticket_found) {
