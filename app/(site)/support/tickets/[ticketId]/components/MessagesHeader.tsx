@@ -18,7 +18,6 @@ export function MessagesHeader({ owner_username }: MobileSidebarProps) {
             {/* <p className="text-xs">Inactive</p> */}
           </div>
         </div>
-
         <MarkTicketAsCompleted />
       </div>
     </div>
