@@ -97,9 +97,41 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
     if (data.message.length === 0) {
       return null
     }
-    reset()
 
-    if (initialMessages.length === 0) {
+    reset()
+    if (messages.length === 0) {
+      console.log("first message")
+
+      // all this code required to fix issue when I send 2 first messages in < 1 second
+      const firstMessageId = crypto.randomUUID()
+
+      // dance arounding to insert current date-time
+      const now = new Date()
+      const timestampString = now.toISOString().replace("T", " ").replace("Z", "+00")
+
+      const newMessage = {
+        id: firstMessageId, // needed to set in cuurent pusher channel (for key prop in react)
+        created_at: timestampString,
+        ticket_id: ticketId,
+        sender_id: senderId!,
+        sender_username: senderUsername!,
+        body: data.message,
+        // TODO - add images logic in future
+        images: null,
+      }
+      const messagehandler = (message: IMessage) => {
+        //TODO - axios.post('api/messages/{ticketId}/seen')
+
+        setMessages(current => {
+          if (find(current, { id: message.id })) {
+            return current
+          }
+
+          return [...current, message]
+        })
+      }
+      messagehandler(newMessage)
+
       // 1. Insert row in table 'tickets'
       await axios.post("/api/tickets", {
         ticketId: ticketId,
@@ -109,6 +141,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       } as TAPITickets)
       // 2. Insert message in table 'messages'
       await axios.post("/api/messages", {
+        id: firstMessageId,
         ticketId: ticketId,
         senderId: senderId,
         senderUsername: senderUsername,
