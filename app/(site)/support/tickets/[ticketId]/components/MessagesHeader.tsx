@@ -1,5 +1,5 @@
 "use client"
-import { CloseTicket } from "./CloseTicket"
+import { MarkTicketAsCompleted } from "./MarkTicketAsCompleted"
 
 interface MobileSidebarProps {
   owner_username: string
@@ -24,7 +24,7 @@ export function MessagesHeader({ owner_username }: MobileSidebarProps) {
           onClick={() => {
             /* TODO - OPEN ARE YOU SURE MODAL */
           }}>
-          <CloseTicket />
+          <MarkTicketAsCompleted />
         </div>
       </div>
     </div>
