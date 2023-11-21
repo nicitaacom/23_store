@@ -11,11 +11,20 @@ interface ModalContainerProps {
   isLoading?: boolean
   onClose: () => void
   className?: string
+  classnameContainer?: string
   label?: string | React.ReactNode
   children: React.ReactNode
 }
 
-export function ModalContainer({ isOpen, isLoading, onClose, className, label, children }: ModalContainerProps) {
+export function ModalContainer({
+  isOpen,
+  isLoading,
+  onClose,
+  className,
+  classnameContainer,
+  label,
+  children,
+}: ModalContainerProps) {
   //correct way to add event listener to listen keydown
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown)
@@ -55,8 +64,11 @@ export function ModalContainer({ isOpen, isLoading, onClose, className, label, c
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[49]
-         flex justify-center items-center"
+          className={twMerge(
+            `fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[49]
+         flex justify-center items-center`,
+            classnameContainer,
+          )}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
