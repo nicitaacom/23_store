@@ -96,6 +96,7 @@ export interface Database {
           created_at: string
           id: string
           is_open: boolean
+          last_message_body: string
           owner_id: string
           owner_username: string
         }
@@ -103,6 +104,7 @@ export interface Database {
           created_at?: string
           id: string
           is_open?: boolean
+          last_message_body?: string
           owner_id: string
           owner_username: string
         }
@@ -110,6 +112,7 @@ export interface Database {
           created_at?: string
           id?: string
           is_open?: boolean
+          last_message_body?: string
           owner_id?: string
           owner_username?: string
         }
