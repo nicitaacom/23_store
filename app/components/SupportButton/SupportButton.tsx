@@ -36,6 +36,7 @@ interface Formdata {
 export function SupportButton({ initialMessages, ticketId }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
+  const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLUListElement>(null)
   const [messages, setMessages] = useState(initialMessages)
@@ -65,6 +66,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
 
     const messagehandler = (message: IMessage) => {
       //TODO - axios.post('api/messages/{ticketId}/seen')
+
       setMessages(current => {
         if (find(current, { id: message.id })) {
           return current
@@ -87,11 +89,16 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       pusherClient.unsubscribe(ticketId)
       pusherClient.unbind("messages:new", messagehandler)
     }
-  }, [messages, ticketId])
-  console.log(102, "senderId - ", senderId)
+  }, [messages, ticketId, router])
 
   async function sendMessage(data: IFormDataMessage) {
     // Insert a new ticketId and send message in telegram if no open ticket is found
+
+    if (data.message.length === 0) {
+      return null
+    }
+    reset()
+
     if (initialMessages.length === 0) {
       // 1. Insert row in table 'tickets'
       await axios.post("/api/tickets", {
@@ -109,6 +116,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       } as TAPIMessages)
       // 3. Send message in telegram
       await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
+      router.refresh()
     } else {
       // 1. Insert message in table 'messages'
       await axios.post("/api/messages", {
@@ -123,7 +131,6 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         bottomRef.current.scrollIntoView()
       }
     }
-    reset()
   }
 
   //before:translate-y-[402px] should be +2px then <section className="h-[400px]
