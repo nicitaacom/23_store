@@ -22,7 +22,7 @@ export default async function ChatPage({ params }: { params: { ticketId: string 
           params.ticketId && "flex",
         )}>
         <MessagesHeader owner_username={ticket_response.owner_username} />
-        <MessagesBody />
+        <MessagesBody messages={messages ?? []} />
         <MessagesFooter />
       </main>
     )
