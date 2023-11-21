@@ -322,13 +322,6 @@ export function CartModal({ label }: CartModalProps) {
                               <ClearProductQuantityButton onClick={() => clearProductQuantity(productData.id)} />
                             </>
                           )}
-                          <Button
-                            className="font-secondary font-thin max-h-[48px]"
-                            variant="danger-outline"
-                            onClick={() => clearProductQuantity(productData.id)}>
-                            <p className="hidden laptop:flex font-bold">Clear</p>
-                            <MdOutlineDeleteOutline />
-                          </Button>
                           {productData.on_stock === 0 && (
                             <Button className="text-lg flex flex-row gap-x-2" variant="info-outline">
                               <HiOutlineRefresh />
