@@ -61,7 +61,7 @@ export function MessageBox({ message }: MessageBoxProps) {
         <p className={twMerge("w-full text-xs", isOwn ? "text-end" : "text-start")}>{formatTime(message.created_at)}</p>
         <p
           className={twMerge(
-            `relative w-fit max-w-full break-all border-2 text-start text-title-foreground pl-2 pr-3 pt-0.5 pb-1 bg-info rounded-lg
+            `relative w-fit max-w-full break-normal border-2 text-start text-title-foreground pl-2 pr-3 pt-0.5 pb-1 bg-info rounded-lg
          before:w-3 before:h-3 before:bg-info before:border-l-2 before:border-t-2 before:border-solid before:border-border-color
        before:rotate-[195deg] before:rounded-r-full before:absolute before:bottom-[-4px] before:right-[-6px] before:translate-x-[-50%]`,
             messageIsOwn,
