@@ -1,15 +1,13 @@
 import { redirect } from "next/navigation"
 import supabaseServer from "@/libs/supabaseServer"
 
-import getTickets from "@/actions/getTickets"
-import getLastMessages from "@/actions/getLastMessages"
+import getInitialTickets from "@/actions/getInitialTickets"
 import { DesktopSidebar, MobileSidebar } from "./components"
 
 export default async function SupportChatLayout({ children }: { children: React.ReactNode }) {
   const { data: role_response, error: anonymous_user } = await supabaseServer().from("users").select("role").single()
-  const tickets = await getTickets()
+  const initialTickets = await getInitialTickets()
 
-  const last_messages = await getLastMessages()
   // TODO - getAmountOfUnreadMessages()
 
   if (role_response?.role === "USER" || anonymous_user) {
@@ -24,8 +22,8 @@ export default async function SupportChatLayout({ children }: { children: React.
 
   return (
     <div className="relative h-[calc(100vh-64px)] flex">
-      <DesktopSidebar tickets={tickets} last_messages={last_messages ?? []} />
-      <MobileSidebar tickets={tickets} />
+      <DesktopSidebar initialTickets={initialTickets} />
+      <MobileSidebar initialTickets={initialTickets} />
       {children}
     </div>
   )
