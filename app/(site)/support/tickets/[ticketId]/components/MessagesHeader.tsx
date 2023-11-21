@@ -18,14 +18,8 @@ export function MessagesHeader({ owner_username }: MobileSidebarProps) {
             {/* <p className="text-xs">Inactive</p> */}
           </div>
         </div>
-        <div
-          className="p-2 hover:bg-success/10 duration-150 rounded-md w-fit cursor-pointer"
-          role="button"
-          onClick={() => {
-            /* TODO - OPEN ARE YOU SURE MODAL */
-          }}>
-          <MarkTicketAsCompleted />
-        </div>
+
+        <MarkTicketAsCompleted />
       </div>
     </div>
   )
