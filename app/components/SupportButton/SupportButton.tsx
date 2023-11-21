@@ -143,11 +143,11 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col justify-between">
         <h1 className="text-center text-[1.4rem] font-semibold shadow-md py-1">Response ~15s</h1>
         <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit(sendMessage)}>
-          <div className="h-[280px] mobile:h-[370px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
+          <ul className="h-[280px] mobile:h-[370px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
             {messages.map(message => (
               <MessageBox key={message.id} message={message} />
             ))}
-          </div>
+          </ul>
           <MessageInput
             //-2px because it don't calculate border-width 1px
             className="px-4 py-2 bg-foreground-accent shadow-md"
