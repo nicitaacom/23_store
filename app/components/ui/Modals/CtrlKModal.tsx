@@ -22,6 +22,7 @@ export function CtrlKModal() {
 
   return (
     <ModalContainer
+      classnameContainer="z-[1000]"
       className="relative w-full max-w-[450px]"
       isOpen={ctrlKModal.isOpen}
       onClose={ctrlKModal.closeModal}>
