@@ -22,12 +22,12 @@ export function DesktopSidebar({ tickets, last_messages }: DesktopSidebarProps) 
         {tickets?.map((ticket, index) => (
           <Link
             className={twMerge(
-              `relative px-4 py-2 hover:bg-foreground-accent duration-150 cursor-pointer`,
+              `relative px-4 py-2 hover:bg-foreground-accent duration-150 cursor-pointer pr-12 border-b border-border-color`,
               ticketId === ticket.id && "bg-brand/20",
             )}
             href={`/support/tickets/${ticket.id}`}
             key={ticket.id}>
-            <h3 className="font-semibold">{ticket.owner_username}</h3>
+            <h3 className="font-semibold truncate">{ticket.owner_username}</h3>
             <p className="text-sm">{last_messages[index]}</p>
             <div
               className="before:absolute before:w-[25px] before:h-[25px] before:bg-info before:rounded-full
