@@ -6,7 +6,11 @@ import { twMerge } from "tailwind-merge"
 export default async function ChatPage({ params }: { params: { ticketId: string } }) {
   // const messages = await getTicketData()
 
-  const { data, error } = await supabaseAdmin.from("tickets").select("id").eq("id", params.ticketId).single()
+  const { data, error: no_ticket_found } = await supabaseAdmin
+    .from("tickets")
+    .select("id")
+    .eq("id", params.ticketId)
+    .single()
 
   if (data) {
     return (
@@ -21,7 +25,7 @@ export default async function ChatPage({ params }: { params: { ticketId: string 
         <MessagesFooter />
       </main>
     )
-  } else {
+  } else if (no_ticket_found) {
     // if !ticket (e.g 093jf0e) - return NoTicketFound
     return <NoTicketFound ticketId={params.ticketId} />
   }
