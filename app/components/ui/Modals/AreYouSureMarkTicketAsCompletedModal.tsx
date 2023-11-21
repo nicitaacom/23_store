@@ -11,13 +11,20 @@ export function AreYouSureMarkTicketAsCompletedModal() {
     <AreYouSureModalContainer
       isOpen={areYouSureMarkTicketAsCompletedModal.isOpen}
       isLoading={false}
-      label={<h2>Are you sure you want mark this ticket as completed?</h2>}
+      label={<h2 className="mb-2">Are you sure you want mark this ticket as completed?</h2>}
+      subTitle={
+        <div className="flex flex-col">
+          <p>This action close this ticket</p>
+          <p>If you didn&apos;t help - closing this ticket may affect on your reputation</p>
+        </div>
+      }
       primaryButtonIcon={FaCheck}
-      primaryButtonVariant="danger"
+      primaryButtonVariant="success"
       primaryButtonAction={IoIosClose}
-      primaryButtonLabel="Delete"
+      primaryButtonLabel="Yes"
       secondaryButtonAction={areYouSureMarkTicketAsCompletedModal.closeModal}
-      secondaryButtonLabel="Back"
+      secondaryButtonVariant="danger-outline"
+      secondaryButtonLabel="No"
     />
   )
 }

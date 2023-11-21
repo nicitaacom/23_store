@@ -13,6 +13,7 @@ interface AreYouSureModalContainerProps {
   isOpen: boolean
   isLoading?: boolean
   label: string | React.ReactNode
+  subTitle?: string | React.ReactNode
   primaryButtonVariant?:
     | "link"
     | "default"
@@ -58,6 +59,7 @@ export function AreYouSureModalContainer({
   isOpen = false,
   isLoading = false,
   label,
+  subTitle,
   primaryButtonVariant,
   primaryButtonIcon: PrimaryButtonIcon,
   primaryButtonAction,
@@ -133,8 +135,11 @@ export function AreYouSureModalContainer({
               size={32}
               onClick={closeModal}
             />
-            <div className="flex flex-col gap-y-4 pt-6 px-4 pb-8 max-w-[600px]">
-              <div className="py-2 text-2xl text-center text-title">{label}</div>
+            <div className="flex flex-col gap-y-4 pt-6 px-6 pb-8 max-w-[600px]">
+              <div className="flex flex-col text-center tablet:text-start">
+                <div className="text-2xl text-title">{label}</div>
+                <div className="text-subTitle">{subTitle}</div>
+              </div>
               <div className="flex flex-row gap-x-2 justify-center tablet:justify-end">
                 <Button
                   className="flex flex-row gap-x-1"
