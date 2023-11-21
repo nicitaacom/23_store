@@ -28,7 +28,7 @@ export function DesktopSidebar({ tickets, last_messages }: DesktopSidebarProps) 
             href={`/support/tickets/${ticket.id}`}
             key={ticket.id}>
             <h3 className="font-semibold truncate">{ticket.owner_username}</h3>
-            <p className="text-sm">{last_messages[index]}</p>
+            <p className="text-sm truncate">{last_messages[index]}</p>
             <div
               className="before:absolute before:w-[25px] before:h-[25px] before:bg-info before:rounded-full
               before:right-2 before:translate-y-[-150%] before:z-[9]
