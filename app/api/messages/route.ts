@@ -36,5 +36,5 @@ export async function POST(req: Request) {
   await pusherServer.trigger(ticketId, "messages:new", newMessage)
   if (error) console.log(29, "error insert newMessage - ", error)
 
-  return NextResponse.json({ req })
+  return NextResponse.json({ status: 200 })
 }
