@@ -55,7 +55,7 @@ export function ModalContainer({ isOpen, isLoading, onClose, className, label, c
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[99]
+          className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[49]
          flex justify-center items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -63,7 +63,7 @@ export function ModalContainer({ isOpen, isLoading, onClose, className, label, c
           transition={{ duration: 0.25 }}
           {...modalBgHandler}>
           <motion.div
-            className={`relative bg-foreground border-[1px] border-border-color rounded-md py-8 z-[100] shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
+            className={`relative bg-foreground border-[1px] border-border-color rounded-md py-8 z-[50] shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}

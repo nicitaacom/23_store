@@ -36,7 +36,7 @@ export function AvatarDropdown({ role }: { role: string }) {
       isDropdown={isDropdown}
       toggle={toggle}
       dropdownRef={avatarDropdownRef}
-      classNameDropdownContainer="ml-1"
+      classNameDropdownContainer="ml-1 z-[102]"
       className="max-w-[200px]"
       username={userStore.username}
       icon={
