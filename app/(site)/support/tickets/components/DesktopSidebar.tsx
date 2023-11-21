@@ -2,19 +2,46 @@
 
 import useTicket from "@/hooks/support/useTicket"
 import { ITicket } from "@/interfaces/ITicket"
+import { pusherClient } from "@/libs/pusher"
+import { find } from "lodash"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 interface DesktopSidebarProps {
-  tickets: ITicket[] | undefined
-  last_messages: string[]
+  initialTickets: ITicket[]
 }
 
-export function DesktopSidebar({ tickets, last_messages }: DesktopSidebarProps) {
+export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
   const { ticketId } = useTicket()
 
+  const [tickets, setTickets] = useState(initialTickets)
+
   // TODO - go to /support/tickets on esc
+
+  useEffect(() => {
+    pusherClient.subscribe("tickets")
+
+    const newHandler = (ticket: ITicket) => {
+      setTickets(current => {
+        if (find(current, { id: ticket.id })) {
+          return current
+        }
+
+        return [...current, ticket]
+      })
+    }
+
+    pusherClient.bind("tickets:new", newHandler)
+
+    // TODO - delete ticket and update it in sidebar
+
+    return () => {
+      pusherClient.unsubscribe("tickets")
+      pusherClient.unbind("tickets:new", newHandler)
+    }
+  }, [tickets])
 
   return (
     <aside className="hidden laptop:block h-full shadow-[1px_3px_5px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[99]">
@@ -28,7 +55,7 @@ export function DesktopSidebar({ tickets, last_messages }: DesktopSidebarProps) 
             href={`/support/tickets/${ticket.id}`}
             key={ticket.id}>
             <h3 className="font-semibold truncate">{ticket.owner_username}</h3>
-            <p className="text-sm truncate">{last_messages[index]}</p>
+            <p className="text-sm truncate">{ticket.last_message_body}</p>
             <div
               className="before:absolute before:w-[25px] before:h-[25px] before:bg-info before:rounded-full
               before:right-2 before:translate-y-[-150%] before:z-[9]

@@ -5,13 +5,40 @@ import { useRouter } from "next/navigation"
 import { ITicket } from "@/interfaces/ITicket"
 import useTicket from "@/hooks/support/useTicket"
 import { twMerge } from "tailwind-merge"
+import { useEffect, useState } from "react"
+import { find } from "lodash"
+import { pusherClient } from "@/libs/pusher"
 
 interface MobileSidebarProps {
-  tickets: ITicket[] | undefined
+  initialTickets: ITicket[]
 }
 
-export function MobileSidebar({ tickets }: MobileSidebarProps) {
+export function MobileSidebar({ initialTickets }: MobileSidebarProps) {
   const router = useRouter()
+
+  const [tickets, setTickets] = useState(initialTickets)
+
+  // TODO - go to /support/tickets on esc
+
+  useEffect(() => {
+    pusherClient.subscribe("tickets")
+
+    const messagehandler = (ticket: ITicket) => {
+      setTickets(current => {
+        if (find(current, { id: ticket.id })) {
+          return current
+        }
+
+        return [...current, ticket]
+      })
+    }
+    pusherClient.bind("tickets:new", messagehandler)
+
+    return () => {
+      pusherClient.unsubscribe("tickets")
+      pusherClient.unbind("tickets:new", messagehandler)
+    }
+  }, [tickets])
 
   const { isOpen } = useTicket()
 
