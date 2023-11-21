@@ -69,6 +69,15 @@ Render OpenNameModalButton.tsx somewhere (e.g in Navbar.tsx)
 <OpenNameModalButton />
 ```
 
+<br/>
+<br/>
+
+<br/>
+<br/>
+
+<br/>
+<br/>
+
 # Usage for modals based on global state
 
 ## Step 1 (in this folder)
@@ -114,4 +123,95 @@ If you need to pass some props in `openModal` just add it like so
 
 ```ts
   openModal: (id: string, title: string) => void
+```
+
+## Step 4 (in /app/providers)
+
+Render your modal here
+
+```tsx
+<CtrlKModal />
+```
+
+<br/>
+<br/>
+
+<br/>
+<br/>
+
+<br/>
+<br/>
+
+# Usage for are you sure modals
+
+## Step 1 (in this folder)
+
+```tsx
+export function AreYouSureDeleteProductModal() {
+  const areYouSureDeleteProductModal = useAreYouSureDeleteProductModal()
+
+  return (
+    <AreYouSureModalContainer
+      isOpen={areYouSureDeleteProductModal.isOpen}
+      isLoading={isLoading}
+      label={
+        <h2>
+          Are you sure you want delete <b>{areYouSureDeleteProductModal.title}</b>?
+        </h2>
+      }
+      primaryButtonIcon={BiTrash}
+      primaryButtonVariant="danger"
+      primaryButtonAction={deleteProduct}
+      primaryButtonLabel="Delete"
+      secondaryButtonAction={() => areYouSureDeleteProductModal.closeModal()}
+      secondaryButtonLabel="Back"
+    />
+  )
+}
+```
+
+## Step 2
+
+Export `AreSureModal.tsx` in `index.ts`
+
+## Step 3 (in /app/store/ui)
+
+```ts
+import { create } from "zustand"
+
+type AreYouSureModalStore = {
+  isOpen: boolean
+  openModal: () => void
+  closeModal: () => void
+}
+
+export const useAreYouSureModal = create<AreYouSureModalStore>(set => ({
+  isOpen: false,
+  openModal: () => set({ isOpen: true }),
+  closeModal: () => set({ isOpen: false }),
+}))
+```
+
+You you need need toggle - just do it like this
+
+```ts
+toggle: () => void
+
+
+export const useAreYouSureModal = create<AreYouSureModalStore>((set, get) => ({
+toggle: () => set({ isOpen: !get().isOpen }),
+```
+
+If you need to pass some props in `openModal` just add it like so
+
+```ts
+  openModal: (id: string, title: string) => void
+```
+
+## Step 4 (in /app/providers)
+
+Render your modal here
+
+```tsx
+<AreYouSureDeleteProductModal />
 ```

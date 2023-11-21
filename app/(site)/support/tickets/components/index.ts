@@ -1,7 +1,3 @@
-export { TicketsList } from "./TicketsList"
 export { DesktopSidebar } from "./DesktopSidebar"
 export { MobileSidebar } from "./MobileSidebar"
-export { MessagesHeader } from "./MessagesHeader"
-export { MessagesBody } from "./MessagesBody"
-export { MessagesFooter } from "./MessagesFooter"
 export { MessageInput } from "../../../../components/ui/Inputs/MessageInput"

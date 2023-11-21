@@ -10,25 +10,35 @@ import { useEffect } from "react"
 import { twMerge } from "tailwind-merge"
 
 interface MessageBoxProps {
-  isLast: boolean
-  data: IMessage
+  message: IMessage
 }
 
-export function MessageBox({ isLast, data }: MessageBoxProps) {
+export function MessageBox({ message }: MessageBoxProps) {
   const userStore = useUserStore()
   const { isDarkMode } = useDarkMode()
-
-  const userId = userStore.userId === "" ? getCookie("anonymousId") : userStore.userId
-  const isOwn = userId === data.sender_id
-
-  const message = twMerge(isOwn ? "bg-info text-title" : "bg-foreground")
 
   useEffect(() => {
     //axios.post('/api/messages/seen')
   }, [])
 
+  if (!message || !message.sender_id) {
+    return null
+  }
+
+  const userId = userStore.userId === "" ? getCookie("anonymousId") : userStore.userId
+  const isOwn = userId === message.sender_id
+
+  // TODO - show gray-bg for !isOwn messages
+  const messageIsOwn = twMerge(
+    isOwn
+      ? "bg-info"
+      : `before:left-[5px] before:border-l-0 before:border-r-2 before:rounded-r-none before:rounded-b-full
+      before:rotate-[145deg] before:bottom-[-6px] 
+      bg-foreground before:bg-foreground text-title`,
+  )
+
   return (
-    <div className={twMerge(`flex gap-x-2`, isOwn && "justify-end")}>
+    <div className={twMerge(`w-full flex gap-x-2`, isOwn && "justify-end")}>
       <Image
         className={`w-[42px] h-[42px] mt-1 rounded-full select-none pointer-events-none ${
           isOwn ? "order-last" : "order-first"
@@ -46,17 +56,21 @@ export function MessageBox({ isLast, data }: MessageBoxProps) {
         width={46}
         height={46}
       />
-      <div className="relative flex flex-col items-end px-1 py-0.5">
-        <p className="text-xs">{formatTime(data.created_at)}</p>
+      <article
+        className={twMerge("relative max-w-[50%] flex flex-col px-1 py-0.5", isOwn ? "items-end" : "items-start")}>
+        <p className={twMerge("w-full text-xs", isOwn ? "text-end" : "text-start")}>{formatTime(message.created_at)}</p>
         <p
-          className="relative w-fit  border-2 text-start text-title-foreground pl-2 pr-3 pt-0.5 pb-1 bg-info rounded-lg
+          className={twMerge(
+            `relative w-fit max-w-full break-normal border-2 text-start text-title-foreground pl-2 pr-3 pt-0.5 pb-1 bg-info rounded-lg
          before:w-3 before:h-3 before:bg-info before:border-l-2 before:border-t-2 before:border-solid before:border-border-color
-       before:rotate-[195deg] before:rounded-r-full before:absolute before:bottom-[-4px] before:right-[-6px] before:translate-x-[-50%]">
-          {data.body}
+       before:rotate-[195deg] before:rounded-r-full before:absolute before:bottom-[-4px] before:right-[-6px] before:translate-x-[-50%]`,
+            messageIsOwn,
+          )}>
+          {message.body}
         </p>
         {/* TODO - seen in the future */}
         {/* <BsCheck2 className="absolute bottom-[2px] right-2 " /> */}
-      </div>
+      </article>
     </div>
   )
 }

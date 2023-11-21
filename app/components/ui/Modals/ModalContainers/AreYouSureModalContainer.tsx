@@ -13,6 +13,7 @@ interface AreYouSureModalContainerProps {
   isOpen: boolean
   isLoading?: boolean
   label: string | React.ReactNode
+  subTitle?: string | React.ReactNode
   primaryButtonVariant?:
     | "link"
     | "default"
@@ -58,6 +59,7 @@ export function AreYouSureModalContainer({
   isOpen = false,
   isLoading = false,
   label,
+  subTitle,
   primaryButtonVariant,
   primaryButtonIcon: PrimaryButtonIcon,
   primaryButtonAction,
@@ -116,14 +118,14 @@ export function AreYouSureModalContainer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.25 }}
           {...modalBgHandler}>
           <motion.div
             className={`relative bg-foreground border-[1px] border-border-color rounded-md z-[100] py-8 shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
-            initial={{ scale: 0, opacity: 0 }}
+            initial={{ scale: 0.8, opacity: 0.8 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            exit={{ scale: 0.8, opacity: 0.8 }}
+            transition={{ duration: 0.25 }}
             {...modalHandler}>
             <IoMdClose
               className={twMerge(
@@ -133,8 +135,11 @@ export function AreYouSureModalContainer({
               size={32}
               onClick={closeModal}
             />
-            <div className="flex flex-col gap-y-4 pt-6 px-4 pb-8 max-w-[600px]">
-              <div className="py-2 text-2xl text-center text-title">{label}</div>
+            <div className="flex flex-col gap-y-4 pt-6 px-6 pb-8 max-w-[600px]">
+              <div className="flex flex-col text-center tablet:text-start">
+                <div className="text-2xl text-title">{label}</div>
+                <div className="text-subTitle">{subTitle}</div>
+              </div>
               <div className="flex flex-row gap-x-2 justify-center tablet:justify-end">
                 <Button
                   className="flex flex-row gap-x-1"

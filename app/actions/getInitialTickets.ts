@@ -1,8 +1,11 @@
 import { ITicket } from "@/interfaces/ITicket"
 import supabaseAdmin from "@/libs/supabaseAdmin"
 
-const getTickets = async () => {
-  const { data: tickets_response, error: tickets_error } = await supabaseAdmin.from("tickets").select("*")
+const getInitialTickets = async () => {
+  const { data: tickets_response, error: tickets_error } = await supabaseAdmin
+    .from("tickets")
+    .select("*")
+    .eq("is_open", true)
 
   if (tickets_error) {
     console.log(6, "tickets error - ", tickets_error)
@@ -12,4 +15,4 @@ const getTickets = async () => {
   return tickets_response as ITicket[]
 }
 
-export default getTickets
+export default getInitialTickets

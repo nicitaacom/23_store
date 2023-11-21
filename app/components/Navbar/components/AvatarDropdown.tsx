@@ -31,12 +31,17 @@ export function AvatarDropdown({ role }: { role: string }) {
     closeDropdown()
   }
 
+  function openSupportTickets() {
+    router.push("/support/tickets")
+    closeDropdown()
+  }
+
   return (
     <DropdownContainer
       isDropdown={isDropdown}
       toggle={toggle}
       dropdownRef={avatarDropdownRef}
-      classNameDropdownContainer="ml-1"
+      classNameDropdownContainer="ml-1 z-[102]"
       className="max-w-[200px]"
       username={userStore.username}
       icon={
@@ -51,13 +56,7 @@ export function AvatarDropdown({ role }: { role: string }) {
         </>
       }>
       {role === "SUPPORT" && (
-        <DropdownItem
-          label="Support chat"
-          icon={IoChatboxEllipsesOutline}
-          onClick={() => {
-            router.push("/support/tickets")
-          }}
-        />
+        <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />
       )}
       <DropdownItem label="Admin panel" icon={BsWindow} onClick={openAdminPanel} />
       <DropdownItem

@@ -22,6 +22,7 @@ import { Button, DropdownContainer } from "../ui"
 import { MessageInput } from "../ui/Inputs/MessageInput"
 import { FieldValues, useForm } from "react-hook-form"
 import { IFormDataMessage } from "@/interfaces/IFormDataMessage"
+import { TAPITickets } from "@/api/tickets/route"
 
 interface SupportButtonProps {
   initialMessages: IMessage[]
@@ -35,8 +36,9 @@ interface Formdata {
 export function SupportButton({ initialMessages, ticketId }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
+  const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLUListElement>(null)
   const [messages, setMessages] = useState(initialMessages)
   const userStore = useUserStore()
 
@@ -64,6 +66,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
 
     const messagehandler = (message: IMessage) => {
       //TODO - axios.post('api/messages/{ticketId}/seen')
+
       setMessages(current => {
         if (find(current, { id: message.id })) {
           return current
@@ -86,17 +89,59 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       pusherClient.unsubscribe(ticketId)
       pusherClient.unbind("messages:new", messagehandler)
     }
-  }, [messages, ticketId])
+  }, [messages, ticketId, router])
 
   async function sendMessage(data: IFormDataMessage) {
     // Insert a new ticketId and send message in telegram if no open ticket is found
-    if (initialMessages.length === 0) {
+
+    if (data.message.length === 0) {
+      return null
+    }
+
+    reset()
+    if (messages.length === 0) {
+      console.log("first message")
+
+      // all this code required to fix issue when I send 2 first messages in < 1 second
+      const firstMessageId = crypto.randomUUID()
+
+      // dance arounding to insert current date-time
+      const now = new Date()
+      const timestampString = now.toISOString().replace("T", " ").replace("Z", "+00")
+
+      const newMessage = {
+        id: firstMessageId, // needed to set in cuurent pusher channel (for key prop in react)
+        created_at: timestampString,
+        ticket_id: ticketId,
+        sender_id: senderId!,
+        sender_username: senderUsername!,
+        body: data.message,
+        // TODO - add images logic in future
+        images: null,
+      }
+      const messagehandler = (message: IMessage) => {
+        //TODO - axios.post('api/messages/{ticketId}/seen')
+
+        setMessages(current => {
+          if (find(current, { id: message.id })) {
+            return current
+          }
+
+          return [...current, message]
+        })
+      }
+      messagehandler(newMessage)
+
       // 1. Insert row in table 'tickets'
-      await supabaseClient
-        .from("tickets")
-        .insert({ id: ticketId, owner_username: senderUsername!, owner_id: senderId! })
+      await axios.post("/api/tickets", {
+        ticketId: ticketId,
+        ownerId: senderId!,
+        ownerUsername: senderUsername!,
+        messageBody: data.message,
+      } as TAPITickets)
       // 2. Insert message in table 'messages'
       await axios.post("/api/messages", {
+        id: firstMessageId,
         ticketId: ticketId,
         senderId: senderId,
         senderUsername: senderUsername,
@@ -104,6 +149,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       } as TAPIMessages)
       // 3. Send message in telegram
       await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
+      router.refresh()
     } else {
       // 1. Insert message in table 'messages'
       await axios.post("/api/messages", {
@@ -118,7 +164,6 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         bottomRef.current.scrollIntoView()
       }
     }
-    reset()
   }
 
   //before:translate-y-[402px] should be +2px then <section className="h-[400px]
@@ -143,14 +188,11 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col justify-between">
         <h1 className="text-center text-[1.4rem] font-semibold shadow-md py-1">Response ~15s</h1>
         <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit(sendMessage)}>
-          <div className="h-[280px] mobile:h-[370px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
-            {messages.map((message, index) => {
-              console.log(157, message.id)
-              return (
-                <MessageBox key={message.id} isLast={index === (initialMessages?.length ?? 0) - 1} data={message} />
-              )
-            })}
-          </div>
+          <ul className="h-[280px] mobile:h-[370px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
+            {messages.map(message => (
+              <MessageBox key={message.id} message={message} />
+            ))}
+          </ul>
           <MessageInput
             //-2px because it don't calculate border-width 1px
             className="px-4 py-2 bg-foreground-accent shadow-md"
