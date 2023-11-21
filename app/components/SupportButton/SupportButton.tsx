@@ -144,8 +144,8 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         <h1 className="text-center text-[1.4rem] font-semibold shadow-md py-1">Response ~15s</h1>
         <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit(sendMessage)}>
           <div className="h-[280px] mobile:h-[370px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
-            {messages.map((message, index) => (
-              <MessageBox key={message.id} isLast={index === (initialMessages?.length ?? 0) - 1} data={message} />
+            {messages.map(message => (
+              <MessageBox key={message.id} message={message} />
             ))}
           </div>
           <MessageInput
