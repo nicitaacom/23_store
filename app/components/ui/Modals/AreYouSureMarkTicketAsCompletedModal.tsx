@@ -1,11 +1,22 @@
+import supabaseClient from "@/libs/supabaseClient"
 import { FaCheck } from "react-icons/fa"
-import { IoIosClose } from "react-icons/io"
 
 import { useAreYouSureMarkTicketAsCompletedModal } from "@/store/ui/areYouSureMarkTicketAsCompletedModal"
+import useTicket from "@/hooks/support/useTicket"
 import { AreYouSureModalContainer } from "./ModalContainers"
+import { useRouter } from "next/navigation"
 
 export function AreYouSureMarkTicketAsCompletedModal() {
+  const router = useRouter()
   const areYouSureMarkTicketAsCompletedModal = useAreYouSureMarkTicketAsCompletedModal()
+
+  const { ticketId } = useTicket()
+
+  async function markTickedAsCompleted() {
+    await supabaseClient.from("tickets").update({ is_open: false }).eq("id", ticketId)
+    areYouSureMarkTicketAsCompletedModal.closeModal()
+    router.push("/support/tickets")
+  }
 
   return (
     <AreYouSureModalContainer
@@ -20,7 +31,7 @@ export function AreYouSureMarkTicketAsCompletedModal() {
       }
       primaryButtonIcon={FaCheck}
       primaryButtonVariant="success"
-      primaryButtonAction={IoIosClose}
+      primaryButtonAction={markTickedAsCompleted}
       primaryButtonLabel="Yes"
       secondaryButtonAction={areYouSureMarkTicketAsCompletedModal.closeModal}
       secondaryButtonVariant="danger-outline"
