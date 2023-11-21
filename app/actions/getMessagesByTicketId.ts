@@ -1,15 +1,11 @@
-import supabaseAdmin from "@/libs/supabaseAdmin"
+import supabaseServer from "@/libs/supabaseServer"
 
 const getMessagesByTicketId = async (ticketId: string) => {
-  try {
-    const { data, error } = await supabaseAdmin.from("messages").select("*").eq("id", ticketId)
-
-    console.log(7, "data - ", data)
-    console.log(8, "error - ", error)
-  } catch (error) {
-    if (error instanceof Error) {
-      console.log(10, "error - ", error)
-    }
-  }
+  const { data: messages_by_id_response, error: messages_by_id_error } = await supabaseServer()
+    .from("messages")
+    .select("*")
+    .eq("ticket_id", ticketId)
+  if (messages_by_id_error) console.log(8, "messages_by_id_error - ", messages_by_id_error)
+  return messages_by_id_response
 }
 export default getMessagesByTicketId
