@@ -1,6 +1,5 @@
 "use client"
-import { IMessage } from "@/interfaces/IMessage"
-import { MdOutlineDelete } from "react-icons/md"
+import { CloseTicket } from "./CloseTicket"
 
 interface MobileSidebarProps {
   owner_username: string
@@ -20,12 +19,12 @@ export function MessagesHeader({ owner_username }: MobileSidebarProps) {
           </div>
         </div>
         <div
-          className="p-2 hover:bg-danger/10 duration-150 rounded-md w-fit cursor-pointer"
+          className="p-2 hover:bg-success/10 duration-150 rounded-md w-fit cursor-pointer"
           role="button"
           onClick={() => {
             /* TODO - OPEN ARE YOU SURE MODAL */
           }}>
-          <MdOutlineDelete className="text-danger" />
+          <CloseTicket />
         </div>
       </div>
     </div>
