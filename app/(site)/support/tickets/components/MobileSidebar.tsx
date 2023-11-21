@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { ITicket } from "@/interfaces/ITicket"
 import useTicket from "@/hooks/support/useTicket"
 import { twMerge } from "tailwind-merge"
-import { divide } from "lodash"
 
 interface MobileSidebarProps {
   tickets: ITicket[] | undefined
