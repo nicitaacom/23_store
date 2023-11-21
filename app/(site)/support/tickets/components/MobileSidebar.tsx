@@ -23,7 +23,7 @@ export function MobileSidebar({ initialTickets }: MobileSidebarProps) {
   useEffect(() => {
     pusherClient.subscribe("tickets")
 
-    const messagehandler = (ticket: ITicket) => {
+    const newHandler = (ticket: ITicket) => {
       setTickets(current => {
         if (find(current, { id: ticket.id })) {
           return current
@@ -32,11 +32,28 @@ export function MobileSidebar({ initialTickets }: MobileSidebarProps) {
         return [...current, ticket]
       })
     }
-    pusherClient.bind("tickets:new", messagehandler)
+
+    const updateHandler = (ticket: ITicket) => {
+      setTickets(current =>
+        current.map(currentTicket => {
+          if (currentTicket.id === ticket.id) {
+            return {
+              ...currentTicket,
+              last_message_body: ticket.last_message_body,
+            }
+          }
+          return currentTicket
+        }),
+      )
+    }
+
+    pusherClient.bind("tickets:new", newHandler)
+    pusherClient.bind("tickets:update", updateHandler)
 
     return () => {
       pusherClient.unsubscribe("tickets")
-      pusherClient.unbind("tickets:new", messagehandler)
+      pusherClient.unbind("tickets:new", newHandler)
+      pusherClient.unbind("tickets:new", updateHandler)
     }
   }, [tickets])
 

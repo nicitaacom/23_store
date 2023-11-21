@@ -33,15 +33,32 @@ export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
       })
     }
 
-    pusherClient.bind("tickets:new", newHandler)
+    const updateHandler = (ticket: ITicket) => {
+      setTickets(current =>
+        current.map(currentTicket => {
+          if (currentTicket.id === ticket.id) {
+            return {
+              ...currentTicket,
+              last_message_body: ticket.last_message_body,
+            }
+          }
+          return currentTicket
+        }),
+      )
+    }
 
+    pusherClient.bind("tickets:new", newHandler)
+    pusherClient.bind("tickets:update", updateHandler)
     // TODO - delete ticket and update it in sidebar
 
     return () => {
       pusherClient.unsubscribe("tickets")
       pusherClient.unbind("tickets:new", newHandler)
+      pusherClient.unbind("tickets:new", updateHandler)
     }
   }, [tickets])
+
+  // TODO - return no open tickes found TSX
 
   return (
     <aside className="hidden laptop:block h-full shadow-[1px_3px_5px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[99]">

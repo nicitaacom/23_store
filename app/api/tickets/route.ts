@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     created_at: timestampString,
     owner_username: ownerUsername,
     is_open: true,
-    lastMessageBody: messageBody,
+    last_message_body: messageBody,
   } as ITicket)
 
   return NextResponse.json({ status: 200 })
