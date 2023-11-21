@@ -22,6 +22,7 @@ import { Button, DropdownContainer } from "../ui"
 import { MessageInput } from "../ui/Inputs/MessageInput"
 import { FieldValues, useForm } from "react-hook-form"
 import { IFormDataMessage } from "@/interfaces/IFormDataMessage"
+import { TAPITickets } from "@/api/tickets/route"
 
 interface SupportButtonProps {
   initialMessages: IMessage[]
@@ -87,14 +88,18 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       pusherClient.unbind("messages:new", messagehandler)
     }
   }, [messages, ticketId])
+  console.log(102, "senderId - ", senderId)
 
   async function sendMessage(data: IFormDataMessage) {
     // Insert a new ticketId and send message in telegram if no open ticket is found
     if (initialMessages.length === 0) {
       // 1. Insert row in table 'tickets'
-      await supabaseClient
-        .from("tickets")
-        .insert({ id: ticketId, owner_username: senderUsername!, owner_id: senderId! })
+      await axios.post("/api/tickets", {
+        ticketId: ticketId,
+        ownerId: senderId!,
+        ownerUsername: senderUsername!,
+        messageBody: data.message,
+      } as TAPITickets)
       // 2. Insert message in table 'messages'
       await axios.post("/api/messages", {
         ticketId: ticketId,
