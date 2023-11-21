@@ -3,9 +3,11 @@
 import Image from "next/image"
 
 import useDarkMode from "@/store/ui/darkModeStore"
+import { useAreYouSureMarkTicketAsCompletedModal } from "@/store/ui/areYouSureMarkTicketAsCompletedModal"
 
-export function CloseTicket() {
+export function MarkTicketAsCompleted() {
   const { isDarkMode } = useDarkMode()
+  const areYouSureMarkTicketAsCompleteModal = useAreYouSureMarkTicketAsCompletedModal()
 
   return (
     <Image
@@ -13,9 +15,7 @@ export function CloseTicket() {
       alt="close ticket"
       width={32}
       height={32}
-      onClick={() => {
-        /* TODO - OPEN ARE YOU SURE MODAL */
-      }}
+      onClick={areYouSureMarkTicketAsCompleteModal.openModal}
     />
   )
 }
