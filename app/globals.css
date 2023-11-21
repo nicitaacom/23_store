@@ -24,7 +24,7 @@
     --info: 219deg 65% 36%;
     --warning: 22deg 84% 27%;
     --danger: 0deg 82% 34%;
-    --success: 118deg 78% 20%;
+    --success: 118deg 78% 20% /* 0e5b0b */;
   }
   /* I did it using rgb color picker and contrast checker */
   .dark {
@@ -45,7 +45,7 @@
     --info: 219deg 83% 72%;
     --warning: 22deg 84% 73%;
     --danger: 0deg 80% 72%;
-    --success: 118deg 80% 78%;
+    --success: 118deg 80% 78% /* 9df49a */;
   }
 }
 
