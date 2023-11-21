@@ -36,7 +36,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
   const inputRef = useRef<HTMLInputElement>(null)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLUListElement>(null)
   const [messages, setMessages] = useState(initialMessages)
   const userStore = useUserStore()
 
