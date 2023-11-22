@@ -1,21 +1,22 @@
 "use client"
 
-import useTicket from "@/hooks/support/useTicket"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { find } from "lodash"
+import { twMerge } from "tailwind-merge"
+
 import { ITicket } from "@/interfaces/ITicket"
 import { pusherClient } from "@/libs/pusher"
-import { find } from "lodash"
-import Link from "next/link"
-import { useParams } from "next/navigation"
-import { useEffect, useState } from "react"
-import { twMerge } from "tailwind-merge"
+import useTicket from "@/hooks/support/useTicket"
+import useSender from "@/hooks/ui/useSender"
+import { DesktopSidebarTicket } from "./DesktopSidebarTicket"
 
 interface DesktopSidebarProps {
   initialTickets: ITicket[]
 }
 
 export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
-  const { ticketId } = useTicket()
-
   const [tickets, setTickets] = useState(initialTickets)
 
   // TODO - go to /support/tickets on esc
@@ -70,27 +71,12 @@ export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
 
   // TODO - return no open tickes found TSX
 
+  console.log(75, "tickets[0].owner_avatar_url - ", tickets[0].owner_avatar_url ?? "")
+
   return (
     <aside className="hidden laptop:block h-full shadow-[1px_3px_5px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[99]">
       <nav className="flex flex-col">
-        {tickets?.map((ticket, index) => (
-          <Link
-            className={twMerge(
-              `relative px-4 py-2 hover:bg-foreground-accent duration-150 cursor-pointer pr-12 border-b border-border-color`,
-              ticketId === ticket.id && "bg-brand/20",
-            )}
-            href={`/support/tickets/${ticket.id}`}
-            key={ticket.id}>
-            <h3 className="font-semibold truncate">{ticket.owner_username}</h3>
-            <p className="text-sm truncate">{ticket.last_message_body}</p>
-            <div
-              className="before:absolute before:w-[25px] before:h-[25px] before:bg-info before:rounded-full
-              before:right-2 before:translate-y-[-150%] before:z-[9]
-              after:absolute after:w-[20px] after:h-[20px] after:text-title-foreground
-              after:right-2.5 after:translate-y-[-185%] after:z-[9] after:content-['99']"
-            />
-          </Link>
-        ))}
+        {tickets?.map(ticket => <DesktopSidebarTicket ticket={ticket} key={ticket.id} />)}
       </nav>
     </aside>
   )

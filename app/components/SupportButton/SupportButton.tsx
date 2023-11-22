@@ -132,6 +132,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         ownerId: senderId!,
         ownerUsername: senderUsername!,
         messageBody: data.message,
+        ownerAvatarUrl: userStore.avatarUrl,
       } as TAPITicketsOpen)
       // 2. Insert message in table 'messages'
       await axios.post("/api/messages", {

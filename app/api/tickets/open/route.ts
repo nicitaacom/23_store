@@ -8,13 +8,14 @@ export type TAPITicketsOpen = {
   ticketId: string
   ownerId: string
   ownerUsername: string
+  ownerAvatarUrl: string
   messageBody: string
 }
 
 export async function POST(req: Request) {
   // just messageBody instead of lastMessageBody because only user message support (not support message user)
   // also because I insert row in 'tickets' table only once on first message - so I have only 1 message in this ticket
-  const { ticketId, ownerId, ownerUsername, messageBody } = (await req.json()) as TAPITicketsOpen
+  const { ticketId, ownerId, ownerUsername, messageBody, ownerAvatarUrl } = (await req.json()) as TAPITicketsOpen
 
   // dance arounding to insert current date-time
   const now = new Date()
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
     owner_username: ownerUsername,
     is_open: true,
     last_message_body: messageBody,
+    owner_avatar_url: ownerAvatarUrl,
   } as ITicket)
 
   return NextResponse.json({ status: 200 })
