@@ -3,11 +3,11 @@ import "./globals.css"
 import type { Metadata } from "next"
 
 import getTicketId from "./actions/getTicketId"
-import getInitialMessages from "./actions/getInitialMessages"
 
 import ClientOnly from "./components/ClientOnly"
 import { Layout } from "./components"
 import { SupportButton } from "./components/SupportButton/SupportButton"
+import getInitialMessagesByTicketId from "./actions/getMessagesByTicketId"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -30,14 +30,14 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const ticketId = await getTicketId()
-  const initialMessages = await getInitialMessages()
+  const initial_messages = await getInitialMessagesByTicketId(ticketId)
 
   return (
     <html lang="en">
       <body>
         <ClientOnly>
           <Layout>{children}</Layout>
-          <SupportButton initialMessages={initialMessages ?? []} ticketId={ticketId} />
+          <SupportButton initialMessages={initial_messages ?? []} ticketId={ticketId} />
         </ClientOnly>
       </body>
     </html>
