@@ -16,6 +16,7 @@ export interface Database {
           id: string
           images: string[] | null
           seen: boolean
+          sender_avatar_url: string | null
           sender_id: string
           sender_username: string
           ticket_id: string
@@ -26,6 +27,7 @@ export interface Database {
           id?: string
           images?: string[] | null
           seen?: boolean
+          sender_avatar_url?: string | null
           sender_id: string
           sender_username: string
           ticket_id: string
@@ -36,6 +38,7 @@ export interface Database {
           id?: string
           images?: string[] | null
           seen?: boolean
+          sender_avatar_url?: string | null
           sender_id?: string
           sender_username?: string
           ticket_id?: string

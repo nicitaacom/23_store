@@ -7,12 +7,13 @@ export type TAPIMessages = {
   ticketId: string
   senderId: string
   senderUsername: string
+  senderAvatarUrl: string
   body: string
   images?: string[]
 }
 
 export async function POST(req: Request) {
-  const { id, ticketId, body, images, senderId, senderUsername } = (await req.json()) as TAPIMessages
+  const { id, ticketId, body, images, senderId, senderUsername, senderAvatarUrl } = (await req.json()) as TAPIMessages
 
   // dance arounding to insert current date-time
   const now = new Date()
@@ -25,6 +26,7 @@ export async function POST(req: Request) {
     ticket_id: ticketId,
     sender_id: senderId,
     sender_username: senderUsername,
+    sender_avatar_url: senderAvatarUrl,
     body: body,
     images: images,
   }
@@ -35,7 +37,12 @@ export async function POST(req: Request) {
   //see more (use subtitles if needed) - https://www.youtube.com/watch?v=voy5_XGETMc&ab_channel=overbafer1
   const { error } = await supabaseAdmin.from("messages").insert(newMessage)
   await pusherServer.trigger(ticketId, "messages:new", newMessage)
-  await pusherServer.trigger("tickets", "tickets:update", { id: ticketId, last_message_body: body, images: images })
+  await pusherServer.trigger("tickets", "tickets:update", {
+    id: ticketId,
+    last_message_body: body,
+    images: images,
+    sender_avatar_url: senderAvatarUrl,
+  })
   if (error) console.log(29, "error insert newMessage - ", error)
 
   return NextResponse.json({ status: 200 })

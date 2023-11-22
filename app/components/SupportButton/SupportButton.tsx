@@ -108,6 +108,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         ticket_id: ticketId,
         sender_id: senderId!,
         sender_username: senderUsername!,
+        senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
         // TODO - add images logic in future
         images: null,
@@ -138,7 +139,9 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         ticketId: ticketId,
         senderId: senderId,
         senderUsername: senderUsername,
+        senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
+        images: undefined,
       } as TAPIMessages)
       // 3. Send message in telegram
       await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
@@ -149,7 +152,9 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         ticketId: ticketId,
         senderId: senderId,
         senderUsername: senderUsername,
+        senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
+        images: undefined,
       } as TAPIMessages)
       // 2. Scroll to bottom to show last messages
       if (bottomRef.current) {
