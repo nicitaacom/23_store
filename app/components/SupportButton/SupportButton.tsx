@@ -27,10 +27,6 @@ interface SupportButtonProps {
   ticketId: string
 }
 
-interface Formdata {
-  message: string
-}
-
 export function SupportButton({ initialMessages, ticketId }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
