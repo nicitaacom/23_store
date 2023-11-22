@@ -21,13 +21,18 @@ export async function POST(req: Request) {
   const now = new Date()
   const timestampString = now.toISOString().replace("T", " ").replace("Z", "+00")
 
-  const { error } = await supabaseAdmin
-    .from("tickets")
-    .insert({ id: ticketId, owner_id: ownerId, owner_username: ownerUsername })
+  const { error } = await supabaseAdmin.from("tickets").insert({
+    id: ticketId,
+    created_at: timestampString,
+    owner_id: ownerId,
+    owner_username: ownerUsername,
+    owner_avatar_url: ownerAvatarUrl,
+  })
   if (error) return NextResponse.json({ error: `Error in api/tickets/route.ts\n ${error.message}` }, { status: 400 })
   await pusherServer.trigger("tickets", "tickets:open", {
     id: ticketId,
     created_at: timestampString,
+    owner_id: ownerId,
     owner_username: ownerUsername,
     is_open: true,
     last_message_body: messageBody,
