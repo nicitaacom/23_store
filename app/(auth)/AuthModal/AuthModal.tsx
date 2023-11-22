@@ -61,7 +61,7 @@ export function AuthModal({ label }: AdminModalProps) {
     reset,
     trigger,
     getValues,
-  } = useForm<FormData>()
+  } = useForm<FormData>({ mode: "onTouched" })
 
   //when user submit form and got response message from server
   function displayResponseMessage(message: React.ReactNode) {

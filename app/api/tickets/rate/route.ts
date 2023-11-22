@@ -1,0 +1,25 @@
+import { NextResponse } from "next/server"
+
+import supabaseAdmin from "@/libs/supabaseAdmin"
+import { pusherServer } from "@/libs/pusher"
+import { ITicket } from "@/interfaces/ITicket"
+import getTicketId from "@/actions/getTicketId"
+
+export type TAPITicketsRate = {
+  ticketId: string
+  rate: number
+}
+
+export async function POST(req: Request) {
+  const { ticketId, rate } = (await req.json()) as TAPITicketsRate
+  const { error } = await supabaseAdmin.from("tickets").update({ is_open: false, rate: rate }).eq("id", ticketId)
+  if (error) return NextResponse.json({ error: `Error in api/tickets/route.ts\n ${error.message}` }, { status: 400 })
+  await pusherServer.trigger("tickets", "tickets:close", {
+    id: ticketId,
+    is_open: false,
+  } as ITicket)
+  // TODO - after closing ticket don't show messages from currently closed ticket
+  await getTicketId()
+
+  return NextResponse.json({ message: "Ticket marked as completed (ticket closed)" }, { status: 200 })
+}

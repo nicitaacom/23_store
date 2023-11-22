@@ -1,14 +1,10 @@
 "use client"
 
-import { NextResponse } from "next/server"
-
-import { pusherServer } from "@/libs/pusher"
-import supabaseAdmin from "@/libs/supabaseAdmin"
-import { MessageInput } from "../../components"
 import { Input } from "@/components/ui/Inputs"
 import { FormEvent, useState } from "react"
 import axios from "axios"
 import useUserStore from "@/store/user/userStore"
+import { TAPIMessages } from "@/api/messages/route"
 
 export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   // Server component with input and server action doesn't work because I need to set input value to ""
@@ -23,9 +19,10 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
       ticketId: ticket_id,
       senderId: userStore.userId,
       senderUsername: userStore.username,
+      senderAvatarUrl: userStore.avatarUrl,
       // TODO - images logic in the future
-      images: null,
-    })
+      images: undefined,
+    } as TAPIMessages)
   }
 
   return (

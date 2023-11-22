@@ -1,32 +1,26 @@
 "use client"
 
-import { IMessage } from "@/interfaces/IMessage"
-import useDarkMode from "@/store/ui/darkModeStore"
-import useUserStore from "@/store/user/userStore"
-import { formatTime } from "@/utils/formatTime"
-import { getCookie } from "@/utils/helpersCSR"
-import Image from "next/image"
 import { useEffect } from "react"
+import Image from "next/image"
 import { twMerge } from "tailwind-merge"
+
+import { IMessage } from "@/interfaces/IMessage"
+import { formatTime } from "@/utils/formatTime"
+import useSender from "@/hooks/ui/useSender"
 
 interface MessageBoxProps {
   message: IMessage
 }
 
 export function MessageBox({ message }: MessageBoxProps) {
-  const userStore = useUserStore()
-  const { isDarkMode } = useDarkMode()
-
   useEffect(() => {
     //axios.post('/api/messages/seen')
   }, [])
+  const { isOwn, avatar_url } = useSender(message.sender_avatar_url || "", message.sender_id)
 
   if (!message || !message.sender_id) {
     return null
   }
-
-  const userId = userStore.userId === "" ? getCookie("anonymousId") : userStore.userId
-  const isOwn = userId === message.sender_id
 
   // TODO - show gray-bg for !isOwn messages
   const messageIsOwn = twMerge(
@@ -43,15 +37,7 @@ export function MessageBox({ message }: MessageBoxProps) {
         className={`w-[42px] h-[42px] mt-1 rounded-full select-none pointer-events-none ${
           isOwn ? "order-last" : "order-first"
         }`}
-        src={
-          userStore.isAuthenticated
-            ? userStore.avatarUrl
-              ? userStore.avatarUrl
-              : "/placeholder.jpg"
-            : isDarkMode
-              ? "/BiUserCircle-dark.svg"
-              : "/BiUserCircle-light.svg"
-        }
+        src={avatar_url}
         alt="user-image"
         width={46}
         height={46}

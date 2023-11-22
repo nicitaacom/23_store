@@ -15,29 +15,23 @@ import useUserStore from "@/store/user/userStore"
 import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
 import { telegramMessage } from "@/constant/telegram"
 
-import { Input } from "../ui/Inputs"
 import { MessageBox } from "./components/MessageBox"
-import supabaseClient from "@/libs/supabaseClient"
 import { Button, DropdownContainer } from "../ui"
 import { MessageInput } from "../ui/Inputs/MessageInput"
-import { FieldValues, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { IFormDataMessage } from "@/interfaces/IFormDataMessage"
-import { TAPITickets } from "@/api/tickets/route"
+import { TAPITicketsOpen } from "@/api/tickets/open/route"
+import { MarkTicketAsCompletedUser } from "./components/MarkTicketAsCompletedUser"
 
 interface SupportButtonProps {
   initialMessages: IMessage[]
   ticketId: string
 }
 
-interface Formdata {
-  message: string
-}
-
 export function SupportButton({ initialMessages, ticketId }: SupportButtonProps) {
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
   const router = useRouter()
-  const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLUListElement>(null)
   const [messages, setMessages] = useState(initialMessages)
   const userStore = useUserStore()
@@ -45,12 +39,12 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
   const senderId = userStore.userId || getCookie("anonymousId")
   const senderUsername = userStore.username || getCookie("anonymousId")
 
-  const { handleSubmit, register, reset } = useForm<IFormDataMessage>()
+  const { handleSubmit, register, reset, setFocus } = useForm<IFormDataMessage>()
 
   useEffect(() => {
     //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
     setTimeout(() => {
-      inputRef.current?.focus()
+      setFocus("message")
       if (bottomRef.current) {
         bottomRef.current.scrollTop = bottomRef.current.scrollHeight
       }
@@ -115,6 +109,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         ticket_id: ticketId,
         sender_id: senderId!,
         sender_username: senderUsername!,
+        senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
         // TODO - add images logic in future
         images: null,
@@ -133,19 +128,22 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       messagehandler(newMessage)
 
       // 1. Insert row in table 'tickets'
-      await axios.post("/api/tickets", {
+      await axios.post("/api/tickets/open", {
         ticketId: ticketId,
         ownerId: senderId!,
         ownerUsername: senderUsername!,
         messageBody: data.message,
-      } as TAPITickets)
+        ownerAvatarUrl: userStore.avatarUrl,
+      } as TAPITicketsOpen)
       // 2. Insert message in table 'messages'
       await axios.post("/api/messages", {
         id: firstMessageId,
         ticketId: ticketId,
         senderId: senderId,
         senderUsername: senderUsername,
+        senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
+        images: undefined,
       } as TAPIMessages)
       // 3. Send message in telegram
       await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
@@ -156,7 +154,9 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         ticketId: ticketId,
         senderId: senderId,
         senderUsername: senderUsername,
+        senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
+        images: undefined,
       } as TAPIMessages)
       // 2. Scroll to bottom to show last messages
       if (bottomRef.current) {
@@ -186,8 +186,15 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         </Button>
       }>
       <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col justify-between">
-        <h1 className="text-center text-[1.4rem] font-semibold shadow-md py-1">Response ~15s</h1>
-        <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit(sendMessage)}>
+        <div className="w-full shadow-md py-1 flex justify-end items-center px-2">
+          <h1 className="absolute left-[50%] translate-x-[-50%] text-[1.1rem] mobile:text-[1.4rem] font-semibold">
+            Response ~15s
+          </h1>
+          <MarkTicketAsCompletedUser messagesLength={messages.length} ticketId={ticketId} />
+        </div>
+        <form
+          className="flex flex-col justify-between h-[calc(400px-56px)] mobile:h-[calc(490px-56px)]"
+          onSubmit={handleSubmit(sendMessage)}>
           <ul className="h-[280px] mobile:h-[370px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
             {messages.map(message => (
               <MessageBox key={message.id} message={message} />

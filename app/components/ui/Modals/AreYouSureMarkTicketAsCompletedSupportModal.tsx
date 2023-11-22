@@ -1,27 +1,29 @@
 import supabaseClient from "@/libs/supabaseClient"
 import { FaCheck } from "react-icons/fa"
 
-import { useAreYouSureMarkTicketAsCompletedModal } from "@/store/ui/areYouSureMarkTicketAsCompletedModal"
+import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
 import useTicket from "@/hooks/support/useTicket"
 import { AreYouSureModalContainer } from "./ModalContainers"
 import { useRouter } from "next/navigation"
+import axios from "axios"
+import { TAPITicketsClose } from "@/api/tickets/close/route"
 
-export function AreYouSureMarkTicketAsCompletedModal() {
+export function AreYouSureMarkTicketAsCompletedSupportModal() {
   const router = useRouter()
-  const areYouSureMarkTicketAsCompletedModal = useAreYouSureMarkTicketAsCompletedModal()
+  const areYouSureMarkTicketAsCompletedSupportModal = useAreYouSureMarkTicketAsCompletedSupportModal()
 
   const { ticketId } = useTicket()
 
   async function markTickedAsCompleted() {
-    await supabaseClient.from("tickets").update({ is_open: false }).eq("id", ticketId)
-    areYouSureMarkTicketAsCompletedModal.closeModal()
+    await axios.post("/api/tickets/close", { ticketId: ticketId } as TAPITicketsClose)
+    areYouSureMarkTicketAsCompletedSupportModal.closeModal()
     router.push("/support/tickets")
   }
 
   return (
     <AreYouSureModalContainer
       className="pb-0"
-      isOpen={areYouSureMarkTicketAsCompletedModal.isOpen}
+      isOpen={areYouSureMarkTicketAsCompletedSupportModal.isOpen}
       isLoading={false}
       label={<h2 className="mb-2">Are you sure you want mark this ticket as completed?</h2>}
       subTitle={
@@ -34,7 +36,7 @@ export function AreYouSureMarkTicketAsCompletedModal() {
       primaryButtonVariant="success"
       primaryButtonAction={markTickedAsCompleted}
       primaryButtonLabel="Yes"
-      secondaryButtonAction={areYouSureMarkTicketAsCompletedModal.closeModal}
+      secondaryButtonAction={areYouSureMarkTicketAsCompletedSupportModal.closeModal}
       secondaryButtonVariant="danger-outline"
       secondaryButtonLabel="No"
     />

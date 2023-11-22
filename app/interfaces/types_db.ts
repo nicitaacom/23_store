@@ -16,6 +16,7 @@ export interface Database {
           id: string
           images: string[] | null
           seen: boolean
+          sender_avatar_url: string | null
           sender_id: string
           sender_username: string
           ticket_id: string
@@ -26,6 +27,7 @@ export interface Database {
           id?: string
           images?: string[] | null
           seen?: boolean
+          sender_avatar_url?: string | null
           sender_id: string
           sender_username: string
           ticket_id: string
@@ -36,6 +38,7 @@ export interface Database {
           id?: string
           images?: string[] | null
           seen?: boolean
+          sender_avatar_url?: string | null
           sender_id?: string
           sender_username?: string
           ticket_id?: string
@@ -97,24 +100,30 @@ export interface Database {
           id: string
           is_open: boolean
           last_message_body: string
+          owner_avatar_url: string | null
           owner_id: string
           owner_username: string
+          rate: number | null
         }
         Insert: {
           created_at?: string
           id: string
           is_open?: boolean
           last_message_body?: string
+          owner_avatar_url?: string | null
           owner_id: string
           owner_username: string
+          rate?: number | null
         }
         Update: {
           created_at?: string
           id?: string
           is_open?: boolean
           last_message_body?: string
+          owner_avatar_url?: string | null
           owner_id?: string
           owner_username?: string
+          rate?: number | null
         }
         Relationships: []
       }
