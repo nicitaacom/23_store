@@ -18,8 +18,8 @@ export function NoTicketFound({ ticketId }: { ticketId: string }) {
         width={480}
         height={240}
       />
-      <div className="flex flex-col gap-y-2">
-        <h1 className="text-lg laptop:text-2xl">No ticket found with id {ticketId}</h1>
+      <div className="flex flex-col gap-y-2 px-8">
+        <h1 className="text-lg laptop:text-2xl text-center ">No ticket found with id {ticketId}</h1>
         <BackToTickets />
       </div>
     </main>
