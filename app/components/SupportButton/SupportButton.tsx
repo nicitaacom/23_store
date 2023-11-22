@@ -31,7 +31,6 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
   const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
   const router = useRouter()
-  const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLUListElement>(null)
   const [messages, setMessages] = useState(initialMessages)
   const userStore = useUserStore()
@@ -39,12 +38,12 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
   const senderId = userStore.userId || getCookie("anonymousId")
   const senderUsername = userStore.username || getCookie("anonymousId")
 
-  const { handleSubmit, register, reset } = useForm<IFormDataMessage>()
+  const { handleSubmit, register, reset, setFocus } = useForm<IFormDataMessage>()
 
   useEffect(() => {
     //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
     setTimeout(() => {
-      inputRef.current?.focus()
+      setFocus("message")
       if (bottomRef.current) {
         bottomRef.current.scrollTop = bottomRef.current.scrollHeight
       }
