@@ -1,3 +1,18 @@
+# Important
+
+To avoid errors use types defined in API routes like this (`as TAPIMessages`)
+
+```ts
+await axios.post("/api/messages", {
+  body: message,
+  ticketId: ticket_id,
+  senderId: userStore.userId,
+  senderUsername: userStore.username,
+  senderAvatarUrl: userStore.avatarUrl,
+  images: undefined,
+} as TAPIMessages)
+```
+
 ## Usage for coinmarketcap route
 
 I use this route to convert USD to ETH to show this price in metamask
