@@ -100,6 +100,7 @@ export interface Database {
           id: string
           is_open: boolean
           last_message_body: string
+          owner_avatar_url: string | null
           owner_id: string
           owner_username: string
         }
@@ -108,6 +109,7 @@ export interface Database {
           id: string
           is_open?: boolean
           last_message_body?: string
+          owner_avatar_url?: string | null
           owner_id: string
           owner_username: string
         }
@@ -116,6 +118,7 @@ export interface Database {
           id?: string
           is_open?: boolean
           last_message_body?: string
+          owner_avatar_url?: string | null
           owner_id?: string
           owner_username?: string
         }
