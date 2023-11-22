@@ -21,7 +21,6 @@ const useSender = (sender_avatar_url: string, sender_id: string) => {
     if (isDarkMode) avatar_url = BiUserCircleDark
     else avatar_url = BiUserCircleLight
   } else if (isOwn) {
-    console.log(25, "SUPPORT avatar_url- ")
     if (avatarUrl) avatar_url = avatarUrl
     else avatar_url = placeholder
   } else {
