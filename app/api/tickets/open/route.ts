@@ -4,7 +4,7 @@ import supabaseAdmin from "@/libs/supabaseAdmin"
 import { pusherServer } from "@/libs/pusher"
 import { ITicket } from "@/interfaces/ITicket"
 
-export type TAPITickets = {
+export type TAPITicketsOpen = {
   ticketId: string
   ownerId: string
   ownerUsername: string
@@ -14,7 +14,7 @@ export type TAPITickets = {
 export async function POST(req: Request) {
   // just messageBody instead of lastMessageBody because only user message support (not support message user)
   // also because I insert row in 'tickets' table only once on first message - so I have only 1 message in this ticket
-  const { ticketId, ownerId, ownerUsername, messageBody } = (await req.json()) as TAPITickets
+  const { ticketId, ownerId, ownerUsername, messageBody } = (await req.json()) as TAPITicketsOpen
 
   // dance arounding to insert current date-time
   const now = new Date()
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     .from("tickets")
     .insert({ id: ticketId, owner_id: ownerId, owner_username: ownerUsername })
   if (error) return NextResponse.json({ error: `Error in api/tickets/route.ts\n ${error.message}` }, { status: 400 })
-  await pusherServer.trigger("tickets", "tickets:new", {
+  await pusherServer.trigger("tickets", "tickets:open", {
     id: ticketId,
     created_at: timestampString,
     owner_username: ownerUsername,

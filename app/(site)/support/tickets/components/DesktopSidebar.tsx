@@ -23,7 +23,7 @@ export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
   useEffect(() => {
     pusherClient.subscribe("tickets")
 
-    const newHandler = (ticket: ITicket) => {
+    const openHandler = (ticket: ITicket) => {
       setTickets(current => {
         if (find(current, { id: ticket.id })) {
           return current
@@ -47,14 +47,24 @@ export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
       )
     }
 
-    pusherClient.bind("tickets:new", newHandler)
-    pusherClient.bind("tickets:update", updateHandler)
-    // TODO - delete ticket and update it in sidebar
+    const closeHandler = (ticket: ITicket) => {
+      setTickets(current => {
+        return [...current.filter(tckt => tckt.id !== ticket.id)]
+      })
 
+      // if (ticketId === ticket.id) {
+      //   router.push("/support/tickets")
+      // }
+    }
+
+    pusherClient.bind("tickets:open", openHandler)
+    pusherClient.bind("tickets:update", updateHandler)
+    pusherClient.bind("tickets:close", closeHandler)
     return () => {
       pusherClient.unsubscribe("tickets")
-      pusherClient.unbind("tickets:new", newHandler)
-      pusherClient.unbind("tickets:new", updateHandler)
+      pusherClient.unbind("tickets:open", openHandler)
+      pusherClient.unbind("tickets:update", updateHandler)
+      pusherClient.unbind("tickets:close", closeHandler)
     }
   }, [tickets])
 

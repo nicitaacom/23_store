@@ -47,13 +47,25 @@ export function MobileSidebar({ initialTickets }: MobileSidebarProps) {
       )
     }
 
-    pusherClient.bind("tickets:new", newHandler)
+    const closeHandler = (ticket: ITicket) => {
+      setTickets(current => {
+        return [...current.filter(tckt => tckt.id !== ticket.id)]
+      })
+
+      // if (ticketId === ticket.id) {
+      //   router.push("/support/tickets")
+      // }
+    }
+
+    pusherClient.bind("tickets:open", newHandler)
     pusherClient.bind("tickets:update", updateHandler)
+    pusherClient.bind("tickets:close", closeHandler)
 
     return () => {
       pusherClient.unsubscribe("tickets")
-      pusherClient.unbind("tickets:new", newHandler)
-      pusherClient.unbind("tickets:new", updateHandler)
+      pusherClient.unbind("tickets:open", newHandler)
+      pusherClient.unbind("tickets:update", updateHandler)
+      pusherClient.unbind("tickets:close", closeHandler)
     }
   }, [tickets])
 

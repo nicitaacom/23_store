@@ -15,14 +15,12 @@ import useUserStore from "@/store/user/userStore"
 import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
 import { telegramMessage } from "@/constant/telegram"
 
-import { Input } from "../ui/Inputs"
 import { MessageBox } from "./components/MessageBox"
-import supabaseClient from "@/libs/supabaseClient"
 import { Button, DropdownContainer } from "../ui"
 import { MessageInput } from "../ui/Inputs/MessageInput"
-import { FieldValues, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { IFormDataMessage } from "@/interfaces/IFormDataMessage"
-import { TAPITickets } from "@/api/tickets/route"
+import { TAPITicketsOpen } from "@/api/tickets/open/route"
 
 interface SupportButtonProps {
   initialMessages: IMessage[]
@@ -133,12 +131,12 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       messagehandler(newMessage)
 
       // 1. Insert row in table 'tickets'
-      await axios.post("/api/tickets", {
+      await axios.post("/api/tickets/open", {
         ticketId: ticketId,
         ownerId: senderId!,
         ownerUsername: senderUsername!,
         messageBody: data.message,
-      } as TAPITickets)
+      } as TAPITicketsOpen)
       // 2. Insert message in table 'messages'
       await axios.post("/api/messages", {
         id: firstMessageId,

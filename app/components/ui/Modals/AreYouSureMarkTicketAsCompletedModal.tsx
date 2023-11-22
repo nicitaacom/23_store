@@ -5,6 +5,8 @@ import { useAreYouSureMarkTicketAsCompletedModal } from "@/store/ui/areYouSureMa
 import useTicket from "@/hooks/support/useTicket"
 import { AreYouSureModalContainer } from "./ModalContainers"
 import { useRouter } from "next/navigation"
+import axios from "axios"
+import { TAPITicketsClose } from "@/api/tickets/close/route"
 
 export function AreYouSureMarkTicketAsCompletedModal() {
   const router = useRouter()
@@ -13,7 +15,7 @@ export function AreYouSureMarkTicketAsCompletedModal() {
   const { ticketId } = useTicket()
 
   async function markTickedAsCompleted() {
-    await supabaseClient.from("tickets").update({ is_open: false }).eq("id", ticketId)
+    await axios.post("/api/tickets/close", { ticketId: ticketId } as TAPITicketsClose)
     areYouSureMarkTicketAsCompletedModal.closeModal()
     router.push("/support/tickets")
   }
