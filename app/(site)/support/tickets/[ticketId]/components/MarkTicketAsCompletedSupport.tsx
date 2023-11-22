@@ -3,11 +3,11 @@
 import Image from "next/image"
 
 import useDarkMode from "@/store/ui/darkModeStore"
-import { useAreYouSureMarkTicketAsCompletedModal } from "@/store/ui/areYouSureMarkTicketAsCompletedModal"
+import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
 
-export function MarkTicketAsCompleted() {
+export function MarkTicketAsCompletedSupport() {
   const { isDarkMode } = useDarkMode()
-  const areYouSureMarkTicketAsCompleteModal = useAreYouSureMarkTicketAsCompletedModal()
+  const areYouSureMarkTicketAsCompletedSupportModal = useAreYouSureMarkTicketAsCompletedSupportModal()
 
   return (
     <div className="p-2 hover:bg-success/10 duration-150 rounded-md w-fit cursor-pointer" role="button">
@@ -16,7 +16,7 @@ export function MarkTicketAsCompleted() {
         alt="close ticket"
         width={32}
         height={32}
-        onClick={areYouSureMarkTicketAsCompleteModal.openModal}
+        onClick={areYouSureMarkTicketAsCompletedSupportModal.openModal}
       />
     </div>
   )

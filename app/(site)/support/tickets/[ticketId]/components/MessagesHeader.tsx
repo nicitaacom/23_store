@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 
-import { MarkTicketAsCompleted } from "./MarkTicketAsCompleted"
+import { MarkTicketAsCompletedSupport } from "./MarkTicketAsCompletedSupport"
 import useSender from "@/hooks/ui/useSender"
 
 interface MobileSidebarProps {
@@ -26,7 +26,7 @@ export function MessagesHeader({ owner_username, owner_avatar_url, owner_id }: M
             {/* <p className="text-xs">Inactive</p> */}
           </div>
         </div>
-        <MarkTicketAsCompleted />
+        <MarkTicketAsCompletedSupport />
       </div>
     </div>
   )

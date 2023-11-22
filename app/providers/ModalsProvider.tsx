@@ -6,7 +6,7 @@ import { CtrlKModal } from "@/components/ui/Modals/CtrlKModal"
 import {
   AreYouSureClearCartModal,
   AreYouSureDeleteProductModal,
-  AreYouSureMarkTicketAsCompletedModal,
+  AreYouSureMarkTicketAsCompletedSupportModal,
 } from "@/components/ui/Modals"
 
 //This provider uses only for modals based on useState
@@ -25,7 +25,7 @@ export function ModalsProvider() {
     <>
       <AreYouSureClearCartModal />
       <AreYouSureDeleteProductModal />
-      <AreYouSureMarkTicketAsCompletedModal />
+      <AreYouSureMarkTicketAsCompletedSupportModal />
       <CtrlKModal />
     </>
   )
