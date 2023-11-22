@@ -29,9 +29,9 @@ export function DesktopSidebarTicket({ ticket }: DesktopSidebarTicketProps) {
         <p className="text-sm truncate">{ticket.last_message_body}</p>
         <div
           className="before:absolute before:w-[25px] before:h-[25px] before:bg-info before:rounded-full
-              before:right-2 before:translate-y-[-150%] before:z-[9]
+              before:right-2 before:translate-y-[-140%] before:z-[9]
               after:absolute after:w-[20px] after:h-[20px] after:text-title-foreground
-              after:right-2.5 after:translate-y-[-185%] after:z-[9] after:content-['99']"
+              after:right-2.5 after:translate-y-[-175%] after:z-[9] after:content-['99']"
         />
       </div>
     </Link>
