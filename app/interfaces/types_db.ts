@@ -103,6 +103,7 @@ export interface Database {
           owner_avatar_url: string | null
           owner_id: string
           owner_username: string
+          rate: number | null
         }
         Insert: {
           created_at?: string
@@ -112,6 +113,7 @@ export interface Database {
           owner_avatar_url?: string | null
           owner_id: string
           owner_username: string
+          rate?: number | null
         }
         Update: {
           created_at?: string
@@ -121,6 +123,7 @@ export interface Database {
           owner_avatar_url?: string | null
           owner_id?: string
           owner_username?: string
+          rate?: number | null
         }
         Relationships: []
       }
