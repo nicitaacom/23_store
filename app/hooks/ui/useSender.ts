@@ -2,7 +2,7 @@ import useDarkMode from "@/store/ui/darkModeStore"
 import useUserStore from "@/store/user/userStore"
 import { getCookie } from "@/utils/helpersCSR"
 
-const useSender = (sender_avatar_url: string, sender_id: string) => {
+const useSender = (sender_avatar_url: string | undefined, sender_id: string) => {
   const { userId, isAuthenticated, avatarUrl } = useUserStore()
   const { isDarkMode } = useDarkMode()
 
