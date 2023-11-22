@@ -35,7 +35,13 @@ export async function POST(req: Request) {
 
   //supabaseAdmin because I don't want any user with ANON_KEY abuse way to send messages (smsBomber protecting)
   //see more (use subtitles if needed) - https://www.youtube.com/watch?v=voy5_XGETMc&ab_channel=overbafer1
-  const { error } = await supabaseAdmin.from("messages").insert(newMessage)
+  const { error: messages_error } = await supabaseAdmin.from("messages").insert(newMessage)
+  const { error: tickets_error } = await supabaseAdmin
+    .from("tickets")
+    .update({ last_message_body: body })
+    .eq("id", ticketId)
+  if (messages_error) console.log(29, "error inserting newMessage - ", messages_error)
+  if (tickets_error) console.log(29, "error updating last_message_body - ", tickets_error)
   await pusherServer.trigger(ticketId, "messages:new", newMessage)
   await pusherServer.trigger("tickets", "tickets:update", {
     id: ticketId,
@@ -43,7 +49,6 @@ export async function POST(req: Request) {
     images: images,
     sender_avatar_url: senderAvatarUrl,
   })
-  if (error) console.log(29, "error insert newMessage - ", error)
 
   return NextResponse.json({ status: 200 })
 }
