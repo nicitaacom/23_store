@@ -21,6 +21,7 @@ import { MessageInput } from "../ui/Inputs/MessageInput"
 import { useForm } from "react-hook-form"
 import { IFormDataMessage } from "@/interfaces/IFormDataMessage"
 import { TAPITicketsOpen } from "@/api/tickets/open/route"
+import { MarkTicketAsCompletedUser } from "./components/MarkTicketAsCompletedUser"
 
 interface SupportButtonProps {
   initialMessages: IMessage[]
@@ -185,8 +186,15 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         </Button>
       }>
       <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col justify-between">
-        <h1 className="text-center text-[1.4rem] font-semibold shadow-md py-1">Response ~15s</h1>
-        <form className="flex flex-col justify-between h-full" onSubmit={handleSubmit(sendMessage)}>
+        <div className="w-full shadow-md py-1 flex justify-end items-center px-2">
+          <h1 className="absolute left-[50%] translate-x-[-50%] text-[1.1rem] mobile:text-[1.4rem] font-semibold">
+            Response ~15s
+          </h1>
+          <MarkTicketAsCompletedUser ticketId={ticketId} />
+        </div>
+        <form
+          className="flex flex-col justify-between h-[calc(400px-56px)] mobile:h-[calc(490px-56px)]"
+          onSubmit={handleSubmit(sendMessage)}>
           <ul className="h-[280px] mobile:h-[370px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
             {messages.map(message => (
               <MessageBox key={message.id} message={message} />
