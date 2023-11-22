@@ -8,4 +8,3 @@ const supabaseServer = () => {
 }
 
 export default supabaseServer
-export const dynamic = "force-dynamic"
