@@ -190,7 +190,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
           <h1 className="absolute left-[50%] translate-x-[-50%] text-[1.1rem] mobile:text-[1.4rem] font-semibold">
             Response ~15s
           </h1>
-          <MarkTicketAsCompletedUser ticketId={ticketId} />
+          <MarkTicketAsCompletedUser messagesLength={messages.length} ticketId={ticketId} />
         </div>
         <form
           className="flex flex-col justify-between h-[calc(400px-56px)] mobile:h-[calc(490px-56px)]"
