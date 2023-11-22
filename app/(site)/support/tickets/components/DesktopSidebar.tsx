@@ -1,15 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
 import { find } from "lodash"
-import { twMerge } from "tailwind-merge"
 
 import { ITicket } from "@/interfaces/ITicket"
 import { pusherClient } from "@/libs/pusher"
-import useTicket from "@/hooks/support/useTicket"
-import useSender from "@/hooks/ui/useSender"
 import { DesktopSidebarTicket } from "./DesktopSidebarTicket"
 
 interface DesktopSidebarProps {
@@ -70,8 +65,6 @@ export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
   }, [tickets])
 
   // TODO - return no open tickes found TSX
-
-  console.log(75, "tickets[0].owner_avatar_url - ", tickets[0].owner_avatar_url ?? "")
 
   return (
     <aside className="hidden laptop:block h-full shadow-[1px_3px_5px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[99]">
