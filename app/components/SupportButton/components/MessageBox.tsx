@@ -16,7 +16,6 @@ export function MessageBox({ message }: MessageBoxProps) {
   useEffect(() => {
     //axios.post('/api/messages/seen')
   }, [])
-  console.log(19, message)
   const { isOwn, avatar_url } = useSender(message.sender_avatar_url || "", message.sender_id)
 
   if (!message || !message.sender_id) {
