@@ -5,6 +5,7 @@ const getInitialMessagesByTicketId = async (ticketId: string) => {
     .from("messages")
     .select("*")
     .eq("ticket_id", ticketId)
+    .order("created_at", { ascending: true })
   if (messages_by_id_error) console.log(8, "messages_by_id_error - ", messages_by_id_error)
   if (messages_by_id_response?.length === 0 || messages_by_id_response === null) return []
   return messages_by_id_response
