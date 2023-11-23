@@ -23,7 +23,13 @@ export function DesktopSidebarTicket({ ticket }: DesktopSidebarTicketProps) {
       )}
       href={`/support/tickets/${ticket.id}`}
       key={ticket.id}>
-      <Image src={avatar_url} alt="owner_avatar_url" width={32} height={32} />
+      <Image
+        className="w-[32px] h-[32px] rounded-full"
+        src={avatar_url}
+        alt="owner_avatar_url"
+        width={32}
+        height={32}
+      />
       <div className="flex flex-col max-w-full pr-8">
         <h3 className="font-semibold truncate">{ticket.owner_username}</h3>
         <p className="text-sm truncate">{ticket.last_message_body}</p>
