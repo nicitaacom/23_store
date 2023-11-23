@@ -77,11 +77,17 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       }, 10)
     }
 
+    const closeHandler = () => {
+      setMessages([])
+    }
+
     pusherClient.bind("messages:new", messagehandler)
+    pusherClient.bind("tickets:close", closeHandler)
 
     return () => {
       pusherClient.unsubscribe(ticketId)
       pusherClient.unbind("messages:new", messagehandler)
+      pusherClient.unbind("tickets:close", closeHandler)
     }
   }, [messages, ticketId, router])
 
