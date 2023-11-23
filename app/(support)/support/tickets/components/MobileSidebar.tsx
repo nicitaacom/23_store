@@ -1,7 +1,5 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-
 import { ITicket } from "@/interfaces/ITicket"
 import useTicket from "@/hooks/support/useTicket"
 import { twMerge } from "tailwind-merge"
@@ -9,15 +7,22 @@ import { useEffect, useState } from "react"
 import { find } from "lodash"
 import { pusherClient } from "@/libs/pusher"
 import { MobileSidebarTicket } from "./MobileSidebarTicket"
+import { useUnseenMessages } from "@/store/ui/unseenMessages"
+import { UnseenMessages } from "@/actions/getUnreadMessages"
 
 interface MobileSidebarProps {
   initialTickets: ITicket[]
+  unseenMessages: UnseenMessages[]
 }
 
-export function MobileSidebar({ initialTickets }: MobileSidebarProps) {
-  const router = useRouter()
-
+export function MobileSidebar({ initialTickets, unseenMessages }: MobileSidebarProps) {
   const [tickets, setTickets] = useState(initialTickets)
+
+  const { unreadMessages, setUnreadMessages, resetUnreadMessages } = useUnseenMessages()
+  useEffect(() => {
+    // Call the setUnreadMessages function when needed
+    setUnreadMessages(unseenMessages)
+  }, [unseenMessages, setUnreadMessages])
 
   // TODO - go to /support/tickets on esc
 
@@ -52,10 +57,6 @@ export function MobileSidebar({ initialTickets }: MobileSidebarProps) {
       setTickets(current => {
         return [...current.filter(tckt => tckt.id !== ticket.id)]
       })
-
-      // if (ticketId === ticket.id) {
-      //   router.push("/support/tickets")
-      // }
     }
 
     pusherClient.bind("tickets:open", newHandler)
@@ -75,7 +76,14 @@ export function MobileSidebar({ initialTickets }: MobileSidebarProps) {
   return (
     <aside className={twMerge(`block laptop:hidden w-full h-full`, isOpen && "hidden")}>
       <nav className="flex flex-col gap-y-4 justify-center items-center px-16">
-        {tickets?.map(ticket => <MobileSidebarTicket ticket={ticket} key={ticket.id} />)}
+        {tickets?.map(ticket => (
+          <MobileSidebarTicket
+            onClick={() => resetUnreadMessages(ticket.id)}
+            unseenMessagesAmount={unreadMessages[ticket.id] || 0}
+            ticket={ticket}
+            key={ticket.id}
+          />
+        ))}
 
         {/* TODO - create case if messages more then 99 - show 99 */}
 

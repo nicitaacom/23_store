@@ -9,6 +9,7 @@ import { IMessage } from "@/interfaces/IMessage"
 import { pusherClient } from "@/libs/pusher"
 import { MessageBox } from "@/components/SupportButton/components/MessageBox"
 import useUserStore from "@/store/user/userStore"
+import { useUnseenMessages } from "@/store/ui/unseenMessages"
 
 interface MessagesBodyProps {
   initialMessages: IMessage[]
@@ -18,9 +19,9 @@ interface MessagesBodyProps {
 export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) {
   const bottomRef = useRef<HTMLUListElement>(null)
   const { userId } = useUserStore()
+  const { resetUnreadMessages } = useUnseenMessages()
 
   const [messages, setMessages] = useState(initialMessages)
-  console.log(23, "messages - ", messages)
 
   useEffect(() => {
     axios.post("/api/messages/seen", { ticketId: ticket_id, messages: messages, userId: userId } as TAPIMessagesSeen)
@@ -33,7 +34,6 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
     }
 
     const newHandler = (message: IMessage) => {
-      //TODO - axios.post('api/messages/{ticketId}/seen')
       setMessages(current => {
         if (find(current, { id: message.id })) {
           return current
@@ -49,6 +49,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
         }
       }, 10)
     }
+
     const seenHandler = (updatedMessages: IMessage[]) => {
       setMessages(current => {
         return current.map(existingMessage => {
@@ -56,6 +57,8 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
           return updatedMessage ? updatedMessage : existingMessage
         })
       })
+
+      resetUnreadMessages(ticket_id)
     }
     pusherClient.bind("messages:new", newHandler)
     pusherClient.bind("messages:seen", seenHandler)
@@ -65,7 +68,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
       pusherClient.unbind("messages:new", newHandler)
       pusherClient.unbind("messages:seen", seenHandler)
     }
-  }, [messages, ticket_id])
+  }, [messages, resetUnreadMessages, ticket_id])
 
   if (messages.length === 0) {
     return (
