@@ -6,6 +6,7 @@ import { find } from "lodash"
 import { ITicket } from "@/interfaces/ITicket"
 import { pusherClient } from "@/libs/pusher"
 import { DesktopSidebarTicket } from "./DesktopSidebarTicket"
+import { NoTicketsFound } from "./NoTicketsFound"
 
 interface DesktopSidebarProps {
   initialTickets: ITicket[]
@@ -65,6 +66,10 @@ export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
   }, [tickets])
 
   // TODO - return no open tickes found TSX
+
+  if (tickets.length === 0) {
+    return <NoTicketsFound />
+  }
 
   return (
     <aside className="hidden laptop:block h-full shadow-[1px_3px_5px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[99]">
