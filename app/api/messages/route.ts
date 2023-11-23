@@ -14,7 +14,6 @@ export type TAPIMessages = {
 
 export async function POST(req: Request) {
   const { id, ticketId, body, images, senderId, senderUsername, senderAvatarUrl } = (await req.json()) as TAPIMessages
-
   // dance arounding to insert current date-time
   const now = new Date()
   const timestampString = now.toISOString().replace("T", " ").replace("Z", "+00")
@@ -27,6 +26,7 @@ export async function POST(req: Request) {
     sender_id: senderId,
     sender_username: senderUsername,
     sender_avatar_url: senderAvatarUrl,
+    seen: false,
     body: body,
     images: images,
   }

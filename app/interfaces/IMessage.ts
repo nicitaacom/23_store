@@ -6,5 +6,6 @@ export interface IMessage {
   sender_avatar_url?: string | null | undefined
   sender_username: string
   body: string
+  seen?: boolean
   images?: string[] | null
 }

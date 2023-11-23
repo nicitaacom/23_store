@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import Image from "next/image"
 import { twMerge } from "tailwind-merge"
+import { BsCheck2 } from "react-icons/bs"
 
 import { IMessage } from "@/interfaces/IMessage"
 import { formatTime } from "@/utils/formatTime"
@@ -13,9 +14,6 @@ interface MessageBoxProps {
 }
 
 export function MessageBox({ message }: MessageBoxProps) {
-  useEffect(() => {
-    //axios.post('/api/messages/seen')
-  }, [])
   const { isOwn, avatar_url } = useSender(message.sender_avatar_url || "", message.sender_id)
 
   if (!message || !message.sender_id) {
@@ -54,8 +52,12 @@ export function MessageBox({ message }: MessageBoxProps) {
           )}>
           {message.body}
         </p>
-        {/* TODO - seen in the future */}
-        {/* <BsCheck2 className="absolute bottom-[2px] right-2 " /> */}
+        {isOwn && (
+          <>
+            <BsCheck2 className="absolute bottom-[2px] right-2.5 text-success-accent" />
+            {message.seen && <BsCheck2 className="absolute bottom-[2px] right-1.5 text-success-accent" />}
+          </>
+        )}
       </article>
     </div>
   )

@@ -6,7 +6,6 @@ import { getCookie } from "@/utils/helpersSSR"
 const getTicketId = async () => {
   const {
     data: { user },
-    error: user_user_error,
   } = await supabaseServer().auth.getUser()
 
   const userId = user?.id === undefined ? getCookie("anonymousId")?.value : user.id

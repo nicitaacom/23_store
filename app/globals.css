@@ -25,6 +25,7 @@
     --warning: 22deg 84% 27%;
     --danger: 0deg 82% 34%;
     --success: 118deg 78% 20% /* 0e5b0b */;
+    --success-accent: 109deg 83% 42% /* 18bf12 */;
   }
   /* I did it using rgb color picker and contrast checker */
   .dark {
@@ -42,10 +43,11 @@
     --icon-color: 0deg 0% 88%; /* title e0e0e0 */
 
     /* Support colors */
-    --info: 219deg 83% 72%;
+    --info: 219deg 83% 65%;
     --warning: 22deg 84% 73%;
     --danger: 0deg 80% 72%;
     --success: 118deg 80% 78% /* 9df49a */;
+    --success-accent: 120deg 83% 72% /* 499546 */;
   }
 }
 

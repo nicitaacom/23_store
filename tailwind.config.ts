@@ -36,6 +36,7 @@ const config: Config = {
         danger: "hsl(var(--danger) / 1)",
         warning: "hsl(var(--warning) / 1)",
         success: "hsl(var(--success) / 1)",
+        "success-accent": "hsl(var(--success-accent) / 1)",
       },
     },
   },

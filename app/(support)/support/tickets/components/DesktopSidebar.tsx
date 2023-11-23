@@ -6,13 +6,22 @@ import { find } from "lodash"
 import { ITicket } from "@/interfaces/ITicket"
 import { pusherClient } from "@/libs/pusher"
 import { DesktopSidebarTicket } from "./DesktopSidebarTicket"
+import { NoTicketsFound } from "./NoTicketsFound"
+import { UnseenMessages } from "@/actions/getUnreadMessages"
+import { useUnseenMessages } from "@/store/ui/unseenMessages"
 
 interface DesktopSidebarProps {
   initialTickets: ITicket[]
+  unseenMessages: UnseenMessages[]
 }
 
-export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
+export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSidebarProps) {
   const [tickets, setTickets] = useState(initialTickets)
+  const { unreadMessages, setUnreadMessages, resetUnreadMessages, increaseUnreadMessages } = useUnseenMessages()
+  useEffect(() => {
+    // Call the setUnreadMessages function when needed
+    setUnreadMessages(unseenMessages)
+  }, [unseenMessages, setUnreadMessages])
 
   // TODO - go to /support/tickets on esc
 
@@ -41,16 +50,14 @@ export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
           return currentTicket
         }),
       )
+
+      increaseUnreadMessages(ticket.id)
     }
 
     const closeHandler = (ticket: ITicket) => {
       setTickets(current => {
         return [...current.filter(tckt => tckt.id !== ticket.id)]
       })
-
-      // if (ticketId === ticket.id) {
-      //   router.push("/support/tickets")
-      // }
     }
 
     pusherClient.bind("tickets:open", openHandler)
@@ -62,14 +69,23 @@ export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
       pusherClient.unbind("tickets:update", updateHandler)
       pusherClient.unbind("tickets:close", closeHandler)
     }
-  }, [tickets])
+  }, [increaseUnreadMessages, tickets])
 
-  // TODO - return no open tickes found TSX
+  if (tickets.length === 0) {
+    return <NoTicketsFound />
+  }
 
   return (
     <aside className="hidden laptop:block h-full shadow-[1px_3px_5px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[99]">
       <nav className="flex flex-col">
-        {tickets?.map(ticket => <DesktopSidebarTicket ticket={ticket} key={ticket.id} />)}
+        {tickets?.map(ticket => (
+          <DesktopSidebarTicket
+            ticket={ticket}
+            unseenMessagesAmount={unreadMessages[ticket.id] || 0}
+            key={ticket.id}
+            onClick={() => resetUnreadMessages(ticket.id)}
+          />
+        ))}
       </nav>
     </aside>
   )

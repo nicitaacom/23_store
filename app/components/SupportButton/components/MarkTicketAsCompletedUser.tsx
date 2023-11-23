@@ -10,8 +10,10 @@ import { TAPITicketsClose } from "@/api/tickets/close/route"
 import { TAPITicketsRate } from "@/api/tickets/rate/route"
 import useDarkMode from "@/store/ui/darkModeStore"
 import { Button } from "@/components/ui"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSupportDropdown } from "@/store/ui/supportDropdown"
+import { useRouter } from "next/navigation"
+import { pusherClient } from "@/libs/pusher"
 
 interface MarkTicketAsCompletedUserProps {
   ticketId: string
@@ -19,6 +21,8 @@ interface MarkTicketAsCompletedUserProps {
 }
 
 export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTicketAsCompletedUserProps) {
+  const router = useRouter()
+
   const [rating, setRating] = useState<number | null>(null)
   const [hover, setHover] = useState<number | null>(null)
   const { closeDropdown } = useSupportDropdown()
@@ -31,23 +35,30 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
   const { isDarkMode } = useDarkMode()
 
   async function closeTicket() {
-    await axios.post("api/tickets/close", { ticketId: ticketId } as TAPITicketsClose)
     setIsMarkTicketAsCompleted(false)
     setIsRateThisTicket(true)
+    await axios.post("api/tickets/close", { ticketId: ticketId } as TAPITicketsClose)
   }
 
-  async function rateTicket(ratingValue: number) {
+  async function rateTicket(ratingValue: number | null) {
     setRating(ratingValue)
-    await axios.post("/api/tickets/rate", { ticketId: ticketId, rate: ratingValue } as TAPITicketsRate)
     setTimeout(() => {
       // this timeout needed to improve UX
       setIsRateThisTicket(false)
     }, 150)
-    setIsThankYou(true)
-    setTimeout(() => {
-      setIsThankYou(false)
+
+    if (ratingValue) {
+      setIsThankYou(true)
+      setTimeout(() => {
+        setIsThankYou(false)
+        closeDropdown()
+        router.refresh()
+      }, 1500)
+    } else {
       closeDropdown()
-    }, 1500)
+      router.refresh()
+    }
+    await axios.post("/api/tickets/rate", { ticketId: ticketId, rate: ratingValue } as TAPITicketsRate)
   }
 
   const starts = [
@@ -78,6 +89,20 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
         )
       }),
   ]
+
+  useEffect(() => {
+    pusherClient.subscribe(ticketId)
+
+    const closeBySupportHandler = () => {
+      setIsRateThisTicket(true)
+    }
+
+    pusherClient.bind("tickets:closeBySupport", closeBySupportHandler)
+
+    return () => {
+      pusherClient.unsubscribe(ticketId)
+    }
+  }, [ticketId, router])
 
   return (
     <>
@@ -139,7 +164,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
           <h1 className="text-center">Please rate this ticket</h1>
           <div className="flex flex-row gap-x-2">{starts}</div>
           <div className="flex flex-row gap-x-2 justify-center">{}</div>
-          <Button variant="default-outline" onClick={() => setIsRateThisTicket(false)}>
+          <Button variant="default-outline" onClick={() => rateTicket(null)}>
             I don&apos;t want
           </Button>
         </div>

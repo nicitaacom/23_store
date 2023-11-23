@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { BiSupport } from "react-icons/bi"
-import { find } from "lodash"
+import { find, mergeWith } from "lodash"
 import axios from "axios"
 
 import { TAPIMessages } from "@/api/messages/route"
 import { TAPITelegram } from "@/api/telegram/route"
+import { TAPIMessagesSeen } from "@/api/messages/seen/route"
 import { IMessage } from "@/interfaces/IMessage"
 import { pusherClient } from "@/libs/pusher"
 import { getCookie } from "@/utils/helpersCSR"
@@ -36,10 +37,16 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
   const [messages, setMessages] = useState(initialMessages)
   const userStore = useUserStore()
 
-  const senderId = userStore.userId || getCookie("anonymousId")
+  const userId = userStore.userId || getCookie("anonymousId")
   const senderUsername = userStore.username || getCookie("anonymousId")
 
   const { handleSubmit, register, reset, setFocus } = useForm<IFormDataMessage>()
+
+  useEffect(() => {
+    if (isDropdown) {
+      axios.post("/api/messages/seen", { ticketId: ticketId, messages: messages, userId: userId } as TAPIMessagesSeen)
+    }
+  }, [ticketId, messages, userId, isDropdown])
 
   useEffect(() => {
     //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
@@ -58,7 +65,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       bottomRef.current.scrollTop = bottomRef.current.scrollHeight
     }
 
-    const messagehandler = (message: IMessage) => {
+    const newHandler = (message: IMessage) => {
       //TODO - axios.post('api/messages/{ticketId}/seen')
 
       setMessages(current => {
@@ -77,11 +84,30 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       }, 10)
     }
 
-    pusherClient.bind("messages:new", messagehandler)
+    const seenHandler = (updatedMessages: IMessage[]) => {
+      setMessages(current => {
+        return current.map(existingMessage => {
+          const updatedMessage = updatedMessages.find(msg => msg.id === existingMessage.id)
+          return updatedMessage ? updatedMessage : existingMessage
+        })
+      })
+    }
+
+    const closeHandler = () => {
+      setMessages([])
+    }
+
+    pusherClient.bind("messages:new", newHandler)
+    pusherClient.bind("messages:seen", seenHandler)
+    pusherClient.bind("tickets:close", closeHandler)
+    pusherClient.bind("tickets:closeBySupport", closeHandler)
 
     return () => {
       pusherClient.unsubscribe(ticketId)
-      pusherClient.unbind("messages:new", messagehandler)
+      pusherClient.unbind("messages:new", newHandler)
+      pusherClient.unbind("messages:seen", seenHandler)
+      pusherClient.unbind("tickets:close", closeHandler)
+      pusherClient.unbind("tickets:closeBySupport", closeHandler)
     }
   }, [messages, ticketId, router])
 
@@ -107,7 +133,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         id: firstMessageId, // needed to set in cuurent pusher channel (for key prop in react)
         created_at: timestampString,
         ticket_id: ticketId,
-        sender_id: senderId!,
+        sender_id: userId!,
         sender_username: senderUsername!,
         senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
@@ -130,7 +156,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       // 1. Insert row in table 'tickets'
       await axios.post("/api/tickets/open", {
         ticketId: ticketId,
-        ownerId: senderId!,
+        ownerId: userId!,
         ownerUsername: senderUsername!,
         messageBody: data.message,
         ownerAvatarUrl: userStore.avatarUrl,
@@ -139,7 +165,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       await axios.post("/api/messages", {
         id: firstMessageId,
         ticketId: ticketId,
-        senderId: senderId,
+        senderId: userId,
         senderUsername: senderUsername,
         senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
@@ -152,7 +178,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       // 1. Insert message in table 'messages'
       await axios.post("/api/messages", {
         ticketId: ticketId,
-        senderId: senderId,
+        senderId: userId,
         senderUsername: senderUsername,
         senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
