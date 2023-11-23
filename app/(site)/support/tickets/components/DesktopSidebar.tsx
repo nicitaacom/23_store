@@ -65,8 +65,6 @@ export function DesktopSidebar({ initialTickets }: DesktopSidebarProps) {
     }
   }, [tickets])
 
-  // TODO - return no open tickes found TSX
-
   if (tickets.length === 0) {
     return <NoTicketsFound />
   }
