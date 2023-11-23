@@ -83,6 +83,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
 
     pusherClient.bind("messages:new", messagehandler)
     pusherClient.bind("tickets:close", closeHandler)
+    pusherClient.bind("tickets:closeBySupport", closeHandler)
 
     return () => {
       pusherClient.unsubscribe(ticketId)

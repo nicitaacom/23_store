@@ -17,6 +17,10 @@ export async function POST(req: Request) {
     id: ticketId,
     is_open: false,
   } as ITicket)
+  await pusherServer.trigger(ticketId, "tickets:closeBySupport", {
+    id: ticketId,
+    is_open: false,
+  } as ITicket)
 
   return NextResponse.json({ message: "Ticket marked as completed (ticket closed)" }, { status: 200 })
 }

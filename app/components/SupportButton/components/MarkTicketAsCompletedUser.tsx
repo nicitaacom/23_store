@@ -10,9 +10,10 @@ import { TAPITicketsClose } from "@/api/tickets/close/route"
 import { TAPITicketsRate } from "@/api/tickets/rate/route"
 import useDarkMode from "@/store/ui/darkModeStore"
 import { Button } from "@/components/ui"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSupportDropdown } from "@/store/ui/supportDropdown"
 import { useRouter } from "next/navigation"
+import { pusherClient } from "@/libs/pusher"
 
 interface MarkTicketAsCompletedUserProps {
   ticketId: string
@@ -88,6 +89,20 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
         )
       }),
   ]
+
+  useEffect(() => {
+    pusherClient.subscribe(ticketId)
+
+    const closeBySupportHandler = () => {
+      setIsRateThisTicket(true)
+    }
+
+    pusherClient.bind("tickets:closeBySupport", closeBySupportHandler)
+
+    return () => {
+      pusherClient.unsubscribe(ticketId)
+    }
+  }, [ticketId, router])
 
   return (
     <>
