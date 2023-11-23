@@ -1,11 +1,14 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { find, mergeWith } from "lodash"
+import axios from "axios"
 
+import { TAPIMessagesSeen } from "@/api/messages/seen/route"
 import { IMessage } from "@/interfaces/IMessage"
 import { pusherClient } from "@/libs/pusher"
 import { MessageBox } from "@/components/SupportButton/components/MessageBox"
-import { find } from "lodash"
+import useUserStore from "@/store/user/userStore"
 
 interface MessagesBodyProps {
   initialMessages: IMessage[]
@@ -14,8 +17,14 @@ interface MessagesBodyProps {
 
 export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) {
   const bottomRef = useRef<HTMLUListElement>(null)
+  const { userId } = useUserStore()
 
   const [messages, setMessages] = useState(initialMessages)
+  console.log(23, "messages - ", messages)
+
+  useEffect(() => {
+    axios.post("/api/messages/seen", { ticketId: ticket_id, messages: messages, userId: userId } as TAPIMessagesSeen)
+  }, [messages, ticket_id, userId])
 
   useEffect(() => {
     pusherClient.subscribe(ticket_id)
@@ -23,7 +32,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
       bottomRef.current.scrollTop = bottomRef.current.scrollHeight
     }
 
-    const messagehandler = (message: IMessage) => {
+    const newHandler = (message: IMessage) => {
       //TODO - axios.post('api/messages/{ticketId}/seen')
       setMessages(current => {
         if (find(current, { id: message.id })) {
@@ -40,12 +49,21 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
         }
       }, 10)
     }
-
-    pusherClient.bind("messages:new", messagehandler)
+    const seenHandler = (updatedMessages: IMessage[]) => {
+      setMessages(current => {
+        return current.map(existingMessage => {
+          const updatedMessage = updatedMessages.find(msg => msg.id === existingMessage.id)
+          return updatedMessage ? updatedMessage : existingMessage
+        })
+      })
+    }
+    pusherClient.bind("messages:new", newHandler)
+    pusherClient.bind("messages:seen", seenHandler)
 
     return () => {
       pusherClient.unsubscribe(ticket_id)
-      pusherClient.unbind("messages:new", messagehandler)
+      pusherClient.unbind("messages:new", newHandler)
+      pusherClient.unbind("messages:seen", seenHandler)
     }
   }, [messages, ticket_id])
 

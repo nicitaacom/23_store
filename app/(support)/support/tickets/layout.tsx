@@ -3,6 +3,7 @@ import supabaseServer from "@/libs/supabaseServer"
 
 import getInitialTickets from "@/actions/getInitialTickets"
 import { DesktopSidebar, MobileSidebar } from "./components"
+import Navbar from "@/components/Navbar/Navbar"
 
 export default async function SupportChatLayout({ children }: { children: React.ReactNode }) {
   const { data: role_response, error: anonymous_user } = await supabaseServer().from("users").select("role").single()
@@ -21,10 +22,13 @@ export default async function SupportChatLayout({ children }: { children: React.
   }
 
   return (
-    <div className="relative h-[calc(100vh-64px)] flex">
-      <DesktopSidebar initialTickets={initialTickets} />
-      <MobileSidebar initialTickets={initialTickets} />
-      {children}
-    </div>
+    <>
+      <Navbar />
+      <div className="flex flex-row h-[calc(100vh-64px)]">
+        <DesktopSidebar initialTickets={initialTickets} />
+        <MobileSidebar initialTickets={initialTickets} />
+        {children}
+      </div>
+    </>
   )
 }
