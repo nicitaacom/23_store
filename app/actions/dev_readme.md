@@ -31,3 +31,8 @@ So that's why if 2 users have the same username - I select multiple rows - I don
 I use this action to show all tickets in `DesktopSidebar.tsx` and `MobileSidebar.tsx`
 I pass in these components as a prop data that I got from DB during SSR
 `/support/tickets/layout.tsx` - component where I pass these props
+
+## Usage for getTickets.ts
+
+This action required to get amount of unread messages
+I did it with ChatGPT
