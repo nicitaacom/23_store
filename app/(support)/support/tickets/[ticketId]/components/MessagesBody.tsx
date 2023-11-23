@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { find, mergeWith } from "lodash"
+import { find } from "lodash"
 import axios from "axios"
 
 import { TAPIMessagesSeen } from "@/api/messages/seen/route"
