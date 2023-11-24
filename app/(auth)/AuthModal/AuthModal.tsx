@@ -59,9 +59,9 @@ export function AuthModal({ label }: AdminModalProps) {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    trigger,
+    setFocus,
     getValues,
-  } = useForm<FormData>({ mode: "onTouched" })
+  } = useForm<FormData>({ mode: "onBlur" })
 
   //when user submit form and got response message from server
   function displayResponseMessage(message: React.ReactNode) {
@@ -217,18 +217,33 @@ export function AuthModal({ label }: AdminModalProps) {
 
       setIsEmailSent(true)
       if (getValues("email")) {
+        // subscribe pusher to email channel to show message like 'auth completed'
         pusherClient.subscribe(getValues("email"))
       }
       setResponseMessage(<p className="text-success">Check your email</p>)
       setTimeout(() => {
         setResponseMessage(
-          <div className="flex flex-row">
-            <p>Don&apos;t revice email?&nbsp;</p>
-            <Timer label="resend in" seconds={20}>
-              <Button type="button" variant="link" onClick={() => resendVerificationEmail(email)}>
-                resend
-              </Button>
-            </Timer>
+          <div className="flex flex-col">
+            <div className="flex flex-row">
+              <p>Don&apos;t revice email?&nbsp;</p>
+              <Timer label="resend in" seconds={20}>
+                <Button type="button" variant="link" onClick={() => resendVerificationEmail(email)}>
+                  resend
+                </Button>
+              </Timer>
+            </div>
+            <Button
+              className="text-brand"
+              variant="link"
+              type="button"
+              onClick={() => {
+                setIsEmailSent(false)
+                setTimeout(() => {
+                  setFocus("email")
+                }, 50)
+              }}>
+              change email
+            </Button>
           </div>,
         )
       }, 5000)
@@ -282,7 +297,7 @@ export function AuthModal({ label }: AdminModalProps) {
                 setIsEmailSent(false)
                 setTimeout(() => {
                   // TODO - fix because it doesn't set input.focus()
-                  trigger("email", { shouldFocus: true })
+                  setFocus("email")
                 }, 50)
               }}>
               change email
@@ -392,18 +407,22 @@ export function AuthModal({ label }: AdminModalProps) {
         queryParams === "login"
           ? "h-[560px]"
           : queryParams === "register"
-            ? "h-[625px]"
+            ? "h-[640px]"
             : queryParams === "resetPassword"
               ? "h-[310px]"
               : "h-[290px]",
 
         //for login height when errors x1
-        queryParams === "login" && errors.password && "!h-[570px]",
+        queryParams === "login" && (errors.email || errors.password) && "!h-[570px]",
         //for login height when errors x2
         queryParams === "login" && errors.password && errors.email && "!h-[590px]",
 
         //for register height when errors
-        queryParams === "register" && (errors.email || errors.password) && "!h-[720px]",
+        queryParams === "register" && (errors.email || errors.password || errors.username) && "!h-[660px]",
+        //for register height when errors x2
+        queryParams === "register" && errors.email && errors.password && "!h-[680px]",
+        //for register height when errors x2
+        queryParams === "register" && errors.email && errors.password && errors.username && "!h-[700px]",
 
         //for recover height when errors
         queryParams === "recover" && errors.email && "!h-[320px]",
