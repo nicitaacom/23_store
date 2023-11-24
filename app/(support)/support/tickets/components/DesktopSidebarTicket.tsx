@@ -36,15 +36,19 @@ export function DesktopSidebarTicket({ ticket, unseenMessagesAmount, onClick }: 
       <div className="flex flex-col max-w-full pr-8">
         <h3 className="font-semibold truncate">{ticket.owner_username}</h3>
         <p className="text-sm truncate">{ticket.last_message_body}</p>
-        <div
-          className={`before:absolute before:w-[25px] before:h-[25px] before:bg-info before:rounded-full
-              before:right-2 before:translate-y-[-140%] before:z-[9]
-              after:absolute after:w-[20px] after:h-[20px] after:text-title-foreground
-              after:right-2.5 after:translate-y-[-175%] after:z-[9]`}
-        />
-        <div className="absolute w-[20px] text-center right-0 translate-x-[-50%] translate-y-[37.5%] z-[11] text-title-foreground">
-          {unseenMessagesAmount}
-        </div>
+        {unseenMessagesAmount > 0 && (
+          <>
+            <div
+              className={`before:absolute before:w-[25px] before:h-[25px] before:bg-info before:rounded-full
+        before:right-2 before:translate-y-[-140%] before:z-[9]
+        after:absolute after:w-[20px] after:h-[20px] after:text-title-foreground
+        after:right-2.5 after:translate-y-[-175%] after:z-[9]`}
+            />
+            <div className="absolute w-[20px] text-center right-0 translate-x-[-50%] translate-y-[37.5%] z-[11] text-title-foreground">
+              {unseenMessagesAmount}
+            </div>
+          </>
+        )}
       </div>
     </Link>
   )
