@@ -8,8 +8,8 @@ import { Timer } from "@/(auth)/AuthModal/components"
 
 export default function AuthCompleted() {
   const router = useRouter()
-  const params = useSearchParams().get("code")
-  const provider = useSearchParams().get("provider")
+  const params = useSearchParams()?.get("code")
+  const provider = useSearchParams()?.get("provider")
 
   if (!params) {
     const error_description = encodeURIComponent("auth not completed")
@@ -18,10 +18,10 @@ export default function AuthCompleted() {
 
   const userStore = useUserStore()
 
-  const userId = useSearchParams().get("userId")
-  const username = useSearchParams().get("username")
-  const email = useSearchParams().get("email")
-  const avatarUrl = useSearchParams().get("avatarUrl")
+  const userId = useSearchParams()?.get("userId")
+  const username = useSearchParams()?.get("username")
+  const email = useSearchParams()?.get("email")
+  const avatarUrl = useSearchParams()?.get("avatarUrl")
   useEffect(() => {
     userStore.setUser(userId ?? "", username ?? "", email ?? "", avatarUrl ?? "")
     if (provider === "google" || provider === "twitter") return router.replace("/")

@@ -16,7 +16,7 @@ export default function Payment() {
   const cartStore = useCartStore()
   const userStore = useUserStore()
 
-  const params = useSearchParams().get("status")
+  const params = useSearchParams()?.get("status")
 
   const deliveryDate = formatDeliveryDate()
 

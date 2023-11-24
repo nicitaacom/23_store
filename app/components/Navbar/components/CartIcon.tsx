@@ -8,7 +8,7 @@ import { LuShoppingCart } from "react-icons/lu"
 
 export function CartIcon() {
   const pathname = usePathname()
-  const updatedPath = pathname + (pathname.includes("?") ? "&" : "?") + "modal=" + "CartModal"
+  const updatedPath = pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "CartModal"
   const cartStore = useCartStore()
 
   const cartQuantity = cartStore.getCartQuantity()

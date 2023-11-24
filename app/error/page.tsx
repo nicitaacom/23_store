@@ -8,7 +8,7 @@ import { AuthNotCompleted } from "./AuthNotCompleted"
 import { BackToMainButton } from "./components/BackToMainButton"
 
 export default function Error() {
-  const error_description = useSearchParams().get("error_description")
+  const error_description = useSearchParams()?.get("error_description")
 
   if (error_description === "Email link is invalid or has expired") {
     return <EmailLinkInvalidOrExpired />

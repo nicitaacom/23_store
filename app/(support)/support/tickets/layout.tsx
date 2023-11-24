@@ -2,9 +2,9 @@ import { redirect } from "next/navigation"
 import supabaseServer from "@/libs/supabaseServer"
 
 import getInitialTickets from "@/actions/getInitialTickets"
-import { DesktopSidebar, MobileSidebar } from "./components"
-import Navbar from "@/components/Navbar/Navbar"
 import getUnreadMessages from "@/actions/getUnreadMessages"
+import Navbar from "@/components/Navbar/Navbar"
+import { DesktopSidebar, MobileSidebar } from "./components"
 
 export default async function SupportChatLayout({ children }: { children: React.ReactNode }) {
   const { data: role_response, error: anonymous_user } = await supabaseServer().from("users").select("role").single()

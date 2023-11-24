@@ -19,7 +19,7 @@ export function ModalQueryContainer({ children, modalQuery, className, isLoading
   const router = useRouter()
   const queryParams = useSearchParams()
 
-  const showModal = queryParams.getAll("modal").includes(modalQuery)
+  const showModal = queryParams?.getAll("modal").includes(modalQuery)
   const [shouldClose, setShouldClose] = useState(false)
 
   //correct way to add event listener to listen keydown
@@ -34,7 +34,7 @@ export function ModalQueryContainer({ children, modalQuery, className, isLoading
   const closeModal = useCallback(() => {
     setShouldClose(true)
     setTimeout(() => {
-      router.push(pathname)
+      router.push(pathname ?? "/")
     }, 500)
   }, [router, pathname])
 

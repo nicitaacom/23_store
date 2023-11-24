@@ -15,7 +15,7 @@ interface PaginationControlsProps {
 }
 
 const PaginationControls: FC<PaginationControlsProps> = ({ hasNextPage, hasPrevPage, currentPage, totalPages }) => {
-  const perPage = useSearchParams().get("perPage")
+  const perPage = useSearchParams()?.get("perPage")
 
   return (
     <div className="flex flex-row gap-x-4 justify-center items-center">

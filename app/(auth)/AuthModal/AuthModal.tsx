@@ -14,6 +14,7 @@ import { pusherClient } from "@/libs/pusher"
 import { TAPIAuthRegister } from "@/api/auth/register/route"
 import { TAPIAuthRecover } from "../../api/auth/recover/route"
 import { TAPIAuthLogin } from "@/api/auth/login/route"
+import { getURL } from "@/utils/helpers"
 import { getCookie } from "@/utils/helpersCSR"
 import useDarkMode from "@/store/ui/darkModeStore"
 import { FormInput } from "../../components/ui/Inputs/Validation/FormInput"
@@ -22,8 +23,6 @@ import { ContinueWithButton } from "@/(auth)/AuthModal/components"
 import { Timer } from "@/(auth)/AuthModal/components"
 import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
 import useUserStore from "@/store/user/userStore"
-import { revalidatePath } from "next/cache"
-import { getURL } from "@/utils/helpers"
 
 interface AdminModalProps {
   label: string
@@ -39,7 +38,7 @@ export function AuthModal({ label }: AdminModalProps) {
   const router = useRouter()
   // const emailInputRef = useRef<HTMLInputElement>(null)
   const pathname = usePathname()
-  const queryParams = useSearchParams().get("variant")
+  const queryParams = useSearchParams()?.get("variant")
   const darkMode = useDarkMode()
   const userStore = useUserStore()
 
