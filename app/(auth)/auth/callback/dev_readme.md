@@ -1,3 +1,9 @@
+# IMPORTANT
+
+use location.origin - because if you use getURL() - you might be redirected to
+strange vercel url like https://acc2-auth-form-next-supabase-2-81igjdwi3-nicitaacom.vercel.app/
+and got error with red background for entire screen like 'its dangerous site
+
 ## If you got one of 2 erros
 
 1. Invalid auth flow found
