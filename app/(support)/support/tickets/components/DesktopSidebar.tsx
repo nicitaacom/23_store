@@ -76,7 +76,7 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
   }
 
   return (
-    <aside className="hidden laptop:block h-full shadow-[1px_3px_5px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[99]">
+    <aside className="hidden laptop:block h-full shadow-[1px_1px_4px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[101]">
       <nav className="flex flex-col">
         {tickets?.map(ticket => (
           <DesktopSidebarTicket
