@@ -4,6 +4,8 @@ import type { Metadata } from "next"
 
 import ClientOnly from "./components/ClientOnly"
 import { Layout } from "./components"
+import getOwnerProducts from "./actions/getOwnerProducts"
+import { ModalsProvider, ModalsQueryProvider } from "./providers"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -25,10 +27,14 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const ownerProducts = await getOwnerProducts()
+
   return (
     <html lang="en">
       <body>
         <ClientOnly>
+          <ModalsProvider />
+          <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
           <Layout>{children}</Layout>
         </ClientOnly>
       </body>
