@@ -10,7 +10,6 @@ export default async function SupportChatLayout({ children }: { children: React.
   const { data: role_response, error: anonymous_user } = await supabaseServer().from("users").select("role").single()
   const initialTickets = await getInitialTickets()
   const unreadMessages = await getUnreadMessages()
-  // TODO - getAmountOfUnreadMessages()
 
   if (role_response?.role === "USER" || anonymous_user) {
     // boilerplate if you have more roles without access to /support/chat
