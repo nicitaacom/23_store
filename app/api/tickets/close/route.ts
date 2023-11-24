@@ -17,6 +17,7 @@ export async function POST(req: Request) {
     id: ticketId,
     is_open: false,
   } as ITicket)
+  // separate event is required for action when support close ticket (if you chane event to tickets:close it will not work)
   await pusherServer.trigger(ticketId, "tickets:closeBySupport", null)
 
   return NextResponse.json({ message: "Ticket marked as completed (ticket closed)" }, { status: 200 })
