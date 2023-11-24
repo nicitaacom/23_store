@@ -19,10 +19,7 @@ export async function POST(req: Request) {
     is_open: false,
   } as ITicket)
   // to clear messages on user side
-  await pusherServer.trigger(ticketId, "tickets:close", {
-    id: ticketId,
-    is_open: false,
-  } as ITicket)
+  await pusherServer.trigger(ticketId, "tickets:close", null)
 
   return NextResponse.json({ message: "Ticket marked as completed (ticket closed)" }, { status: 200 })
 }
