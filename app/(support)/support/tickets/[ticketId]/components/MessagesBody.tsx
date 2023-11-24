@@ -82,7 +82,6 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
     )
   }
 
-  // TODO - show unread messages first
   return (
     <ul
       className="w-full h-full flex gap-y-2 flex-col justify-start items-end px-8 py-6 overflow-y-auto"
