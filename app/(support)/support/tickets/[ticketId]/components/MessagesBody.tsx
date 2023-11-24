@@ -89,7 +89,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
       className="w-full h-full flex gap-y-2 flex-col justify-start items-end px-8 py-6 overflow-y-auto"
       ref={bottomRef}>
       {messages.map(message => (
-        <MessageBox message={message} key={message.id} />
+        <MessageBox inverseColors={true} message={message} key={message.id} />
       ))}
     </ul>
   )
