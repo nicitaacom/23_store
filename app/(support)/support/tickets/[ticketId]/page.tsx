@@ -27,5 +27,3 @@ export default async function ChatPage({ params }: { params: { ticketId: string 
     return <NoTicketFound ticketId={params.ticketId} />
   }
 }
-
-// TODO - https://www.youtube.com/watch?v=UgseormfMc4&t=3s&ab_channel=Joshtriedcoding
