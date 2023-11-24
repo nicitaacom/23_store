@@ -120,8 +120,6 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
 
     reset()
     if (messages.length === 0) {
-      console.log("first message")
-
       // all this code required to fix issue when I send 2 first messages in < 1 second
       const firstMessageId = crypto.randomUUID()
 
