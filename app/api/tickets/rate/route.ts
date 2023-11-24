@@ -3,8 +3,6 @@ import { NextResponse } from "next/server"
 import supabaseAdmin from "@/libs/supabaseAdmin"
 import { pusherServer } from "@/libs/pusher"
 import { ITicket } from "@/interfaces/ITicket"
-import getTicketId from "@/actions/getTicketId"
-import { revalidatePath } from "next/cache"
 
 export type TAPITicketsRate = {
   ticketId: string
@@ -21,13 +19,7 @@ export async function POST(req: Request) {
     is_open: false,
   } as ITicket)
   // to clear messages on user side
-  await pusherServer.trigger(ticketId, "tickets:close", {
-    id: ticketId,
-    is_open: false,
-  } as ITicket)
-  // TODO - after closing ticket don't show messages from currently closed ticket
-  await getTicketId()
-  revalidatePath("/")
+  await pusherServer.trigger(ticketId, "tickets:close", null)
 
   return NextResponse.json({ message: "Ticket marked as completed (ticket closed)" }, { status: 200 })
 }

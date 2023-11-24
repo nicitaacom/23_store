@@ -19,16 +19,16 @@ export function ModalsQueryProvider({ ownerProducts }: { ownerProducts: IDBProdu
     return null
   }
 
-  if (searchParams.getAll("modal").includes("AdminPanel")) {
+  if (searchParams?.getAll("modal").includes("AdminPanel")) {
     return <AdminPanelModal label="Admin Panel" ownerProducts={ownerProducts} />
   }
-  if (searchParams.getAll("modal").includes("AuthModal")) {
+  if (searchParams?.getAll("modal").includes("AuthModal")) {
     return <AuthModal label="Auth" />
   }
-  if (searchParams.getAll("modal").includes("ChangeLanguage")) {
+  if (searchParams?.getAll("modal").includes("ChangeLanguage")) {
     return <ChangeLanguageModal label="Auth" />
   }
-  if (searchParams.getAll("modal").includes("CartModal")) {
+  if (searchParams?.getAll("modal").includes("CartModal")) {
     return <CartModal label="Auth" />
   }
 }

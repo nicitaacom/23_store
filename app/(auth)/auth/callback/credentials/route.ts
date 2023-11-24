@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   // Redirect to error page if supabase throw error on recover
   const error_description = requestUrl.searchParams.get("error_description")
   if (error_description) {
-    return NextResponse.redirect(`${getURL()}error?error_description=${error_description}`) //throw error like this
+    return NextResponse.redirect(`${requestUrl.origin}error?error_description=${error_description}`) //throw error like this
   }
 
   /* Exchange code for cookies - update row that user confirmed email */
@@ -41,9 +41,10 @@ export async function GET(request: Request) {
         .single()
 
       return NextResponse.redirect(
-        `${getURL()}auth/completed?code=${code}?provider=credentials?userId=${response?.data.user.id}?username=${
-          response.data.user.user_metadata.name || username_response?.username
-        }?email=${response.data.user.email}?avatarUrl=${
+        `${requestUrl.origin}auth/completed?code=${code}?provider=credentials?userId=${response?.data.user
+          .id}?username=${response.data.user.user_metadata.name || username_response?.username}?email=${
+          response.data.user.email
+        }?avatarUrl=${
           response.data.user.user_metadata.avatar_url ||
           response.data.user?.identities![0]?.identity_data?.avatar_url ||
           response.data.user?.identities![1]?.identity_data?.avatar_url
@@ -52,6 +53,6 @@ export async function GET(request: Request) {
     }
   } else {
     const error_description = encodeURIComponent("No user found after exchanging cookies for registration")
-    return NextResponse.redirect(`${getURL()}error?error_description=${error_description}`)
+    return NextResponse.redirect(`${requestUrl.origin}error?error_description=${error_description}`)
   }
 }

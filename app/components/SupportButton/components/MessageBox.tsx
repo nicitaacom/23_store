@@ -11,9 +11,10 @@ import useSender from "@/hooks/ui/useSender"
 
 interface MessageBoxProps {
   message: IMessage
+  inverseColors?: boolean
 }
 
-export function MessageBox({ message }: MessageBoxProps) {
+export function MessageBox({ message, inverseColors }: MessageBoxProps) {
   const { isOwn, avatar_url } = useSender(message.sender_avatar_url || "", message.sender_id)
 
   if (!message || !message.sender_id) {
@@ -23,10 +24,14 @@ export function MessageBox({ message }: MessageBoxProps) {
   // TODO - show gray-bg for !isOwn messages
   const messageIsOwn = twMerge(
     isOwn
-      ? "bg-info"
-      : `before:left-[5px] before:border-l-0 before:border-r-2 before:rounded-r-none before:rounded-b-full
-      before:rotate-[145deg] before:bottom-[-6px] 
-      bg-foreground before:bg-foreground text-title`,
+      ? `rounded-br-[4px] before:rounded-tl-[4px]
+      bg-foreground-accent before:bg-foreground-accent`
+      : `rounded-bl-[4px] before:left-[6px] before:border-l-0 before:border-r-2
+       before:rounded-tr-[4px] before:rounded-br-sm before:rounded-tl-sm
+      before:rotate-[145deg] before:bottom-[-6px]
+      bg-foreground before:bg-foreground`,
+    inverseColors && isOwn && "bg-foreground before:bg-foreground",
+    inverseColors && !isOwn && "bg-foreground-accent before:bg-foreground-accent",
   )
 
   return (
@@ -45,17 +50,17 @@ export function MessageBox({ message }: MessageBoxProps) {
         <p className={twMerge("w-full text-xs", isOwn ? "text-end" : "text-start")}>{formatTime(message.created_at)}</p>
         <p
           className={twMerge(
-            `relative w-fit max-w-full break-normal border-2 text-start text-title-foreground pl-2 pr-3 pt-0.5 pb-1 bg-info rounded-lg
-         before:w-3 before:h-3 before:bg-info before:border-l-2 before:border-t-2 before:border-solid before:border-border-color
-       before:rotate-[195deg] before:rounded-r-full before:absolute before:bottom-[-4px] before:right-[-6px] before:translate-x-[-50%]`,
+            `relative w-fit max-w-full break-normal border-2 rounded-lg text-start text-title pl-2 pr-3 pt-0.5 pb-1
+         before:w-3 before:h-3 before:border-l-2 before:border-t-2 before:border-solid before:border-border-color
+       before:rotate-[215deg] before:absolute before:bottom-[-6px] before:right-[-6px] before:translate-x-[-50%]`,
             messageIsOwn,
           )}>
           {message.body}
         </p>
         {isOwn && (
           <>
-            <BsCheck2 className="absolute bottom-[2px] right-2.5 text-success-accent" />
-            {message.seen && <BsCheck2 className="absolute bottom-[2px] right-1.5 text-success-accent" />}
+            <BsCheck2 className="absolute bottom-[2px] right-2.5 text-success-accent" size={18} />
+            {message.seen && <BsCheck2 className="absolute bottom-[2px] right-1.5 text-success-accent" size={18} />}
           </>
         )}
       </article>

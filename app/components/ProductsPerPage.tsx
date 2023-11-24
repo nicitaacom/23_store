@@ -50,7 +50,7 @@ export function ProductsPerPage({ className }: { className?: string }) {
   }, [])
 
   const [currentValuePerPage, setCurrentValuePerPage] = useState<number | null>(
-    Number(useSearchParams().get("perPage") || 5),
+    Number(useSearchParams()?.get("perPage") || 5),
   )
 
   const [hover, setHover] = useState<number | null>(null)
@@ -60,7 +60,7 @@ export function ProductsPerPage({ className }: { className?: string }) {
     return () => setHover(index)
   }
 
-  const page = useSearchParams().getAll("page")
+  const page = useSearchParams()?.getAll("page")
 
   return (
     <div

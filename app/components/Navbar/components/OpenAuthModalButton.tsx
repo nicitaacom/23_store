@@ -7,7 +7,7 @@ import Link from "next/link"
 
 export function OpenAuthModalButton() {
   const pathname = usePathname()
-  const updatedPath = pathname + (pathname.includes("?") ? "&" : "?") + "modal=" + "AuthModal&variant=login"
+  const updatedPath = pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "AuthModal&variant=login"
 
   return (
     <Link className="w-fit" href={updatedPath} aria-label="login">

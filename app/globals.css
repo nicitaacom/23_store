@@ -47,7 +47,7 @@
     --warning: 22deg 84% 73%;
     --danger: 0deg 80% 72%;
     --success: 118deg 80% 78% /* 9df49a */;
-    --success-accent: 120deg 83% 72% /* 499546 */;
+    --success-accent: 120deg 93% 62% /* 499546 */;
   }
 }
 
@@ -160,6 +160,15 @@ input::-webkit-inner-spin-button {
   opacity: 0%;
   pointer-events: none;
   background-color: hsl(var(--brand) / 0.5);
+}
+
+.arrow-down {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+
+  border-top: 20px solid #f00;
 }
 
 .checkbox-container:hover input[type="checkbox"]:not(:checked)::before {

@@ -28,36 +28,33 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
   const { closeDropdown } = useSupportDropdown()
 
   // It might be possible to do it with enum - I tried - it doesn't work
-  const [isMarkTicketAsCompleted, setIsMarkTicketAsCompleted] = useState(false)
-  const [isRateThisTicket, setIsRateThisTicket] = useState(false)
-  const [isThankYou, setIsThankYou] = useState(false)
+  const [showMarkTicketAsCompleted, setShowMarkTicketAsCompleted] = useState(false)
+  const [showRateThisTicket, setShowRateThisTicket] = useState(false)
+  const [showThankYou, setShowThankYou] = useState(false)
 
   const { isDarkMode } = useDarkMode()
 
   async function closeTicket() {
-    setIsMarkTicketAsCompleted(false)
-    setIsRateThisTicket(true)
+    setShowMarkTicketAsCompleted(false)
+    setShowRateThisTicket(true)
     await axios.post("api/tickets/close", { ticketId: ticketId } as TAPITicketsClose)
   }
 
   async function rateTicket(ratingValue: number | null) {
     setRating(ratingValue)
-    setTimeout(() => {
-      // this timeout needed to improve UX
-      setIsRateThisTicket(false)
-    }, 150)
+
+    setShowRateThisTicket(false)
 
     if (ratingValue) {
-      setIsThankYou(true)
+      setShowThankYou(true)
       setTimeout(() => {
-        setIsThankYou(false)
+        setShowThankYou(false)
         closeDropdown()
-        router.refresh()
       }, 1500)
     } else {
       closeDropdown()
-      router.refresh()
     }
+    router.refresh()
     await axios.post("/api/tickets/rate", { ticketId: ticketId, rate: ratingValue } as TAPITicketsRate)
   }
 
@@ -94,7 +91,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
     pusherClient.subscribe(ticketId)
 
     const closeBySupportHandler = () => {
-      setIsRateThisTicket(true)
+      setShowRateThisTicket(true)
     }
 
     pusherClient.bind("tickets:closeBySupport", closeBySupportHandler)
@@ -111,16 +108,18 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
           className={twMerge(
             "p-2 hover:bg-success/10 duration-150 rounded-md w-fit cursor-pointer",
             messagesLength === 0 ? "cursor-not-allowed" : "cursor-pointer",
-          )}>
+          )}
+          onClick={() => messagesLength !== 0 && setShowMarkTicketAsCompleted(true)}>
           <Image
             src={isDarkMode ? "/mark-ticket-as-completed-dark.png" : "/mark-ticket-as-completed-light.png"}
             alt="close ticket"
             width={32}
             height={32}
-            onClick={() => messagesLength !== 0 && setIsMarkTicketAsCompleted(true)}
           />
         </div>
-        <div className="tooltiptext whitespace-nowrap translate-x-[-90%]">I don&apos; let you close empty ticket</div>
+        {messagesLength === 0 && (
+          <div className="tooltiptext whitespace-nowrap translate-x-[-90%]">I don&apos; let you close empty ticket</div>
+        )}
       </div>
       {/* CLOSE THIS TICKET? */}
       <div
@@ -131,7 +130,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
           before:border-l-0 before:border-t-0 before:border-r before:border-b
            before:bg-[rgba(0,0,0,0.75)] before:z-[2] before:border-border-color/25
           flex justify-center items-center`,
-          isMarkTicketAsCompleted
+          showMarkTicketAsCompleted
             ? "opacity-100 visible transition-all duration-300"
             : "opacity-0 invisible transition-all duration-300",
         )}>
@@ -141,7 +140,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
             <Button className="w-fit" variant="success-outline" onClick={closeTicket}>
               Yes
             </Button>
-            <Button className="w-fit" variant="danger-outline" onClick={() => setIsMarkTicketAsCompleted(false)}>
+            <Button className="w-fit" variant="danger-outline" onClick={() => setShowMarkTicketAsCompleted(false)}>
               No
             </Button>
           </div>
@@ -156,7 +155,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
           before:border-l-0 before:border-t-0 before:border-r before:border-b
            before:bg-[rgba(0,0,0,0.75)] before:z-[2] before:border-border-color/25
           flex justify-center items-center`,
-          isRateThisTicket
+          showRateThisTicket
             ? "opacity-100 visible transition-all duration-300"
             : "opacity-0 invisible transition-all duration-300",
         )}>
@@ -178,7 +177,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
           before:border-l-0 before:border-t-0 before:border-r before:border-b
            before:bg-[rgba(0,0,0,0.75)] before:z-[2] before:border-border-color/25
           flex justify-center items-center`,
-          isThankYou
+          showThankYou
             ? "opacity-100 visible transition-all duration-300"
             : "opacity-0 invisible transition-all duration-300",
         )}>

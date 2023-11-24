@@ -76,24 +76,19 @@ export function MobileSidebar({ initialTickets, unseenMessages }: MobileSidebarP
   return (
     <aside className={twMerge(`block laptop:hidden w-full h-full`, isOpen && "hidden")}>
       <nav className="flex flex-col gap-y-4 justify-center items-center px-16">
-        {tickets?.map(ticket => (
-          <MobileSidebarTicket
-            onClick={() => resetUnreadMessages(ticket.id)}
-            unseenMessagesAmount={unreadMessages[ticket.id] || 0}
-            ticket={ticket}
-            key={ticket.id}
-          />
-        ))}
+        {tickets
+          ?.slice()
+          .sort((a, b) => (unreadMessages[b.id] || 0) - (unreadMessages[a.id] || 0))
+          .map(ticket => (
+            <MobileSidebarTicket
+              ticket={ticket}
+              unseenMessagesAmount={unreadMessages[ticket.id] || 0}
+              key={ticket.id}
+              onClick={() => resetUnreadMessages(ticket.id)}
+            />
+          ))}
 
         {/* TODO - create case if messages more then 99 - show 99 */}
-
-        {/* UNREAD (sort - unread first) */}
-        <div className="w-full border border-border-color text-subTitle text-center px-4 py-2">Username</div>
-        <div className="w-full border border-border-color text-subTitle text-center px-4 py-2">Username</div>
-        <div className="w-full border border-border-color text-subTitle text-center px-4 py-2">Username</div>
-        <div className="w-full border border-border-color text-subTitle text-center px-4 py-2">Username</div>
-        <div className="w-full border border-border-color text-subTitle text-center px-4 py-2">Username</div>
-        <div className="w-full border border-border-color text-subTitle text-center px-4 py-2">Username</div>
       </nav>
     </aside>
   )

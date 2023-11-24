@@ -14,6 +14,7 @@ import { pusherClient } from "@/libs/pusher"
 import { TAPIAuthRegister } from "@/api/auth/register/route"
 import { TAPIAuthRecover } from "../../api/auth/recover/route"
 import { TAPIAuthLogin } from "@/api/auth/login/route"
+import { getURL } from "@/utils/helpers"
 import { getCookie } from "@/utils/helpersCSR"
 import useDarkMode from "@/store/ui/darkModeStore"
 import { FormInput } from "../../components/ui/Inputs/Validation/FormInput"
@@ -22,8 +23,6 @@ import { ContinueWithButton } from "@/(auth)/AuthModal/components"
 import { Timer } from "@/(auth)/AuthModal/components"
 import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
 import useUserStore from "@/store/user/userStore"
-import { revalidatePath } from "next/cache"
-import { getURL } from "@/utils/helpers"
 
 interface AdminModalProps {
   label: string
@@ -39,7 +38,7 @@ export function AuthModal({ label }: AdminModalProps) {
   const router = useRouter()
   // const emailInputRef = useRef<HTMLInputElement>(null)
   const pathname = usePathname()
-  const queryParams = useSearchParams().get("variant")
+  const queryParams = useSearchParams()?.get("variant")
   const darkMode = useDarkMode()
   const userStore = useUserStore()
 
@@ -59,9 +58,9 @@ export function AuthModal({ label }: AdminModalProps) {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    trigger,
+    setFocus,
     getValues,
-  } = useForm<FormData>({ mode: "onTouched" })
+  } = useForm<FormData>({ mode: "onBlur" })
 
   //when user submit form and got response message from server
   function displayResponseMessage(message: React.ReactNode) {
@@ -217,18 +216,33 @@ export function AuthModal({ label }: AdminModalProps) {
 
       setIsEmailSent(true)
       if (getValues("email")) {
+        // subscribe pusher to email channel to show message like 'auth completed'
         pusherClient.subscribe(getValues("email"))
       }
       setResponseMessage(<p className="text-success">Check your email</p>)
       setTimeout(() => {
         setResponseMessage(
-          <div className="flex flex-row">
-            <p>Don&apos;t revice email?&nbsp;</p>
-            <Timer label="resend in" seconds={20}>
-              <Button type="button" variant="link" onClick={() => resendVerificationEmail(email)}>
-                resend
-              </Button>
-            </Timer>
+          <div className="flex flex-col">
+            <div className="flex flex-row">
+              <p>Don&apos;t revice email?&nbsp;</p>
+              <Timer label="resend in" seconds={20}>
+                <Button type="button" variant="link" onClick={() => resendVerificationEmail(email)}>
+                  resend
+                </Button>
+              </Timer>
+            </div>
+            <Button
+              className="text-brand"
+              variant="link"
+              type="button"
+              onClick={() => {
+                setIsEmailSent(false)
+                setTimeout(() => {
+                  setFocus("email")
+                }, 50)
+              }}>
+              change email
+            </Button>
           </div>,
         )
       }, 5000)
@@ -281,8 +295,7 @@ export function AuthModal({ label }: AdminModalProps) {
               onClick={() => {
                 setIsEmailSent(false)
                 setTimeout(() => {
-                  // TODO - fix because it doesn't set input.focus()
-                  trigger("email", { shouldFocus: true })
+                  setFocus("email")
                 }, 50)
               }}>
               change email
@@ -343,7 +356,14 @@ export function AuthModal({ label }: AdminModalProps) {
         password: password,
       } as TAPIAuthRecover)
 
-      //TODO - set response.data in store (userStore.setUser()) - and set data from response
+      userStore.setUser(
+        response.data.user.id,
+        response.data.user.user_metadata.username || response.data.user.user_metadata.name,
+        response.data.user.email,
+        response.data.user.user_metadata.avatar_url ||
+          response.data.user?.identities![0]?.identity_data?.avatar_url ||
+          response.data.user?.identities![1]?.identity_data?.avatar_url,
+      )
 
       displayResponseMessage(
         <div className="text-success flex flex-col justify-center items-center">
@@ -392,18 +412,22 @@ export function AuthModal({ label }: AdminModalProps) {
         queryParams === "login"
           ? "h-[560px]"
           : queryParams === "register"
-            ? "h-[625px]"
+            ? "h-[640px]"
             : queryParams === "resetPassword"
               ? "h-[310px]"
               : "h-[290px]",
 
         //for login height when errors x1
-        queryParams === "login" && errors.password && "!h-[570px]",
+        queryParams === "login" && (errors.email || errors.password) && "!h-[570px]",
         //for login height when errors x2
         queryParams === "login" && errors.password && errors.email && "!h-[590px]",
 
         //for register height when errors
-        queryParams === "register" && (errors.email || errors.password) && "!h-[720px]",
+        queryParams === "register" && (errors.email || errors.password || errors.username) && "!h-[660px]",
+        //for register height when errors x2
+        queryParams === "register" && errors.email && errors.password && "!h-[680px]",
+        //for register height when errors x2
+        queryParams === "register" && errors.email && errors.password && errors.username && "!h-[700px]",
 
         //for recover height when errors
         queryParams === "recover" && errors.email && "!h-[320px]",
