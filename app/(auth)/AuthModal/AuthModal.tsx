@@ -296,7 +296,6 @@ export function AuthModal({ label }: AdminModalProps) {
               onClick={() => {
                 setIsEmailSent(false)
                 setTimeout(() => {
-                  // TODO - fix because it doesn't set input.focus()
                   setFocus("email")
                 }, 50)
               }}>
@@ -358,7 +357,14 @@ export function AuthModal({ label }: AdminModalProps) {
         password: password,
       } as TAPIAuthRecover)
 
-      //TODO - set response.data in store (userStore.setUser()) - and set data from response
+      userStore.setUser(
+        response.data.user.id,
+        response.data.user.user_metadata.username || response.data.user.user_metadata.name,
+        response.data.user.email,
+        response.data.user.user_metadata.avatar_url ||
+          response.data.user?.identities![0]?.identity_data?.avatar_url ||
+          response.data.user?.identities![1]?.identity_data?.avatar_url,
+      )
 
       displayResponseMessage(
         <div className="text-success flex flex-col justify-center items-center">

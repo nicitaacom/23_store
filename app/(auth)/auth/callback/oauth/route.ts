@@ -33,7 +33,9 @@ export async function GET(request: Request) {
         email: response.data.user.email,
         email_confirmed_at: response.data.user.email_confirmed_at,
         avatar_url:
-          response.data.user.user_metadata.avatar_url || response.data.user?.identities![0]?.identity_data?.avatar_url,
+          response.data.user.user_metadata.avatar_url ||
+          response.data.user?.identities![0]?.identity_data?.avatar_url ||
+          response.data.user?.identities![1]?.identity_data?.avatar_url,
         providers: [provider!],
       })
       // If row already exist - do 4 and 5

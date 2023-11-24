@@ -57,6 +57,7 @@ export async function POST(req: Request) {
       password: password,
       options: {
         emailRedirectTo: `${getURL()}auth/callback/credentials`,
+        data: { username: username },
       },
     })
     if (signUpError) {
