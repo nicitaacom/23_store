@@ -5,9 +5,6 @@ import { IDBProduct } from "@/interfaces/IDBProduct"
 import useCartStore from "@/store/user/cartStore"
 import { Product } from "."
 
-//TODO - get products from cache (check in future if product was edited - do new request to DB)
-//if no products in cache - fetch from DB
-
 interface ProductsProps {
   products: IDBProduct[] | undefined
 }
