@@ -111,16 +111,18 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
           className={twMerge(
             "p-2 hover:bg-success/10 duration-150 rounded-md w-fit cursor-pointer",
             messagesLength === 0 ? "cursor-not-allowed" : "cursor-pointer",
-          )}>
+          )}
+          onClick={() => messagesLength !== 0 && setIsMarkTicketAsCompleted(true)}>
           <Image
             src={isDarkMode ? "/mark-ticket-as-completed-dark.png" : "/mark-ticket-as-completed-light.png"}
             alt="close ticket"
             width={32}
             height={32}
-            onClick={() => messagesLength !== 0 && setIsMarkTicketAsCompleted(true)}
           />
         </div>
-        <div className="tooltiptext whitespace-nowrap translate-x-[-90%]">I don&apos; let you close empty ticket</div>
+        {messagesLength === 0 && (
+          <div className="tooltiptext whitespace-nowrap translate-x-[-90%]">I don&apos; let you close empty ticket</div>
+        )}
       </div>
       {/* CLOSE THIS TICKET? */}
       <div
