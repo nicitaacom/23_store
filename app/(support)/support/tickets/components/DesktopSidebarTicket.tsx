@@ -34,7 +34,9 @@ export function DesktopSidebarTicket({ ticket, unseenMessagesAmount, onClick }: 
         height={32}
       />
       <div className="flex flex-col max-w-full pr-8">
-        <h3 className="font-semibold truncate">{ticket.owner_username}</h3>
+        <h3 className={twMerge(`font-semibold truncate`, unseenMessagesAmount === 0 && "text-subTitle")}>
+          {ticket.owner_username}
+        </h3>
         <p className="text-sm truncate">{ticket.last_message_body}</p>
         {unseenMessagesAmount > 0 && (
           <>
@@ -45,7 +47,7 @@ export function DesktopSidebarTicket({ ticket, unseenMessagesAmount, onClick }: 
         after:right-2.5 after:translate-y-[-175%] after:z-[9]`}
             />
             <div className="absolute w-[20px] text-center right-0 translate-x-[-50%] translate-y-[37.5%] z-[11] text-title-foreground">
-              {unseenMessagesAmount}
+              {unseenMessagesAmount > 99 ? 99 : unseenMessagesAmount}
             </div>
           </>
         )}
