@@ -337,6 +337,10 @@ export function AuthModal({ label }: AdminModalProps) {
   async function recoverPassword(email: string) {
     try {
       await axios.post("/api/auth/recover", { email: email } as TAPIAuthRecover)
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: `${location.origin}/auth/callback/recover`,
+      })
+      if (error) throw error
 
       // subscribe pusher to email channel to show message like 'password recovered - stay safe'
       if (getValues("email")) {

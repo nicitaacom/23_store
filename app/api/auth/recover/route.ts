@@ -26,10 +26,6 @@ export async function POST(req: Request) {
       throw emailSelectError
     }
     // 2. If user user exist - send email to reset password
-    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
-      redirectTo: `${requestUrl.origin}/auth/callback/recover`,
-    })
-    if (error) throw error
 
     return NextResponse.json({ status: 200 })
   } catch (error) {
