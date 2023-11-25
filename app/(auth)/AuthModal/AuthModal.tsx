@@ -81,6 +81,7 @@ export function AuthModal({ label }: AdminModalProps) {
   // Show 'Auth completed' message if user verified email
   useEffect(() => {
     function authCompletedHandler() {
+      console.log(84, "authCompletedHandler")
       setIsAuthCompleted(true)
       setTimeout(() => {
         // this timeout required to set avatarUrl
