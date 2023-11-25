@@ -20,7 +20,7 @@ export default function AuthCompleted() {
 
   useEffect(() => {
     userStore.setUser(userId ?? "", username ?? "", email ?? "", avatarUrl ?? "")
-    if (provider === "google" || provider === "twitter") return router.replace("/")
+    if (provider === "google" || provider === "twitter") return closePage()
     //to prevent error about too many re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -30,10 +30,15 @@ export default function AuthCompleted() {
     return router.push(`/error?error=${error_description}`)
   }
 
+  function closePage() {
+    window.open("about:blank", "_self")
+    window.close()
+  }
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
-      <h1 className="text-success">Auth completed - you may close this page</h1>
-      <Timer label="Redirect back to main after" seconds={5} action={() => router.replace("/")} />
+      <h1 className="text-success">Auth completed - you may close this page and delete email</h1>
+      <Timer label="I close this page in" seconds={3} action={closePage} />
     </div>
   )
 }
