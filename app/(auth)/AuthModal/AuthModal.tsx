@@ -102,6 +102,7 @@ export function AuthModal({ label }: AdminModalProps) {
     if (isRecoverCompleted) router.push("?modal=AuthModal&variant=recoverCompleted")
 
     function recoverCompletedHandler() {
+      // TODO - do I need to setUser() ?
       setIsRecoverCompleted(true)
       router.refresh()
     }
@@ -366,13 +367,14 @@ export function AuthModal({ label }: AdminModalProps) {
         response.data.user.email,
         response.data.user.user_metadata.avatar_url ||
           response.data.user?.identities![0]?.identity_data?.avatar_url ||
-          response.data.user?.identities![1]?.identity_data?.avatar_url,
+          response.data.user?.identities![1]?.identity_data?.avatar_url ||
+          "",
       )
 
       displayResponseMessage(
         <div className="text-success flex flex-col justify-center items-center">
-          Your password changed - you may close this window
-          <Timer label="I close this modal in" seconds={7} action={() => router.replace("/")} />
+          Your password changed - Delete email
+          <Timer label="I close this window in" seconds={5} action={() => window.close()} />
         </div>,
       )
     } catch (error) {
