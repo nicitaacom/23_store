@@ -16,6 +16,7 @@ export type TAPIAuthRegister = {
 export async function POST(req: Request) {
   const { username, email, password }: TAPIAuthRegister = await req.json()
   const supabase = createRouteHandlerClient({ cookies })
+  const requestUrl = new URL(req.url)
 
   // 1. Basic check for temp-emails (if temp-email - throw error)
   async function isDisposable(email: string) {
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
         type: "signup",
         email: email,
         options: {
-          emailRedirectTo: `${getURL()}auth/callback/credentials`,
+          emailRedirectTo: `${requestUrl.origin}/auth/callback/credentials`,
         },
       })
       if (resendError) throw resendError
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
       email: email,
       password: password,
       options: {
-        emailRedirectTo: `${getURL()}auth/callback/credentials`,
+        emailRedirectTo: `${requestUrl.origin}/auth/callback/credentials`,
         data: { username: username },
       },
     })
