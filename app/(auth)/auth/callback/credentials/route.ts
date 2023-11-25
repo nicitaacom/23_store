@@ -1,8 +1,6 @@
 import { pusherServer } from "@/libs/pusher"
 import supabaseAdmin from "@/libs/supabaseAdmin"
-import { getURL } from "@/utils/helpers"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
@@ -25,14 +23,6 @@ export async function GET(request: Request) {
 
     // Update row that user verified email
     if (response.data.user && response.data.user.email) {
-      await supabaseAdmin
-        .from("users")
-        .update({ email_confirmed_at: response.data.user.updated_at, providers: ["credentials"] })
-        .eq("id", response.data.user.id)
-
-      // Trigger pusher to 'auth:completed' to show in another tab message like 'Authencication completed - thank you'
-      pusherServer.trigger(response.data.user.email, "auth:completed", response.data.user)
-      revalidatePath("/") // to show avatar_url in navbar
       // Get username to set it in localstorage
       const { data: username_response } = await supabaseAdmin
         .from("users")
@@ -40,15 +30,32 @@ export async function GET(request: Request) {
         .eq("id", response?.data.user.id)
         .single()
 
+      const user_id = response?.data.user.id
+      const username = response.data.user.user_metadata.name || username_response?.username
+      const email = response.data.user.email
+      // TODO add here and another callback avatar url from auth.users user_metadata when 'change avatar' logic will be done
+      const avatarUrl =
+        response.data.user.user_metadata.avatar_url ||
+        response.data.user?.identities![0]?.identity_data?.avatar_url ||
+        response.data.user?.identities![1]?.identity_data?.avatar_url ||
+        ""
+      await supabaseAdmin
+        .from("users")
+        .update({ email_confirmed_at: response.data.user.updated_at, providers: ["credentials"] })
+        .eq("id", response.data.user.id)
+
+      // Trigger pusher to 'auth:completed' to show in another tab message like 'Authencication completed - thank you'
+      // TODO - check it - because might possible error with setting data in localstorage
+      // I mean it localstorage will be updated only on 'auth completed you may close this page' but not in actual first page
+      pusherServer.trigger(email, "auth:completed", response.data.user)
+
       return NextResponse.redirect(
-        `${requestUrl.origin}/auth/completed?code=${code}?provider=credentials?userId=${response?.data.user
-          .id}?username=${response.data.user.user_metadata.name || username_response?.username}?email=${
-          response.data.user.email
-        }?avatarUrl=${
-          response.data.user.user_metadata.avatar_url ||
-          response.data.user?.identities![0]?.identity_data?.avatar_url ||
-          response.data.user?.identities![1]?.identity_data?.avatar_url
-        }`,
+        `${requestUrl.origin}/auth/completed?code=${code}
+        &provider=credentials
+        &userId=${user_id}
+        &username=${username}
+        &email=${email}
+        &avatarUrl=${avatarUrl}`,
       )
     }
   } else {
