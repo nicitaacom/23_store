@@ -15,7 +15,7 @@ import { TAPIAuthRegister } from "@/api/auth/register/route"
 import { TAPIAuthRecover } from "../../api/auth/recover/route"
 import { TAPIAuthLogin } from "@/api/auth/login/route"
 import { getURL } from "@/utils/helpers"
-import { getCookie } from "@/utils/helpersCSR"
+import { getCookie, setCookie } from "@/utils/helpersCSR"
 import useDarkMode from "@/store/ui/darkModeStore"
 import { FormInput } from "../../components/ui/Inputs/Validation/FormInput"
 import { Button, Checkbox } from "../../components/ui"
@@ -347,6 +347,9 @@ export function AuthModal({ label }: AdminModalProps) {
         pusherClient.subscribe(getValues("email"))
       }
 
+      // Save email in localstorage to trigger pusher for this channel (api/auth/recover) (expires in 5 min)
+      localStorage.setItem("email", JSON.stringify({ value: email, expires: new Date().getTime() + 5 * 60 * 1000 }))
+
       displayResponseMessage(<p className="text-success">Check your email</p>)
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -369,27 +372,36 @@ export function AuthModal({ label }: AdminModalProps) {
   async function resetPassword(password: string) {
     try {
       // IMP - check in open and closed databases for this password (enterprice)
-      const response = await axios.post("api/auth/reset", {
-        email: getCookie("email"),
-        password: password,
-      } as TAPIAuthRecover)
+      const email = localStorage.getItem("email")
+      const parsedEmail = JSON.parse(email ?? "")
 
-      userStore.setUser(
-        response.data.user.id,
-        response.data.user.user_metadata.username || response.data.user.user_metadata.name,
-        response.data.user.email,
-        response.data.user.user_metadata.avatar_url ||
-          response.data.user?.identities![0]?.identity_data?.avatar_url ||
-          response.data.user?.identities![1]?.identity_data?.avatar_url ||
-          "",
-      )
+      if (parsedEmail.expires > new Date().getTime()) {
+        const response = await axios.post("api/auth/reset", {
+          email: parsedEmail.value,
+          password: password,
+        } as TAPIAuthRecover)
 
-      displayResponseMessage(
-        <div className="text-success flex flex-col justify-center items-center">
-          Your password changed - Delete email
-          <Timer label="I close this window in" seconds={5} action={() => window.close()} />
-        </div>,
-      )
+        userStore.setUser(
+          response.data.user.id,
+          response.data.user.user_metadata.username || response.data.user.user_metadata.name,
+          response.data.user.email,
+          response.data.user.user_metadata.avatar_url ||
+            response.data.user?.identities![0]?.identity_data?.avatar_url ||
+            response.data.user?.identities![1]?.identity_data?.avatar_url ||
+            "",
+        )
+
+        localStorage.removeItem("email") // Remove email from localstorage
+        displayResponseMessage(
+          <div className="text-success flex flex-col justify-center items-center">
+            Your password changed - Delete email
+            <Timer label="I close this window in" seconds={5} action={() => window.close()} />
+          </div>,
+        )
+      } else {
+        localStorage.removeItem("email") // Remove expired data
+        throw new Error("You session has expired - recover password quicker next time")
+      }
     } catch (error) {
       //This is required to show custom error message (check api/dev_readme.md)
       if (error instanceof AxiosError) {
