@@ -44,5 +44,8 @@ export async function GET(request: Request) {
       const error_description = encodeURIComponent("No user found after exchanging cookies for recovering")
       return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`)
     }
+  } else {
+    const error_description = encodeURIComponent("No code found to exchange cookies for session")
+    return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`)
   }
 }
