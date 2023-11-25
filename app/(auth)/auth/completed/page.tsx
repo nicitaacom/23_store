@@ -36,7 +36,7 @@ export default function AuthCompleted() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
-      <h1 className="text-success">Auth completed - you may close this page and delete email</h1>
+      <h1 className="text-success">Auth completed - delete email</h1>
       <Timer label="I close this page in" seconds={3} action={closePage} />
     </div>
   )
