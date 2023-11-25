@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const error_description = requestUrl.searchParams.get("error_description")
   if (error_description) {
     const supabase_error_description = encodeURIComponent(error_description)
-    return NextResponse.redirect(`${requestUrl.origin}error?error_description=${supabase_error_description}`)
+    return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${supabase_error_description}`)
   }
 
   if (code) {
@@ -84,7 +84,7 @@ export async function GET(request: Request) {
         await supabaseAdmin.from("users_cart").insert({ id: response.data.user.id })
       }
       return NextResponse.redirect(
-        `${requestUrl.origin}auth/completed?code=${code}&provider=${provider}&userId=${response?.data.user
+        `${requestUrl.origin}/auth/completed?code=${code}&provider=${provider}&userId=${response?.data.user
           .id}&username=${response.data.user.user_metadata.name}&email=${response.data.user.email}&avatarUrl=${
           response.data.user.user_metadata.avatar_url ||
           response.data.user?.identities![0]?.identity_data?.avatar_url ||
@@ -93,11 +93,11 @@ export async function GET(request: Request) {
       )
     } else {
       const error_description = encodeURIComponent("No user found after exchanging cookies for registration")
-      return NextResponse.redirect(`${requestUrl.origin}error?error_description=${error_description}`)
+      return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`)
     }
   } else {
     // TODO - create image on error page for this case
     const error_description = encodeURIComponent("No code found to exchange cookies for session")
-    return NextResponse.redirect(`${requestUrl.origin}error?error_description=${error_description}`)
+    return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`)
   }
 }
