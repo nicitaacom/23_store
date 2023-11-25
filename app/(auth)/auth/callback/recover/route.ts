@@ -36,8 +36,8 @@ export async function GET(request: Request) {
         if (update_provider_error) throw update_provider_error
       }
 
-      // 4. Save email in cookies to trigger pusher for this channel (api/auth/recover)
-      cookies().set("email", response.data.user.email)
+      // 4. Save email in cookies to trigger pusher for this channel (api/auth/recover) (expires in 5 min)
+      cookies().set("email", response.data.user.email, { expires: 300000 })
 
       return NextResponse.redirect(`${requestUrl.origin}?modal=AuthModal&variant=resetPassword&code=${code}`)
     } else {
