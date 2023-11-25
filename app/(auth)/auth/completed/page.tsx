@@ -22,11 +22,14 @@ export default function AuthCompleted() {
 
   useEffect(() => {
     userStore.setUser(userId ?? "", username ?? "", email ?? "", avatarUrl ?? "")
-
-    if (provider === "google" || provider === "twitter") return router.replace("/")
     //to prevent error about too many re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  if (provider === "google" || provider === "twitter") {
+    router.replace("/")
+    return null
+  }
 
   if (!params) {
     const error_description = encodeURIComponent("auth not completed")
