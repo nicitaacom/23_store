@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/Button"
 import Image from "next/image"
 import supabaseClient from "@/libs/supabaseClient"
 import React from "react"
-import { getURL } from "@/utils/helpers"
 
 interface ContinueWithButtonProps {
   provider: "google" | "faceit" | "twitter"
@@ -16,7 +15,7 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
     if (provider === "google") {
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${getURL()}auth/callback/oauth?provider=google` },
+        options: { redirectTo: `${location.origin}/auth/callback/oauth?provider=google` },
       })
       if (error) throw error
     } else if (provider === "faceit") {
@@ -24,7 +23,7 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
     } else if (provider === "twitter") {
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "twitter",
-        options: { redirectTo: `${getURL()}auth/callback/oauth?provider=twitter` },
+        options: { redirectTo: `${location.origin}/auth/callback/oauth?provider=twitter` },
       })
       if (error) throw error
     }
