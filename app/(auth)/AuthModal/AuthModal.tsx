@@ -175,7 +175,16 @@ export function AuthModal({ label }: AdminModalProps) {
       if (error instanceof Error && error.message === "Invalid login credentials") {
         displayResponseMessage(<p className="text-danger">Wrong email or password</p>)
       } else if (error instanceof AxiosError) {
-        displayResponseMessage(<p className="text-danger">{error.response?.data.error}</p>)
+        if (error.response?.data.error === "User exists - check your email\n You might not verified your email") {
+          displayResponseMessage(
+            <div className="flex flex-col justify-center items-center">
+              <p className="text-danger">User exists - check your email</p>
+              <p className="text-danger">You might not verified your email</p>
+            </div>,
+          )
+        } else {
+          displayResponseMessage(<p className="text-danger">{error.response?.data.error}</p>)
+        }
       } else if (error instanceof Error) {
         if (error.message === "You already have account with google") {
           displayResponseMessage(
