@@ -8,18 +8,21 @@ import { Timer } from "@/(auth)/AuthModal/components"
 
 export default function AuthCompleted() {
   const router = useRouter()
-  const params = useSearchParams()?.get("code")
-  const provider = useSearchParams()?.get("provider")
+  const params = useSearchParams()?.get("code")?.trimEnd()
+  const provider = useSearchParams()?.get("provider")?.trimEnd()
+  console.log(13, "provider - ", provider)
 
   const userStore = useUserStore()
 
-  const userId = useSearchParams()?.get("userId")
-  const username = useSearchParams()?.get("username")
-  const email = useSearchParams()?.get("email")
-  const avatarUrl = useSearchParams()?.get("avatarUrl")
+  //I use ?.trimEnd() to delete spaces in end of line that cause enter in auth/callback/route.ts (NextResponse.redirect)
+  const userId = useSearchParams()?.get("userId")?.trimEnd()
+  const username = useSearchParams()?.get("username")?.trimEnd()
+  const email = useSearchParams()?.get("email")?.trimEnd()
+  const avatarUrl = useSearchParams()?.get("avatarUrl")?.trimEnd()
 
   useEffect(() => {
     userStore.setUser(userId ?? "", username ?? "", email ?? "", avatarUrl ?? "")
+
     if (provider === "google" || provider === "twitter") return router.replace("/")
     //to prevent error about too many re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
