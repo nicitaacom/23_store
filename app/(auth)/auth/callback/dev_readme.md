@@ -12,7 +12,7 @@ and got error with red background for entire screen like 'its dangerous site
 Try
 
 ```ts
-return NextResponse.redirect(`${getURL()}auth/completed?code=${code}`)
+return NextResponse.redirect(`${location.origin}/auth/completed?code=${code}`)
 ```
 
 And try do it in `(auth)/auth/callback/smth/route.ts`
