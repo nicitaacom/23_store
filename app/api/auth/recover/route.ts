@@ -1,25 +1,37 @@
-import { pusherServer } from "@/libs/pusher"
-import supabaseServer from "@/libs/supabaseServer"
+import supabaseAdmin from "@/libs/supabaseAdmin"
 import { NextResponse } from "next/server"
 
 export type TAPIAuthRecover = {
   email: string
-  password: string
 }
 
 export async function POST(req: Request) {
   const body: TAPIAuthRecover = await req.json()
+  const requestUrl = new URL(req.url)
 
   try {
-    const { data, error } = await supabaseServer().auth.updateUser({ password: body.password })
-    if (error) {
-      if (error.message === "New password should be different from the old password.") {
-        throw new Error("Its already your password - enter new one")
-      }
-      throw new Error(error.message)
+    // 1. Check is user with this email doesn't exist
+    const { data: email_response, error: emailSelectError } = await supabaseAdmin
+      .from("users")
+      .select("email,email_confirmed_at")
+      .eq("email", body.email)
+      .single()
+    const email = email_response?.email
+
+    if (!email) {
+      throw new Error("User with this email doesn't exist")
     }
-    pusherServer.trigger(body.email, "recover:completed", null)
-    return NextResponse.json({ user: data.user })
+    if (emailSelectError) {
+      console.log(22, "emailSelectError \n", emailSelectError)
+      throw emailSelectError
+    }
+    // 2. If user user exist - send email to reset password
+    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+      redirectTo: `${requestUrl.origin}/auth/callback/recover`,
+    })
+    if (error) throw error
+
+    return NextResponse.json({ status: 200 })
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 })
