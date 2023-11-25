@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       }
       throw new Error(error.message)
     }
-    pusherServer.trigger(body.email, "recover:completed", null)
+    await pusherServer.trigger(body.email, "recover:completed", null)
     return NextResponse.json({ user: data.user })
   } catch (error) {
     if (error instanceof Error) {
