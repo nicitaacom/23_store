@@ -25,16 +25,23 @@ export async function GET(request: Request) {
     const response = await supabase.auth.exchangeCodeForSession(code)
 
     if (response.data.user && response.data.user.email) {
+      const user_id = response?.data.user.id
+      const username = response.data.user.user_metadata.name
+      const email = response.data.user.email
+      const email_confirmed_at = response.data.user.email_confirmed_at
+      const avatarUrl =
+        response.data.user.user_metadata.avatar_url ||
+        response.data.user?.identities![0]?.identity_data?.avatar_url ||
+        response.data.user?.identities![1]?.identity_data?.avatar_url ||
+        ""
+
       // 3. Insert row if user doesn't exist
       const { error: is_row_exist } = await supabaseAdmin.from("users").insert({
-        id: response.data.user.id,
-        username: response.data.user.user_metadata.name,
-        email: response.data.user.email,
-        email_confirmed_at: response.data.user.email_confirmed_at,
-        avatar_url:
-          response.data.user.user_metadata.avatar_url ||
-          response.data.user?.identities![0]?.identity_data?.avatar_url ||
-          response.data.user?.identities![1]?.identity_data?.avatar_url,
+        id: user_id,
+        username: username,
+        email: email,
+        email_confirmed_at: email_confirmed_at,
+        avatar_url: avatarUrl,
         providers: [provider!],
       })
       // If row already exist - do 4 and 5
@@ -44,7 +51,7 @@ export async function GET(request: Request) {
         const { data: provider_response } = await supabaseAdmin
           .from("users")
           .select("providers")
-          .eq("id", response.data.user.id)
+          .eq("id", user_id)
           .single()
         // Check is provider exist (for case if user login 2 times with the same provider)
         const existingProvider = provider_response?.providers?.filter(providerLabel => providerLabel === provider)
@@ -62,7 +69,7 @@ export async function GET(request: Request) {
         const { data: avatar_url_reponse, error: select_avatar_url_error } = await supabaseAdmin
           .from("users")
           .select("avatar_url")
-          .eq("email", response.data.user.email)
+          .eq("email", email)
           .single()
 
         if (select_avatar_url_error) throw select_avatar_url_error
@@ -71,24 +78,22 @@ export async function GET(request: Request) {
             .from("users")
             .update({
               email_confirmed_at: response.data.user.updated_at,
-              avatar_url:
-                response.data.user.user_metadata.avatar_url ||
-                response.data.user?.identities![0]?.identity_data?.avatar_url ||
-                response.data.user?.identities![1]?.identity_data?.avatar_url,
+              avatar_url: avatarUrl,
             })
-            .eq("id", response.data.user.id)
+            .eq("id", user_id)
         }
       } else {
         // If row doesn't exist - this user login with OAuth first time so he haven't rows in other tables
-        await supabaseAdmin.from("users_cart").insert({ id: response.data.user.id })
+        await supabaseAdmin.from("users_cart").insert({ id: user_id })
       }
+
       return NextResponse.redirect(
-        `${requestUrl.origin}/auth/completed?code=${code}&provider=${provider}&userId=${response?.data.user
-          .id}&username=${response.data.user.user_metadata.name}&email=${response.data.user.email}&avatarUrl=${
-          response.data.user.user_metadata.avatar_url ||
-          response.data.user?.identities![0]?.identity_data?.avatar_url ||
-          response.data.user?.identities![1]?.identity_data?.avatar_url
-        }`,
+        `${requestUrl.origin}/auth/completed?code=${code}
+        &provider=${provider}
+        &userId=${user_id}
+        &username=${username}
+        &email=${email}
+        &avatarUrl=${avatarUrl}`,
       )
     } else {
       const error_description = encodeURIComponent("No user found after exchanging cookies for registration")
