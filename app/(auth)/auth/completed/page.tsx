@@ -20,7 +20,7 @@ export default function AuthCompleted() {
 
   useEffect(() => {
     userStore.setUser(userId ?? "", username ?? "", email ?? "", avatarUrl ?? "")
-    if (provider === "google" || provider === "twitter") return closePage()
+    if (provider === "google" || provider === "twitter") return router.replace("/")
     //to prevent error about too many re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
