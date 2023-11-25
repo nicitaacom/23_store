@@ -11,23 +11,24 @@ export default function AuthCompleted() {
   const params = useSearchParams()?.get("code")
   const provider = useSearchParams()?.get("provider")
 
-  if (!params) {
-    const error_description = encodeURIComponent("auth not completed")
-    router.push(`/error?error=${error_description}`)
-  }
-
   const userStore = useUserStore()
 
   const userId = useSearchParams()?.get("userId")
   const username = useSearchParams()?.get("username")
   const email = useSearchParams()?.get("email")
   const avatarUrl = useSearchParams()?.get("avatarUrl")
+
   useEffect(() => {
     userStore.setUser(userId ?? "", username ?? "", email ?? "", avatarUrl ?? "")
     if (provider === "google" || provider === "twitter") return router.replace("/")
     //to prevent error about too many re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  if (!params) {
+    const error_description = encodeURIComponent("auth not completed")
+    return router.push(`/error?error=${error_description}`)
+  }
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
