@@ -76,13 +76,16 @@ export function AuthModal({ label }: AdminModalProps) {
 
   useEffect(() => {
     if (isAuthCompleted) router.push("?modal=AuthModal&variant=authCompleted")
-    // else router.push("?modal=AuthModal&variant=login")
   }, [isAuthCompleted, router])
 
   // Show 'Auth completed' message if user verified email
   useEffect(() => {
     function authCompletedHandler() {
       setIsAuthCompleted(true)
+      setTimeout(() => {
+        // this timeout required to set avatarUrl
+        router.refresh()
+      }, 250)
     }
 
     pusherClient.bind("auth:completed", authCompletedHandler)
@@ -92,7 +95,7 @@ export function AuthModal({ label }: AdminModalProps) {
       }
       pusherClient.unbind("auth:completed", authCompletedHandler)
     }
-  }, [getValues])
+  }, [getValues, router])
 
   // Show 'Recover completed' if user changed password in another window
   useEffect(() => {
@@ -100,6 +103,7 @@ export function AuthModal({ label }: AdminModalProps) {
 
     function recoverCompletedHandler() {
       setIsRecoverCompleted(true)
+      router.refresh()
     }
     pusherClient.bind("recover:completed", recoverCompletedHandler)
     return () => {
