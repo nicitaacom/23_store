@@ -81,7 +81,6 @@ export function AuthModal({ label }: AdminModalProps) {
   // Show 'Auth completed' message if user verified email
   useEffect(() => {
     function authCompletedHandler() {
-      console.log(84, "authCompletedHandler")
       setIsAuthCompleted(true)
       setTimeout(() => {
         // this timeout required to set avatarUrl
@@ -232,7 +231,6 @@ export function AuthModal({ label }: AdminModalProps) {
       setIsEmailSent(true)
       if (getValues("email")) {
         // subscribe pusher to email channel to show message like 'auth completed'
-        console.log(234, "pusher subscribe to - ", getValues("email"))
         pusherClient.subscribe(getValues("email"))
       }
       setResponseMessage(<p className="text-success">Check your email</p>)
@@ -342,14 +340,12 @@ export function AuthModal({ label }: AdminModalProps) {
 
       // subscribe pusher to email channel to show message like 'password recovered - stay safe'
       if (getValues("email")) {
-        console.log(343, "pusher subscribe to - ", getValues("email"))
         pusherClient.subscribe(getValues("email"))
       }
 
       displayResponseMessage(<p className="text-success">Check your email</p>)
     } catch (error) {
       if (error instanceof AxiosError) {
-        console.log(349, "error - ", error.response?.data.error)
         displayResponseMessage(<p className="text-danger">{error.response?.data.error}</p>)
       } else if (error instanceof Error) {
         displayResponseMessage(<p className="text-danger">{error.message}</p>)
