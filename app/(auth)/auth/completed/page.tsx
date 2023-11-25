@@ -31,7 +31,6 @@ export default function AuthCompleted() {
   }
 
   function closePage() {
-    window.open("about:blank", "_self")
     window.close()
   }
 
