@@ -45,9 +45,6 @@ export async function GET(request: Request) {
         .eq("id", response.data.user.id)
 
       // Trigger pusher to 'auth:completed' to show in another tab message like 'Authencication completed - thank you'
-      // TODO - check it - because might possible error with setting data in localstorage
-      // I mean it localstorage will be updated only on 'auth completed you may close this page' but not in actual first page
-      console.log(50, "pusherServer.trigger email - ", email)
       await pusherServer.trigger(email, "auth:completed", null)
 
       return NextResponse.redirect(
