@@ -48,10 +48,10 @@ export function AuthModal({ label }: AdminModalProps) {
   const [isRecoverCompleted, setIsRecoverCompleted] = useState(false)
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
 
-  //for case when user click 'Forgot password?' or 'Create account' and some data in responseMessage
-  useEffect(() => {
-    setResponseMessage(<p></p>)
-  }, [queryParams])
+  //when user submit form and got response message from server
+  function displayResponseMessage(message: React.ReactNode) {
+    setResponseMessage(message)
+  }
 
   const {
     register,
@@ -62,10 +62,10 @@ export function AuthModal({ label }: AdminModalProps) {
     getValues,
   } = useForm<FormData>({ mode: "onBlur" })
 
-  //when user submit form and got response message from server
-  function displayResponseMessage(message: React.ReactNode) {
-    setResponseMessage(message)
-  }
+  //for case when user click 'Forgot password?' or 'Create account' and some data in responseMessage
+  useEffect(() => {
+    setResponseMessage(<p></p>)
+  }, [queryParams])
 
   useEffect(() => {
     //hide response message to prevent overflow because too much errors
@@ -426,7 +426,6 @@ export function AuthModal({ label }: AdminModalProps) {
       await signInWithPassword(data.email, data.password)
     } else if (queryParams === "register") {
       await signUp(data.username, data.email, data.password)
-      // reset()
     } else if (queryParams === "recover") {
       router.refresh()
       await recoverPassword(data.email)
@@ -457,7 +456,7 @@ export function AuthModal({ label }: AdminModalProps) {
         queryParams === "register" && (errors.email || errors.password || errors.username) && "!h-[660px]",
         //for register height when errors x2
         queryParams === "register" && errors.email && errors.password && "!h-[680px]",
-        //for register height when errors x2
+        //for register height when errors x3
         queryParams === "register" && errors.email && errors.password && errors.username && "!h-[700px]",
 
         //for recover height when errors
@@ -561,7 +560,8 @@ export function AuthModal({ label }: AdminModalProps) {
                   required
                 />
               )}
-              {/* LOGIN-BODY-HELP */}
+
+              {/* REMBMBER-ME / FORGOT-PASSWORD */}
               <div className="flex justify-between mb-2">
                 <div className={twMerge(`invisible`, queryParams === "login" && "visible")}>
                   {/* 'Remember me' now checkbox do nothing - expected !isChecked 1m jwt - isChecked 3m jwt */}
@@ -582,6 +582,7 @@ export function AuthModal({ label }: AdminModalProps) {
                 )}
               </div>
 
+              {/* LOGIN/REGISTER BUTTON */}
               <Button variant="default-outline" disabled={isSubmitting || isEmailSent}>
                 {queryParams === "login"
                   ? "Login"
