@@ -43,34 +43,11 @@ In this route I:
 1. Throw error if supabase throw error because link to recover password was used or expired
 2. Exchange cookies to get session data (and set session in cookies)
 3. If 'credentials' provider doesn't exist - add 'credentials' provider to `providers` column in DB
-4. Save email in cookies to tiger pusher to action like 'your password changed - stay safe'
-
-**Auth modal**
-
-```ts
-useEffect(() => {
-  if (isRecoverCompleted) router.push("?modal=AuthModal&variant=recoverCompleted")
-
-  function recoverCompletedHandler() {
-    setIsRecoverCompleted(true)
-  }
-  pusherClient.bind("recover:completed", recoverCompletedHandler)
-  return () => {
-    if (getValues("email")) {
-      pusherClient.unsubscribe(getValues("email"))
-    }
-    pusherClient.unbind("recover:completed", recoverCompletedHandler)
-  }
-}, [getValues, isRecoverCompleted, router])
-
-const response = await axios.post("api/auth/recover", {
-  email: getCookie("email"),
-  password: password,
-} as TAPIAuthRecover)
-```
 
 **api/auth/recover/route.ts**
 
 ```ts
-pusherServer.trigger(body.email, "recover:completed", "")
+await pusherServer.trigger(body.email, "recover:completed", "")
 ```
+
+Make sure you have `await` without it pusher willn't work in production - https://github.com/vercel/next.js/discussions/48433
