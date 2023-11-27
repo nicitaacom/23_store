@@ -1,5 +1,5 @@
-import { BsCheckLg } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
+import { BsCheckLg } from "react-icons/bs"
 
 interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   isChecked: boolean
@@ -9,18 +9,11 @@ interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   disabled?: boolean
 }
 
-export function Checkbox({
-  isChecked = false,
-  onChange,
-  label,
-  labelClassName = "",
-  disabled,
-  ...props
-}: CheckboxProps) {
+export function Checkbox({ isChecked, onChange, label, labelClassName = "", disabled, ...props }: CheckboxProps) {
   return (
-    <div className={`checkbox-container ${disabled && "opacity-50 cursor-default pointer-events-none"}`}>
+    <div className={twMerge(`checkbox-container`, disabled && "opacity-50 cursor-default pointer-events-none")}>
       <input
-        className={`cursor-pointer bg-foreground`}
+        className="bg-foreground cursor-pointer"
         type="checkbox"
         id="check"
         checked={isChecked}
