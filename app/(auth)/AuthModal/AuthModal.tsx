@@ -14,8 +14,6 @@ import { pusherClient } from "@/libs/pusher"
 import { TAPIAuthRegister } from "@/api/auth/register/route"
 import { TAPIAuthRecover } from "../../api/auth/recover/route"
 import { TAPIAuthLogin } from "@/api/auth/login/route"
-import { getURL } from "@/utils/helpers"
-import { getCookie, setCookie } from "@/utils/helpersCSR"
 import useDarkMode from "@/store/ui/darkModeStore"
 import { FormInput } from "../../components/ui/Inputs/Validation/FormInput"
 import { Button, Checkbox } from "../../components/ui"
@@ -102,7 +100,6 @@ export function AuthModal({ label }: AdminModalProps) {
     if (isRecoverCompleted) router.push("?modal=AuthModal&variant=recoverCompleted")
 
     function recoverCompletedHandler() {
-      // TODO - do I need to setUser() ?
       setIsRecoverCompleted(true)
       router.refresh()
     }
