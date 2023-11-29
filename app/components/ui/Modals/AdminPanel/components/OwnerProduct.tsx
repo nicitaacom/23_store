@@ -19,10 +19,12 @@ export function OwnerProduct({ ...ownerProduct }: Props) {
         <OwnerProductImage imgUrl={ownerProduct.img_url[0]} />
       ) : (
         <Slider
-          containerClassName="h-[300px] tablet:w-fit tablet:h-[125px] laptop:h-[150px]"
-          className="h-[300px] tablet:h-[125px] laptop:h-[150px] desktop:h-[150px]"
-          images={ownerProduct.img_url}
-          title={ownerProduct.title}
+          images={ownerProduct.img_url.map((image, index) => ({
+            src: image,
+            alt: `${ownerProduct.title}-${index + 1}`,
+          }))}
+          width={480}
+          height={360}
         />
       )}
       <div className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-2 py-2">

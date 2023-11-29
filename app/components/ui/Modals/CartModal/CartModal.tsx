@@ -275,18 +275,12 @@ export function CartModal({ label }: CartModalProps) {
                       </figure>
                     ) : (
                       <Slider
-                        //for 768-1024px aspect-ratio 16:9 from 150px hegiht till 356px
-                        className="h-[300px]
-                        tablet:w-[clamp(16.6875rem,0rem+34.7656vw,22.25rem)] tablet:h-[clamp(9.375rem,0rem+19.5313vw,12.5rem)] 
-                        laptop:w-[356px] laptop:h-[200px]
-                        object-cover"
-                        containerClassName="
-                        tablet:w-[clamp(16.6875rem,0rem+34.7656vw,22.25rem)] tablet:h-[clamp(9.375rem,0rem+19.5313vw,12.5rem)] 
-                        laptop:w-[356px] laptop:h-[200px]
-                        desktop:h-[200px] desktop:w-[356px]
-                        object-cover"
-                        images={productData.img_url}
-                        title={productData.title}
+                        images={productData.img_url.map((image, index) => ({
+                          src: image,
+                          alt: `${productData.title}-${index + 1}`,
+                        }))}
+                        width={480}
+                        height={360}
                       />
                     )}
                     {/* width of div with title and price is 100% - image width */}

@@ -3,8 +3,9 @@
 import { memo } from "react"
 import Image from "next/image"
 
-import { formatCurrency } from "@/utils/currencyFormatter"
+import { TImages } from "@/components/ui/Slider"
 import { IProduct } from "@/interfaces/IProduct"
+import { formatCurrency } from "@/utils/currencyFormatter"
 import { Slider } from "@/components/ui"
 import {
   IncreaseProductQuantityButton,
