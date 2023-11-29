@@ -37,3 +37,4 @@ to go to the next page (also that's why I added up to 100 per page)
 ## Info about SwitchDarkMode.tsx
 
 I use this file (functional component) to switch between dark and light mode
+You can find this component in top right corner on / route
