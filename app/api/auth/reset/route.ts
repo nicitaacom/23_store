@@ -12,13 +12,18 @@ export async function POST(req: Request) {
 
   try {
     const { data, error } = await supabaseServer().auth.updateUser({ password: body.password })
+
+    // 1. Change default supabase error.message to curstom error.message
     if (error) {
       if (error.message === "New password should be different from the old password.") {
         throw new Error("Its already your password - enter new one")
       }
       throw new Error(error.message)
     }
+
+    // 2. Triger pusher for recover:completed event to show message like 'recover completed - thank you'
     await pusherServer.trigger(body.email, "recover:completed", null)
+
     return NextResponse.json({ user: data.user })
   } catch (error) {
     if (error instanceof Error) {
