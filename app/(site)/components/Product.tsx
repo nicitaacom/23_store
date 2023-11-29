@@ -3,8 +3,9 @@
 import { memo } from "react"
 import Image from "next/image"
 
-import { formatCurrency } from "@/utils/currencyFormatter"
+import { TImages } from "@/components/ui/Slider"
 import { IProduct } from "@/interfaces/IProduct"
+import { formatCurrency } from "@/utils/currencyFormatter"
 import { Slider } from "@/components/ui"
 import {
   IncreaseProductQuantityButton,
@@ -36,10 +37,13 @@ function Product({ ...product }: Props) {
         </figure>
       ) : (
         <Slider
-          containerClassName="tablet:w-fit"
-          className="h-[300px]"
-          images={product.img_url}
-          title={product.title}
+          images={product.img_url.map((image, index) => ({
+            src: image,
+            alt: `${product.title}-${index + 1}`,
+          }))}
+          width={480}
+          height={360}
+          swipeable={false}
         />
       )}
       <div className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-2 py-2">
