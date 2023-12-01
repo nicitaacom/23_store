@@ -15,7 +15,7 @@
 ## or Step 1.1 - clone repository (variant 2)
 
 ```
-git clone https://23-store.vercel.app/
+git clone https://github.com/nicitaacom/23_store
 ```
 
 ## Step 1.2 - install deps
