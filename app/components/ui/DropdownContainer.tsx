@@ -1,6 +1,5 @@
 "use client"
 
-import useAvatarDropdownClose from "@/hooks/ui/useAvatarDropdownClose"
 import { twMerge } from "tailwind-merge"
 
 interface DropdownContainerProps {
