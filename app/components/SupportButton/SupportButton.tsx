@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { BiSupport } from "react-icons/bi"
-import { find, mergeWith } from "lodash"
+import { find } from "lodash"
 import axios from "axios"
 
 import { TAPIMessages } from "@/api/messages/route"
