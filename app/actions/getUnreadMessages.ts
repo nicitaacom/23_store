@@ -1,4 +1,3 @@
-import { pusherServer } from "@/libs/pusher"
 import supabaseAdmin from "@/libs/supabaseAdmin"
 import supabaseServer from "@/libs/supabaseServer"
 import { getCookie } from "@/utils/helpersSSR"
@@ -15,11 +14,16 @@ const getUnreadMessages = async () => {
 
   const userId = user?.id === undefined ? getCookie("anonymousId")?.value : user.id
 
-  const { data, error } = await supabaseAdmin
+  const { data, error: get_unread_messages_error } = await supabaseAdmin
     .from("messages")
     .select("ticket_id,id,seen")
     .not("sender_id", "eq", userId!)
     .eq("seen", false)
+
+  if (get_unread_messages_error) {
+    console.log(25, "get_unread_messages_error - ", get_unread_messages_error)
+    throw get_unread_messages_error
+  }
 
   if (data && data.length !== 0) {
     const outputData: UnseenMessages[] = Object.values(
