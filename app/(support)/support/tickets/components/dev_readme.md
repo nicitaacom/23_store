@@ -16,7 +16,6 @@ when I don't use supabaseKey there
 ## Usage for MessagesHeader.tsx
 
 I use this component to display current user support help to and to delete this ticke
-TODO - change delete to close this ticket (because if support delete some ticket it appears again because I fetch all open tickets)
 
 ## Usage for MobileSidebar.tsx
 
