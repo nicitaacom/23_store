@@ -21,14 +21,14 @@ interface MessageStore {
   success?: boolean
 }
 
-export const useToast = create<MessageStore>((set, get) => ({
+export const useToast = create<MessageStore>(set => ({
   isOpen: false,
   error: false,
   success: false,
   _subTitle: "",
   show(status: string, _title?: string, _subTitle?: React.ReactNode, timeoutInMs?: number) {
     set({
-      isOpen: !get().isOpen,
+      isOpen: true,
       error: status === "success" ? false : true,
       success: status === "success" ? true : false,
       title: _title,
@@ -36,7 +36,7 @@ export const useToast = create<MessageStore>((set, get) => ({
     })
     setTimeout(
       () => {
-        set({ isOpen: !get().isOpen })
+        set({ isOpen: false })
       },
       timeoutInMs ? timeoutInMs : 5000,
     )
