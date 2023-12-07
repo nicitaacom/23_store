@@ -6,6 +6,8 @@ import getUnreadMessages from "@/actions/getUnreadMessages"
 import Navbar from "@/components/Navbar/Navbar"
 import { DesktopSidebar, MobileSidebar } from "./components"
 
+export const dynamic = "force-dynamic"
+
 export default async function SupportChatLayout({ children }: { children: React.ReactNode }) {
   const { data: role_response, error: anonymous_user } = await supabaseServer().from("users").select("role").single()
   const initialTickets = await getInitialTickets()

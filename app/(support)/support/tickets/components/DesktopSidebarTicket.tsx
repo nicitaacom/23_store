@@ -12,6 +12,8 @@ interface DesktopSidebarTicketProps {
   onClick: () => void
 }
 
+export const dynamic = "force-dynamic"
+
 export function DesktopSidebarTicket({ ticket, unseenMessagesAmount, onClick }: DesktopSidebarTicketProps) {
   const { ticketId } = useTicket()
 
