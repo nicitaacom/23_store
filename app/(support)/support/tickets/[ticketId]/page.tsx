@@ -2,6 +2,7 @@ import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./c
 import { twMerge } from "tailwind-merge"
 import getInitialMessagesByTicketId from "@/actions/getMessagesByTicketId"
 
+// to fix issue when I'm not in present channel and I see no messages in MesagesBody - https://streamable.com/dze31q
 export const dynamic = "force-dynamic"
 
 export default async function ChatPage({ params }: { params: { ticketId: string } }) {

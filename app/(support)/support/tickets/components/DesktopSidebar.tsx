@@ -9,13 +9,18 @@ import { DesktopSidebarTicket } from "./DesktopSidebarTicket"
 import { NoTicketsFound } from "./NoTicketsFound"
 import { UnseenMessages } from "@/actions/getUnreadMessages"
 import { useUnseenMessages } from "@/store/ui/unseenMessages"
+import { useRouter } from "next/navigation"
 
 interface DesktopSidebarProps {
   initialTickets: ITicket[]
   unseenMessages: UnseenMessages[]
 }
 
+export const dynamic = "force-dynamic"
+
 export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSidebarProps) {
+  const router = useRouter()
+
   const [tickets, setTickets] = useState(initialTickets)
   const { unreadMessages, setUnreadMessages, resetUnreadMessages, increaseUnreadMessages } = useUnseenMessages()
   useEffect(() => {
@@ -75,6 +80,11 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
     return <NoTicketsFound />
   }
 
+  function openTicket(ticketId: string) {
+    resetUnreadMessages(ticketId)
+    router.refresh()
+  }
+
   return (
     <aside className="hidden laptop:block h-full shadow-[1px_1px_4px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[101]">
       <nav className="flex flex-col">
@@ -86,7 +96,7 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
               ticket={ticket}
               unseenMessagesAmount={unreadMessages[ticket.id] || 0}
               key={ticket.id}
-              onClick={() => resetUnreadMessages(ticket.id)}
+              onClick={() => openTicket(ticket.id)}
             />
           ))}
       </nav>

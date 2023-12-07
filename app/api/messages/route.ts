@@ -12,6 +12,8 @@ export type TAPIMessages = {
   images?: string[]
 }
 
+export const dynamic = "force-dynamic"
+
 export async function POST(req: Request) {
   const { id, ticketId, body, images, senderId, senderUsername, senderAvatarUrl } = (await req.json()) as TAPIMessages
   // dance arounding to insert current date-time
