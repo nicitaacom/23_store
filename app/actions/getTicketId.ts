@@ -12,6 +12,8 @@ const getTicketId = async () => {
 
   try {
     // 1 user may have only 1 open ticket - that's why single()
+    // TODO - its should work wrong if user authenticated because you select ticket .eq owner_username that equals userId
+    // so owner_username will always not match user_id that's why you always get new ticketId after page reloading
     const { data: ticket_id } = await supabaseAdmin
       .from("tickets")
       .select("id")
