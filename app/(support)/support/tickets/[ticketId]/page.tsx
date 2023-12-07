@@ -2,6 +2,8 @@ import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./c
 import { twMerge } from "tailwind-merge"
 import getInitialMessagesByTicketId from "@/actions/getMessagesByTicketId"
 
+export const dynamic = "force-dynamic"
+
 export default async function ChatPage({ params }: { params: { ticketId: string } }) {
   const initial_messages = await getInitialMessagesByTicketId(params.ticketId)
 

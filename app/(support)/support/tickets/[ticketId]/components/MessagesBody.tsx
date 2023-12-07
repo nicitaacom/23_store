@@ -16,6 +16,8 @@ interface MessagesBodyProps {
   ticket_id: string
 }
 
+export const dynamic = "force-dynamic"
+
 export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) {
   const bottomRef = useRef<HTMLUListElement>(null)
   const { userId } = useUserStore()
