@@ -9,6 +9,8 @@ export type TAPIMessagesSeen = {
   userId: string
 }
 
+export const dynamic = "force-dynamic"
+
 export async function POST(req: Request) {
   const { ticketId, messages, userId } = (await req.json()) as TAPIMessagesSeen
   // update to seen:true - only for (not own messages) and (not seen messages)
