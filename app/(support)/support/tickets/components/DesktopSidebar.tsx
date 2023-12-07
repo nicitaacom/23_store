@@ -63,6 +63,8 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
       setTickets(current => {
         return [...current.filter(tckt => tckt.id !== ticket.id)]
       })
+      // to fix Application error: a client-side exception has occurred (see the browser console for more information).
+      router.push("/support/ticekts")
     }
 
     pusherClient.bind("tickets:open", openHandler)
