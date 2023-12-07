@@ -1,8 +1,6 @@
 "use client"
 
-import { Input } from "@/components/ui/Inputs"
-import { useState } from "react"
-import { FieldErrors, UseFormRegister } from "react-hook-form"
+import { UseFormRegister } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
 interface FormData {
