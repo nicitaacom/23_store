@@ -10,7 +10,6 @@ export default function AuthCompleted() {
   const router = useRouter()
   const params = useSearchParams()?.get("code")?.trimEnd()
   const provider = useSearchParams()?.get("provider")?.trimEnd()
-  console.log(13, "provider - ", provider)
 
   const userStore = useUserStore()
 
