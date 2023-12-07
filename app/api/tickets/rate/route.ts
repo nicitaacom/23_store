@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
+import { pusherServer } from "@/libs/pusher"
 
 import supabaseAdmin from "@/libs/supabaseAdmin"
-import { pusherServer } from "@/libs/pusher"
 import { ITicket } from "@/interfaces/ITicket"
 
 export type TAPITicketsRate = {

@@ -1,14 +1,15 @@
 "use client"
 
-import { ITicket } from "@/interfaces/ITicket"
-import useTicket from "@/hooks/support/useTicket"
-import { twMerge } from "tailwind-merge"
 import { useEffect, useState } from "react"
+import { twMerge } from "tailwind-merge"
 import { find } from "lodash"
-import { pusherClient } from "@/libs/pusher"
-import { MobileSidebarTicket } from "./MobileSidebarTicket"
-import { useUnseenMessages } from "@/store/ui/unseenMessages"
+
+import { ITicket } from "@/interfaces/ITicket"
 import { UnseenMessages } from "@/actions/getUnreadMessages"
+import { useUnseenMessages } from "@/store/ui/unseenMessages"
+import { pusherClient } from "@/libs/pusher"
+import useTicket from "@/hooks/support/useTicket"
+import { MobileSidebarTicket } from "./MobileSidebarTicket"
 
 interface MobileSidebarProps {
   initialTickets: ITicket[]

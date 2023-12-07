@@ -1,4 +1,4 @@
-# Usage for modals based on query params
+# How to reuse/implement modals based on query params
 
 ## Step 1 (in this folder)
 
@@ -78,7 +78,7 @@ Render OpenNameModalButton.tsx somewhere (e.g in Navbar.tsx)
 <br/>
 <br/>
 
-# Usage for modals based on global state
+# How to reuse/implement modals based on global state
 
 ## Step 1 (in this folder)
 
@@ -142,7 +142,7 @@ Render your modal here
 <br/>
 <br/>
 
-# Usage for are you sure modals
+# How to reuse/implement are you sure modals
 
 ## Step 1 (in this folder)
 

@@ -70,3 +70,13 @@ to open sidebar that you see as hamburger menu icon in left top corner
 
 I use this global store to show toast notifications about success or error
 I use this file in `AddProductForm.tsx` and in `CartModal.tsx`
+
+<br/>
+<br/>
+<br/>
+
+# How to reuse/implement it one more time
+
+areYouSureClearCartModal - `ui/Modals/dev_readme.md`
+
+avatarDropdown - `Navbar/components/dev_readme.md`

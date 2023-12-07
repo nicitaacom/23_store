@@ -1,12 +1,11 @@
-import supabaseClient from "@/libs/supabaseClient"
+import { useRouter } from "next/navigation"
 import { FaCheck } from "react-icons/fa"
+import axios from "axios"
 
+import { TAPITicketsClose } from "@/api/tickets/close/route"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
 import useTicket from "@/hooks/support/useTicket"
 import { AreYouSureModalContainer } from "./ModalContainers"
-import { useRouter } from "next/navigation"
-import axios from "axios"
-import { TAPITicketsClose } from "@/api/tickets/close/route"
 
 export function AreYouSureMarkTicketAsCompletedSupportModal() {
   const router = useRouter()

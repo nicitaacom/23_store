@@ -214,6 +214,7 @@ input::-webkit-inner-spin-button {
   width: 0;
   height: 0;
 }
+
 /* ===== Scrollbar CSS ===== */
 /* Firefox */
 @media (min-width: 1024px) {

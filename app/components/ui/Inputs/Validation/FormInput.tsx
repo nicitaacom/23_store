@@ -40,7 +40,7 @@ export function FormInput({
   startIcon,
   endIcon,
   placeholder = "",
-  required = false,
+  required,
   register,
   errors,
   disabled = false,

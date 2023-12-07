@@ -5,6 +5,9 @@
 /ui - for components which may used across all site<br/>
 
 Create folder 'components' for client components in some component (e.g Navbar) if required
+e.g in Navbar you have searchbar dark mode switcher user avatar etc - for that I created folder components in Navbar
+
+Please use components related to some specific route (like support) in (support) or any other organization route
 
 ### Usage for Buttons folder
 
@@ -25,9 +28,9 @@ this input has no `onChange` that's why can be used with FormData as server comp
 
 ### Usage for Modals folder
 
-Modal/AdminPanel - login with google - click on your avatar in top right corner - click 'Admin Panel'
-no something special just some TSX and logic related to actions in `AdminPanelModal.tsx`
-Modal/AuthModal - logout (if logged in) - click on your avatar in top right corner
+Modal/AdminPanel - login with google - click on your avatar in top right corner - click 'Admin Panel'<br/>
+no something special just some TSX and logic related to actions in `AdminPanelModal.tsx`<br/>
+Modal/AuthModal - logout (if logged in) - click on your avatar in top right corner<br/>
 issues of this `AuthModal.tsx` is:
 
 1. Auth with credentials work very buggy (fake login/register/recover errors)
