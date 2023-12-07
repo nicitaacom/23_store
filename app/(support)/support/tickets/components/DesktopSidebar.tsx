@@ -10,6 +10,7 @@ import { NoTicketsFound } from "./NoTicketsFound"
 import { UnseenMessages } from "@/actions/getUnreadMessages"
 import { useUnseenMessages } from "@/store/ui/unseenMessages"
 import { useRouter } from "next/navigation"
+import useToast from "@/store/ui/useToast"
 
 interface DesktopSidebarProps {
   initialTickets: ITicket[]
@@ -20,6 +21,7 @@ export const dynamic = "force-dynamic"
 
 export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSidebarProps) {
   const router = useRouter()
+  const toast = useToast()
 
   const [tickets, setTickets] = useState(initialTickets)
   const { unreadMessages, setUnreadMessages, resetUnreadMessages, increaseUnreadMessages } = useUnseenMessages()
@@ -60,11 +62,17 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
     }
 
     const closeHandler = (ticket: ITicket) => {
+      router.push("/support/tickets")
+      toast.show(
+        "success",
+        "User closed ticket",
+        "You may check your stats here - TOTO - create support/statistic page",
+        6000,
+      )
       setTickets(current => {
         return [...current.filter(tckt => tckt.id !== ticket.id)]
       })
       // to fix Application error: a client-side exception has occurred (see the browser console for more information).
-      router.push("/support/ticekts")
     }
 
     pusherClient.bind("tickets:open", openHandler)
@@ -76,7 +84,7 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
       pusherClient.unbind("tickets:update", updateHandler)
       pusherClient.unbind("tickets:close", closeHandler)
     }
-  }, [increaseUnreadMessages, tickets])
+  }, [increaseUnreadMessages, router, tickets, toast])
 
   if (tickets.length === 0) {
     return <NoTicketsFound />
@@ -84,7 +92,9 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
 
   function openTicket(ticketId: string) {
     resetUnreadMessages(ticketId)
-    router.refresh()
+    setTimeout(() => {
+      router.refresh()
+    }, 250)
   }
 
   return (
