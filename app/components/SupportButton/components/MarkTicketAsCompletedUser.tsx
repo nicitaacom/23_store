@@ -37,7 +37,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
   async function closeTicket() {
     setShowMarkTicketAsCompleted(false)
     setShowRateThisTicket(true)
-    await axios.post("api/tickets/close", { ticketId: ticketId } as TAPITicketsClose)
+    await axios.post("api/tickets/close", { ticketId: ticketId, closedBy: "user" } as TAPITicketsClose)
   }
 
   async function rateTicket(ratingValue: number | null) {

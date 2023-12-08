@@ -61,7 +61,7 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
       increaseUnreadMessages(ticket.id)
     }
 
-    const closeHandler = (ticket: ITicket) => {
+    const closeByUserHandler = (ticket: ITicket) => {
       router.push("/support/tickets")
       toast.show(
         "success",
@@ -75,14 +75,24 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
       // to fix Application error: a client-side exception has occurred (see the browser console for more information).
     }
 
+    const closeBySupportHandler = (ticket: ITicket) => {
+      router.push("/support/tickets")
+      setTickets(current => {
+        return [...current.filter(tckt => tckt.id !== ticket.id)]
+      })
+      // to fix Application error: a client-side exception has occurred (see the browser console for more information).
+    }
+
     pusherClient.bind("tickets:open", openHandler)
     pusherClient.bind("tickets:update", updateHandler)
-    pusherClient.bind("tickets:close", closeHandler)
+    pusherClient.bind("tickets:closeByUser", closeByUserHandler)
+    pusherClient.bind("tickets:closeBySupport", closeBySupportHandler)
     return () => {
       pusherClient.unsubscribe("tickets")
       pusherClient.unbind("tickets:open", openHandler)
       pusherClient.unbind("tickets:update", updateHandler)
-      pusherClient.unbind("tickets:close", closeHandler)
+      pusherClient.unbind("tickets:closeByUser", closeByUserHandler)
+      pusherClient.unbind("tickets:closeBySupport", closeBySupportHandler)
     }
   }, [increaseUnreadMessages, router, tickets, toast])
 

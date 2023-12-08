@@ -66,8 +66,6 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
     }
 
     const newHandler = (message: IMessage) => {
-      //TODO - axios.post('api/messages/{ticketId}/seen')
-
       setMessages(current => {
         if (find(current, { id: message.id })) {
           return current
@@ -97,16 +95,16 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
       setMessages([])
     }
 
-    pusherClient.bind("messages:new", newHandler)
-    pusherClient.bind("messages:seen", seenHandler)
-    pusherClient.bind("tickets:close", closeHandler)
-    pusherClient.bind("tickets:closeBySupport", closeHandler)
+    pusherClient.bind("messages:new", newHandler) // show new msg and scrollToBottom
+    pusherClient.bind("messages:seen", seenHandler) // set 'seen:true'
+    pusherClient.bind("tickets:closeByUser", closeHandler) // to clear messages
+    pusherClient.bind("tickets:closeBySupport", closeHandler) // to clear messages
 
     return () => {
       pusherClient.unsubscribe(ticketId)
       pusherClient.unbind("messages:new", newHandler)
       pusherClient.unbind("messages:seen", seenHandler)
-      pusherClient.unbind("tickets:close", closeHandler)
+      pusherClient.unbind("tickets:closeByUser", closeHandler)
       pusherClient.unbind("tickets:closeBySupport", closeHandler)
     }
   }, [messages, ticketId, router])

@@ -14,8 +14,5 @@ export async function POST(req: Request) {
   const { error } = await supabaseAdmin.from("tickets").update({ is_open: false, rate: rate }).eq("id", ticketId)
   if (error) return NextResponse.json({ error: `Error in api/tickets/route.ts\n ${error.message}` }, { status: 400 })
 
-  // to clear messages on user side
-  await pusherServer.trigger(ticketId, "tickets:close", null)
-
   return NextResponse.json({ message: "Ticket marked as completed (ticket closed)" }, { status: 200 })
 }
