@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge"
 
-import getInitialMessagesByTicketId from "@/actions/getMessagesByTicketId"
+import getInitialMessagesByTicketId from "@/actions/getInitialMessagesByTicketId"
 import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
 import { ThisTicketIsCompleted } from "./components/ThisTicketIsCompleted"
 
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic"
 export default async function ChatPage({ params }: { params: { ticketId: string } }) {
   const initial_messages = await getInitialMessagesByTicketId(params.ticketId)
 
-  if (initial_messages === "this ticket is closed") {
+  if (initial_messages === null) {
     return <ThisTicketIsCompleted ticketId={params.ticketId} />
   } else if (initial_messages.length > 0 && initial_messages[0].ticket_id) {
     return (
