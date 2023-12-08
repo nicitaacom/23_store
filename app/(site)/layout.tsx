@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 
-import getInitialMessagesByTicketId from "@/actions/getMessagesByTicketId"
+import getInitialMessagesByTicketId from "@/actions/getInitialMessagesByTicketId"
 import getTicketId from "@/actions/getTicketId"
 
 import Navbar from "@/components/Navbar/Navbar"

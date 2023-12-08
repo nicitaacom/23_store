@@ -10,6 +10,8 @@ import { useUnseenMessages } from "@/store/ui/unseenMessages"
 import { pusherClient } from "@/libs/pusher"
 import useTicket from "@/hooks/support/useTicket"
 import { MobileSidebarTicket } from "./MobileSidebarTicket"
+import { useRouter } from "next/navigation"
+import useToast from "@/store/ui/useToast"
 
 interface MobileSidebarProps {
   initialTickets: ITicket[]
@@ -18,6 +20,9 @@ interface MobileSidebarProps {
 
 export function MobileSidebar({ initialTickets, unseenMessages }: MobileSidebarProps) {
   const [tickets, setTickets] = useState(initialTickets)
+
+  const router = useRouter()
+  const toast = useToast()
 
   const { unreadMessages, setUnreadMessages, resetUnreadMessages } = useUnseenMessages()
   useEffect(() => {
@@ -54,23 +59,41 @@ export function MobileSidebar({ initialTickets, unseenMessages }: MobileSidebarP
       )
     }
 
-    const closeHandler = (ticket: ITicket) => {
+    const closeBySupportHandler = (ticket: ITicket) => {
+      // to fix Application error: a client-side exception has occurred (see the browser console for more information).
+      router.push("/support/tickets")
       setTickets(current => {
         return [...current.filter(tckt => tckt.id !== ticket.id)]
       })
     }
 
+    const closeHandler = (ticket: ITicket) => {
+      router.push("/support/tickets")
+      toast.show(
+        "success",
+        "User closed ticket",
+        "You may check your stats here - TOTO - create support/statistic page",
+        6000,
+      )
+      setTickets(current => {
+        return [...current.filter(tckt => tckt.id !== ticket.id)]
+      })
+      // to fix Application error: a client-side exception has occurred (see the browser console for more information).
+    }
+
     pusherClient.bind("tickets:open", newHandler)
     pusherClient.bind("tickets:update", updateHandler)
-    pusherClient.bind("tickets:close", closeHandler)
+    pusherClient.bind("tickets:closeByUser", closeHandler)
+    pusherClient.bind("tickets:closeBySupport", closeBySupportHandler)
 
     return () => {
       pusherClient.unsubscribe("tickets")
       pusherClient.unbind("tickets:open", newHandler)
       pusherClient.unbind("tickets:update", updateHandler)
-      pusherClient.unbind("tickets:close", closeHandler)
+      pusherClient.unbind("tickets:closeByUser", closeHandler)
+      pusherClient.unbind("tickets:closeBySupport", closeBySupportHandler)
     }
-  }, [tickets])
+  }, [router, tickets, toast])
 
   const { isOpen } = useTicket()
 

@@ -1,6 +1,8 @@
-import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
 import { twMerge } from "tailwind-merge"
-import getInitialMessagesByTicketId from "@/actions/getMessagesByTicketId"
+
+import getInitialMessagesByTicketId from "@/actions/getInitialMessagesByTicketId"
+import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
+import { ThisTicketIsCompleted } from "./components/ThisTicketIsCompleted"
 
 // to fix issue when I'm not in present channel and I see no messages in MesagesBody - https://streamable.com/dze31q
 export const dynamic = "force-dynamic"
@@ -8,7 +10,9 @@ export const dynamic = "force-dynamic"
 export default async function ChatPage({ params }: { params: { ticketId: string } }) {
   const initial_messages = await getInitialMessagesByTicketId(params.ticketId)
 
-  if (initial_messages.length > 0 && initial_messages[0].ticket_id) {
+  if (initial_messages === null) {
+    return <ThisTicketIsCompleted ticketId={params.ticketId} />
+  } else if (initial_messages.length > 0 && initial_messages[0].ticket_id) {
     return (
       <main
         className={twMerge(

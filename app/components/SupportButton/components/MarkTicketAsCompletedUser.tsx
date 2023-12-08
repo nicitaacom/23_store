@@ -37,10 +37,11 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
   async function closeTicket() {
     setShowMarkTicketAsCompleted(false)
     setShowRateThisTicket(true)
-    await axios.post("api/tickets/close", { ticketId: ticketId } as TAPITicketsClose)
+    await axios.post("api/tickets/close", { ticketId: ticketId, closedBy: "user" } as TAPITicketsClose)
   }
 
   async function rateTicket(ratingValue: number | null) {
+    console.log(44, "rateTicket")
     setRating(ratingValue)
 
     setShowRateThisTicket(false)
@@ -64,18 +65,14 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
       .map((withoutItIuuse, index: number) => {
         const ratingValue = index + 1 //start not from 0 but from 1
         return (
+          //TODO - fix onClick on mobiles - https://streamable.com/vo9rnk
           <label key={index}>
-            <input
-              style={{ display: "none" }}
-              name="star"
-              type="radio"
-              value={ratingValue}
-              onClick={() => rateTicket(ratingValue)}
-            />
+            <input style={{ display: "none" }} name="star" type="radio" value={ratingValue} />
             <div
               className="cursor-pointer"
               onMouseEnter={() => setHover(ratingValue)}
-              onMouseLeave={() => setHover(null)}>
+              onMouseLeave={() => setHover(null)}
+              onClick={() => rateTicket(ratingValue)}>
               {ratingValue <= (hover || rating!) ? (
                 <FaStar className="text-[#E49B0F]" size={32} />
               ) : (
@@ -91,6 +88,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
     pusherClient.subscribe(ticketId)
 
     const closeBySupportHandler = () => {
+      setShowMarkTicketAsCompleted(false)
       setShowRateThisTicket(true)
     }
 
