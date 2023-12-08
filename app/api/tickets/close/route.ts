@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     // separate event is required for action when support close ticket (if you change event to tickets:close it will not work)
     // I mean if you fire some event this event will be fird in all channels but data will be passed to channels in 1st prop
     // to show on user side 'rate this ticket'
-    await pusherServer.trigger(ticketId, "tickets:closeBySupport", null)
+    await pusherServer.trigger([ticketId, "tickets"], "tickets:closeBySupport", { id: ticketId } as ITicket)
   }
   if (closedBy === "user") {
     // on user side - clear messages

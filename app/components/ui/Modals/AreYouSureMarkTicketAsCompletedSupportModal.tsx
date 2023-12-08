@@ -14,9 +14,8 @@ export function AreYouSureMarkTicketAsCompletedSupportModal() {
   const { ticketId } = useTicket()
 
   async function markTickedAsCompleted() {
-    await axios.post("/api/tickets/close", { ticketId: ticketId, closedBy: "support" } as TAPITicketsClose)
     areYouSureMarkTicketAsCompletedSupportModal.closeModal()
-    router.push("/support/tickets")
+    await axios.post("/api/tickets/close", { ticketId: ticketId, closedBy: "support" } as TAPITicketsClose)
   }
 
   return (

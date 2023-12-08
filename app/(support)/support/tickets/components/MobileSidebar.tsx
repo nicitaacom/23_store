@@ -59,6 +59,14 @@ export function MobileSidebar({ initialTickets, unseenMessages }: MobileSidebarP
       )
     }
 
+    const closeBySupportHandler = (ticket: ITicket) => {
+      // to fix Application error: a client-side exception has occurred (see the browser console for more information).
+      router.push("/support/tickets")
+      setTickets(current => {
+        return [...current.filter(tckt => tckt.id !== ticket.id)]
+      })
+    }
+
     const closeHandler = (ticket: ITicket) => {
       router.push("/support/tickets")
       toast.show(
@@ -76,12 +84,14 @@ export function MobileSidebar({ initialTickets, unseenMessages }: MobileSidebarP
     pusherClient.bind("tickets:open", newHandler)
     pusherClient.bind("tickets:update", updateHandler)
     pusherClient.bind("tickets:closeByUser", closeHandler)
+    pusherClient.bind("tickets:closeBySupport", closeBySupportHandler)
 
     return () => {
       pusherClient.unsubscribe("tickets")
       pusherClient.unbind("tickets:open", newHandler)
       pusherClient.unbind("tickets:update", updateHandler)
       pusherClient.unbind("tickets:closeByUser", closeHandler)
+      pusherClient.unbind("tickets:closeBySupport", closeBySupportHandler)
     }
   }, [router, tickets, toast])
 
