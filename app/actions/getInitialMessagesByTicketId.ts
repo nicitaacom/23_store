@@ -2,17 +2,13 @@ import supabaseAdmin from "@/libs/supabaseAdmin"
 
 const getInitialMessagesByTicketId = async (ticketId: string) => {
   // Check is this ticket closed
-  const { data: is_closed_response, error: is_closed_error } = await supabaseAdmin
-    .from("tickets")
-    .select("is_open")
-    .eq("id", ticketId)
-    .single()
-  if (is_closed_error) {
-    console.log(8, "is_closed_error - ", is_closed_error)
-    throw is_closed_error
-  }
-  if (is_closed_response.is_open === false) {
-    return "this ticket is closed"
+  // Don't needed error because if it will check ticketId from cookies - this ticketId doesn't exist
+  // in DB cause I create ticket in DB on first message sent
+  const { data: is_closed_response } = await supabaseAdmin.from("tickets").select("is_open").eq("id", ticketId).single()
+
+  if (is_closed_response?.is_open === false) {
+    // if this ticket already completed - return null
+    return null
   }
 
   const { data: messages_by_id_response, error: messages_by_id_error } = await supabaseAdmin
