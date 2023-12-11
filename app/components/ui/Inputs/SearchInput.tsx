@@ -16,7 +16,7 @@ export function SearchInput({
   startIcon,
   endIcon,
   pattern,
-  required = false,
+  required,
   name,
   ...props
 }: InputProps) {
