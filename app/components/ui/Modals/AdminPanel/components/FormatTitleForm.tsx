@@ -11,12 +11,12 @@ import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
 import { TUpdateProductRequest } from "@/api/products/update/route"
 
-interface FormatTitleFormpProps {
+interface FormatTitleFormProps {
   id: string
   title: string
 }
 
-export function FormatTitleForm({ id, title }: FormatTitleFormpProps) {
+export function FormatTitleForm({ id, title }: FormatTitleFormProps) {
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
