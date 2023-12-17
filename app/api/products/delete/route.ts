@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       .single()
     if (deleteProductError)
       throw new Error(
-        `delete product from bucket \n Path:/api/products/delete/route.ts \n Error message:\n ${deleteProductError.message}`,
+        `Delete product from bucket \n Path:/api/products/delete/route.ts \n Error message:\n ${deleteProductError.message}`,
       )
 
     if (data?.img_url) {
