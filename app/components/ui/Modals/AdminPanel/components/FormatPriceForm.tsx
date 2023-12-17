@@ -51,7 +51,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
       setIsEditing(false)
     }
     if (event.key === "Enter") {
-      handleSubmit(onSubmit)
+      handleSubmit(onSubmit) // call on submit like this to prevent x3 re-render
     }
   }
 
