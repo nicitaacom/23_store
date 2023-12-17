@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   try {
     /* UPDATE IMAGE */
     if (images) {
-      //Create update on Stripe https://stripe.com/docs/api/products/update
+      // Update image on Stripe https://stripe.com/docs/api/products/update
       const productResponse = await stripe.products.update(productId, { images: images })
 
       //TODO - update images in DB
@@ -48,12 +48,12 @@ export async function POST(req: Request) {
         throw new Error(
           `update product title \n Path:/api/products/update/route.ts \n Error message:\n ${update_title_error.message}`,
         )
+
+      //Active product if it not active
       if (!productResponse.active) {
-        //Active product if it not active
-        if (!productResponse.active) {
-          stripe.products.update(productId, { active: true })
-        }
+        stripe.products.update(productId, { active: true })
       }
+
       return NextResponse.json(productResponse, { status: 200 })
     }
 
