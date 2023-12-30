@@ -324,3 +324,21 @@ select and insert for all users
 ```
 
 For other templates the same - jsut change text `Verify your email on 23_store` and `Verify email`
+
+### URL configuration
+
+Site url - https://23-store.vercel.app
+
+http://localhost:3000/\*\*
+
+https://23-store.vercel.app/auth/callback/credentials
+
+https://23-store.vercel.app/?modal=AuthModal&variant=resetPassword&code=**
+
+https://23-store.vercel.app/error?error_description=**
+
+https://23-store.vercel.app/auth/completed?code=**
+
+https://23-store.vercel.app/**
+
+https://23-store.vercel.app/auth/callback/oauth?provider=**
