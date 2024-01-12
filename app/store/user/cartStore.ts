@@ -91,6 +91,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
 
     set(() => ({
       products: updatedProducts,
+      // TODO - check is it work fine when I increase quantity in cart (e.g from 2 to 3)
     }))
   },
   decreaseProductQuantity(id: string) {
