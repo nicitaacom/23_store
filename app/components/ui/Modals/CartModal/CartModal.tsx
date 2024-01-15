@@ -200,6 +200,8 @@ export function CartModal({ label }: CartModalProps) {
             this&nbsp;
           </Button>
           guide
+          <br />
+          or enable metamask extention
         </span>,
         10000,
       )
@@ -350,13 +352,7 @@ export function CartModal({ label }: CartModalProps) {
                     Metamask
                     <Image className="w-[20px] h-[20px]" width={32} height={32} src="/metamask.png" alt="metamask" />
                   </Button>
-                  <div className="tooltip h-[40px]">
-                    <Button className="flex flex-row gap-x-1 w-full laptop:w-full" variant="info">
-                      Bitcoin
-                      <FaBitcoin />
-                      <div className="tooltiptext bg-background whitespace-nowrap">I need ca 100$ to create it</div>
-                    </Button>
-                  </div>
+
                   <Button
                     className="flex flex-row gap-x-1 w-full laptop:w-full"
                     variant="info"
