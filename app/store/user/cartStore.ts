@@ -66,7 +66,6 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
         }, 0)
       : 0
   },
-
   increaseProductQuantity(id: string) {
     const updatedProducts = { ...get().products }
     let updatedProductsData = [...get().productsData]

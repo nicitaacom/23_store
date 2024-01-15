@@ -21,12 +21,19 @@ export default function AuthCompleted() {
 
   useEffect(() => {
     userStore.setUser(userId ?? "", username ?? "", email ?? "", avatarUrl ?? "")
+    router.prefetch("/")
     //to prevent error about too many re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    if (provider === "google" || provider === "twitter") {
+      router.replace("/")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   if (provider === "google" || provider === "twitter") {
-    router.replace("/")
     return null
   }
 
