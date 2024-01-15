@@ -176,10 +176,7 @@ export function CartModal({ label }: CartModalProps) {
   const handleConnect = async () => {
     setIsConnecting(true)
 
-    if (hasProvider === false) {
-      setTimeout(() => {
-        setIsConnecting(false)
-      }, 10000)
+    if (!hasProvider) {
       toast.show(
         "error",
         "Metamask not detected",
@@ -200,18 +197,18 @@ export function CartModal({ label }: CartModalProps) {
             active="active"
             target="_blank"
             href={`${location.origin}/docs/customer/how-to-install-metamask`}>
-            this
-          </Button>{" "}
+            this&nbsp;
+          </Button>
           guide
         </span>,
         10000,
       )
-      throw Error("Metamask not detected")
+    } else {
+      await window.ethereum.request({
+        method: "eth_requestAccounts",
+      })
     }
 
-    await window.ethereum.request({
-      method: "eth_requestAccounts",
-    })
     setIsConnecting(false)
   }
 
