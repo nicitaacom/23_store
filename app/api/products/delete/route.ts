@@ -36,13 +36,22 @@ export async function POST(request: NextRequest) {
       })
       const { error: deleteFromBucketError } = await supabaseServerAction().storage.from("public").remove(imageUrls)
       if (deleteFromBucketError) {
-        throw new Error(
-          `Delete images from bucket \n Path:/api/products/delete/route.ts \n Error message:\n ${deleteFromBucketError.message}`,
+        console.log(87, "Delete images from bucket error")
+        return new NextResponse(
+          `Delete images from bucket \n
+                Path:/api/products/delete/route.ts \n 
+                Error message:\n ${deleteFromBucketError.message}`,
+          { status: 400 },
         )
       }
     } else {
-      throw new Error(`Delete images from bucket error - no iamges in bucket found:\n
-     data.img_url - ${data.img_url}`)
+      console.log(87, "Delete images from bucket error - no iamges in bucket found")
+      return new NextResponse(
+        `Delete images from bucket \n
+                Path:/api/products/delete/route.ts \n 
+                Error message:\n No images found in bucket ${data.img_url}`,
+        { status: 400 },
+      )
     }
 
     //delte product from 'products' table

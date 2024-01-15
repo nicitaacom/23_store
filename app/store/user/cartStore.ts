@@ -9,6 +9,7 @@ import useUserStore from "./userStore"
 interface CartStore {
   products: TRecordCartProduct
   productsData: IProduct[]
+  keepExistingProductsRecord: (food: TRecordCartProduct) => Promise<TRecordCartProduct> // for case I user delete some food
   fetchProductsData: () => Promise<void>
   getCartQuantity: () => number
   increaseProductQuantity: (id: string) => void
@@ -27,33 +28,22 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
   products: {},
   productsData: [],
   async fetchProductsData() {
-    const ids = Object.keys(get().products)
+    const keepExistingProductsRecord = get().keepExistingProductsRecord
+    const productsRecord = get().products
+    const existingProductsRecord = await keepExistingProductsRecord(productsRecord)
+    const ids = Object.keys(existingProductsRecord) // get ids ['id1','id2','id3']
     const cart_products_data_response = await supabaseClient.from("products").select().in("id", ids)
-    const cart_products = cart_products_data_response.data ?? []
-    //add quantity to productsData
-    const updated_cart_products = cart_products.map(productData => {
+    const cart_products = cart_products_data_response.data ?? [] // get data from DB product with ids
+
+    // Add quantity to productsData
+    const cart_products_with_quantity = cart_products.map(productData => {
       const quantity = get().products[productData.id].quantity ?? 0
       return { ...productData, quantity }
     })
-    //for case if product owner deleted prodcut - update column in 'cart_products'
-    const updatedIds = cart_products.map(productData => productData.id)
-    const filtered_products = Object.keys(get().products)
-      .filter(key => updatedIds.includes(key))
-      .reduce((obj: any, key) => {
-        obj[key] = get().products[key]
-        return obj
-      }, {})
-    const { userId } = useUserStore.getState()
-    if (userId) {
-      const { error: update_cart_products_error } = await supabaseClient
-        .from("users_cart")
-        .update({ cart_products: filtered_products })
-        .eq("id", userId)
-      if (update_cart_products_error) throw update_cart_products_error
-    }
+
     set(() => ({
-      products: filtered_products,
-      productsData: updated_cart_products,
+      products: existingProductsRecord,
+      productsData: cart_products_with_quantity,
     }))
   },
   getCartQuantity() {
@@ -148,18 +138,49 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
   hasProducts() {
     return Object.keys(get().products).length > 0
   },
+  async keepExistingProductsRecord(products: TRecordCartProduct) {
+    const ids = Object.keys(products) // get object keys (prod_id)
+    const { data: existing_ids_response } = await supabaseClient.from("products").select("id").in("id", ids)
+    const existing_ids = existing_ids_response ?? [] // array with existing objects id in DB [{prod_id:'some_id'}]
+    const updatedIds = existing_ids.map(productData => productData.id) // string[] ['id']
+
+    const filtered_products = Object.keys(products) // array of existing records [prod_someId:{ICartProduct}]
+      .filter(key => updatedIds.includes(key))
+      .reduce((obj: any, key) => {
+        obj[key] = products[key]
+        return obj
+      }, {})
+
+    const isNotExistingProductFound = ids.some(id => !updatedIds.includes(id))
+
+    // if found not existing product record - delete it from DB
+    const { userId } = useUserStore.getState()
+    if (userId && isNotExistingProductFound) {
+      const { error: update_cart_food_error } = await supabaseClient
+        .from("users_cart")
+        .update({ cart_products: filtered_products })
+        .eq("id", userId)
+      if (update_cart_food_error) throw update_cart_food_error
+    }
+
+    return filtered_products
+  },
   async initialize() {
     if (typeof window === "undefined") return
+    const keepExistingProductsRecord = get().keepExistingProductsRecord
     const storage = getStorage()
-    const products = await storage.getProducts()
+    const products = await storage.getProducts() // get products from localstorage or DB based on isAuthenticated
+    const existingProducts = await keepExistingProductsRecord(products) // keep in record only existing productis in DB
+
     set(() => ({
-      products,
+      products: existingProducts,
     }))
   },
 })
 
 const useCartStore = create(subscribeWithSelector(cartStore))
 
+// subscribe to state.products changes if this state gets update - save products
 useCartStore.subscribe(
   state => state.products,
   products => {

@@ -12,7 +12,6 @@ export function CartIcon() {
   const cartStore = useCartStore()
 
   const cartQuantity = cartStore.getCartQuantity()
-  console.log(15, "cartQuantity - ", cartQuantity)
 
   return (
     <Link

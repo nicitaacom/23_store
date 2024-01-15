@@ -13,6 +13,45 @@ await axios.post("/api/messages", {
 } as TAPIMessages)
 ```
 
+## Errors handling
+
+Please check best practice in `api/products/delete` route and throw errors like this in every API route
+
+### Server side
+
+```ts
+console.log(87, "No productId", productId)
+return new NextResponse(
+  `Delete product error \n
+                Path:/api/products/delete/route.ts \n 
+                Error message:\n please check that you passed productId`,
+  { status: 400 },
+)
+
+//or
+
+console.log(87, "Delete images from bucket error")
+return new NextResponse(
+  `Delete images from bucket \n
+                Path:/api/products/delete/route.ts \n 
+                Error message:\n ${deleteFromBucketError.message}`,
+  { status: 400 },
+)
+```
+
+### Client side
+
+```ts
+try {
+  await axios.post("/api/product/delete", { productId: id } as TAPIProductDelete)
+} catch (error) {
+  if (error instanceof AxiosError) {
+    console.log(26, error.response?.data)
+    toast.show("error", "Error deleting product", error.response?.data, 15000)
+  }
+}
+```
+
 ## Usage for coinmarketcap route
 
 I use this route to convert USD to ETH to show this price in metamask
