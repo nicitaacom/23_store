@@ -37,6 +37,15 @@ return new NextResponse(
                 Error message:\n ${deleteFromBucketError.message}`,
   { status: 400 },
 )
+
+// for uncaught errors (in catch block)
+
+if (error instanceof Error) {
+  console.log(29, "SEND_EMAIL_ERROR\n  \n", error.message)
+  return new NextResponse(`/api/send-email/route.ts error \n ${error}`, {
+    status: 500,
+  })
+}
 ```
 
 ### Client side

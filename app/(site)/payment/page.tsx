@@ -13,6 +13,7 @@ import { TAPIVerifyPayment, TAPIVerifyPaymentResponse } from "@/api/verify-payme
 import { TAPISendEmail } from "@/api/send-email/route"
 import { renderAsync } from "@react-email/components"
 import { useLoading } from "@/store/ui/useLoading"
+import { TAPIPaymentSuccess } from "@/api/payment/success/route"
 
 export default function Payment() {
   const router = useRouter()
@@ -24,7 +25,7 @@ export default function Payment() {
   const deliveryDate = formatDeliveryDate()
   const [isValidSessionId, setIsValidSessionId] = useState(false)
   const [html, setHtml] = useState("")
-  const { isLoading, setIsLoading } = useLoading()
+  const [currentStep, setCurrentStep] = useState(1)
 
   const emailData = {
     from: process.env.NEXT_PUBLIC_SUPPORT_EMAIL,
@@ -55,14 +56,10 @@ export default function Payment() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const [currentStep, setCurrentStep] = useState(1)
-
   useEffect(() => {
     // 1. Fetch products data to render TSX to html in email to pass this data in email
     async function fetchProductsDataFromDB() {
-      setIsLoading(true)
       await cartStore.fetchProductsData()
-      setIsLoading(false)
       setCurrentStep(2)
     }
 
@@ -152,7 +149,16 @@ export default function Payment() {
   }
 
   async function substractOnStockFromProductQuantity() {
-    console.log(88, "substract product quantity from on_stock")
+    try {
+      const response = await axios.post("/api/payment/success", {
+        productIds: Object.keys(cartStore.products),
+      } as TAPIPaymentSuccess)
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log(158, error.response?.data)
+        toast.show("error", "Error substracting on stock from product quantity", error.response?.data, 15000)
+      }
+    }
   }
 
   if (!cartStore.products || Object.keys(cartStore.products).length === 0) {

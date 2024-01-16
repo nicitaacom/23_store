@@ -56,7 +56,7 @@ export function CartModal({ label }: CartModalProps) {
 
   return (
     <ModalQueryContainer
-      className="w-screen h-screen laptop:max-w-[1024px] laptop:max-h-[640px] pt-8"
+      className="w-screen h-screen laptop:max-w-[1024px] laptop:max-h-[640px] desktop:max-w-[75vw] desktop:max-h-[60vh] pt-8"
       modalQuery="CartModal">
       <div className="relative flex flex-col gap-y-8 pb-8 w-full h-full overflow-y-scroll">
         <h1 className="text-4xl text-center whitespace-nowrap mt-4">{label}</h1>

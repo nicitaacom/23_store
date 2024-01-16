@@ -35,27 +35,27 @@ export function ProductsInCart() {
         {cartStore.productsData.map(productData => {
           return (
             <article
-              className={`relative flex flex-col tablet:flex-row border-[1px] pb-2 tablet:pb-0 overflow-hidden ${
+              className={`relative flex flex-col laptop:flex-row border-[1px] pb-2 tablet:pb-0 overflow-hidden ${
                 productData.on_stock === 0 ? "border-warning" : ""
               }`}
               key={productData.id}>
               {productData.img_url.length === 1 ? (
-                <figure>
-                  <Image
-                    // aspect-video doesn't work - so I write width and height manually
-                    className="w-full h-[300px]
-                          tablet:w-[clamp(16.6875rem,0rem+34.7656vw,22.25rem)] tablet:h-[clamp(9.375rem,0rem+19.5313vw,12.5rem)] 
-                          laptop:w-[356px] laptop:h-[200px]
+                <Image
+                  // aspect-video doesn't work - so I write width and height manually
+                  className="w-full h-[480px]
+                          laptop:aspect-video laptop:w-fit laptop:h-[200px]
+                          desktop:w-[444px] desktop:h-[250px]
                           object-cover"
-                    src={productData.img_url[0]}
-                    alt="image"
-                    width={480}
-                    height={360}
-                    priority
-                  />
-                </figure>
+                  src={productData.img_url[0]}
+                  alt="image"
+                  width={480}
+                  height={360}
+                  priority
+                />
               ) : (
                 <Slider
+                  containerClassName="w-full laptop:w-fit tablet:w-full tablet:h-[480px]"
+                  className="w-full laptop:w-fit tablet:h-[480px]"
                   images={productData.img_url.map((image, index) => ({
                     src: image,
                     alt: `${productData.title}-${index + 1}`,
@@ -66,7 +66,7 @@ export function ProductsInCart() {
               )}
               {/* width of div with title and price is 100% - image width */}
               <div
-                className="relative tablet:w-[calc(100%-clamp(16.6875rem,0rem+34.7656vw,22.25rem))] tablet:laptop:w-[calc(100%-356px)]
+                className="relative laptop:w-[calc(100%-clamp(16.6875rem,0rem+34.7656vw,22.25rem))]
                      flex flex-col justify-between gap-y-4 px-2 py-1 tablet:pb-2">
                 {/* HEADER - Title + price */}
                 <header className="flex flex-col mobile:flex-row justify-between">
