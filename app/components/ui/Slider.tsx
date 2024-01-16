@@ -18,11 +18,17 @@ interface SliderProps {
   height: number
   emulateTouch?: boolean
   swipeable?: boolean
+  containerClassName?: string
+  className?: string
 }
 
-export function Slider({ images, width, height, emulateTouch, swipeable }: SliderProps) {
+export function Slider({ images, width, height, emulateTouch, swipeable, className, containerClassName }: SliderProps) {
   return (
-    <figure className="relative w-full tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit object-cover">
+    <figure
+      className={twMerge(
+        "relative w-full tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit object-cover",
+        containerClassName,
+      )}>
       <Carousel
         showArrows={true}
         showIndicators={false}
@@ -60,6 +66,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable }: Slide
           <Image
             className={twMerge(
               `max-w-full tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] object-cover`,
+              className,
             )}
             src={image.src}
             alt={image.alt}
