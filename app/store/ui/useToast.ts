@@ -38,7 +38,7 @@ export const useToast = create<MessageStore>(set => ({
       () => {
         set({ isOpen: false })
       },
-      timeoutInMs ? timeoutInMs : 5000,
+      timeoutInMs ? timeoutInMs : 8000,
     )
   },
 }))
