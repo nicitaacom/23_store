@@ -14,6 +14,8 @@ import { TAPISendEmail } from "@/api/send-email/route"
 import { renderAsync } from "@react-email/components"
 import { useLoading } from "@/store/ui/useLoading"
 import { TAPIPaymentSuccess } from "@/api/payment/success/route"
+import Image from "next/image"
+import { Timer } from "@/(auth)/AuthModal/components/Timer"
 
 export default function Payment() {
   const router = useRouter()
@@ -34,6 +36,7 @@ export default function Payment() {
     html: html,
   }
 
+  // TODO - fix random bug when cart get initial state {} (sometimes I pay in test mode and it throw error)
   // 1/2 Prevent somebody accessing to this route to make success payment without paying
   useEffect(() => {
     if (!cartStore.products || Object.keys(cartStore.products).length === 0) {
@@ -56,6 +59,7 @@ export default function Payment() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Send email - substract on_stock - product.quantity - clear cart
   useEffect(() => {
     // 1. Fetch products data to render TSX to html in email to pass this data in email
     async function fetchProductsDataFromDB() {
@@ -77,12 +81,13 @@ export default function Payment() {
       }
     }
 
-    // 3. Send email
+    // 3. Send email and substract on_stock - product.quantity
     async function sendEmailFunction() {
       await verifySessionId()
       if (isValidSessionId && status === "success" && html) {
         await sendEmail()
         await substractOnStockFromProductQuantity()
+        cartStore.clearCart()
       }
     }
 
@@ -127,8 +132,6 @@ export default function Payment() {
           toast.show("error", "Error verifying payment", error.response?.data)
         }
       }
-    } else {
-      toast.show("error", "You should not use protected routes!", "Please don't do that and pay for your order")
     }
   }
 
@@ -150,8 +153,8 @@ export default function Payment() {
 
   async function substractOnStockFromProductQuantity() {
     try {
-      const response = await axios.post("/api/payment/success", {
-        productIds: Object.keys(cartStore.products),
+      await axios.post("/api/payment/success", {
+        cartProducts: cartStore.products,
       } as TAPIPaymentSuccess)
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -165,5 +168,29 @@ export default function Payment() {
     return null
   }
 
-  return <div>hi</div>
+  return (
+    <section
+      className="absolute left-[50%] top-[50%] translate-x-[-50%]
+     translate-y-[-100%] tablet:translate-y-[-75%] laptop:translate-y-[-50%] 
+    flex flex-col text-center justify-center items-center w-full">
+      {status === "success" ? (
+        <>
+          <Image src="/success-checkmark.gif" alt="Success Checkmark" width={256} height={25} />
+          <h1 className="text-2xl mb-2">Your payment is successful</h1>
+          <p>Check snet to your email 📨</p>
+          <p className="flex flex-row">
+            Redirecting to home page in <Timer seconds={3} action={() => router.replace("/")} />
+          </p>
+        </>
+      ) : (
+        <>
+          <Image src="/error-checkmark.gif" alt="Error Checkmark" width={256} height={256} />
+          <h1 className="text-2xl mb-2">Your payment was canceled</h1>
+          <p className="flex flex-row">
+            Redirecting to home page in <Timer seconds={3} action={() => router.replace("/")} />
+          </p>
+        </>
+      )}
+    </section>
+  )
 }

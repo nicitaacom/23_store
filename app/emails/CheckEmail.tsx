@@ -3,6 +3,7 @@ import { Tailwind } from "@react-email/tailwind"
 import { formatCurrency } from "../utils/currencyFormatter"
 import { IProduct } from "../interfaces/IProduct"
 import { getURL } from "@/utils/helpers"
+import { twMerge } from "tailwind-merge"
 
 interface CheckEmailProps {
   products: IProduct[]
@@ -46,8 +47,11 @@ export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
           <Section className="w-[480px] max-w-[480px] mb-2 border border-solid border-border-color pb-0">
             {products &&
               products.length > 0 &&
-              products.map(product => (
-                <Section className="mb-2" key={product.id}>
+              products.map((product, index) => (
+                <Section
+                  // Show border and mb-2 only for not last products
+                  className={twMerge(index !== products.length - 1 && "border-b border-solid border-border-color mb-2")}
+                  key={product.id}>
                   <Img
                     style={{ objectFit: "cover" }}
                     src={product.img_url[0]}

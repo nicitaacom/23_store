@@ -1,12 +1,15 @@
+import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
 import supabaseAdmin from "@/libs/supabaseAdmin"
 import { NextResponse } from "next/server"
 
 export type TAPIPaymentSuccess = {
-  productIds: string[]
+  cartProducts: TRecordCartProduct
 }
 
 export async function POST(req: Request) {
-  const { productIds } = (await req.json()) as TAPIPaymentSuccess
+  const { cartProducts } = (await req.json()) as TAPIPaymentSuccess
+  const productIds = Object.keys(cartProducts)
+  const productQuantities = Object.values(cartProducts).map(cartProduct => cartProduct.quantity)
 
   try {
     // 1. Get data about products from DB to substract on_stock - product.quantity
@@ -23,7 +26,23 @@ export async function POST(req: Request) {
         { status: 400 },
       )
     }
-    console.log(22, "products - ", products)
+    // 2. Subtract productQuantities from on_stock
+    const substracted_on_stock = products.map((product, index) => product.on_stock - productQuantities[index])
+
+    // 3. Update rows in supabase
+    for (const [index, [id, product]] of Object.entries(cartProducts).entries()) {
+      const updatedOnStock = substracted_on_stock[index]
+
+      const { error: update_error } = await supabaseAdmin
+        .from("products")
+        .update({ on_stock: updatedOnStock })
+        .eq("id", id)
+
+      if (update_error) {
+        console.log(`Update product with id ${id} in DB error: ${update_error.message}`)
+        return new NextResponse(`Update product with id ${id} in DB error`, { status: 400 })
+      }
+    }
   } catch (error) {
     if (error instanceof Error) {
       console.log(29, "SUBSTRACT_PRODUCTS_ON_STOCK_ERROR\n  \n", error.message)

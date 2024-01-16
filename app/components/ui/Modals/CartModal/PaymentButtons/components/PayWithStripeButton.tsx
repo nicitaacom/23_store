@@ -7,11 +7,13 @@ import axios from "axios"
 import { Button } from "@/components/ui"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
+import { useLoading } from "@/store/ui/useLoading"
 
 export function PayWithStripeButton() {
   const router = useRouter()
   const toast = useToast()
   const cartStore = useCartStore()
+  const { isLoading, setIsLoading } = useLoading()
 
   const stripeProductsQuery = cartStore.productsData
     .filter(product => product.on_stock > 0)
@@ -23,6 +25,7 @@ export function PayWithStripeButton() {
     .join("&")
 
   async function createCheckoutSession() {
+    setIsLoading(true)
     if (cartStore.getProductsPrice() > 999999) {
       return toast.show(
         "error",
@@ -35,6 +38,7 @@ export function PayWithStripeButton() {
       )
     }
     const stripeResponse = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
+    setIsLoading(false)
     //redirect user to session.url on client side to avoid 'blocked by CORS' error
     router.push(stripeResponse.data)
   }

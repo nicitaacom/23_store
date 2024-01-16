@@ -9,6 +9,7 @@ import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import EmptyCart from "./EmptyCart"
 import { ProductsInCart } from "./ProductsInCart"
 import { useLoading } from "@/store/ui/useLoading"
+import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
 
 interface CartModalProps {
   label: string
@@ -50,10 +51,6 @@ export function CartModal({ label }: CartModalProps) {
     return null
   }
 
-  if (isLoading) {
-    return <div>TODO - skeleton</div>
-  }
-
   return (
     <ModalQueryContainer
       className="w-screen h-screen laptop:max-w-[1024px] laptop:max-h-[640px] desktop:max-w-[75vw] desktop:max-h-[60vh] pt-8"
@@ -61,7 +58,16 @@ export function CartModal({ label }: CartModalProps) {
       <div className="relative flex flex-col gap-y-8 pb-8 w-full h-full overflow-y-scroll">
         <h1 className="text-4xl text-center whitespace-nowrap mt-4">{label}</h1>
         {/* SHOW EMPTY CART IF NO PRODUCTS */}
-        {cartStore.productsData.length > 0 ? <ProductsInCart /> : <EmptyCart />}
+        {isLoading ? (
+          <div>
+            <h1 className="text-2xl text-center">TODO - cartModal loading skeleton</h1>
+            <ProductsSkeleton />
+          </div>
+        ) : cartStore.productsData.length > 0 ? (
+          <ProductsInCart />
+        ) : (
+          <EmptyCart />
+        )}
       </div>
     </ModalQueryContainer>
   )
