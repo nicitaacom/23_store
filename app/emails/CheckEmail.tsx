@@ -1,17 +1,5 @@
-import {
-  Head,
-  Html,
-  Preview,
-  Tailwind,
-  Body,
-  Container,
-  Section,
-  Img,
-  Heading,
-  Text,
-  Column,
-  Link,
-} from "@react-email/components"
+import { Head, Html, Preview, Body, Section, Img, Heading, Text, Link } from "@react-email/components"
+import { Tailwind } from "@react-email/tailwind"
 import { formatCurrency } from "../utils/currencyFormatter"
 import { IProduct } from "../interfaces/IProduct"
 import { getURL } from "@/utils/helpers"
@@ -45,83 +33,41 @@ export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
         <Head />
         <Preview>{previewText}</Preview>
 
-        <Body className="bg-[#202020]">
+        <Body className="bg-[#202020]" style={{ width: "480px", margin: "0 auto", padding: "20px 0 48px" }}>
           {/* CONTENT - START */}
 
           {/* HEADER */}
-          <Column align="center">
+          <Section style={{ width: "480px", maxWidth: "480px" }}>
             <Heading className="m-0 pt-8 text-title text-center">{previewText}</Heading>
             <Text className="m-0 pb-8 text-subTitle text-center">Your order will delivered on {deliveryDate} 🗓</Text>
-          </Column>
+          </Section>
 
           {/* MAIN CONTENT */}
-          <Container
-            style={{
-              display: "flex",
-              flexFlow: "column",
-              justifyContent: "center",
-              width: "480px",
-              maxWidth: "480px",
-            }}>
+          <Section className="w-[480px] max-w-[480px] mb-2 border border-solid border-border-color pb-0">
             {products &&
               products.length > 0 &&
               products.map(product => (
-                <Section
-                  style={{ width: "480px", maxWidth: "480px", marginBottom: "0.5rem" }}
-                  className="border-[1px] border-solid border-border-color pb-0"
-                  key={product.id}>
-                  <table align="center" width="100%" role="presentation" cellSpacing={0} cellPadding={0} border={0}>
-                    <tbody>
-                      <tr>
-                        <td width="480" height="240" style={{ verticalAlign: "top" }}>
-                          <Img
-                            style={{ objectFit: "cover" }}
-                            src={product.img_url[0]}
-                            width="480"
-                            height="240"
-                            alt={product.title}
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: "1rem 0.5rem" }}>
-                          <table width="100%" role="presentation" cellSpacing={0} cellPadding={0} border={0}>
-                            <tbody>
-                              <tr>
-                                <Text className="m-0 text-title text-2xl text-center">{product.title}</Text>
-                              </tr>
-                              <tr>
-                                <Text className="mb-8 mt-0 text-title text-xl text-center">
-                                  {formatCurrency(product.price)}
-                                </Text>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <Text className="m-0 text-title text-lg text-center">
-                                    Quantity:
-                                    <span className="m-0 text-subTitle">{product.quantity}</span>{" "}
-                                  </Text>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <Text className="m-0 text-title text-lg text-center">
-                                    Sub-total:{" "}
-                                    <span className="m-0 text-subTitle">
-                                      {formatCurrency(product.price * product.quantity)}
-                                    </span>{" "}
-                                  </Text>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                <Section className="mb-2" key={product.id}>
+                  <Img
+                    style={{ objectFit: "cover" }}
+                    src={product.img_url[0]}
+                    width="480"
+                    height="240"
+                    alt={product.title}
+                  />
+                  <Text className="m-0 px-4 py-2 text-title text-2xl text-center">{product.title}</Text>
+                  <Text className="mb-8 mt-0 text-title text-xl text-center">{formatCurrency(product.price)}</Text>
+                  <Text className="m-0 text-title text-lg text-center">
+                    Quantity:
+                    <span className="m-0 text-subTitle">{product.quantity}</span>{" "}
+                  </Text>
+                  <Text className="m-0 text-title text-lg text-center">
+                    Sub-total:
+                    <span className="m-0 text-subTitle">{formatCurrency(product.price * product.quantity)}</span>
+                  </Text>
                 </Section>
               ))}
-          </Container>
+          </Section>
 
           {/* TOTAL */}
           <table
@@ -148,7 +94,7 @@ export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
           {/* FOOTER */}
           <table
             style={{
-              borderTop: "1px solid #999999",
+              borderTop: "2px solid #999999",
               minWidth: "100%",
               margin: "1rem 0rem",
               padding: "1rem 0rem",
@@ -168,7 +114,6 @@ export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
               </td>
             </tr>
           </table>
-
           {/* CONTENT - END */}
         </Body>
       </Html>

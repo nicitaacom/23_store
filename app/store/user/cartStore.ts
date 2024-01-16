@@ -28,23 +28,28 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
   products: {},
   productsData: [],
   async fetchProductsData() {
-    const keepExistingProductsRecord = get().keepExistingProductsRecord
-    const productsRecord = get().products
-    const existingProductsRecord = await keepExistingProductsRecord(productsRecord)
-    const ids = Object.keys(existingProductsRecord) // get ids ['id1','id2','id3']
-    const cart_products_data_response = await supabaseClient.from("products").select().in("id", ids)
-    const cart_products = cart_products_data_response.data ?? [] // get data from DB product with ids
+    const products = get().products
+    // fetch products data only if some products in cart
+    // otherwise everytime I fetch data I neeed to check is some products in reacord to featch
+    if (products) {
+      const keepExistingProductsRecord = get().keepExistingProductsRecord
+      const productsRecord = get().products
+      const existingProductsRecord = await keepExistingProductsRecord(productsRecord)
+      const ids = Object.keys(existingProductsRecord) // get ids ['id1','id2','id3']
+      const cart_products_data_response = await supabaseClient.from("products").select().in("id", ids)
+      const cart_products = cart_products_data_response.data ?? [] // get data from DB product with ids
 
-    // Add quantity to productsData
-    const cart_products_with_quantity = cart_products.map(productData => {
-      const quantity = get().products[productData.id].quantity ?? 0
-      return { ...productData, quantity }
-    })
+      // Add quantity to productsData
+      const cart_products_with_quantity = cart_products.map(productData => {
+        const quantity = get().products[productData.id].quantity ?? 0
+        return { ...productData, quantity }
+      })
 
-    set(() => ({
-      products: existingProductsRecord,
-      productsData: cart_products_with_quantity,
-    }))
+      set(() => ({
+        products: existingProductsRecord,
+        productsData: cart_products_with_quantity,
+      }))
+    }
   },
   getCartQuantity() {
     //I check get().products because when I authenticated I got error

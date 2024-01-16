@@ -8,6 +8,7 @@ import useCartStore from "@/store/user/cartStore"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import EmptyCart from "./EmptyCart"
 import { ProductsInCart } from "./ProductsInCart"
+import { useLoading } from "@/store/ui/useLoading"
 
 interface CartModalProps {
   label: string
@@ -16,16 +17,24 @@ interface CartModalProps {
 export function CartModal({ label }: CartModalProps) {
   const router = useRouter()
   const cartStore = useCartStore()
-
+  const { isLoading, setIsLoading } = useLoading()
   const { isAuthenticated } = useUserStore()
 
-  if (!isAuthenticated) {
-    router.push("/?modal=AuthModal&variant=login")
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/?modal=AuthModal&variant=login")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // fetch products data to render UI from data with ICartRecord type
   useEffect(() => {
-    cartStore.fetchProductsData()
+    setIsLoading(true)
+    async function fetchProductsData() {
+      await cartStore.fetchProductsData()
+    }
+    fetchProductsData()
+    setIsLoading(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -36,6 +45,14 @@ export function CartModal({ label }: CartModalProps) {
     router.prefetch("/payment")
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  if (!isAuthenticated) {
+    return null
+  }
+
+  if (isLoading) {
+    return <div>TODO - skeleton</div>
+  }
 
   return (
     <ModalQueryContainer
