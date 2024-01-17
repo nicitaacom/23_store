@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 import axios from "axios"
 
-import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
 import { TUpdateProductRequest } from "@/api/products/update/route"
 import { useLoading } from "@/store/ui/useLoading"
 import { ProductInput } from "@/components/ui/Inputs/Validation"

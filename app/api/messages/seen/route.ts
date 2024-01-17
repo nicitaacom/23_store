@@ -1,4 +1,4 @@
-import { IMessage } from "@/interfaces/IMessage"
+import { IMessage } from "@/interfaces/support/IMessage"
 import { pusherServer } from "@/libs/pusher"
 import supabaseAdmin from "@/libs/supabaseAdmin"
 import { NextResponse } from "next/server"

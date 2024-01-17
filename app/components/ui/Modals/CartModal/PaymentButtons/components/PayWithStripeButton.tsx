@@ -27,21 +27,27 @@ export function PayWithStripeButton() {
 
   async function createCheckoutSession() {
     setIsLoading(true)
-    if (cartStore.getProductsPrice() > 999999) {
-      return toast.show(
-        "error",
-        "Stripe restrictions",
-        <p>
-          Stripe limits you to make purchase over 1M$
-          <br /> Delete products in cart total be less $1,000,000
-        </p>,
-        10000,
-      )
+    try {
+      if (cartStore.getProductsPrice() > 999999) {
+        return toast.show(
+          "error",
+          "Stripe restrictions",
+          <p>
+            Stripe limits you to make purchase over 1M$
+            <br /> Delete products in cart total be less $1,000,000
+          </p>,
+          10000,
+        )
+      }
+      const stripeResponse = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
+      //redirect user to session.url on client side to avoid 'blocked by CORS' error
+      router.push(stripeResponse.data)
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.show("error", "Error creating stripe session", error.message)
+      }
     }
-    const stripeResponse = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
     setIsLoading(false)
-    //redirect user to session.url on client side to avoid 'blocked by CORS' error
-    router.push(stripeResponse.data)
   }
 
   return (

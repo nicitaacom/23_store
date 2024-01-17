@@ -1,18 +1,18 @@
 import { create } from "zustand"
 import { subscribeWithSelector } from "zustand/middleware"
-import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
+import { TRecordCartProduct } from "@/interfaces/product/TRecordCartProduct"
 import { getStorage } from "@/utils/getStorage"
 import supabaseClient from "@/libs/supabaseClient"
-import { IProduct } from "@/interfaces/IProduct"
+import { TProductAfterDB } from "@/interfaces/product/TProductAfterDB"
 import useUserStore from "./userStore"
 
 interface CartStore {
   products: TRecordCartProduct
-  productsData: IProduct[]
+  productsData: TProductAfterDB[]
   keepExistingProductsRecord: (food: TRecordCartProduct) => Promise<TRecordCartProduct> // for case I user delete some food
   fetchProductsData: () => Promise<void>
   getCartQuantity: () => number
-  increaseProductQuantity: (id: string) => void
+  increaseProductQuantity: (id: string, on_stock: number) => void
   decreaseProductQuantity: (id: string) => void
   clearProductQuantity: (id: string) => void
   getProductsPrice: () => number
@@ -61,11 +61,14 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
         }, 0)
       : 0
   },
-  increaseProductQuantity(id: string) {
+  increaseProductQuantity(id: string, on_stock: number) {
     const updatedProducts = { ...get().products }
     let updatedProductsData = [...get().productsData]
 
     const product = updatedProducts[id]
+
+    // if user try to add more product in cart than on stock
+    if (product && product.quantity === on_stock) return
 
     if (product) {
       updatedProducts[id].quantity++
@@ -190,10 +193,7 @@ useCartStore.subscribe(
   state => state.products,
   products => {
     if (typeof window === "undefined") return
-    // this is fix for bug when it set {} in products
-    if (Object.values(products).length === 0) return // don't save products if produts.length === 0
     const storage = getStorage()
-    console.log(194, "save products - ", products)
     storage.saveProducts(products)
   },
 )

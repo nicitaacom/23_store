@@ -10,7 +10,7 @@ export function Toast() {
 
   return (
     <motion.div
-      className={`fixed right-[1%] bottom-[2%] border-[1px] ${success ? "border-success" : "border-danger"}
+      className={`fixed right-[2%] bottom-[2%] border-[1px] ${success ? "border-success" : "border-danger"}
       bg-foreground flex gap-x-4 w-auto max-w-[30%] rounded-lg px-4 py-2 z-[4999]`}
       initial={{ y: 200 }}
       animate={{ y: 0 }}

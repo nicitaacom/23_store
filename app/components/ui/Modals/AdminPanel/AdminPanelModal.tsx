@@ -9,7 +9,7 @@ import { MdOutlineDelete } from "react-icons/md"
 
 import { RadioButton } from "@/components/ui"
 import useUserStore from "@/store/user/userStore"
-import { IDBProduct } from "@/interfaces/IDBProduct"
+import { TProductDB } from "@/interfaces/product/TProductDB"
 
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { EditProductForm } from "./components/EditProductForm"
@@ -19,7 +19,7 @@ import { useLoading } from "@/store/ui/useLoading"
 
 interface AdminPanelModalProps {
   label: string
-  ownerProducts: IDBProduct[]
+  ownerProducts: TProductDB[]
 }
 
 export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) {

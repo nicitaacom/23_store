@@ -1,12 +1,12 @@
 import { Head, Html, Preview, Body, Section, Img, Heading, Text, Link } from "@react-email/components"
 import { Tailwind } from "@react-email/tailwind"
 import { formatCurrency } from "../utils/currencyFormatter"
-import { IProduct } from "../interfaces/IProduct"
+import { TProductAfterDB } from "../interfaces/product/TProductAfterDB"
 import { getURL } from "@/utils/helpers"
 import { twMerge } from "tailwind-merge"
 
 interface CheckEmailProps {
-  products: IProduct[]
+  products: TProductAfterDB[]
   deliveryDate: string
 }
 

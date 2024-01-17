@@ -1,9 +1,9 @@
-import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
+import { TRecordCartProduct } from "@/interfaces/product/TRecordCartProduct"
 import { Json } from "@/interfaces/types_db"
 import supabaseClient from "@/libs/supabaseClient"
 import useUserStore from "@/store/user/userStore"
-import { Storage } from "./Storage"
 import useToast from "@/store/ui/useToast"
+import { Storage } from "./Storage"
 
 export class DBStorage extends Storage {
   async saveProducts(cartProducts: TRecordCartProduct): Promise<void> {

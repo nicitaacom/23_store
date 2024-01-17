@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       })
       const { error: deleteFromBucketError } = await supabaseServerAction().storage.from("public").remove(imageUrls)
       if (deleteFromBucketError) {
-        console.log(87, "Delete images from bucket error")
+        console.log(39, "Delete images from bucket error")
         return new NextResponse(
           `Delete images from bucket \n
                 Path:/api/products/delete/route.ts \n 
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         )
       }
     } else {
-      console.log(87, "Delete images from bucket error - no iamges in bucket found")
+      console.log(48, "Delete images from bucket error - no iamges in bucket found")
       return new NextResponse(
         `Delete images from bucket \n
                 Path:/api/products/delete/route.ts \n 

@@ -1,4 +1,4 @@
-import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
+import { TRecordCartProduct } from "@/interfaces/product/TRecordCartProduct"
 import { Storage } from "./Storage"
 
 export class LocalStorage extends Storage {

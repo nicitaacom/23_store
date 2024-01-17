@@ -2,12 +2,12 @@
 
 import { AuthModal } from "@/(auth)/AuthModal/AuthModal"
 import { AdminPanelModal, CartModal, ChangeLanguageModal } from "@/components/ui/Modals"
-import { IDBProduct } from "@/interfaces/IDBProduct"
+import { TProductDB } from "@/interfaces/product/TProductDB"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
 //This provider uses only for modals based on query params
-export function ModalsQueryProvider({ ownerProducts }: { ownerProducts: IDBProduct[] }) {
+export function ModalsQueryProvider({ ownerProducts }: { ownerProducts: TProductDB[] }) {
   const [isMounted, setIsMounted] = useState(false)
   const searchParams = useSearchParams()
 

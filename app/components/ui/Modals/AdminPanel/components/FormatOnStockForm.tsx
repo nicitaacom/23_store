@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
-import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
 import supabaseClient from "@/libs/supabaseClient"
 import { useLoading } from "@/store/ui/useLoading"
 
@@ -18,7 +18,7 @@ interface FormatOnStockFormProps {
 
 export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
   const router = useRouter()
-  const { isLoading, setIsLoading} = useLoading()
+  const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
 

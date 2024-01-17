@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { find } from "lodash"
 
-import { ITicket } from "@/interfaces/ITicket"
+import { ITicket } from "@/interfaces/support/ITicket"
 import { pusherClient } from "@/libs/pusher"
 import { DesktopSidebarTicket } from "./DesktopSidebarTicket"
 import { NoTicketsFound } from "./NoTicketsFound"

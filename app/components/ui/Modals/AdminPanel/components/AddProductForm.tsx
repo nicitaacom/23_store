@@ -1,4 +1,4 @@
-import { useState, useRef, Dispatch, SetStateAction } from "react"
+import { useState, useRef } from "react"
 import Image from "next/image"
 import axios from "axios"
 import { useForm } from "react-hook-form"
@@ -9,7 +9,7 @@ import ImageUploading from "react-images-uploading"
 import slugify from "@sindresorhus/slugify" // to fix error in case user upload image with not english characters
 
 import useUserStore from "@/store/user/userStore"
-import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { Button } from "@/components/ui/Button"
 import useDragging from "@/hooks/ui/useDragging"

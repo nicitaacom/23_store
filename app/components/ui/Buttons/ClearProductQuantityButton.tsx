@@ -5,7 +5,10 @@ import { Button } from ".."
 
 export function ClearProductQuantityButton({ onClick }: { onClick: () => void }) {
   return (
-    <Button className="font-secondary font-thin max-h-[50px]" variant="danger-outline" onClick={onClick}>
+    <Button
+      className="min-w-[50px] max-h-[50px] h-[50px] laptop:w-fit font-secondary text-xl font-thin"
+      variant="danger-outline"
+      onClick={onClick}>
       Clear
       <MdOutlineDeleteOutline />
     </Button>

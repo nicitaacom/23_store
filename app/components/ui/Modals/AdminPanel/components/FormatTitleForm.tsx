@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form"
 import axios from "axios"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
-import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
 import { TUpdateProductRequest } from "@/api/products/update/route"
 import { useLoading } from "@/store/ui/useLoading"
 

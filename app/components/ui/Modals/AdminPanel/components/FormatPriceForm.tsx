@@ -8,7 +8,7 @@ import { twMerge } from "tailwind-merge"
 import axios from "axios"
 
 import { TUpdateProductRequest } from "@/api/products/update/route"
-import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { useLoading } from "@/store/ui/useLoading"

@@ -1,6 +1,8 @@
 import { stripe } from "@/libs/stripe"
 import supabaseServerAction from "@/libs/supabaseServerAction"
+import { AxiosError } from "axios"
 import { NextResponse } from "next/server"
+import Stripe from "stripe"
 
 export type TUpdateProductRequest = {
   productId: string
@@ -84,7 +86,6 @@ export async function POST(req: Request) {
 
       // Get data from DB to create new product on stripe
       const { data: product } = await supabaseServerAction().from("products").select("*").eq("id", productId).single()
-      console.log(87, "product - ", product)
 
       // Create new product on stripe
       if (product) {
@@ -93,7 +94,6 @@ export async function POST(req: Request) {
           description: product?.sub_title,
           images: product.img_url,
         })
-        console.log(95, "productResponse - ", productResponse)
 
         // Active product if it not active
         if (!productResponse.active) {
@@ -106,7 +106,6 @@ export async function POST(req: Request) {
           unit_amount: price * 100,
           currency: "usd",
         })
-        console.log(94, "priceResponse - ", priceResponse)
 
         // Archive current product on stripe
         await stripe.products.update(productId, { active: false })
@@ -123,9 +122,24 @@ export async function POST(req: Request) {
       }
     }
   } catch (error: any) {
-    console.log(13, "UPDATE_PRODUCT_ERROR\n", error.response.data)
-    return new NextResponse(`/api/products/update/route.ts error (check termianl) ${error.response.data}`, {
-      status: 500,
-    })
+    // Best practice to throw error like this
+    if (error instanceof Stripe.errors.StripeError) {
+      console.log(84, "DELETE_FOOD_ERROR\n (stripe) \n ", error.message)
+      return new NextResponse(`/api/food/delete/route.ts error (stripe) \n ${error.message}`, {
+        status: 500,
+      })
+    }
+    if (error instanceof AxiosError) {
+      console.log(84, "DELETE_FOOD_ERROR (supabase) \n", error)
+      return new NextResponse(`/api/food/delete/route.ts error \n ${error}`, {
+        status: 500,
+      })
+    }
+    if (error instanceof Error) {
+      console.log(90, "DELETE_FOOD_ERROR\n (supabase) \n", error.message)
+      return new NextResponse(`/api/food/delete/route.ts error \n ${error}`, {
+        status: 500,
+      })
+    }
   }
 }

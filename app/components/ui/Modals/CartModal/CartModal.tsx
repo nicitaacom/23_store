@@ -3,12 +3,10 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-import useUserStore from "@/store/user/userStore"
 import useCartStore from "@/store/user/cartStore"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import EmptyCart from "./EmptyCart"
 import { ProductsInCart } from "./ProductsInCart"
-import { useLoading } from "@/store/ui/useLoading"
 import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
 
 interface CartModalProps {
@@ -19,21 +17,12 @@ export function CartModal({ label }: CartModalProps) {
   const router = useRouter()
   const cartStore = useCartStore()
   const [isSkeleton, setIsSkeleton] = useState(false)
-  const { isAuthenticated } = useUserStore()
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/?modal=AuthModal&variant=login")
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // fetch products data to render UI from data with ICartRecord type
   useEffect(() => {
     setIsSkeleton(true)
     async function fetchProductsData() {
       try {
-        await cartStore.initialize()
         await cartStore.fetchProductsData()
       } finally {
         setIsSkeleton(false)
@@ -50,10 +39,6 @@ export function CartModal({ label }: CartModalProps) {
     router.prefetch("/payment")
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  if (!isAuthenticated) {
-    return null
-  }
 
   return (
     <ModalQueryContainer

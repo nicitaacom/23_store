@@ -12,10 +12,15 @@
 This product that I add in cart in localStorage or DB
 Check logic that I have for store in `(site)/dev_readme.md`
 
-### Usage for IDBProduct.ts
+### Usage for TProductDB.ts
 
 I use this interface to get TypeScript intellisense
-I get this when I fetch data about Products from DB
+This type stored in DB without quantity
+
+### Usage for TProductAfterDB.ts
+
+I use this interface to get TypeScript intellisense
+This is TProductDB type with added quantity
 
 ### Usage for IFormDataAddProduct.ts
 
