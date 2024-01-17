@@ -16,17 +16,14 @@ import useDragging from "@/hooks/ui/useDragging"
 import { twMerge } from "tailwind-merge"
 import { useRouter } from "next/navigation"
 import useToast from "@/store/ui/useToast"
+import { useLoading } from "@/store/ui/useLoading"
 
-interface AddProductFormProps {
-  isLoading: boolean
-  setIsLoading: Dispatch<SetStateAction<boolean>>
-}
-
-export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps) {
+export function AddProductForm() {
   const router = useRouter()
   const userStore = useUserStore()
   const toast = useToast()
   const { isDraggingg } = useDragging()
+  const { isLoading, setIsLoading } = useLoading()
 
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
   const [images, setImages] = useState<ImageListType>([])

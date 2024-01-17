@@ -8,6 +8,7 @@ import { Button } from "@/components/ui"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
+import { twMerge } from "tailwind-merge"
 
 export function PayWithStripeButton() {
   const router = useRouter()
@@ -44,7 +45,13 @@ export function PayWithStripeButton() {
   }
 
   return (
-    <Button className="flex flex-row gap-x-1 w-full laptop:w-full" variant="info" onClick={createCheckoutSession}>
+    <Button
+      className={twMerge(
+        "flex flex-row gap-x-1 w-full laptop:w-full",
+        isLoading && "opacity-50 cursor-default pointer-events-none",
+      )}
+      variant="info"
+      onClick={createCheckoutSession}>
       Stripe
       <FaStripeS />
     </Button>

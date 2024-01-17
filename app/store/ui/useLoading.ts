@@ -1,5 +1,6 @@
 import { create } from "zustand"
 
+// to show skeleton use useState because you need to show skeleton only for loading component
 interface LoadingStore {
   isLoading: boolean
   setIsLoading: (isLoading: boolean) => void

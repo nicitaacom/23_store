@@ -33,12 +33,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [darkMode.isDarkMode])
 
   return (
-    <div
+    <main
       className="flex flex-col w-full overflow-hidden min-h-screen
       bg-background text-title
       transition-colors duration-300">
       {children}
-      <AnimatePresence>{toast.isOpen && <Toast />}</AnimatePresence>
-    </div>
+    </main>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import useUserStore from "@/store/user/userStore"
@@ -18,7 +18,7 @@ interface CartModalProps {
 export function CartModal({ label }: CartModalProps) {
   const router = useRouter()
   const cartStore = useCartStore()
-  const { isLoading, setIsLoading } = useLoading()
+  const [isSkeleton, setIsSkeleton] = useState(false)
   const { isAuthenticated } = useUserStore()
 
   useEffect(() => {
@@ -30,12 +30,12 @@ export function CartModal({ label }: CartModalProps) {
 
   // fetch products data to render UI from data with ICartRecord type
   useEffect(() => {
-    setIsLoading(true)
+    setIsSkeleton(true)
     async function fetchProductsData() {
       await cartStore.fetchProductsData()
     }
     fetchProductsData()
-    setIsLoading(false)
+    setIsSkeleton(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -58,7 +58,7 @@ export function CartModal({ label }: CartModalProps) {
       <div className="relative flex flex-col gap-y-8 pb-8 w-full h-full overflow-y-scroll">
         <h1 className="text-4xl text-center whitespace-nowrap mt-4">{label}</h1>
         {/* SHOW EMPTY CART IF NO PRODUCTS */}
-        {isLoading ? (
+        {isSkeleton ? (
           <div>
             <h1 className="text-2xl text-center">TODO - cartModal loading skeleton</h1>
             <ProductsSkeleton />

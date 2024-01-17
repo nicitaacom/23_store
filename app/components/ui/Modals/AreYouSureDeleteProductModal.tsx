@@ -8,11 +8,12 @@ import axios from "axios"
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
 import { AreYouSureModalContainer } from "./ModalContainers/AreYouSureModalContainer"
 import useCartStore from "@/store/user/cartStore"
+import { useLoading } from "@/store/ui/useLoading"
 
 export function AreYouSureDeleteProductModal() {
   const router = useRouter()
   const cartStore = useCartStore()
-  const [isLoading, setIsLoading] = useState(false)
+  const { isLoading, setIsLoading } = useLoading()
   const areYouSureDeleteProductModal = useAreYouSureDeleteProductModal()
 
   async function deleteProduct() {
@@ -30,7 +31,6 @@ export function AreYouSureDeleteProductModal() {
   return (
     <AreYouSureModalContainer
       isOpen={areYouSureDeleteProductModal.isOpen}
-      isLoading={isLoading}
       label={
         <h2>
           Are you sure you want delete <b>{areYouSureDeleteProductModal.title}</b>?

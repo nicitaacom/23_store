@@ -9,6 +9,7 @@ import { twMerge } from "tailwind-merge"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
 import supabaseClient from "@/libs/supabaseClient"
+import { useLoading } from "@/store/ui/useLoading"
 
 interface FormatOnStockFormProps {
   id: string
@@ -17,9 +18,9 @@ interface FormatOnStockFormProps {
 
 export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
   const router = useRouter()
-  const [isEditing, setIsEditing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const { isLoading, setIsLoading} = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
+  const [isEditing, setIsEditing] = useState(false)
 
   async function updateTitle(onStock: number) {
     setIsLoading(true)

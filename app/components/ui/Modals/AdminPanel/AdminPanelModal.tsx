@@ -15,6 +15,7 @@ import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { EditProductForm } from "./components/EditProductForm"
 import { AddProductForm } from "./components/AddProductForm"
 import { DeleteProductForm } from "./components/DeleteProductForm"
+import { useLoading } from "@/store/ui/useLoading"
 
 interface AdminPanelModalProps {
   label: string
@@ -25,7 +26,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
   const router = useRouter()
 
   const [productAction, setProductAction] = useState("Add product")
-  const [isLoading, setIsLoading] = useState(false)
+  const { isLoading, setIsLoading } = useLoading()
 
   const { isAuthenticated } = useUserStore()
   useEffect(() => {
@@ -45,8 +46,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
         productAction === "Delete product" &&
           "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
       )}
-      modalQuery="AdminPanel"
-      isLoading={isLoading}>
+      modalQuery="AdminPanel">
       <h1 className="min-h-[40px] text-4xl text-center whitespace-nowrap mb-8">{label}</h1>
       <ul className="min-h-[144px] tablet:min-h-[50px] flex flex-col tablet:flex-row justify-center mb-8">
         <li>
@@ -96,7 +96,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
       <div className={twMerge(`relative w-full h-full flex flex-col items-center overflow-y-auto`)}>
         {/* ADD PRODUCT */}
 
-        {productAction === "Add product" && <AddProductForm isLoading={isLoading} setIsLoading={setIsLoading} />}
+        {productAction === "Add product" && <AddProductForm />}
 
         {/* EDIT PRODUCT */}
 
