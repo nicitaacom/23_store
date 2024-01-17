@@ -6,7 +6,7 @@ import { VariantProps, cva } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
 
 const buttonVariants = cva(
-  `flex items-center justify-center rounded-md hover:brightness-75 
+  `flex items-center justify-center rounded-md 
   outline-none disabled:opacity-50 disabled:pointer-events-none transparent-colors duration-300`,
   {
     variants: {
@@ -14,16 +14,16 @@ const buttonVariants = cva(
         default: "px-4 py-2 bg-brand font-bold text-title-foreground",
         "default-outline": "px-4 py-2 bg-transparent border-[1px] border-brand text-title",
 
-        info: "px-4 py-2 bg-info font-bold text-title-foreground",
+        info: "px-4 py-2 bg-info font-bold text-title-foreground hover:bg-info/80",
         "info-outline": "px-4 py-2 bg-transparent border-[1px] border-info font-bold text-title",
 
-        warning: "px-4 py-2 bg-warning font-bold text-title-foreground",
+        warning: "px-4 py-2 bg-warning font-bold text-title-foreground hover:bg-warning/80",
         "warning-outline": "px-4 py-2 bg-transparent border-[1px] border-warning font-bold text-title-foreground",
 
-        danger: "px-4 py-2 bg-danger font-bold text-title-foreground",
+        danger: "px-4 py-2 bg-danger font-bold text-title-foreground hover:bg-danger/80",
         "danger-outline": "px-4 py-2 bg-transparent border-[1px] border-danger font-bold text-title",
 
-        success: "px-4 py-2 bg-success font-bold text-title-foreground",
+        success: "px-4 py-2 bg-success font-bold text-title-foreground hover:bg-success/80",
         "success-outline": "px-4 py-2 bg-transparent border-[1px] border-success font-bold text-title",
 
         "nav-link": `relative w-fit font-bold text-title
