@@ -32,10 +32,14 @@ export function CartModal({ label }: CartModalProps) {
   useEffect(() => {
     setIsSkeleton(true)
     async function fetchProductsData() {
-      await cartStore.fetchProductsData()
+      try {
+        await cartStore.initialize()
+        await cartStore.fetchProductsData()
+      } finally {
+        setIsSkeleton(false)
+      }
     }
     fetchProductsData()
-    setIsSkeleton(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -2,14 +2,17 @@
 
 import { TPayPalProductsQuery } from "@/api/create-paypal-session/route"
 import { Button } from "@/components/ui"
+import { useLoading } from "@/store/ui/useLoading"
 import useCartStore from "@/store/user/cartStore"
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { FaPaypal } from "react-icons/fa"
+import { twMerge } from "tailwind-merge"
 
 export function PayWithPaypalButton() {
   const router = useRouter()
   const cartStore = useCartStore()
+  const { isLoading } = useLoading()
 
   const payPalProductsQuery = cartStore.productsData
     .filter(product => product.on_stock > 0)
@@ -30,7 +33,10 @@ export function PayWithPaypalButton() {
 
   return (
     <Button
-      className="flex flex-row gap-x-1 w-full laptop:w-full"
+      className={twMerge(
+        "flex flex-row gap-x-1 w-full laptop:w-full",
+        isLoading && "opacity-50 cursor-default pointer-events-none",
+      )}
       variant="info"
       onClick={createPayPalSessionWithStripe}>
       PayPal

@@ -18,7 +18,7 @@ interface CartStore {
   getProductsPrice: () => number
   hasProducts: () => boolean
   clearCart: () => void
-  initialize: () => void
+  initialize: () => Promise<void>
 }
 
 type SetState = (fn: (prevState: CartStore) => Partial<CartStore>) => void
@@ -31,7 +31,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     const products = get().products
     // fetch products data only if some products in cart
     // otherwise everytime I fetch data I neeed to check is some products in reacord to featch
-    if (products) {
+    if (products && Object.values(products).length !== 0) {
       const keepExistingProductsRecord = get().keepExistingProductsRecord
       const productsRecord = get().products
       const existingProductsRecord = await keepExistingProductsRecord(productsRecord)
@@ -190,7 +190,10 @@ useCartStore.subscribe(
   state => state.products,
   products => {
     if (typeof window === "undefined") return
+    // this is fix for bug when it set {} in products
+    if (Object.values(products).length === 0) return // don't save products if produts.length === 0
     const storage = getStorage()
+    console.log(194, "save products - ", products)
     storage.saveProducts(products)
   },
 )

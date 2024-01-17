@@ -26,9 +26,9 @@ export function ModalsQueryProvider({ ownerProducts }: { ownerProducts: IDBProdu
     return <AuthModal label="Auth" />
   }
   if (searchParams?.getAll("modal").includes("ChangeLanguage")) {
-    return <ChangeLanguageModal label="Auth" />
+    return <ChangeLanguageModal label="Change language" />
   }
   if (searchParams?.getAll("modal").includes("CartModal")) {
-    return <CartModal label="Auth" />
+    return <CartModal label="Cart" />
   }
 }
