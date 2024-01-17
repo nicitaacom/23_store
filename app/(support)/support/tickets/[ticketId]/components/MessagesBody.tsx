@@ -5,7 +5,7 @@ import { find } from "lodash"
 import axios from "axios"
 
 import { TAPIMessagesSeen } from "@/api/messages/seen/route"
-import { IMessage } from "@/interfaces/IMessage"
+import { IMessage } from "@/interfaces/support/IMessage"
 import { pusherClient } from "@/libs/pusher"
 import { MessageBox } from "@/components/SupportButton/components/MessageBox"
 import useUserStore from "@/store/user/userStore"

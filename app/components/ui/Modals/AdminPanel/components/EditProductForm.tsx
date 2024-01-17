@@ -2,12 +2,12 @@
 
 import Image from "next/image"
 
-import { IDBProduct } from "@/interfaces/IDBProduct"
+import { TProductDB } from "@/interfaces/product/TProductDB"
 import useDarkMode from "@/store/ui/darkModeStore"
 import { OwnerProduct } from "./OwnerProduct"
 
 interface EditProductForm {
-  ownerProducts: IDBProduct[]
+  ownerProducts: TProductDB[]
 }
 
 export function EditProductForm({ ownerProducts }: EditProductForm) {

@@ -9,6 +9,7 @@ import useCartStore from "@/store/user/cartStore"
 import { formatBalance } from "@/utils/formatMetamaskBalance"
 import { Button } from "@/components/ui/Button"
 import useToast from "@/store/ui/useToast"
+import { useLoading } from "@/store/ui/useLoading"
 
 export function PayWithMetamaskButton() {
   const router = useRouter()
@@ -18,8 +19,7 @@ export function PayWithMetamaskButton() {
   const [hasProvider, setHasProvider] = useState<boolean | null>(null)
   const initialState = { accounts: [], balance: "", chainId: "" }
   const [wallet, setWallet] = useState(initialState)
-
-  const [isConnecting, setIsConnecting] = useState(false)
+  const { isLoading, setIsLoading } = useLoading()
 
   useEffect(() => {
     const refreshAccounts = (accounts: never[]) => {
@@ -56,6 +56,8 @@ export function PayWithMetamaskButton() {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  /* -------- FUNCTIONS --------- */
+
   const updateWallet = async (accounts: never[]) => {
     const balance = formatBalance(
       await window.ethereum!.request({
@@ -70,7 +72,7 @@ export function PayWithMetamaskButton() {
   }
 
   async function sendMoneyWithMetamask() {
-    setIsConnecting(true)
+    setIsLoading(true)
 
     try {
       const response = await axios.post(`${location.origin}/api/coinmarketcap`, {
@@ -104,15 +106,15 @@ export function PayWithMetamaskButton() {
             ? toast.show("error", "Transaction error", "User denied transaction signature")
             : toast.show("error", "Unknown error", error.message)
         })
-        .finally(() => setIsConnecting(false))
+        .finally(() => setIsLoading(false))
     } catch (error: any) {
       toast.show("error", "Failed to pay with metamask", error.message as string)
-      setIsConnecting(false)
+      setIsLoading(false)
     }
   }
 
   const handleConnect = async () => {
-    setIsConnecting(true)
+    setIsLoading(true)
 
     if (!hasProvider) {
       toast.show(
@@ -149,13 +151,13 @@ export function PayWithMetamaskButton() {
       })
     }
 
-    setIsConnecting(false)
+    setIsLoading(false)
   }
 
   return (
     <Button
       className="flex flex-row gap-x-1 w-full laptop:w-full"
-      disabled={isConnecting}
+      disabled={isLoading}
       variant="info"
       onClick={wallet.chainId ? sendMoneyWithMetamask : handleConnect}>
       Metamask

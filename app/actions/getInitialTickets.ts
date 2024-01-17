@@ -1,4 +1,4 @@
-import { ITicket } from "@/interfaces/ITicket"
+import { ITicket } from "@/interfaces/support/ITicket"
 import supabaseAdmin from "@/libs/supabaseAdmin"
 
 const getInitialTickets = async () => {

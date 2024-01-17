@@ -8,9 +8,10 @@ import { twMerge } from "tailwind-merge"
 import axios from "axios"
 
 import { TUpdateProductRequest } from "@/api/products/update/route"
-import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { formatCurrency } from "@/utils/currencyFormatter"
+import { useLoading } from "@/store/ui/useLoading"
 
 interface FormatPriceFormProps {
   id: string
@@ -20,7 +21,7 @@ interface FormatPriceFormProps {
 export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
 
   async function updateTitle(price: number) {
@@ -51,7 +52,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
       setIsEditing(false)
     }
     if (event.key === "Enter") {
-      handleSubmit(onSubmit)
+      handleSubmit(onSubmit) // call on submit like this to prevent x3 re-render
     }
   }
 

@@ -10,12 +10,12 @@ import useToast from "@/store/ui/useToast"
 import { formatDeliveryDate } from "@/utils/formatDeliveryDate"
 import CheckEmail from "@/emails/CheckEmail"
 import { TAPIVerifyPayment, TAPIVerifyPaymentResponse } from "@/api/verify-payment/route"
-import { TAPISendEmail } from "@/api/send-email/route"
+import { TAPISendEmail } from "@/api/send-email/check/route"
 import { renderAsync } from "@react-email/components"
-import { useLoading } from "@/store/ui/useLoading"
 import { TAPIPaymentSuccess } from "@/api/payment/success/route"
 import Image from "next/image"
 import { Timer } from "@/(auth)/AuthModal/components/Timer"
+import { TAPICustomer, TAPICustomerResponse } from "@/api/customer/route"
 
 export default function Payment() {
   const router = useRouter()
@@ -28,10 +28,11 @@ export default function Payment() {
   const [isValidSessionId, setIsValidSessionId] = useState(false)
   const [html, setHtml] = useState("")
   const [currentStep, setCurrentStep] = useState(1)
+  const [customerEmail, setCustomerEmail] = useState<string | null>(null)
 
   const emailData = {
     from: process.env.NEXT_PUBLIC_SUPPORT_EMAIL,
-    to: userStore.email,
+    to: customerEmail,
     subject: "Payment Status",
     html: html,
   }
@@ -39,7 +40,7 @@ export default function Payment() {
   // TODO - fix random bug when cart get initial state {} (sometimes I pay in test mode and it throw error)
   // 1/2 Prevent somebody accessing to this route to make success payment without paying
   useEffect(() => {
-    if (!cartStore.products || Object.keys(cartStore.products).length === 0) {
+    if (!cartStore.products || Object.values(cartStore.products).length === 0) {
       toast.show(
         "error",
         "You should not use protected routes!",
@@ -50,7 +51,8 @@ export default function Payment() {
         12000,
       )
       router.replace("/")
-    } // eslint-disable-next-line react-hooks/exhaustive-deps
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // prefetch / route cause will be redirect to that route
@@ -59,15 +61,37 @@ export default function Payment() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Send email - substract on_stock - product.quantity - clear cart
   useEffect(() => {
-    // 1. Fetch products data to render TSX to html in email to pass this data in email
-    async function fetchProductsDataFromDB() {
-      await cartStore.fetchProductsData()
-      setCurrentStep(2)
+    // 1. Get customer email to send check
+    // Get customer email
+    async function getCustomerEmail() {
+      if (userStore.email) {
+        setCustomerEmail(userStore.email)
+      } else {
+        const {
+          data: { customerEmail },
+        }: TAPICustomerResponse = await axios.post("/api/customer", {
+          session_id: session_id,
+        } as TAPICustomer)
+        if (customerEmail) {
+          setCustomerEmail(customerEmail)
+        }
+        setCurrentStep(2)
+      }
     }
 
-    // 2. Render TSX to html
+    // 2. Fetch products data to render TSX to html in email to pass this data in email
+    async function fetchProductsDataFromDB() {
+      await cartStore.fetchProductsData()
+      setCurrentStep(3)
+    }
+
+    // 3. Render TSX to html
     async function renderEmail() {
       if (cartStore.productsData.length > 0) {
         const emailMessageString = await renderAsync(
@@ -77,35 +101,54 @@ export default function Payment() {
           },
         )
         setHtml(emailMessageString)
-        setCurrentStep(3)
+        setCurrentStep(4)
       }
     }
 
-    // 3. Send email and substract on_stock - product.quantity
-    async function sendEmailFunction() {
+    // 4. Verify session to make sure user realy paid instead on entered random session_id
+    async function verifySessionIdFunction() {
       await verifySessionId()
+      setCurrentStep(5)
+    }
+
+    // 5. Send email
+    async function sendEmailFunction() {
       if (isValidSessionId && status === "success" && html) {
         await sendEmail()
-        await substractOnStockFromProductQuantity()
-        cartStore.clearCart()
+        setCurrentStep(6)
       }
+    }
+
+    // 6. Substract on_stock from product.quantity in DB
+    async function substractOnStockFromProductQuantityFunction() {
+      await substractOnStockFromProductQuantity()
+      cartStore.clearCart()
+      setCurrentStep(0)
+      router.replace("/")
     }
 
     switch (currentStep) {
       case 1:
-        fetchProductsDataFromDB()
+        getCustomerEmail()
         break
       case 2:
-        renderEmail()
+        fetchProductsDataFromDB()
         break
       case 3:
+        renderEmail()
+        break
+      case 4:
+        verifySessionIdFunction()
+      case 5:
         sendEmailFunction()
+      case 6:
+        substractOnStockFromProductQuantityFunction()
         break
       default:
         break
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep, cartStore.productsData, deliveryDate, isValidSessionId, status, html])
+  }, [currentStep])
 
   /* ------------ FUNCTIONS ------------- */
 
@@ -137,7 +180,7 @@ export default function Payment() {
 
   async function sendEmail() {
     try {
-      await axios.post("/api/send-email", {
+      await axios.post("/api/send-email/check", {
         from: emailData.from,
         to: emailData.to,
         subject: emailData.subject,
@@ -175,19 +218,33 @@ export default function Payment() {
     flex flex-col text-center justify-center items-center w-full">
       {status === "success" ? (
         <>
-          <Image src="/success-checkmark.gif" alt="Success Checkmark" width={256} height={25} />
+          <Image
+            src="/success-checkmark.gif"
+            alt="Success Checkmark"
+            width={256}
+            height={256}
+            style={{ width: "auto" }}
+            priority
+          />
           <h1 className="text-2xl mb-2">Your payment is successful</h1>
           <p>Check snet to your email 📨</p>
           <p className="flex flex-row">
-            Redirecting to home page in <Timer seconds={3} action={() => router.replace("/")} />
+            Redirecting to home page in <Timer seconds={5} action={() => {}} />
           </p>
         </>
       ) : (
         <>
-          <Image src="/error-checkmark.gif" alt="Error Checkmark" width={256} height={256} />
+          <Image
+            src="/error-checkmark.gif"
+            alt="Error Checkmark"
+            width={256}
+            height={256}
+            style={{ width: "auto" }}
+            priority
+          />
           <h1 className="text-2xl mb-2">Your payment was canceled</h1>
           <p className="flex flex-row">
-            Redirecting to home page in <Timer seconds={3} action={() => router.replace("/")} />
+            Redirecting to home page in <Timer seconds={5} action={() => router.replace("/")} />
           </p>
         </>
       )}

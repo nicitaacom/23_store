@@ -1,4 +1,4 @@
-import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
+import { TRecordCartProduct } from "@/interfaces/product/TRecordCartProduct"
 import supabaseAdmin from "@/libs/supabaseAdmin"
 import { NextResponse } from "next/server"
 
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       .select("on_stock")
       .in("id", productIds)
     if (products_error) {
-      console.log(87, "Select product in DB error")
+      console.log(21, "Select product in DB error")
       return new NextResponse(
         `Select product in DB \n
                 Path:/api/payment/success/route.ts \n 

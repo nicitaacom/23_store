@@ -8,18 +8,19 @@ import { useForm } from "react-hook-form"
 import axios from "axios"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
-import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
 import { TUpdateProductRequest } from "@/api/products/update/route"
+import { useLoading } from "@/store/ui/useLoading"
 
-interface FormatTitleFormpProps {
+interface FormatTitleFormProps {
   id: string
   title: string
 }
 
-export function FormatTitleForm({ id, title }: FormatTitleFormpProps) {
+export function FormatTitleForm({ id, title }: FormatTitleFormProps) {
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
 
   async function updateTitle(title: string) {

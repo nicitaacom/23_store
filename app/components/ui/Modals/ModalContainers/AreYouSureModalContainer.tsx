@@ -8,10 +8,10 @@ import { AnimatePresence, motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 
 import { Button } from "../.."
+import { useLoading } from "@/store/ui/useLoading"
 
 interface AreYouSureModalContainerProps {
   isOpen: boolean
-  isLoading?: boolean
   label: string | React.ReactNode
   subTitle?: string | React.ReactNode
   primaryButtonVariant?:
@@ -56,8 +56,7 @@ interface AreYouSureModalContainerProps {
 }
 
 export function AreYouSureModalContainer({
-  isOpen = false,
-  isLoading = false,
+  isOpen,
   label,
   subTitle,
   primaryButtonVariant,
@@ -70,6 +69,8 @@ export function AreYouSureModalContainer({
   secondaryButtonLabel,
   className,
 }: AreYouSureModalContainerProps) {
+  const isLoading = useLoading.getState().isLoading
+
   //correct way to add event listener to listen keydown
   useEffect(() => {
     //line below needed to don't add event listener (you may uncomment it and try to close modal)

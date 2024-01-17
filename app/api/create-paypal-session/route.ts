@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 
 import { stripe } from "@/libs/stripe"
 import { getURL } from "@/utils/helpers"
+import { NextApiRequest } from "next"
 
 type stripeProductType = {
   price: string
@@ -10,11 +11,14 @@ type stripeProductType = {
 
 export type TPayPalProductsQuery = {
   payPalProductsQuery: string
+  email: string
 }
 
 export async function POST(request: Request) {
   const body: TPayPalProductsQuery = await request.json()
 
+  // as I understood stripe don't let you retrieve data about user's email
+  // so you need to pass it manually
   const customer = await stripe.customers.create()
 
   //Decoding url to get json from this %7B%22price%22%3A%22price_1O8TYeDEq5VtEmnoi7r1D4Gs%22%2C%22quantity%22%3A1%7D
@@ -35,9 +39,10 @@ export async function POST(request: Request) {
     mode: "payment",
     customer: customer.id,
     line_items: productsJsonArray,
-    success_url: `${getURL()}/payment/?status=success`,
+    success_url: `${getURL()}payment/?status=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${getURL()}/payment/?status=canceled`,
   })
+
   if (checkoutSession.url) {
     return NextResponse.json(checkoutSession.url)
   } else {

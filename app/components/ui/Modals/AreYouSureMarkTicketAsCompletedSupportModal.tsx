@@ -22,7 +22,6 @@ export function AreYouSureMarkTicketAsCompletedSupportModal() {
     <AreYouSureModalContainer
       className="pb-0"
       isOpen={areYouSureMarkTicketAsCompletedSupportModal.isOpen}
-      isLoading={false}
       label={<h2 className="mb-2">Are you sure you want mark this ticket as completed?</h2>}
       subTitle={
         <div className="flex flex-col">

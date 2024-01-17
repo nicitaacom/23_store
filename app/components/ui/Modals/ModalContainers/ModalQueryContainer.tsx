@@ -6,18 +6,19 @@ import { IoMdClose } from "react-icons/io"
 import { useSwipeable } from "react-swipeable"
 import { twMerge } from "tailwind-merge"
 import { AnimatePresence, motion } from "framer-motion"
+import { useLoading } from "@/store/ui/useLoading"
 
 interface ModalQueryContainerProps {
   children: React.ReactNode
   modalQuery: string
   className?: string
-  isLoading?: boolean
 }
 
-export function ModalQueryContainer({ children, modalQuery, className, isLoading }: ModalQueryContainerProps) {
+export function ModalQueryContainer({ children, modalQuery, className }: ModalQueryContainerProps) {
   const pathname = usePathname()
   const router = useRouter()
   const queryParams = useSearchParams()
+  const isLoading = useLoading.getState().isLoading
 
   const showModal = queryParams?.getAll("modal").includes(modalQuery)
   const [shouldClose, setShouldClose] = useState(false)

@@ -1,12 +1,12 @@
 "use client"
 import { memo, useCallback } from "react"
 
-import { IDBProduct } from "@/interfaces/IDBProduct"
+import { TProductDB } from "@/interfaces/product/TProductDB"
 import useCartStore from "@/store/user/cartStore"
 import { Product } from "."
 
 interface ProductsProps {
-  products: IDBProduct[] | undefined
+  products: TProductDB[] | undefined
 }
 
 function Products({ products }: ProductsProps) {
@@ -16,8 +16,8 @@ function Products({ products }: ProductsProps) {
   //component will be rendered twice because I use 2 store (or because I fire method productsStore.setProducts)
   const cartStore = useCartStore()
 
-  const increaseProductQuantity = useCallback((id: string) => {
-    cartStore.increaseProductQuantity(id)
+  const increaseProductQuantity = useCallback((id: string, on_stock: number) => {
+    cartStore.increaseProductQuantity(id, on_stock)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const decreaseProductQuantity = useCallback((id: string) => {

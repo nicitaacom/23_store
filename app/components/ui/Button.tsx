@@ -6,25 +6,28 @@ import { VariantProps, cva } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
 
 const buttonVariants = cva(
-  `flex items-center justify-center rounded-md hover:brightness-75 
+  `flex items-center justify-center rounded-md 
   outline-none disabled:opacity-50 disabled:pointer-events-none transparent-colors duration-300`,
   {
     variants: {
       variant: {
         default: "px-4 py-2 bg-brand font-bold text-title-foreground",
-        "default-outline": "px-4 py-2 bg-transparent border-[1px] border-brand text-title",
+        "default-outline": "px-4 py-2 bg-transparent border-[1px] border-brand text-title hover:border-brand/80",
 
-        info: "px-4 py-2 bg-info font-bold text-title-foreground",
-        "info-outline": "px-4 py-2 bg-transparent border-[1px] border-info font-bold text-title",
+        info: "px-4 py-2 bg-info font-bold text-title-foreground hover:bg-info/80",
+        "info-outline": "px-4 py-2 bg-transparent border-[1px] border-info font-bold text-title hover:border-info/80",
 
-        warning: "px-4 py-2 bg-warning font-bold text-title-foreground",
-        "warning-outline": "px-4 py-2 bg-transparent border-[1px] border-warning font-bold text-title-foreground",
+        warning: "px-4 py-2 bg-warning font-bold text-title-foreground hover:bg-warning/80",
+        "warning-outline":
+          "px-4 py-2 bg-transparent border-[1px] border-warning font-bold text-title-foreground hover:border-warning/80",
 
-        danger: "px-4 py-2 bg-danger font-bold text-title-foreground",
-        "danger-outline": "px-4 py-2 bg-transparent border-[1px] border-danger font-bold text-title",
+        danger: "px-4 py-2 bg-danger font-bold text-title-foreground hover:bg-danger/80",
+        "danger-outline":
+          "px-4 py-2 bg-transparent border-[1px] border-danger font-bold text-title hover:border-danger/80",
 
-        success: "px-4 py-2 bg-success font-bold text-title-foreground",
-        "success-outline": "px-4 py-2 bg-transparent border-[1px] border-success font-bold text-title",
+        success: "px-4 py-2 bg-success font-bold text-title-foreground hover:bg-success/80",
+        "success-outline":
+          "px-4 py-2 bg-transparent border-[1px] border-success font-bold text-title hover:border-success/80",
 
         "nav-link": `relative w-fit font-bold text-title
           before:absolute before:bottom-[-4px] before:w-full before:content-['']
@@ -33,8 +36,8 @@ const buttonVariants = cva(
            before:duration-300 before:pointer-events-none`,
         link: "text-subTitle cursor-pointer hover:text-brand",
 
-        "continue-with":
-          "px-2 py-1 w-full font-secondary bg-transparent border-[1px] border-border-color flex justify-center items-center gap-x-4",
+        "continue-with": `px-2 py-1 w-full font-secondary bg-transparent border-[1px] border-border-color hover:border-border-color/80
+           flex justify-center items-center gap-x-4`,
       },
       active: {
         active: "before:visible before:opacity-100 before:translate-y-[2px]",

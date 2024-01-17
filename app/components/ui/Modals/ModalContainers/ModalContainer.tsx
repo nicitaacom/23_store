@@ -5,10 +5,10 @@ import { IoMdClose } from "react-icons/io"
 import { useSwipeable } from "react-swipeable"
 import { AnimatePresence, motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
+import { useLoading } from "@/store/ui/useLoading"
 
 interface ModalContainerProps {
   isOpen: boolean
-  isLoading?: boolean
   onClose: () => void
   className?: string
   classnameContainer?: string
@@ -18,13 +18,14 @@ interface ModalContainerProps {
 
 export function ModalContainer({
   isOpen,
-  isLoading,
   onClose,
   className,
   classnameContainer,
   label,
   children,
 }: ModalContainerProps) {
+  const isLoading = useLoading.getState().isLoading
+
   //correct way to add event listener to listen keydown
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown)
@@ -39,7 +40,6 @@ export function ModalContainer({
 
   //Close modal on esc
   const handleKeyDown = (event: KeyboardEvent) => {
-    //TODO - block esc key if isLoading (in ModalContainer.tsx)
     if (event.key === "Escape" && !isLoading) {
       closeModal()
     }

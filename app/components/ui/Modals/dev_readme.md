@@ -153,7 +153,6 @@ export function AreYouSureDeleteProductModal() {
   return (
     <AreYouSureModalContainer
       isOpen={areYouSureDeleteProductModal.isOpen}
-      isLoading={isLoading}
       label={
         <h2>
           Are you sure you want delete <b>{areYouSureDeleteProductModal.title}</b>?

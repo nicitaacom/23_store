@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { devtools, persist, subscribeWithSelector } from "zustand/middleware"
 import useCartStore from "./cartStore"
+import { useLoading } from "../ui/useLoading"
 
 interface UserStore {
   userId: string
@@ -47,9 +48,15 @@ const useUserStore = create(subscribeWithSelector(devtools(persist(userStore, { 
 setTimeout(() => {
   useUserStore.subscribe(
     state => state.isAuthenticated,
-    isAuthenticated => useCartStore.getState().initialize(),
+
+    async isAuthenticated => {
+      const { setHasCartStoreInitialized } = useLoading.getState()
+      setHasCartStoreInitialized(false) // show InitialPageLoadingSkeleton and wait until data will set in products state
+      await useCartStore.getState().initialize()
+      setHasCartStoreInitialized(true)
+    },
     { fireImmediately: true },
   )
-}, 50)
+}, 0) // initialize with next CPU tick to fix error about "uncaught in promise"
 
 export default useUserStore

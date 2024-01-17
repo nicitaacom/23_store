@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { find } from "lodash"
 
-import { ITicket } from "@/interfaces/ITicket"
+import { ITicket } from "@/interfaces/support/ITicket"
 import { pusherClient } from "@/libs/pusher"
 import { DesktopSidebarTicket } from "./DesktopSidebarTicket"
 import { NoTicketsFound } from "./NoTicketsFound"
@@ -62,22 +62,25 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
     }
 
     const closeByUserHandler = (ticket: ITicket) => {
+      // to fix Application error: a client-side exception has occurred (see the browser console for more information).
       router.push("/support/tickets")
+
       toast.show(
         "success",
         "User closed ticket",
         "You may check your stats here - TOTO - create support/statistic page",
         6000,
       )
+
       setTickets(current => {
         return [...current.filter(tckt => tckt.id !== ticket.id)]
       })
-      // to fix Application error: a client-side exception has occurred (see the browser console for more information).
     }
 
     const closeBySupportHandler = (ticket: ITicket) => {
       // to fix Application error: a client-side exception has occurred (see the browser console for more information).
       router.push("/support/tickets")
+
       setTickets(current => {
         return [...current.filter(tckt => tckt.id !== ticket.id)]
       })

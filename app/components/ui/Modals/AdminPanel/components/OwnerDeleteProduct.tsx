@@ -1,13 +1,11 @@
 "use client"
 
-import { IDBProduct } from "@/interfaces/IDBProduct"
+import { TProductDB } from "@/interfaces/product/TProductDB"
 import { OwnerProductImage } from "./OwnerProductImage"
 import { Slider } from "@/components/ui"
 import { DeleteProductHeader } from "./DeleteProductHeader"
 
-type Props = IDBProduct
-
-export function OwnerDeleteProduct({ ...ownerProduct }: Props) {
+export function OwnerDeleteProduct({ ...ownerProduct }: TProductDB) {
   return (
     <article
       className="flex flex-col tablet:flex-row justify-between border border-solid border-border-color"

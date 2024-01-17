@@ -1,12 +1,12 @@
 "use client"
 
-import { IDBProduct } from "@/interfaces/IDBProduct"
+import { TProductDB } from "@/interfaces/product/TProductDB"
 import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
 import Image from "next/image"
 import useDarkMode from "@/store/ui/darkModeStore"
 
 interface DeleteProductForm {
-  ownerProducts: IDBProduct[]
+  ownerProducts: TProductDB[]
 }
 
 export function DeleteProductForm({ ownerProducts }: DeleteProductForm) {

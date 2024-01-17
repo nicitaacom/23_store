@@ -8,6 +8,7 @@ import { Button } from "@/components/ui"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
+import { twMerge } from "tailwind-merge"
 
 export function PayWithStripeButton() {
   const router = useRouter()
@@ -26,25 +27,37 @@ export function PayWithStripeButton() {
 
   async function createCheckoutSession() {
     setIsLoading(true)
-    if (cartStore.getProductsPrice() > 999999) {
-      return toast.show(
-        "error",
-        "Stripe restrictions",
-        <p>
-          Stripe limits you to make purchase over 1M$
-          <br /> Delete products in cart total be less $1,000,000
-        </p>,
-        10000,
-      )
+    try {
+      if (cartStore.getProductsPrice() > 999999) {
+        return toast.show(
+          "error",
+          "Stripe restrictions",
+          <p>
+            Stripe limits you to make purchase over 1M$
+            <br /> Delete products in cart total be less $1,000,000
+          </p>,
+          10000,
+        )
+      }
+      const stripeResponse = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
+      //redirect user to session.url on client side to avoid 'blocked by CORS' error
+      router.push(stripeResponse.data)
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.show("error", "Error creating stripe session", error.message)
+      }
     }
-    const stripeResponse = await axios.post("/api/create-checkout-session", { stripeProductsQuery })
     setIsLoading(false)
-    //redirect user to session.url on client side to avoid 'blocked by CORS' error
-    router.push(stripeResponse.data)
   }
 
   return (
-    <Button className="flex flex-row gap-x-1 w-full laptop:w-full" variant="info" onClick={createCheckoutSession}>
+    <Button
+      className={twMerge(
+        "flex flex-row gap-x-1 w-full laptop:w-full",
+        isLoading && "opacity-50 cursor-default pointer-events-none",
+      )}
+      variant="info"
+      onClick={createCheckoutSession}>
       Stripe
       <FaStripeS />
     </Button>

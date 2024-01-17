@@ -2,10 +2,11 @@ import "./globals.css"
 
 import type { Metadata } from "next"
 
-import ClientOnly from "./components/ClientOnly"
-import { Layout } from "./components"
 import getOwnerProducts from "./actions/getOwnerProducts"
 import { ModalsProvider, ModalsQueryProvider } from "./providers"
+import { ToastProvider } from "./providers/ToastProvider"
+import ClientOnly from "./components/ClientOnly"
+import { Layout } from "./components"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -33,9 +34,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en">
       <body>
         <ClientOnly>
-          <ModalsProvider />
-          <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
           <Layout>{children}</Layout>
+          <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
+          <ModalsProvider />
+          <ToastProvider />
         </ClientOnly>
       </body>
     </html>

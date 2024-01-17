@@ -1,24 +1,24 @@
 import { create } from "zustand"
 import { subscribeWithSelector } from "zustand/middleware"
-import { TRecordCartProduct } from "@/interfaces/TRecordCartProduct"
+import { TRecordCartProduct } from "@/interfaces/product/TRecordCartProduct"
 import { getStorage } from "@/utils/getStorage"
 import supabaseClient from "@/libs/supabaseClient"
-import { IProduct } from "@/interfaces/IProduct"
+import { TProductAfterDB } from "@/interfaces/product/TProductAfterDB"
 import useUserStore from "./userStore"
 
 interface CartStore {
   products: TRecordCartProduct
-  productsData: IProduct[]
+  productsData: TProductAfterDB[]
   keepExistingProductsRecord: (food: TRecordCartProduct) => Promise<TRecordCartProduct> // for case I user delete some food
   fetchProductsData: () => Promise<void>
   getCartQuantity: () => number
-  increaseProductQuantity: (id: string) => void
+  increaseProductQuantity: (id: string, on_stock: number) => void
   decreaseProductQuantity: (id: string) => void
   clearProductQuantity: (id: string) => void
   getProductsPrice: () => number
   hasProducts: () => boolean
   clearCart: () => void
-  initialize: () => void
+  initialize: () => Promise<void>
 }
 
 type SetState = (fn: (prevState: CartStore) => Partial<CartStore>) => void
@@ -31,7 +31,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     const products = get().products
     // fetch products data only if some products in cart
     // otherwise everytime I fetch data I neeed to check is some products in reacord to featch
-    if (products) {
+    if (products && Object.values(products).length !== 0) {
       const keepExistingProductsRecord = get().keepExistingProductsRecord
       const productsRecord = get().products
       const existingProductsRecord = await keepExistingProductsRecord(productsRecord)
@@ -61,11 +61,14 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
         }, 0)
       : 0
   },
-  increaseProductQuantity(id: string) {
+  increaseProductQuantity(id: string, on_stock: number) {
     const updatedProducts = { ...get().products }
     let updatedProductsData = [...get().productsData]
 
     const product = updatedProducts[id]
+
+    // if user try to add more product in cart than on stock
+    if (product && product.quantity === on_stock) return
 
     if (product) {
       updatedProducts[id].quantity++

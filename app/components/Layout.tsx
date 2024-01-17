@@ -3,14 +3,10 @@
 import { useEffect } from "react"
 
 import useDarkMode from "@/store/ui/darkModeStore"
-import useToast from "@/store/ui/useToast"
-import { Toast } from "./ui/Toast"
-import { AnimatePresence } from "framer-motion"
 import { getCookie, setCookie } from "@/utils/helpersCSR"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const darkMode = useDarkMode()
-  const toast = useToast()
 
   //children is a server component
   //more info - https://www.youtube.com/watch?v=9YuHTGAAyu0
@@ -33,12 +29,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, [darkMode.isDarkMode])
 
   return (
-    <div
+    <main
       className="flex flex-col w-full overflow-hidden min-h-screen
       bg-background text-title
       transition-colors duration-300">
       {children}
-      <AnimatePresence>{toast.isOpen && <Toast />}</AnimatePresence>
-    </div>
+    </main>
   )
 }

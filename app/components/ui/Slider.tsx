@@ -42,7 +42,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
           <button
             className={twMerge(
               `absolute z-[88] top-0 bottom-0 left-0 w-[40px] bg-[rgba(0,0,0,0.4)]
-             flex justify-center items-center cursor-pointer duration-500`,
+               flex justify-center items-center cursor-pointer duration-500`,
               !hasPrev && "opacity-50 cursor-default",
             )}
             onClick={clickHandler}

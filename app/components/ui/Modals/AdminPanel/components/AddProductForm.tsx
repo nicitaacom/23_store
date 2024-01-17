@@ -1,4 +1,4 @@
-import { useState, useRef, Dispatch, SetStateAction } from "react"
+import { useState, useRef } from "react"
 import Image from "next/image"
 import axios from "axios"
 import { useForm } from "react-hook-form"
@@ -6,27 +6,24 @@ import supabaseClient from "@/libs/supabaseClient"
 import { stripe } from "@/libs/stripe"
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
-import slugify from "@sindresorhus/slugify"
+import slugify from "@sindresorhus/slugify" // to fix error in case user upload image with not english characters
 
 import useUserStore from "@/store/user/userStore"
-import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { Button } from "@/components/ui/Button"
 import useDragging from "@/hooks/ui/useDragging"
 import { twMerge } from "tailwind-merge"
 import { useRouter } from "next/navigation"
 import useToast from "@/store/ui/useToast"
+import { useLoading } from "@/store/ui/useLoading"
 
-interface AddProductFormProps {
-  isLoading: boolean
-  setIsLoading: Dispatch<SetStateAction<boolean>>
-}
-
-export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps) {
+export function AddProductForm() {
   const router = useRouter()
   const userStore = useUserStore()
   const toast = useToast()
   const { isDraggingg } = useDragging()
+  const { isLoading, setIsLoading } = useLoading()
 
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
   const [images, setImages] = useState<ImageListType>([])
@@ -125,7 +122,7 @@ export function AddProductForm({ isLoading, setIsLoading }: AddProductFormProps)
           onImageUpdate,
           onImageRemove,
           isDragging,
-          // maxFileSize compress to AVIF in the future ,
+          // TODO - maxFileSize compress to AVIF in the future,
           dragProps,
         }) => (
           <div className="w-full flex flex-col items-center justify-center gap-y-4">

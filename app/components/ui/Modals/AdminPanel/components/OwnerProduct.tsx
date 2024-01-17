@@ -1,16 +1,11 @@
-import { memo, useEffect, useRef } from "react"
-import { FieldErrors, Form, UseFormRegister } from "react-hook-form"
-
 import { Slider } from "@/components/ui"
-import { IDBProduct } from "@/interfaces/IDBProduct"
-import { IFormDataAddProduct } from "@/interfaces/IFormDataAddProduct"
+import { TProductDB } from "@/interfaces/product/TProductDB"
+import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
 
 import { OwnerProductImage } from "./OwnerProductImage"
 import { OwnerProductHeader } from "./OwnerProductHeader"
 
-type Props = IDBProduct
-
-export function OwnerProduct({ ...ownerProduct }: Props) {
+export function OwnerProduct({ ...ownerProduct }: TProductDB) {
   return (
     <article
       className="flex flex-col tablet:flex-row justify-between border border-solid border-border-color"

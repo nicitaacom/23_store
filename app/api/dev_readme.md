@@ -2,15 +2,30 @@
 
 To avoid errors use types defined in API routes like this (`as TAPIMessages`)
 
+### Server side
+
+`api/customer`
+
 ```ts
-await axios.post("/api/messages", {
-  body: message,
-  ticketId: ticket_id,
-  senderId: userStore.userId,
-  senderUsername: userStore.username,
-  senderAvatarUrl: userStore.avatarUrl,
-  images: undefined,
-} as TAPIMessages)
+export type TAPICustomer = {
+  session_id: string
+}
+
+export interface TAPICustomerData {
+  customerEmail: string | null
+}
+
+export type TAPICustomerResponse<T = any> = AxiosResponse<TAPICustomerData>
+
+return NextResponse.json({ customerEmail: session.customer_details?.email })
+```
+
+### Client side
+
+```ts
+const response: TAPICustomerResponse = await axios.post("/api/customer", {
+  session_id: session_id,
+} as TAPICustomer)
 ```
 
 ## Errors handling
@@ -20,32 +35,46 @@ Please check best practice in `api/products/delete` route and throw errors like 
 ### Server side
 
 ```ts
-console.log(87, "No productId", productId)
+console.log(23, "No productId", productId)
 return new NextResponse(
   `Delete product error \n
-                Path:/api/products/delete/route.ts \n 
+                Path:/api/products/delete/route.ts \n
                 Error message:\n please check that you passed productId`,
   { status: 400 },
 )
 
 //or
 
-console.log(87, "Delete images from bucket error")
+console.log(33, "Delete images from bucket error")
 return new NextResponse(
   `Delete images from bucket \n
-                Path:/api/products/delete/route.ts \n 
+                Path:/api/products/delete/route.ts \n
                 Error message:\n ${deleteFromBucketError.message}`,
   { status: 400 },
 )
 
-// for uncaught errors (in catch block)
-
-if (error instanceof Error) {
-  console.log(29, "SEND_EMAIL_ERROR\n  \n", error.message)
-  return new NextResponse(`/api/send-email/route.ts error \n ${error}`, {
-    status: 500,
-  })
-}
+// for uncaught errors (in catch block) - use only that required
+catch (error: any) {
+    // Best practice to throw error like this
+    if (error instanceof Stripe.errors.StripeError) {
+      console.log(84, "DELETE_FOOD_ERROR\n (stripe) \n ", error.message)
+      return new NextResponse(`/api/food/delete/route.ts error (stripe) \n ${error.message}`, {
+        status: 500,
+      })
+    }
+    if (error instanceof AxiosError) {
+      console.log(84, "DELETE_FOOD_ERROR (supabase) \n", error)
+      return new NextResponse(`/api/food/delete/route.ts error \n ${error}`, {
+        status: 500,
+      })
+    }
+    if (error instanceof Error) {
+      console.log(90, "DELETE_FOOD_ERROR\n (supabase) \n", error.message)
+      return new NextResponse(`/api/food/delete/route.ts error \n ${error}`, {
+        status: 500,
+      })
+    }
+  }
 ```
 
 ### Client side
