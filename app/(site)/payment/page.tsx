@@ -61,9 +61,7 @@ export default function Payment() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  //TODO - fix bug when to do this function required more then 5s
 
   // Send email - substract on_stock - product.quantity - clear cart
   useEffect(() => {
@@ -124,7 +122,6 @@ export default function Payment() {
       await substractOnStockFromProductQuantity()
       cartStore.clearCart()
       setCurrentStep(0)
-      router.replace("/")
     }
 
     switch (currentStep) {
@@ -229,7 +226,7 @@ export default function Payment() {
           <h1 className="text-2xl mb-2">Your payment is successful</h1>
           <p>Check snet to your email 📨</p>
           <p className="flex flex-row">
-            Redirecting to home page in <Timer seconds={5} action={() => {}} />
+            Redirecting to home page in <Timer seconds={4} action={() => router.replace("/")} />
           </p>
         </>
       ) : (
@@ -244,7 +241,7 @@ export default function Payment() {
           />
           <h1 className="text-2xl mb-2">Your payment was canceled</h1>
           <p className="flex flex-row">
-            Redirecting to home page in <Timer seconds={5} action={() => router.replace("/")} />
+            Redirecting to home page in <Timer seconds={4} action={() => router.replace("/")} />
           </p>
         </>
       )}

@@ -81,7 +81,7 @@ export function PayWithMetamaskButton() {
         convert: "ETH",
       })
       const ETHPrice = response.data.data[0].quote.ETH.price
-
+      console.log(84, "window.ethereum.request ")
       window.ethereum
         .request({
           method: "eth_sendTransaction",
@@ -97,18 +97,21 @@ export function PayWithMetamaskButton() {
           ],
         })
         .then((txHash: string) => {
+          console.log(100, "router push ")
           router.push(`${location.origin}/payment?status=success`)
           //TODO - add this txHash to query params when I check is payment with metamask is actually work
           console.log(169, "You may use txHash as check QR code or payment identifier - ", txHash)
         })
         .catch((error: Error) => {
+          console.log(108, "error - ", error)
           error.message.includes("MetaMask Tx Signature: User denied transaction signature.")
             ? toast.show("error", "Transaction error", "User denied transaction signature")
             : toast.show("error", "Unknown error", error.message)
         })
-        .finally(() => setIsLoading(false))
     } catch (error: any) {
+      console.log(111, "error - ", error)
       toast.show("error", "Failed to pay with metamask", error.message as string)
+      console.log(111, "setIsLoading false ")
       setIsLoading(false)
     }
   }
@@ -146,9 +149,20 @@ export function PayWithMetamaskButton() {
         10000,
       )
     } else {
-      await window.ethereum.request({
-        method: "eth_requestAccounts",
-      })
+      try {
+        await window.ethereum.request({
+          method: "eth_requestAccounts",
+        })
+      } catch (error) {
+        toast.show(
+          "error",
+          "You rejected connection",
+          <p>
+            Please connect one more time and
+            <br /> this time don&apos;t cancel request
+          </p>,
+        )
+      }
     }
 
     setIsLoading(false)
