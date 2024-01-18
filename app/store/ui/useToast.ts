@@ -12,7 +12,7 @@ message.show('success','custom title','custom subTitle',3000) //disashow after 3
 
 */
 
-interface MessageStore {
+export interface MessageStore {
   isOpen: boolean
   show: (status: "error" | "success", title?: string, subTitle?: React.ReactNode, timeoutInMs?: number) => void
   title?: string
