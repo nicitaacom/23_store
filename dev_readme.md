@@ -329,7 +329,7 @@ For other templates the same - jsut change text `Verify your email on 23_store` 
 
 Site url - https://23-store.vercel.app
 
-http://localhost:3000/\*\*
+http://localhost:3023/\*\*
 
 https://23-store.vercel.app/auth/callback/credentials
 

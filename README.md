@@ -330,7 +330,7 @@ Site URL - https://23-store.vercel.app<br/>
 Redirect URLs: (note that its better to don't use \*\* - use path without \*\* instead)
 
 ```md
-http://localhost:3000/\*\* (I hate prettier)
+http://localhost:3023/\*\* (I hate prettier)
 
 https://23-store.vercel.app/auth/callback/credentials
 
