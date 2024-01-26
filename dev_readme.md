@@ -1,21 +1,53 @@
-## Problem
+# What in this docs?
 
-Buy and sell something
+- how to find docs "how to implement/use something or how something work"
+- tasks (TODO) for this project
+- problem that this site solve
+- site
+- how to add docs
 
-## Solution
+<br/>
 
-Create this site that better other ones where everybody can buy or sell something
-Site created with focus on performance
+# How to find docs
 
-## Live demo - performance - 83 mobile / 96 desktop
+### If you want implement something (find docs)
 
-https://23-store.vercel.app/
+You may find it in related to waht you want to implement folder<br/>
+For example you want implement some new modal - ctrl+p - `modals/dev_reamde.md` <br/>
 
-## Use supabaseServer like this
+### If you want to use something (find docs)
 
-```tsx
-const user = await supabaseServer().auth.getUser()
-```
+For example some function for that read docs in some store.ts file
+If you want to reuse some function that not exist in some store.ts file<br/>
+its better to understand that its fine that if in different (organization-routes)<br/>
+e.g (site) or (auth) may be functions with the same name and logic - its fine because usually this functions a bit different<br/>
+
+### If you want understand how something work (find docs)
+
+If you want to understand how something work its better to open official docs or do some project (in case its some library)<br/>
+If you want to undestand some code usually you may find necessary comments that explains you how some part of code work<br/>
+because you know you may do X in A or B or C way
+
+<br/>
+
+# Tasks (TODO) for this project
+
+You may find it - https://github.com/users/nicitaacom/projects/5/views/1?sortedBy%5Bdirection%5D=desc&sortedBy%5BcolumnId%5D=59471618&pane=issue&itemId=43896841<br/>
+If you want to create some TODO - use the same structure as in another tasks
+If you want contribute to this project - check `CONTRIBUTING.md`
+
+<br/>
+
+# Problem that this site solve
+
+<b>Problem:</b><br/>
+Buy and sell something<br/>
+<b>Solution:</b><br/>
+Create this site that better other ones where everybody can buy or sell something<br/>
+Site created with focus on performance for better SEO
+
+<br/>
+<br/>
 
 ## Usage for colors :root
 
@@ -329,7 +361,7 @@ For other templates the same - jsut change text `Verify your email on 23_store` 
 
 Site url - https://23-store.vercel.app
 
-http://localhost:3000/\*\*
+http://localhost:3023/\*\*
 
 https://23-store.vercel.app/auth/callback/credentials
 
