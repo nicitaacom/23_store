@@ -1,4 +1,4 @@
-import supabaseAdmin from "@/libs/supabaseAdmin"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 const getInitialMessagesByTicketId = async (ticketId: string) => {
   // Check is this ticket closed

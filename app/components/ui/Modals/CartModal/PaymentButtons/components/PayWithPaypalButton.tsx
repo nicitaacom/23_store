@@ -5,6 +5,7 @@ import { Button } from "@/components/ui"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
+import useUserStore from "@/store/user/userStore"
 import axios, { AxiosError } from "axios"
 import { useRouter } from "next/navigation"
 import { FaPaypal } from "react-icons/fa"
@@ -14,6 +15,7 @@ export function PayWithPaypalButton() {
   const router = useRouter()
   const toast = useToast()
   const cartStore = useCartStore()
+  const userStore = useUserStore()
   const { isLoading, setIsLoading } = useLoading()
 
   const payPalProductsQuery = cartStore.productsData
@@ -41,6 +43,7 @@ export function PayWithPaypalButton() {
       } else {
         const payPalResponse = await axios.post("/api/create-paypal-session", {
           payPalProductsQuery,
+          email: userStore.email,
         } as TPayPalProductsQuery)
         //redirect user to session.url on client side to avoid 'blocked by CORS' error
         router.push(payPalResponse.data)

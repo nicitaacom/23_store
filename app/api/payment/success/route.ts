@@ -1,5 +1,5 @@
 import { TRecordCartProduct } from "@/interfaces/product/TRecordCartProduct"
-import supabaseAdmin from "@/libs/supabaseAdmin"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { NextResponse } from "next/server"
 
 export type TAPIPaymentSuccess = {

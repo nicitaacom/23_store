@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from "react"
 import { find } from "lodash"
 import axios from "axios"
 
-import { TAPIMessagesSeen } from "@/api/messages/seen/route"
+import { TAPIMessageSeen } from "@/api/message/seen/route"
 import { IMessage } from "@/interfaces/support/IMessage"
+import { useUnseenMessages } from "@/store/ui/unseenMessages"
+import useUserStore from "@/store/user/userStore"
 import { pusherClient } from "@/libs/pusher"
 import { MessageBox } from "@/components/SupportButton/components/MessageBox"
-import useUserStore from "@/store/user/userStore"
-import { useUnseenMessages } from "@/store/ui/unseenMessages"
 
 interface MessagesBodyProps {
   initialMessages: IMessage[]
@@ -26,11 +26,12 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
   const [messages, setMessages] = useState(initialMessages)
 
   useEffect(() => {
-    axios.post("/api/messages/seen", { ticketId: ticket_id, messages: messages, userId: userId } as TAPIMessagesSeen)
+    axios.post("/api/message/seen", { ticketId: ticket_id, messages: messages, userId: userId } as TAPIMessageSeen)
   }, [messages, ticket_id, userId])
 
   useEffect(() => {
     pusherClient.subscribe(ticket_id)
+
     if (bottomRef.current) {
       bottomRef.current.scrollTop = bottomRef.current.scrollHeight
     }
@@ -53,6 +54,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
     }
 
     const seenHandler = (updatedMessages: IMessage[]) => {
+      // here is might be required chaning logic because I don't remember how it works
       setMessages(current => {
         return current.map(existingMessage => {
           const updatedMessage = updatedMessages.find(msg => msg.id === existingMessage.id)

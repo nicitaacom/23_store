@@ -1,5 +1,5 @@
 import { stripe } from "@/libs/stripe"
-import supabaseServerAction from "@/libs/supabaseServerAction"
+import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 import { NextRequest, NextResponse } from "next/server"
 
 type TRequest = {

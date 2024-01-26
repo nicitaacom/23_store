@@ -1,8 +1,8 @@
 import { pusherServer } from "@/libs/pusher"
-import supabaseAdmin from "@/libs/supabaseAdmin"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { NextResponse } from "next/server"
 
-export type TAPIMessages = {
+export type TAPIMessageSend = {
   id?: string
   ticketId: string
   senderId: string
@@ -15,7 +15,8 @@ export type TAPIMessages = {
 export const dynamic = "force-dynamic"
 
 export async function POST(req: Request) {
-  const { id, ticketId, body, images, senderId, senderUsername, senderAvatarUrl } = (await req.json()) as TAPIMessages
+  const { id, ticketId, body, images, senderId, senderUsername, senderAvatarUrl } =
+    (await req.json()) as TAPIMessageSend
   // dance arounding to insert current date-time
   const now = new Date()
   const timestampString = now.toISOString().replace("T", " ").replace("Z", "+00")

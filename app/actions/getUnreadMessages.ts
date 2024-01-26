@@ -1,5 +1,5 @@
-import supabaseAdmin from "@/libs/supabaseAdmin"
-import supabaseServer from "@/libs/supabaseServer"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getCookie } from "@/utils/helpersSSR"
 
 export interface UnseenMessages {

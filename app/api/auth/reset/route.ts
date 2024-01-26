@@ -1,5 +1,5 @@
 import { pusherServer } from "@/libs/pusher"
-import supabaseServer from "@/libs/supabaseServer"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 import { NextResponse } from "next/server"
 
 export type TAPIAuthReset = {

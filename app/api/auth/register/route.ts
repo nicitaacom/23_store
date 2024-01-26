@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import { getURL } from "@/utils/helpers"
 
 import list from "disposable-email-domains"
-import supabaseAdmin from "@/libs/supabaseAdmin"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 
