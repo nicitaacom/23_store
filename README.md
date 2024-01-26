@@ -1,6 +1,12 @@
-# What inside? <br/> <sub> https://23-store.vercel.app/ </sub>
+# What inside? <br/> <sub> https://23-store.vercel.app/</sub>
 
 [![23-store-overview](https://i.imgur.com/F9FiGHK.jpg)](https://streamable.com/1zdhl7)
+
+## Project info
+
+### Performance - 83 mobile / 96 desktop
+
+### Stack - Next + TypeScript + Tailwind + supabase + zustand + stripe
 
 <br/>
 <br/>
@@ -330,7 +336,7 @@ Site URL - https://23-store.vercel.app<br/>
 Redirect URLs: (note that its better to don't use \*\* - use path without \*\* instead)
 
 ```md
-http://localhost:3000/\*\* (I hate prettier)
+http://localhost:3023/\*\* (I hate prettier)
 
 https://23-store.vercel.app/auth/callback/credentials
 
@@ -366,88 +372,86 @@ so you may adjust this RLS policy if you want
 
 </details>
 
-### 2.8 - stripe - login/register
+### 2.9 - stripe - login/register
 
 stripe - https://app.supabase.com/sign-in
 
 ![login/register in stripe](https://i.imgur.com/D7OZC93.png)
 
-### 2.9 - stripe
+### 2.10 - stripe
 
 ![copy .env](https://i.imgur.com/1BgzWI2.png)
 
-### 2.10 - stripe
+### 2.11 - stripe
 
 ![paste .env](https://i.imgur.com/LPiFK31.png)
 
-### 2.11 - resend - login/register
+### 2.12 - resend - login/register
 
 ![login/register in resend.com](https://i.imgur.com/reEKSuH.png)
 
-### 2.12 - resend - buy your domain
+### 2.13 - resend - buy your domain
 
 ![buy and add domain in resend](https://i.imgur.com/DAAQgbN.png)
 
-### 2.13 - resend
+### 2.14 - resend
 
 ![copy .env](https://i.imgur.com/gFqtYtU.png)
 
-### 2.14 - resend
+### 2.15 - resend
 
 Alternativaly if you have problems on this step you may check guide on YouTube
 `how to setup resend` or `how to send email using react`
 
-### 2.15 - your email you send emails from
+### 2.16 - your email you send emails from
 
 `NEXT_PUBLIC_SUPPORT_EMAIL='your_email_where_you_send_messages_from'`
 
 It may be your email based on your domain like youremail@yourdomain.smth
 
-### 2.16 - paypal
+### 2.17 - paypal
 
 1. Google - paypal developer - login/register
 2. Use this guide - https://developer.paypal.com/api/rest/
    ![copy .env](https://i.imgur.com/8G5BXuq.png)
 
-### 2.17 - paypal
+### 2.18 - paypal
 
 1. Click 'Create App' - in case you haven't one
 2. Click on your app name in my case 'Platform Partner App - 5321855133911008505'
    ![copy .env](https://i.imgur.com/ojdT3vb.png)
 
-### 2.18 - paypal
+### 2.19 - paypal
 
 ![copy .env](https://i.imgur.com/BLvt8O1.png)
 
-### 2.19 - paypal
+### 2.20 - paypal
 
 ![copy .env](https://i.imgur.com/3b0Shg7.png)
 
-### 2.20 - metamask
+### 2.21 - metamask
 
 1. I suppose that you advanced PC user and able to register/login in metamask
    ![copy metamask address](https://i.imgur.com/l9nTHB6.png)
 
-### 2.21 - metamsk
+### 2.22 - metamsk
 
 ![paste metamask address](https://i.imgur.com/r5Xai6j.png)
 
-### 2.22 - coinmarketcap
+### 2.23 - coinmarketcap
 
 1. login/register in coinmarketcap developer (google - coinmarketcap developer - login - etc)
 
 ![copy .env](https://i.imgur.com/w2aTQki.png)
 
-### 2.23 - coinmarketcap
+### 2.24 - coinmarketcap
 
 ![paste .env](https://i.imgur.com/i5n4wDH.png)
 
-## Step 2.24 - run project
+## Step 2.25 - run project
 
-````
-
+```
 pnpm dev
-
 ```
 
 <br/>
@@ -457,5 +461,3 @@ pnpm dev
 # Feedback
 
 If you found some bug/issue - just go ahead and open a new issue
-```
-````
