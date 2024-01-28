@@ -1,6 +1,5 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { SiKlarna } from "react-icons/si"
 import { twMerge } from "tailwind-merge"
 
@@ -9,16 +8,13 @@ import axios, { AxiosError } from "axios"
 import useToast from "@/store/ui/useToast"
 import { useLoading } from "@/store/ui/useLoading"
 import { Button } from "@/components/ui"
-import useUserStore from "@/store/user/userStore"
 
-export function PayWithKlarmaButton() {
-  const router = useRouter()
+export function PayWithKlarnaButton() {
   const toast = useToast()
   const cartStore = useCartStore()
-  const userStore = useUserStore()
   const { isLoading, setIsLoading } = useLoading()
 
-  const klarmaProductsQuery = cartStore.productsData
+  const klarnaProductsQuery = cartStore.productsData
     .filter(product => product.on_stock > 0)
     .map(product => ({
       price: product.price_id,
@@ -27,7 +23,7 @@ export function PayWithKlarmaButton() {
     .map(item => `${encodeURIComponent(JSON.stringify(item))}`)
     .join("&")
 
-  async function createKlarmaSession() {
+  async function createKlarnaSession() {
     setIsLoading(true)
     try {
       const response = await axios.post("/api/create-klarna-session")
@@ -46,7 +42,7 @@ export function PayWithKlarmaButton() {
         isLoading && "opacity-50 cursor-default pointer-events-none",
       )}
       variant="info"
-      onClick={createKlarmaSession}>
+      onClick={createKlarnaSession}>
       Clarma
       <SiKlarna />
     </Button>

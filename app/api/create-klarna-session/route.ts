@@ -22,21 +22,7 @@ export async function POST(request: Request) {
       }),
     })
 
-    // Check if the response status is not in the 2xx range
-    if (!klarnaResponse.ok) {
-      throw new Error(`HTTP error! Status: ${klarnaResponse.status}`)
-    }
-
     // Attempt to parse the JSON response
-    const responseData = await klarnaResponse.json()
-
-    // Check if the response data is empty or not in the expected JSON format
-    if (!responseData) {
-      throw new Error("Empty or invalid JSON response from Klarna API")
-    }
-
-    // Perform further processing or return the Klarna data as needed
-    return NextResponse.json(responseData)
   } catch (error) {
     if (error instanceof Error) {
       // Handle any error that occurred during the Klarna request
