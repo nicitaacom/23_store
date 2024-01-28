@@ -7,7 +7,6 @@ import { Storage } from "./Storage"
 
 export class DBStorage extends Storage {
   async saveProducts(cartProducts: TRecordCartProduct): Promise<void> {
-    console.log(10, "save cartProducts - ", cartProducts)
     const show = useToast.getState().show
     const { userId } = useUserStore.getState()
     const { error } = await supabaseClient

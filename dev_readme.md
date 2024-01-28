@@ -1,10 +1,10 @@
 # What in this docs?
 
-- how to find docs "how to implement/use something or how something work"
-- tasks (TODO) for this project
-- problem that this site solve
-- site
-- how to add docs
+- How to find docs "how to implement/use something or how something work"
+- Tasks (TODO) for this project
+- Problem that this site solve
+- Site
+- How to add docs
 
 <br/>
 

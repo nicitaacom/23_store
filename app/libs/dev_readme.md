@@ -3,14 +3,14 @@
 - for what this docs is
 - when use/not use this folder
 - explanation for each `file.ts`
-  - pusher.js
-  - resend.js
-  - stripe.js
+  - pusher.ts
+  - resend.ts
+  - stripe.ts
   - supabase
-    - supabaseAdmin.js
-    - supabaseClient.js
-    - supabaseServer.js
-    - supabaseServerAction.js
+    - supabaseAdmin.ts
+    - supabaseClient.ts
+    - supabaseServer.ts
+    - supabaseServerAction.ts
 
 <br/>
 
@@ -38,7 +38,7 @@ For examples see files in this folder
 # Explanation for each `file.ts`
 
 <details>
-  <summary>pusher.js</summary>
+  <summary>pusher.ts</summary>
 
     example
 
