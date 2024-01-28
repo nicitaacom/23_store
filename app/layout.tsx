@@ -8,11 +8,6 @@ import { ToastProvider } from "./providers/ToastProvider"
 import ClientOnly from "./components/ClientOnly"
 import { Layout } from "./components"
 
-import { Inter } from "next/font/google"
-const inter = Inter({ subsets: ["latin"] })
-import localFont from "next/font/local"
-const fireFoxes = localFont({ src: "../public/FireFoxesDemoRegular.ttf", variable: "--font-secondary" })
-
 export const metadata: Metadata = {
   title: "23_store",
   description: "Something better than amazon",
@@ -37,7 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en">
-      <body className={(inter.className, fireFoxes.variable)}>
+      <body>
         <ClientOnly>
           <Layout>{children}</Layout>
           <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
