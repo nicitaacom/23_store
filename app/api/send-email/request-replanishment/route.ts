@@ -1,5 +1,5 @@
 import { resend } from "@/libs/resend"
-import supabaseAdmin from "@/libs/supabaseAdmin"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { NextResponse } from "next/server"
 
 export type TAPISendEmailRequestReplanishment = {

@@ -1,5 +1,6 @@
 "use client"
 
+import { PayWithKlarnaButton } from "./components/PayWithClarmaButton"
 import { PayWithMetamaskButton } from "./components/PayWithMetamaskButton"
 import { PayWithPaypalButton } from "./components/PayWithPaypalButton"
 import { PayWithStripeButton } from "./components/PayWithStripeButton"
@@ -10,6 +11,7 @@ export function PaymentButtons() {
       <PayWithMetamaskButton />
       <PayWithPaypalButton />
       <PayWithStripeButton />
+      {/* <PayWithKlarnaButton />  */}
     </div>
   )
 }

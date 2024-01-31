@@ -7,9 +7,9 @@ import { useForm } from "react-hook-form"
 import { find } from "lodash"
 import axios from "axios"
 
-import { TAPIMessages } from "@/api/messages/route"
+import { TAPIMessageSend } from "@/api/message/send/route"
+import { TAPIMessageSeen } from "@/api/message/seen/route"
 import { TAPITelegram } from "@/api/telegram/route"
-import { TAPIMessagesSeen } from "@/api/messages/seen/route"
 import { IMessage } from "@/interfaces/support/IMessage"
 import { pusherClient } from "@/libs/pusher"
 import { getCookie } from "@/utils/helpersCSR"
@@ -44,7 +44,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
 
   useEffect(() => {
     if (isDropdown) {
-      axios.post("/api/messages/seen", { ticketId: ticketId, messages: messages, userId: userId } as TAPIMessagesSeen)
+      axios.post("/api/message/seen", { ticketId: ticketId, messages: messages, userId: userId } as TAPIMessageSeen)
     }
   }, [ticketId, messages, userId, isDropdown])
 
@@ -158,7 +158,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         ownerAvatarUrl: userStore.avatarUrl,
       } as TAPITicketsOpen)
       // 2. Insert message in table 'messages'
-      await axios.post("/api/messages", {
+      await axios.post("/api/message/send", {
         id: firstMessageId,
         ticketId: ticketId,
         senderId: userId,
@@ -166,20 +166,20 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
         senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
         images: undefined,
-      } as TAPIMessages)
+      } as TAPIMessageSend)
       // 3. Send message in telegram
       await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
       router.refresh()
     } else {
       // 1. Insert message in table 'messages'
-      await axios.post("/api/messages", {
+      await axios.post("/api/message/send", {
         ticketId: ticketId,
         senderId: userId,
         senderUsername: senderUsername,
         senderAvatarUrl: userStore.avatarUrl,
         body: data.message,
         images: undefined,
-      } as TAPIMessages)
+      } as TAPIMessageSend)
       // 2. Scroll to bottom to show last messages
       if (bottomRef.current) {
         bottomRef.current?.scrollTo(0, bottomRef.current.scrollHeight)

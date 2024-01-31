@@ -1,6 +1,6 @@
 import { BiSearchAlt } from "react-icons/bi"
 
-import supabaseServer from "@/libs/supabaseServer"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 import { Language } from "../Language"
 import { SwitchDarkMode } from ".."
 import { NavbarWrapper } from "./components/NavbarWrapper"

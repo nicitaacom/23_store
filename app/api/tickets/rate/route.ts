@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import supabaseAdmin from "@/libs/supabaseAdmin"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export type TAPITicketsRate = {
   ticketId: string
