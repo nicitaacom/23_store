@@ -96,7 +96,7 @@ export function NameModal() {
 
 ## Step 2
 
-Export `NameModal.tsx` in `index.ts`
+Export `NameMTodal.tsx` in `index.ts`
 
 ## Step 3 (in /app/store/ui)
 
