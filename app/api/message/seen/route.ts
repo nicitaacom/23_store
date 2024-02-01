@@ -12,17 +12,21 @@ export type TAPIMessageSeen = {
 
 export async function POST(req: Request) {
   const { ticketId, messages, userId } = (await req.json()) as TAPIMessageSeen
-  // update to seen:true - only for (not own messages) and (not seen messages)
+
+  // 1. Update to seen:true - only for (not own messages) and (not seen messages)
   const updatedUnseenMessages = messages
     .filter(message => message.sender_id !== userId && !message.seen)
     .map(unseenMessage => ({
       ...unseenMessage,
       seen: true,
     }))
-  // array of unseed message ids (to update it in supabase)
+
+  // 2. Array of unseen message ids (to update it in supabase)
   const unseenMessageIds = messages
     .filter(message => message.sender_id !== userId && !message.seen)
     .map(message => message.id)
+
+  // 3. Update seen:true in 'messages' table
   if (unseenMessageIds.length !== 0) {
     const { error: messages_error } = await supabaseAdmin
       .from("messages")

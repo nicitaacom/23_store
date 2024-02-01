@@ -10,13 +10,14 @@ export async function POST(request: NextRequest) {
   const { id }: TRequest = await request.json()
 
   try {
-    // Delete product on Stripe https://stripe.com/docs/api/products/delete
+    // 1. Delete product on Stripe https://stripe.com/docs/api/products/delete
     // https://stackoverflow.com/questions/72890840 - archive instead
     const deleteResponse = await stripe.products.update(id, {
       active: false,
     })
 
-    //delete product from bucket
+    // 2. Delete image from bucket
+    // 2.1 Select img_url to delete product from bucket
     const { data, error: deleteProductError } = await supabaseServerAction()
       .from("products")
       .select("img_url")
@@ -24,16 +25,16 @@ export async function POST(request: NextRequest) {
       .single()
     if (deleteProductError)
       throw new Error(
-        `Delete product from bucket \n Path:/api/products/delete/route.ts \n Error message:\n ${deleteProductError.message}`,
+        `Selecting img_url error \n Path:/api/products/delete/route.ts \n Error message:\n ${deleteProductError.message}`,
       )
-
     if (data?.img_url) {
-      //get all the parts after the last occurrence of the second part of the URL (last two parts of URL https://smth/part1/part2)
+      // 2.2 Get all the parts after the last occurrence of the second part of the URL (last two parts of URL https://smth/part1/part2)
       const imageUrls = data.img_url.map(url => {
         const parts = url.split("/")
         const lastTwoParts = parts.slice(-2).join("/")
         return lastTwoParts
       })
+      // 2.3 Delete image from bucket based on info from 1.1 and 1.2 steps
       const { error: deleteFromBucketError } = await supabaseServerAction().storage.from("public").remove(imageUrls)
       if (deleteFromBucketError) {
         console.log(39, "Delete images from bucket error")
@@ -45,18 +46,19 @@ export async function POST(request: NextRequest) {
         )
       }
     } else {
-      console.log(48, "Delete images from bucket error - no iamges in bucket found")
+      console.log(48, "Delete images from bucket error - no iamges in 'products' found")
       return new NextResponse(
         `Delete images from bucket \n
                 Path:/api/products/delete/route.ts \n 
-                Error message:\n No images found in bucket ${data.img_url}`,
+                Error message:\n No img_url found in 'products' ${data.img_url}`,
         { status: 400 },
       )
     }
 
-    //delte product from 'products' table
+    // 3. Delte product from 'products' table
     const { error: deleteError } = await supabaseServerAction().from("products").delete().eq("id", id)
     if (deleteError)
+      // SOLID - O (OCP) - Open/Closed prinicpe - open for expanding - closed for modifications
       throw new Error(
         `Delete from 'products' table \n Path:/api/products/delete/route.ts \n Error message: \n ${{ deleteError }}`,
       )

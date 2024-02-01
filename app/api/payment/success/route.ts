@@ -26,6 +26,7 @@ export async function POST(req: Request) {
         { status: 400 },
       )
     }
+
     // 2. Subtract productQuantities from on_stock
     const substracted_on_stock = products.map((product, index) => product.on_stock - productQuantities[index])
 
