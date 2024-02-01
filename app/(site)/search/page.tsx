@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 
-import supabaseServer from "@/libs/supabaseServer"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 
 import { Products } from "../components"
 import { NoProductsFound } from "./NoProductsFound"

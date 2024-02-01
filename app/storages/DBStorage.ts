@@ -1,13 +1,12 @@
 import { TRecordCartProduct } from "@/interfaces/product/TRecordCartProduct"
 import { Json } from "@/interfaces/types_db"
-import supabaseClient from "@/libs/supabaseClient"
+import supabaseClient from "@/libs/supabase/supabaseClient"
 import useUserStore from "@/store/user/userStore"
 import useToast from "@/store/ui/useToast"
 import { Storage } from "./Storage"
 
 export class DBStorage extends Storage {
   async saveProducts(cartProducts: TRecordCartProduct): Promise<void> {
-    console.log(10, "save cartProducts - ", cartProducts)
     const show = useToast.getState().show
     const { userId } = useUserStore.getState()
     const { error } = await supabaseClient

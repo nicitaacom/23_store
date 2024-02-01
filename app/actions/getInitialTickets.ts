@@ -1,5 +1,5 @@
 import { ITicket } from "@/interfaces/support/ITicket"
-import supabaseAdmin from "@/libs/supabaseAdmin"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 const getInitialTickets = async () => {
   const { data: tickets_response, error: tickets_error } = await supabaseAdmin

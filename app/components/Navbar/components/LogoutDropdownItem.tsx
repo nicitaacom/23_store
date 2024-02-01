@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 
-import supabaseClient from "@/libs/supabaseClient"
+import supabaseClient from "@/libs/supabase/supabaseClient"
 import { BiLogOut } from "react-icons/bi"
 
 import { DropdownItem } from "@/components/ui/DropdownItem"

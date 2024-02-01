@@ -1,4 +1,4 @@
-// import supabaseServer from "@/libs/supabaseServer"
+// import supabaseServer from "@/libs/supabase/supabaseServer"
 
 // const getLastMessages = async () => {
 //   try {

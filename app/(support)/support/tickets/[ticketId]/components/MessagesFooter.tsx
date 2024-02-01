@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/Inputs"
 import { FormEvent, useState } from "react"
 import axios from "axios"
 import useUserStore from "@/store/user/userStore"
-import { TAPIMessages } from "@/api/messages/route"
+import { TAPIMessageSend } from "@/api/message/send/route"
 
 export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   // Server component with input and server action doesn't work because I need to set input value to ""
@@ -14,7 +14,7 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   async function sendMessage(event: FormEvent) {
     event.preventDefault()
     setMessage("")
-    await axios.post("/api/messages", {
+    await axios.post("/api/message", {
       body: message,
       ticketId: ticket_id,
       senderId: userStore.userId,
@@ -22,7 +22,7 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
       senderAvatarUrl: userStore.avatarUrl,
       // TODO - images logic in the future
       images: undefined,
-    } as TAPIMessages)
+    } as TAPIMessageSend)
   }
 
   return (

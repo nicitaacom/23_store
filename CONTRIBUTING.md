@@ -1,4 +1,4 @@
-## How to strat contributing to this project
+# How to strat contributing to this project
 
 ### Fork repository
 
@@ -120,12 +120,12 @@ More examples - https://github.com/users/nicitaacom/projects/5/views/1?sortedBy%
 
 ### Commit naming
 
-style: mb-8 instead of pb-8
-chore: AvatarDropdown.tsx incapsulated
-chore: ModalContainer renamed to ModalQueryContainer
-upd: store for avatarDropdown created
-feat: close avatarDropdown on DropdownItem click
-docs: commit naming add
+style: mb-8 instead of pb-8<br/>
+chore: AvatarDropdown.tsx incapsulated<br/>
+chore: ModalContainer renamed to ModalQueryContainer<br/>
+upd: store for avatarDropdown created<br/>
+feat: close avatarDropdown on DropdownItem click<br/>
+docs: commit naming add<br/>
 
 1. chore - for update that doesn't affect on user
 2. style - only styling changes

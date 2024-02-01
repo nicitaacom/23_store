@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation"
 
 import { useForm } from "react-hook-form"
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai"
-import supabaseClient from "@/libs/supabaseClient"
+import supabaseClient from "@/libs/supabase/supabaseClient"
 import axios, { AxiosError } from "axios"
 import { twMerge } from "tailwind-merge"
 import { pusherClient } from "@/libs/pusher"

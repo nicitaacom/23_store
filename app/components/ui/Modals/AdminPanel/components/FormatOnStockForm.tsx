@@ -8,7 +8,7 @@ import { twMerge } from "tailwind-merge"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
-import supabaseClient from "@/libs/supabaseClient"
+import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useLoading } from "@/store/ui/useLoading"
 
 interface FormatOnStockFormProps {

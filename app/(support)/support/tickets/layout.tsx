@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import supabaseServer from "@/libs/supabaseServer"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 
 import getInitialTickets from "@/actions/getInitialTickets"
 import getUnreadMessages from "@/actions/getUnreadMessages"
