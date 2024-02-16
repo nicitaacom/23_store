@@ -68,6 +68,7 @@ export default function Payment() {
     // 1. Get customer email to send check
     // Get customer email
     async function getCustomerEmail() {
+      console.log("step 1")
       if (userStore.email) {
         setCustomerEmail(userStore.email)
       } else {
@@ -79,18 +80,20 @@ export default function Payment() {
         if (customerEmail) {
           setCustomerEmail(customerEmail)
         }
-        setCurrentStep(2)
       }
+      setCurrentStep(2)
     }
 
     // 2. Fetch products data to render TSX to html in email to pass this data in email
     async function fetchProductsDataFromDB() {
+      console.log("step 2")
       await cartStore.fetchProductsData()
       setCurrentStep(3)
     }
 
     // 3. Render TSX to html
     async function renderEmail() {
+      console.log("step 3")
       if (cartStore.productsData.length > 0) {
         const emailMessageString = await renderAsync(
           <CheckEmail products={cartStore.productsData} deliveryDate={deliveryDate} />,
@@ -100,17 +103,21 @@ export default function Payment() {
         )
         setHtml(emailMessageString)
         setCurrentStep(4)
+      } else {
+        toast.show("error", "Error rendering email", "Please contact support")
       }
     }
 
     // 4. Verify session to make sure user realy paid instead on entered random session_id
     async function verifySessionIdFunction() {
+      console.log("step 4")
       await verifySessionId()
       setCurrentStep(5)
     }
 
     // 5. Send email
     async function sendEmailFunction() {
+      console.log("step 5")
       if (isValidSessionId && status === "success" && html) {
         await sendEmail()
         setCurrentStep(6)
@@ -119,8 +126,11 @@ export default function Payment() {
 
     // 6. Substract on_stock from product.quantity in DB
     async function substractOnStockFromProductQuantityFunction() {
+      console.log("step 6")
       await substractOnStockFromProductQuantity()
       cartStore.clearCart()
+      console.log("completed")
+      router.replace("/")
       setCurrentStep(0)
     }
 

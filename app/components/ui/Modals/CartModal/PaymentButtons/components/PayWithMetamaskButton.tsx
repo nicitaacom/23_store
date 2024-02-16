@@ -136,7 +136,6 @@ export function PayWithMetamaskButton() {
     setIsLoading(false)
   }
 
-  console.log(139, "wallet.chainId - ", wallet.chainId)
   return (
     <Button
       className="flex flex-row gap-x-1 w-full laptop:w-full"
