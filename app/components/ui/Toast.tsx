@@ -23,8 +23,10 @@ export function Toast() {
         )}
       </div>
       <div className="flex flex-col w-full">
-        <div className={`text-title font-bold`}>{title ? title : success ? "Success" : "Error"}</div>
-        <div className="text-subTitle">
+        <div className={`text-title font-bold`}>
+          <h1 className="whitespace-pre-wrap">{title ? title : success ? "Success" : "Error"}</h1>
+        </div>
+        <div className="text-subTitle whitespace-pre-wrap">
           {subTitle ? (
             subTitle
           ) : error ? (
