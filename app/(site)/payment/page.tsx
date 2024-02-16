@@ -79,8 +79,8 @@ export default function Payment() {
         if (customerEmail) {
           setCustomerEmail(customerEmail)
         }
-        setCurrentStep(2)
       }
+      setCurrentStep(2)
     }
 
     // 2. Fetch products data to render TSX to html in email to pass this data in email
@@ -100,6 +100,8 @@ export default function Payment() {
         )
         setHtml(emailMessageString)
         setCurrentStep(4)
+      } else {
+        toast.show("error", "Error rendering email", "Please contact support")
       }
     }
 
@@ -121,6 +123,7 @@ export default function Payment() {
     async function substractOnStockFromProductQuantityFunction() {
       await substractOnStockFromProductQuantity()
       cartStore.clearCart()
+      router.replace("/")
       setCurrentStep(0)
     }
 
