@@ -22,8 +22,8 @@ export function generateMetadata({ searchParams: { query } }: SearchPageProps): 
 }
 
 export default async function SearchPage({ searchParams: { query } }: SearchPageProps) {
-  //https://github.com/nicitaacom/19_spotify-clone/blob/development/actions/getSongsByTitle.ts
-  //https://supabase.com/docs/reference/javascript/or
+  // https://github.com/nicitaacom/19_spotify-clone/blob/development/actions/getSongsByTitle.ts
+  // https://supabase.com/docs/reference/javascript/or
   const products_response = await supabaseServer()
     .from("products")
     .select("*")

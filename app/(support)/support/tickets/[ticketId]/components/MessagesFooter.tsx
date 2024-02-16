@@ -14,7 +14,7 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   async function sendMessage(event: FormEvent) {
     event.preventDefault()
     setMessage("")
-    await axios.post("/api/message", {
+    await axios.post("/api/message/send", {
       body: message,
       ticketId: ticket_id,
       senderId: userStore.userId,
