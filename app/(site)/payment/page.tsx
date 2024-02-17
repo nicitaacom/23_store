@@ -65,7 +65,17 @@ export default function Payment() {
 
   // Send email - substract on_stock - product.quantity - clear cart
   useEffect(() => {
-    // 1. Get customer email to send check
+    // 1. Check is payment status === 'success'
+
+    function checkStatus() {
+      if (status === "success") {
+        setCurrentStep(2)
+      } else {
+        setCurrentStep(0)
+      }
+    }
+
+    // 2. Get customer email to send check
     // Get customer email
     async function getCustomerEmail() {
       if (userStore.email) {
@@ -80,16 +90,16 @@ export default function Payment() {
           setCustomerEmail(customerEmail)
         }
       }
-      setCurrentStep(2)
-    }
-
-    // 2. Fetch products data to render TSX to html in email to pass this data in email
-    async function fetchProductsDataFromDB() {
-      await cartStore.fetchProductsData()
       setCurrentStep(3)
     }
 
-    // 3. Render TSX to html
+    // 3. Fetch products data to render TSX to html in email to pass this data in email
+    async function fetchProductsDataFromDB() {
+      await cartStore.fetchProductsData()
+      setCurrentStep(4)
+    }
+
+    // 4. Render TSX to html
     async function renderEmail() {
       if (cartStore.productsData.length > 0) {
         const emailMessageString = await renderAsync(
@@ -99,27 +109,27 @@ export default function Payment() {
           },
         )
         setHtml(emailMessageString)
-        setCurrentStep(4)
+        setCurrentStep(5)
       } else {
         toast.show("error", "Error rendering email", "Please contact support")
       }
     }
 
-    // 4. Verify session to make sure user realy paid instead on entered random session_id
+    // 5. Verify session to make sure user realy paid instead on entered random session_id
     async function verifySessionIdFunction() {
       await verifySessionId()
-      setCurrentStep(5)
+      setCurrentStep(6)
     }
 
-    // 5. Send email
+    // 6. Send email
     async function sendEmailFunction() {
       if (isValidSessionId && status === "success" && html) {
         await sendEmail()
-        setCurrentStep(6)
+        setCurrentStep(7)
       }
     }
 
-    // 6. Substract on_stock from product.quantity in DB
+    // 7. Substract on_stock from product.quantity in DB
     async function substractOnStockFromProductQuantityFunction() {
       await substractOnStockFromProductQuantity()
       cartStore.clearCart()
@@ -129,19 +139,22 @@ export default function Payment() {
 
     switch (currentStep) {
       case 1:
-        getCustomerEmail()
+        checkStatus
         break
       case 2:
-        fetchProductsDataFromDB()
+        getCustomerEmail()
         break
       case 3:
-        renderEmail()
+        fetchProductsDataFromDB()
         break
       case 4:
-        verifySessionIdFunction()
+        renderEmail()
+        break
       case 5:
-        sendEmailFunction()
+        verifySessionIdFunction()
       case 6:
+        sendEmailFunction()
+      case 7:
         substractOnStockFromProductQuantityFunction()
         break
       default:
