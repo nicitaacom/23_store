@@ -273,13 +273,7 @@ Confirm signup
 
 ```html
 <table style="max-width: 640px; width: 100%;background-color:rgb(32,32,32)" align="center">
-  <table style="min-width:100%;margin:0rem;padding:1rem 0rem;text-align:center">
-    <tbody>
-      <tr>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
+  <td style="min-width:100%;margin:0rem;padding:1rem 0rem;text-align:center"></td>
 
   <tr>
     <td style="text-align:center">
@@ -306,17 +300,17 @@ Confirm signup
       <tr>
         <td>
           <a
-            href="http://localhost:8000/support"
+            href="{{ .SiteURL }}/support"
             style="color:rgb(64,125,237);text-decoration:none;margin:0px;font-size:0.875rem;line-height:1.25rem;text-align:center;margin-right:1rem"
             target="_blank"
-            data-saferedirecturl="https://www.google.com/url?q=http://localhost:8000/support&amp;source=gmail&amp;ust=1696683582414000&amp;usg=AOvVaw1cLGx1tiGtSp3MUWJAOiih"
+            data-saferedirecturl="https://www.google.com/url?q={{ .SiteURL }}/support&amp;source=gmail&amp;ust=1696683582414000&amp;usg=AOvVaw1cLGx1tiGtSp3MUWJAOiih"
             >Support</a
           >
           <a
-            href="http://localhost:8000/feedback"
+            href="{{ .SiteURL }}/feedback"
             style="color:rgb(64,125,237);text-decoration:none;margin:0px;font-size:0.875rem;line-height:1.25rem;text-align:center;margin-right:1rem"
             target="_blank"
-            data-saferedirecturl="https://www.google.com/url?q=http://localhost:8000/feedback&amp;source=gmail&amp;ust=1696683582414000&amp;usg=AOvVaw2J2syDW1hX-6J6kkisMOBZ"
+            data-saferedirecturl="https://www.google.com/url?q={{ .SiteURL }}/feedback&amp;source=gmail&amp;ust=1696683582414000&amp;usg=AOvVaw2J2syDW1hX-6J6kkisMOBZ"
             >Feedback</a
           >
         </td>
