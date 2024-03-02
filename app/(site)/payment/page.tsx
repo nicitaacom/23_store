@@ -69,7 +69,6 @@ export default function Payment() {
 
     function checkStatus() {
       if (status === "success") {
-        console.log(120, "step 1 - success")
         setCurrentStep(2)
       } else {
         setCurrentStep(0)
