@@ -4,7 +4,7 @@
 
 ## Project info
 
-### Performance - 83 mobile / 96 desktop
+### Performance - 35 mobile / 73 desktop (01.03.2024)
 
 ### Stack - Next + TypeScript + Tailwind + supabase + zustand + stripe
 
