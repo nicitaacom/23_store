@@ -1,3 +1,5 @@
+"use client"
+
 import { AuthModal } from "@/(auth)/AuthModal/AuthModal"
 import { AdminPanelModalProps } from "@/components/ui/Modals/AdminPanel/AdminPanelModal"
 import { CartModalProps } from "@/components/ui/Modals/CartModal/CartModal"
@@ -5,7 +7,6 @@ import { ChangeLanguageModalProps } from "@/components/ui/Modals/ChangeLanguageM
 import { TProductDB } from "@/interfaces/product/TProductDB"
 import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
 
 const AdminPanelModal = dynamic<AdminPanelModalProps>(
   () => import("@/components/ui/Modals/AdminPanel/AdminPanelModal").then(mod => mod.AdminPanelModal),

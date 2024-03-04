@@ -48,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {children}
         {/* </Layout> */}
         <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
-        {/* <ModalsProvider /> */}
+        <ModalsProvider />
         {/* <ToastProvider /> */}
         {/* </ClientOnly> */}
       </body>
