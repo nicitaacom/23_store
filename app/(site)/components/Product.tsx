@@ -47,15 +47,16 @@ function Product({ ...product }: Props) {
           </div>
         </section>
 
-        <section className="min-h-[50px] flex flex-col laptop:flex-row gap-y-4 gap-x-4 justify-between">
+        <section
+          className={`min-h-[50px] flex flex-col laptop:flex-row gap-y-4 gap-x-4 ${product.on_stock === 0 ? "justify-end" : "justify-between"}`}>
           <ProductQuantity productId={product.id} productPrice={product.price} />
-          {/* {product.on_stock === 0 ? (
-            <div className="flex flex-row justify-center tablet:justify-end items-end"> */}
-          <RequestReplanishmentButton product={product} />
-          {/* </div>
+          {product.on_stock === 0 ? (
+            <div className="flex flex-row justify-center tablet:justify-end items-end">
+              <RequestReplanishmentButton product={product} />
+            </div>
           ) : (
             <ProductButtons productId={product.id} productOnStock={product.on_stock} />
-          )} */}
+          )}
         </section>
       </div>
     </article>
