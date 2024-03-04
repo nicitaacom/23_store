@@ -14,8 +14,8 @@ export function ProductImage({ imgUrl, productTitle }: ProductImageProps) {
           className="w-full laptop:aspect-video h-[500px] laptop:h-[200px] desktop:h-[250px] laptop:w-fit object-cover"
           src={imgUrl[0]}
           alt="image"
-          width={444}
-          height={250}
+          width={720}
+          height={480}
           priority
         />
       ) : (
@@ -26,8 +26,8 @@ export function ProductImage({ imgUrl, productTitle }: ProductImageProps) {
             src: image,
             alt: `${productTitle}-${index + 1}`,
           }))}
-          width={444}
-          height={250}
+          width={720}
+          height={480}
           swipeable={false}
         />
       )}
