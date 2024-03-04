@@ -9,7 +9,7 @@ const Toast = async () => {
   return <Toast />
 }
 
-export function ToastProvider() {
+export default function ToastProvider() {
   const toast = useToast()
 
   return <AnimatePresence>{toast.isOpen && <Toast />}</AnimatePresence>

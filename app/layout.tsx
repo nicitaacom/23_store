@@ -10,7 +10,7 @@ import { getCookie, setCookie } from "./utils/helpersSSR"
 import { setAnonymousId } from "./actions/setAnonymousId"
 import { cookies } from "next/headers"
 import axios from "axios"
-import React from "react"
+import { lazy } from "react"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -39,7 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // }
 
   const ownerProducts = await getOwnerProducts()
-  const ToastProvider = React.lazy(() => import("./providers/ToastProvider").then())
+  const ToastProvider = lazy(() => import("./providers/ToastProvider"))
 
   return (
     <html lang="en" className={getCookie("darkMode")}>
