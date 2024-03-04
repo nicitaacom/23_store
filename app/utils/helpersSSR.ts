@@ -1,4 +1,3 @@
-"use server"
 //This helpers may be used on server side only
 
 import { cookies } from "next/headers"
@@ -7,9 +6,8 @@ import { cookies } from "next/headers"
  *
  * @returns return cookie value by cookie name (type of string)
  */
-export async function getCookie(name: string): Promise<string | undefined> {
-  const cookieStore = cookies()
-  return cookieStore.get(name) ? cookieStore.get(name)?.value : undefined
+export function getCookie(name: string): string | undefined {
+  return cookies().get(name) ? cookies().get(name)?.value : undefined
 }
 
 export async function setCookie(name: string, value: string, expiresInMinutes?: number) {

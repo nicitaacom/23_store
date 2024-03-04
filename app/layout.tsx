@@ -41,10 +41,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const ownerProducts = await getOwnerProducts()
 
   return (
-    <html lang="en" className={await getCookie("darkMode")}>
+    <html lang="en" className={getCookie("darkMode")}>
       <body>
         {/* <ClientOnly> */}
-        <Layout>{children}</Layout>
+        {/* <Layout> */}
+        {children}
+        {/* </Layout> */}
         {/* <ModalsQueryProvider ownerProducts={ownerProducts ?? []} /> */}
         {/* <ModalsProvider /> */}
         {/* <ToastProvider /> */}

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3023",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3023",
     "lint": "next lint",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "update-types": "pnpx supabase gen types typescript --project-id ambgxbbsgequlwnbzchr > app/interfaces/types_db.ts"
