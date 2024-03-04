@@ -42,7 +42,7 @@ export default async function Home({ searchParams }: SearchProps) {
             <h1 className="hidden tablet:flex text-lg">Products:</h1>
           </div>
           <ul className="flex flex-col gap-y-8">
-            {products?.map(product => <Product {...product} key={product.id} />)}
+            {entries?.map(product => <Product {...product} key={product.id} />)}
           </ul>
         </div>
       </section>
