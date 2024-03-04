@@ -1,3 +1,5 @@
+"use client"
+
 import { AuthModal } from "@/(auth)/AuthModal/AuthModal"
 import { AdminPanelModalProps } from "@/components/ui/Modals/AdminPanel/AdminPanelModal"
 import { CartModalProps } from "@/components/ui/Modals/CartModal/CartModal"
