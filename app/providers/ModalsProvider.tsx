@@ -1,5 +1,4 @@
 import React from "react"
-import dynamic from "next/dynamic"
 
 const AreYouSureClearCartModal = async () => {
   const modal = import("@/components/ui/Modals/AreYouSureClearCartModal")
@@ -28,6 +27,20 @@ const DoYouWantRecieveCheckModal = async () => {
   const { DoYouWantRecieveCheckModal } = await modal
   return <DoYouWantRecieveCheckModal />
 }
+
+export function ModalsProvider() {
+  return (
+    <>
+      <AreYouSureClearCartModal />
+      <AreYouSureDeleteProductModal />
+      <AreYouSureMarkTicketAsCompletedSupportModal />
+      <CtrlKModal />
+      <DoYouWantRecieveCheckModal />
+    </>
+  )
+}
+
+// don't use this because it throw error
 // const AreYouSureClearCartModal = dynamic(() => import("@/components/ui/Modals/AreYouSureClearCartModal"), {
 //   ssr: false,
 // })
@@ -54,23 +67,12 @@ const DoYouWantRecieveCheckModal = async () => {
 //   { loading: () => <div>Loading DoYouWantRecieveCheckModal...</div> },
 // )
 
-export function ModalsProvider() {
-  return (
-    <>
-      <AreYouSureClearCartModal />
-      <AreYouSureDeleteProductModal />
-      <AreYouSureMarkTicketAsCompletedSupportModal />
-      <CtrlKModal />
-      <DoYouWantRecieveCheckModal />
-    </>
-  )
-  // return (
-  //   <>
-  //     <AreYouSureClearCartModal />
-  //     {/* <AreYouSureDeleteProductModal />
-  //     <AreYouSureMarkTicketAsCompletedSupportModal />
-  //     <CtrlKModal />
-  //     <DoYouWantRecieveCheckModal /> */}
-  //   </>
-  // )
-}
+// return (
+//   <>
+//     <AreYouSureClearCartModal />
+//     {/* <AreYouSureDeleteProductModal />
+//     <AreYouSureMarkTicketAsCompletedSupportModal />
+//     <CtrlKModal />
+//     <DoYouWantRecieveCheckModal /> */}
+//   </>
+// )

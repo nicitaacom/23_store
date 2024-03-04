@@ -4,13 +4,13 @@ import type { Metadata } from "next"
 
 import getOwnerProducts from "./actions/getOwnerProducts"
 import { ModalsProvider, ModalsQueryProvider } from "./providers"
-import { ToastProvider } from "./providers/ToastProvider"
 import ClientOnly from "./components/ClientOnly"
 import { Layout } from "./components"
 import { getCookie, setCookie } from "./utils/helpersSSR"
 import { setAnonymousId } from "./actions/setAnonymousId"
 import { cookies } from "next/headers"
 import axios from "axios"
+import React from "react"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -39,6 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // }
 
   const ownerProducts = await getOwnerProducts()
+  const ToastProvider = React.lazy(() => import("./providers/ToastProvider").then())
 
   return (
     <html lang="en" className={getCookie("darkMode")}>
@@ -49,7 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* </Layout> */}
         <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
         <ModalsProvider />
-        {/* <ToastProvider /> */}
+        <ToastProvider />
         {/* </ClientOnly> */}
       </body>
     </html>
