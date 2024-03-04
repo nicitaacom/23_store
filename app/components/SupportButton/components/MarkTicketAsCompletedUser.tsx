@@ -8,12 +8,13 @@ import { FaStar } from "react-icons/fa"
 
 import { TAPITicketsClose } from "@/api/tickets/close/route"
 import { TAPITicketsRate } from "@/api/tickets/rate/route"
-import useDarkMode from "@/store/ui/darkModeStore"
 import { Button } from "@/components/ui"
 import { useEffect, useState } from "react"
 import { useSupportDropdown } from "@/store/ui/supportDropdown"
 import { useRouter } from "next/navigation"
 import { pusherClient } from "@/libs/pusher"
+import { getCookie } from "@/utils/helpersSSR"
+import { isDarkMode } from "@/functions/isDarkMode"
 
 interface MarkTicketAsCompletedUserProps {
   ticketId: string
@@ -31,8 +32,6 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
   const [showMarkTicketAsCompleted, setShowMarkTicketAsCompleted] = useState(false)
   const [showRateThisTicket, setShowRateThisTicket] = useState(false)
   const [showThankYou, setShowThankYou] = useState(false)
-
-  const { isDarkMode } = useDarkMode()
 
   async function closeTicket() {
     setShowMarkTicketAsCompleted(false)
@@ -109,7 +108,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
           )}
           onClick={() => messagesLength !== 0 && setShowMarkTicketAsCompleted(true)}>
           <Image
-            src={isDarkMode ? "/mark-ticket-as-completed-dark.png" : "/mark-ticket-as-completed-light.png"}
+            src={isDarkMode() ? "/mark-ticket-as-completed-dark.png" : "/mark-ticket-as-completed-light.png"}
             alt="close ticket"
             width={32}
             height={32}

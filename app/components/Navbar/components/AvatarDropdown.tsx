@@ -7,19 +7,18 @@ import { FiPhoneCall } from "react-icons/fi"
 import { IoChatboxEllipsesOutline } from "react-icons/io5"
 
 import useUserStore from "@/store/user/userStore"
-import useDarkMode from "@/store/ui/darkModeStore"
 import LogoutDropdownItem from "./LogoutDropdownItem"
 import { SwitchDarkMode } from "@/components"
 import { contact } from "@/constant/contacts"
 import { DropdownContainer, DropdownItem } from "@/components/ui"
 import { useRouter } from "next/navigation"
 import useAvatarDropdownClose from "@/hooks/ui/useAvatarDropdownClose"
+import { toggleDarkMode } from "@/functions/toggleDarkMode"
 
 export function AvatarDropdown({ role }: { role: string }) {
   const router = useRouter()
   const { isDropdown, openDropdown, closeDropdown, toggle, avatarDropdownRef } = useAvatarDropdownClose()
   const userStore = useUserStore()
-  const mode = useDarkMode()
 
   function openAdminPanel() {
     router.push("?modal=AdminPanel")
@@ -67,12 +66,7 @@ export function AvatarDropdown({ role }: { role: string }) {
         target="_blank"
       />
       <DropdownItem label="Change language" icon={TbWorld} onClick={openChangeLanguageModal} />
-      <DropdownItem
-        className="min-[501px]:hidden"
-        label="Dark mode"
-        icon={SwitchDarkMode}
-        onClick={mode.toggleDarkMode}
-      />
+      <DropdownItem className="min-[501px]:hidden" label="Dark mode" icon={SwitchDarkMode} onClick={toggleDarkMode} />
       <LogoutDropdownItem />
     </DropdownContainer>
   )

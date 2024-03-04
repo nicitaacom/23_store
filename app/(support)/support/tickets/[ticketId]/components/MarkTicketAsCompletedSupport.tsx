@@ -1,12 +1,9 @@
-"use client"
-
 import Image from "next/image"
 
-import useDarkMode from "@/store/ui/darkModeStore"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
+import { isDarkMode } from "@/functions/isDarkMode"
 
 export function MarkTicketAsCompletedSupport() {
-  const { isDarkMode } = useDarkMode()
   const areYouSureMarkTicketAsCompletedSupportModal = useAreYouSureMarkTicketAsCompletedSupportModal()
 
   return (
@@ -15,7 +12,7 @@ export function MarkTicketAsCompletedSupport() {
       role="button"
       onClick={areYouSureMarkTicketAsCompletedSupportModal.openModal}>
       <Image
-        src={isDarkMode ? "/mark-ticket-as-completed-dark.png" : "/mark-ticket-as-completed-light.png"}
+        src={isDarkMode() ? "/mark-ticket-as-completed-dark.png" : "/mark-ticket-as-completed-light.png"}
         alt="close ticket"
         width={32}
         height={32}

@@ -1,10 +1,9 @@
 import Image from "next/image"
 import { BackToMainButton } from "./components/BackToMainButton"
-import useDarkMode from "@/store/ui/darkModeStore"
 import { useEffect, useState } from "react"
+import { isDarkMode } from "@/functions/isDarkMode"
 
 export function AuthNotCompleted() {
-  const { isDarkMode } = useDarkMode()
   const [isSmallScreen, setIsSmallScreen] = useState(false)
 
   /* this state required for case when user turn screen to horizontal view */
@@ -31,7 +30,9 @@ export function AuthNotCompleted() {
       {isSmallScreen ? (
         <Image
           className="w-full h-[35vh]"
-          src={isDarkMode ? "/errors/invalid-flow-state-found-dark.jpg" : "/errors/invalid-flow-state-found-light.jpg"}
+          src={
+            isDarkMode() ? "/errors/invalid-flow-state-found-dark.jpg" : "/errors/invalid-flow-state-found-light.jpg"
+          }
           alt="invalid-flow-state-found"
           width={1920}
           height={386}
@@ -39,12 +40,12 @@ export function AuthNotCompleted() {
       ) : (
         <div
           className={`w-full h-[35vh] relative ${
-            isDarkMode ? "bg-[#0a6624]" : "bg-[#20e959]"
+            isDarkMode() ? "bg-[#0a6624]" : "bg-[#20e959]"
           } flex justify-center items-center`}>
           <Image
             className="w-[200px] mobile:w-[225px] tablet:w-[250px] laptop:w-[300px]"
             src={
-              isDarkMode
+              isDarkMode()
                 ? "/errors/invalid-flow-state-found-icon-dark.png"
                 : "/errors/invalid-flow-state-found-icon-light.png"
             }

@@ -9,7 +9,11 @@ export function setCookie(name: string, val: string) {
   document.cookie = name + "=" + value + "; expires=" + date.toUTCString() + "; path=/"
 }
 
-export function getCookie(name: string) {
+/**
+ *
+ * @returns return cookie value by cookie name (type of string)
+ */
+export function getCookie(name: string): string | undefined {
   const value = "; " + document.cookie
   const decodedValue = decodeURIComponent(value)
   const parts = decodedValue.split("; " + name + "=")

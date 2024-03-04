@@ -12,7 +12,7 @@ const getUnreadMessages = async () => {
     data: { user },
   } = await supabaseServer().auth.getUser()
 
-  const userId = user?.id === undefined ? getCookie("anonymousId")?.value : user.id
+  const userId = user?.id ? user.id : getCookie("anonymousId")
 
   const { data, error: get_unread_messages_error } = await supabaseAdmin
     .from("messages")

@@ -8,7 +8,7 @@ const getTicketId = async () => {
     data: { user },
   } = await supabaseServer().auth.getUser()
 
-  const userId = user?.id === undefined ? getCookie("anonymousId")?.value : user.id
+  const userId = user?.id ? user.id : getCookie("anonymousId")
 
   try {
     // 1 user may have only 1 open ticket - that's why single()

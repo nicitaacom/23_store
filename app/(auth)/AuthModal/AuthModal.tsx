@@ -14,13 +14,13 @@ import { pusherClient } from "@/libs/pusher"
 import { TAPIAuthRegister } from "@/api/auth/register/route"
 import { TAPIAuthRecover } from "../../api/auth/recover/route"
 import { TAPIAuthLogin } from "@/api/auth/login/route"
-import useDarkMode from "@/store/ui/darkModeStore"
 import { FormInput } from "../../components/ui/Inputs/Validation/FormInput"
 import { Button, Checkbox } from "../../components/ui"
 import { ContinueWithButton } from "@/(auth)/AuthModal/components"
 import { Timer } from "@/(auth)/AuthModal/components"
 import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
 import useUserStore from "@/store/user/userStore"
+import { isDarkMode } from "@/functions/isDarkMode"
 
 interface AdminModalProps {
   label: string
@@ -37,7 +37,6 @@ export function AuthModal({ label }: AdminModalProps) {
   // const emailInputRef = useRef<HTMLInputElement>(null)
   const pathname = usePathname()
   const queryParams = useSearchParams()?.get("variant")
-  const darkMode = useDarkMode()
   const userStore = useUserStore()
 
   const [isChecked, setIsChecked] = useState(false)
@@ -478,14 +477,14 @@ export function AuthModal({ label }: AdminModalProps) {
             className={twMerge(`${isAuthCompleted || isRecoverCompleted ? "w-[48px] h-[48px]" : "w-[57px] h-[40px]"}`)}
             src={
               isAuthCompleted
-                ? darkMode.isDarkMode
+                ? isDarkMode()
                   ? "/authentication-completed-dark.png"
                   : "/authentication-completed-light.png"
                 : isRecoverCompleted
-                  ? darkMode.isDarkMode
+                  ? isDarkMode()
                     ? "/recover-completed-dark.png"
                     : "/recover-completed-light.png"
-                  : darkMode.isDarkMode
+                  : isDarkMode()
                     ? "/logo-dark.png"
                     : "/logo-light.png"
             }

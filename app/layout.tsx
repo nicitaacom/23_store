@@ -7,6 +7,10 @@ import { ModalsProvider, ModalsQueryProvider } from "./providers"
 import { ToastProvider } from "./providers/ToastProvider"
 import ClientOnly from "./components/ClientOnly"
 import { Layout } from "./components"
+import { getCookie, setCookie } from "./utils/helpersSSR"
+import { setAnonymousId } from "./actions/setAnonymousId"
+import { cookies } from "next/headers"
+import axios from "axios"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -28,17 +32,23 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // "use server"
+  // const anonymousId = await getCookie("anonymousId")
+  // if (!anonymousId) {
+  //   cookies().set("anonymousId", `anonymousId_${crypto.randomUUID()}`)
+  // }
+
   const ownerProducts = await getOwnerProducts()
 
   return (
-    <html lang="en">
+    <html lang="en" className={await getCookie("darkMode")}>
       <body>
-        <ClientOnly>
-          <Layout>{children}</Layout>
-          {/* <ModalsQueryProvider ownerProducts={ownerProducts ?? []} /> */}
-          {/* <ModalsProvider /> */}
-          {/* <ToastProvider /> */}
-        </ClientOnly>
+        {/* <ClientOnly> */}
+        <Layout>{children}</Layout>
+        {/* <ModalsQueryProvider ownerProducts={ownerProducts ?? []} /> */}
+        {/* <ModalsProvider /> */}
+        {/* <ToastProvider /> */}
+        {/* </ClientOnly> */}
       </body>
     </html>
   )
