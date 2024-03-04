@@ -1,14 +1,16 @@
-import { isDarkMode } from "@/functions/isDarkMode"
 import Image from "next/image"
 
+import useDarkMode from "@/store/ui/darkModeStore"
 import Link from "next/link"
 
 export function Logo() {
+  const darkMode = useDarkMode.getState().isDarkMode
+
   return (
     <Link href="/">
       <Image
         className="cursor-pointer hidden mobile:flex"
-        src={isDarkMode() ? "/23_store-light.png" : "/23_store-dark.png"}
+        src={darkMode ? "/23_store-dark.png" : "/23_store-light.png"}
         alt="logo"
         width={135}
         height={32}
@@ -16,7 +18,7 @@ export function Logo() {
       />
       <Image
         className="cursor-pointer flex mobile:hidden"
-        src={isDarkMode() ? "/logo-light.png" : "/logo-dark.png"}
+        src={darkMode ? "/logo-dark.png" : "/logo-light.png"}
         alt="logo"
         width={60}
         height={44}

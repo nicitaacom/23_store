@@ -39,6 +39,11 @@ I use this store to show/hide ctrlK modal
 I use it in `CtrlKBadge.tsx` and in `CtrlKModal.tsx` - that's why this is global state
 Becasse I use it in 2 different files
 
+## Usage for darkModeStore.ts
+
+I use this store to toggle dark mode
+I use this in `AvatarDropdown.tsx` and in navbar as icon also in `Layout.tsx`
+
 ## Usage for index.ts
 
 Actualy I don't use it because it not necessary becasuse even if I use 2 global states in 1 file

@@ -1,189 +1,15 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
+import { lazy } from "react"
 import { BiSupport } from "react-icons/bi"
-import { useForm } from "react-hook-form"
-import { find } from "lodash"
-import axios from "axios"
 
-import { TAPIMessageSend } from "@/api/message/send/route"
-import { TAPIMessageSeen } from "@/api/message/seen/route"
-import { TAPITelegram } from "@/api/telegram/route"
-import { IMessage } from "@/interfaces/support/IMessage"
-import { pusherClient } from "@/libs/pusher"
-import { getCookie, setCookie } from "@/utils/helpersCSR"
-import useUserStore from "@/store/user/userStore"
 import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
-import { telegramMessage } from "@/constant/telegram"
-
-import { MessageBox } from "./components/MessageBox"
 import { Button, DropdownContainer } from "../ui"
-import { MessageInput } from "../ui/Inputs/MessageInput"
-import { IFormDataMessage } from "@/interfaces/support/IFormDataMessage"
-import { TAPITicketsOpen } from "@/api/tickets/open/route"
-import { MarkTicketAsCompletedUser } from "./components/MarkTicketAsCompletedUser"
-import { useMarkMessagesAsSeen } from "@/hooks/ui/supportButton/markMessagesAsSeen"
-import { getAnonymousId } from "@/functions/getAnonymousId"
 
-interface SupportButtonProps {
-  initialMessages: IMessage[]
-  ticketId: string
-}
+export default function SupportButton() {
+  const { isDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
 
-export function SupportButton({ initialMessages, ticketId }: SupportButtonProps) {
-  const { isDropdown, openDropdown, closeDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
-
-  const router = useRouter()
-  const bottomRef = useRef<HTMLUListElement>(null)
-  const [messages, setMessages] = useState(initialMessages)
-  const userStore = useUserStore()
-
-  const userId = userStore.userId || getAnonymousId()
-  const senderUsername = userStore.username || getCookie("anonymousId")
-
-  const { handleSubmit, register, reset, setFocus } = useForm<IFormDataMessage>()
-  useMarkMessagesAsSeen(isDropdown, ticketId, messages, userId)
-
-  useEffect(() => {
-    //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work
-    setTimeout(() => {
-      setFocus("message")
-      if (bottomRef.current) {
-        bottomRef.current.scrollTop = bottomRef.current.scrollHeight
-      }
-    }, 25)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDropdown])
-
-  useEffect(() => {
-    pusherClient.subscribe(ticketId)
-    if (bottomRef.current) {
-      bottomRef.current.scrollTop = bottomRef.current.scrollHeight
-    }
-
-    const newHandler = (message: IMessage) => {
-      setMessages(current => {
-        if (find(current, { id: message.id })) {
-          return current
-        }
-
-        return [...current, message]
-      })
-
-      //Timeout is required here because without it scroll to bottom doesn't work
-      setTimeout(() => {
-        if (bottomRef.current) {
-          bottomRef.current.scrollTop = bottomRef.current.scrollHeight
-        }
-      }, 10)
-    }
-
-    const seenHandler = (updatedMessages: IMessage[]) => {
-      setMessages(current => {
-        return current.map(existingMessage => {
-          const updatedMessage = updatedMessages.find(msg => msg.id === existingMessage.id)
-          return updatedMessage ? updatedMessage : existingMessage
-        })
-      })
-    }
-
-    const closeHandler = () => {
-      setMessages([])
-    }
-
-    pusherClient.bind("messages:new", newHandler) // show new msg and scrollToBottom
-    pusherClient.bind("messages:seen", seenHandler) // set 'seen:true'
-    pusherClient.bind("tickets:closeByUser", closeHandler) // to clear messages
-    pusherClient.bind("tickets:closeBySupport", closeHandler) // to clear messages
-
-    return () => {
-      pusherClient.unsubscribe(ticketId)
-      pusherClient.unbind("messages:new", newHandler)
-      pusherClient.unbind("messages:seen", seenHandler)
-      pusherClient.unbind("tickets:closeByUser", closeHandler)
-      pusherClient.unbind("tickets:closeBySupport", closeHandler)
-    }
-  }, [messages, ticketId, router])
-
-  async function sendMessage(data: IFormDataMessage) {
-    // Insert a new ticketId and send message in telegram if no open ticket is found
-
-    if (data.message.length === 0) {
-      return null
-    }
-
-    reset()
-    if (messages.length === 0) {
-      // all this code required to fix issue when I send 2 first messages in < 1 second
-      const firstMessageId = crypto.randomUUID()
-
-      // dance arounding to insert current date-time
-      const now = new Date()
-      const timestampString = now.toISOString().replace("T", " ").replace("Z", "+00")
-
-      const newMessage = {
-        id: firstMessageId, // needed to set in cuurent pusher channel (for key prop in react)
-        created_at: timestampString,
-        ticket_id: ticketId,
-        sender_id: userId!,
-        sender_username: senderUsername!,
-        senderAvatarUrl: userStore.avatarUrl,
-        body: data.message,
-        // TODO - add images logic in future
-        images: null,
-      }
-      const messagehandler = (message: IMessage) => {
-        //TODO - axios.post('api/messages/{ticketId}/seen')
-
-        setMessages(current => {
-          if (find(current, { id: message.id })) {
-            return current
-          }
-
-          return [...current, message]
-        })
-      }
-      messagehandler(newMessage)
-
-      // 1. Insert row in table 'tickets'
-      await axios.post("/api/tickets/open", {
-        ticketId: ticketId,
-        ownerId: userId!,
-        ownerUsername: senderUsername!,
-        messageBody: data.message,
-        ownerAvatarUrl: userStore.avatarUrl,
-      } as TAPITicketsOpen)
-      // 2. Insert message in table 'messages'
-      await axios.post("/api/message/send", {
-        id: firstMessageId,
-        ticketId: ticketId,
-        senderId: userId,
-        senderUsername: senderUsername,
-        senderAvatarUrl: userStore.avatarUrl,
-        body: data.message,
-        images: undefined,
-      } as TAPIMessageSend)
-      // 3. Send message in telegram
-      await axios.post("/api/telegram", { message: telegramMessage } as TAPITelegram)
-      router.refresh()
-    } else {
-      // 1. Insert message in table 'messages'
-      await axios.post("/api/message/send", {
-        ticketId: ticketId,
-        senderId: userId,
-        senderUsername: senderUsername,
-        senderAvatarUrl: userStore.avatarUrl,
-        body: data.message,
-        images: undefined,
-      } as TAPIMessageSend)
-      // 2. Scroll to bottom to show last messages
-      if (bottomRef.current) {
-        bottomRef.current?.scrollTo(0, bottomRef.current.scrollHeight)
-        bottomRef.current.scrollIntoView()
-      }
-    }
-  }
+  const SupportButtonDropdown = lazy(() => import("@/components/SupportButton/components/SupportButtonDropdown"))
 
   //before:translate-y-[402px] should be +2px then <section className="h-[400px]
   //w-[400px] should be = section w-[400px]
@@ -204,29 +30,7 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
           <BiSupport className="text-icon-color w-[32px] h-[32px] desktop:w-[32px] desktop:h-[32px]" />
         </Button>
       }>
-      <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col justify-between">
-        <div className="w-full shadow-md py-1 flex justify-end items-center px-2">
-          <h1 className="absolute left-[50%] translate-x-[-50%] text-[1.1rem] mobile:text-[1.4rem] font-semibold">
-            Response ~15s
-          </h1>
-          <MarkTicketAsCompletedUser messagesLength={messages.length} ticketId={ticketId} />
-        </div>
-        <form
-          className="flex flex-col justify-between h-[calc(400px-56px)] mobile:h-[calc(490px-56px)]"
-          onSubmit={handleSubmit(sendMessage)}>
-          <ul className="h-[280px] mobile:h-[370px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
-            {messages.map(message => (
-              <MessageBox key={message.id} message={message} />
-            ))}
-          </ul>
-          <MessageInput
-            //-2px because it don't calculate border-width 1px
-            className="px-4 py-2 bg-foreground-accent shadow-md"
-            id="message"
-            register={register}
-          />
-        </form>
-      </section>
+      {isDropdown && <SupportButtonDropdown />}
     </DropdownContainer>
   )
 }

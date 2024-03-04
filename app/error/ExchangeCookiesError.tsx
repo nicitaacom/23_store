@@ -1,19 +1,21 @@
 import Image from "next/image"
 
+import useDarkMode from "@/store/ui/darkModeStore"
 import { BackToMainButton } from "./components/BackToMainButton"
-import { isDarkMode } from "@/functions/isDarkMode"
 
 export function ExchangeCookiesError({ message }: { message?: string }) {
+  const { isDarkMode } = useDarkMode()
+
   return (
     <div className="flex flex-col gap-y-4 items-center justify-center">
       <div
         className={`w-full h-[35vh] relative ${
-          isDarkMode() ? "bg-[#0a6624]" : "bg-[#20e959]"
+          isDarkMode ? "bg-[#0a6624]" : "bg-[#20e959]"
         } flex justify-center items-center`}>
         <Image
           className="w-[200px] laptop:w-[250px] desktop:w-[300px]"
           src={
-            isDarkMode()
+            isDarkMode
               ? "/errors/user-not-found-after-exchanging-cookies-icon-dark.png"
               : "/errors/user-not-found-after-exchanging-cookies-icon-light.png"
           }

@@ -1,19 +1,21 @@
 import Image from "next/image"
 
+import useDarkMode from "@/store/ui/darkModeStore"
 import { BackToMainButton } from "./components/BackToMainButton"
-import { isDarkMode } from "@/functions/isDarkMode"
 
 export function EmailLinkInvalidOrExpired() {
+  const { isDarkMode } = useDarkMode()
+
   return (
     <div className="flex flex-col gap-y-4 items-center justify-center">
       <div
         className={`w-full h-[35vh] relative ${
-          isDarkMode() ? "bg-[#0a6624]" : "bg-[#20e959]"
+          isDarkMode ? "bg-[#0a6624]" : "bg-[#20e959]"
         } flex justify-center items-center`}>
         <Image
           className="w-[100px] laptop:w-[125px] desktop:w-[150px]"
           src={
-            isDarkMode()
+            isDarkMode
               ? "/errors/email-link-invalid-or-has-expired-icon-dark.png"
               : "/errors/email-link-invalid-or-has-expired-icon-light.png"
           }

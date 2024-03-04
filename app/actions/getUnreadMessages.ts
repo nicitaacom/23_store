@@ -1,6 +1,6 @@
+import { getAnonymousId } from "@/functions/getAnonymousId"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
-import supabaseServer from "@/libs/supabase/supabaseServer"
-import { getCookie } from "@/utils/helpersSSR"
+import { getUser } from "./getUser"
 
 export interface UnseenMessages {
   ticket_id: string
@@ -8,16 +8,14 @@ export interface UnseenMessages {
 }
 
 const getUnreadMessages = async () => {
-  const {
-    data: { user },
-  } = await supabaseServer().auth.getUser()
+  const user = await getUser()
 
-  const userId = user?.id ? user.id : getCookie("anonymousId")
+  const userId = user?.id ? user.id : getAnonymousId()
 
   const { data, error: get_unread_messages_error } = await supabaseAdmin
     .from("messages")
     .select("ticket_id,id,seen")
-    .not("sender_id", "eq", userId!)
+    .not("sender_id", "eq", userId)
     .eq("seen", false)
 
   if (get_unread_messages_error) {

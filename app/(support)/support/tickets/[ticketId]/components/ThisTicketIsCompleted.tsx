@@ -2,10 +2,10 @@
 
 import Image from "next/image"
 import { BackToTickets } from "./BackToTickets"
-import { getCookie } from "@/utils/helpersSSR"
-import { isDarkMode } from "@/functions/isDarkMode"
+import useDarkMode from "@/store/ui/darkModeStore"
 
 export function ThisTicketIsCompleted({ ticketId }: { ticketId: string }) {
+  const { isDarkMode } = useDarkMode()
   // TODO - create transparent bg with messages with completed ticket
   return (
     <main
@@ -13,7 +13,7 @@ export function ThisTicketIsCompleted({ ticketId }: { ticketId: string }) {
     shadow-[inset_0px_8px_6px_rgba(0,0,0,0.4)] pb-8 z-[100]">
       <Image
         className="hidden mobile:block ml-6 w-[360px] h-[180px] laptop:w-[480px] laptop:h-[240px]"
-        src={isDarkMode() ? "/ticket-completed-dark.png" : "/ticket-completed-light.png"}
+        src={isDarkMode ? "/ticket-completed-dark.png" : "/ticket-completed-light.png"}
         alt="No ticket id found"
         width={480}
         height={240}

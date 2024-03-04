@@ -1,13 +1,14 @@
 "use client"
 
-import { isDarkMode } from "@/functions/isDarkMode"
-import { toggleDarkMode } from "@/functions/toggleDarkMode"
+import useDarkMode from "@/store/ui/darkModeStore"
 
 interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string
 }
 
 export function SwitchDarkMode({ className, ...props }: SwitchProps) {
+  const mode = useDarkMode()
+
   return (
     <label
       className={`relative w-[36px] h-[20px] border-[3px] border-icon-color hover:brightness-75 transition-all duration-300 
@@ -17,8 +18,8 @@ export function SwitchDarkMode({ className, ...props }: SwitchProps) {
         {...props}
         type="checkbox"
         id="check"
-        checked={isDarkMode()}
-        onChange={toggleDarkMode}
+        checked={mode.isDarkMode}
+        onChange={mode.toggleDarkMode}
       />
       <span
         className={`absolute rounded-full
