@@ -33,7 +33,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={getCookie("darkMode")}>
       <body>
-        {/* {children} */}
+        {children}
         {/* <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
         <ModalsProvider />
         <ToastProvider /> */}

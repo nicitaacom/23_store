@@ -17,9 +17,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <div>
-      <Navbar />
+      {/* <Navbar /> */}
       {children}
-      <SupportButton initialMessages={initial_messages ?? []} ticketId={ticketId} />
+      {/* <SupportButton initialMessages={initial_messages ?? []} ticketId={ticketId} /> */}
     </div>
   )
 }
