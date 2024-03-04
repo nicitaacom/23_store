@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 }
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const ticketId = await getTicketId()
-  const initial_messages = await getInitialMessagesByTicketId(ticketId)
+  // const ticketId = await getTicketId()
+  // const initial_messages = await getInitialMessagesByTicketId(ticketId)
 
   return (
     <div>

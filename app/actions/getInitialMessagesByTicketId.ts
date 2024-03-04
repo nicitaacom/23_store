@@ -1,11 +1,17 @@
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { cache } from "react"
+
+const isClosed = cache(async (ticketId: string) => {
+  const { data: is_closed_response } = await supabaseAdmin.from("tickets").select("is_open").eq("id", ticketId).single()
+  return is_closed_response
+})
 
 const getInitialMessagesByTicketId = async (ticketId: string) => {
   // Check is this ticket closed
   // Don't needed error because if it will check ticketId from cookies - this ticketId doesn't exist
   // in DB cause I create ticket in DB on first message sent
-  const { data: is_closed_response } = await supabaseAdmin.from("tickets").select("is_open").eq("id", ticketId).single()
 
+  const is_closed_response = await isClosed(ticketId)
   if (is_closed_response?.is_open === false) {
     // if this ticket already completed - return null
     return null
