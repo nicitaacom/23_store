@@ -29,7 +29,9 @@ export default async function Home({ searchParams }: SearchProps) {
     <div
       className="w-full py-12 h-[calc(100vh-64px)] overflow-x-hidden overflow-y-auto
        text-2xl text-title flex flex-col gap-y-8 justify-between items-center mx-auto">
-      <section className="flex flex-col gap-y-4">{/* <Products products={entries} /> */}</section>
+      <section className="flex flex-col gap-y-4">
+        <Products products={entries} />
+      </section>
       <div className="flex flex-col-reverse tablet:flex-row gap-4 justify-between items-center">
         <PaginationControls
           hasNextPage={end < totalItems}
