@@ -9,7 +9,7 @@ import { TAPISendEmailRequestReplanishment } from "@/api/send-email/request-repl
 import { useEffect, useState } from "react"
 import RequestReplanishmentEmail from "@/emails/RequestReplanishmentEmail"
 import { TProductDB } from "@/interfaces/product/TProductDB"
-import { renderAsync } from "@react-email/components"
+// import { renderAsync } from "@react-email/components"
 
 export function RequestReplanishmentButton({ product }: { product: TProductDB }) {
   const toast = useToast()
@@ -20,10 +20,10 @@ export function RequestReplanishmentButton({ product }: { product: TProductDB })
     async function renderEmail() {
       if (product.owner_id) {
         // TODO - fix error about keys in react here
-        const emailMessageString = await renderAsync(<RequestReplanishmentEmail product={product} key={product.id} />, {
-          pretty: true,
-        })
-        setHtml(emailMessageString)
+        // const emailMessageString = await renderAsync(<RequestReplanishmentEmail product={product} key={product.id} />, {
+        //   pretty: true,
+        // })
+        // setHtml(emailMessageString)
       } else {
         toast.show("error", "No owner id found", "Please contact support about this issue")
       }
