@@ -1,17 +1,17 @@
 import supabaseServer from "@/libs/supabase/supabaseServer"
+import { getUser } from "./getUser"
 
 const getOwnerProducts = async () => {
-  const { data: sessionData, error: sessionError } = await supabaseServer().auth.getSession()
+  const user = await getUser()
 
-  if (sessionError) throw new Error("getOwnerProducts_error - ", sessionError)
-  if (!sessionData.session?.user.id) {
+  if (!user?.id) {
     return []
   }
 
   const { data } = await supabaseServer()
     .from("products")
     .select("*")
-    .eq("owner_id", sessionData.session?.user?.id)
+    .eq("owner_id", user.id)
     .order("price", { ascending: true })
 
   return data

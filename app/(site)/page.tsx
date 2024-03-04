@@ -1,8 +1,7 @@
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { Product } from "./components"
 import PaginationControls from "@/components/PaginationControls"
-import { ProductsPerPage } from "@/components/ProductsPerPage"
-import { cache } from "react"
+import { cache, lazy } from "react"
 import { notFound } from "next/navigation"
 
 interface SearchProps {
@@ -32,14 +31,13 @@ export default async function Home({ searchParams }: SearchProps) {
   const end = Math.min(start + perPage, totalItems)
 
   const entries = products.slice(start, end)
+  const ProductsPerPage = lazy(() => import("@/components/ProductsPerPage"))
 
   return (
     <div
       className="w-full py-12 h-[calc(100vh-64px)] overflow-x-hidden overflow-y-auto
        text-2xl text-title flex flex-col gap-y-8 justify-between items-center mx-auto">
-      <h1>{JSON.stringify(entries)}</h1>
-
-      {/* <section className="flex flex-col gap-y-4">
+      <section className="flex flex-col gap-y-4">
         <div
           className="mobile:border-[1px] broder-border-color rounded 
     w-full max-w-[1440px] min-w-[80vw]">
@@ -60,7 +58,7 @@ export default async function Home({ searchParams }: SearchProps) {
           perPage={perPage}
         />
         <ProductsPerPage />
-      </div> */}
+      </div>
     </div>
   )
 }

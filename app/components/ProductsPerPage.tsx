@@ -7,7 +7,7 @@ import { perPage } from "@/constant/perPage"
 import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 
-export function ProductsPerPage({ className }: { className?: string }) {
+export default function ProductsPerPage({ className }: { className?: string }) {
   const [showDropdown, setShowDropdown] = useState(false)
 
   /* for close on clicking outside */
