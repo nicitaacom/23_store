@@ -17,7 +17,7 @@ import { AddProductForm } from "./components/AddProductForm"
 import { DeleteProductForm } from "./components/DeleteProductForm"
 import { useLoading } from "@/store/ui/useLoading"
 
-interface AdminPanelModalProps {
+export interface AdminPanelModalProps {
   label: string
   ownerProducts: TProductDB[]
 }
