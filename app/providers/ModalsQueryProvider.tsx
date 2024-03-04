@@ -1,5 +1,3 @@
-"use client"
-
 import { AuthModal } from "@/(auth)/AuthModal/AuthModal"
 import { AdminPanelModalProps } from "@/components/ui/Modals/AdminPanel/AdminPanelModal"
 import { CartModalProps } from "@/components/ui/Modals/CartModal/CartModal"
@@ -27,19 +25,7 @@ const ChangeLanguageModal = dynamic<ChangeLanguageModalProps>(
 )
 
 export function ModalsQueryProvider({ ownerProducts }: { ownerProducts: TProductDB[] }) {
-  const [isMounted, setIsMounted] = useState(false)
   const searchParams = useSearchParams()
-
-  useEffect(() => {
-    setIsMounted(true)
-    return () => {
-      setIsMounted(false) // Cleanup to avoid memory leaks
-    }
-  }, [])
-
-  if (!isMounted) {
-    return null
-  }
 
   const modalParams = searchParams?.getAll("modal")
 
