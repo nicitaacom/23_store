@@ -37,19 +37,8 @@ export default async function Home({ searchParams }: SearchProps) {
     <div
       className="w-full py-12 h-[calc(100vh-64px)] overflow-x-hidden overflow-y-auto
        text-2xl text-title flex flex-col gap-y-8 justify-between items-center mx-auto">
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
-      <h1>Some content</h1>
+      <h1>{JSON.stringify(entries)}</h1>
+
       {/* <section className="flex flex-col gap-y-4">
         <div
           className="mobile:border-[1px] broder-border-color rounded 

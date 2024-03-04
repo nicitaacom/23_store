@@ -2,7 +2,10 @@ import "./globals.css"
 
 import type { Metadata } from "next"
 
+import getOwnerProducts from "./actions/getOwnerProducts"
+import { ModalsProvider, ModalsQueryProvider } from "./providers"
 import { getCookie } from "./utils/helpersSSR"
+import { lazy } from "react"
 
 export const metadata: Metadata = {
   title: "23_store",
@@ -30,13 +33,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   //   cookies().set("anonymousId", `anonymousId_${crypto.randomUUID()}`)
   // }
 
+  const ownerProducts = await getOwnerProducts()
+  const ToastProvider = lazy(() => import("./providers/ToastProvider"))
+
   return (
     <html lang="en" className={getCookie("darkMode")}>
       <body>
         {children}
-        {/* <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
+        <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
         <ModalsProvider />
-        <ToastProvider /> */}
+        <ToastProvider />
       </body>
     </html>
   )
