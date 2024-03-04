@@ -12,7 +12,7 @@ import { TAPIMessageSeen } from "@/api/message/seen/route"
 import { TAPITelegram } from "@/api/telegram/route"
 import { IMessage } from "@/interfaces/support/IMessage"
 import { pusherClient } from "@/libs/pusher"
-import { getCookie } from "@/utils/helpersCSR"
+import { getCookie, setCookie } from "@/utils/helpersCSR"
 import useUserStore from "@/store/user/userStore"
 import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
 import { telegramMessage } from "@/constant/telegram"
@@ -23,6 +23,8 @@ import { MessageInput } from "../ui/Inputs/MessageInput"
 import { IFormDataMessage } from "@/interfaces/support/IFormDataMessage"
 import { TAPITicketsOpen } from "@/api/tickets/open/route"
 import { MarkTicketAsCompletedUser } from "./components/MarkTicketAsCompletedUser"
+import { useMarkMessagesAsSeen } from "@/hooks/ui/supportButton/markMessagesAsSeen"
+import { getAnonymousId } from "@/functions/getAnonymousId"
 
 interface SupportButtonProps {
   initialMessages: IMessage[]
@@ -37,16 +39,11 @@ export function SupportButton({ initialMessages, ticketId }: SupportButtonProps)
   const [messages, setMessages] = useState(initialMessages)
   const userStore = useUserStore()
 
-  const userId = userStore.userId || getCookie("anonymousId")
+  const userId = userStore.userId || getAnonymousId()
   const senderUsername = userStore.username || getCookie("anonymousId")
 
   const { handleSubmit, register, reset, setFocus } = useForm<IFormDataMessage>()
-
-  useEffect(() => {
-    if (isDropdown) {
-      axios.post("/api/message/seen", { ticketId: ticketId, messages: messages, userId: userId } as TAPIMessageSeen)
-    }
-  }, [ticketId, messages, userId, isDropdown])
+  useMarkMessagesAsSeen(isDropdown, ticketId, messages, userId)
 
   useEffect(() => {
     //Timeout needed for focus and scroll to bottom - without it foucs and scrollToBottom doesn't work

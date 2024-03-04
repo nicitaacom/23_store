@@ -37,7 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const ToastProvider = lazy(() => import("./providers/ToastProvider"))
 
   return (
-    <html lang="en" className={getCookie("darkMode")}>
+    <html lang="en" className={getCookie("darkMode") ?? "dark"}>
       <body>
         {children}
         <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
