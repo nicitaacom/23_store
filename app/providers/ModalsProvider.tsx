@@ -1,7 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
-
 import { CtrlKModal } from "@/components/ui/Modals/CtrlKModal"
 import {
   AreYouSureClearCartModal,
