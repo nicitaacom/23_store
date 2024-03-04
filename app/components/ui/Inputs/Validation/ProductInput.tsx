@@ -1,3 +1,5 @@
+"use client"
+
 import { motion } from "framer-motion"
 import React, { useRef } from "react"
 import { FieldErrors, UseFormRegister } from "react-hook-form"
