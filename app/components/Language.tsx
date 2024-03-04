@@ -1,9 +1,10 @@
 "use client"
+
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-
 import { BiUpArrow } from "react-icons/bi"
 import { TbWorld } from "react-icons/tb"
+
 import { languages } from "@/constant/languages"
 
 export function Language({ className }: { className?: string }) {

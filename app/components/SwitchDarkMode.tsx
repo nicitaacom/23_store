@@ -1,3 +1,5 @@
+"use client"
+
 import { isDarkMode } from "@/functions/isDarkMode"
 import { toggleDarkMode } from "@/functions/toggleDarkMode"
 

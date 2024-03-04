@@ -14,6 +14,7 @@ export function setCookie(name: string, val: string) {
  * @returns return cookie value by cookie name (type of string)
  */
 export function getCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return
   const value = "; " + document.cookie
   const decodedValue = decodeURIComponent(value)
   const parts = decodedValue.split("; " + name + "=")
