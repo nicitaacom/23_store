@@ -1,4 +1,5 @@
 import supabaseServer from "@/libs/supabase/supabaseServer"
+import { Products } from "./components"
 import PaginationControls from "@/components/PaginationControls"
 import { ProductsPerPage } from "@/components/ProductsPerPage"
 
