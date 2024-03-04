@@ -47,14 +47,14 @@ export default async function Home({ searchParams }: SearchProps) {
         </div>
       </section>
       <div className="flex flex-col-reverse tablet:flex-row gap-4 justify-between items-center">
-        <PaginationControls
+        {/* <PaginationControls
           hasNextPage={end < totalItems}
           hasPrevPage={start > 0}
           currentPage={page}
           totalPages={totalPages}
           perPage={perPage}
         />
-        <ProductsPerPage />
+        <ProductsPerPage /> */}
       </div>
     </div>
   )
