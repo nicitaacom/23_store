@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react"
 import { FC } from "react"
 import { useSearchParams } from "next/navigation"
@@ -14,9 +12,13 @@ interface PaginationControlsProps {
   perPage: number
 }
 
-const PaginationControls: FC<PaginationControlsProps> = ({ hasNextPage, hasPrevPage, currentPage, totalPages }) => {
-  const perPage = useSearchParams()?.get("perPage")
-
+const PaginationControls: FC<PaginationControlsProps> = ({
+  hasNextPage,
+  hasPrevPage,
+  currentPage,
+  totalPages,
+  perPage,
+}) => {
   return (
     <div className="flex flex-row gap-x-4 justify-center items-center">
       <Button
