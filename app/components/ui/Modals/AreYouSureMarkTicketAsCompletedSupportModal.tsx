@@ -1,4 +1,5 @@
-import { useRouter } from "next/navigation"
+"use client"
+
 import { FaCheck } from "react-icons/fa"
 import axios from "axios"
 
@@ -8,7 +9,6 @@ import useTicket from "@/hooks/support/useTicket"
 import { AreYouSureModalContainer } from "./ModalContainers"
 
 export function AreYouSureMarkTicketAsCompletedSupportModal() {
-  const router = useRouter()
   const areYouSureMarkTicketAsCompletedSupportModal = useAreYouSureMarkTicketAsCompletedSupportModal()
 
   const { ticketId } = useTicket()
