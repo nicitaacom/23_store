@@ -1,9 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { find } from "lodash"
 
 import { IMessage } from "@/interfaces/support/IMessage"
 import { pusherClient } from "@/libs/pusher"
@@ -19,6 +17,9 @@ import { useMarkMessagesAsSeen } from "@/hooks/ui/supportButton/markMessagesAsSe
 import { useScrollToBottom } from "@/hooks/ui/supportButton/useScrollToBottom"
 import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
 import { MarkTicketAsCompletedUser } from "../components/MarkTicketAsCompletedUser"
+import { useForm } from "react-hook-form"
+import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useLoading } from "@/store/ui/useLoading"
 
 export default function SupportButtonDropdown() {
   const { isDropdown } = useSupportDropdownClose()
@@ -28,61 +29,70 @@ export default function SupportButtonDropdown() {
   const userStore = useUserStore()
   const userId = userStore.userId || getAnonymousId()
   const senderUsername = userStore.username || userId
-  const { ticketId, initialMessages, isLoading } = useLoadInitialMessages()
+  const { ticketId, setTicketId } = useMessagesStore()
+  const { isLoading } = useLoading()
+  useLoadInitialMessages()
 
   const { handleSubmit, register, reset, setFocus } = useForm<IFormDataMessage>()
-  const [messages, setMessages] = useState<IMessage[]>(initialMessages)
-  useMarkMessagesAsSeen(isDropdown, ticketId, messages, userId)
+  const { messages, setMessages } = useMessagesStore()
+  useMarkMessagesAsSeen(isDropdown, ticketId, messages, userId, isLoading)
   useScrollToBottom(setFocus, bottomRef, isDropdown)
 
   useEffect(() => {
-    pusherClient.subscribe(ticketId)
-    if (bottomRef.current) {
-      bottomRef.current.scrollTop = bottomRef.current.scrollHeight
+    // I want to initialize connection with pusher only in case isDropdown and userId
+    // because user may be not authenticated and that's why I set anonymousId when user send first message
+    console.log(45, "userId ", userId)
+    console.log(45, "isDropdown ", isDropdown)
+    console.log(45, "ticketId ", ticketId)
+    if (userId && isDropdown && ticketId) {
+      console.log(45, "pusher subscribe to ", ticketId)
+
+      pusherClient.subscribe(ticketId)
+      if (bottomRef.current) {
+        bottomRef.current.scrollTop = bottomRef.current.scrollHeight
+      }
+
+      const newHandler = (message: IMessage) => {
+        // Check if the message with the same id already exists
+        const messageExists = messages.some(msg => msg.id === message.id)
+
+        // Update the state based on whether the message exists or not
+        setMessages(messageExists ? messages : [...messages, message])
+
+        //Timeout is required here because without it scroll to bottom doesn't work
+        setTimeout(() => {
+          if (bottomRef.current) {
+            bottomRef.current.scrollTop = bottomRef.current.scrollHeight
+          }
+        }, 10)
+      }
+
+      const seenHandler = (updatedMessages: IMessage[]) => {
+        setMessages(
+          messages.map(
+            existingMessage => updatedMessages.find(msg => msg.id === existingMessage.id) || existingMessage,
+          ),
+        )
+      }
+
+      const closeHandler = () => {
+        setMessages([])
+      }
+
+      pusherClient.bind("messages:new", newHandler) // show new msg and scrollToBottom
+      pusherClient.bind("messages:seen", seenHandler) // set 'seen:true'
+      pusherClient.bind("tickets:closeByUser", closeHandler) // to clear messages
+      pusherClient.bind("tickets:closeBySupport", closeHandler) // to clear messages
+
+      return () => {
+        pusherClient.unsubscribe(ticketId)
+        pusherClient.unbind("messages:new", newHandler)
+        pusherClient.unbind("messages:seen", seenHandler)
+        pusherClient.unbind("tickets:closeByUser", closeHandler)
+        pusherClient.unbind("tickets:closeBySupport", closeHandler)
+      }
     }
-
-    const newHandler = (message: IMessage) => {
-      setMessages(current => {
-        if (find(current, { id: message.id })) {
-          return current
-        }
-
-        return [...current, message]
-      })
-
-      //Timeout is required here because without it scroll to bottom doesn't work
-      setTimeout(() => {
-        if (bottomRef.current) {
-          bottomRef.current.scrollTop = bottomRef.current.scrollHeight
-        }
-      }, 10)
-    }
-
-    const seenHandler = (updatedMessages: IMessage[]) => {
-      setMessages(current => {
-        return current?.map(existingMessage => {
-          const updatedMessage = updatedMessages.find(msg => msg.id === existingMessage.id)
-          return updatedMessage ? updatedMessage : existingMessage
-        })
-      })
-    }
-
-    const closeHandler = () => {
-      setMessages([])
-    }
-
-    pusherClient.bind("messages:new", newHandler) // show new msg and scrollToBottom
-    pusherClient.bind("messages:seen", seenHandler) // set 'seen:true'
-    pusherClient.bind("tickets:closeByUser", closeHandler) // to clear messages
-    pusherClient.bind("tickets:closeBySupport", closeHandler) // to clear messages
-
-    return () => {
-      pusherClient.unsubscribe(ticketId)
-      pusherClient.unbind("messages:new", newHandler)
-      pusherClient.unbind("messages:seen", seenHandler)
-      pusherClient.unbind("tickets:closeByUser", closeHandler)
-      pusherClient.unbind("tickets:closeBySupport", closeHandler)
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, ticketId, router])
 
   function sendMessageFn(data: IFormDataMessage) {
@@ -96,6 +106,7 @@ export default function SupportButtonDropdown() {
       avatarUrl: userStore.avatarUrl,
       router,
       setMessages,
+      setTicketId,
       bottomRef,
     })
   }

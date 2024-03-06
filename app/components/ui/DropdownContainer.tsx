@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 interface DropdownContainerProps {
@@ -36,6 +37,13 @@ export function DropdownContainer({
     toggle()
   }
 
+  // to prevent hydration error (don't pass username through props from Navbar to here cause user see that username only onClick)
+  // onClick work on client but not on server
+  const [hasMounted, setHasMounted] = useState(false)
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
   return (
     <div className={`relative z-10 ${classNameDropdownContainer}`} ref={dropdownRef}>
       <div className="cursor-pointer hover:brightness-75 duration-300" onClick={handleClick}>
@@ -53,7 +61,7 @@ export function DropdownContainer({
           className,
         )}>
         <div className="text-md border-[1px] border-solid border-border-color bg-foreground rounded-md">
-          {username && <h1 className="text-center">Hi {username}</h1>}
+          {username && hasMounted && <h1 className="text-center">Hi {username}</h1>}
           {children}
         </div>
       </div>

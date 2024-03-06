@@ -14,10 +14,13 @@ export async function POST(req: Request) {
   const { ticketId, messages, userId } = (await req.json()) as TAPIMessageSeen
 
   if (!ticketId || !messages || !userId) {
-    console.log(`missing required fields \n
-    ticketId - ${ticketId} \n
-    messages - ${messages} \n
-    userId - ${userId}`)
+    console.log(
+      18,
+      `missing required fields \n
+       ticketId - ${ticketId} \n
+       messages - ${messages} \n
+       userId - ${userId} \n`,
+    )
     return NextResponse.json({ status: 400 })
   }
 

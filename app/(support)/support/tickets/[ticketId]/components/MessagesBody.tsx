@@ -6,7 +6,7 @@ import axios from "axios"
 
 import { TAPIMessageSeen } from "@/api/message/seen/route"
 import { IMessage } from "@/interfaces/support/IMessage"
-import { useUnseenMessages } from "@/store/ui/unseenMessages"
+import { useUnseenMessages } from "@/(support)/store/useUnseenMessages"
 import useUserStore from "@/store/user/userStore"
 import { pusherClient } from "@/libs/pusher"
 import { MessageBox } from "@/components/SupportButton/components/MessageBox"

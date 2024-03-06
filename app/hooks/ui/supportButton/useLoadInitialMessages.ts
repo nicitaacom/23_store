@@ -1,22 +1,32 @@
+import { useEffect } from "react"
+
 import fetchTicketId from "@/actions/fetchTicketId"
-import getInitialMessagesByTicketId from "@/actions/getInitialMessagesByTicketId"
-import { IMessage } from "@/interfaces/support/IMessage"
-import { useEffect, useState } from "react"
+import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useLoading } from "@/store/ui/useLoading"
+import { TAPIMessagesGetMessagesRequest, TAPIMessagesGetMessagesResponse } from "@/api/messages/get-messages/route"
+import axios from "axios"
 
 export function useLoadInitialMessages() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [ticketId, setTicktId] = useState("")
-  const [initialMessages, setInitialMessages] = useState<IMessage[]>([])
-
-  setIsLoading(true)
+  const { setIsLoading } = useLoading()
+  const { setMessages, ticketId: ticketIdInStore, setTicketId } = useMessagesStore()
 
   useEffect(() => {
+    setIsLoading(true)
     try {
       async function getInitialMessagesByTicketIdFn() {
-        const ticketId = await fetchTicketId()
-        const initial_messages = await getInitialMessagesByTicketId(ticketId)
-        setTicktId(ticketId)
-        setInitialMessages(initial_messages)
+        if (!ticketIdInStore) {
+          try {
+            const ticketId = await fetchTicketId()
+            if (!ticketId) return
+            setTicketId(ticketId)
+          } catch (error) {
+            console.log(22, "error - ", error)
+          }
+        }
+        const response: TAPIMessagesGetMessagesResponse = await axios.post("/api/messages/get-messages", {
+          ticketId: ticketIdInStore,
+        } as TAPIMessagesGetMessagesRequest)
+        setMessages(response.data)
       }
       getInitialMessagesByTicketIdFn()
     } catch (error) {
@@ -24,7 +34,6 @@ export function useLoadInitialMessages() {
     } finally {
       setIsLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  return { ticketId, initialMessages, isLoading }
 }

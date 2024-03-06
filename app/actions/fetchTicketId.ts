@@ -1,8 +1,8 @@
-import { getCookie } from "@/utils/helpersCSR"
 import { cache } from "react"
-import { TAPITicketGetTicketIdRequest, TAPITicketGetTicketIdResponse } from "@/api/ticket/get-ticket-id/route"
 import axios from "axios"
-import supabaseClient from "@/libs/supabase/supabaseClient"
+
+import { TAPITicketGetTicketIdRequest, TAPITicketGetTicketIdResponse } from "@/api/ticket/get-ticket-id/route"
+import { getUserId } from "@/utils/getUserId"
 
 const fetchTicketIdCache = cache(async (userId: string) => {
   const ticket_id: TAPITicketGetTicketIdResponse = await axios.post("/api/ticket/get-ticket-id", {
@@ -12,12 +12,9 @@ const fetchTicketIdCache = cache(async (userId: string) => {
 })
 
 // I getTicketId to subscribe pusher to this channelId (ticketId) to get live-update
-const fetchTicketId = async (): Promise<string> => {
-  const {
-    data: { user },
-  } = await supabaseClient.auth.getUser()
-  const userId = user?.id ? user.id : getCookie("anonymousId")
-  if (!userId) return ""
+const fetchTicketId = async (): Promise<string | undefined> => {
+  const userId = getUserId()
+  if (!userId) return undefined
 
   try {
     // 1 user may have only 1 open ticket - that's why single()
@@ -28,9 +25,8 @@ const fetchTicketId = async (): Promise<string> => {
       // Return the existing open ticketId
       return ticket_id
     } else {
-      // return ticket id because if return null I don't subscribe pusher to this channel
-      // I still can send telegram message on first message in messages.length === 0
-      return crypto.randomUUID()
+      // please don't return any ticketId here because so you will create ticketId in store and it will be used in future
+      // I create ticketId (in store and DB) only when user send first message
     }
   } catch (error) {
     console.error(36, "Error - ", error)

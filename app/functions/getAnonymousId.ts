@@ -1,11 +1,7 @@
 import { getCookie, setCookie } from "@/utils/helpersCSR"
 
-export function getAnonymousId(): string {
+export function getAnonymousId(): string | undefined {
   const anonymousId = getCookie("anonymousId")
-  if (!anonymousId) {
-    const anonymousId = `anonymousId_${crypto.randomUUID()}`
-    setCookie("anonymousId", anonymousId)
-    return anonymousId
-  }
+
   return anonymousId
 }

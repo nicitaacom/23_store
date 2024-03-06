@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation"
 import { pusherClient } from "@/libs/pusher"
 
 interface MarkTicketAsCompletedUserProps {
-  ticketId: string
+  ticketId: string | null // please don't set ticketId as empty string (I was so confused to undestand code)
   messagesLength: number
 }
 
@@ -41,7 +41,6 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
   }
 
   async function rateTicket(ratingValue: number | null) {
-    console.log(44, "rateTicket")
     setRating(ratingValue)
 
     setShowRateThisTicket(false)
@@ -85,6 +84,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
   ]
 
   useEffect(() => {
+    if (!ticketId) return
     pusherClient.subscribe(ticketId)
 
     const closeBySupportHandler = () => {

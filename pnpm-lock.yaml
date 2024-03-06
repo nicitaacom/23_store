@@ -12,8 +12,8 @@ dependencies:
     specifier: ^0.0.10
     version: 0.0.10
   '@react-email/components':
-    specifier: ^0.0.11
-    version: 0.0.11(@types/react@18.2.22)(react@18.2.0)
+    specifier: 0.0.16-canary.0
+    version: 0.0.16-canary.0(@types/react@18.2.22)(react@18.2.0)
   '@react-email/html':
     specifier: ^0.0.4
     version: 0.0.4
@@ -1304,14 +1304,6 @@ packages:
       '@babel/runtime': 7.23.8
     dev: false
 
-  /@react-email/body@0.0.4(react@18.2.0):
-    resolution: {integrity: sha512-NmHOumdmyjWvOXomqhQt06KbgRxhHrVznxQp/oWiPWes8nAJo2Y4L27aPHR9nTcs7JF7NmcJe9YSN42pswK+GQ==}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
   /@react-email/body@0.0.7(react@18.2.0):
     resolution: {integrity: sha512-vjJ5P1MUNWV0KNivaEWA6MGj/I3c764qQJMsKjCHlW6mkFJ4SXbm2OlQFtKAb++Bj8LDqBlnE6oW77bWcMc0NA==}
     peerDependencies:
@@ -1327,8 +1319,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-email/button@0.0.11(react@18.2.0):
-    resolution: {integrity: sha512-mB5ySfZifwE5ybtIWwXGbmKk1uKkH4655gftL4+mMxZAZCkINVa2KXTi5pO+xZhMtJI9xtAsikOrOEU1gTDoww==}
+  /@react-email/button@0.0.13(react@18.2.0):
+    resolution: {integrity: sha512-e/y8u2odJ8fF83B+wvL2FXzVcbQSUh2Cn2JH2Ez4L6AuPELsh8s2JYo081IDsXc16IyFiYpObn0blOt7s/qp8g==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0
@@ -1336,8 +1328,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-email/button@0.0.13(react@18.2.0):
-    resolution: {integrity: sha512-e/y8u2odJ8fF83B+wvL2FXzVcbQSUh2Cn2JH2Ez4L6AuPELsh8s2JYo081IDsXc16IyFiYpObn0blOt7s/qp8g==}
+  /@react-email/button@0.0.14(react@18.2.0):
+    resolution: {integrity: sha512-SMk40moGcAvkHIALX4XercQlK0PNeeEIam6OXHw68ea9WtzzqVwiK4pzLY0iiMI9B4xWHcaS2lCPf3cKbQBf1Q==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0
@@ -1355,17 +1347,18 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-email/code-inline@0.0.1(react@18.2.0):
-    resolution: {integrity: sha512-SeZKTB9Q4+TUafzeUm/8tGK3dFgywUHb1od/BrAiJCo/im65aT+oJfggJLjK2jCdSsus8odcK2kReeM3/FCNTQ==}
+  /@react-email/code-block@0.0.3(react@18.2.0):
+    resolution: {integrity: sha512-nxhl7WjjM2cOYtl0boBZfSObTrUCz2LbarcMyHkTVAsA9rbjbtWAQF7jmlefXJusk3Uol5l2c8hTh2lHLlHTRQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0
     dependencies:
+      prismjs: 1.29.0
       react: 18.2.0
     dev: false
 
-  /@react-email/column@0.0.8(react@18.2.0):
-    resolution: {integrity: sha512-blChqGU8e/L6KZiB5EPww8bkZfdyHDuS0vKIvU+iS14uK+xfAw+5P5CU9BYXccEuJh2Gftfngu1bWMFp2Sc6ag==}
+  /@react-email/code-inline@0.0.1(react@18.2.0):
+    resolution: {integrity: sha512-SeZKTB9Q4+TUafzeUm/8tGK3dFgywUHb1od/BrAiJCo/im65aT+oJfggJLjK2jCdSsus8odcK2kReeM3/FCNTQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0
@@ -1380,35 +1373,6 @@ packages:
       react: 18.2.0
     dependencies:
       react: 18.2.0
-    dev: false
-
-  /@react-email/components@0.0.11(@types/react@18.2.22)(react@18.2.0):
-    resolution: {integrity: sha512-wj9Sra/AGQvadb3ZABz44ll9Fb9FvXPEmODXRWbNRSc8pJTFGWorrsm4M/yj8dnewd4HtnbLkV1eDOvuiLAVLA==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      '@react-email/body': 0.0.4(react@18.2.0)
-      '@react-email/button': 0.0.11(react@18.2.0)
-      '@react-email/column': 0.0.8(react@18.2.0)
-      '@react-email/container': 0.0.10(react@18.2.0)
-      '@react-email/font': 0.0.4(react@18.2.0)
-      '@react-email/head': 0.0.6(react@18.2.0)
-      '@react-email/heading': 0.0.9(@types/react@18.2.22)
-      '@react-email/hr': 0.0.6(react@18.2.0)
-      '@react-email/html': 0.0.6(react@18.2.0)
-      '@react-email/img': 0.0.6(react@18.2.0)
-      '@react-email/link': 0.0.6(react@18.2.0)
-      '@react-email/preview': 0.0.7(react@18.2.0)
-      '@react-email/render': 0.0.9
-      '@react-email/row': 0.0.6(react@18.2.0)
-      '@react-email/section': 0.0.10(react@18.2.0)
-      '@react-email/tailwind': 0.0.12(react@18.2.0)
-      '@react-email/text': 0.0.6(react@18.2.0)
-      react: 18.2.0
-    transitivePeerDependencies:
-      - '@types/react'
-      - ts-node
     dev: false
 
   /@react-email/components@0.0.14(@types/react@18.2.22)(react@18.2.0):
@@ -1441,13 +1405,35 @@ packages:
       - '@types/react'
     dev: false
 
-  /@react-email/container@0.0.10(react@18.2.0):
-    resolution: {integrity: sha512-goishY7ocq+lord0043/LZK268bqvMFW/sxpUt/dSCPJyrrZZNCbpW2t8w8HztU38cYj0qGQLxO5Qvpn/RER3w==}
+  /@react-email/components@0.0.16-canary.0(@types/react@18.2.22)(react@18.2.0):
+    resolution: {integrity: sha512-bOfWJsN3rP/fRJt17KD/52xcU8WHXUf3vPxoFuotE2YGh0STOdZwDFq5u5XQxkYiXQ5Nz6MlAHqW72ZhfpPiDw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0
     dependencies:
+      '@react-email/body': 0.0.7(react@18.2.0)
+      '@react-email/button': 0.0.14(react@18.2.0)
+      '@react-email/code-block': 0.0.3(react@18.2.0)
+      '@react-email/code-inline': 0.0.1(react@18.2.0)
+      '@react-email/column': 0.0.9(react@18.2.0)
+      '@react-email/container': 0.0.11(react@18.2.0)
+      '@react-email/font': 0.0.5(react@18.2.0)
+      '@react-email/head': 0.0.7(react@18.2.0)
+      '@react-email/heading': 0.0.11(@types/react@18.2.22)(react@18.2.0)
+      '@react-email/hr': 0.0.7(react@18.2.0)
+      '@react-email/html': 0.0.7(react@18.2.0)
+      '@react-email/img': 0.0.7(react@18.2.0)
+      '@react-email/link': 0.0.7(react@18.2.0)
+      '@react-email/markdown': 0.0.9-canary.0(react@18.2.0)
+      '@react-email/preview': 0.0.8(react@18.2.0)
+      '@react-email/render': 0.0.12
+      '@react-email/row': 0.0.7(react@18.2.0)
+      '@react-email/section': 0.0.11(react@18.2.0)
+      '@react-email/tailwind': 0.0.14(react@18.2.0)
+      '@react-email/text': 0.0.7(react@18.2.0)
       react: 18.2.0
+    transitivePeerDependencies:
+      - '@types/react'
     dev: false
 
   /@react-email/container@0.0.11(react@18.2.0):
@@ -1459,25 +1445,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-email/font@0.0.4(react@18.2.0):
-    resolution: {integrity: sha512-rN/pFlAcDNmfYFxpufT/rFRrM5KYBJM4nTA2uylTehlVOro6fb/q6n0zUwLF6OmQ4QIuRbqdEy7DI9mmJiNHxA==}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
   /@react-email/font@0.0.5(react@18.2.0):
     resolution: {integrity: sha512-if/qKYmH3rJ2egQJoKbV8SfKCPavu+ikUq/naT/UkCr8Q0lkk309tRA0x7fXG/WeIrmcipjMzFRGTm2TxTecDw==}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
-  /@react-email/head@0.0.6(react@18.2.0):
-    resolution: {integrity: sha512-9BrBDalb34nBOmmQVQc7/pjJotcuAeC3rhBl4G88Ohiipuv15vPIKqwy8vPJcFNi4l7yGlitfG3EESIjkLkoIw==}
-    engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0
     dependencies:
@@ -1505,25 +1474,6 @@ packages:
       - '@types/react'
     dev: false
 
-  /@react-email/heading@0.0.9(@types/react@18.2.22):
-    resolution: {integrity: sha512-xzkcGlm+/aFrNlJZBKzxRKkRYJ2cRx92IqmSKAuGnwuKQ/uMKomXzPsHPu3Dclmnhn3wVKj4uprkgQOoxP6uXQ==}
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      '@radix-ui/react-slot': 1.0.2(@types/react@18.2.22)(react@18.2.0)
-      react: 18.2.0
-    transitivePeerDependencies:
-      - '@types/react'
-    dev: false
-
-  /@react-email/hr@0.0.6(react@18.2.0):
-    resolution: {integrity: sha512-W+wINBz7z7BRv3i9GS+QoJBae1PESNhv6ZY6eLnEpqtBI/2++suuRNJOU/KpZzE6pykeTp6I/Z7UcL0LEYKgyg==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
   /@react-email/hr@0.0.7(react@18.2.0):
     resolution: {integrity: sha512-8suK0M/deXHt0DBSeKhSC4bnCBCBm37xk6KJh9M0/FIKlvdltQBem52YUiuqVl1XLB87Y6v6tvspn3SZ9fuxEA==}
     engines: {node: '>=18.0.0'}
@@ -1538,26 +1488,8 @@ packages:
     engines: {node: '>=16.0.0'}
     dev: false
 
-  /@react-email/html@0.0.6(react@18.2.0):
-    resolution: {integrity: sha512-8Fo20VOqxqc087gGEPjT8uos06fTXIC8NSoiJxpiwAkwiKtQnQH/jOdoLv6XaWh5Zt2clj1uokaoklnaM5rY1w==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
   /@react-email/html@0.0.7(react@18.2.0):
     resolution: {integrity: sha512-oy7OoRtoOKApVI/5Lz1OZptMKmMYJu9Xn6+lOmdBQchAuSdQtWJqxhrSj/iI/mm8HZWo6MZEQ6SFpfOuf8/P6Q==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
-  /@react-email/img@0.0.6(react@18.2.0):
-    resolution: {integrity: sha512-Wd7xKI3b1Jvb2ZEHyVpJ9D98u0GHrRl+578b8LV24PavM/65V61Q5LN5Fr9sAhj+4VGqnHDIVeXIYEzVbWaa3Q==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0
@@ -1574,15 +1506,6 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-email/link@0.0.6(react@18.2.0):
-    resolution: {integrity: sha512-bYYHroWGS//nDl9yhh8V6K2BrNwAsyX7N/XClSCRku3x56NrZ6D0nBKWewYDPlJ9rW9TIaJm1jDYtO9XBzLlkQ==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
   /@react-email/link@0.0.7(react@18.2.0):
     resolution: {integrity: sha512-hXPChT3ZMyKnUSA60BLEMD2maEgyB2A37yg5bASbLMrXmsExHi6/IS1h2XiUPLDK4KqH5KFaFxi2cdNo1JOKwA==}
     engines: {node: '>=18.0.0'}
@@ -1592,12 +1515,13 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-email/preview@0.0.7(react@18.2.0):
-    resolution: {integrity: sha512-YLfIwHdexPi8IgP1pSuVXdAmKzMQ8ctCCLEjkMttT2vkSFqT6m/e6UFWK2l30rKm2dDsLvQyEvo923mPXjnNzg==}
+  /@react-email/markdown@0.0.9-canary.0(react@18.2.0):
+    resolution: {integrity: sha512-e/gn3J6p/zmON7adTX07Pw+sM92AA3CZodx/3mZOpTpCO+TVVtRfHFhHj/VwXJocVeqok9z2x4tx+7zm6CnDQQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0
     dependencies:
+      md-to-react-email: 5.0.0(react@18.2.0)
       react: 18.2.0
     dev: false
 
@@ -1630,36 +1554,8 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@react-email/render@0.0.9:
-    resolution: {integrity: sha512-nrim7wiACnaXsGtL7GF6jp3Qmml8J6vAjAH88jkC8lIbfNZaCyuPQHANjyYIXlvQeAbsWADQJFZgOHUqFqjh/A==}
-    engines: {node: '>=18.0.0'}
-    dependencies:
-      html-to-text: 9.0.5
-      pretty: 2.0.0
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
-  /@react-email/row@0.0.6(react@18.2.0):
-    resolution: {integrity: sha512-msJ2TnDJNwpgDfDzUO63CvhusJHeaGLMM+8Zz86VPvxzwe/DkT7N48QKRWRCkt8urxVz5U+EgivORA9Dum9p3Q==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
   /@react-email/row@0.0.7(react@18.2.0):
     resolution: {integrity: sha512-h7pwrLVGk5CIx7Ai/oPxBgCCAGY7BEpCUQ7FCzi4+eThcs5IdjSwDPefLEkwaFS8KZc56UNwTAH92kNq5B7blg==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
-  /@react-email/section@0.0.10(react@18.2.0):
-    resolution: {integrity: sha512-x9B2KYFqj+d8I1fK9bgeVm/3mLE4Qgn4mm/GbDtcJeSzKU/G7bTb7/3+BMDk9SARPGkg5XAuZm1XgcqQQutt2A==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0
@@ -1676,19 +1572,6 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-email/tailwind@0.0.12(react@18.2.0):
-    resolution: {integrity: sha512-s8Ch7GL30qRKScn9NWwItMqxjtzbyUtCnXfC6sL2YTVtulbfvZZ06W+aA0S6f7fdrVlOOlQzZuK/sVaQCHhcSw==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      tw-to-css: 0.0.12
-    transitivePeerDependencies:
-      - ts-node
-    dev: false
-
   /@react-email/tailwind@0.0.14(react@18.2.0):
     resolution: {integrity: sha512-SRRcm08zxrAR5XozaW0X+GAJlTJITakZe0UXBiFZDlSDBLwFMxjaGuQwccqNF0LxDnxmduxYB71mzEAqecgTZg==}
     engines: {node: '>=18.0.0'}
@@ -1700,15 +1583,6 @@ packages:
 
   /@react-email/tailwind@0.0.15-canary.0(react@18.2.0):
     resolution: {integrity: sha512-i8b1Gd3AnhW0sGQHlNUiDHih2RmU/tiA88fuRL5Jd+p8ua0coCKUg/hJNbNancyTlZ7j9IEQDEuucSLaGD3Weg==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: 18.2.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
-  /@react-email/text@0.0.6(react@18.2.0):
-    resolution: {integrity: sha512-PDUTAD1PjlzXFOIUrR1zuV2xxguL62yne5YLcn1k+u/dVUyzn6iU/5lFShxCfzuh3QDWCf4+JRNnXN9rmV6jzw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0
@@ -3516,10 +3390,6 @@ packages:
       is-extendable: 0.1.1
     dev: false
 
-  /extend@3.0.2:
-    resolution: {integrity: sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==}
-    dev: false
-
   /fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
@@ -4338,6 +4208,21 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /marked@7.0.4:
+    resolution: {integrity: sha512-t8eP0dXRJMtMvBojtkcsA7n48BkauktUKzfkPSCq85ZMTJ0v76Rke4DYz01omYpPTUh4p/f7HePgRo3ebG8+QQ==}
+    engines: {node: '>= 16'}
+    hasBin: true
+    dev: false
+
+  /md-to-react-email@5.0.0(react@18.2.0):
+    resolution: {integrity: sha512-GdBrBUbAAJHypnuyofYGfVos8oUslxHx69hs3CW9P0L8mS1sT6GnJuMBTlz/Fw+2widiwdavcu9UwyLF/BzZ4w==}
+    peerDependencies:
+      react: 18.x
+    dependencies:
+      marked: 7.0.4
+      react: 18.2.0
+    dev: false
+
   /meow@7.1.1:
     resolution: {integrity: sha512-GWHvA5QOcS412WCo8vwKDlTelGLsCGBVevQB5Kva961rmNfun0PCbv5+xta2kUMFJyR8/oWnn7ddeKdosbAPbA==}
     engines: {node: '>=10'}
@@ -4791,17 +4676,6 @@ packages:
     engines: {node: '>=16.14'}
     hasBin: true
     dev: true
-
-  /postcss-css-variables@0.18.0(postcss@8.4.31):
-    resolution: {integrity: sha512-lYS802gHbzn1GI+lXvy9MYIYDuGnl1WB4FTKoqMQqJ3Mab09A7a/1wZvGTkCEZJTM8mSbIyb1mJYn8f0aPye0Q==}
-    peerDependencies:
-      postcss: ^8.2.6
-    dependencies:
-      balanced-match: 1.0.2
-      escape-string-regexp: 1.0.5
-      extend: 3.0.2
-      postcss: 8.4.31
-    dev: false
 
   /postcss-import@15.1.0(postcss@8.4.31):
     resolution: {integrity: sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==}
@@ -5708,38 +5582,6 @@ packages:
       '@babel/runtime': 7.23.8
     dev: false
 
-  /tailwindcss@3.3.2:
-    resolution: {integrity: sha512-9jPkMiIBXvPc2KywkraqsUfbfj+dHDb+JPWtSJa9MLFdrPyazI7q6WX2sUrm7R9eVR7qqv3Pas7EvQFzxKnI6w==}
-    engines: {node: '>=14.0.0'}
-    hasBin: true
-    dependencies:
-      '@alloc/quick-lru': 5.2.0
-      arg: 5.0.2
-      chokidar: 3.5.3
-      didyoumean: 1.2.2
-      dlv: 1.1.3
-      fast-glob: 3.3.2
-      glob-parent: 6.0.2
-      is-glob: 4.0.3
-      jiti: 1.21.0
-      lilconfig: 2.1.0
-      micromatch: 4.0.5
-      normalize-path: 3.0.0
-      object-hash: 3.0.0
-      picocolors: 1.0.0
-      postcss: 8.4.31
-      postcss-import: 15.1.0(postcss@8.4.31)
-      postcss-js: 4.0.1(postcss@8.4.31)
-      postcss-load-config: 4.0.2(postcss@8.4.31)
-      postcss-nested: 6.0.1(postcss@8.4.31)
-      postcss-selector-parser: 6.0.15
-      postcss-value-parser: 4.2.0
-      resolve: 1.22.8
-      sucrase: 3.35.0
-    transitivePeerDependencies:
-      - ts-node
-    dev: false
-
   /tailwindcss@3.3.3:
     resolution: {integrity: sha512-A0KgSkef7eE4Mf+nKJ83i75TMyq8HqY3qmFIJSWy8bNt0v1lG7jUcpGpoTFxAwYcWOphcTBLPPJg+bDfhDf52w==}
     engines: {node: '>=14.0.0'}
@@ -5908,17 +5750,6 @@ packages:
 
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
-    dev: false
-
-  /tw-to-css@0.0.12:
-    resolution: {integrity: sha512-rQAsQvOtV1lBkyCw+iypMygNHrShYAItES5r8fMsrhhaj5qrV2LkZyXc8ccEH+u5bFjHjQ9iuxe90I7Kykf6pw==}
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      postcss: 8.4.31
-      postcss-css-variables: 0.18.0(postcss@8.4.31)
-      tailwindcss: 3.3.2
-    transitivePeerDependencies:
-      - ts-node
     dev: false
 
   /tweetnacl-util@0.15.1:

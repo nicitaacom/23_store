@@ -9,7 +9,6 @@ export type TAPITicketGetTicketIdRequest = {
 export type Response = {
   ticket_id: string
 }
-
 export type TAPITicketGetTicketIdResponse = AxiosResponse<Response>
 
 export async function POST(req: Request) {
@@ -22,9 +21,7 @@ export async function POST(req: Request) {
     .eq("is_open", true)
     .single()
   if (!ticket_id) {
-    console.log(25, "GET_TICKETID_ERROR - no ticketId found")
-    return NextResponse.json({ status: 400 })
+    return NextResponse.json("")
   }
-
   return NextResponse.json(ticket_id.id as unknown as Response)
 }

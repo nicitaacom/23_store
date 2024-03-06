@@ -5,6 +5,7 @@ import getInitialTickets from "@/actions/getInitialTickets"
 import getUnreadMessages from "@/actions/getUnreadMessages"
 import Navbar from "@/components/Navbar/Navbar"
 import { DesktopSidebar, MobileSidebar } from "./components"
+import ClientOnly from "@/components/ClientOnly"
 
 export const dynamic = "force-dynamic"
 
@@ -25,12 +26,14 @@ export default async function SupportChatLayout({ children }: { children: React.
 
   return (
     <>
-      <Navbar />
-      <div className="flex flex-row h-[calc(100vh-64px)]">
-        <DesktopSidebar unseenMessages={unreadMessages ?? []} initialTickets={initialTickets} />
-        <MobileSidebar unseenMessages={unreadMessages ?? []} initialTickets={initialTickets} />
-        {children}
-      </div>
+      <ClientOnly>
+        <Navbar />
+        <div className="flex flex-row h-[calc(100vh-64px)]">
+          <DesktopSidebar unseenMessages={unreadMessages ?? []} initialTickets={initialTickets} />
+          <MobileSidebar unseenMessages={unreadMessages ?? []} initialTickets={initialTickets} />
+          {children}
+        </div>
+      </ClientOnly>
     </>
   )
 }

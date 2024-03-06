@@ -1,15 +1,13 @@
 "use client"
 
-import { lazy } from "react"
 import { BiSupport } from "react-icons/bi"
 
 import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
 import { Button, DropdownContainer } from "../ui"
+import SupportButtonDropdown from "@/components/SupportButton/components/SupportButtonDropdown"
 
 export default function SupportButton() {
   const { isDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
-
-  const SupportButtonDropdown = lazy(() => import("@/components/SupportButton/components/SupportButtonDropdown"))
 
   //before:translate-y-[402px] should be +2px then <section className="h-[400px]
   //w-[400px] should be = section w-[400px]
@@ -30,7 +28,7 @@ export default function SupportButton() {
           <BiSupport className="text-icon-color w-[32px] h-[32px] desktop:w-[32px] desktop:h-[32px]" />
         </Button>
       }>
-      {isDropdown && <SupportButtonDropdown />}
+      <SupportButtonDropdown />
     </DropdownContainer>
   )
 }

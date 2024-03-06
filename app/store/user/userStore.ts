@@ -2,13 +2,14 @@ import { create } from "zustand"
 import { devtools, persist, subscribeWithSelector } from "zustand/middleware"
 import useCartStore from "./cartStore"
 import { useLoading } from "../ui/useLoading"
+import { setCookie } from "@/utils/helpersCSR"
 
 interface UserStore {
   userId: string
   isAuthenticated: boolean
   username: string
   email: string
-  avatarUrl: string
+  avatarUrl: string | null
   setUser: (userId: string, username: string, email: string, avatarUrl: string) => void
   logoutUser: () => void
 }
@@ -22,6 +23,7 @@ export const userStore = (set: SetState): UserStore => ({
   email: "",
   avatarUrl: "",
   setUser(userId: string, username: string, email: string, avatarUrl: string) {
+    if (avatarUrl) setCookie("avatarUrl", avatarUrl) // to prevent hydration error (cookies availabe on server so content match)
     set((state: UserStore) => ({
       ...state,
       userId: userId,
