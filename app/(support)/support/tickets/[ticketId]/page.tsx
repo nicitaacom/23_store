@@ -6,13 +6,17 @@ import { cache } from "react"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
-import supabaseServer from "@/libs/supabase/supabaseServer"
 
 interface ChatPageProps {
   params: {
     ticketId: string
   }
 }
+
+// to fix issue when I'm not in present channel and I see no messages in MesagesBody - https://streamable.com/dze31q
+export const dynamic = "force-dynamic"
+// every 5 seconds revalidate ticketId to make it SSG (statically prerendered page) with ISR (so it work faster)
+export const revalidate = 5
 
 //I cache data to don't fetch data from DB twice
 const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
@@ -31,6 +35,16 @@ const getIsTicketOpenCache = cache(async (ticketId: string) => {
   return is_ticket_open?.is_open
 })
 
+export async function generateStaticParams(): Promise<string[]> {
+  const { data, error } = await supabaseAdmin.from("tickets").select("id").eq("is_open", true)
+  if (error) {
+    console.log(42, "error generating statuc params - ", error.message)
+    return []
+  }
+  if (!data) return notFound()
+  return data.map(ticketId => ticketId.id) // from [{id:'129f-32id'}] to ['129f-32id']
+}
+
 export async function generateMetadata({ params: { ticketId } }: ChatPageProps): Promise<Metadata> {
   const initial_messages = await getInitialMessagesByTicketIdCache(ticketId)
 
@@ -43,20 +57,9 @@ export async function generateMetadata({ params: { ticketId } }: ChatPageProps):
     openGraph: {
       images: [{ url: "/read-your-messages.jpg" }],
     },
+    twitter: { card: "summary_large_image" },
   }
 }
-
-export async function generateStaticParams() {
-  const { data, error } = await supabaseAdmin.from("tickets").select("id")
-  if (error) return console.log(50, "error generating statuc params - ", error.message)
-  if (!data) return notFound()
-  return data
-}
-
-// to fix issue when I'm not in present channel and I see no messages in MesagesBody - https://streamable.com/dze31q
-export const dynamic = "force-dynamic"
-// every 5 seconds revalidate ticketId to make it SSG (statically prerendered page) with ISR (so it work faster)
-export const revalidate = 5
 
 export default async function ChatPage({ params: { ticketId } }: ChatPageProps) {
   const initial_messages = await getInitialMessagesByTicketIdCache(ticketId)
