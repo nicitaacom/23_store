@@ -1,5 +1,15 @@
-import { Head, Html, Preview, Body, Section, Img, Heading, Text, Link } from "@react-email/components"
+// do it in this way to reduce bundle size for better performance - https://github.com/resend/react-email/issues/1329#issuecomment-1980561233
+import { Html } from "@react-email/html"
+import { Head } from "@react-email/head"
+import { Preview } from "@react-email/preview"
+import { Body } from "@react-email/body"
+import { Section } from "@react-email/section"
+import { Img } from "@react-email/img"
+import { Heading } from "@react-email/heading"
+import { Text } from "@react-email/text"
+import { Link } from "@react-email/link"
 import { Tailwind } from "@react-email/tailwind"
+
 import { formatCurrency } from "../utils/currencyFormatter"
 import { TProductAfterDB } from "../interfaces/product/TProductAfterDB"
 import { getURL } from "@/utils/helpers"

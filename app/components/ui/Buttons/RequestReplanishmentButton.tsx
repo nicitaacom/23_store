@@ -9,7 +9,7 @@ import { TAPISendEmailRequestReplanishment } from "@/api/send-email/request-repl
 import { useEffect, useState } from "react"
 import RequestReplanishmentEmail from "@/emails/RequestReplanishmentEmail"
 import { TProductDB } from "@/interfaces/product/TProductDB"
-// import { renderAsync } from "@react-email/components"
+// import { renderAsync } from "@react-email/render"
 
 export function RequestReplanishmentButton({ product }: { product: TProductDB }) {
   const toast = useToast()
