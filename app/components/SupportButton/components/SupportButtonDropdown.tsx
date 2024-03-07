@@ -41,12 +41,8 @@ export default function SupportButtonDropdown() {
   useEffect(() => {
     // I want to initialize connection with pusher only in case isDropdown and userId
     // because user may be not authenticated and that's why I set anonymousId when user send first message
-    console.log(45, "userId ", userId)
-    console.log(45, "isDropdown ", isDropdown)
-    console.log(45, "ticketId ", ticketId)
+    console.log(userStore.avatarUrl)
     if (userId && isDropdown && ticketId) {
-      console.log(45, "pusher subscribe to ", ticketId)
-
       pusherClient.subscribe(ticketId)
       if (bottomRef.current) {
         bottomRef.current.scrollTop = bottomRef.current.scrollHeight
