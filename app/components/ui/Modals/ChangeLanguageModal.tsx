@@ -3,7 +3,7 @@ import { Button } from ".."
 import { languages } from "@/constant/languages"
 import Image from "next/image"
 
-interface ChangeLanguageModalProps {
+export interface ChangeLanguageModalProps {
   label: string
 }
 

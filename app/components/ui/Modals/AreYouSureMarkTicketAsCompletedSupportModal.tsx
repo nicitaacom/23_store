@@ -1,4 +1,5 @@
-import { useRouter } from "next/navigation"
+"use client"
+
 import { FaCheck } from "react-icons/fa"
 import axios from "axios"
 
@@ -6,6 +7,7 @@ import { TAPITicketsClose } from "@/api/tickets/close/route"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
 import useTicket from "@/hooks/support/useTicket"
 import { AreYouSureModalContainer } from "./ModalContainers"
+import { useRouter } from "next/navigation"
 
 export function AreYouSureMarkTicketAsCompletedSupportModal() {
   const router = useRouter()
@@ -16,6 +18,7 @@ export function AreYouSureMarkTicketAsCompletedSupportModal() {
   async function markTickedAsCompleted() {
     areYouSureMarkTicketAsCompletedSupportModal.closeModal()
     await axios.post("/api/tickets/close", { ticketId: ticketId, closedBy: "support" } as TAPITicketsClose)
+    router.refresh()
   }
 
   return (

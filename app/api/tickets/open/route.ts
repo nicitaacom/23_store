@@ -8,7 +8,7 @@ export type TAPITicketsOpen = {
   ticketId: string
   ownerId: string
   ownerUsername: string
-  ownerAvatarUrl: string
+  ownerAvatarUrl: string | null
   messageBody: string
 }
 
@@ -16,6 +16,18 @@ export async function POST(req: Request) {
   // just messageBody instead of lastMessageBody because only user message support (not support message user)
   // also because I insert row in 'tickets' table only once on first message - so I have only 1 message in this ticket
   const { ticketId, ownerId, ownerUsername, messageBody, ownerAvatarUrl } = (await req.json()) as TAPITicketsOpen
+
+  if (!ticketId || !ownerId || !ownerUsername || !messageBody) {
+    console.log(
+      22,
+      `API_TICKETS_OPEN_ERROR - missing required fields \n
+       ticketId - ${ticketId} \n
+       ownerId - ${ownerId} \n
+       ownerUsername - ${ownerUsername} \n
+       messageBody - ${messageBody} \n`,
+    )
+    return NextResponse.json({ status: 400 })
+  }
 
   // dance arounding to insert current date-time
   const now = new Date()

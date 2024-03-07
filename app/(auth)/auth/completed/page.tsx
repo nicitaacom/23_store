@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 
 import useUserStore from "@/store/user/userStore"
 import { Timer } from "@/(auth)/AuthModal/components"
+import { setCookie } from "@/utils/helpersCSR"
 
 export default function AuthCompleted() {
   const router = useRouter()
@@ -21,6 +22,7 @@ export default function AuthCompleted() {
 
   useEffect(() => {
     userStore.setUser(userId ?? "", username ?? "", email ?? "", avatarUrl ?? "")
+    if (avatarUrl) setCookie("avatarUrl", avatarUrl)
     router.prefetch("/")
     //to prevent error about too many re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps

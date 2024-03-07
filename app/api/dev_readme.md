@@ -37,15 +37,15 @@ To avoid errors use types defined in API routes like this (`as TAPIMessages`)
 `api/customer`
 
 ```ts
-export type TAPICustomer = {
+export type TAPICustomerRequest = {
   session_id: string
 }
 
-export interface TAPICustomerData {
+interface Response {
   customerEmail: string | null
 }
 
-export type TAPICustomerResponse<T = any> = AxiosResponse<TAPICustomerData>
+export type TAPICustomerResponse = AxiosResponse<Response>
 
 return NextResponse.json({ customerEmail: session.customer_details?.email })
 ```
@@ -55,7 +55,7 @@ return NextResponse.json({ customerEmail: session.customer_details?.email })
 ```ts
 const response: TAPICustomerResponse = await axios.post("/api/customer", {
   session_id: session_id,
-} as TAPICustomer)
+} as TAPICustomerRequest)
 ```
 
 <br/>

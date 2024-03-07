@@ -15,11 +15,18 @@ import { DropdownContainer, DropdownItem } from "@/components/ui"
 import { useRouter } from "next/navigation"
 import useAvatarDropdownClose from "@/hooks/ui/useAvatarDropdownClose"
 
-export function AvatarDropdown({ role }: { role: string }) {
+interface AvatarDropdownProps {
+  role: string
+  avatarUrlServer: string | undefined
+}
+
+export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
   const router = useRouter()
   const { isDropdown, openDropdown, closeDropdown, toggle, avatarDropdownRef } = useAvatarDropdownClose()
   const userStore = useUserStore()
   const mode = useDarkMode()
+
+  let avatarUrl = avatarUrlServer ?? userStore.avatarUrl ?? "/placeholder.jpg"
 
   function openAdminPanel() {
     router.push("?modal=AdminPanel")
@@ -45,15 +52,7 @@ export function AvatarDropdown({ role }: { role: string }) {
       className="max-w-[200px]"
       username={userStore.username}
       icon={
-        <>
-          <Image
-            className="w-[32px] h-[32px] rounded-full"
-            src={userStore.avatarUrl ? userStore.avatarUrl : "/placeholder.jpg"}
-            alt="user logo"
-            width={32}
-            height={32}
-          />
-        </>
+        <Image className="w-[32px] h-[32px] rounded-full" src={avatarUrl} alt="user logo" width={32} height={32} />
       }>
       {role === "SUPPORT" && (
         <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />

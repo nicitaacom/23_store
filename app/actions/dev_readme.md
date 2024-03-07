@@ -16,9 +16,11 @@ I use this action to output messages by ticketId on `/support/tickets/ticketId` 
 I use this action to get owner products on SSR to pass them through props in `AdminPanel.tsx`
 To show them in `EditProductForm.tsx` and `DeleteProductForm.tsx`
 
-## Usage for getTicketId.ts
+## Usage for fetchTicketId.ts
 
-I getTicketId to subscribe pusher to this channelId (ticketId) to get live-update
+If fetch it means that I do it in client component that's why I use supabaseClient getCookie from helpersCSR and stuff like that
+
+I fetchTicketId to subscribe pusher to this channelId (ticketId) to get live-update
 by live-update I mean when user send message from 1 device and another device recieve this message in real-time
 
 Get data about userId or anonymousId and then find row in table `tickets` that matches that userId and is_open

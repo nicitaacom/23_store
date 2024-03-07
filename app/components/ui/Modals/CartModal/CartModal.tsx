@@ -9,7 +9,7 @@ import EmptyCart from "./EmptyCart"
 import { ProductsInCart } from "./ProductsInCart"
 import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
 
-interface CartModalProps {
+export interface CartModalProps {
   label: string
 }
 

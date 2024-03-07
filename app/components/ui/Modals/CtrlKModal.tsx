@@ -1,3 +1,5 @@
+"use client"
+
 import { BiSearchAlt } from "react-icons/bi"
 import { SearchInput } from "../Inputs/SearchInput"
 import { ModalContainer } from "./ModalContainers/"

@@ -7,6 +7,7 @@ import { NavbarWrapper } from "./components/NavbarWrapper"
 import { AvatarDropdown, HamburgerMenu, Logo, NavbarSearch, OpenAuthModalButton, CartIcon } from "./components"
 import { CtrlKBadge } from "./components/CtrlKBadge"
 import { ContactButton } from "./components/ContactButton"
+import { getCookie } from "@/utils/helpersSSR"
 
 export default async function Navbar() {
   const {
@@ -23,6 +24,9 @@ export default async function Navbar() {
     if (role_error) throw role_error
     role = role_response.role
   }
+
+  // need to get avatarUrl on server and then pass to client component (because I import cookies from next/headers)
+  const avatarUrl = getCookie("avatarUrl")
 
   return (
     <NavbarWrapper>
@@ -45,7 +49,7 @@ export default async function Navbar() {
         <BiSearchAlt className="flex tablet:hidden" size={28} />
         <CartIcon />
         <ContactButton />
-        {user ? <AvatarDropdown role={role} /> : <OpenAuthModalButton />}
+        {user ? <AvatarDropdown role={role} avatarUrlServer={avatarUrl} /> : <OpenAuthModalButton />}
       </div>
     </NavbarWrapper>
   )

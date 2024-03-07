@@ -1,3 +1,5 @@
+"use client"
+
 import { TWallet, useDoYouWantRecieveCheckModal } from "@/store/ui/doYouWantRecieveCheckModal"
 import { ModalContainer } from "./ModalContainers"
 import { FormInput } from "../Inputs/Validation"

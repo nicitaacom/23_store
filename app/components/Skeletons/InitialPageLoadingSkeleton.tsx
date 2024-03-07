@@ -1,5 +1,5 @@
 import "react-loading-skeleton/dist/skeleton.css"
-import { NavbarSkeleton } from "./InitialPageLoading/NavbarSkeleton"
+import { NavbarSkeleton } from "./NavbarSkeleton"
 import { ProductsSkeleton } from "./InitialPageLoading/ProductsSkeleton"
 
 export function InitialPageLoadingSkeleton() {

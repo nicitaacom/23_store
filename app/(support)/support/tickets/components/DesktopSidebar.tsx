@@ -8,7 +8,7 @@ import { pusherClient } from "@/libs/pusher"
 import { DesktopSidebarTicket } from "./DesktopSidebarTicket"
 import { NoTicketsFound } from "./NoTicketsFound"
 import { UnseenMessages } from "@/actions/getUnreadMessages"
-import { useUnseenMessages } from "@/store/ui/unseenMessages"
+import { useUnseenMessages } from "../../../store/useUnseenMessages"
 import { useRouter } from "next/navigation"
 import useToast from "@/store/ui/useToast"
 
@@ -45,6 +45,7 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
       })
     }
 
+    // e.g for increasing unread messages
     const updateHandler = (ticket: ITicket) => {
       setTickets(current =>
         current.map(currentTicket => {
@@ -115,6 +116,7 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
       <nav className="flex flex-col">
         {tickets
           ?.slice()
+          // sort by decreasing unread messages e.g from 99 to 1
           .sort((a, b) => (unreadMessages[b.id] || 0) - (unreadMessages[a.id] || 0))
           .map(ticket => (
             <DesktopSidebarTicket

@@ -6,7 +6,7 @@ import { find } from "lodash"
 
 import { ITicket } from "@/interfaces/support/ITicket"
 import { UnseenMessages } from "@/actions/getUnreadMessages"
-import { useUnseenMessages } from "@/store/ui/unseenMessages"
+import { useUnseenMessages } from "@/(support)/store/useUnseenMessages"
 import { pusherClient } from "@/libs/pusher"
 import useTicket from "@/hooks/support/useTicket"
 import { MobileSidebarTicket } from "./MobileSidebarTicket"

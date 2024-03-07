@@ -1,27 +1,34 @@
-"use client"
+import React from "react"
 
-import { useEffect, useState } from "react"
+const AreYouSureClearCartModal = async () => {
+  const modal = import("@/components/ui/Modals/AreYouSureClearCartModal")
+  const { AreYouSureClearCartModal } = await modal
+  return <AreYouSureClearCartModal />
+}
+const AreYouSureDeleteProductModal = async () => {
+  const modal = import("@/components/ui/Modals/AreYouSureDeleteProductModal")
+  const { AreYouSureDeleteProductModal } = await modal
+  return <AreYouSureDeleteProductModal />
+}
+const AreYouSureMarkTicketAsCompletedSupportModal = async () => {
+  const modal = import("@/components/ui/Modals/AreYouSureMarkTicketAsCompletedSupportModal")
+  const { AreYouSureMarkTicketAsCompletedSupportModal } = await modal
+  return <AreYouSureMarkTicketAsCompletedSupportModal />
+}
 
-import { CtrlKModal } from "@/components/ui/Modals/CtrlKModal"
-import {
-  AreYouSureClearCartModal,
-  AreYouSureDeleteProductModal,
-  AreYouSureMarkTicketAsCompletedSupportModal,
-  DoYouWantRecieveCheckModal,
-} from "@/components/ui/Modals"
+const CtrlKModal = async () => {
+  const modal = import("@/components/ui/Modals/CtrlKModal")
+  const { CtrlKModal } = await modal
+  return <CtrlKModal />
+}
 
-//This provider uses only for modals based on useState
+const DoYouWantRecieveCheckModal = async () => {
+  const modal = import("@/components/ui/Modals/DoYouWantRecieveCheckModal")
+  const { DoYouWantRecieveCheckModal } = await modal
+  return <DoYouWantRecieveCheckModal />
+}
+
 export function ModalsProvider() {
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  if (!isMounted) {
-    return null
-  }
-
   return (
     <>
       <AreYouSureClearCartModal />
@@ -32,3 +39,40 @@ export function ModalsProvider() {
     </>
   )
 }
+
+// don't use this because it throw error
+// const AreYouSureClearCartModal = dynamic(() => import("@/components/ui/Modals/AreYouSureClearCartModal"), {
+//   ssr: false,
+// })
+
+// const AreYouSureDeleteProductModal = dynamic(
+//   () => import("@/components/ui/Modals/AreYouSureDeleteProductModal").then(modal => modal.AreYouSureDeleteProductModal),
+//   { loading: () => <div>Loading AreYouSureDeleteProductModal...</div> },
+// )
+
+// const AreYouSureMarkTicketAsCompletedSupportModal = dynamic(
+//   () =>
+//     import("@/components/ui/Modals/AreYouSureMarkTicketAsCompletedSupportModal").then(
+//       modal => modal.AreYouSureMarkTicketAsCompletedSupportModal,
+//     ),
+//   { loading: () => <div>Loading AreYouSureMarkTicketAsCompletedSupportModal...</div> },
+// )
+
+// const CtrlKModal = dynamic(() => import("@/components/ui/Modals/CtrlKModal").then(modal => modal.CtrlKModal), {
+//   loading: () => <div>Loading CtrlKModal...</div>,
+// })
+
+// const DoYouWantRecieveCheckModal = dynamic(
+//   () => import("@/components/ui/Modals/DoYouWantRecieveCheckModal").then(modal => modal.DoYouWantRecieveCheckModal),
+//   { loading: () => <div>Loading DoYouWantRecieveCheckModal...</div> },
+// )
+
+// return (
+//   <>
+//     <AreYouSureClearCartModal />
+//     {/* <AreYouSureDeleteProductModal />
+//     <AreYouSureMarkTicketAsCompletedSupportModal />
+//     <CtrlKModal />
+//     <DoYouWantRecieveCheckModal /> */}
+//   </>
+// )

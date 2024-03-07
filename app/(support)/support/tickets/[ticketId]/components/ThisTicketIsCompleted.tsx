@@ -17,6 +17,7 @@ export function ThisTicketIsCompleted({ ticketId }: { ticketId: string }) {
         alt="No ticket id found"
         width={480}
         height={240}
+        priority
       />
       <div className="flex flex-col gap-y-2 px-8">
         <h1 className="text-lg laptop:text-2xl text-center ">Ticket with id {ticketId} is completed</h1>

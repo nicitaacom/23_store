@@ -3,7 +3,6 @@
 import { useEffect } from "react"
 
 import useDarkMode from "@/store/ui/darkModeStore"
-import { getCookie, setCookie } from "@/utils/helpersCSR"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const darkMode = useDarkMode()
@@ -21,11 +20,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     // Update mode when darkMode state changes
     htmlElement.classList.toggle("light", !darkMode.isDarkMode)
     htmlElement.classList.toggle("dark", darkMode.isDarkMode)
-
-    // set anonymousId cookie to getTicketId
-    if (!getCookie("anonymousId")) {
-      setCookie("anonymousId", `anonymousId_${crypto.randomUUID()}`)
-    }
   }, [darkMode.isDarkMode])
 
   return (

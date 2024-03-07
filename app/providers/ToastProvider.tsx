@@ -1,10 +1,15 @@
 "use client"
 
-import { Toast } from "@/components/ui/Toast"
 import useToast from "@/store/ui/useToast"
 import { AnimatePresence } from "framer-motion"
 
-export function ToastProvider() {
+const Toast = async () => {
+  const toast = import("@/components/ui/Toast")
+  const { Toast } = await toast
+  return <Toast />
+}
+
+export default function ToastProvider() {
   const toast = useToast()
 
   return <AnimatePresence>{toast.isOpen && <Toast />}</AnimatePresence>

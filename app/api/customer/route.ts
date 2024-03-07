@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   if (session.customer_details?.email) {
     return NextResponse.json({ customerEmail: session.customer_details?.email })
   } else {
-    console.log(17, "no customer email")
+    console.log(23, "no customer email")
     return NextResponse.json({ customerEmail: null })
   }
 }

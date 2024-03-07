@@ -15,13 +15,14 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
     event.preventDefault()
     setMessage("")
     await axios.post("/api/message/send", {
-      body: message,
+      messageBody: message,
       ticketId: ticket_id,
       senderId: userStore.userId,
       senderUsername: userStore.username,
       senderAvatarUrl: userStore.avatarUrl,
       // TODO - images logic in the future
       images: undefined,
+      messageSender: "support",
     } as TAPIMessageSend)
   }
 

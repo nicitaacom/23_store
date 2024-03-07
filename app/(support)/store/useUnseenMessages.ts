@@ -1,17 +1,17 @@
 import { create } from "zustand"
 
-type UnseenMessagesStore = {
-  unreadMessages: Record<string, number>
+type UnreadMessagesStore = {
+  unreadMessages: Record<string, number> // string its ticketId and number its number of unread messages
   setUnreadMessages: (unseenMessages: { ticket_id: string; amount_unseen: number }[]) => void
   resetUnreadMessages: (ticketId: string) => void
   increaseUnreadMessages: (ticketId: string) => void
 }
 
-export const useUnseenMessages = create<UnseenMessagesStore>()(set => ({
+export const useUnseenMessages = create<UnreadMessagesStore>()(set => ({
   unreadMessages: {},
-  setUnreadMessages: unseenMessages => {
+  setUnreadMessages: unreadMessages => {
     const unreadMessagesMap: Record<string, number> = {}
-    unseenMessages.forEach(({ ticket_id, amount_unseen }) => {
+    unreadMessages.forEach(({ ticket_id, amount_unseen }) => {
       unreadMessagesMap[ticket_id] = amount_unseen
     })
     set({ unreadMessages: unreadMessagesMap })
