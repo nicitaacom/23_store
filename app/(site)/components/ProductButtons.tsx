@@ -15,7 +15,7 @@ interface ProductButtonsProps {
 
 export function ProductButtons({ productId, productOnStock }: ProductButtonsProps) {
   const cartStore = useCartStore()
-  const quantity = cartStore.products[productId]?.quantity ?? 0
+  const quantity = cartStore.products?.[productId]?.quantity ?? 0
 
   return (
     <div

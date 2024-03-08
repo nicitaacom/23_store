@@ -1,8 +1,6 @@
 import { memo } from "react"
-
 import { TProductDB } from "@/interfaces/product/TProductDB"
 import { Product } from "."
-
 interface ProductsProps {
   products: TProductDB[] | undefined
 }
@@ -10,7 +8,6 @@ interface ProductsProps {
 function Products({ products }: ProductsProps) {
   //output products with product.quantity that I take from user ? cart_products : anonymousCart.cartProducts
   //set individual quantity for each user in updatedProducts variable
-
   return (
     <div
       className="mobile:border-[1px] broder-border-color rounded 
@@ -22,5 +19,4 @@ function Products({ products }: ProductsProps) {
     </div>
   )
 }
-
 export default memo(Products)

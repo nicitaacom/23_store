@@ -11,7 +11,7 @@ interface ProductQuantityProps {
 
 export function ProductQuantity({ productId, productPrice }: ProductQuantityProps) {
   const { products } = useCartStore()
-  const quantity = products[productId]?.quantity ?? 0
+  const quantity = products?.[productId]?.quantity ?? 0
 
   const subTotal = useMemo(() => {
     return formatCurrency(quantity * productPrice)

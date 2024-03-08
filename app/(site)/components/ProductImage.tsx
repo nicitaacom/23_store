@@ -16,6 +16,7 @@ export function ProductImage({ imgUrl, productTitle }: ProductImageProps) {
           alt="image"
           width={720}
           height={480}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority
         />
       ) : (

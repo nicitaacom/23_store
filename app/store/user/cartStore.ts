@@ -147,6 +147,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     return Object.keys(get().products).length > 0
   },
   async keepExistingProductsRecord(products: TRecordCartProduct) {
+    if (!products) return
     const ids = Object.keys(products) // get object keys (prod_id)
     const { data: existing_ids_response } = await supabaseClient.from("products").select("id").in("id", ids)
     const existing_ids = existing_ids_response ?? [] // array with existing objects id in DB [{id:'prod_id'}]

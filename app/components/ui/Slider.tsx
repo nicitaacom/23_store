@@ -73,6 +73,8 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
             width={width}
             height={height}
             key={index}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            loading="lazy"
           />
         ))}
       </Carousel>

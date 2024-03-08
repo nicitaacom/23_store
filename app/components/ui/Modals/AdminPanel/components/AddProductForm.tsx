@@ -1,10 +1,12 @@
+"use client"
+
 import { useState, useRef } from "react"
 import Image from "next/image"
 import axios from "axios"
 import { useForm } from "react-hook-form"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { stripe } from "@/libs/stripe"
-import { ImageListType } from "react-images-uploading"
+import { ErrorsType, ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
 import slugify from "@sindresorhus/slugify" // to fix error in case user upload image with not english characters
 
@@ -99,6 +101,7 @@ export function AddProductForm() {
   }
 
   const onChange = (imageList: ImageListType) => {
+    console.log(102, imageList)
     setImages(imageList)
   }
 
@@ -114,7 +117,15 @@ export function AddProductForm() {
 
   return (
     <div className="w-[50%] transition-all duration-1000">
-      <ImageUploading multiple value={images} onChange={onChange} dataURLKey="data_url">
+      <ImageUploading
+        multiple
+        value={images}
+        onChange={onChange}
+        resolutionWidth={1000}
+        resolutionHeight={500}
+        resolutionType="more"
+        dataURLKey="data_url"
+        onError={() => toast.show("error")}>
         {({
           imageList,
           onImageUpload,

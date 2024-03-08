@@ -1,8 +1,9 @@
+import { cache, lazy } from "react"
+import { notFound } from "next/navigation"
+
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { Product } from "./components"
 import PaginationControls from "@/components/PaginationControls"
-import { cache, lazy } from "react"
-import { notFound } from "next/navigation"
 
 interface SearchProps {
   searchParams: { [key: string]: string | string[] | undefined }

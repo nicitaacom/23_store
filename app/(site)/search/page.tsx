@@ -2,8 +2,8 @@ import { Metadata } from "next"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
 
-import { Products } from "../components"
 import { NoProductsFound } from "./NoProductsFound"
+import { Products } from "../components"
 
 interface SearchPageProps {
   searchParams: { query: string }
