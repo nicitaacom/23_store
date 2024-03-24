@@ -10,6 +10,8 @@
 
 ### Performance - 74 mobile / 94 desktop (24.03.2024)
 
+![perf](https://i.imgur.com/B6EA55v.png)
+
 ### Stack - Next + TypeScript + Tailwind + supabase + zustand + stripe
 
 <br/>
@@ -26,6 +28,7 @@
 
 ```
 git clone https://github.com/nicitaacom/23_store
+cd 23_store
 ```
 
 ## Step 1.2 - install deps

@@ -2,7 +2,8 @@
 FROM node:20 AS builder
 WORKDIR /app
 COPY . .
-RUN npm i pnpm -g && pnpm i --production
+COPY .env.local . # Copy your environment file into the image
+RUN npm install pnpm -g && pnpm install --production
 RUN pnpm build
 
 # Runtime Stage
@@ -12,5 +13,6 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
+COPY .env.local .
 
 CMD ["pnpm", "start"]
