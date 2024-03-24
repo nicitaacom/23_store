@@ -39,8 +39,8 @@ dependencies:
     specifier: ^0.0.11
     version: 0.0.11(react@18.2.0)
   '@react-email/tailwind':
-    specifier: 0.0.15-canary.0
-    version: 0.0.15-canary.0(react@18.2.0)
+    specifier: 0.0.15-canary.1
+    version: 0.0.15-canary.1(react@18.2.0)
   '@react-email/text':
     specifier: ^0.0.7
     version: 0.0.7(react@18.2.0)
@@ -1542,8 +1542,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-email/tailwind@0.0.15-canary.0(react@18.2.0):
-    resolution: {integrity: sha512-i8b1Gd3AnhW0sGQHlNUiDHih2RmU/tiA88fuRL5Jd+p8ua0coCKUg/hJNbNancyTlZ7j9IEQDEuucSLaGD3Weg==}
+  /@react-email/tailwind@0.0.15-canary.1(react@18.2.0):
+    resolution: {integrity: sha512-pXRkWiqYqPAu+zNLpWuU4jWkWcj6etTucgijKukZowEpA0fRONgALzTeKD96hjdy/qKO79dlSXEHMGKfQroPjw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 18.2.0

@@ -6,6 +6,10 @@
 
 ### Performance - 35 mobile / 73 desktop (01.03.2024)
 
+### Performance - 60 mobile / ? desktop (10.03.2024)
+
+### Performance - 74 mobile / 94 desktop (24.03.2024)
+
 ### Stack - Next + TypeScript + Tailwind + supabase + zustand + stripe
 
 <br/>
@@ -34,7 +38,30 @@ pnpm i
 <br/>
 <br/>
 
-## Step 2 - setup .env
+## Step 2 - setup .env (variant 1 - dockerized)
+
+### Step 2.1 Prerequirements - install docker
+
+Commands (also available with video guide on YouTube - https://www.youtube.com/watch?v=O2D6rPJI2oM)
+
+```bash
+sudo apt update
+sudo apt intall -y docker.io
+sudo systemctl enable docker --now
+sudo usermod -aG docker $USER
+sudo reboot
+```
+
+### Step 2.2 - build docker image and run docker container
+
+```bash
+docker build -t 23_store .
+docker run -dp 3000:3000 23_store
+```
+
+To stop docker use - `docker stop <container_id_or_name>`
+
+## Step 2 - setup .env (variant 2 - manually)
 
 ### 2.1 - google cloud console
 
