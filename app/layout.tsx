@@ -9,6 +9,7 @@ import { lazy } from "react"
 import { Layout } from "./components"
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PRODUCTION_URL),
   title: "23_store",
   description: "Something better than amazon",
   icons: {

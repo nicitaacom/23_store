@@ -1,3 +1,5 @@
+# TODO - I want somehow dockerize it so other can contribute withount needed creating accounts to setup env
+
 # Builder Stage
 FROM node:20 AS builder
 WORKDIR /app

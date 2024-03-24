@@ -1,10 +1,10 @@
 import { useEffect } from "react"
+import axios from "axios"
 
 import fetchTicketId from "@/actions/fetchTicketId"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import { useLoading } from "@/store/ui/useLoading"
 import { TAPIMessagesGetMessagesRequest, TAPIMessagesGetMessagesResponse } from "@/api/messages/get-messages/route"
-import axios from "axios"
 
 export function useLoadInitialMessages() {
   const { setIsLoading } = useLoading()

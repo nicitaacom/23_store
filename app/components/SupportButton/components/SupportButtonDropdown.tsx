@@ -13,7 +13,7 @@ import { IFormDataMessage } from "@/interfaces/support/IFormDataMessage"
 import { sendMessage } from "@/functions/sendMessage"
 import { getAnonymousId } from "@/functions/getAnonymousId"
 import { useLoadInitialMessages } from "@/hooks/ui/supportButton/useLoadInitialMessages"
-import { useMarkMessagesAsSeen } from "@/hooks/ui/supportButton/markMessagesAsSeen"
+import { useMarkMessagesAsSeen } from "@/hooks/ui/supportButton/useMarkMessagesAsSeen"
 import { useScrollToBottom } from "@/hooks/ui/supportButton/useScrollToBottom"
 import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
 import { MarkTicketAsCompletedUser } from "../components/MarkTicketAsCompletedUser"
@@ -47,7 +47,7 @@ export default function SupportButtonDropdown() {
         bottomRef.current.scrollTop = bottomRef.current.scrollHeight
       }
 
-      const newHandler = (message: IMessage) => {
+      const newMessageHandler = (message: IMessage) => {
         // Check if the message with the same id already exists
         const messageExists = messages.some(msg => msg.id === message.id)
 
@@ -74,14 +74,14 @@ export default function SupportButtonDropdown() {
         setMessages([])
       }
 
-      pusherClient.bind("messages:new", newHandler) // show new msg and scrollToBottom
+      pusherClient.bind("messages:new", newMessageHandler) // show new msg and scrollToBottom
       pusherClient.bind("messages:seen", seenHandler) // set 'seen:true'
       pusherClient.bind("tickets:closeByUser", closeHandler) // to clear messages
       pusherClient.bind("tickets:closeBySupport", closeHandler) // to clear messages
 
       return () => {
         pusherClient.unsubscribe(ticketId)
-        pusherClient.unbind("messages:new", newHandler)
+        pusherClient.unbind("messages:new", newMessageHandler)
         pusherClient.unbind("messages:seen", seenHandler)
         pusherClient.unbind("tickets:closeByUser", closeHandler)
         pusherClient.unbind("tickets:closeBySupport", closeHandler)

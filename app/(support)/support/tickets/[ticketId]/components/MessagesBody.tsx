@@ -26,7 +26,9 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
   const [messages, setMessages] = useState(initialMessages)
 
   useEffect(() => {
-    axios.post("/api/message/seen", { ticketId: ticket_id, messages: messages, userId: userId } as TAPIMessageSeen)
+    if (document.visibilityState === "visible") {
+      axios.post("/api/message/seen", { ticketId: ticket_id, messages: messages, userId: userId } as TAPIMessageSeen)
+    }
   }, [messages, ticket_id, userId])
 
   useEffect(() => {
