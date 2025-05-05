@@ -112,7 +112,7 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
   }
 
   return (
-    <aside className="hidden laptop:block h-full shadow-[1px_1px_4px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[101]">
+    <aside className="hidden laptop:block h-full shadow-[1px_1px_4px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[101] overflow-y-auto">
       <nav className="flex flex-col">
         {tickets
           ?.slice()

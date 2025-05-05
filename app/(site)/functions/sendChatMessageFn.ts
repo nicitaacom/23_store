@@ -7,7 +7,6 @@ import { TAPITelegram } from "@/api/telegram/route"
 import { TAPITicketsOpen } from "@/api/tickets/open/route"
 import { TAPIMessageSend } from "@/api/message/send/route"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
-import useUserStore from "@/store/user/userStore"
 import { getUserId } from "@/utils/getUserId"
 
 export async function sendChatMessageFn(inputValue: string, sender_id: string, router: AppRouterInstance) {
