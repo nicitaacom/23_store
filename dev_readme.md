@@ -129,171 +129,94 @@ I haven't a lot of utils now so right now there is no folder structure for that 
 
 # DB tables
 
-### Messages
-
-allow select for SUPPORT and ADMIN roles
-
 ```sql
-((( SELECT users.role
-   FROM users
-  WHERE (users.id = auth.uid())) = 'SUPPORT'::text) OR (( SELECT users.role
-   FROM users
-  WHERE (users.id = auth.uid())) = 'ADMIN'::text))
-```
+-- 💬 Messages Table
+CREATE TABLE IF NOT EXISTS public.messages (
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  ticket_id TEXT NOT NULL REFERENCES tickets(id),
+  sender_id TEXT NOT NULL,
+  sender_username TEXT NOT NULL,
+  body TEXT NOT NULL,
+  images TEXT[] NULL,
+  seen BOOLEAN NOT NULL DEFAULT false,
+  sender_avatar_url TEXT NULL
+);
 
-```sql
-create table
-  public.messages (
-    id uuid not null default gen_random_uuid (),
-    created_at timestamp with time zone not null default now(),
-    ticket_id text not null,
-    sender_id text not null,
-    sender_username text not null,
-    body text not null,
-    images text[] null,
-    seen boolean not null default false,
-    sender_avatar_url text null,
-    constraint messages_pkey primary key (id),
-    constraint messages_ticket_id_fkey foreign key (ticket_id) references tickets (id)
-  ) tablespace pg_default;
-```
+-- 🔐 RLS Policies
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "SUPPORT/ADMIN select" ON messages FOR SELECT USING (
+  (SELECT role FROM users WHERE id = auth.uid()) IN ('SUPPORT', 'ADMIN')
+);
 
-### Products
+-- 🛒 Products Table
+CREATE TABLE IF NOT EXISTS public.products (
+  price_id VARCHAR NOT NULL,
+  title VARCHAR NOT NULL,
+  sub_title VARCHAR NOT NULL,
+  price NUMERIC NOT NULL,
+  img_url VARCHAR[] NOT NULL,
+  on_stock INTEGER NOT NULL,
+  owner_id UUID NOT NULL REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  id VARCHAR NOT NULL,
+  PRIMARY KEY (price_id, owner_id, id)
+);
 
-select for all users
+-- 🔐 RLS Policies
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "All users select" ON products FOR SELECT USING (true);
+CREATE POLICY "Owner delete" ON products FOR DELETE USING (owner_id = auth.uid());
+CREATE POLICY "Auth insert" ON products FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Owner update" ON products FOR UPDATE USING (owner_id = auth.uid());
 
-```sql
-true
-```
+-- 🎫 Tickets Table
+CREATE TABLE IF NOT EXISTS public.tickets (
+  id TEXT NOT NULL PRIMARY KEY,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  is_open BOOLEAN NOT NULL DEFAULT true,
+  owner_username TEXT NOT NULL,
+  owner_id TEXT NOT NULL,
+  last_message_body TEXT NOT NULL DEFAULT '',
+  owner_avatar_url TEXT NULL,
+  rate INTEGER NULL
+);
 
-delete only for owner_id
+-- 🔐 RLS Policies
+ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "SUPPORT/ADMIN all access" ON tickets FOR ALL USING (
+  (SELECT role FROM users WHERE id = auth.uid()) IN ('SUPPORT', 'ADMIN')
+);
 
-```sql
-(owner_id = auth.uid())
-```
+-- 👥 Users Table
+CREATE TABLE IF NOT EXISTS public.users (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  username TEXT NOT NULL,
+  email TEXT NOT NULL,
+  avatar_url TEXT NULL,
+  role TEXT NOT NULL DEFAULT 'USER',
+  email_confirmed_at TIMESTAMPTZ NULL,
+  providers TEXT[] NULL DEFAULT '{}'
+);
 
-insert for authenticated users
+-- 🔐 RLS Policies
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Self select" ON users FOR SELECT USING (id = auth.uid());
 
-targer toles - authenticated
+-- 🛍️ Users Cart Table
+CREATE TABLE IF NOT EXISTS public.users_cart (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  cart_products JSONB NOT NULL DEFAULT '{}'
+);
 
-```sql
-true
-```
+-- 🔐 RLS Policies
+ALTER TABLE users_cart ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Self select" ON users_cart FOR SELECT USING (id = auth.uid());
+CREATE POLICY "Self update" ON users_cart FOR UPDATE USING (id = auth.uid());
 
-update for product owners
-
-```sql
-(owner_id = auth.uid())
-```
-
-```sql
-create table
-  public.products (
-    price_id character varying not null,
-    title character varying not null,
-    sub_title character varying not null,
-    price numeric not null,
-    img_url character varying[] not null,
-    on_stock integer not null,
-    owner_id uuid not null,
-    id character varying not null,
-    constraint products_pkey primary key (price_id, owner_id, id),
-    constraint products_owner_id_fkey foreign key (owner_id) references auth.users (id) on update cascade on delete cascade
-  ) tablespace pg_default;
-```
-
-### Tickets
-
-allow close ticket for SUPPORT and ADMIN roles
-
-```sql
-((( SELECT users.role
-   FROM users
-  WHERE (users.id = auth.uid())) = 'SUPPORT'::text) OR (( SELECT users.role
-   FROM users
-  WHERE (users.id = auth.uid())) = 'ADMIN'::text))
-```
-
-allow select for for SUPPORT and ADMIN
-
-```sql
-((( SELECT users.role
-   FROM users
-  WHERE (users.id = auth.uid())) = 'SUPPORT'::text) OR (( SELECT users.role
-   FROM users
-  WHERE (users.id = auth.uid())) = 'ADMIN'::text))
-```
-
-```sql
-create table
-  public.tickets (
-    created_at timestamp with time zone not null default now(),
-    is_open boolean not null default true,
-    owner_username text not null,
-    owner_id text not null,
-    id text not null,
-    last_message_body text not null default ''::text,
-    owner_avatar_url text null,
-    rate integer null,
-    constraint tickets_pkey primary key (id)
-  ) tablespace pg_default;
-```
-
-### Users
-
-allow select for users based on their ids
-
-```sql
-(id = auth.uid())
-```
-
-```sql
-create table
-  public.users (
-    id uuid not null,
-    created_at timestamp with time zone not null default now(),
-    username text not null,
-    email text not null,
-    avatar_url text null,
-    role text not null default 'USER'::text,
-    email_confirmed_at timestamp with time zone null,
-    providers text[] null default '{}'::text[],
-    constraint users_pkey primary key (id),
-    constraint users_id_fkey foreign key (id) references auth.users (id) on update cascade on delete cascade
-  ) tablespace pg_default;
-```
-
-### users_cart
-
-allow select based on their id
-
-```sql
-allow select based on their id
-```
-
-allow user to update their carts
-
-```sql
-(id = auth.uid())
-```
-
-```sql
-create table
-  public.users_cart (
-    id uuid not null,
-    created_at timestamp with time zone not null default now(),
-    cart_products jsonb not null default '{}'::jsonb,
-    constraint users_cart1_pkey primary key (id),
-    constraint users_cart_id_fkey foreign key (id) references auth.users (id) on update cascade on delete cascade
-  ) tablespace pg_default;
-```
-
-### Public bucket
-
-select and insert for all users
-
-```sql
-(bucket_id = 'public'::text)
+-- 📦 Public Bucket Policy
+CREATE POLICY "Public access" ON storage.objects FOR SELECT, INSERT USING (bucket_id = 'public');
 ```
 
 ## Email templates
