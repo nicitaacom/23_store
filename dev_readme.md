@@ -348,6 +348,22 @@ For other templates the same - jsut change text `Verify your email on 23_store` 
 
 `Google` `Twitter`
 
+### Buckets
+
+<details> <summary><b>public-images</b></summary>
+
+`public-images` (public)
+
+<b>Storage policies</b><br/>
+allow insert for everyone<br/>
+allow select for everyone<br/>
+
+</details>
+
+<b>Other policies under storage.objects</b><br/>
+Public access for insert<br/>
+Public access for select<br/>
+
 <br/>
 
 <details> <summary><b>URL configuration</b></summary>
