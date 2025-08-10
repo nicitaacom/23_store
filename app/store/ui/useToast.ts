@@ -12,35 +12,35 @@ message.show('success','custom title','custom subTitle',3000) //disashow after 3
 
 */
 
-export interface MessageStore {
+export type ToastVariant = "success" | "error" | "warning"
+
+interface ToastStore {
   isOpen: boolean
-  show: (status: "error" | "success", title?: string, subTitle?: React.ReactNode, timeoutInMs?: number) => void
+  variant: ToastVariant
   title?: string
   subTitle?: React.ReactNode
-  error?: boolean
-  success?: boolean
+  show: (status: ToastVariant, title?: string, subTitle?: React.ReactNode, timeoutInMs?: number) => void
+  close: () => void
 }
 
-export const useToast = create<MessageStore>(set => ({
+export const useToast = create<ToastStore>(set => ({
   isOpen: false,
-  error: false,
-  success: false,
-  _subTitle: "",
-  show(status: string, _title?: string, _subTitle?: React.ReactNode, timeoutInMs?: number) {
+  variant: "success",
+
+  show: (status, title, subTitle, timeoutInMs = 8000) => {
     set({
       isOpen: true,
-      error: status === "success" ? false : true,
-      success: status === "success" ? true : false,
-      title: _title,
-      subTitle: _subTitle,
+      variant: status,
+      title,
+      subTitle,
     })
-    setTimeout(
-      () => {
-        set({ isOpen: false })
-      },
-      timeoutInMs ? timeoutInMs : 8000,
-    )
-  },
-}))
 
+    const timer = setTimeout(() => set({ isOpen: false }), timeoutInMs)
+
+    // Cleanup timer on unmount
+    return () => clearTimeout(timer)
+  },
+
+  close: () => set({ isOpen: false }),
+}))
 export default useToast

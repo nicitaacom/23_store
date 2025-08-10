@@ -19,6 +19,7 @@ import { twMerge } from "tailwind-merge"
 import { useRouter } from "next/navigation"
 import useToast from "@/store/ui/useToast"
 import { useLoading } from "@/store/ui/useLoading"
+import { showToastWarningFn } from "../functions/showToastWarningFn"
 
 export function AddProductForm() {
   const router = useRouter()
@@ -111,21 +112,6 @@ export function AddProductForm() {
     formState: { errors },
   } = useForm<IFormDataAddProduct>()
 
-  const showToastWarning = (errors: ErrorsType) => {
-    if (errors?.maxFileSize) {
-      toast.show(
-        "error",
-        errors?.maxFileSize ? "Max file size is 0.5MB" : errors.resolution ? "Minimum 1000x500 image" : "warning",
-        errors?.maxFileSize
-          ? "Please reduce size of image to < 0.5 MB - https://www.reduceimages.com/"
-          : errors.resolution
-            ? "Please use high quality images"
-            : "unknown warning - please check code in UploadIngredientImage.tsx",
-      )
-    }
-    console.log(124, "errors - ", errors)
-  }
-
   const onSubmit = (data: IFormDataAddProduct) => {
     createProduct(images, data.title, data.subTitle, data.price, data.onStock)
   }
@@ -140,7 +126,7 @@ export function AddProductForm() {
         resolutionHeight={500} // minimum 500 height
         resolutionType="more"
         dataURLKey="data_url"
-        onError={errors => showToastWarning(errors)}>
+        onError={errors => showToastWarningFn(errors)}>
         {({
           imageList,
           onImageUpload,
