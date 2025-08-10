@@ -7,37 +7,44 @@ import { twMerge } from "tailwind-merge"
 
 const buttonVariants = cva(
   `flex items-center justify-center rounded-md 
-  outline-none disabled:opacity-50 disabled:pointer-events-none transparent-colors duration-300`,
+  outline-none disabled:opacity-50 disabled:pointer-events-none transparent-colors duration-150
+  focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background`,
   {
     variants: {
       variant: {
-        default: "px-4 py-2 bg-brand font-bold text-title-foreground",
-        "default-outline": "px-4 py-2 bg-transparent border-[1px] border-brand text-title hover:border-brand/80",
+        default: "px-4 py-2 bg-brand font-bold text-title-foreground focus-visible:ring-brand/80",
+        "default-outline":
+          "px-4 py-2 bg-transparent border-[1px] border-brand text-title hover:border-brand/80 focus-visible:ring-brand/60",
 
-        info: "px-4 py-2 bg-info font-bold text-title-foreground hover:bg-info/80",
-        "info-outline": "px-4 py-2 bg-transparent border-[1px] border-info font-bold text-title hover:border-info/80",
+        info: "px-4 py-2 bg-info font-bold text-title-foreground hover:bg-info/80 focus-visible:ring-info/80",
+        "info-outline":
+          "px-4 py-2 bg-transparent border-[1px] border-info font-bold text-title hover:border-info/80 focus-visible:ring-info/60",
 
-        warning: "px-4 py-2 bg-warning font-bold text-title-foreground hover:bg-warning/80",
+        warning:
+          "px-4 py-2 bg-warning font-bold text-title-foreground hover:bg-warning/80 focus-visible:ring-warning/80",
         "warning-outline":
-          "px-4 py-2 bg-transparent border-[1px] border-warning font-bold text-title-foreground hover:border-warning/80",
+          "px-4 py-2 bg-transparent border-[1px] border-warning font-bold text-title-foreground hover:border-warning/80 focus-visible:ring-warning/60",
 
-        danger: "px-4 py-2 bg-danger font-bold text-title-foreground hover:bg-danger/80",
+        danger: "px-4 py-2 bg-danger font-bold text-title-foreground hover:bg-danger/80 focus-visible:ring-danger/80",
         "danger-outline":
-          "px-4 py-2 bg-transparent border-[1px] border-danger font-bold text-title hover:border-danger/80",
+          "px-4 py-2 bg-transparent border-[1px] border-danger font-bold text-title hover:border-danger/80 focus-visible:ring-danger/60",
 
-        success: "px-4 py-2 bg-success font-bold text-title-foreground hover:bg-success/80",
+        success:
+          "px-4 py-2 bg-success font-bold text-title-foreground hover:bg-success/80 focus-visible:ring-success/80",
         "success-outline":
-          "px-4 py-2 bg-transparent border-[1px] border-success font-bold text-title hover:border-success/80",
+          "px-4 py-2 bg-transparent border-[1px] border-success font-bold text-title hover:border-success/80 focus-visible:ring-success/60",
 
         "nav-link": `relative w-fit font-bold text-title
           before:absolute before:bottom-[-4px] before:w-full before:content-['']
            before:invisible before:opacity-0 before:translate-y-[0px]
            before:border-b-[3px] before:border-solid before:border-brand before:rounded-md before:transition-all
-           before:duration-300 before:pointer-events-none`,
-        link: "text-info cursor-pointer hover:text-info/80",
+           before:duration-300 before:pointer-events-none
+           focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background`,
+        link: "text-info cursor-pointer hover:text-info/80 focus-visible:ring-2 focus-visible:ring-info/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
 
         "continue-with": `px-2 py-1 w-full font-secondary bg-transparent border-[1px] border-border-color hover:border-border-color/80
-           flex justify-center items-center gap-x-4`,
+           flex justify-center items-center gap-x-4
+           focus-visible:ring-2 focus-visible:ring-border-color/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background`,
       },
       active: {
         active: "before:visible before:opacity-100 before:translate-y-[2px]",
