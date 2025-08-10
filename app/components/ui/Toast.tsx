@@ -5,7 +5,7 @@ import { Button } from "."
 import useToast, { ToastVariant } from "@/store/ui/useToast"
 
 export default function Toast() {
-  const { isOpen, variant, title, subTitle } = useToast()
+  const { variant, title, subTitle } = useToast()
 
   // Icon and color configuration
   const variantConfig: Record<

@@ -26,7 +26,7 @@ export function AdminPanelModal({ label, ownerProducts }: AdminPanelModalProps) 
   const router = useRouter()
 
   const [productAction, setProductAction] = useState("Add product")
-  const { isLoading, setIsLoading } = useLoading()
+  const { isLoading } = useLoading()
 
   const { isAuthenticated } = useUserStore()
   useEffect(() => {

@@ -88,7 +88,7 @@ export function AddProductForm() {
         displayResponseMessage(<p className="text-danger">Upload the image</p>)
       }
     } catch (error) {
-      toast.show("error", "Failed to add product")
+      toast.show("error", "Failed to add product", error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)
     }
@@ -112,8 +112,10 @@ export function AddProductForm() {
     formState: { errors },
   } = useForm<IFormDataAddProduct>()
 
-  const onSubmit = (data: IFormDataAddProduct) => {
-    createProduct(images, data.title, data.subTitle, data.price, data.onStock)
+  const onSubmit = async (data: IFormDataAddProduct) => {
+    if (data.subTitle.length > 600)
+      return toast.show("warning", "Enter shorter description", "Enter description 0-600 symbols")
+    await createProduct(images, data.title, data.subTitle, data.price, data.onStock)
   }
 
   return (
