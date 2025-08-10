@@ -34,7 +34,7 @@ const buttonVariants = cva(
            before:invisible before:opacity-0 before:translate-y-[0px]
            before:border-b-[3px] before:border-solid before:border-brand before:rounded-md before:transition-all
            before:duration-300 before:pointer-events-none`,
-        link: "text-subTitle cursor-pointer hover:text-brand",
+        link: "text-info cursor-pointer hover:text-info/80",
 
         "continue-with": `px-2 py-1 w-full font-secondary bg-transparent border-[1px] border-border-color hover:border-border-color/80
            flex justify-center items-center gap-x-4`,
