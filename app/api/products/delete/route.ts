@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         return lastTwoParts
       })
       // 2.3 Delete image from bucket based on info from 1.1 and 1.2 steps
-      const { error: deleteFromBucketError } = await supabaseServerAction().storage.from("public").remove(imageUrls)
+      const { error: deleteFromBucketError } = await supabaseServerAction().storage.from("public-images").remove(imageUrls)
       if (deleteFromBucketError) {
         console.log(39, "Delete images from bucket error")
         return new NextResponse(

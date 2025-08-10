@@ -20,6 +20,7 @@ import { modalHeightTailwind } from "../modalHeightTailwind"
 import { AuthLogo } from "./components/AuthLogo"
 import { AuthText } from "./components/AuthText"
 import { AuthForm } from "./components/AuthForm"
+import { useCloseModalIfAlreadyLoggedIn } from "../hooks/useCloseModalIfAlreadyLoggedIn"
 
 export interface AuthFormData {
   username: string
@@ -59,6 +60,8 @@ export function AuthModal() {
   useAuthCompleted(isAuthCompleted, setIsAuthCompleted, getValues)
 
   useRecoverCompleted(isRecoverCompleted, setIsRecoverCompleted, getValues)
+
+  useCloseModalIfAlreadyLoggedIn(queryParams as "login" | "recover" | "resetPassword")
 
   const onSubmit = async (data: AuthFormData) => {
     if (queryParams === "login") {

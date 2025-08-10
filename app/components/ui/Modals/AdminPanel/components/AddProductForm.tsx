@@ -48,13 +48,16 @@ export function AddProductForm() {
         const imagesArray = await Promise.all(
           images.map(async image => {
             if (image?.file && !!userStore.userId) {
+              const ext = image.file.name.split(".").pop()
+              const cleanName = slugify(image.file.name.replace(/\.[^/.]+$/, ""))
+              const fileName = `${cleanName}_${priceResponse.data.id}.${ext}`
+
               const { data, error } = await supabaseClient.storage
-                .from("public")
-                .upload(`${userStore.userId}/${slugify(image.file.name)}_${priceResponse.data.id}`, image.file, {
-                  upsert: true,
-                })
+                .from("public-images")
+                .upload(`${userStore.userId}/${fileName}`, image.file, { upsert: true })
+
               if (error) throw error
-              const response = supabaseClient.storage.from("public").getPublicUrl(data.path)
+              const response = supabaseClient.storage.from("public-images").getPublicUrl(data.path)
               return response.data.publicUrl
             }
           }),
@@ -84,6 +87,12 @@ export function AddProductForm() {
 
         displayResponseMessage(<p className="text-success">Product added</p>)
         router.refresh()
+        // remove query params to close modal
+        const url = new URL(window.location.href)
+        url.searchParams.delete("modal")
+        url.searchParams.delete("variant")
+        router.replace(url.pathname + url.search, { scroll: false })
+        toast.show("success", "Product added", "Product successfully added and now anyone can buy it")
       } else {
         displayResponseMessage(<p className="text-danger">Upload the image</p>)
       }
