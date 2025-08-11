@@ -9,7 +9,7 @@ import { TAPICoinmarketcapResponse } from "@/api/coinmarketcap/route"
 import axios from "axios"
 import useCartStore from "@/store/user/cartStore"
 import { useRouter } from "next/navigation"
-import useToast, { MessageStore } from "@/store/ui/useToast"
+import useToast from "@/store/ui/useToast"
 import { useLoading } from "@/store/ui/useLoading"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import {
@@ -36,9 +36,9 @@ export const sendMoneyWithMetamask = async (
   productsPrice: number,
   wallet: TWallet,
   router: AppRouterInstance,
-  toast: MessageStore,
   setIsLoading: (isLoading: boolean) => void,
 ) => {
+  const toast = useToast.getState()
   setIsLoading(true)
 
   try {
@@ -188,7 +188,7 @@ export function DoYouWantRecieveCheckModal() {
         "Check will be not sent",
         "react-email error - https://github.com/resend/react-email/issues/1150",
       )
-      sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, toast, setIsLoading)
+      sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, setIsLoading)
     }
   }
 
@@ -206,7 +206,7 @@ export function DoYouWantRecieveCheckModal() {
       <Button
         variant="danger-outline"
         onClick={() => {
-          sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, toast, setIsLoading)
+          sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, setIsLoading)
           closeModal()
         }}>
         No

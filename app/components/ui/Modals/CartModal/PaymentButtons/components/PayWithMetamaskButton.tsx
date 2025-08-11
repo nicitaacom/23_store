@@ -80,7 +80,7 @@ export function PayWithMetamaskButton() {
     setIsLoading(true)
     !isAuthenticated
       ? openDoYouWantRecieveCheckModal()
-      : await sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, toast, setIsLoading)
+      : await sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, setIsLoading)
   }
 
   const handleConnect = async () => {
