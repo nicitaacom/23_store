@@ -3,7 +3,7 @@ type MessageBoxProps = {
   text: string
 }
 
-export function MessageBox({ role, text }: MessageBoxProps) {
+export function MessageBoxAI({ role, text }: MessageBoxProps) {
   return (
     <div className={`flex ${role === "user" ? "justify-end" : "justify-start"} animate-[fadeIn_0.3s_ease-in]`}>
       <div

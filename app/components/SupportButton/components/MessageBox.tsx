@@ -36,26 +36,51 @@ export function MessageBox({ message, inverseColors }: MessageBoxProps) {
   return (
     <div className={twMerge(`w-full flex gap-x-2`, isOwn && "justify-end")}>
       <Image
-        className={`w-[42px] h-[42px] mt-1 rounded-full select-none pointer-events-none ${
+        className={`w-[36px] h-[36px] mt-1 rounded-full select-none pointer-events-none flex-shrink-0 ${
           isOwn ? "order-last" : "order-first"
         }`}
         src={avatar_url}
         alt="user-image"
-        width={46}
-        height={46}
+        width={36}
+        height={36}
       />
-      <article
-        className={twMerge("relative max-w-[50%] flex flex-col px-1 py-0.5", isOwn ? "items-end" : "items-start")}>
-        <p className={twMerge("w-full text-xs", isOwn ? "text-end" : "text-start")}>{formatTime(message.created_at)}</p>
-        <p
-          className={twMerge(
-            `relative w-fit max-w-full break-normal border-2 rounded-lg text-start text-title pl-2 pr-3 pt-0.5 pb-1
-         before:w-3 before:h-3 before:border-l-2 before:border-t-2 before:border-solid before:border-border-color
-       before:rotate-[215deg] before:absolute before:bottom-[-6px] before:right-[-6px] before:translate-x-[-50%]`,
-            messageIsOwn,
-          )}>
-          {message.body}
+      <article className={twMerge("relative max-w-[70%] flex flex-col gap-1.5", isOwn ? "items-end" : "items-start")}>
+        <p className={twMerge("text-[10px] text-subTitle px-1", isOwn ? "text-end" : "text-start")}>
+          {formatTime(message.created_at)}
         </p>
+
+        {message.images && message.images.length === 1 && (
+          <div
+            className={twMerge("relative w-full max-w-[220px] rounded-lg overflow-hidden border border-border-color")}>
+            <Image
+              src={message.images[0]}
+              alt="message-image"
+              width={220}
+              height={220}
+              className="w-full h-auto object-cover max-h-[180px]"
+            />
+          </div>
+        )}
+
+        {message.images && message.images.length > 1 && (
+          <div className="text-xs text-subTitle px-3 py-1.5 bg-foreground-accent rounded-lg border border-border-color">
+            📎 {message.images.length} images attached
+          </div>
+        )}
+        {message.body && (
+          <div
+            className={twMerge(
+              `relative w-fit max-w-full break-words rounded-lg text-[13px] text-title px-3 py-2
+       before:content-[''] before:absolute before:w-0 before:h-0 before:bottom-0
+       before:border-[6px] before:border-solid`,
+              isOwn
+                ? "bg-success/15 border border-success/30 pr-8 before:right-[-11px] before:border-t-success/30 before:border-l-success/30 before:border-r-transparent before:border-b-transparent"
+                : "bg-foreground-accent border border-border-color before:left-[-11px] before:border-t-border-color before:border-r-border-color before:border-l-transparent before:border-b-transparent",
+            )}>
+            {message.body}
+          </div>
+        )}
+
         {isOwn && (
           <>
             <BsCheck2 className="absolute bottom-[2px] right-2.5 text-success-accent" size={18} />
