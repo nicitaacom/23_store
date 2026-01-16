@@ -22,15 +22,16 @@ export async function POST(req: Request) {
   const { id, ticketId, messageBody, images, senderId, senderUsername, senderAvatarUrl, messageSender } =
     (await req.json()) as TAPIMessageSend
 
-  if (!ticketId || !senderId || !senderUsername || !messageBody || !messageSender) {
+  if (!ticketId || !senderId || !senderUsername || (!messageBody && !images?.length) || !messageSender) {
     console.log(
       23,
       `API_MESSAGES_SEND_ERROR - missing required fields \n
-       ticketId - ${ticketId} \n
-       senderId - ${senderId} \n
-       senderUsername - ${senderUsername} \n
-       messageBody - ${messageBody} \n
-       messageSender - ${messageSender} \n`,
+       ticketId: ${ticketId} \n
+       senderId: ${senderId} \n
+       senderUsername: ${senderUsername} \n
+       messageBody: ${messageBody}
+       images: ${images} \n
+       messageSender: ${messageSender} \n`,
     )
     return NextResponse.json({ status: 400 })
   }

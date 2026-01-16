@@ -13,7 +13,7 @@ interface MessageInputProps {
 }
 
 export function MessageInput({ className }: MessageInputProps) {
-  const { messageBodyValue, setMessageBodyValue } = useMessagesStore()
+  const { messageBodyValue, setMessageBodyValue, image } = useMessagesStore()
   const [height, setHeight] = useState(52) // Initialize with the base height for one line
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -51,7 +51,7 @@ export function MessageInput({ className }: MessageInputProps) {
       } else {
         event.preventDefault() // Prevent default form submission on Enter
         // Trim and check if the message is not just spaces or newlines
-        if (messageBodyValue.trim().length > 0) {
+        if (messageBodyValue.trim().length || image) {
           setMessageBodyValue("") // Clear the textarea after sending the message
           setHeight(36) // Reset height to initial value after message is sent
           await uploadImagesAndSendMessage(setHeight, messageBodyValue.trim(), userId, textareaRef)

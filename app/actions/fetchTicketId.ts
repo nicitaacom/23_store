@@ -30,7 +30,7 @@ const fetchTicketId = async (): Promise<string | undefined> => {
       // I create ticketId (in store and DB) only when user send first message
     }
   } catch (error) {
-    console.error(36, "Error - ", error)
+    console.error(33, "error - ", error)
     return crypto.randomUUID()
   }
 }

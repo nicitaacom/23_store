@@ -2,7 +2,7 @@ import { Dispatch, RefObject, SetStateAction } from "react"
 
 import { uploadImageFn } from "./image/uploadImageFn"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
-import { sendMessageFn } from "@/(site)/functions/sendChatMessageFn"
+import { sendMessageFn } from "@/(site)/functions/sendMessageFn"
 import useToast from "@/store/ui/useToast"
 
 export async function uploadImagesAndSendMessage(

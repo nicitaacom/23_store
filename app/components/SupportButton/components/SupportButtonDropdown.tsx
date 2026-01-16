@@ -99,7 +99,7 @@ export default function SupportButtonDropdown() {
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center text-subTitle">Loading messages...</div>
       ) : (
-        <div className="flex flex-col flex-1 pt-6 z-20">
+        <div className="flex flex-col flex-1 overflow-y-auto pt-6 z-20">
           {messages.length ? (
             <ul className="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-2" ref={bottomRef}>
               {messages?.map(message => <MessageBox key={message.id} message={message} />)}

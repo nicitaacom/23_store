@@ -33,19 +33,19 @@ export async function sendMessageFn(messageBody: string, sender_id: string, imag
   const rateLimitSDK = new RateLimitSDK()
 
   if (isFirstMessage) {
-    await rateLimitSDK.rateLimit("newTicket")
+    if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit("newTicket")
 
     setTicketId(ticketId)
     console.log(39, "messages - ", messages)
     try {
       // 1. Send message in telegram
-      await axios.post("/api/telegram", { message: message.body } as TAPITelegram)
+      await axios.post("/api/telegram", { message: messageBody || "image sent" } as TAPITelegram)
       // 2. Insert row in table 'tickets'
       await axios.post("/api/tickets/open", {
         ticketId: message.ticket_id,
         ownerId: sender_id,
         ownerUsername: sender_id,
-        messageBody: message.body,
+        messageBody: messageBody || "image sent",
         ownerAvatarUrl: null, // TODO - getAvatarUrl() - set avatar here based on isAuthenticated
       } as TAPITicketsOpen)
     } catch (error) {
@@ -58,7 +58,8 @@ export async function sendMessageFn(messageBody: string, sender_id: string, imag
   }
 
   try {
-    await rateLimitSDK.rateLimit("newMessage")
+    if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit("newMessage")
+
     // 3. Insert message in table 'messages'
     await axios.post("/api/message/send", {
       id: message.id,
@@ -67,7 +68,7 @@ export async function sendMessageFn(messageBody: string, sender_id: string, imag
       senderUsername: message.sender_id,
       senderAvatarUrl: null, // TODO getAvatarUrl()
       messageBody: message.body,
-      images: undefined,
+      images: [imageUrl],
       messageSender: "user",
     } as TAPIMessageSend)
   } catch (error) {

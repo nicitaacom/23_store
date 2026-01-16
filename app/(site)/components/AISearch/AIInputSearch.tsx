@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react"
 import { AiOutlineSearch, AiOutlineSend } from "react-icons/ai"
 import { BsStars } from "react-icons/bs"
 import { useLoading } from "@/store/ui/useLoading"
-import { MessageBox } from "./MessageBox"
+import { MessageBoxAI } from "./MessageBoxAI"
 import { useAIChatStore } from "@/components/Navbar/stores/useAIChat"
 
 type ChatMessage = { role: "user" | "ai"; text: string }
@@ -103,7 +103,7 @@ export function AIInputSearch() {
           )}
 
           {conversation.map((msg, i) => (
-            <MessageBox key={i} role={msg.role} text={msg.text} />
+            <MessageBoxAI key={i} role={msg.role} text={msg.text} />
           ))}
 
           {isLoading && (
