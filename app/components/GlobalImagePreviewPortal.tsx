@@ -89,10 +89,10 @@ export function FileImagePreview({
                   unoptimized
                   src={URL.createObjectURL(image)}
                   alt="img-preview"
-                  width={0}
-                  height={0}
+                  width={dimensions?.width ?? 1920}
+                  height={dimensions?.height ?? 1080}
                   sizes="auto"
-                  className="object-contain max-w-[90vw] h-full max-h-[calc(100vh-65px-32px)]"
+                  className="object-contain max-w-[90vw] h-auto max-h-[calc(100vh-65px-32px)]"
                 />
 
                 {/* File info overlay */}
