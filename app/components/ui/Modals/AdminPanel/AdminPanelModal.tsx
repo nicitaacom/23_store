@@ -9,7 +9,7 @@ import { MdOutlineDelete } from "react-icons/md"
 
 import { RadioButton } from "@/components/ui"
 import useUserStore from "@/store/user/userStore"
-import { TProductDB } from "@/interfaces/product/TProductDB"
+import { TProductDB } from "@/TS/product/TProductDB"
 
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { EditProductForm } from "./components/EditProductForm"

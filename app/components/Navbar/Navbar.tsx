@@ -4,11 +4,10 @@ import supabaseServer from "@/libs/supabase/supabaseServer"
 import { Language } from "../Language"
 import { SwitchDarkMode } from ".."
 import { NavbarWrapper } from "./components/NavbarWrapper"
-import { AvatarDropdown, HamburgerMenu, Logo, NavbarSearch, OpenAuthModalButton, CartIcon } from "./components"
-import { CtrlKBadge } from "./components/CtrlKBadge"
+import { AvatarDropdown, HamburgerMenu, Logo, OpenAuthModalButton, CartIcon } from "./components"
 import { ContactButton } from "./components/ContactButton"
 import { getCookie } from "@/utils/helpersSSR"
-import { TRecordCartProduct } from "@/interfaces/product/TRecordCartProduct"
+import { TRecordCartProduct } from "@/TS/product/TRecordCartProduct"
 
 export default async function Navbar() {
   const {
@@ -48,11 +47,8 @@ export default async function Navbar() {
         <HamburgerMenu />
         <Logo />
       </div>
-      {/* SEARCH + LANGUAGE */}
+      {/* LANGUAGE */}
       <div className="flex flex-row gap-x-2">
-        <NavbarSearch>
-          <CtrlKBadge />
-        </NavbarSearch>
         <Language className="hidden laptop:flex" />
       </div>
 

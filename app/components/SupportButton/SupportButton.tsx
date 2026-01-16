@@ -5,6 +5,7 @@ import { BiSupport } from "react-icons/bi"
 import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
 import { Button, DropdownContainer } from "../ui"
 import SupportButtonDropdown from "@/components/SupportButton/components/SupportButtonDropdown"
+import { DragAndDropArea } from "./components/DragAndDropArea/DragAndDropArea"
 
 export default function SupportButton() {
   const { isDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
@@ -23,12 +24,14 @@ export default function SupportButton() {
       dropdownRef={supportDropdownRef}
       icon={
         <Button
-          className="w-[48px] h-[48px] px-3 desktop:px-4 desktop:w-[64px] desktop:h-[64px] fixed bottom-4 right-6 rounded-full border border-border-color"
+          className="w-[48px] h-[48px] px-3 desktop:px-4 desktop:w-[64px] desktop:h-[64px] fixed bottom-4 right-6 rounded-full
+          border border-border-color"
           variant="default-outline">
           <BiSupport className="text-icon-color w-[32px] h-[32px] desktop:w-[32px] desktop:h-[32px]" />
         </Button>
       }>
       <SupportButtonDropdown />
+      <DragAndDropArea />
     </DropdownContainer>
   )
 }

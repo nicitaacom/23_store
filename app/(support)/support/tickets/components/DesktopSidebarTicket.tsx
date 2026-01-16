@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge"
 
 import useTicket from "@/hooks/support/useTicket"
 import useSender from "@/hooks/ui/useSender"
-import { ITicket } from "@/interfaces/support/ITicket"
+import { ITicket } from "@/TS/support/ITicket"
 
 interface DesktopSidebarTicketProps {
   ticket: ITicket

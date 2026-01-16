@@ -82,7 +82,8 @@ export function ModalQueryContainer({ children, modalQuery, className }: ModalQu
             transition={{ duration: 0.25 }}
             {...modalBgHandler}>
             <motion.div
-              className={`relative bg-foreground border-[1px] border-border-color rounded-md py-8 z-[1600] shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
+              className={`relative bg-foreground border-[1px] border-border-color rounded-md py-8 z-[1600]
+              shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
               initial={{ scale: 0.9, opacity: 0.8 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0.8 }}

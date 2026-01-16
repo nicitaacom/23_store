@@ -1,5 +1,5 @@
 "use client"
-import { ITicket } from "@/interfaces/support/ITicket"
+import { ITicket } from "@/TS/support/ITicket"
 import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 

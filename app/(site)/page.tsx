@@ -2,8 +2,8 @@ import { cache, lazy } from "react"
 import { notFound } from "next/navigation"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
-import { Product } from "./components"
 import PaginationControls from "@/components/PaginationControls"
+import { AIInputSearch } from "@/(site)/components/AISearch/AIInputSearch"
 
 interface SearchProps {
   searchParams: { [key: string]: string | string[] | undefined }
@@ -39,15 +39,12 @@ export default async function Home({ searchParams }: SearchProps) {
       className="w-full py-12 h-[calc(100vh-64px)] overflow-x-hidden overflow-y-auto
        text-2xl text-title flex flex-col gap-y-8 justify-between items-center mx-auto">
       <section className="flex flex-col gap-y-4">
-        <div
-          className="mobile:border-[1px] broder-border-color rounded 
-    w-full max-w-[1440px] min-w-[80vw]">
-          <div className="flex flex-row justify-between px-4">
-            <h1 className="hidden tablet:flex text-lg">Products:</h1>
-          </div>
-          <ul className="flex flex-col gap-y-8">
+        <div className="w-full max-w-[1440px] min-w-[80vw]">
+          <AIInputSearch />
+          {/* TODO - recent viewed products here (with option to hide it and disable history) */}
+          {/* <ul className="flex flex-col gap-y-8">
             {entries?.map(product => <Product {...product} key={product.id} />)}
-          </ul>
+          </ul> */}
         </div>
       </section>
       <div className="flex flex-col-reverse tablet:flex-row gap-4 justify-between items-center">

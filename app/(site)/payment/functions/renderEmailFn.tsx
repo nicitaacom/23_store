@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react"
 import { renderAsync } from "@react-email/render"
 
 import CheckEmail from "@/emails/CheckEmail"
-import { TProductAfterDB } from "@/interfaces/product/TProductAfterDB"
+import { TProductAfterDB } from "@/TS/product/TProductAfterDB"
 import useToast from "@/store/ui/useToast"
 import { logFn } from "@/utils/logFn"
 

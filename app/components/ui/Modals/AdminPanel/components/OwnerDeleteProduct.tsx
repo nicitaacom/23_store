@@ -1,6 +1,6 @@
 "use client"
 
-import { TProductDB } from "@/interfaces/product/TProductDB"
+import { TProductDB } from "@/TS/product/TProductDB"
 import { OwnerProductImage } from "./OwnerProductImage"
 import { Slider } from "@/components/ui"
 import { DeleteProductHeader } from "./DeleteProductHeader"

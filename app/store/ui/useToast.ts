@@ -14,7 +14,7 @@ message.show('success','custom title','custom subTitle',3000) //disashow after 3
 
 export type ToastVariant = "success" | "error" | "warning"
 
-interface ToastStore {
+export interface IToast {
   isOpen: boolean
   variant: ToastVariant
   title?: string
@@ -23,7 +23,7 @@ interface ToastStore {
   close: () => void
 }
 
-export const useToast = create<ToastStore>(set => ({
+export const useToast = create<IToast>(set => ({
   isOpen: false,
   variant: "success",
 

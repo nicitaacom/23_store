@@ -42,21 +42,16 @@ export function CartModal({ label }: CartModalProps) {
 
   return (
     <ModalQueryContainer
-      className="w-screen h-screen laptop:max-w-[1024px] laptop:max-h-[640px] desktop:max-w-[75vw] desktop:max-h-[60vh] pt-8 pb-0"
+      className={`w-full laptop:max-w-[1024px] desktop:max-w-[75vw]
+      h-[640px] laptop:max-h-[640px] desktop:max-h-[60vh]
+      pt-8 pb-0`}
       modalQuery="CartModal">
-      <div className="relative flex flex-col gap-y-8 w-full h-full pb-8 overflow-y-auto">
+      <div className="relative w-full h-full flex flex-col gap-y-8 pb-8 overflow-y-auto">
         <h1 className="text-4xl text-center whitespace-nowrap mt-4">{label}</h1>
         {/* SHOW EMPTY CART IF NO PRODUCTS */}
-        {isSkeleton ? (
-          <div>
-            <h1 className="text-2xl text-center">TODO - cartModal loading skeleton</h1>
-            <ProductsSkeleton />
-          </div>
-        ) : cartStore.productsData.length > 0 ? (
-          <ProductsInCart />
-        ) : (
-          <EmptyCart />
-        )}
+        <section className="w-full">
+          {isSkeleton ? <ProductsSkeleton /> : cartStore.productsData.length > 0 ? <ProductsInCart /> : <EmptyCart />}
+        </section>
       </div>
     </ModalQueryContainer>
   )

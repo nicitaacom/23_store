@@ -1,4 +1,4 @@
-import { TRecordCartProduct } from "@/interfaces/product/TRecordCartProduct"
+import { TRecordCartProduct } from "@/TS/product/TRecordCartProduct"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { NextResponse } from "next/server"
 

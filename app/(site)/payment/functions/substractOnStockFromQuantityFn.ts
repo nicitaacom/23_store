@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
 import { TAPIPaymentSuccess } from "@/api/payment/success/route"
-import { TRecordCartProduct } from "@/interfaces/product/TRecordCartProduct"
+import { TRecordCartProduct } from "@/TS/product/TRecordCartProduct"
 import useToast from "@/store/ui/useToast"
 import { logFn } from "@/utils/logFn"
 

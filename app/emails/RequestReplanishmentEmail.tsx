@@ -10,7 +10,7 @@ import { Text } from "@react-email/text"
 import { Link } from "@react-email/link"
 import { Tailwind } from "@react-email/tailwind"
 
-import { TProductDB } from "@/interfaces/product/TProductDB"
+import { TProductDB } from "@/TS/product/TProductDB"
 import { formatCurrency } from "../utils/currencyFormatter"
 import { getURL } from "@/utils/helpers"
 import { Fragment } from "react"

@@ -1,6 +1,6 @@
 import { Slider } from "@/components/ui"
-import { TProductDB } from "@/interfaces/product/TProductDB"
-import { IFormDataAddProduct } from "@/interfaces/product/IFormDataAddProduct"
+import { TProductDB } from "@/TS/product/TProductDB"
+import { IFormDataAddProduct } from "@/TS/product/IFormDataAddProduct"
 
 import { OwnerProductImage } from "./OwnerProductImage"
 import { OwnerProductHeader } from "./OwnerProductHeader"

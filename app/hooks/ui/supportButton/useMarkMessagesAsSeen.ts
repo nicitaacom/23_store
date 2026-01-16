@@ -2,13 +2,13 @@ import { useEffect } from "react"
 import axios from "axios"
 
 import { TAPIMessageSeen } from "@/api/message/seen/route"
-import { IMessage } from "@/interfaces/support/IMessage"
+import { IMessageDB } from "@/TS/support/IMessage"
 import { useIsActiveTab } from "@/hooks/ui/supportButton/useActiveTab" // Adjust this path to where you place the hook
 
 export const useMarkMessagesAsSeen = (
   isDropdown: boolean,
   ticketId: string | null,
-  messages: IMessage[],
+  messages: IMessageDB[],
   userId: string | undefined,
   isLoading: boolean,
 ) => {

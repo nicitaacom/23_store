@@ -28,6 +28,12 @@ const DoYouWantRecieveCheckModal = async () => {
   return <DoYouWantRecieveCheckModal />
 }
 
+const GlobalImagePreviewPortal = async () => {
+  const modal = import("@/components/GlobalImagePreviewPortal")
+  const { GlobalImagePreviewPortal } = await modal
+  return <GlobalImagePreviewPortal />
+}
+
 export function ModalsProvider() {
   return (
     <>
@@ -36,6 +42,9 @@ export function ModalsProvider() {
       <AreYouSureMarkTicketAsCompletedSupportModal />
       <CtrlKModal />
       <DoYouWantRecieveCheckModal />
+
+      {/* Global images preview */}
+      <GlobalImagePreviewPortal />
     </>
   )
 }

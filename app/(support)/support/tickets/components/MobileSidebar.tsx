@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { twMerge } from "tailwind-merge"
 import { find } from "lodash"
 
-import { ITicket } from "@/interfaces/support/ITicket"
+import { ITicket } from "@/TS/support/ITicket"
 import { UnseenMessages } from "@/actions/getUnreadMessages"
 import { useUnseenMessages } from "@/(support)/store/useUnseenMessages"
 import { getPusherClient } from "@/libs/pusher"

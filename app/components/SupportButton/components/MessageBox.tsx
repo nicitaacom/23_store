@@ -4,12 +4,12 @@ import Image from "next/image"
 import { twMerge } from "tailwind-merge"
 import { BsCheck2 } from "react-icons/bs"
 
-import { IMessage } from "@/interfaces/support/IMessage"
+import { IMessageDB } from "@/TS/support/IMessage"
 import { formatTime } from "@/utils/formatTime"
 import useSender from "@/hooks/ui/useSender"
 
 interface MessageBoxProps {
-  message: IMessage
+  message: IMessageDB
   inverseColors?: boolean
 }
 

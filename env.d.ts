@@ -14,6 +14,10 @@ declare global {
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string
       NEXT_STRIPE_SECRET_KEY: string
 
+      UPSTASH_REDIS_REST_URL: string
+      UPSTASH_REDIS_REST_TOKEN: string
+      UPSTASH_REDIS_URL: string
+
       NEXT_RESEND_SECRET: string
       NEXT_PUBLIC_SUPPORT_EMAIL: string
 
@@ -21,6 +25,8 @@ declare global {
       NEXT_PAYPAL_SECRET: string
 
       NEXT_PUBLIC_METAMASK_ADRESS: string
+
+      OPENAI_API_KEY: string
 
       NEXT_COINMARKETCAP_SECRET: string
 

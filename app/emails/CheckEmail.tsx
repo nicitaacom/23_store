@@ -11,7 +11,7 @@ import { Link } from "@react-email/link"
 import { Tailwind } from "@react-email/tailwind"
 
 import { formatCurrency } from "../utils/currencyFormatter"
-import { TProductAfterDB } from "../interfaces/product/TProductAfterDB"
+import { TProductAfterDB } from "../TS/product/TProductAfterDB"
 import { getURL } from "@/utils/helpers"
 import { twMerge } from "tailwind-merge"
 import { Fragment } from "react"

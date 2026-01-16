@@ -1,7 +1,7 @@
 import { memo } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { TProductDB } from "@/interfaces/product/TProductDB"
+import { TProductDB } from "@/TS/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { ProductQuantity } from "../ProductQuantity"
 import { ProductButtons } from "../ProductButtons"

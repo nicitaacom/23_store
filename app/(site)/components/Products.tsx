@@ -1,5 +1,5 @@
 import { memo } from "react"
-import { TProductDB } from "@/interfaces/product/TProductDB"
+import { TProductDB } from "@/TS/product/TProductDB"
 import { Product } from "."
 interface ProductsProps {
   products: TProductDB[] | undefined

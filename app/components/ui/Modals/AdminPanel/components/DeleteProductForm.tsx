@@ -1,6 +1,6 @@
 "use client"
 
-import { TProductDB } from "@/interfaces/product/TProductDB"
+import { TProductDB } from "@/TS/product/TProductDB"
 import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
 import Image from "next/image"
 import useDarkMode from "@/store/ui/darkModeStore"

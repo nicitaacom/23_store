@@ -3,12 +3,11 @@
 import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 
-import { IMessage } from "@/interfaces/support/IMessage"
+import { IMessageDB } from "@/TS/support/IMessage"
 import useUserStore from "@/store/user/userStore"
 
 import { MessageBox } from "../components/MessageBox"
 import { MessageInput } from "../../ui/Inputs/MessageInput"
-import { IFormDataMessage } from "@/interfaces/support/IFormDataMessage"
 import { getAnonymousId } from "@/functions/getAnonymousId"
 import { useLoadInitialMessages } from "@/hooks/ui/supportButton/useLoadInitialMessages"
 import { useMarkMessagesAsSeen } from "@/hooks/ui/supportButton/useMarkMessagesAsSeen"
@@ -44,7 +43,7 @@ export default function SupportButtonDropdown() {
         bottomRef.current.scrollTop = bottomRef.current.scrollHeight
       }
 
-      const newMessageHandler = (message: IMessage) => {
+      const newMessageHandler = (message: IMessageDB) => {
         // Check if the message with the same id already exists
         const messageExists = messages.some(msg => msg.id === message.id)
 
@@ -59,7 +58,7 @@ export default function SupportButtonDropdown() {
         }, 10)
       }
 
-      const seenHandler = (updatedMessages: IMessage[]) => {
+      const seenHandler = (updatedMessages: IMessageDB[]) => {
         setMessages(
           messages.map(
             existingMessage => updatedMessages.find(msg => msg.id === existingMessage.id) || existingMessage,
@@ -88,25 +87,30 @@ export default function SupportButtonDropdown() {
   }, [messages, ticketId, router])
 
   return (
-    <section className="h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col justify-between">
-      <div className="w-full shadow-md py-1 flex justify-end items-center px-2">
-        <h1 className="absolute left-[50%] translate-x-[-50%] text-[1.1rem] mobile:text-[1.4rem] font-semibold">
-          Response ~15s
-        </h1>
-        <MarkTicketAsCompletedUser messagesLength={messages?.length ?? 0} ticketId={ticketId} />
+    <section
+      className="relative h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col bg-foreground-accent
+     rounded-lg overflow-hidden shadow-lg">
+      <div className="w-full bg-foreground border-b border-border-color py-3 flex justify-center items-center px-8 relative">
+        <h1 className="text-[1.1rem] mobile:text-[1.4rem] font-semibold text-title">Response ~15s</h1>
+        <div className="absolute right-4 z-20">
+          <MarkTicketAsCompletedUser messagesLength={messages?.length ?? 0} ticketId={ticketId} />
+        </div>
       </div>
       {isLoading ? (
-        <div>TODO - loading messages...</div>
+        <div className="flex-1 flex items-center justify-center text-subTitle">Loading messages...</div>
       ) : (
-        <form className="flex flex-col justify-between h-[calc(400px-56px)] mobile:h-[calc(490px-56px)]">
-          <ul className="h-[280px] mobile:h-[370px] flex flex-col gap-y-2 hide-scrollbar p-4" ref={bottomRef}>
-            {messages?.map(message => <MessageBox key={message.id} message={message} />)}
-          </ul>
-          <MessageInput
-            //-2px because it don't calculate border-width 1px
-            className="px-4 py-2 bg-foreground-accent shadow-md"
-          />
-        </form>
+        <div className="flex flex-col flex-1 pt-6 z-20">
+          {messages.length ? (
+            <ul className="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-2" ref={bottomRef}>
+              {messages?.map(message => <MessageBox key={message.id} message={message} />)}
+            </ul>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-subTitle text-sm">No messages yet.</p>
+            </div>
+          )}
+          <MessageInput />
+        </div>
       )}
     </section>
   )

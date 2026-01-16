@@ -5,14 +5,14 @@ import { find } from "lodash"
 import axios from "axios"
 
 import { TAPIMessageSeen } from "@/api/message/seen/route"
-import { IMessage } from "@/interfaces/support/IMessage"
+import { IMessageDB } from "@/TS/support/IMessage"
 import { useUnseenMessages } from "@/(support)/store/useUnseenMessages"
 import useUserStore from "@/store/user/userStore"
 import { getPusherClient } from "@/libs/pusher"
 import { MessageBox } from "@/components/SupportButton/components/MessageBox"
 
 interface MessagesBodyProps {
-  initialMessages: IMessage[]
+  initialMessages: IMessageDB[]
   ticket_id: string
 }
 
@@ -39,7 +39,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
       bottomRef.current.scrollTop = bottomRef.current.scrollHeight
     }
 
-    const newHandler = (message: IMessage) => {
+    const newHandler = (message: IMessageDB) => {
       setMessages(current => {
         if (find(current, { id: message.id })) {
           return current
@@ -56,7 +56,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
       }, 10)
     }
 
-    const seenHandler = (updatedMessages: IMessage[]) => {
+    const seenHandler = (updatedMessages: IMessageDB[]) => {
       // here is might be required chaning logic because I don't remember how it works
       setMessages(current => {
         return current.map(existingMessage => {

@@ -199,6 +199,7 @@ export function DoYouWantRecieveCheckModal() {
       isOpen={isOpen}
       onClose={closeModal}>
       <h1 className="text-2xl">Do you want recieve check?</h1>
+      <p>Note that this is BTC address - send from BTC to BTC - otherwise you loose crypto</p>
       <FormInput id="email" register={register} label="Email" errors={errors} placeholder="example@gmail.com" />
       <Button variant="success-outline" onClick={handleSubmit(onSubmit)}>
         Yes

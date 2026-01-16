@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server"
 
-import { IMessage } from "@/interfaces/support/IMessage"
+import { IMessageDB } from "@/TS/support/IMessage"
 import { pusherServer } from "@/libs/pusher"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export type TAPIMessageSeen = {
-  messages: IMessage[]
+  messages: IMessageDB[]
   ticketId: string
   userId: string
 }

@@ -1,31 +1,32 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { sendChatMessageFn } from "@/(site)/functions/sendChatMessageFn"
 import { getUserId } from "@/utils/getUserId"
+import { PastedImagePreview } from "@/components/SupportButton/components/PastedImagePreview"
+import { uploadImagesAndSendMessage } from "@/functions/support/uploadImagesAndSendMessage"
+import { useMessagesStore } from "@/store/ui/useMessagesStore"
 
 interface MessageInputProps {
   className?: string
 }
 
 export function MessageInput({ className }: MessageInputProps) {
-  const [value, setValue] = useState("")
+  const { messageBodyValue, setMessageBodyValue } = useMessagesStore()
   const [height, setHeight] = useState(52) // Initialize with the base height for one line
+
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const router = useRouter()
   const userId = getUserId()
 
   // shift+enter managed by ChatGPT-4 - copy paste all code to it if issues
 
   useEffect(() => {
     // Recalculate height every time the value changes
-    const lineCount = value.split("\n").length
+    const lineCount = messageBodyValue.split("\n").length
 
     setHeight(Math.max(42, 42 + (lineCount - 1) * 24)) // Adjust height based on line count, 24px per line
-  }, [value])
+  }, [messageBodyValue])
 
   const handleKeyDown = async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter") {
@@ -34,10 +35,10 @@ export function MessageInput({ className }: MessageInputProps) {
 
         // Insert newline at the current cursor position
         const cursorPosition = event.currentTarget.selectionStart
-        const beforeText = value.slice(0, cursorPosition)
-        const afterText = value.slice(cursorPosition)
+        const beforeText = messageBodyValue.slice(0, cursorPosition)
+        const afterText = messageBodyValue.slice(cursorPosition)
         const newValue = `${beforeText}\n${afterText}`
-        setValue(newValue) // Update value to trigger height recalculation
+        setMessageBodyValue(newValue) // Update value to trigger height recalculation
 
         setTimeout(() => {
           if (textareaRef.current) {
@@ -50,17 +51,17 @@ export function MessageInput({ className }: MessageInputProps) {
       } else {
         event.preventDefault() // Prevent default form submission on Enter
         // Trim and check if the message is not just spaces or newlines
-        if (value.trim().length > 0) {
-          setValue("") // Clear the textarea after sending the message
+        if (messageBodyValue.trim().length > 0) {
+          setMessageBodyValue("") // Clear the textarea after sending the message
           setHeight(36) // Reset height to initial value after message is sent
-          await sendChatMessageFn(value.trim(), userId, router)
+          await uploadImagesAndSendMessage(setHeight, messageBodyValue.trim(), userId, textareaRef)
         }
       }
     }
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(event.target.value)
+    setMessageBodyValue(event.target.value)
   }
 
   // Ensure the cursor is visible in the textarea, adjusting scroll if necessary
@@ -80,21 +81,22 @@ export function MessageInput({ className }: MessageInputProps) {
   }
 
   return (
-    <div className="w-[calc(100%-2px)] bg-foreground-accent p-4">
+    <div className="w-full bg-foreground-accent px-4 py-3 border-t border-border-color">
+      <PastedImagePreview />
       <textarea
         ref={textareaRef}
         className={twMerge(
-          `w-full !max-h-[61px] min-h-[36px] resize-none hide-scrollbar rounded border border-solid bg-transparent px-4 py-2 mb-1 outline-none text-title`,
+          `w-full !max-h-[61px] min-h-[36px] resize-none hide-scrollbar rounded-md border border-border-color bg-background/50 px-3 py-2 outline-none text-title placeholder:text-subTitle focus:border-success/50 transition-colors`,
           className,
         )}
         placeholder="Enter message..."
         autoFocus
-        value={value}
+        value={messageBodyValue}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         style={{
           overflowY: "auto",
-          height: `${height}px`, // Use state to manage dynamic height
+          height: `${height}px`,
         }}></textarea>
     </div>
   )

@@ -1,4 +1,4 @@
-import { IMessage } from "@/interfaces/support/IMessage"
+import { IMessageDB } from "@/TS/support/IMessage"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { AxiosResponse } from "axios"
 import { NextResponse } from "next/server"
@@ -11,7 +11,7 @@ export type TAPIMessagesGetMessagesRequest = {
   userId?: string
 }
 
-type Response = IMessage[]
+type Response = IMessageDB[]
 
 export type TAPIMessagesGetMessagesResponse = AxiosResponse<Response>
 
