@@ -22,116 +22,164 @@ interface CheckEmailProps {
 }
 
 export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
-  const previewText = `Thank you for your purchace`
+  const previewText = `Thank you for your purchase`
+  const totalAmount = products.reduce((total, product) => total + product.price * product.quantity, 0)
+
   return (
     <Tailwind
       config={{
         theme: {
-          screens: {
-            // read dev_readme.md
-          },
           extend: {
             colors: {
               brand: "#1ce956",
-              subTitle: "#999999",
-              "broder-color": "#999999",
-              title: "#e0e0e0",
+              subTitle: "#666666",
+              "border-color": "#e5e5e5",
+              title: "#1a1a1a",
             },
           },
         },
       }}>
-      {/* Fragment required to prevent issue about "Each child in a list should have a unique "key" prop" 
-      https://github.com/resend/react-email/issues/1150#issuecomment-1973529988*/}
       <Fragment>
         <Html>
           <Head />
           <Preview>{previewText}</Preview>
 
-          <Body className="bg-[#202020]" style={{ width: "480px", margin: "0 auto", padding: "20px 0 48px" }}>
-            {/* CONTENT - START */}
-
+          <Body className="bg-[#f9fafb]" style={{ width: "600px", margin: "0 auto", padding: "40px 20px" }}>
             {/* HEADER */}
-            <Section style={{ width: "480px", maxWidth: "480px" }}>
-              <Heading className="m-0 pt-8 text-title text-center">{previewText}</Heading>
-              <Text className="m-0 pb-8 text-subTitle text-center">Your order will delivered on {deliveryDate} 🗓</Text>
-            </Section>
-
-            {/* MAIN CONTENT */}
-            <Section className="w-[480px] max-w-[480px] mb-2 border border-solid border-border-color pb-0">
-              {products &&
-                products.length > 0 &&
-                products.map((product, index) => (
-                  <Section
-                    // Show border and mb-2 only for not last products
-                    className={twMerge(index !== products.length - 1 && "border-b border-border-color mb-2")}
-                    key={product.id}>
-                    <Img
-                      style={{ objectFit: "cover" }}
-                      src={product.img_url[0]}
-                      width="480"
-                      height="240"
-                      alt={product.title}
-                    />
-                    <Text className="m-0 px-4 py-2 text-title text-2xl text-center">{product.title}</Text>
-                    <Text className="mb-8 mt-0 text-title text-xl text-center">{formatCurrency(product.price)}</Text>
-                    <Text className="m-0 text-title text-lg text-center">
-                      Quantity:
-                      <span className="m-0 text-subTitle">{product.quantity}</span>
-                    </Text>
-                    <Text className="m-0 text-title text-lg text-center">
-                      Sub-total:
-                      <span className="m-0 text-subTitle">{formatCurrency(product.price * product.quantity)}</span>
-                    </Text>
-                  </Section>
-                ))}
-            </Section>
-
-            {/* TOTAL */}
-            <table
+            <Section
               style={{
-                borderTop: "1px solid #999999",
-                borderBottom: "1px solid #999999",
-                minWidth: "100%",
-                margin: "3rem 0rem",
-                padding: "1rem 0rem",
+                width: "100%",
+                maxWidth: "600px",
+                background: "#ffffff",
+                borderRadius: "12px",
+                padding: "40px",
+                marginBottom: "24px",
+              }}>
+              <Heading className="m-0 text-[32px] font-bold text-title text-center" style={{ lineHeight: "1.3" }}>
+                Order Confirmed ✓
+              </Heading>
+              <Text className="m-0 mt-3 text-[16px] text-subTitle text-center" style={{ lineHeight: "1.5" }}>
+                Your order will be delivered on <strong style={{ color: "#1a1a1a" }}>{deliveryDate}</strong>
+              </Text>
+            </Section>
+
+            {/* PRODUCTS */}
+            <Section
+              style={{
+                width: "100%",
+                maxWidth: "600px",
+                background: "#ffffff",
+                borderRadius: "12px",
+                padding: "32px",
+                marginBottom: "16px",
+              }}>
+              {products?.map((product, index) => (
+                <Section
+                  className={twMerge(index !== products.length - 1 && "pb-6 mb-6 border-b border-[#e5e5e5]")}
+                  key={product.id}
+                  style={{ padding: 0 }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <tr>
+                      <td style={{ width: "120px", verticalAlign: "top", paddingRight: "20px" }}>
+                        <Img
+                          style={{ objectFit: "cover", borderRadius: "8px", display: "block" }}
+                          src={product.img_url[0]}
+                          width="120"
+                          height="120"
+                          alt={product.title}
+                        />
+                      </td>
+                      <td style={{ verticalAlign: "top" }}>
+                        <Text
+                          className="m-0 text-[18px] font-semibold text-title"
+                          style={{ lineHeight: "1.4", marginBottom: "8px" }}>
+                          {product.title}
+                        </Text>
+                        <Text
+                          className="m-0 text-[14px] text-subTitle"
+                          style={{ lineHeight: "1.5", marginBottom: "12px" }}>
+                          Quantity: {product.quantity}
+                        </Text>
+                        <Text className="m-0 text-[16px] font-medium text-title">
+                          {formatCurrency(product.price * product.quantity)}
+                        </Text>
+                      </td>
+                    </tr>
+                  </table>
+                </Section>
+              ))}
+
+              {/* TOTAL */}
+              <Section style={{ borderTop: "2px solid #e5e5e5", paddingTop: "24px", marginTop: "24px" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <tr>
+                    <td style={{ textAlign: "left" }}>
+                      <Text className="m-0 text-[20px] font-bold text-title">Total</Text>
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      <Text className="m-0 text-[24px] font-bold text-title">{formatCurrency(totalAmount)}</Text>
+                    </td>
+                  </tr>
+                </table>
+              </Section>
+            </Section>
+
+            {/* CTA SECTION */}
+            <Section
+              style={{
+                width: "100%",
+                maxWidth: "600px",
+                background: "#ffffff",
+                borderRadius: "12px",
+                padding: "32px",
+                marginBottom: "24px",
                 textAlign: "center",
               }}>
-              <tr>
-                <td>
-                  <Text className="m-0 text-title text-2xl text-center">
-                    Total:&nbsp;
-                    {formatCurrency(
-                      products.reduce((totalPrice, product) => totalPrice + product.price * product.quantity, 0),
-                    )}
-                  </Text>
-                </td>
-              </tr>
-            </table>
+              <Link
+                href={`${getURL()}track-order`}
+                style={{
+                  display: "inline-block",
+                  background: "#1ce956",
+                  color: "#ffffff",
+                  padding: "14px 32px",
+                  borderRadius: "8px",
+                  textDecoration: "none",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  marginBottom: "16px",
+                }}>
+                Track Your Order
+              </Link>
+              <Text className="m-0 text-[14px] text-subTitle" style={{ lineHeight: "1.5" }}>
+                We&apos;ll keep you updated on your delivery status
+              </Text>
+            </Section>
 
             {/* FOOTER */}
-            <table
-              style={{
-                borderTop: "2px solid #999999",
-                minWidth: "100%",
-                margin: "1rem 0rem",
-                padding: "1rem 0rem",
-                textAlign: "center",
-              }}>
-              <tr>
-                <td>
-                  <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}support`}>
-                    Support
-                  </Link>
-                  <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}feedback`}>
-                    Feedback
-                  </Link>
-                  <Link className="m-0 text-[#407ded] text-sm text-center" href={`${getURL()}track-order`}>
-                    Track order
-                  </Link>
-                </td>
-              </tr>
-            </table>
-            {/* CONTENT - END */}
+            <Section style={{ width: "100%", maxWidth: "600px", textAlign: "center", paddingTop: "24px" }}>
+              <Text className="m-0 text-[14px] text-subTitle mb-3">Need help with your order?</Text>
+              <table style={{ width: "100%", textAlign: "center" }}>
+                <tr>
+                  <td>
+                    <Link
+                      className="text-[14px] text-[#1ce956] mx-3"
+                      href={`${getURL()}support`}
+                      style={{ textDecoration: "none", fontWeight: "500" }}>
+                      Support
+                    </Link>
+                    <Link
+                      className="text-[14px] text-[#1ce956] mx-3"
+                      href={`${getURL()}feedback`}
+                      style={{ textDecoration: "none", fontWeight: "500" }}>
+                      Feedback
+                    </Link>
+                  </td>
+                </tr>
+              </table>
+              <Text className="m-0 mt-6 text-[12px] text-subTitle" style={{ lineHeight: "1.5" }}>
+                © {new Date().getFullYear()} 23_store. All rights reserved.
+              </Text>
+            </Section>
           </Body>
         </Html>
       </Fragment>
