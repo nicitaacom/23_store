@@ -1,11 +1,7 @@
 "use client"
 
-import {
-  ClearProductQuantityButton,
-  DecreaseProductQuantityButton,
-  IncreaseProductQuantityButton,
-} from "@/components/ui/Buttons"
 import { AddToCartButton } from "@/components/ui/Buttons/AddToCartButton"
+import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
 import useCartStore from "@/store/user/cartStore"
 
 interface ProductButtonsProps {
@@ -18,16 +14,14 @@ export function ProductButtons({ productId, productOnStock }: ProductButtonsProp
   const quantity = cartStore.products?.[productId]?.quantity ?? 0
 
   return (
-    <div
-      className={`flex flex-row gap-x-2 justify-center laptop:justify-end items-end 
-            ${quantity === 0 && "w-full"}`}>
+    <div className={`flex flex-row gap-x-2 justify-center laptop:justify-end items-end ${quantity === 0 && "w-full"}`}>
       {quantity === 0 ? (
         <AddToCartButton productId={productId} productOnStock={productOnStock} />
       ) : (
         <>
-          <IncreaseProductQuantityButton productId={productId} productOnStock={productOnStock} />
-          <DecreaseProductQuantityButton productId={productId} />
-          <ClearProductQuantityButton productId={productId} />
+          <ProductQuantityButton action="increase" productId={productId} productOnStock={productOnStock} />
+          <ProductQuantityButton action="decrease" productId={productId} />
+          <ProductQuantityButton action="clear" productId={productId} />
         </>
       )}
     </div>

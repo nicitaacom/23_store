@@ -20,23 +20,23 @@ const PaginationControls: FC<PaginationControlsProps> = ({
   perPage,
 }) => {
   return (
-    <div className="flex flex-row gap-x-4 justify-center items-center">
+    <div className="flex flex-row gap-x-3 justify-center items-center bg-background/50 backdrop-blur-sm border border-success/20 rounded-lg p-2">
       <Button
         variant="default-outline"
-        className={`border-border-color ${!hasPrevPage ? "pointer-events-none opacity-50" : ""}`}
+        className={`border-success/30 hover:border-success hover:bg-success/10 ${!hasPrevPage ? "pointer-events-none opacity-30" : ""}`}
         href={`/?page=${currentPage - 1}&perPage=${perPage}`}>
-        <BiSkipPrevious size={32} />
+        <BiSkipPrevious size={24} className="text-success" />
       </Button>
 
-      <div>
+      <div className="px-4 py-2 bg-success/10 border border-success/30 rounded text-title font-semibold min-w-[80px] text-center">
         {currentPage} / {totalPages}
       </div>
 
       <Button
         variant="default-outline"
-        className={`border-border-color ${!hasNextPage ? "pointer-events-none opacity-50" : ""}`}
+        className={`border-success/30 hover:border-success hover:bg-success/10 ${!hasNextPage ? "pointer-events-none opacity-30" : ""}`}
         href={`/?page=${currentPage + 1}&perPage=${perPage}`}>
-        <BiSkipNext size={32} />
+        <BiSkipNext size={24} className="text-success" />
       </Button>
     </div>
   )

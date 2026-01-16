@@ -1,7 +1,7 @@
 "use client"
 
 import { HiOutlineRefresh } from "react-icons/hi"
-import { Button } from ".."
+import { Button } from "../../../components/ui"
 import axios from "axios"
 
 import useToast from "@/store/ui/useToast"
