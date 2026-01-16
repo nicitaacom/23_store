@@ -3,6 +3,7 @@ import { devtools, persist, subscribeWithSelector } from "zustand/middleware"
 import useCartStore from "./cartStore"
 import { useLoading } from "../ui/useLoading"
 import { setCookie } from "@/utils/helpersCSR"
+import { useMessagesStore } from "../ui/useMessagesStore"
 
 interface UserStore {
   userId: string
@@ -55,6 +56,8 @@ setTimeout(() => {
       const { setHasCartStoreInitialized } = useLoading.getState()
       setHasCartStoreInitialized(false) // show InitialPageLoadingSkeleton and wait until data will set in products state
       await useCartStore.getState().initialize()
+      await useMessagesStore.getState().initialize() // init messages store as well
+      // init other stores if needed
       setHasCartStoreInitialized(true)
     },
     { fireImmediately: true },
