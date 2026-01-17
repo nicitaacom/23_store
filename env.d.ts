@@ -24,7 +24,11 @@ declare global {
       NEXT_PAYPAL_PUBLIC: string
       NEXT_PAYPAL_SECRET: string
 
-      NEXT_PUBLIC_METAMASK_ADRESS: string
+      NEXT_PUBLIC_METAMASK_ADRESS_ETH: string
+      NEXT_PUBLIC_METAMASK_ADRESS_BTC: string
+      NEXT_PUBLIC_METAMASK_ADRESS_BNB: string
+      NEXT_PUBLIC_METAMASK_ADRESS_SOL: string
+      NEXT_PUBLIC_METAMASK_ADRESS_MATIC: string
 
       GEMINI_API_KEY: string
       OPENAI_API_KEY: string

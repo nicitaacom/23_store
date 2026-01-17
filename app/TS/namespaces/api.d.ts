@@ -20,4 +20,37 @@ declare module API {
     remaining: number
     resetTime: string
   }
+
+  // /api/coinmarketcap
+  type CoinmarketcapRequest = {
+    amount: number
+    symbol: string
+    convert: string
+  }
+
+  type TCurrencyQuote = {
+    id: number
+    symbol: string
+    name: string
+    amount: number
+    last_updated: string
+    quote: {
+      [currency: string]: {
+        price: number
+        last_updated: string
+      }
+    }
+  }
+
+  type CoinmarketcapResponse = {
+    status: {
+      timestamp: string
+      error_code: number
+      error_message: string | null
+      elapsed: number
+      credit_count: number
+      notice: string | null
+    }
+    data: TCurrencyQuote[]
+  }
 }

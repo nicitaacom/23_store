@@ -154,7 +154,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <>
         {loading && <LoadingSpinner size={size} />}
         {!loading && leftIcon && <span className="flex-shrink-0">{leftIcon}</span>}
-        <span className={loading ? "opacity-0" : ""}>{loading && loadingText ? loadingText : children}</span>
+        {loading && loadingText ? loadingText : children}
         {!loading && rightIcon && <span className="flex-shrink-0">{rightIcon}</span>}
       </>
     )

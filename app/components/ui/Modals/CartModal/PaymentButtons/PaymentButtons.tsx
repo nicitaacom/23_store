@@ -7,11 +7,11 @@ import { PayWithStripeButton } from "./components/PayWithStripeButton"
 
 export function PaymentButtons() {
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="flex flex-col gap-3">
       <PayWithMetamaskButton />
       <PayWithPaypalButton />
       <PayWithStripeButton />
-      {/* <PayWithKlarnaButton />  */}
+      {/* <PayWithKlarnaButton /> */}
     </div>
   )
 }

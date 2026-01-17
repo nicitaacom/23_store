@@ -60,13 +60,16 @@ export function PayWithPaypalButton() {
   return (
     <Button
       className={twMerge(
-        "flex flex-row gap-x-1 w-full laptop:w-full",
-        isLoading && "opacity-50 cursor-default pointer-events-none",
+        "group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-0 text-white font-semibold shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all",
+        isLoading && "opacity-50 cursor-not-allowed",
       )}
-      variant="info"
-      onClick={createPayPalSessionWithStripe}>
-      PayPal
-      <FaPaypal />
+      size="lg"
+      rounded="lg"
+      disabled={isLoading}
+      onClick={createPayPalSessionWithStripe}
+      rightIcon={<FaPaypal className="text-xl group-hover:scale-110 transition-transform" />}>
+      <span className="relative z-10">PayPal</span>
+      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
     </Button>
   )
 }
