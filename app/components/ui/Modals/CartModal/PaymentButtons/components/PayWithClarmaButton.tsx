@@ -14,14 +14,14 @@ export function PayWithKlarnaButton() {
   const cartStore = useCartStore()
   const { isLoading, setIsLoading } = useLoading()
 
-  const klarnaProductsQuery = cartStore.productsData
-    .filter(product => product.on_stock > 0)
-    .map(product => ({
-      price: product.price_id,
-      quantity: product.quantity,
-    }))
-    .map(item => `${encodeURIComponent(JSON.stringify(item))}`)
-    .join("&")
+  // const klarnaProductsQuery = cartStore.productsData
+  //   .filter(product => product.on_stock > 0)
+  //   .map(product => ({
+  //     price: product.price_id,
+  //     quantity: product.quantity,
+  //   }))
+  //   .map(item => `${encodeURIComponent(JSON.stringify(item))}`)
+  //   .join("&")
 
   async function createKlarnaSession() {
     setIsLoading(true)

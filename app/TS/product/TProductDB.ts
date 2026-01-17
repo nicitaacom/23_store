@@ -6,5 +6,5 @@ export type TProductDB = {
   sub_title: string
   price: number
   img_url: string[]
-  on_stock: number
+  on_stock?: number | null // created initially but now not needed because the way I created this store
 }

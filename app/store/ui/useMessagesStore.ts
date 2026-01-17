@@ -58,7 +58,6 @@ export const useMessagesStore = create<MessagesStore>()(set => ({
       userId: userId,
     } as TAPIMessagesGetMessagesRequest)
 
-    console.log(61, "response - ", response)
     const unseenAmount = response.data.filter(message => !message.seen).length
 
     set(() => ({

@@ -1,78 +1,84 @@
 import { NextRequest, NextResponse } from "next/server"
 
+type Message = { role: "system" | "user" | "assistant"; content: string }
+
 export async function POST(req: NextRequest) {
   try {
-    const { promptValue, memory } = (await req.json()) as {
+    const {
+      promptValue,
+      memory,
+      conversationHistory = [],
+    } = (await req.json()) as {
       promptValue: string
       memory: string
+      conversationHistory: Array<{ role: "user" | "ai"; text: string }>
     }
 
-    // 1. First AI call - Generate response based on memory
-    const chatMessages = [
-      {
-        role: "system",
-        content: `You are a sales assistant for 23_store e-commerce platform. Help customers find and buy products.
+    const lastThreeMessages = conversationHistory.slice(-6).map(msg => ({
+      role: msg.role === "ai" ? "assistant" : "user",
+      content: msg.text,
+    })) as Message[]
 
-${memory ? `Context: ${memory}` : ""}
+    const systemPrompt = `You are a sales assistant for 23_store e-commerce platform.
+
+${memory ? `Recently added: ${memory}` : ""}
 
 Rules:
-- Keep responses under 2 sentences
-- For vague questions, ask what product they're looking for
-- For customization details (images, placement, etc), direct to support chat in bottom right
-- Focus on product discovery and purchase
-- Ask 1 specific question to narrow options (size, color, budget)
-- For custom orders: explain they send image/details to support → agree on design → place order → pay`,
-      },
+- ALWAYS use "addProductToCart" function when user asks to add products
+- Create detailed product objects with title, subtitle, and price
+- For price: estimate realistic USD prices based on product type (T-shirts: $15-30, Hoodies: $35-60, etc.)
+- For subtitle: describe material, color, features (e.g., "100% cotton, no logos, classic fit")
+- If user says "add one more" or "add again", use the LAST product from context
+- Don't ask for size/color unless user mentions it
+- Keep text responses under 2 sentences
+
+Examples:
+User: "Add a black T-shirt L size"
+→ addProductToCart({
+  title: "Black T-shirt L size",
+  subtitle: "100% cotton, no logos, classic fit",
+  price: 24.99
+}, 1)
+
+User: "Add 3 red hoodies"
+→ addProductToCart({
+  title: "Red hoodie",
+  subtitle: "Warm fleece, adjustable hood, kangaroo pocket",
+  price: 49.99
+}, 3)`
+
+    const messages: Message[] = [
+      { role: "system", content: systemPrompt },
+      ...lastThreeMessages,
       { role: "user", content: promptValue },
     ]
 
-    const chatResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: chatMessages,
-        temperature: 0.7,
-        max_tokens: 200,
-      }),
-    })
-
-    const chatData = await chatResponse.json()
-    const aiReply = chatData?.choices?.[0]?.message?.content || "Sorry, I couldn&apos;t generate a reply."
-
-    const memoryMessages = [
+    const functions = [
       {
-        role: "system",
-        content: `Track what user wants to buy. Keep under 20 words.
-
-Current: "${memory || "none"}"
-User: "${promptValue}"
-AI: "${aiReply}"
-
-Rules:
-- If user answers AI's question about existing product, ADD detail to current memory
-- Only return "none" for greetings (hey, hi, hello) or completely off-topic
-- Single word/short answers like "L", "blue", "yes" are adding details to current product
-- Format: "wants [product + all details]"
-
-Examples:
-Current: "wants blue t-shirt with car image"
-User: "L"
-Return: "wants blue L t-shirt with car image"
-
-Current: "wants headphones"
-User: "wireless under $100"
-Return: "wants wireless headphones under $100"
-
-Return memory only.`,
+        name: "addProductToCart",
+        description: "Add a product to cart with detailed information",
+        parameters: {
+          type: "object",
+          properties: {
+            product: {
+              type: "object",
+              description: "Product details",
+              properties: {
+                title: { type: "string", description: "Product name with size/color" },
+                subtitle: { type: "string", description: "Material, features, description" },
+                price: { type: "number", description: "Price in USD" },
+              },
+              required: ["title", "subtitle", "price"],
+            },
+            quantity: { type: "number", default: 1, description: "Number of items" },
+            note: { type: "string", description: "Optional customer note" },
+          },
+          required: ["product"],
+        },
       },
-      { role: "user", content: "Memory?" },
     ]
 
-    const memoryResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -80,21 +86,55 @@ Return memory only.`,
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        messages: memoryMessages,
-        temperature: 0.5,
-        max_tokens: 100,
+        messages,
+        functions,
+        function_call: "auto",
+        max_tokens: 200,
+        temperature: 0.6,
       }),
     })
 
-    const memoryData = await memoryResponse.json()
-    const updatedMemory = memoryData?.choices?.[0]?.message?.content || memory
+    if (!openaiResponse.ok) {
+      const text = await openaiResponse.text()
+      return NextResponse.json({ error: text }, { status: openaiResponse.status })
+    }
 
-    // 3. Return both response and updated memory
-    return NextResponse.json({ reply: aiReply, memory: updatedMemory })
+    const openaiData = await openaiResponse.json()
+    console.log(103, "OpenAI response:", openaiData.choices[0].message)
+
+    const updatedMemory = updateMemoryFn(memory, promptValue, openaiData.choices?.[0]?.message)
+
+    return NextResponse.json({ openai: openaiData, memory: updatedMemory } as API.AIResponse)
   } catch (error) {
     return NextResponse.json({
-      reply: "Error: " + (error instanceof Error ? error.message : String(error)),
+      reply: error instanceof Error ? error.message : String(error),
       memory: "",
     })
   }
+}
+
+// add just currently added product to memory to don't waste tokens on just adding a new product
+function updateMemoryFn(currentMemory: string, userPrompt: string, aiMessage: any): string {
+  const functionCall = aiMessage?.function_call
+
+  if (functionCall?.name === "addProductToCart") {
+    try {
+      const args = JSON.parse(functionCall.arguments || "{}")
+      const product = args.product
+      const quantity = args.quantity || 1
+
+      if (!product?.title) return currentMemory
+
+      const memoryItems = currentMemory ? currentMemory.split(" | ") : []
+      const newItem = quantity > 1 ? `${quantity}x ${product.title}` : product.title
+
+      memoryItems.push(newItem)
+
+      return memoryItems.slice(-3).join(" | ")
+    } catch {
+      return currentMemory
+    }
+  }
+
+  return currentMemory
 }

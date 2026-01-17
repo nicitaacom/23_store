@@ -2,10 +2,8 @@
 
 import { useState, useRef } from "react"
 import Image from "next/image"
-import axios from "axios"
 import { useForm } from "react-hook-form"
-import supabaseClient from "@/libs/supabase/supabaseClient"
-import { stripe } from "@/libs/stripe"
+
 import { ErrorsType, ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
 import slugify from "@sindresorhus/slugify" // to fix error in case user upload image with not english characters
@@ -20,6 +18,7 @@ import { useRouter } from "next/navigation"
 import useToast from "@/store/ui/useToast"
 import { useLoading } from "@/store/ui/useLoading"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
+import { createProductFn } from "@/functions/createProductFn"
 
 export function AddProductForm() {
   const router = useRouter()
@@ -32,76 +31,6 @@ export function AddProductForm() {
   const [images, setImages] = useState<ImageListType>([])
 
   const dragZone = useRef<HTMLButtonElement | null>(null)
-
-  async function createProduct(images: ImageListType, title: string, subTitle: string, price: number, onStock: number) {
-    setIsLoading(true)
-    try {
-      //Check images length and is stripe mounted
-      if (images.length > 0 && stripe) {
-        //create product on stripe
-        const priceResponse = await axios.post("/api/products/add", {
-          title: title,
-          subTitle: subTitle,
-          price: price,
-        })
-
-        const imagesArray = await Promise.all(
-          images.map(async image => {
-            if (image?.file && !!userStore.userId) {
-              const ext = image.file.name.split(".").pop()
-              const cleanName = slugify(image.file.name.replace(/\.[^/.]+$/, ""))
-              const fileName = `${cleanName}_${priceResponse.data.id}.${ext}`
-
-              const { data, error } = await supabaseClient.storage
-                .from("public-images")
-                .upload(`${userStore.userId}/${fileName}`, image.file, { upsert: true })
-
-              if (error) throw error
-              const response = supabaseClient.storage.from("public-images").getPublicUrl(data.path)
-              return response.data.publicUrl
-            }
-          }),
-        )
-
-        //insert in 'products' table
-        const updatedUserResponse = await supabaseClient
-          .from("products")
-          .insert({
-            id: priceResponse.data.product,
-            price_id: priceResponse.data.id,
-            owner_id: userStore.userId,
-            title: title,
-            sub_title: subTitle,
-            price: price,
-            on_stock: onStock,
-            img_url: imagesArray as string[],
-          })
-          .eq("user_id", userStore.userId)
-        if (updatedUserResponse.error) throw updatedUserResponse.error
-
-        //update image on stripe
-        await axios.post("/api/products/update", {
-          productId: priceResponse.data.product as string,
-          images: imagesArray as string[],
-        })
-
-        displayResponseMessage(<p className="text-success">Product added</p>)
-        router.refresh()
-        // remove query params to close modal
-        const url = new URL(window.location.href)
-        url.searchParams.delete("modal")
-        url.searchParams.delete("variant")
-        router.replace(url.pathname + url.search, { scroll: false })
-        toast.show("success", "Product added", "Product successfully added and now anyone can buy it")
-      } else {
-        displayResponseMessage(<p className="text-danger">Upload the image</p>)
-      }
-    } catch (error) {
-      toast.show("error", "Failed to add product", error instanceof Error ? error.message : String(error))
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   function displayResponseMessage(message: React.ReactNode) {
     setResponseMessage(message)
@@ -124,7 +53,7 @@ export function AddProductForm() {
   const onSubmit = async (data: IFormDataAddProduct) => {
     if (data.subTitle.length > 600)
       return toast.show("warning", "Enter shorter description", "Enter description 0-600 symbols")
-    await createProduct(images, data.title, data.subTitle, data.price, data.onStock)
+    await createProductFn(data.title, data.subTitle, displayResponseMessage, data.price, data.onStock, images)
   }
 
   return (

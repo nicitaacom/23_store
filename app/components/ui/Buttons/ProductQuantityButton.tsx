@@ -19,7 +19,7 @@ export function ProductQuantityButton({ className, productId, productOnStock, ac
 
   // 1. Handle button click based on action type
   const handleClick = useCallback(() => {
-    if (action === "increase" && productOnStock) increaseProductQuantity(productId, productOnStock)
+    if (action === "increase" && productOnStock) increaseProductQuantity(productId)
     if (action === "decrease") decreaseProductQuantity(productId)
     if (action === "clear") clearProductQuantity(productId)
   }, [action, productId, productOnStock, increaseProductQuantity, decreaseProductQuantity, clearProductQuantity])

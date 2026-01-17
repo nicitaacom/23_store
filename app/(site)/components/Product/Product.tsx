@@ -61,7 +61,7 @@ function Product({ ...product }: Props) {
               <RequestReplanishmentButton product={product} />
             </div>
           ) : (
-            <ProductButtons productId={product.id} productOnStock={product.on_stock} />
+            <ProductButtons productId={product.id} />
           )}
         </section>
       </div>

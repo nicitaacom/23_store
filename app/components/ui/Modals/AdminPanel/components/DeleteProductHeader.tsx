@@ -10,11 +10,11 @@ interface DeleteProductHeaderProps {
   id: string
   title: string
   subTitle: string
-  onStock: number
+  // onStock: number
   price: number
 }
 
-export function DeleteProductHeader({ id, title, subTitle, onStock, price }: DeleteProductHeaderProps) {
+export function DeleteProductHeader({ id, title, subTitle, price }: DeleteProductHeaderProps) {
   const areYouSureDeleteProductModal = useAreYouSureDeleteProductModal()
 
   return (
@@ -32,9 +32,9 @@ export function DeleteProductHeader({ id, title, subTitle, onStock, price }: Del
         <div className="flex flex-row justify-center tablet:justify-start text-subTitle mt-4 tablet:mt-0">
           Description:&nbsp;<h2>{subTitle}</h2>
         </div>
-        <div className="flex flex-row justify-center tablet:justify-start text-subTitle mt-4 tablet:mt-0">
+        {/* <div className="flex flex-row justify-center tablet:justify-start text-subTitle mt-4 tablet:mt-0">
           On stock:&nbsp;<h2>{onStock}</h2>
-        </div>
+        </div> */}
       </section>
       {/* DELETE PRODUCT FOOTER */}
       <section className="flex justify-end">

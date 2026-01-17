@@ -1,5 +1,3 @@
-import { createClient } from "@supabase/supabase-js"
-
 import { formatFileNameForBucket } from "./formatFileNameForBucket"
 import { TBuckets } from "@/TS/TBuckets"
 import supabaseClient from "@/libs/supabase/supabaseClient"

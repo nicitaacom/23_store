@@ -13,7 +13,7 @@ interface CartStore {
   keepExistingProductsRecord: (food: TRecordCartProduct) => Promise<TRecordCartProduct> // for case I user delete some food
   fetchProductsData: () => Promise<void>
   getCartQuantity: () => number
-  increaseProductQuantity: (id: string, on_stock: number) => void
+  increaseProductQuantity: (id: string) => void
   decreaseProductQuantity: (id: string) => void
   clearProductQuantity: (id: string) => void
   getProductsPrice: () => number
@@ -63,14 +63,15 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
         }, 0)
       : 0
   },
-  increaseProductQuantity(id: string, on_stock: number) {
+  increaseProductQuantity(id: string) {
     const updatedProducts = { ...get().products }
     let updatedProductsData = [...get().productsData]
 
     const product = updatedProducts[id]
 
     // if user try to add more product in cart than on stock
-    if (product && product.quantity === on_stock) return
+    // ignore on_stock due to new store implementation
+    // if (product && product.quantity === on_stock) return
 
     if (product) {
       updatedProducts[id].quantity++
@@ -93,6 +94,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
       // TODO - check is it work fine when I increase quantity in cart (e.g from 2 to 3)
     }))
   },
+
   decreaseProductQuantity(id: string) {
     const updatedProducts = { ...get().products }
     let updatedProductsData = [...get().productsData]

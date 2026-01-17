@@ -28,7 +28,6 @@ export function OwnerDeleteProduct({ ...ownerProduct }: TProductDB) {
           title={ownerProduct.title}
           subTitle={ownerProduct.sub_title}
           price={ownerProduct.price}
-          onStock={ownerProduct.on_stock}
         />
       </div>
     </article>

@@ -25,11 +25,10 @@ export default function SupportButtonDropdown() {
   const bottomRef = useRef<HTMLUListElement>(null)
   const userStore = useUserStore()
   const userId = userStore.userId || getAnonymousId()
-  const { ticketId, setTicketId } = useMessagesStore()
   const { isLoading } = useLoading()
   useLoadInitialMessages()
 
-  const { messages, setMessages } = useMessagesStore()
+  const { messages, ticketId, setMessages } = useMessagesStore()
   useMarkMessagesAsSeen(isDropdown, ticketId, messages, userId, isLoading)
   useScrollToBottom(bottomRef, isDropdown)
 

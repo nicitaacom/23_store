@@ -19,7 +19,7 @@ export function PayWithPaypalButton() {
   const { isLoading, setIsLoading } = useLoading()
 
   const payPalProductsQuery = cartStore.productsData
-    .filter(product => product.on_stock > 0)
+    // .filter(product => product.on_stock > 0)
     .map(product => ({
       price: product.price_id,
       quantity: product.quantity,

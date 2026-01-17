@@ -8,9 +8,10 @@
     "start": "next start -p 3023",
     "lint": "next lint",
     "type-check": "tsc -p tsconfig.json --noEmit",
-    "update-types": "pnpx supabase gen types typescript --project-id zvpzoumubcidrtkgxwqx > app/interfaces/types_db.ts"
+    "update-types": "pnpx supabase gen types typescript --project-id zvpzoumubcidrtkgxwqx > app/TS/types_db.ts"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@metamask/detect-provider": "^2.0.0",
     "@react-email/body": "^0.0.7",
     "@react-email/button": "^0.0.10",

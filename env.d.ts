@@ -26,6 +26,7 @@ declare global {
 
       NEXT_PUBLIC_METAMASK_ADRESS: string
 
+      GEMINI_API_KEY: string
       OPENAI_API_KEY: string
 
       NEXT_COINMARKETCAP_SECRET: string

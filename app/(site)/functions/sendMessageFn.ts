@@ -50,7 +50,7 @@ export async function sendMessageFn(messageBody: string, sender_id: string, imag
       } as TAPITicketsOpen)
     } catch (error) {
       if (error instanceof AxiosError) {
-        console.log(113, "error sending message - ", error.response)
+        console.log(53, "error sending message - ", error.response)
         setMessages([]) // in case error delete message
         setTicketId("")
       }
@@ -72,7 +72,7 @@ export async function sendMessageFn(messageBody: string, sender_id: string, imag
       messageSender: "user",
     } as TAPIMessageSend)
   } catch (error) {
-    console.log(74, "error inserting new message", error)
+    console.log(75, "error inserting new message", error)
     setMessages(messages.slice(0, -1)) // delete last message and keep other
   }
 }

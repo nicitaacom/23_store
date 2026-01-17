@@ -28,7 +28,7 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
           title={ownerProduct.title as keyof IFormDataAddProduct}
           subTitle={ownerProduct.sub_title}
           price={ownerProduct.price}
-          onStock={ownerProduct.on_stock}
+          onStock={ownerProduct.on_stock || 0}
         />
       </div>
     </article>

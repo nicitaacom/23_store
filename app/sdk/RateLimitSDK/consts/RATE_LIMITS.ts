@@ -9,4 +9,9 @@ export const RATE_LIMITS = {
     maxAllowed: 5, // 5 per day
     key: () => `ticket:new`,
   },
+  aiPrompt: {
+    windowSec: 3600,
+    maxAllowed: 100, // 100 per hour
+    key: () => `prompt:new`,
+  },
 } as const
