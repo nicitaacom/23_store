@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       html: html,
     })
     if (error as ErrorResponse) {
-      return new NextResponse(`/api/check/send-email/route.ts error \n ${error?.message}`, {
+      return new NextResponse(`/api/send-email/route.ts error \n ${error?.message}`, {
         status: 400,
       })
     }
@@ -27,8 +27,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ status: 200 })
   } catch (error) {
     if (error instanceof Error) {
-      console.log(29, "SEND_EMAIL_ERROR\n  \n", error.message)
-      return new NextResponse(`/api/check/send-email/route.ts error \n ${error}`, {
+      console.log(30, "SEND_EMAIL_ERROR\n  \n", error.message)
+      return new NextResponse(`/api/send-email/route.ts error \n ${error}`, {
         status: 500,
       })
     }

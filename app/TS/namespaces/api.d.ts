@@ -53,4 +53,15 @@ declare module API {
     }
     data: TCurrencyQuote[]
   }
+
+  // /api/telegram
+  type TelegramRequest = {
+    message: string
+  }
+
+  type TelegramResponse = {
+    data: any
+    status: number
+    statusText: string
+  }
 }

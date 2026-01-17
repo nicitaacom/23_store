@@ -5,12 +5,25 @@ import useCartStore from "@/store/user/cartStore"
 import { Button } from "../.."
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 import { formatCurrency } from "@/utils/currencyFormatter"
-import { PaymentButtons } from "./PaymentButtons/PaymentButtons"
+import useToast from "@/store/ui/useToast"
+import { useLoading } from "@/store/ui/useLoading"
 import { Product } from "@/(site)/components"
+import { requestBetterPrices } from "./functions/requestBetterPrices"
 
 export function ProductsInCart() {
   const cartStore = useCartStore()
   const areYouSureClearCartModal = useAreYouSureClearCartModal()
+  const toast = useToast()
+  const { isLoading, setIsLoading } = useLoading()
+
+  async function handleRequestBetterPrices() {
+    setIsLoading(true)
+    const result = await requestBetterPrices(cartStore.productsData, cartStore.getProductsPrice())
+    setIsLoading(false)
+    result.success
+      ? toast.show("success", "Request sent!", result.message)
+      : toast.show("error", "Request failed", result.message)
+  }
 
   return (
     <div className="flex flex-col laptop:flex-row gap-6 h-full overflow-hidden">
@@ -37,9 +50,17 @@ export function ProductsInCart() {
           </div>
         </div>
 
-        <div className="bg-background/50 border border-border-color/30 rounded-xl p-5">
-          <h2 className="text-base font-semibold text-title mb-4">Payment Method</h2>
-          <PaymentButtons />
+        <div className="bg-gradient-to-br from-success/5 to-success/10 border border-success/20 rounded-xl p-5">
+          <Button
+            className="w-full bg-gradient-to-r from-success to-success-accent hover:from-success-accent
+            hover:to-success text-black font-semibold shadow-lg shadow-success/30 hover:shadow-xl hover:shadow-success/40 transition-all border-0"
+            size="lg"
+            rounded="lg"
+            disabled={isLoading}
+            onClick={handleRequestBetterPrices}>
+            Request Better Prices
+          </Button>
+          {/* <PaymentButtons/> */}
         </div>
 
         <Button

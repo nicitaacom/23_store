@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios"
 import { Dispatch, SetStateAction } from "react"
 
-import { TAPISendEmail } from "@/api/send-email/check/route"
+import { TAPISendEmail } from "@/api/send-email/route"
 import useToast from "@/store/ui/useToast"
 import { logFn } from "@/utils/logFn"
 
@@ -16,7 +16,7 @@ export async function sendEmailFn(emailData: EmailData, setCurrentStep: Dispatch
   const toast = useToast.getState()
 
   try {
-    await axios.post("/api/send-email/check", emailData as TAPISendEmail)
+    await axios.post("/api/send-email/", emailData as TAPISendEmail)
     logFn("email sent - set step 7")
     setCurrentStep(7)
   } catch (error) {

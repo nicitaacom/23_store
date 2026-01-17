@@ -25,9 +25,7 @@ declare global {
       NEXT_PAYPAL_SECRET: string
 
       NEXT_PUBLIC_METAMASK_ADRESS_ETH: string
-      NEXT_PUBLIC_METAMASK_ADRESS_BTC: string
       NEXT_PUBLIC_METAMASK_ADRESS_BNB: string
-      NEXT_PUBLIC_METAMASK_ADRESS_SOL: string
       NEXT_PUBLIC_METAMASK_ADRESS_MATIC: string
 
       GEMINI_API_KEY: string
@@ -39,8 +37,8 @@ declare global {
       NEXT_PUBLIC_PUSHER_APP_KEY: string
       PUSHER_SECRET: string
 
-      NEXT_TELEGRAM_BOT_TOKEN: string
-      NEXT_TELEGRAM_CHAT_ID: string
+      TELEGRAM_BOT_TOKEN: string
+      TELEGRAM_CHAT_ID: string
 
       NEXT_PUBLIC_IS_DEBUG: string
     }
