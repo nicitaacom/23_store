@@ -1,6 +1,6 @@
 import { Dispatch, RefObject, SetStateAction } from "react"
 
-import { uploadImageFn } from "./image/uploadImageFn"
+import { uploadImageFn } from "../uploadImageFn"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import { sendMessageFn } from "@/(site)/functions/sendMessageFn"
 import useToast from "@/store/ui/useToast"

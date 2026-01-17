@@ -1,9 +1,7 @@
-type MessageBoxProps = {
-  role: "user" | "ai"
-  text: string
-}
+import { TAIChatMessage } from "@/TS/types/TAIChatMessage"
+import Image from "next/image"
 
-export function MessageBoxAI({ role, text }: MessageBoxProps) {
+export function MessageBoxAI({ role, text, imageUrl }: TAIChatMessage) {
   return (
     <div className={`flex ${role === "user" ? "justify-end" : "justify-start"} animate-[fadeIn_0.3s_ease-in]`}>
       <div
@@ -15,6 +13,7 @@ export function MessageBoxAI({ role, text }: MessageBoxProps) {
           className={`text-[15px] leading-relaxed whitespace-pre-wrap ${role === "user" ? "text-black" : "text-title"}`}>
           {text}
         </p>
+        {imageUrl && <Image src={imageUrl} alt="generated-image" width={400} height={200} />}
       </div>
     </div>
   )

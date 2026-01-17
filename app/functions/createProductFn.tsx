@@ -4,7 +4,7 @@ import useUserStore from "@/store/user/userStore"
 import slugify from "@sindresorhus/slugify"
 import axios, { AxiosResponse } from "axios"
 import { ImageListType } from "react-images-uploading"
-import { uploadImageFn } from "./support/image/uploadImageFn"
+import { uploadImageFn } from "./uploadImageFn"
 import useToast from "@/store/ui/useToast"
 import { TProductDB } from "@/TS/product/TProductDB"
 
@@ -24,7 +24,20 @@ export async function createProductFn(
     if (!price) {
       try {
         const priceResponse: AxiosResponse<API.AIResponse> = await axios.post("/api/ai", {
-          promptValue: `Product: ${title}. Description: ${subTitle}. Estimate realistic USD price. Return ONLY the number.`,
+          promptValue: `Product: ${title}. Description: ${subTitle}. Estimate realistic USD price. Return ONLY the number.
+          PRICING RULES (CRITICAL):
+          - T-shirts/Tank tops: $8-15
+          - Long sleeve shirts: $12-18
+          - Hoodies/Sweatshirts: $20-35
+          - Jackets: $30-50
+          - Pants/Jeans: $18-35
+          - Shorts: $10-20
+          - Shoes/Sneakers: $25-60
+          - Accessories (hats, bags, etc): $8-25
+          - Basic items should be at the LOWER end of the range
+          - Premium/special features can go to HIGHER end
+
+          IMPORTANT: Use realistic market prices. T-shirts should be $10-15, NOT $25-30.`,
           memory: "",
         } as API.AIRequest)
 

@@ -3,6 +3,8 @@ import { useAIChatStore } from "@/components/Navbar/stores/useAIChat"
 import { useLoading } from "@/store/ui/useLoading"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
+import axios from "axios"
+import { uploadImageFn } from "@/functions/uploadImageFn"
 
 type ChatMessage = { role: "user" | "ai"; text: string }
 
@@ -87,30 +89,35 @@ export function useAIChat() {
   }
 
   const generateImage = async () => {
-    if (!promptValue.trim() || isLoading) return
+    if (isLoading) return
 
     setIsLoading(true)
 
-    try {
-      const response = await fetch("/api/ai/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: promptValue }),
-      })
+    await rateLimitSDK.rateLimit("aiGenerateImage")
 
-      if (!response.ok) {
-        console.error("Image generation failed")
-        setConversation([...conversation, { role: "ai", text: "Failed to generate image. Try again." }])
-        return
+    try {
+      const imageResponse = await axios.post(
+        "/api/ai/generate-image",
+        { prompt: `${memory} - generate image for this product` } as API.GenerateImageRequest,
+        { responseType: "arraybuffer" },
+      )
+
+      if (imageResponse.status !== 200) {
+        throw new Error(`Image generation failed with status ${imageResponse.status}`)
       }
 
-      const blob = await response.blob()
-      const imageUrl = URL.createObjectURL(blob)
+      const imageFile = new File([imageResponse.data], "generated_image.png", { type: "image/png" })
+
+      const uploadResult = await uploadImageFn({ imageFile, bucket: "public-images" })
+      if (typeof uploadResult === "string") {
+        throw new Error(`Image upload failed: ${uploadResult}`)
+      }
 
       setConversation([
         ...conversation,
         { role: "user", text: `Generate image: ${promptValue}` },
-        { role: "ai", text: `![Generated Image](${imageUrl})` },
+        // TODO - add more variations e.g here is your generated image
+        { role: "ai", text: "Here you go", imageUrl: uploadResult.publicUrl },
       ])
       setPromptValue("")
     } catch (error) {

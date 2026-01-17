@@ -1,4 +1,4 @@
-import { formatFileNameForBucket } from "./formatFileNameForBucket"
+import { formatFileNameForBucket } from "./support/image/formatFileNameForBucket"
 import { TBuckets } from "@/TS/TBuckets"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 

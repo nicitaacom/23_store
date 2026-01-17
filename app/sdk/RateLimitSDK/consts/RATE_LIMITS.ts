@@ -14,4 +14,9 @@ export const RATE_LIMITS = {
     maxAllowed: 100, // 100 per hour
     key: () => `prompt:new`,
   },
+  aiGenerateImage: {
+    windowSec: 3600,
+    maxAllowed: 10, // 10 per hour
+    key: () => `prompt:new`,
+  },
 } as const

@@ -3,10 +3,9 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { BsStars } from "react-icons/bs"
 import { MessageBoxAI } from "./MessageBoxAI"
+import { TAIChatMessage } from "@/TS/types/TAIChatMessage"
 
-type ChatMessage = { role: "user" | "ai"; text: string }
-
-type Props = { conversation: ChatMessage[]; isLoading: boolean; chatEndRef: React.RefObject<HTMLDivElement> }
+type Props = { conversation: TAIChatMessage[]; isLoading: boolean; chatEndRef: React.RefObject<HTMLDivElement> }
 
 export function ChatMessages({ conversation, isLoading, chatEndRef }: Props) {
   return (
@@ -22,7 +21,7 @@ export function ChatMessages({ conversation, isLoading, chatEndRef }: Props) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3 }}>
-              <MessageBoxAI role={message.role} text={message.text} />
+              <MessageBoxAI role={message.role} text={message.text} imageUrl={message.imageUrl} />
             </motion.div>
           ))}
         </AnimatePresence>

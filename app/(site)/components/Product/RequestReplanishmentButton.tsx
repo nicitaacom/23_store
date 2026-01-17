@@ -47,9 +47,15 @@ export function RequestReplanishmentButton({ product }: { product: TProductDB })
   }
 
   return (
-    <Button className="text-lg flex flex-row gap-x-2" variant="info-outline" onClick={requestReplanishment}>
+    <Button
+      className="text-base font-medium hover:shadow-info/30 transition-shadow"
+      variant="info-outline"
+      size="lg"
+      rounded="lg"
+      shadow="sm"
+      rightIcon={<HiOutlineRefresh className="text-lg" />}
+      onClick={requestReplanishment}>
       Request replenishment
-      <HiOutlineRefresh />
     </Button>
   )
 }

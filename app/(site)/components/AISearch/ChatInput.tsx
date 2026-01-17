@@ -3,6 +3,7 @@
 import { AiOutlineSearch, AiOutlineSend } from "react-icons/ai"
 import { HiOutlineSparkles } from "react-icons/hi2"
 import { Button } from "@/components/ui/Button"
+import { BsCart3 } from "react-icons/bs"
 
 type Props = {
   promptValue: string
@@ -28,6 +29,25 @@ export function ChatInput({
   return (
     <div className="rounded-xl border-2 border-border-color bg-foreground-accent hover:border-success/50 focus-within:border-success transition-colors duration-200">
       <div className="flex items-center gap-3 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon-md"
+            rounded="lg"
+            onClick={generateImage}
+            disabled={isLoading}
+            title="Generate Image"
+            className="text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-700/40 transition-colors">
+            <HiOutlineSparkles className="text-xl" />
+          </Button>
+
+          <Button variant="ghost" size="icon-md" rounded="lg" disabled={isLoading} title="Add to Cart">
+            <BsCart3 className="text-xl" />
+          </Button>
+
+          <div className="w-px h-6 bg-border-color" />
+        </div>
+
         <div className="text-subTitle">
           <AiOutlineSearch className="text-xl" />
         </div>
@@ -48,17 +68,6 @@ export function ChatInput({
         />
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon-md"
-            rounded="lg"
-            onClick={generateImage}
-            disabled={!promptValue.trim() || isLoading}
-            title="Generate Image"
-            className="text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20">
-            <HiOutlineSparkles className="text-xl" />
-          </Button>
-
           <div className="hidden laptop:flex items-center gap-1 px-2 py-1 rounded-md bg-background border border-border-color">
             <span className="text-xs font-medium text-subTitle">⌘</span>
             <span className="text-xs font-medium text-subTitle">K</span>
