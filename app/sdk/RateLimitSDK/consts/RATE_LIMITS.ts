@@ -19,4 +19,9 @@ export const RATE_LIMITS = {
     maxAllowed: 10, // 10 per hour
     key: () => `ai:image`,
   },
+  requestBetterPrices: {
+    windowSec: 86400,
+    maxAllowed: 2, // 2 per day
+    key: () => `request:betterPrices`,
+  },
 } as const

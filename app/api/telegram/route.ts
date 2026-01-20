@@ -30,8 +30,6 @@ export async function POST(req: Request) {
         { status: response.status || 500 },
       )
 
-    console.log(32, "response - ", response)
-
     return NextResponse.json(
       {
         data: response.data,

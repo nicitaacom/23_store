@@ -3,6 +3,8 @@ import { renderAsync } from "@react-email/render"
 import { RequestBetterPricesEmail } from "@/emails/RequestBetterPricesEmail"
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { useToast } from "@/store/ui"
+import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 
 export async function requestBetterPrices(
   t: TI18nFunction,
@@ -10,7 +12,11 @@ export async function requestBetterPrices(
   totalPrice: number,
   userEmail: string | null,
 ) {
+  const rateLimitSDK = new RateLimitSDK()
   try {
+    // 0. Rate limit
+    await rateLimitSDK.rateLimit(t, "requestBetterPrices")
+
     // 1. render email to HTML
     const html = await renderAsync(
       <RequestBetterPricesEmail products={products} totalPrice={totalPrice} userEmail={userEmail} />,
