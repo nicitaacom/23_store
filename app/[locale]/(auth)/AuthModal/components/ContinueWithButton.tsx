@@ -19,11 +19,13 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
   async function continueWith(e: React.FormEvent) {
     e.preventDefault()
     try {
+      console.log(22, "provider - ", provider)
       if (provider === "google") {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: "google",
           options: { redirectTo: `${location.origin}/auth/callback/oauth?provider=google` },
         })
+        console.log(28, "error - ", error)
         if (error) throw Error(error.message)
       } else if (provider === "faceit") {
         throw Error(`${t("auth.error.faceit_not_implemented")} ${process.env.NEXT_PUBLIC_SUPPORT_EMAIL}`)
