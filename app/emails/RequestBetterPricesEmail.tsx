@@ -7,14 +7,18 @@ import { Heading } from "@react-email/heading"
 import { Text } from "@react-email/text"
 import { Hr } from "@react-email/hr"
 import { Img } from "@react-email/img"
-import { TProductAfterDB } from "@/TS/product/TProductAfterDB"
+import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
 
 interface RequestBetterPricesEmailProps {
   products: TProductAfterDB[]
   totalPrice: number
-  userEmail?: string
+  userEmail: string | null
 }
 
+/**
+ *
+ * This does not require translation because this email will be sent to support - support speaks english
+ */
 export function RequestBetterPricesEmail({ products, totalPrice, userEmail }: RequestBetterPricesEmailProps) {
   return (
     <Html>

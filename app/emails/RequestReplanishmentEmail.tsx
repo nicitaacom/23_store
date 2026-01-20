@@ -1,4 +1,5 @@
 // do it in this way to reduce bundle size for better performance - https://github.com/resend/react-email/issues/1329#issuecomment-1980561233
+import { Fragment } from "react"
 import { Html } from "@react-email/html"
 import { Head } from "@react-email/head"
 import { Preview } from "@react-email/preview"
@@ -10,15 +11,18 @@ import { Text } from "@react-email/text"
 import { Link } from "@react-email/link"
 import { Tailwind } from "@react-email/tailwind"
 
-import { TProductDB } from "@/TS/product/TProductDB"
+import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "../utils/currencyFormatter"
 import { getURL } from "@/utils/helpers"
-import { Fragment } from "react"
 
 interface RequestReplanishmentEmailProps {
   product: TProductDB
 }
 
+/**
+ *
+ * This does not require translation because this email from old logic (default E-Commerce - I have AI E-commerce)
+ */
 export const RequestReplanishmentEmail = ({ product }: RequestReplanishmentEmailProps) => {
   const previewText = `User requested replanishment`
   return (
@@ -57,13 +61,7 @@ export const RequestReplanishmentEmail = ({ product }: RequestReplanishmentEmail
             <Section className="w-[480px] max-w-[480px] mb-2 border border-solid border-border-color pb-0">
               {product && (
                 <Section>
-                  <Img
-                    style={{ objectFit: "cover" }}
-                    src={product.img_url[0]}
-                    width="480"
-                    height="240"
-                    alt={product.title}
-                  />
+                  <Img style={{ objectFit: "cover" }} src={product.img_url[0]} width="480" height="240" alt={product.title} />
                   <Text className="m-0 px-4 py-2 text-title text-2xl text-center">{product.title}</Text>
                   <Text className="mb-8 mt-0 text-title text-xl text-center">{formatCurrency(product.price)}</Text>
                 </Section>
@@ -87,9 +85,7 @@ export const RequestReplanishmentEmail = ({ product }: RequestReplanishmentEmail
                   <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}feedback`}>
                     Feedback
                   </Link>
-                  <Link
-                    className="m-0 text-[#407ded] text-sm text-center"
-                    href={`${getURL()}unsubscribe?request-replanishment`}>
+                  <Link className="m-0 text-[#407ded] text-sm text-center" href={`${getURL()}unsubscribe?request-replanishment`}>
                     Unsubscribe
                   </Link>
                 </td>

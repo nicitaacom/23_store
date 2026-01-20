@@ -5,6 +5,7 @@ import Image from "next/image"
 import { IoClose } from "react-icons/io5"
 import { twMerge } from "tailwind-merge"
 import { motion, AnimatePresence } from "framer-motion"
+
 import { PortalWrapper } from "./PortalWrapper"
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
 import { OrganicCanvasBackground } from "./OrganicCanvasBackground"
@@ -13,15 +14,7 @@ import { OrganicCanvasBackground } from "./OrganicCanvasBackground"
 export function GlobalImagePreviewPortal() {
   const { image, side, setImage } = useGlobalImagePreview()
 
-  return (
-    <FileImagePreview
-      image={image}
-      side={side}
-      isShowImage={!!image}
-      isFullscreen
-      onClose={() => setImage(null, side)}
-    />
-  )
+  return <FileImagePreview image={image} side={side} isShowImage={!!image} isFullscreen onClose={() => setImage(null, side)} />
 }
 
 export function FileImagePreview({

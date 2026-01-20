@@ -7,11 +7,13 @@ import { useLoading } from "@/store/ui/useLoading"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import { RefObject, useEffect } from "react"
 import { IoMdClose, IoMdImage } from "react-icons/io"
+import { useScopedI18n } from "@/locales/client"
 
 export function PastedImagePreview({ containerRef }: { containerRef?: RefObject<HTMLDivElement> }) {
   const { image, setImage } = useMessagesStore()
   const { setImage: setImageToPreview } = useGlobalImagePreview()
   const { isLoading } = useLoading()
+  const t = useScopedI18n("support")
 
   // Validate file on mount and periodically
   useEffect(() => {
@@ -50,14 +52,14 @@ export function PastedImagePreview({ containerRef }: { containerRef?: RefObject<
         <button
           onClick={() => setImageToPreview(image, "user", true)}
           className="flex items-center gap-1.5 text-title hover:text-success transition-colors"
-          title="Click to preview">
+          title={t("image_attached_click_to_preview")}>
           <IoMdImage className="text-base text-success" />
-          <span>Image attached - Click to preview</span>
+          <span>{t("image_attached_click_to_preview")}</span>
         </button>
         <button
           onClick={() => setImage(null)}
           className="p-0.5 rounded hover:bg-danger/10 text-subTitle hover:text-danger transition-colors"
-          title="Remove image"
+          title={t("remove_image")}
           tabIndex={-1}>
           <IoMdClose className="text-sm" />
         </button>

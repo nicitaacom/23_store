@@ -2,10 +2,12 @@ import { Dispatch, RefObject, SetStateAction } from "react"
 
 import { uploadImageFn } from "../uploadImageFn"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
-import { sendMessageFn } from "@/(site)/functions/sendMessageFn"
 import useToast from "@/store/ui/useToast"
+import { sendMessageFn } from "@/[locale]/(site)/functions/sendMessageFn"
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 
 export async function uploadImagesAndSendMessage(
+  t: TI18nFunction,
   setHeight: Dispatch<SetStateAction<number>>,
   messageBody: string,
   userId: string,
@@ -19,15 +21,16 @@ export async function uploadImagesAndSendMessage(
 
   if (image) {
     const imgUrl = await uploadImageFn({
+      t,
       imageFile: image,
       bucket: "public-images",
     })
     if (imgUrl === undefined) return
-    if (typeof imgUrl === "string") return toast.show("error", "Error uploading image", imgUrl)
+    if (typeof imgUrl === "string") return toast.show("error", t("support.error.uploading_image"), imgUrl)
 
     imageUrl = imgUrl.publicUrl
   }
-  await sendMessageFn(messageBody.trim(), userId, imageUrl)
+  await sendMessageFn(t, messageBody.trim(), userId, imageUrl)
   setImage(null)
   setHeight(38) // Reset height to initial value after message is sent
 

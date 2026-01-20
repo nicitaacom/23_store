@@ -1,20 +1,21 @@
 "use client"
+
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 import { BsWindow } from "react-icons/bs"
 import { TbWorld } from "react-icons/tb"
-import { FiPhoneCall } from "react-icons/fi"
 import { IoChatboxEllipsesOutline } from "react-icons/io5"
 import { IoIosStats } from "react-icons/io"
+import { FaTelegramPlane } from "react-icons/fa"
 
 import useUserStore from "@/store/user/userStore"
-import useDarkMode from "@/store/ui/darkModeStore"
-import LogoutDropdownItem from "./LogoutDropdownItem"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { SwitchDarkMode } from "@/components"
-import { contact } from "@/constant/contacts"
 import { DropdownContainer, DropdownItem } from "@/components/ui"
-import { useRouter } from "next/navigation"
-import useAvatarDropdownClose from "@/hooks/ui/useAvatarDropdownClose"
+import { LogoutDropdownItem } from "./LogoutDropdownItem"
+import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
+import { useRef, useState } from "react"
 
 interface AvatarDropdownProps {
   role: string
@@ -23,9 +24,21 @@ interface AvatarDropdownProps {
 
 export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
   const router = useRouter()
-  const { isDropdown, openDropdown, closeDropdown, toggle, avatarDropdownRef } = useAvatarDropdownClose()
+
+  const avatarDropdownRef = useRef<HTMLDivElement>(null)
+  const [isShowDropdown, setIsShowDropdown] = useState(false)
+
+  function closeDropdown() {
+    setIsShowDropdown(false)
+  }
+  function toggleDropdown() {
+    setIsShowDropdown(!isShowDropdown)
+  }
+
+  useEscOrClickOutside(avatarDropdownRef, closeDropdown)
+
   const userStore = useUserStore()
-  const mode = useDarkMode()
+  const mode = useDarkModeStore()
 
   let avatarUrl = avatarUrlServer ?? userStore.avatarUrl ?? "/placeholder.jpg"
 
@@ -46,39 +59,25 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
 
   return (
     <DropdownContainer
-      isDropdown={isDropdown}
-      toggle={toggle}
+      isDropdown={isShowDropdown}
+      toggle={toggleDropdown}
       dropdownRef={avatarDropdownRef}
       classNameDropdownContainer="ml-1 z-[102]"
       className="max-w-[200px]"
-      username={userStore.username}
-      icon={
-        <Image className="w-[32px] h-[32px] rounded-full" src={avatarUrl} alt="user logo" width={32} height={32} />
-      }>
-      {role === "SUPPORT" && (
-        <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />
-      )}
+      username={userStore.username || "anonymous"}
+      icon={<Image className="w-[32px] h-[32px] rounded-full" src={avatarUrl} alt="user logo" width={32} height={32} />}>
+      {role === "SUPPORT" && <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />}
       <DropdownItem label="Admin panel" icon={BsWindow} onClick={openAdminPanel} />
       <DropdownItem
         className="flex justify-center mobile:hidden"
         label="Support"
-        icon={FiPhoneCall}
-        href={contact.telegram}
+        icon={FaTelegramPlane}
+        href={process.env.NEXT_PUBLIC_TELEGRAM_URL}
         target="_blank"
       />
       {role === "SUPPORT" && <DropdownItem label="Stats" icon={IoIosStats} href="/stats" />}
-      <DropdownItem
-        className="whitespace-nowrap"
-        label="Change language"
-        icon={TbWorld}
-        onClick={openChangeLanguageModal}
-      />
-      <DropdownItem
-        className="min-[501px]:hidden"
-        label="Dark mode"
-        icon={SwitchDarkMode}
-        onClick={mode.toggleDarkMode}
-      />
+      <DropdownItem className="whitespace-nowrap" label="Change language" icon={TbWorld} onClick={openChangeLanguageModal} />
+      <DropdownItem className="min-[501px]:hidden" label="Dark mode" icon={SwitchDarkMode} onClick={mode.toggleDarkMode} />
       <LogoutDropdownItem />
     </DropdownContainer>
   )

@@ -1,14 +1,26 @@
 "use client"
 
+import { useRef, useState } from "react"
 import { BiSupport } from "react-icons/bi"
 
-import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
 import { Button, DropdownContainer } from "../ui"
 import SupportButtonDropdown from "@/components/SupportButton/components/SupportButtonDropdown"
 import { DragAndDropArea } from "./components/DragAndDropArea/DragAndDropArea"
+import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
+// export feault in order to lazy import this
 export default function SupportButton() {
-  const { isDropdown, toggle, supportDropdownRef } = useSupportDropdownClose()
+  const dropDownRef = useRef<HTMLDivElement>(null)
+  const [isShowDropdown, setIsShowDropdown] = useState(false)
+
+  function closeDropdown() {
+    setIsShowDropdown(false)
+  }
+  function toggleDropdown() {
+    setIsShowDropdown(!isShowDropdown)
+  }
+
+  useEscOrClickOutside(dropDownRef, closeDropdown)
 
   //before:translate-y-[402px] should be +2px then <section className="h-[400px]
   //w-[400px] should be = section w-[400px]
@@ -19,9 +31,9 @@ export default function SupportButton() {
        before:border-l-0 before:border-t-0 before:border-r before:border-b before:bg-foreground-accent before:z-[2]"
       classNameIsDropdownTrue="translate-y-[-4px]"
       classNameIsDropdownFalse="translate-y-[5px]"
-      isDropdown={isDropdown}
-      toggle={toggle}
-      dropdownRef={supportDropdownRef}
+      isDropdown={isShowDropdown}
+      toggle={toggleDropdown}
+      dropdownRef={dropDownRef}
       icon={
         <Button
           className="w-[48px] h-[48px] px-3 desktop:px-4 desktop:w-[64px] desktop:h-[64px] fixed bottom-4 right-6 rounded-full

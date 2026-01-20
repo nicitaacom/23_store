@@ -1,8 +1,10 @@
 import { formatFileNameForBucket } from "./support/image/formatFileNameForBucket"
-import { TBuckets } from "@/TS/TBuckets"
+import { TBuckets } from "@/ts/types/TBuckets"
 import supabaseClient from "@/libs/supabase/supabaseClient"
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 
 interface UploadImageParams {
+  t: TI18nFunction
   imageFile: File
   bucket: TBuckets
   folder?: string
@@ -19,6 +21,7 @@ interface UploadImageParams {
  * Because as I undertand it don't like that fact that I pass File here
  */
 export async function uploadImageFn({
+  t,
   imageFile,
   bucket,
   folder,
@@ -28,7 +31,7 @@ export async function uploadImageFn({
 
   // console.log("🔍 DEBUG - side parameter:", side)
 
-  let cleanedFileName = formatFileNameForBucket(imageFile.name, folder, suffix)
+  let cleanedFileName = formatFileNameForBucket(t, imageFile.name, folder, suffix)
   if (typeof cleanedFileName === "string") return cleanedFileName
 
   // 1. Extract folder path & filename parts
@@ -71,7 +74,7 @@ export async function uploadImageFn({
     upsert: false,
   })
   if (error?.message) return error?.message
-  if (!data) return "No data returned from uploaded image"
+  if (!data) return t("product.error.no_data_returned_from_uploaded_image")
 
   // 5. Get public URL
   const { data: public_url } = supabaseClient.storage.from(bucket).getPublicUrl(data.path)

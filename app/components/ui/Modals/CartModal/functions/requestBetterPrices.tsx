@@ -1,9 +1,15 @@
 import { renderAsync } from "@react-email/render"
 
 import { RequestBetterPricesEmail } from "@/emails/RequestBetterPricesEmail"
-import { TProductAfterDB } from "@/TS/product/TProductAfterDB"
+import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 
-export async function requestBetterPrices(products: TProductAfterDB[], totalPrice: number, userEmail?: string) {
+export async function requestBetterPrices(
+  t: TI18nFunction,
+  products: TProductAfterDB[],
+  totalPrice: number,
+  userEmail: string | null,
+) {
   try {
     // 1. render email to HTML
     const html = await renderAsync(
@@ -17,8 +23,8 @@ export async function requestBetterPrices(products: TProductAfterDB[], totalPric
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         from: process.env.NEXT_PUBLIC_SUPPORT_EMAIL,
-        to: "notifications@nicitaa.com",
-        subject: "New Better Price Request",
+        to: process.env.NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL,
+        subject: "New Better Price Request", // no i18n needed here support should understand english (not any lng on website)
         html,
       }),
     })
@@ -39,11 +45,11 @@ export async function requestBetterPrices(products: TProductAfterDB[], totalPric
       }
     })()
 
-    if (!emailResponse.ok) return { success: false, message: emailData.message || "Email failed" }
+    if (!emailResponse.ok) return { success: false, message: emailData.message || t("product.error.better_prices_email") }
 
-    if (telegramResponse.status !== 200) return { success: false, message: "Telegram failed" }
+    if (telegramResponse.status !== 200) return { success: false, message: t("product.error.better_prices_telegram") }
 
-    return { success: true, message: emailData.message || "Request sent successfully!" }
+    return { success: true, message: emailData.message || t("product.success.better_prices") }
   } catch (error) {
     return { success: false, message: error instanceof Error ? error.message : String(error) }
   }

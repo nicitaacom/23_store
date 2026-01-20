@@ -1,15 +1,22 @@
-export function formatFileNameForBucket(fileName: string, folder_?: string, suffix_?: string): string | [string] {
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+
+export function formatFileNameForBucket(
+  t: TI18nFunction,
+  fileName: string,
+  folder_?: string,
+  suffix_?: string,
+): string | [string] {
   // Ensure to keep the file extension intact to avoid issues when downloading .zip files from Supabase
   // (files may not have extensions), leading to errors when dragging and dropping them.
 
   // 2. Find last dot and validate
   const lastDot = fileName.lastIndexOf(".")
-  if (lastDot < 1) return "Filename must contain one dot before file extension (e.g. 'file.jpg')" // it allows image.dep.png
+  if (lastDot < 1) return t("support.error.filename_must_contain_dot") // it allows image.dep.png
 
   // 3. Split base & ext
   const base = fileName.slice(0, lastDot) // e.g image
   const extension = fileName.slice(lastDot + 1).toLowerCase() // e.g png
-  if (!extension) return "File extension is required to insert in DB bucket"
+  if (!extension) return t("support.error.file_extension_is_required")
 
   // "Hello-World!_@example #2023 30%" becomes "Hello World 2023 30%" then "Hello-world 2023 30"
   const cleanedBaseName = base

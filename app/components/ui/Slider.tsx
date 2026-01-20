@@ -1,11 +1,10 @@
 "use client"
 
 import Image from "next/image"
-import { Carousel } from "react-responsive-carousel"
-import "react-responsive-carousel/lib/styles/carousel.min.css"
-
-import { AiFillCaretRight, AiFillCaretLeft } from "react-icons/ai"
 import { twMerge } from "tailwind-merge"
+import { Carousel } from "react-responsive-carousel"
+import { AiFillCaretRight, AiFillCaretLeft } from "react-icons/ai"
+import "react-responsive-carousel/lib/styles/carousel.min.css"
 
 export type TImages = {
   src: string

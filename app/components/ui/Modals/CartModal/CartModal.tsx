@@ -8,12 +8,10 @@ import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import EmptyCart from "./EmptyCart"
 import { ProductsInCart } from "./ProductsInCart"
 import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
+import { useI18n } from "@/locales/client"
 
-export interface CartModalProps {
-  label: string
-}
-
-export function CartModal({ label }: CartModalProps) {
+export function CartModal() {
+  const t = useI18n()
   const router = useRouter()
   const cartStore = useCartStore()
   const [isSkeleton, setIsSkeleton] = useState(false)
@@ -46,7 +44,7 @@ export function CartModal({ label }: CartModalProps) {
       modalQuery="CartModal">
       <div className="relative w-full h-full flex flex-col gap-y-4 overflow-hidden">
         <h1 className="text-3xl laptop:text-4xl font-bold text-center bg-gradient-to-r from-success via-success-accent to-success bg-clip-text text-transparent shrink-0">
-          {label}
+          {t("modal.cart.label")}
         </h1>
 
         <section className="flex-1 w-[95%] mx-auto overflow-hidden">

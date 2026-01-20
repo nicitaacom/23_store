@@ -1,6 +1,6 @@
 "use client"
 
-import { useCtrlKModal } from "@/store/ui/ctrlKModal"
+import { useCtrlKModal } from "@/store/ui/useCtrlKModal"
 import { useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 

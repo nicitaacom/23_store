@@ -1,42 +1,50 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 
-import { IMessageDB } from "@/TS/support/IMessage"
+import { IMessageDB } from "@/ts/support/IMessage"
 import useUserStore from "@/store/user/userStore"
 
 import { MessageBox } from "../components/MessageBox"
 import { MessageInput } from "../../ui/Inputs/MessageInput"
 import { getAnonymousId } from "@/functions/getAnonymousId"
-import { useLoadInitialMessages } from "@/hooks/ui/supportButton/useLoadInitialMessages"
 import { useMarkMessagesAsSeen } from "@/hooks/ui/supportButton/useMarkMessagesAsSeen"
 import { useScrollToBottom } from "@/hooks/ui/supportButton/useScrollToBottom"
-import useSupportDropdownClose from "@/hooks/ui/useSupportDropdownClose"
 import { MarkTicketAsCompletedUser } from "../components/MarkTicketAsCompletedUser"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import { useLoading } from "@/store/ui/useLoading"
 import { getPusherClient } from "@/libs/pusher"
+import { useScopedI18n } from "@/locales/client"
+import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
 export default function SupportButtonDropdown() {
-  const { isDropdown } = useSupportDropdownClose()
+  const t = useScopedI18n("support")
+
+  const dropDownRef = useRef<HTMLDivElement>(null)
+  const [isShowDropdown, setIsShowDropdown] = useState(false)
+
+  function closeDropdown() {
+    setIsShowDropdown(false)
+  }
+
+  useEscOrClickOutside(dropDownRef, closeDropdown)
 
   const router = useRouter()
   const bottomRef = useRef<HTMLUListElement>(null)
   const userStore = useUserStore()
   const userId = userStore.userId || getAnonymousId()
   const { isLoading } = useLoading()
-  useLoadInitialMessages()
 
   const { messages, ticketId, setMessages } = useMessagesStore()
-  useMarkMessagesAsSeen(isDropdown, ticketId, messages, userId, isLoading)
-  useScrollToBottom(bottomRef, isDropdown)
+  useMarkMessagesAsSeen(isShowDropdown, ticketId, messages, userId, isLoading)
+  useScrollToBottom(bottomRef, isShowDropdown)
 
   useEffect(() => {
     const pusherClient = getPusherClient()
     // I want to initialize connection with pusher only in case isDropdown and userId
     // because user may be not authenticated and that's why I set anonymousId when user send first message
-    if (userId && isDropdown && ticketId) {
+    if (userId && isShowDropdown && ticketId) {
       pusherClient.subscribe(ticketId)
       if (bottomRef.current) {
         bottomRef.current.scrollTop = bottomRef.current.scrollHeight
@@ -59,9 +67,7 @@ export default function SupportButtonDropdown() {
 
       const seenHandler = (updatedMessages: IMessageDB[]) => {
         setMessages(
-          messages.map(
-            existingMessage => updatedMessages.find(msg => msg.id === existingMessage.id) || existingMessage,
-          ),
+          messages.map(existingMessage => updatedMessages.find(msg => msg.id === existingMessage.id) || existingMessage),
         )
       }
 
@@ -90,13 +96,13 @@ export default function SupportButtonDropdown() {
       className="relative h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col bg-foreground-accent
      rounded-lg overflow-hidden shadow-lg">
       <div className="w-full bg-foreground border-b border-border-color py-3 flex justify-center items-center px-8 relative">
-        <h1 className="text-[1.1rem] mobile:text-[1.4rem] font-semibold text-title">Response ~15s</h1>
+        <h1 className="text-[1.1rem] mobile:text-[1.4rem] font-semibold text-title">{t("response_time", { number: 15 })}</h1>
         <div className="absolute right-4 z-20">
           <MarkTicketAsCompletedUser messagesLength={messages?.length ?? 0} ticketId={ticketId} />
         </div>
       </div>
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center text-subTitle">Loading messages...</div>
+        <div className="flex-1 flex items-center justify-center text-subTitle">{t("loading_messages")}...</div>
       ) : (
         <div className="flex flex-col flex-1 overflow-y-auto pt-6 z-20">
           {messages.length ? (
@@ -105,7 +111,7 @@ export default function SupportButtonDropdown() {
             </ul>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <p className="text-subTitle text-sm">No messages yet.</p>
+              <p className="text-subTitle text-sm">{t("no_messages_yet")}.</p>
             </div>
           )}
           <MessageInput />

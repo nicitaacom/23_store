@@ -1,18 +1,19 @@
 import moment from "moment-timezone"
 import { TRateLimiterName } from "./types/TRateLimiterName"
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 
 type Action = API.RateLimitRequest["action"]
 
 export class RateLimitSDK {
-  async rateLimit(limiterName: TRateLimiterName): Promise<API.RateLimitResponse> {
-    return this.requestFn("rateLimit", limiterName)
+  async rateLimit(t: TI18nFunction, limiterName: TRateLimiterName): Promise<API.RateLimitResponse> {
+    return this.requestFn(t, "rateLimit", limiterName)
   }
 
-  async getRemaining(limiterName: TRateLimiterName): Promise<API.RateLimitResponse> {
-    return this.requestFn("getRemaining", limiterName)
+  async getRemaining(t: TI18nFunction, limiterName: TRateLimiterName): Promise<API.RateLimitResponse> {
+    return this.requestFn(t, "getRemaining", limiterName)
   }
 
-  private async requestFn(action: Action, limiterName: TRateLimiterName): Promise<API.RateLimitResponse> {
+  private async requestFn(t: TI18nFunction, action: Action, limiterName: TRateLimiterName): Promise<API.RateLimitResponse> {
     // 1. get timezone
     const userTimezone = moment.tz.guess()
 
@@ -28,8 +29,8 @@ export class RateLimitSDK {
     })
 
     // 3. handle errors
-    if (response.status === 429) throw new Error("Rate limit exceeded")
-    if (!response.ok) throw new Error("Rate limit request failed")
+    if (response.status === 429) throw new Error(t("sdk.rate_limit_exeeded"))
+    if (!response.ok) throw new Error(t("sdk.rate_limit_request_failed"))
 
     // 4. return parsed result
     return (await response.json()) as API.RateLimitResponse

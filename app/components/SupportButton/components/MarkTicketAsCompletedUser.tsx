@@ -8,10 +8,10 @@ import { FaStar } from "react-icons/fa"
 
 import { TAPITicketsClose } from "@/api/tickets/close/route"
 import { TAPITicketsRate } from "@/api/tickets/rate/route"
-import useDarkMode from "@/store/ui/darkModeStore"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { Button } from "@/components/ui"
 import { useEffect, useState } from "react"
-import { useSupportDropdown } from "@/store/ui/supportDropdown"
+import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import { useRouter } from "next/navigation"
 import { getPusherClient } from "@/libs/pusher"
 
@@ -32,7 +32,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
   const [showRateThisTicket, setShowRateThisTicket] = useState(false)
   const [showThankYou, setShowThankYou] = useState(false)
 
-  const { isDarkMode } = useDarkMode()
+  const { isDarkMode } = useDarkModeStore()
 
   async function closeTicket() {
     setShowMarkTicketAsCompleted(false)
@@ -176,9 +176,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
           before:border-l-0 before:border-t-0 before:border-r before:border-b
            before:bg-[rgba(0,0,0,0.75)] before:z-[2] before:border-border-color/25
           flex justify-center items-center`,
-          showThankYou
-            ? "opacity-100 visible transition-all duration-300"
-            : "opacity-0 invisible transition-all duration-300",
+          showThankYou ? "opacity-100 visible transition-all duration-300" : "opacity-0 invisible transition-all duration-300",
         )}>
         <div className="flex flex-col gap-y-2">
           <h1 className="text-center text-xl">Thank you</h1>

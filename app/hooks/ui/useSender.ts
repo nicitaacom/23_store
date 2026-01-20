@@ -1,10 +1,10 @@
-import useDarkMode from "@/store/ui/darkModeStore"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import useUserStore from "@/store/user/userStore"
 import { getCookie } from "@/utils/helpersCSR"
 
 const useSender = (sender_avatar_url: string | undefined, sender_id: string) => {
   const { userId, isAuthenticated, avatarUrl } = useUserStore()
-  const { isDarkMode } = useDarkMode()
+  const { isDarkMode } = useDarkModeStore()
 
   const placeholder = "/placeholder.jpg"
   const BiUserCircleDark = "/BiUserCircle-dark.svg"

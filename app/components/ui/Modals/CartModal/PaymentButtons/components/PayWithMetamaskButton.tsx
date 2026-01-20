@@ -8,10 +8,11 @@ import { formatBalance } from "@/utils/formatMetamaskBalance"
 import { Button } from "@/components/ui/Button"
 import useToast from "@/store/ui/useToast"
 import { useLoading } from "@/store/ui/useLoading"
-import { useDoYouWantRecieveCheckModal } from "@/store/ui/doYouWantRecieveCheckModal"
+import { useDoYouWantRecieveCheckModal } from "@/store/ui/useDoYouWantRecieveCheckModal"
 import useCartStore from "@/store/user/cartStore"
 import useUserStore from "@/store/user/userStore"
 import { sendMoneyWithMetamask } from "../functions/sendMoneyWithMetamask"
+import { useI18n, useScopedI18n } from "@/locales/client"
 
 // Only EVM-compatible chains work with MetaMask
 const WALLET_ADDRESSES = {
@@ -49,6 +50,8 @@ function toChecksumAddress(address: string): string {
 }
 
 export function PayWithMetamaskButton() {
+  const st = useScopedI18n("payment")
+  const t = useI18n()
   const router = useRouter()
   const toast = useToast()
   const cartStore = useCartStore()
@@ -110,11 +113,7 @@ export function PayWithMetamaskButton() {
 
     // 1. validate address exists
     if (!recipientAddress || !recipientAddress.trim()) {
-      toast.show(
-        "error",
-        "Configuration Error",
-        `Wallet address for ${selectedChain} is not configured in environment variables`,
-      )
+      toast.show("error", st("error.configuration_title"), st("error.configuration_subtitle", { selectedChain }))
       setIsLoading(false)
       return
     }
@@ -125,8 +124,8 @@ export function PayWithMetamaskButton() {
     if (!/^0x[a-fA-F0-9]{40}$/.test(trimmedAddress)) {
       toast.show(
         "error",
-        "Invalid Address Format",
-        `Address: ${trimmedAddress} | Length: ${trimmedAddress.length} | Expected: 42 chars starting with 0x`,
+        st("error.invalid_address_format_title"),
+        st("error.invalid_address_format_subtitle", { trimmedAddressLength: trimmedAddress.length, trimmedAddress }),
       )
       setIsLoading(false)
       return
@@ -134,17 +133,15 @@ export function PayWithMetamaskButton() {
 
     // 3. convert to checksum address (EIP-55)
     const checksummedAddress = toChecksumAddress(trimmedAddress)
-    console.log("Original address:", trimmedAddress)
-    console.log("Checksummed address:", checksummedAddress)
 
     try {
       if (!isAuthenticated) {
         openDoYouWantRecieveCheckModal(checksummedAddress)
       } else {
-        await sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, checksummedAddress)
+        await sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, checksummedAddress, t)
       }
     } catch (error) {
-      console.error("Error in sendMoneyWithMetamask:", error)
+      console.error(st("error.sending_money_with_metamask"), error)
       toast.show("error", "Transaction Error", error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)
@@ -157,36 +154,36 @@ export function PayWithMetamaskButton() {
     if (!hasProvider) {
       toast.show(
         "error",
-        "Metamask not detected",
+        st("error.metamask_not_detected"),
         <span className="inline">
-          Please install metamask&nbsp;
+          {st("error.please_install_metamask")}&nbsp;
           <Button
             className="inline w-fit text-info"
             variant="link"
             active="active"
             target="_blank"
             href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=ext_app_menu">
-            here
+            {st("error.here")}
           </Button>
-          or using&nbsp;
+          {st("error.or_using")}&nbsp;
           <Button
             className="inline w-fit text-info"
             variant="link"
             active="active"
             target="_blank"
             href={`${location.origin}/docs/customer/how-to-install-metamask`}>
-            this&nbsp;
+            {st("error.this")}&nbsp;
           </Button>
-          guide
+          {st("error.guide")}
           <br />
-          or enable metamask extention. Already done it?{" "}
+          {st("error.or_enable_metamask")}
           <Button
             onClick={() => window.location.reload()}
             className="inline w-fit text-info"
             variant="link"
             active="active"
             target="_blank">
-            reload page&nbsp;
+            {st("error.reload_page")}&nbsp;
           </Button>
         </span>,
         10000,
@@ -201,8 +198,8 @@ export function PayWithMetamaskButton() {
           "error",
           "You rejected connection",
           <p>
-            Please connect one more time and
-            <br /> this time don&apos;t cancel request
+            {st("error.please_connect_one_more_time")}
+            <br /> {st("error.this_time_dont_cancel_request")}
           </p>,
         )
       }
@@ -240,7 +237,8 @@ export function PayWithMetamaskButton() {
 
       <div className="flex gap-2">
         <Button
-          className={`flex-1 group relative overflow-hidden ${config.bg} ${config.hover} ${config.text} border-0 font-semibold shadow-lg hover:shadow-xl transition-all`}
+          className={`flex-1 group relative overflow-hidden ${config.bg} ${config.hover} ${config.text}
+          border-0 font-semibold shadow-lg hover:shadow-xl transition-all`}
           size="lg"
           rounded="lg"
           disabled={isLoading}

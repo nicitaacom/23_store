@@ -1,0 +1,402 @@
+// locales/fi.ts
+// IMPORTANT RULE: every translated line should be in same amount of lines e.g en 1 line ru 1 line etc (NOT en 1 line ru 2 lines)
+
+export default {
+  hello: "Hello on latvian",
+  "hello.world": "Hello world! on latvian",
+  welcome: "Hello {name}! on latvian",
+
+  // /search route
+  "search.title": "Haku",
+
+  // =================      =================
+  //                   AUTH
+  // =================      =================
+  "auth.login.title": "Hei,\nTervetuloa takaisin",
+  "auth.login.subtitle": "Hei, tervetuloa takaisin erityiseen paikkaasi",
+  "auth.login.validating_password_security": "Tarkistetaan salasanan turvallisuutta...",
+  "auth.register.title": "Hei,\nLuo tili",
+  "auth.register.subtitle": "Liity joukkoomme ja aloita matkasi tänään",
+  "auth.recovery.title": "Unohditko salasanasi?",
+  "auth.recovery.subtitle": "Anna sähköpostiosoitteesi salasanan palauttamiseksi",
+
+  // Password Strength Levels
+  "auth.password.strength": "Salasanan vahvuus",
+  "auth.password.strength.weak": "Heikko",
+  "auth.password.strength.fair": "Kohtalainen",
+  "auth.password.strength.good": "Hyvä",
+  "auth.password.strength.strong": "Vahva",
+
+  // Password Validation Messages
+  "auth.password.validation.required": "Salasana on pakollinen",
+  "auth.password.validation.min_length": "Salasanan on oltava vähintään 15 merkkiä pitkä",
+  "auth.password.validation.max_length": "Salasana ei saa ylittää 128 merkkiä (DoS-suojaus)",
+  "auth.password.validation.prohibited_chars": "Salasana sisältää kiellettyjä ohjausmerkkejä",
+  "auth.password.validation.null_bytes": "Salasana sisältää nollatavuja, joita ei sallita",
+  "auth.password.validation.common_password": "Tämä salasana on yleinen ja helppo arvata",
+  "auth.password.validation.keyboard_patterns": "Salasana sisältää näppäimistökuvioita, jotka ovat helposti arvattavissa",
+  "auth.password.validation.repeating_chars": "Salasana sisältää liian monta toistuvaa merkkiä",
+  "auth.password.validation.sequential_chars": "Salasana sisältää peräkkäisiä merkkejä, jotka ovat helposti arvattavissa",
+  "auth.password.validation.leet_speak": "Salasana on yleinen leet-muunnos, jossa merkit on korvattu yksinkertaisesti",
+  "auth.password.validation.breached_password": "Tämä salasana on esiintynyt tietovuodossa eikä ole turvallinen käyttää",
+  "auth.password.validation.personal_info": "Salasana sisältää henkilökohtaisia tietoja ja on helposti arvattavissa",
+  "auth.password.validation.too_weak": "Salasana on liian heikko. Valitse vahvempi salasana.",
+  "auth.password.validation.too_fair": "Salasana on liian keskinkertainen. Valitse vahvempi salasana.",
+
+  // Email Validation Messages
+  "auth.email.validation.required": "Sähköposti on pakollinen",
+  "auth.email.validation.too_long": "Sähköposti on liian pitkä (enintään 254 merkkiä)",
+  "auth.email.validation.invalid_format": "Sähköpostin on oltava perusmuodon mukainen (esim. esimerkki@esimerkki.com)",
+  "auth.email.validation.domain_missing": "Verkkotunnusosa on oltava olemassa (esim. esimerkki@domain.com)",
+  "auth.email.validation.email_part_missing": "Sähköpostin paikallisosan on oltava olemassa (esim. esimerkki@domain.com)",
+  "auth.email.validation.email_part_double_dot": "Sähköpostin paikallisosassa ei saa olla peräkkäisiä pisteitä (..)",
+  "auth.email.validation.domain_part_double_dot": "Verkkotunnuksen osassa ei saa olla peräkkäisiä pisteitä (..)",
+  "auth.email.validation.domain_part_dot": "Verkkotunnuksen osa ei saa alkaa tai loppua pisteellä (.)",
+  "auth.email.validation.email_part_dot": "Sähköpostin paikallisosan ei saa alkaa tai loppua pisteellä (.)",
+  "auth.email.validation.multiple_at": "Sähköpostissa saa olla täsmälleen yksi @-merkki",
+  "auth.email.validation.invalid": "Virheellinen sähköpostimuoto",
+
+  // Username Validation Messages
+  "auth.validation.username.required": "Käyttäjätunnus on pakollinen",
+
+  // Form Fields
+  "auth.email.placeholder": "nicitaacom@gmail.com",
+  "auth.password.placeholder_new": "NeW-RaNd0m_PasWorD_system-1",
+  "auth.password.placeholder": "RaNd0m_PasWorD_system-1",
+  "auth.username.placeholder": "HANTARESpeek",
+  "auth.email.label": "Sähköposti",
+  "auth.password.label": "Salasana",
+  "auth.username.label": "Käyttäjänimi",
+  "auth.email_not_allowed_with_this_domain": "Tämän verkkotunnuksen sähköposti ei ole sallittu",
+
+  // Buttons
+  "auth.login.button": "Kirjaudu sisään",
+  "auth.register.button": "Luo tili",
+  "auth.recovery.button": "Palauta salasana",
+  "auth.loading": "Odota hetki...",
+
+  // Links
+  "auth.remember.me": "Muista minut",
+  "auth.forgot.password": "Unohditko salasanasi?",
+  "auth.no.account": "Ei tiliä?",
+  "auth.have.account": "Onko sinulla jo tili?",
+  "auth.sign.up": "Rekisteröidy",
+  "auth.sign.in": "Kirjaudu sisään",
+  "auth.or.continue": "tai jatka",
+  "auth.continue_with_google": "Jatka Googlella",
+  "auth.resending": "lähetetään uudelleen",
+  "auth.resent": "lähetetty uudelleen",
+  "auth.resend_failed": "Uudelleenlähetys epäonnistui: {message}",
+  "auth.resend": "Lähetä uudelleen",
+
+  // Auth database errors
+  "auth.database.error_finding_user": "Virhe käyttäjän etsimisessä tietokannasta: {message}",
+  "auth.database.user_not_registered": "Käyttäjä ei ole rekisteröity",
+  "auth.database.email_not_registered_with_credentials": "Tätä sähköpostiosoitetta ei ole rekisteröity tunnistetiedoilla",
+  "auth.database.invalid_credentials": "Virheelliset tunnistetiedot",
+  "auth.database.supabase_error": "Autentikointivirhe: {message}",
+  "auth.database.no_session": "Autentikointipalvelu ei palauttanut istuntoa",
+  "auth.database.no_user": "Autentikointipalvelu ei palauttanut käyttäjää.",
+
+  // Registration specific
+  "auth.register.password_mismatch": "Salasanat eivät täsmää",
+  "auth.register.user_already_exists": "Tili tällä sähköpostilla on jo olemassa",
+  "auth.register.user_exists_different_provider":
+    "Tili tällä sähköpostilla on olemassa, mutta se luotiin eri palveluntarjoajalla (Google, Facebook jne.)",
+  "auth.register.password_hashing_failed": "Salasanan suojaus epäonnistui. Yritä uudelleen.",
+  "auth.register.auth_user_creation_failed": "Autentikointitilin luominen epäonnistui",
+  "auth.register.email_confirmation_required": "Tili luotu onnistuneesti! Tarkista sähköpostisi vahvistaaksesi tilisi.",
+  "auth.register.user_exist_email_not_confirmed": "Käyttäjä on rekisteröity, mutta sähköpostia ei ole vahvistettu",
+  "auth.server.missing_password_secret": "Salasanaan liittyvä salaisuus puuttuu — ota yhteyttä tukeen",
+  "auth.server.missing_jwt_secret": "JWT-salaisuus puuttuu — ota yhteyttä tukeen",
+  "auth.server.missing_support_email": "Tukisähköpostiosoite puuttuu — ota yhteyttä tukeen",
+  "auth.server.cannot_store_verification": "Vahvistuksen tallentaminen epäonnistui",
+  "auth.server.error_encrypting_password": "Virhe salasanan salaamisessa",
+  "auth.server.invalid_data": "Tallennettua vahvistusta ei voitu hakea",
+  "auth.register.resend_rate_limited": "Sähköposti on jo lähetetty. Yritä uudelleen {seconds} sekunnin kuluttua.",
+  "auth.register.insert_new_user_failed": "Uuden käyttäjäkirjauksen lisääminen tietokantaan epäonnistui: {message}",
+
+  // Email verification
+  "auth.verify.missing_token": "Vahvistustunnus puuttuu",
+  "auth.verify.invalid_or_expired_token": "Vahvistustunnus on virheellinen tai vanhentunut",
+  "auth.verify.invalid_token_payload": "Vahvistustunnuksen sisältö ei ole kelvollinen",
+  "auth.verify.user_not_found": "Käyttäjää ei löydy",
+  "auth.verify.email_mismatch": "Sähköpostiosoite ei vastaa tietojamme",
+  "auth.verify.already_verified": "Sähköposti on jo vahvistettu",
+  "auth.verify.success": "Sähköpostisi on vahvistettu onnistuneesti",
+  "auth.database.error": "Tietokantavirhe: {{message}}",
+
+  // Password recovery
+  "auth.database.user_not_found": "Tiliä ei löytynyt tällä sähköpostiosoitteella",
+  "auth.database.user_no_credentials_provider":
+    "Tätä sähköpostia ei ole rekisteröity salasanalla. Yritä kirjautua Googlella tai muulla palvelulla.",
+  "auth.database.reset_email_failed": "Salasanan palautussähköpostin lähettäminen epäonnistui: {message}",
+  "auth.database.reset_email_sent": "Jos tili tällä sähköpostiosoitteella on olemassa, saat pian salasanan palautuslinkin.",
+
+  // Other
+  "auth.recover.completed": "Palautus suoritettu",
+  "auth.recover.stay_safe": "Pysy turvassa!",
+  "auth.auth.completed": "Kirjautuminen suoritettu",
+  "auth.error.faceit_not_implemented": "Faceit ei ole toteutettu – jos osaat tehdä sen, ota yhteyttä: ",
+  "auth.error.continuing_with": "Virhe jatkettaessa palvelulla",
+  "auth.continue_with_faceit": "Jatka Faceitillä",
+  "auth.continue_with_twitter": "Jatka Twitterillä",
+  "auth.page_close_in": "Suljen tämän sivun",
+  "auth.mission_passed": "Tehtävä suoritettu!",
+  "auth.respect_plus": "kunnioitus+",
+  "auth.change_query_params_back_to": "Nyt vaihda kyselyparametrit takaisin ",
+  "auth.error.unknown": "Tuntematon virhe – ota yhteyttä adminiin",
+  "auth.here": "tässä",
+  "auth.check_spam": "Jos et saanut sähköpostia – tarkista Roskaposti ja Kaikki viestit",
+  "auth.recovery.passowrd_changed": "Salasanasi on vaihdettu – poista sähköposti",
+  "auth.recovery.session_expired": "Istuntosi on vanhentunut – palauta salasana nopeammin ensi kerralla",
+  "auth.account.exist_google": "Sinulla on jo tili Googlella",
+  "auth.account.exist": "Sinulla on jo tili palvelulla {provider}",
+  "auth.no_user_or_username": "Käyttäjää tai käyttäjänimeä ei löytynyt – ota yhteyttä adminiin",
+  "auth.error.user_exist": "Käyttäjää tai käyttäjänimeä ei löytynyt – ota yhteyttä adminiin",
+  "auth.error.not_verified_email_check_your_email": "Sähköpostiasi ei ehkä ole vahvistettu – tarkista sähköposti",
+  "auth.dont_received_email_q": "Etkö saanut sähköpostia?",
+  "auth.recovery.change_email": "Vaihda sähköposti",
+  "auth.already_authenticated": "Olet jo kirjautunut",
+  "auth.already_authenticated_subtitle": "Jos haluat kirjautua toiselle tilille, kirjaudu ulos ja kirjaudu sitten toiseen",
+
+  // =================        =================
+  //                   MODALS
+  // =================        =================
+  "modal.loading.admin": "Ladataan hallintapaneelia...",
+  "modal.loading.cart": "Ladataan ostoskoria...",
+  "modal.loading.language": "Ladataan kielenvaihtoikkunaa...",
+  "modal.yes": "Kyllä",
+  "modal.no": "Ei",
+  "modal.are_you_sure_clear_cart.label": "Haluatko varmasti tyhjentää ostoskorin",
+  "modal.are_you_sure_clear_cart.primary_button": "Tyhjennä",
+  "modal.are_you_sure_clear_cart.secondary_button": "Takaisin",
+  "modal.are_you_sure_delete_product.label": "Haluatko varmasti poistaa",
+  "modal.are_you_sure_delete_product.primary_button": "Poista",
+  "modal.are_you_sure_delete_product.secondary_button": "Takaisin",
+  "modal.are_you_sure_mark_ticket_as_completed_support.label": "Haluatko varmasti merkitä tämän tukipyynnön valmiiksi?",
+  "modal.are_you_sure_mark_ticket_as_completed_support.subtitle_l1": "Tämä toiminto sulkee tukipyynnön",
+  "modal.are_you_sure_mark_ticket_as_completed_support.subtitle_l2":
+    "Jos et auttanut, tukipyynnön sulkeminen voi vaikuttaa maineeseesi",
+  "modal.ctrl_k.title": "Hae tuotteita",
+  "modal.ctrl_k.placeholder": "Haku",
+  "modal.do_you_want_receive_check.title": "Haluatko vastaanottaa kuitin?",
+  "modal.do_you_want_receive_check.email_placeholder": "Sähköposti",
+  "modal.admin_panel.label": "Sähköposti",
+  "modal.cart.label": "Sähköposti",
+
+  // =================        =================
+  //                   TOAST
+  // =================        =================
+  "toast.success.title": "Onnistui",
+  "toast.success.subtitle": "Toiminto suoritettu onnistuneesti",
+  "toast.error.title": "Virhe",
+  "toast.error.subtitle": "Tuntematon virhe, ota yhteyttä",
+  "toast.error.button": "Admin",
+  "toast.warning.title": "Varoitus",
+  "toast.warning.subtitle": "Tämä vaatii huomiotasi",
+  "toast.error.updating_quantity": "Virhe määrän päivittämisessä",
+
+  // =================     =================
+  //                   SDK
+  // =================     =================
+  "sdk.rate_limit_exeeded": "Nopeusraja ylitetty",
+  "sdk.rate_limit_request_failed": "Nopeusrajakysely epäonnistui",
+
+  // =================        =================
+  //                   aichat
+  // =================        =================
+  "aichat.error": "Palveluvirhe. Yritä uudelleen ja ota yhteyttä tukeen",
+  "aichat.error.no_reply_data": "Ei vastauksia?.[0]?.message?.content – ota yhteyttä tukeen",
+  "aichat.generate_image": "Luo kuva",
+  "aichat.generate_image_completed": "Ole hyvä",
+  "aichat.error.generate_image": "Kuvan luontivirhe",
+  "aichat.add_to_cart": "Lisää ostoskoriin",
+  "aichat.header_title": "AI-ostosassistentti",
+  "aichat.header_subtitle": "Löydä täydellinen tuote sekunneissa",
+  "aichat.button.send": "Lähetä",
+  "aichat.emptystate.title": "Valmiina auttamaan ostoksissa",
+  "aichat.emptystate.subtitle": "Kuvaile mitä etsit ja ohjaan sinut täydelliseen tuotteeseen",
+
+  // =================        =================
+  //                   product
+  // =================        =================
+  "product.quantity": "Määrä",
+  "product.total": "Yhteensä",
+  "product.subtotal": "Välisummaa",
+  "product.products": "Tuotteet",
+  "product.no_products_found": "Tuotteita ei löytynyt",
+  "product.add_to_cart": "Lisää ostoskoriin", // I know it's a duplicate with aichat - this is from old functionality
+  "product.this_field_is_required": "Tämä kenttä on pakollinen",
+  "product.title_required": "Anna tuotteen otsikko – a–z, numerot ja #()_ sallittu",
+  "product.subtitle_required": "Merkit !$^*_=\\ eivät ole sallittuja",
+  "product.price_required": "Anna hinta väliltä 1–999 999 kahdella desimaalilla",
+  "product.on_stock_required": "Anna varastosaldo – 1–99 999",
+  "product.drop_files_here": "Pudota tiedostot tähän",
+  "product.click_or_drop_here": "Klikkaa tai pudota tähän",
+  "product.update": "Päivitä",
+  "product.remove": "Poista",
+  "product.remove_all_images": "Poista kaikki kuvat",
+  "product.placeholder.title": "Tuotteen otsikko",
+  "product.placeholder.description": "Tuotteen kuvaus",
+  "product.placeholder.price": "Tuotteen hinta",
+  "product.placeholder.on_stock": "Varastosaldo",
+  "product.create_product": "Luo tuote",
+  "product.no_products_to_delete": "Ei poistettavia tuotteita",
+  "product.title": "Otsikko",
+  "product.price": "Hinta",
+  "product.description": "Kuvaus",
+  "product.no_products_to_edit": "Ei muokattavia tuotteita",
+  "product.on_stock": "Varastossa",
+  "product.warning.add_file_extension_title": "Lisää tiedostopääte",
+  "product.warning.add_file_extension_subtitle": "Lisää tiedostopääte, kuten .jpg, .png, .avif tai .webp",
+  "product.warning.max_file_size_title": "Maksimikoko on 1 Mt",
+  "product.warning.max_file_size_subtitle": 'Maksimi 1 Mt – googlaa "tinify png tai jpg"',
+  "product.warning.max_images_title": "Enintään {maxImages} kuvaa",
+  "product.warning.max_images_subtitle": "Käytä enintään {maxImages} tuotekuvaa",
+  "product.warning.use_higer_resolution_title": "Käytä suurempaa resoluutiota",
+  "product.warning.use_higer_resolution_subtitle": "Vähintään 1000 leveyttä ja 500 korkeutta (1000x500)",
+  "product.add": "Lisää tuote",
+  "product.edit": "Muokkaa tuotetta",
+  "product.delete": "Poista tuote",
+  "product.error.better_prices_email": "Sähköpostin lähetys paremman hinnan pyynnöstä epäonnistui",
+  "product.error.better_prices_telegram": "Telegram-viestin lähetys paremman hinnan pyynnöstä epäonnistui",
+  "product.success.better_prices": "Pyyntö lähetetty onnistuneesti!",
+  "product.empty_cart": "Ostoskori on tyhjä",
+  "product.order_summary": "Tilausyhteenveto",
+  "product.request_better_prices": "Pyydä parempia hintoja",
+  "product.clear_cart": "Tyhjennä ostoskori",
+  "product.per_page": "per sivu",
+  "product.error.failed_to_create_product_on_stripe": "Tuotteen luonti Stripeen epäonnistui – tuotetunnus puuttuu",
+  "product.error.failed_to_generate_image": "Kuvan luonti epäonnistui",
+  "product.error.image_upload_errors": "Virheitä kuvan latauksessa",
+  "product.error.db_insert_failed": "Tietokantaan lisäys epäonnistui",
+  "product.error.no_data_returned_from_uploaded_image": "Ladatusta kuvasta ei palautunut tietoja",
+
+  // =================        =================
+  //                   message
+  // =================        =================
+  "message.image_sent": "kuva lähetetty",
+  "message.error.image_sent": "virhe kuvan lähetyksessä",
+  "message.error.message_sent": "virhe uuden viestin lähetyksessä",
+
+  // =================        =================
+  //                   payment
+  // =================        =================
+  "payment.products_data_fetched": "tuotetiedot haettu – vaihe 4 asetettu",
+  "payment.error.fetch_products_data": "virhe fetchProductsData",
+  "payment.customer_email_received": "asiakkaan sähköposti vastaanotettu – vaihe 3 asetettu",
+  "payment.error.receive_customer_email_title": "Virhe asiakkaan sähköpostin haussa",
+  "payment.error.receive_customer_email_subtitle": "Tarkista getCustomerEmailFn – ota yhteyttä tukeen",
+  "payment.email_rendered": "sähköposti renderöity – vaihe 5 asetettu",
+  "payment.error.render_email_title": "Virhe sähköpostin renderöinnissä",
+  "payment.error.render_email_subtitle": "Ota yhteyttä tukeen",
+  "payment.email_sent": "sähköposti lähetetty – vaihe 7 asetettu",
+  "payment.error.email_sent": "Virhe sähköpostin lähetyksessä",
+  "payment.substracted_on_stock_from_quantity": "varastosaldo vähennetty määrästä – ohjataan osoitteeseen /",
+  "payment.error.substracted_on_stock_from_quantity": "Virhe varastosaldon vähentämisessä tuotemäärästä",
+  "payment.session_id_is_valid": "sessionId on kelvollinen – vaihe 6 asetettu",
+  "payment.error.session_id_is_valid_title": "Virhe maksun vahvistamisessa",
+  "payment.error.session_id_is_valid_subtitle": "Älä käytä satunnaista session-id:tä – MAKSA TILAUKSESI",
+  "payment.warning.do_not_use_protected_routes_title": "Suojattuja reittejä ei tule käyttää!",
+  "payment.warning.do_not_use_protected_routes_subtitle_l1": "Lisää tuotteita ostoskoriin ja",
+  "payment.warning.do_not_use_protected_routes_subtitle_l2": "osta tuotteet maksun kautta",
+  "payment.successfull": "Maksu onnistui",
+  "payment.check_sent_to_your_email": "Kuitti lähetetty sähköpostiisi 📨",
+  "payment.redirecting_to_homepage_in": "Ohjataan etusivulle",
+  "payment.canceled": "Maksu peruutettu",
+  "payment.status": "Maksun tila",
+  "payment.success_checkmark": "Onnistumisen merkki",
+  "payment.error.configuration_title": "Konfiguraatiovirhe",
+  "payment.error.configuration_subtitle": "{selectedChain}-lompakon osoitetta ei ole määritetty ympäristömuuttujissa",
+  "payment.error.invalid_address_format_title": "Konfiguraatiovirhe",
+  "payment.error.invalid_address_format_subtitle":
+    "Osoite: {trimmedAddress} | Pituus: {trimmedAddressLength} | Odotettu: 42 merkkiä alkaen 0x",
+  "payment.error.sending_money_with_metamask": "Virhe sendMoneyWithMetamask-toiminnossa:",
+  "payment.error.metamask_not_detected": "Metamaskia ei havaittu",
+  "payment.error.please_install_metamask": "Asenna Metamask",
+  "payment.error.here": "tässä",
+  "payment.error.or_using": "tai käyttämällä",
+  "payment.error.this": "tätä",
+  "payment.error.guide": "opasta",
+  "payment.error.or_enable_metamask": "tai ota Metamask-laajennus käyttöön. Teitkö sen jo?",
+  "payment.error.reload_page": "lataa sivu uudelleen",
+  "payment.error.please_connect_one_more_time": "Yhdistä vielä kerran ja",
+  "payment.error.this_time_dont_cancel_request": "älä peruuta pyyntöä tällä kertaa",
+  "payment.error.provider_restrictions": "{provider}-rajoitukset",
+  "payment.error.1m$_limit": "{provider} rajoittaa ostot yli 1M$",
+  "payment.error.make_total_less_than_1M$": "Poista tuotteita ostoskorista – kokonaissumman tulee olla alle $1 000 000",
+  "payment.error.creating_provider_session": "Virhe {provider}-session luonnissa",
+  "payment.error.unsupported_network_title": "Ei tuettu verkko",
+  "payment.error.unsupported_network_subtitle": "Vaihda Ethereum Mainnetiin, Polygoniin tai BNB Smart Chainiin",
+  "payment.error.failed_to_retrieve_token_price_title": "Token-hinnan haku epäonnistui",
+  "payment.error.failed_to_retrieve_token_price_subtitle":
+    "Yritä myöhemmin. Tämä ei liity tukeen tai sinuun – CoinMarketCap temppuilee. Jos toistuu, pyydä tukea luomaan varajärjestelmä.",
+  "payment.error.transaction_title": "Transaktiovirhe",
+  "payment.error.transaction_subtitle": "Käyttäjä hylkäsi transaktion allekirjoituksen",
+  "payment.error.failed_to_pay_with_metamask": "Maksu Metamaskilla epäonnistui",
+  "payment.email.thank_you_for_your_purchase": "Kiitos ostoksestasi",
+  "payment.email.order_confirmed": "Tilaus vahvistettu ✓",
+  "payment.email.order_will_be_delivered_on": "Tilauksesi toimitetaan",
+  "payment.email.quantity": "Määrä",
+  "payment.email.total": "Yhteensä",
+  "payment.email.track_your_order": "Seuraa tilaustasi",
+  "payment.email.we_will_keep_you_updated": "Pidämme sinut ajan tasalla toimituksen etenemisestä",
+  "payment.email.support": "Tuki",
+  "payment.email.feedback": "Palaute",
+  "payment.email.all_rights_reserved": "Kaikki oikeudet pidätetään.",
+
+  // =================        =================
+  //                   stats
+  // =================        =================
+  "stats.total_campaign_clicks": "Kampanjan klikkaukset yhteensä",
+  "stats.across_all_sources": "Kaikista lähteistä",
+  "stats.traffic_distribution": "Liikenteen jakautuminen",
+  "stats.performance": "Suorituskyky",
+  "stats.campaign_title": "Kampanjan suorituskyky",
+  "stats.campaign_subtitle": "Seuraa markkinointikampanjasi tehokkuutta",
+
+  // =================        =================
+  //                   support
+  // =================        =================
+  "support.option_1": "Ota yhteyttä sähköpostitse",
+  "support.option_2_title": "Ota yhteyttä chatissa",
+  "support.option_2_subtitle": "Klikkaa oikeasta alakulmasta",
+  "support.option_3": "Ota yhteyttä Telegramissa",
+  "support.back_to_tickets": "Takaisin тикetteihin",
+  "support.no_messages_in_this_ticket": "Tässä tikettissä ei ole viestejä",
+  "support.how_you_got_this_error": "Kerrothan miten sait tämän virheen",
+  "support.images_attached": "{number} kuvaa liitetty",
+  "support.image_attached_click_to_preview": "Kuva liitetty – klikkaa esikatsellaksesi",
+  "support.remove_image": "Poista kuva",
+  "support.response_time": "Vastausaika ~{number}s",
+  "support.loading_messages": "Ladataan viestejä",
+  "support.no_messages_yet": "Ei viestejä vielä",
+  "support.error.filename_must_contain_dot": "Tiedostonimessä täytyy olla yksi piste ennen päätettä (esim. 'tiedosto.jpg')",
+  "support.error.file_extension_is_required": "Tiedostopääte vaaditaan tietokantaan lisäämiseksi",
+  "support.error.uploading_image": "Virhe kuvan latauksessa",
+
+  // =================           =================
+  //                   trackorder
+  // =================           =================
+  "trackorder.title": "Seuraa tilausta",
+  "trackorder.subtitle": "Toimituksen eteneminen reaaliajassa",
+  "trackorder.order_number": "Tilausnumero",
+  "trackorder.track": "Seuraa",
+  "trackorder.tracking_not_available_title": "Seurantaa ei ole vielä saatavilla",
+  "trackorder.tracking_not_available_subtitle": "Seurantanumero lähetetään 24–48 tunnin kuluessa.",
+  "trackorder.order_status": "Tilauksen tila",
+  "trackorder.order_status_1_title": "Tilaus vahvistettu",
+  "trackorder.order_status_1_subtitle": "Otimme tilauksesi vastaan",
+  "trackorder.order_status_2_title": "Käsittelyssä",
+  "trackorder.order_status_2_subtitle": "Valmistellaan lähetystä",
+  "trackorder.order_status_3_title": "Lähetetty",
+  "trackorder.order_status_3_subtitle": "Paketti matkalla",
+  "trackorder.order_status_4_title": "Jakelussa",
+  "trackorder.order_status_4_subtitle": "Kuriiri lähellä",
+  "trackorder.order_status_5_title": "Toimitettu",
+  "trackorder.order_status_5_subtitle": "Toimitettu osoitteeseen",
+  "trackorder.support": "Tuki",
+  "trackorder.feedback": "Palaute",
+  "trackorder.location_available_after_shipment": "Sijainti näkyy lähetyksen jälkeen",
+} as const

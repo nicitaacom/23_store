@@ -8,9 +8,10 @@ import { useForm } from "react-hook-form"
 import axios from "axios"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
-import { IFormDataAddProduct } from "@/TS/product/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TUpdateProductRequest } from "@/api/products/update/route"
 import { useLoading } from "@/store/ui/useLoading"
+import { useScopedI18n } from "@/locales/client"
 
 interface FormatTitleFormProps {
   id: string
@@ -18,6 +19,7 @@ interface FormatTitleFormProps {
 }
 
 export function FormatTitleForm({ id, title }: FormatTitleFormProps) {
+  const t = useScopedI18n("product")
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const { isLoading, setIsLoading } = useLoading()
@@ -71,7 +73,7 @@ export function FormatTitleForm({ id, title }: FormatTitleFormProps) {
 
   return (
     <h1 className="flex flex-row">
-      <p className="hidden tablet:block">Title:&nbsp;</p>
+      <p className="hidden tablet:block">{t("title")}:&nbsp;</p>
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>

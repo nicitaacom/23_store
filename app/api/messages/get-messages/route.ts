@@ -1,4 +1,4 @@
-import { IMessageDB } from "@/TS/support/IMessage"
+import { IMessageDB } from "@/ts/support/IMessage"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { AxiosResponse } from "axios"
 import { NextResponse } from "next/server"

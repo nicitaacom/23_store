@@ -1,12 +1,7 @@
-## Usage for contacts
+## When to not use it
 
-This constant created for any conact data except `NEXT_PUBLIC_SUPPORT_EMAIL`
-It may be telegram / email / phone - etc
-
-## Usage for languages
-
-This constant was created for languages
-I use it in Language.tsx
+- DO NOT use it for contact data e.g telegram or email - use .env.local for that instead
+- DO NOT use it for specific const e.g telegramMessage - create `const` folder there instead and use it there or don't use const for that at all
 
 ## Usage for perPage
 

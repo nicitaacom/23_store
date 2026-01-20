@@ -1,4 +1,4 @@
-import { IFormDataAddProduct } from "@/TS/product/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 
 import { FormatPriceForm } from "./FormatPriceForm"
 import { FormatTitleForm } from "./FormatTitleForm"

@@ -6,8 +6,10 @@ import { BiUpArrow } from "react-icons/bi"
 import { perPage } from "@/constant/perPage"
 import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
+import { useScopedI18n } from "@/locales/client"
 
 export default function ProductsPerPage({ className }: { className?: string }) {
+  const t = useScopedI18n("product")
   const [showDropdown, setShowDropdown] = useState(false)
 
   /* for close on clicking outside */
@@ -49,9 +51,7 @@ export default function ProductsPerPage({ className }: { className?: string }) {
     }
   }, [])
 
-  const [currentValuePerPage, setCurrentValuePerPage] = useState<number | null>(
-    Number(useSearchParams()?.get("perPage") || 5),
-  )
+  const [currentValuePerPage, setCurrentValuePerPage] = useState<number | null>(Number(useSearchParams()?.get("perPage") || 5))
 
   const [hover, setHover] = useState<number | null>(null)
   const isHover = hover !== null
@@ -71,7 +71,7 @@ export default function ProductsPerPage({ className }: { className?: string }) {
       {/* Container content */}
       <div className="flex flex-row gap-x-2 justify-between items-center">
         <div className="flex items-center">
-          {currentValuePerPage} per page
+          {currentValuePerPage} {t("per_page")}
           <h1 className="uppercase">{perPage.map(perPage => perPage === Number(currentValuePerPage))}</h1>
         </div>
         <BiUpArrow />

@@ -1,13 +1,13 @@
 "use client"
 
-import useDarkMode from "@/store/ui/darkModeStore"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
 interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string
 }
 
 export function SwitchDarkMode({ className, ...props }: SwitchProps) {
-  const mode = useDarkMode()
+  const mode = useDarkModeStore()
 
   return (
     <label

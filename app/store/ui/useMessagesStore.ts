@@ -2,8 +2,9 @@ import axios from "axios"
 import { create } from "zustand"
 
 import { TAPIMessagesGetMessagesRequest, TAPIMessagesGetMessagesResponse } from "@/api/messages/get-messages/route"
-import { IMessageDB } from "@/TS/support/IMessage"
+import { IMessageDB } from "@/ts/support/IMessage"
 import { getUserId } from "@/utils/getUserId"
+import fetchTicketId from "@/actions/fetchTicketId"
 
 type MessagesStore = {
   messages: IMessageDB[]
@@ -25,7 +26,7 @@ type MessagesStore = {
   initialize: () => Promise<void>
 }
 
-export const useMessagesStore = create<MessagesStore>()(set => ({
+export const useMessagesStore = create<MessagesStore>()((set, get) => ({
   messages: [],
   setMessages: (messages: IMessageDB[]) => set(() => ({ messages })),
 
@@ -45,6 +46,7 @@ export const useMessagesStore = create<MessagesStore>()(set => ({
   clearUnseenMessages: () => set(() => ({ unseenMessagesNumber: 0 })),
 
   async initialize() {
+    const state = get()
     const userId = getUserId()
     // get userId based on authenticaed user on not
     if (!userId) {
@@ -57,12 +59,19 @@ export const useMessagesStore = create<MessagesStore>()(set => ({
     const response: TAPIMessagesGetMessagesResponse = await axios.post("/api/messages/get-messages", {
       userId: userId,
     } as TAPIMessagesGetMessagesRequest)
-
     const unseenAmount = response.data.filter(message => !message.seen).length
+
+    let ticketIdLet: string | null = null
+    if (!state.ticketId) {
+      const ticketId = await fetchTicketId()
+      if (!ticketId) return console.log(63, "no ticket id to set")
+      else ticketIdLet = ticketId
+    }
 
     set(() => ({
       unseenMessagesNumber: unseenAmount,
       messages: response.data,
+      ticketId: ticketIdLet,
     }))
   },
 }))

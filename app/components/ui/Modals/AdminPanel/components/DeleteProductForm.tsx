@@ -1,16 +1,19 @@
 "use client"
 
-import { TProductDB } from "@/TS/product/TProductDB"
-import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
 import Image from "next/image"
-import useDarkMode from "@/store/ui/darkModeStore"
+
+import { TProductDB } from "@/ts/product/TProductDB"
+import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import { useScopedI18n } from "@/locales/client"
 
 interface DeleteProductForm {
   ownerProducts: TProductDB[]
 }
 
 export function DeleteProductForm({ ownerProducts }: DeleteProductForm) {
-  const isDarkMode = useDarkMode().isDarkMode
+  const t = useScopedI18n("product")
+  const isDarkMode = useDarkModeStore().isDarkMode
 
   return (
     <div className="w-[90%] h-full mx-auto">
@@ -28,7 +31,7 @@ export function DeleteProductForm({ ownerProducts }: DeleteProductForm) {
             width={256}
             height={256}
           />
-          <h1 className="text-2xl text-center font-bold">You have no products to delete</h1>
+          <h1 className="text-2xl text-center font-bold">{t("no_products_to_delete")}</h1>
         </div>
       )}
     </div>

@@ -4,12 +4,12 @@ import { useState, useRef } from "react"
 import Image from "next/image"
 import { useForm } from "react-hook-form"
 
-import { ErrorsType, ImageListType } from "react-images-uploading"
+import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
 import slugify from "@sindresorhus/slugify" // to fix error in case user upload image with not english characters
 
 import useUserStore from "@/store/user/userStore"
-import { IFormDataAddProduct } from "@/TS/product/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { Button } from "@/components/ui/Button"
 import useDragging from "@/hooks/ui/useDragging"
@@ -19,10 +19,10 @@ import useToast from "@/store/ui/useToast"
 import { useLoading } from "@/store/ui/useLoading"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { createProductFn } from "@/functions/createProductFn"
+import { useScopedI18n } from "@/locales/client"
 
 export function AddProductForm() {
-  const router = useRouter()
-  const userStore = useUserStore()
+  const t = useScopedI18n("product")
   const toast = useToast()
   const { isDraggingg } = useDragging()
   const { isLoading, setIsLoading } = useLoading()
@@ -32,6 +32,7 @@ export function AddProductForm() {
 
   const dragZone = useRef<HTMLButtonElement | null>(null)
 
+  // TODO - check if it's required and if would be better with or without displaying response message
   function displayResponseMessage(message: React.ReactNode) {
     setResponseMessage(message)
     setTimeout(() => {
@@ -51,9 +52,8 @@ export function AddProductForm() {
   } = useForm<IFormDataAddProduct>()
 
   const onSubmit = async (data: IFormDataAddProduct) => {
-    if (data.subTitle.length > 600)
-      return toast.show("warning", "Enter shorter description", "Enter description 0-600 symbols")
-    await createProductFn(data.title, data.subTitle, displayResponseMessage, data.price, data.onStock, images)
+    if (data.subTitle.length > 600) return toast.show("warning", "Enter shorter description", "Enter description 0-600 symbols")
+    await createProductFn(t, data.title, data.subTitle, data.price, data.onStock, images)
   }
 
   return (
@@ -66,7 +66,7 @@ export function AddProductForm() {
         resolutionHeight={500} // minimum 500 height
         resolutionType="more"
         dataURLKey="data_url"
-        onError={errors => showToastWarningFn(errors)}>
+        onError={errors => showToastWarningFn(t, errors)}>
         {({
           imageList,
           onImageUpload,
@@ -86,9 +86,7 @@ export function AddProductForm() {
               onClick={onImageUpload}
               disabled={isLoading}
               {...dragProps}>
-              <h1 className="pointer-events-none select-none">
-                {isDragging ? "Drop files here" : "Click or Drop here"}
-              </h1>
+              <h1 className="pointer-events-none select-none">{isDragging ? t("drop_files_here") : t("click_or_drop_here")}</h1>
             </Button>
             &nbsp;
             {imageList.map((image, index) => (
@@ -104,20 +102,16 @@ export function AddProductForm() {
                 />
                 <div className="mb-4 flex flex-row items-center justify-center gap-x-4 px-4">
                   <Button onClick={() => onImageUpdate(index)} disabled={isLoading}>
-                    Update
+                    {t("update")}
                   </Button>
                   <Button variant="danger-outline" onClick={() => onImageRemove(index)} disabled={isLoading}>
-                    Remove
+                    {t("remove")}
                   </Button>
                 </div>
               </div>
             ))}
-            <Button
-              className="w-full mb-4"
-              variant="danger-outline"
-              onClick={void onImageRemoveAll}
-              disabled={isLoading}>
-              Remove all images
+            <Button className="w-full mb-4" variant="danger-outline" onClick={void onImageRemoveAll} disabled={isLoading}>
+              {t("remove_all_images")}
             </Button>
           </div>
         )}
@@ -130,7 +124,7 @@ export function AddProductForm() {
           errors={errors}
           disabled={isLoading}
           required
-          placeholder="Product title"
+          placeholder={t("placeholder.title")}
         />
         <ProductInput
           className="border w-full py-1 px-2"
@@ -139,7 +133,7 @@ export function AddProductForm() {
           errors={errors}
           disabled={isLoading}
           required
-          placeholder="Product description"
+          placeholder={t("placeholder.description")}
         />
         <ProductInput
           className="border w-full py-1 px-2"
@@ -149,7 +143,7 @@ export function AddProductForm() {
           errors={errors}
           disabled={isLoading}
           required
-          placeholder="Product price"
+          placeholder={t("placeholder.price")}
         />
         <ProductInput
           className="border w-full py-1 px-2"
@@ -159,13 +153,13 @@ export function AddProductForm() {
           errors={errors}
           disabled={isLoading}
           required
-          placeholder="Amount on stock"
+          placeholder={t("placeholder.on_stock")}
         />
         <div className="text-center">{responseMessage}</div>
         <Button
           className={twMerge(`w-full mt-2`, isLoading && "opacity-50 cursor-default pointer-events-none")}
           disabled={isLoading}>
-          Create product
+          {t("create_product")}
         </Button>
       </form>
     </div>

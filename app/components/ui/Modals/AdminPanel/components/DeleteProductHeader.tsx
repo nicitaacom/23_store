@@ -5,6 +5,7 @@ import { BiTrash } from "react-icons/bi"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { Button } from "@/components/ui"
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
+import { useScopedI18n } from "@/locales/client"
 
 interface DeleteProductHeaderProps {
   id: string
@@ -15,6 +16,7 @@ interface DeleteProductHeaderProps {
 }
 
 export function DeleteProductHeader({ id, title, subTitle, price }: DeleteProductHeaderProps) {
+  const t = useScopedI18n("product")
   const areYouSureDeleteProductModal = useAreYouSureDeleteProductModal()
 
   return (
@@ -22,15 +24,15 @@ export function DeleteProductHeader({ id, title, subTitle, price }: DeleteProduc
       <section className="flex flex-col">
         <div className="flex flex-col tablet:flex-row gap-y-4 items-center tablet:items-start tablet:justify-between">
           <div className="flex flex-row text-subTitle">
-            Title:&nbsp;<h2>{title}</h2>
+            {t("title")}:&nbsp;<h2>{title}</h2>
           </div>
           <div className="flex flex-row text-subTitle">
-            <p className="tablet:hidden">Price:&nbsp;</p>
+            <p className="tablet:hidden">{t("price")}:&nbsp;</p>
             <h2>{formatCurrency(price)}</h2>
           </div>
         </div>
         <div className="flex flex-row justify-center tablet:justify-start text-subTitle mt-4 tablet:mt-0">
-          Description:&nbsp;<h2>{subTitle}</h2>
+          {t("description")}:&nbsp;<h2>{subTitle}</h2>
         </div>
         {/* <div className="flex flex-row justify-center tablet:justify-start text-subTitle mt-4 tablet:mt-0">
           On stock:&nbsp;<h2>{onStock}</h2>
@@ -39,7 +41,8 @@ export function DeleteProductHeader({ id, title, subTitle, price }: DeleteProduc
       {/* DELETE PRODUCT FOOTER */}
       <section className="flex justify-end">
         <Button variant="danger" onClick={() => areYouSureDeleteProductModal.openModal(id, title)}>
-          Delete <BiTrash />
+          {t("delete")}
+          <BiTrash />
         </Button>
       </section>
     </>

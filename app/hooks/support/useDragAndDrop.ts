@@ -1,4 +1,4 @@
-import { useSupportDropdown } from "@/store/ui/supportDropdown"
+import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import { RefObject, useEffect, useState, useRef } from "react"
 
 export const useDragAndDrop = (ref: RefObject<HTMLElement | null>) => {

@@ -11,7 +11,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   required?: boolean
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
+export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const { type, value, onChange, className, startIcon, endIcon, pattern, required, ...rest } = props
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -50,5 +50,3 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
 })
 
 Input.displayName = "Input"
-
-export default Input

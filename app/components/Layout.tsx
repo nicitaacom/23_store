@@ -2,12 +2,12 @@
 
 import { useEffect } from "react"
 
-import useDarkMode from "@/store/ui/darkModeStore"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { utmSourceAction } from "@/actions/utmSourceAction"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const darkMode = useDarkMode()
+  const darkMode = useDarkModeStore()
   const searchParams = useSearchParams()
   const router = useRouter()
   const path = usePathname()

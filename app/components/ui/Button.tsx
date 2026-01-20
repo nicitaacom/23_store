@@ -4,7 +4,6 @@ import * as React from "react"
 import Link from "next/link"
 import { VariantProps, cva } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
-import { motion, HTMLMotionProps } from "framer-motion"
 
 const buttonVariants = cva(
   `inline-flex items-center justify-center font-medium outline-none
@@ -15,12 +14,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-brand text-title-foreground hover:bg-brand/90 focus-visible:ring-brand/80 shadow-sm",
-        "default-outline":
-          "bg-transparent border border-brand text-title hover:bg-brand/10 focus-visible:ring-brand/60",
+        "default-outline": "bg-transparent border border-brand text-title hover:bg-brand/10 focus-visible:ring-brand/60",
 
         primary: "bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500 shadow-sm",
-        "primary-outline":
-          "bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500",
+        "primary-outline": "bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500",
 
         secondary:
           "bg-gray-200 text-gray-900 hover:bg-gray-300 focus-visible:ring-gray-400 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600",
@@ -31,16 +28,13 @@ const buttonVariants = cva(
         "info-outline": "bg-transparent border border-info text-info hover:bg-info/10 focus-visible:ring-info/60",
 
         warning: "bg-warning text-title-foreground hover:bg-warning/90 focus-visible:ring-warning/80 shadow-sm",
-        "warning-outline":
-          "bg-transparent border border-warning text-warning hover:bg-warning/10 focus-visible:ring-warning/60",
+        "warning-outline": "bg-transparent border border-warning text-warning hover:bg-warning/10 focus-visible:ring-warning/60",
 
         danger: "bg-danger text-title-foreground hover:bg-danger/90 focus-visible:ring-danger/80 shadow-sm",
-        "danger-outline":
-          "bg-transparent border border-danger text-danger hover:bg-danger/10 focus-visible:ring-danger/60",
+        "danger-outline": "bg-transparent border border-danger text-danger hover:bg-danger/10 focus-visible:ring-danger/60",
 
         success: "bg-success text-title-foreground hover:bg-success/90 focus-visible:ring-success/80 shadow-sm",
-        "success-outline":
-          "bg-transparent border border-success text-success hover:bg-success/10 focus-visible:ring-success/60",
+        "success-outline": "bg-transparent border border-success text-success hover:bg-success/10 focus-visible:ring-success/60",
 
         ghost: "bg-transparent hover:bg-gray-100 text-title focus-visible:ring-gray-400 dark:hover:bg-gray-800",
         link: "bg-transparent text-info hover:text-info/80 underline-offset-4 hover:underline focus-visible:ring-info/60",
@@ -144,11 +138,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const isDisabled = disabled || loading
-    const classes = twMerge(
-      buttonVariants({ variant, size, rounded, shadow, active }),
-      fullWidth && "w-full",
-      className,
-    )
+    const classes = twMerge(buttonVariants({ variant, size, rounded, shadow, active }), fullWidth && "w-full", className)
 
     const content = (
       <>
@@ -199,11 +189,7 @@ function LoadingSpinner({ size }: { size?: ButtonProps["size"] }) {
             : "h-4 w-4"
 
   return (
-    <svg
-      className={twMerge("animate-spin", sizeClass)}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24">
+    <svg className={twMerge("animate-spin", sizeClass)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path
         className="opacity-75"

@@ -1,6 +1,5 @@
 import React from "react"
 import { FC } from "react"
-import { useSearchParams } from "next/navigation"
 import { Button } from "./ui"
 import { BiSkipPrevious, BiSkipNext } from "react-icons/bi"
 
@@ -12,13 +11,7 @@ interface PaginationControlsProps {
   perPage: number
 }
 
-const PaginationControls: FC<PaginationControlsProps> = ({
-  hasNextPage,
-  hasPrevPage,
-  currentPage,
-  totalPages,
-  perPage,
-}) => {
+const PaginationControls: FC<PaginationControlsProps> = ({ hasNextPage, hasPrevPage, currentPage, totalPages, perPage }) => {
   return (
     <div className="flex flex-row gap-x-3 justify-center items-center bg-background/50 backdrop-blur-sm border border-success/20 rounded-lg p-2">
       <Button

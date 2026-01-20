@@ -1,14 +1,18 @@
+import { ImageListType } from "react-images-uploading"
+import axios, { AxiosResponse } from "axios"
+
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useLoading } from "@/store/ui/useLoading"
 import useUserStore from "@/store/user/userStore"
 import slugify from "@sindresorhus/slugify"
-import axios, { AxiosResponse } from "axios"
-import { ImageListType } from "react-images-uploading"
 import { uploadImageFn } from "./uploadImageFn"
 import useToast from "@/store/ui/useToast"
-import { TProductDB } from "@/TS/product/TProductDB"
+import { TProductDB } from "@/ts/product/TProductDB"
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { getUserId } from "@/utils/getUserId"
 
 export async function createProductFn(
+  t: TI18nFunction,
   title: string,
   subTitle: string,
   price?: number,
@@ -58,7 +62,7 @@ export async function createProductFn(
     })
 
     if (!stripeResponse.data?.id || !stripeResponse.data?.product) {
-      throw new Error("Failed to create product on Stripe - missing product ID")
+      throw new Error(t("product.error.failed_to_create_product_on_stripe"))
     }
 
     let imagesUrls: string[] = []
@@ -73,12 +77,12 @@ export async function createProductFn(
         )
 
         if (imageResponse.status !== 200) {
-          throw new Error(`Image generation failed with status ${imageResponse.status}`)
+          throw new Error(`${t("product.error.failed_to_generate_image")} (${imageResponse.status})`)
         }
 
         const imageFile = new File([imageResponse.data], "generated_image.png", { type: "image/png" })
 
-        const uploadResult = await uploadImageFn({ imageFile, bucket: "public-images" })
+        const uploadResult = await uploadImageFn({ t, imageFile, bucket: "public-images" })
         if (typeof uploadResult === "string") {
           throw new Error(`Image upload failed: ${uploadResult}`)
         }
@@ -86,8 +90,8 @@ export async function createProductFn(
         imagesUrls = [uploadResult.publicUrl]
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error)
-        console.error("AI image generation failed:", errorMsg)
-        throw new Error(`Image generation error: ${errorMsg}`)
+        console.error("AI image generation failed:", errorMsg) // no need to translate console logs
+        throw new Error(`${t("product.error.failed_to_generate_image")}: ${errorMsg}`)
       }
     } else {
       const imagesArray = await Promise.all(
@@ -113,17 +117,19 @@ export async function createProductFn(
         }),
       )
       imagesUrls = imagesArray.filter((url): url is string => !!url)
-      if (errorMessages.length) throw new Error(`Image upload errors: ${errorMessages.join(", ")}`)
+      if (errorMessages.length) throw new Error(`${t("product.error.image_upload_errors")}: ${errorMessages.join(", ")}`)
     }
 
     if (!imagesUrls.length) {
       throw new Error("No images available for product")
     }
 
+    const userId = getUserId()
+
     const product: TProductDB = {
       id: stripeResponse.data.product,
       price_id: stripeResponse.data.id,
-      owner_id: userStore.userId,
+      owner_id: userId,
       title: title,
       sub_title: subTitle,
       price: price,
@@ -131,9 +137,10 @@ export async function createProductFn(
       img_url: imagesUrls,
     }
 
-    const insertResponse = await supabaseClient.from("products").insert(product).eq("user_id", userStore.userId)
+    // TODO - check if it will throw because user not authenticated because violates public.users
+    const insertResponse = await supabaseClient.from("products").insert(product).eq("user_id", userId)
     if (insertResponse.error) {
-      throw new Error(`Database insert failed: ${insertResponse.error.message}`)
+      throw new Error(`${t("product.error.db_insert_failed")}: ${insertResponse.error.message}`)
     }
 
     await axios.post("/api/products/update", {
@@ -144,8 +151,6 @@ export async function createProductFn(
     const url = new URL(window.location.href)
     url.searchParams.delete("modal")
     url.searchParams.delete("variant")
-
-    toast.show("success", "Product added", "Product successfully added and now anyone can buy it")
 
     return product
   } catch (error) {

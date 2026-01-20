@@ -10,6 +10,7 @@ You may check examples to get understanding how it works - https://react.email/e
 Also I want add that breackpoints in emails doesn't work that's why you need create it for mobile view
 
 If you are new to `react-email` and `resend` - check guides on YouTube how to send email with react
+In short it's pnpm i resend or pnpm i ses and then you init SDK then await SDK.sendEmail(somePropsHere)
 
 ### To make it flex-col use this construction
 

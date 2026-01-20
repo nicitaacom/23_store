@@ -3,8 +3,10 @@
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 import { AreYouSureModalContainer } from "./ModalContainers/AreYouSureModalContainer"
 import useCartStore from "@/store/user/cartStore"
+import { useScopedI18n } from "@/locales/client"
 
 export function AreYouSureClearCartModal() {
+  const t = useScopedI18n("modal")
   const areYouSuteClearCartModal = useAreYouSureClearCartModal()
 
   const cartStore = useCartStore()
@@ -17,12 +19,12 @@ export function AreYouSureClearCartModal() {
   return (
     <AreYouSureModalContainer
       isOpen={areYouSuteClearCartModal.isOpen}
-      label={"Are you sure you want to clear cart?"}
+      label={t("are_you_sure_clear_cart.label")}
       primaryButtonVariant="danger"
       primaryButtonAction={clearCart}
-      primaryButtonLabel="Delete"
+      primaryButtonLabel={t("are_you_sure_clear_cart.primary_button")}
       secondaryButtonAction={areYouSuteClearCartModal.closeModal}
-      secondaryButtonLabel="Back"
+      secondaryButtonLabel={t("are_you_sure_clear_cart.secondary_button")}
     />
   )
 }

@@ -7,9 +7,10 @@ import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
-import { IFormDataAddProduct } from "@/TS/product/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useLoading } from "@/store/ui/useLoading"
+import { useScopedI18n } from "@/locales/client"
 
 interface FormatOnStockFormProps {
   id: string
@@ -17,6 +18,7 @@ interface FormatOnStockFormProps {
 }
 
 export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
+  const t = useScopedI18n("product")
   const router = useRouter()
   const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
@@ -67,7 +69,7 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
 
   return (
     <h1 className="flex flex-row justify-center tablet:justify-start mt-4 tablet:mt-0">
-      <p>On stock:&nbsp;</p>
+      <p>{t("on_stock")}:&nbsp;</p>
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>

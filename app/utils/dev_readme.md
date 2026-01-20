@@ -9,7 +9,7 @@ This file needed to format price from `199999.99` to this `$1,999,99.99`
 
 ## Usage for formatDeliveryDate
 
-This file needed to add 3 days from current date and one more day if Saturday
+This file needed to add 20 days from current date and one more day if Saturday
 and get output from this 11/24/2023 to this 24.11.2023
 
 ## Usage for formatMetamaskBalance

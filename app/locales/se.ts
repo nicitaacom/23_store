@@ -1,0 +1,402 @@
+// locales/se.ts
+// IMPORTANT RULE: every translated line should be in same amount of lines e.g en 1 line ru 1 line etc (NOT en 1 line ru 2 lines)
+
+export default {
+  hello: "Hello on latvian",
+  "hello.world": "Hello world! on latvian",
+  welcome: "Hello {name}! on latvian",
+
+  // /search route
+  "search.title": "Sök",
+
+  // =================      =================
+  //                   AUTH
+  // =================      =================
+  "auth.login.title": "Hej,\nVälkommen tillbaka",
+  "auth.login.subtitle": "Hej, välkommen tillbaka till din särskilda plats",
+  "auth.login.validating_password_security": "Kontrollerar lösenordets säkerhet...",
+  "auth.register.title": "Hej,\nSkapa konto",
+  "auth.register.subtitle": "Gå med oss och börja din resa idag",
+  "auth.recovery.title": "Glömt ditt lösenord?",
+  "auth.recovery.subtitle": "Ange din e-postadress för att återställa ditt lösenord",
+
+  // Password Strength Levels
+  "auth.password.strength": "Lösenordsstyrka",
+  "auth.password.strength.weak": "Svag",
+  "auth.password.strength.fair": "Måttlig",
+  "auth.password.strength.good": "Bra",
+  "auth.password.strength.strong": "Stark",
+
+  // Password Validation Messages
+  "auth.password.validation.required": "Lösenord är obligatoriskt",
+  "auth.password.validation.min_length": "Lösenordet måste vara minst 15 tecken långt",
+  "auth.password.validation.max_length": "Lösenordet får inte överstiga 128 tecken (DoS-skydd)",
+  "auth.password.validation.prohibited_chars": "Lösenordet innehåller förbjudna kontrolltecken",
+  "auth.password.validation.null_bytes": "Lösenordet innehåller null-byte som inte är tillåtna",
+  "auth.password.validation.common_password": "Detta lösenord finns med i listan över vanliga lösenord och är lätt att gissa",
+  "auth.password.validation.keyboard_patterns": "Lösenordet innehåller tangentbordsmönster som är lätta att gissa",
+  "auth.password.validation.repeating_chars": "Lösenordet innehåller för många upprepade tecken",
+  "auth.password.validation.sequential_chars": "Lösenordet innehåller sekventiella tecken som är lätta att gissa",
+  "auth.password.validation.leet_speak": "Lösenordet är ett vanligt lösenord med enkla teckenersättningar",
+  "auth.password.validation.breached_password": "Detta lösenord har förekommit i ett dataintrång och är inte säkert att använda",
+  "auth.password.validation.personal_info": "Lösenordet innehåller personlig information och är lätt att gissa",
+  "auth.password.validation.too_weak": "Lösenordet är för svagt. Välj ett starkare lösenord.",
+  "auth.password.validation.too_fair": "Lösenordet är för medelmåttigt. Välj ett starkare lösenord.",
+
+  // Email Validation Messages
+  "auth.email.validation.required": "E-postadress är obligatorisk",
+  "auth.email.validation.too_long": "E-postadressen är för lång (maximalt 254 tecken)",
+  "auth.email.validation.invalid_format": "E-postadressen måste följa ett grundläggande format (t.ex. exempel@exempel.com)",
+  "auth.email.validation.domain_missing": "Domändelen måste finnas (t.ex. exempel@domän.com)",
+  "auth.email.validation.email_part_missing": "Den lokala delen av e-postadressen måste finnas (t.ex. exempel@domän.com)",
+  "auth.email.validation.email_part_double_dot": "Den lokala delen får inte innehålla två punkter i rad (..)",
+  "auth.email.validation.domain_part_double_dot": "Domändelen får inte innehålla två punkter i rad (..)",
+  "auth.email.validation.domain_part_dot": "Domändelen får inte börja eller sluta med en punkt (.)",
+  "auth.email.validation.email_part_dot": "Den lokala delen får inte börja eller sluta med en punkt (.)",
+  "auth.email.validation.multiple_at": "E-postadressen måste innehålla exakt ett @-tecken",
+  "auth.email.validation.invalid": "Ogiltigt e-postformat",
+
+  // Username Validation Messages
+  "auth.validation.username.required": "Användarnamn är obligatoriskt",
+
+  // Form Fields
+  "auth.email.placeholder": "nicitaacom@gmail.com",
+  "auth.password.placeholder_new": "NeW-RaNd0m_PasWorD_system-1",
+  "auth.password.placeholder": "RaNd0m_PasWorD_system-1",
+  "auth.username.placeholder": "HANTARESpeek",
+  "auth.email.label": "E-post",
+  "auth.password.label": "Lösenord",
+  "auth.username.label": "Användarnamn",
+  "auth.email_not_allowed_with_this_domain": "E-post med denna domän är inte tillåten",
+
+  // Buttons
+  "auth.login.button": "Logga in",
+  "auth.register.button": "Skapa konto",
+  "auth.recovery.button": "Återställ lösenord",
+  "auth.loading": "Vänligen vänta...",
+
+  // Links
+  "auth.remember.me": "Kom ihåg mig",
+  "auth.forgot.password": "Glömt lösenord?",
+  "auth.no.account": "Inget konto?",
+  "auth.have.account": "Har du redan ett konto?",
+  "auth.sign.up": "Registrera dig",
+  "auth.sign.in": "Logga in",
+  "auth.or.continue": "eller fortsätt med",
+  "auth.continue_with_google": "Fortsätt med Google",
+  "auth.resending": "skickar igen",
+  "auth.resent": "skickat igen",
+  "auth.resend_failed": "Misslyckades med att skicka igen e-post: {message}",
+  "auth.resend": "Skicka igen",
+
+  // Auth database errors
+  "auth.database.error_finding_user": "Fel vid sökning efter användare i databasen: {message}",
+  "auth.database.user_not_registered": "Användaren är inte registrerad",
+  "auth.database.email_not_registered_with_credentials": "Denna e-postadress är inte registrerad med inloggningsuppgifter",
+  "auth.database.invalid_credentials": "Ogiltiga inloggningsuppgifter",
+  "auth.database.supabase_error": "Autentiseringsfel: {message}",
+  "auth.database.no_session": "Autentiseringstjänsten returnerade ingen session",
+  "auth.database.no_user": "Ingen användare returnerades från autentiseringstjänsten.",
+
+  // Registration specific
+  "auth.register.password_mismatch": "Lösenorden matchar inte",
+  "auth.register.user_already_exists": "Ett konto med denna e-postadress finns redan",
+  "auth.register.user_exists_different_provider":
+    "Ett konto med denna e-postadress finns, men skapades med en annan metod (Google, Facebook osv.)",
+  "auth.register.password_hashing_failed": "Det gick inte att säkra lösenordet. Försök igen.",
+  "auth.register.auth_user_creation_failed": "Det gick inte att skapa autentiseringskonto",
+  "auth.register.email_confirmation_required": "Kontot skapades. Bekräfta via e-post",
+  "auth.register.user_exist_email_not_confirmed": "Användaren är registrerad men e-posten är inte bekräftad",
+  "auth.server.missing_password_secret": "Lösenordshemlighet saknas — kontakta supporten",
+  "auth.server.missing_jwt_secret": "JWT-hemlighet saknas — kontakta supporten",
+  "auth.server.missing_support_email": "Supportens e-postadress saknas — kontakta supporten",
+  "auth.server.cannot_store_verification": "Det gick inte att spara verifieringen",
+  "auth.server.error_encrypting_password": "Fel vid kryptering av lösenord",
+  "auth.server.invalid_data": "Det gick inte att hämta den sparade verifieringen",
+  "auth.register.resend_rate_limited": "E-postmeddelandet har redan skickats. Försök igen om {seconds} sekunder.",
+  "auth.register.insert_new_user_failed": "Det gick inte att skapa ny användarpost i databasen: {message}",
+
+  // Email verification
+  "auth.verify.missing_token": "Verifieringstoken saknas",
+  "auth.verify.invalid_or_expired_token": "Verifieringstoken är ogiltig eller har gått ut",
+  "auth.verify.invalid_token_payload": "Verifieringstokens innehåll är ogiltigt",
+  "auth.verify.user_not_found": "Användaren hittades inte",
+  "auth.verify.email_mismatch": "E-postadressen matchar inte våra uppgifter",
+  "auth.verify.already_verified": "E-postadressen är redan verifierad",
+  "auth.verify.success": "Din e-postadress har verifierats framgångsrikt",
+  "auth.database.error": "Databasfel: {{message}}",
+
+  // Password recovery
+  "auth.database.user_not_found": "Inget konto hittades med denna e-postadress",
+  "auth.database.user_no_credentials_provider":
+    "Denna e-postadress registrerades inte med lösenord. Försök logga in med Google eller en annan metod.",
+  "auth.database.reset_email_failed": "Det gick inte att skicka e-post för lösenordsåterställning: {message}",
+  "auth.database.reset_email_sent": "Om kontot finns får du snart en återställningslänk",
+
+  // Other
+  "auth.recover.completed": "Återställning slutförd",
+  "auth.recover.stay_safe": "Ta hand om dig!",
+  "auth.auth.completed": "Autentisering slutförd",
+  "auth.error.faceit_not_implemented": "Faceit är inte implementerat – om du vet hur man gör, kontakta mig: ",
+  "auth.error.continuing_with": "Fel vid fortsättning med",
+  "auth.continue_with_faceit": "Fortsätt med Faceit",
+  "auth.continue_with_twitter": "Fortsätt med Twitter",
+  "auth.page_close_in": "Jag stänger denna sida om",
+  "auth.mission_passed": "Uppdrag slutfört!",
+  "auth.respect_plus": "respekt+",
+  "auth.change_query_params_back_to": "Ändra nu frågeparametrarna tillbaka till ",
+  "auth.error.unknown": "Ett okänt fel inträffade – kontakta admin",
+  "auth.here": "här",
+  "auth.check_spam": "Om du inte fått något mejl – kontrollera Skräppost och All e-post",
+  "auth.recovery.passowrd_changed": "Ditt lösenord har ändrats – ta bort mejlet",
+  "auth.recovery.session_expired": "Din session har gått ut – återställ lösenordet snabbare nästa gång",
+  "auth.account.exist_google": "Du har redan ett konto med Google",
+  "auth.account.exist": "Du har redan ett konto med {provider}",
+  "auth.no_user_or_username": "Ingen användare eller användarnamn hittades – kontakta admin",
+  "auth.error.user_exist": "Ingen användare eller användarnamn hittades – kontakta admin",
+  "auth.error.not_verified_email_check_your_email": "Du kanske inte har verifierat din email – kontrollera din inbox",
+  "auth.dont_received_email_q": "Fick du inget mejl?",
+  "auth.recovery.change_email": "Ändra email",
+  "auth.already_authenticated": "Redan autentiserad",
+  "auth.already_authenticated_subtitle": "Om du vill logga in på ett annat konto, logga ut och logga sedan in igen",
+
+  // =================        =================
+  //                   MODALS
+  // =================        =================
+  "modal.loading.admin": "Laddar adminpanel...",
+  "modal.loading.cart": "Laddar kundvagn...",
+  "modal.loading.language": "Laddar språkbyte...",
+  "modal.yes": "Ja",
+  "modal.no": "Nej",
+  "modal.are_you_sure_clear_cart.label": "Är du säker på att du vill tömma kundvagnen",
+  "modal.are_you_sure_clear_cart.primary_button": "Töm",
+  "modal.are_you_sure_clear_cart.secondary_button": "Tillbaka",
+  "modal.are_you_sure_delete_product.label": "Är du säker på att du vill ta bort",
+  "modal.are_you_sure_delete_product.primary_button": "Ta bort",
+  "modal.are_you_sure_delete_product.secondary_button": "Tillbaka",
+  "modal.are_you_sure_mark_ticket_as_completed_support.label": "Är du säker på att du vill markera detta ärende som slutfört?",
+  "modal.are_you_sure_mark_ticket_as_completed_support.subtitle_l1": "Den här åtgärden stänger ärendet",
+  "modal.are_you_sure_mark_ticket_as_completed_support.subtitle_l2":
+    "Om du inte hjälpte kan stängning av ärendet påverka ditt rykte",
+  "modal.ctrl_k.title": "Sök produkter",
+  "modal.ctrl_k.placeholder": "Sök",
+  "modal.do_you_want_receive_check.title": "Vill du ta emot kvitto?",
+  "modal.do_you_want_receive_check.email_placeholder": "E-post",
+  "modal.admin_panel.label": "E-post",
+  "modal.cart.label": "E-post",
+
+  // =================        =================
+  //                   TOAST
+  // =================        =================
+  "toast.success.title": "Lyckades",
+  "toast.success.subtitle": "Åtgärden slutfördes",
+  "toast.error.title": "Fel",
+  "toast.error.subtitle": "Okänt fel, kontakta",
+  "toast.error.button": "Admin",
+  "toast.warning.title": "Varning",
+  "toast.warning.subtitle": "Detta kräver din uppmärksamhet",
+  "toast.error.updating_quantity": "Fel vid uppdatering av antal",
+
+  // =================     =================
+  //                   SDK
+  // =================     =================
+  "sdk.rate_limit_exeeded": "Hastighetsgräns överskriden",
+  "sdk.rate_limit_request_failed": "Begäran om hastighetsgräns misslyckades",
+
+  // =================        =================
+  //                   aichat
+  // =================        =================
+  "aichat.error": "Tjänstfel. Försök igen och kontakta support",
+  "aichat.error.no_reply_data": "Inga svar?.[0]?.message?.content – kontakta support",
+  "aichat.generate_image": "Generera bild",
+  "aichat.generate_image_completed": "Varsågod",
+  "aichat.error.generate_image": "Fel vid bildgenerering",
+  "aichat.add_to_cart": "Lägg i kundvagn",
+  "aichat.header_title": "AI Shopping-assistent",
+  "aichat.header_subtitle": "Hitta din perfekta produkt på sekunder",
+  "aichat.button.send": "Skicka",
+  "aichat.emptystate.title": "Redo att hjälpa dig handla",
+  "aichat.emptystate.subtitle": "Beskriv vad du letar efter så guidar jag dig till den perfekta produkten",
+
+  // =================        =================
+  //                   product
+  // =================        =================
+  "product.quantity": "Antal",
+  "product.total": "Totalt",
+  "product.subtotal": "Delsumma",
+  "product.products": "Produkter",
+  "product.no_products_found": "Inga produkter hittades",
+  "product.add_to_cart": "Lägg i kundvagn", // I know it's a duplicate with aichat - this is from old functionality
+  "product.this_field_is_required": "Detta fält är obligatoriskt",
+  "product.title_required": "Ange en produkttitel – a–z, siffror och #()_ är tillåtna",
+  "product.subtitle_required": "Inga tecken !$^*_=\\ tillåtna",
+  "product.price_required": "Ange pris från 1 till 999 999 med 2 decimaler",
+  "product.on_stock_required": "Ange hur många produkter i lager – 1–99 999",
+  "product.drop_files_here": "Släpp filer här",
+  "product.click_or_drop_here": "Klicka eller släpp här",
+  "product.update": "Uppdatera",
+  "product.remove": "Ta bort",
+  "product.remove_all_images": "Ta bort alla bilder",
+  "product.placeholder.title": "Produkttitel",
+  "product.placeholder.description": "Produktbeskrivning",
+  "product.placeholder.price": "Produktpris",
+  "product.placeholder.on_stock": "Antal i lager",
+  "product.create_product": "Skapa produkt",
+  "product.no_products_to_delete": "Du har inga produkter att ta bort",
+  "product.title": "Titel",
+  "product.price": "Pris",
+  "product.description": "Beskrivning",
+  "product.no_products_to_edit": "Du har inga produkter att redigera",
+  "product.on_stock": "I lager",
+  "product.warning.add_file_extension_title": "Lägg till filändelse",
+  "product.warning.add_file_extension_subtitle": "Lägg till filändelse som .jpg, .png, .avif eller .webp",
+  "product.warning.max_file_size_title": "Max filstorlek är 1 MB",
+  "product.warning.max_file_size_subtitle": 'Max är 1 MB - sök på "tinify png or jpg"',
+  "product.warning.max_images_title": "Max {maxImages} bilder",
+  "product.warning.max_images_subtitle": "Använd max {maxImages} produktbilder",
+  "product.warning.use_higer_resolution_title": "Använd högre upplösning",
+  "product.warning.use_higer_resolution_subtitle": "Min 1000 bredd och 500 höjd (1000x500)",
+  "product.add": "Lägg till produkt",
+  "product.edit": "Redigera produkt",
+  "product.delete": "Radera produkt",
+  "product.error.better_prices_email": "Misslyckades med att skicka e-post för begäran om bättre priser",
+  "product.error.better_prices_telegram": "Misslyckades med att skicka telegram för begäran om bättre priser",
+  "product.success.better_prices": "Begäran skickad!",
+  "product.empty_cart": "Kundvagnen är tom",
+  "product.order_summary": "Orderöversikt",
+  "product.request_better_prices": "Begär bättre priser",
+  "product.clear_cart": "Töm kundvagnen",
+  "product.per_page": "per sida",
+  "product.error.failed_to_create_product_on_stripe": "Misslyckades skapa produkt i Stripe – saknar produkt-ID",
+  "product.error.failed_to_generate_image": "Bildgenerering misslyckades",
+  "product.error.image_upload_errors": "Fel vid bilduppladdning",
+  "product.error.db_insert_failed": "Databasinfogning misslyckades",
+  "product.error.no_data_returned_from_uploaded_image": "Ingen data returnerades från uppladdad bild",
+
+  // =================        =================
+  //                   message
+  // =================        =================
+  "message.image_sent": "bild skickad",
+  "message.error.image_sent": "fel vid skickande av bild",
+  "message.error.message_sent": "fel vid skickande av meddelande",
+
+  // =================        =================
+  //                   payment
+  // =================        =================
+  "payment.products_data_fetched": "Produktdata hämtad – sätt steg 4",
+  "payment.error.fetch_products_data": "fel vid hämtning av produktdata",
+  "payment.customer_email_received": "kundens e-post mottagen – sätt steg 3",
+  "payment.error.receive_customer_email_title": "Fel vid hämtning av kundens e-post",
+  "payment.error.receive_customer_email_subtitle": "Kontrollera getCustomerEmailFn – kontakta support",
+  "payment.email_rendered": "e-post renderad – sätt steg 5",
+  "payment.error.render_email_title": "Fel vid rendering av e-post",
+  "payment.error.render_email_subtitle": "Kontakta support",
+  "payment.email_sent": "e-post skickad – sätt steg 7",
+  "payment.error.email_sent": "Fel vid skickande av e-post",
+  "payment.substracted_on_stock_from_quantity": "antalet draget från lagret – omdirigerar till /",
+  "payment.error.substracted_on_stock_from_quantity": "Fel vid subtraktion från lagersaldo för produkten",
+  "payment.session_id_is_valid": "sessionId är giltigt – sätt steg 6",
+  "payment.error.session_id_is_valid_title": "Fel vid verifiering av betalning",
+  "payment.error.session_id_is_valid_subtitle": "Ange inte slumpmässigt session-id – BETALA FÖR DIN BESTÄLLNING",
+  "payment.warning.do_not_use_protected_routes_title": "Du bör inte använda skyddade rutter!",
+  "payment.warning.do_not_use_protected_routes_subtitle_l1": "Lägg till produkter i kundvagnen och",
+  "payment.warning.do_not_use_protected_routes_subtitle_l2": "köp produkterna via betalning",
+  "payment.successfull": "Din betalning lyckades",
+  "payment.check_sent_to_your_email": "Kvitto skickat till din e-post 📨",
+  "payment.redirecting_to_homepage_in": "Omdirigerar till startsidan om",
+  "payment.canceled": "Din betalning avbröts",
+  "payment.status": "Betalningsstatus",
+  "payment.success_checkmark": "Markering för lyckad betalning",
+  "payment.error.configuration_title": "Konfigurationsfel",
+  "payment.error.configuration_subtitle": "Plånboksadress för {selectedChain} är inte konfigurerad i miljövariablerna",
+  "payment.error.invalid_address_format_title": "Konfigurationsfel",
+  "payment.error.invalid_address_format_subtitle":
+    "Adress: {trimmedAddress} | Längd: {trimmedAddressLength} | Förväntat: 42 tecken som börjar med 0x",
+  "payment.error.sending_money_with_metamask": "Fel i sendMoneyWithMetamask:",
+  "payment.error.metamask_not_detected": "Metamask hittades inte",
+  "payment.error.please_install_metamask": "Vänligen installera Metamask",
+  "payment.error.here": "här",
+  "payment.error.or_using": "eller använder",
+  "payment.error.this": "detta",
+  "payment.error.guide": "guide",
+  "payment.error.or_enable_metamask": "eller aktivera Metamask-tillägget. Gjort det redan?",
+  "payment.error.reload_page": "ladda om sidan",
+  "payment.error.please_connect_one_more_time": "Anslut en gång till och",
+  "payment.error.this_time_dont_cancel_request": "denna gång avbryt inte förfrågan",
+  "payment.error.provider_restrictions": "{provider}-begränsningar",
+  "payment.error.1m$_limit": "{provider} begränsar köp över 1M$",
+  "payment.error.make_total_less_than_1M$": "Ta bort produkter ur kundvagnen – totalsumman måste vara under $1,000,000",
+  "payment.error.creating_provider_session": "Fel vid skapande av {provider}-session",
+  "payment.error.unsupported_network_title": "Nätverk inte stöds",
+  "payment.error.unsupported_network_subtitle": "Byt till Ethereum Mainnet, Polygon eller BNB Smart Chain",
+  "payment.error.failed_to_retrieve_token_price_title": "Misslyckades hämta token-pris",
+  "payment.error.failed_to_retrieve_token_price_subtitle":
+    "Försök senare. Det har inget att göra med support eller dig — CoinMarketCap krånglar. Om det upprepas, be supporten skapa en fallback.",
+  "payment.error.transaction_title": "Transaktionsfel",
+  "payment.error.transaction_subtitle": "Användaren nekade transaktionssignatur",
+  "payment.error.failed_to_pay_with_metamask": "Misslyckades betala med Metamask",
+  "payment.email.thank_you_for_your_purchase": "Tack för ditt köp",
+  "payment.email.order_confirmed": "Order bekräftad ✓",
+  "payment.email.order_will_be_delivered_on": "Din beställning levereras den",
+  "payment.email.quantity": "Antal",
+  "payment.email.total": "Totalt",
+  "payment.email.track_your_order": "Spåra din beställning",
+  "payment.email.we_will_keep_you_updated": "Vi håller dig uppdaterad om leveransstatus",
+  "payment.email.support": "Support",
+  "payment.email.feedback": "Feedback",
+  "payment.email.all_rights_reserved": "Alla rättigheter förbehålls.",
+
+  // =================        =================
+  //                   stats
+  // =================        =================
+  "stats.total_campaign_clicks": "Totala kampanjklick",
+  "stats.across_all_sources": "Över alla källor",
+  "stats.traffic_distribution": "Trafikfördelning",
+  "stats.performance": "Prestanda",
+  "stats.campaign_title": "Kampanjprestanda",
+  "stats.campaign_subtitle": "Spåra effektiviteten i dina marknadsföringskampanjer",
+
+  // =================        =================
+  //                   support
+  // =================        =================
+  "support.option_1": "Få support via e-post",
+  "support.option_2_title": "Få support i chatt",
+  "support.option_2_subtitle": "Klicka i nedre högra hörnet",
+  "support.option_3": "Få support i Telegram",
+  "support.back_to_tickets": "Tillbaka till ärenden",
+  "support.no_messages_in_this_ticket": "Inga meddelanden i detta ärende",
+  "support.how_you_got_this_error": "Berätta hur du fick detta fel",
+  "support.images_attached": "{number} bifogade bilder",
+  "support.image_attached_click_to_preview": "Bild bifogad - klicka för förhandsgranskning",
+  "support.remove_image": "Ta bort bild",
+  "support.response_time": "Svarstid ~{number}s",
+  "support.loading_messages": "Laddar meddelanden",
+  "support.no_messages_yet": "Inga meddelanden ännu",
+  "support.error.filename_must_contain_dot": "Filnamn måste innehålla en punkt innan filändelsen (t.ex. 'file.jpg')",
+  "support.error.file_extension_is_required": "Filändelse krävs för att sätta in i DB-bucket",
+  "support.error.uploading_image": "Fel vid uppladdning av bild",
+
+  // =================           =================
+  //                   trackorder
+  // =================           =================
+  "trackorder.title": "Spåra order",
+  "trackorder.subtitle": "Leveransstatus i realtid",
+  "trackorder.order_number": "Ordernummer",
+  "trackorder.track": "Spåra",
+  "trackorder.tracking_not_available_title": "Spårning ännu inte tillgänglig",
+  "trackorder.tracking_not_available_subtitle": "Spårningsnummer skickas inom 24–48 timmar.",
+  "trackorder.order_status": "Orderstatus",
+  "trackorder.order_status_1_title": "Order bekräftad",
+  "trackorder.order_status_1_subtitle": "Vi har mottagit din order",
+  "trackorder.order_status_2_title": "Bearbetas",
+  "trackorder.order_status_2_subtitle": "Förbereder leverans",
+  "trackorder.order_status_3_title": "Skickad",
+  "trackorder.order_status_3_subtitle": "Paket på väg",
+  "trackorder.order_status_4_title": "Ut för leverans",
+  "trackorder.order_status_4_subtitle": "Kurir i närheten",
+  "trackorder.order_status_5_title": "Levererad",
+  "trackorder.order_status_5_subtitle": "Levererad till adress",
+  "trackorder.support": "Support",
+  "trackorder.feedback": "Feedback",
+  "trackorder.location_visible_after_shipment": "Plats synlig efter leverans",
+} as const

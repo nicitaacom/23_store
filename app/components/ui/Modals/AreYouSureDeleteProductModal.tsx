@@ -8,11 +8,13 @@ import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProd
 import { AreYouSureModalContainer } from "./ModalContainers/AreYouSureModalContainer"
 import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
+import { useScopedI18n } from "@/locales/client"
 
 export function AreYouSureDeleteProductModal() {
+  const t = useScopedI18n("modal")
   const router = useRouter()
   const cartStore = useCartStore()
-  const { isLoading, setIsLoading } = useLoading()
+  const { setIsLoading } = useLoading()
   const areYouSureDeleteProductModal = useAreYouSureDeleteProductModal()
 
   async function deleteProduct() {
@@ -32,15 +34,15 @@ export function AreYouSureDeleteProductModal() {
       isOpen={areYouSureDeleteProductModal.isOpen}
       label={
         <h2>
-          Are you sure you want delete <b>{areYouSureDeleteProductModal.title}</b>?
+          {t("are_you_sure_delete_product.label")} <b>{areYouSureDeleteProductModal.title}</b>?
         </h2>
       }
       primaryButtonIcon={BiTrash}
       primaryButtonVariant="danger"
       primaryButtonAction={deleteProduct}
-      primaryButtonLabel="Delete"
+      primaryButtonLabel={t("are_you_sure_delete_product.primary_button")}
       secondaryButtonAction={() => areYouSureDeleteProductModal.closeModal()}
-      secondaryButtonLabel="Back"
+      secondaryButtonLabel={t("are_you_sure_delete_product.secondary_button")}
     />
   )
 }

@@ -6,10 +6,10 @@ import { setCookie } from "@/utils/helpersCSR"
 import { useMessagesStore } from "../ui/useMessagesStore"
 
 interface UserStore {
-  userId: string
+  userId: string | null
   isAuthenticated: boolean
-  username: string
-  email: string
+  username: string | null
+  email: string | null
   avatarUrl: string | null
   setUser: (userId: string, username: string, email: string, avatarUrl: string) => void
   logoutUser: () => void
@@ -18,11 +18,11 @@ interface UserStore {
 type SetState = (fn: (prevState: UserStore) => UserStore) => void
 
 export const userStore = (set: SetState): UserStore => ({
-  userId: "",
+  userId: null, // it's best practice to use "" only for input value
   isAuthenticated: false,
-  username: "",
-  email: "",
-  avatarUrl: "",
+  username: null,
+  email: null,
+  avatarUrl: null,
   setUser(userId: string, username: string, email: string, avatarUrl: string) {
     if (avatarUrl) setCookie("avatarUrl", avatarUrl) // to prevent hydration error (cookies availabe on server so content match)
     set((state: UserStore) => ({

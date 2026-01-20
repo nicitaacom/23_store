@@ -23,8 +23,8 @@ const CtrlKModal = async () => {
 }
 
 const DoYouWantRecieveCheckModal = async () => {
-  const modal = import("@/components/ui/Modals/DoYouWantRecieveCheckModal")
-  const { DoYouWantRecieveCheckModal } = await modal
+  const modal = import("@/components/ui/Modals/DoYouWantReceiveCheckModal")
+  const { DoYouWantReceiveCheckModal: DoYouWantRecieveCheckModal } = await modal
   return <DoYouWantRecieveCheckModal />
 }
 
@@ -49,7 +49,7 @@ export function ModalsProvider() {
   )
 }
 
-// don't use this because it throw error
+// don't use this because it throw error (what error?)
 // const AreYouSureClearCartModal = dynamic(() => import("@/components/ui/Modals/AreYouSureClearCartModal"), {
 //   ssr: false,
 // })

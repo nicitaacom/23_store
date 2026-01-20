@@ -1,16 +1,16 @@
 import { create } from "zustand"
 
 interface AreYouSureDeleteProductModalStore {
-  id: string
-  title: string
+  id: string | null
+  title: string | null
   isOpen: boolean
   openModal: (id: string, title: string) => void
   closeModal: () => void
 }
 
 export const useAreYouSureDeleteProductModal = create<AreYouSureDeleteProductModalStore>()(set => ({
-  id: "",
-  title: "",
+  id: null, // best practice use "" only for inputValue
+  title: null,
   isOpen: false,
   openModal: (id: string, title: string) => set({ id: id, title: title, isOpen: true }),
   closeModal: () => set({ id: undefined, title: undefined, isOpen: false }),

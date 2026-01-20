@@ -1,13 +1,16 @@
+"use client"
+
 import { motion } from "framer-motion"
 import { AiOutlineCheckCircle, AiOutlineWarning } from "react-icons/ai"
 import { BiErrorCircle } from "react-icons/bi"
 import { Button } from "."
 import useToast, { ToastVariant } from "@/store/ui/useToast"
+import { useI18n } from "@/locales/client"
 
 export default function Toast() {
   const { variant, title, subTitle } = useToast()
+  const t = useI18n()
 
-  // Icon and color configuration
   const variantConfig: Record<
     ToastVariant,
     {
@@ -15,48 +18,40 @@ export default function Toast() {
       borderColor: string
       iconColor: string
       defaultTitle: string
+      defaultSubtitle?: React.ReactNode
     }
   > = {
     success: {
       icon: <AiOutlineCheckCircle size={32} />,
       borderColor: "border-success",
       iconColor: "text-success",
-      defaultTitle: "Success",
+      defaultTitle: t("toast.success.title"),
+      defaultSubtitle: <p>{t("toast.success.subtitle")}</p>,
     },
     error: {
       icon: <BiErrorCircle size={32} />,
       borderColor: "border-danger",
       iconColor: "text-danger",
-      defaultTitle: "Error",
+      defaultTitle: t("toast.error.title"),
+      defaultSubtitle: (
+        <p className="flex flex-wrap">
+          {t("toast.error.subtitle")} -&nbsp;
+          <Button className="inline-block text-info" variant="link" href="t.me/nicitaacom">
+            {t("toast.error.button")}
+          </Button>
+        </p>
+      ),
     },
     warning: {
       icon: <AiOutlineWarning size={32} />,
       borderColor: "border-warning",
       iconColor: "text-warning",
-      defaultTitle: "Warning",
+      defaultTitle: t("toast.warning.title"),
+      defaultSubtitle: <p>{t("toast.warning.subtitle")}</p>,
     },
   }
 
   const currentConfig = variantConfig[variant] || variantConfig.error
-
-  // Default subtitle content
-  const getDefaultSubtitle = () => {
-    switch (variant) {
-      case "error":
-        return (
-          <p className="flex flex-wrap">
-            Unknown error please contact -&nbsp;
-            <Button className="inline-block text-info" variant="link" href="t.me/nicitaacom">
-              Admin
-            </Button>
-          </p>
-        )
-      case "warning":
-        return <p>This requires your attention</p>
-      default:
-        return <p>Operation completed successfully</p>
-    }
-  }
 
   return (
     <motion.div
@@ -73,7 +68,7 @@ export default function Toast() {
           <h1 className="whitespace-pre-wrap">{title || currentConfig.defaultTitle}</h1>
         </div>
 
-        <div className="text-subTitle whitespace-pre-wrap">{subTitle || getDefaultSubtitle()}</div>
+        <div className="text-subTitle whitespace-pre-wrap">{subTitle || currentConfig.defaultSubtitle}</div>
       </div>
     </motion.div>
   )

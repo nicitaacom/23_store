@@ -1,12 +1,14 @@
 "use client"
 
+import { redirect } from "next/navigation"
 import { BiSearchAlt } from "react-icons/bi"
 import { SearchInput } from "../Inputs/SearchInput"
 import { ModalContainer } from "./ModalContainers/"
-import { useCtrlKModal } from "@/store/ui/ctrlKModal"
-import { redirect } from "next/navigation"
+import { useCtrlKModal } from "@/store/ui/useCtrlKModal"
+import { useScopedI18n } from "@/locales/client"
 
 export function CtrlKModal() {
+  const t = useScopedI18n("modal")
   const ctrlKModal = useCtrlKModal()
 
   function searchProducts(formData: FormData) {
@@ -29,11 +31,11 @@ export function CtrlKModal() {
       isOpen={ctrlKModal.isOpen}
       onClose={ctrlKModal.closeModal}>
       <form action={searchProducts} className="flex flex-col gap-y-2">
-        <h1 className="flex justify-center">Search for products</h1>
+        <h1 className="flex justify-center">{t("ctrl_k.title")}</h1>
         <SearchInput
           startIcon={<BiSearchAlt className="text-icon-color" size={24} />}
           name="searchQuery"
-          placeholder="Search..."
+          placeholder={t("ctrl_k.placeholder")}
         />
       </form>
     </ModalContainer>

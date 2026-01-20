@@ -1,0 +1,402 @@
+// locales/ru.ts
+// IMPORTANT RULE: every translated line should be in same amount of lines e.g en 1 line ru 1 line etc (NOT en 1 line ru 2 lines)
+
+export default {
+  hello: "Hello on latvian",
+  "hello.world": "Hello world! on latvian",
+  welcome: "Hello {name}! on latvian",
+
+  // /search route
+  "search.title": "Поиск",
+
+  // =================      =================
+  //                   AUTH
+  // =================      =================
+  "auth.login.title": "Привет,\nС возвращением",
+  "auth.login.subtitle": "Привет, с возвращением в твоё особое место",
+  "auth.login.validating_password_security": "Проверка безопасности пароля...",
+  "auth.register.title": "Привет,\nСоздать аккаунт",
+  "auth.register.subtitle": "Присоединяйся к нам и начни своё путешествие уже сегодня",
+  "auth.recovery.title": "Забыли пароль?",
+  "auth.recovery.subtitle": "Введите свой адрес электронной почты для сброса пароля",
+
+  // Password Strength Levels
+  "auth.password.strength": "Надёжность пароля",
+  "auth.password.strength.weak": "Слабый",
+  "auth.password.strength.fair": "Средний",
+  "auth.password.strength.good": "Хороший",
+  "auth.password.strength.strong": "Сильный",
+
+  // Password Validation Messages
+  "auth.password.validation.required": "Пароль обязателен",
+  "auth.password.validation.min_length": "Пароль должен быть длиной не менее 15 символов",
+  "auth.password.validation.max_length": "Пароль не должен превышать 128 символов (защита от DoS)",
+  "auth.password.validation.prohibited_chars": "Пароль содержит запрещённые управляющие символы",
+  "auth.password.validation.null_bytes": "Пароль содержит нулевые байты, что недопустимо",
+  "auth.password.validation.common_password": "Этот пароль находится в списке часто используемых и легко угадывается",
+  "auth.password.validation.keyboard_patterns": "Пароль содержит шаблоны клавиатуры, которые легко угадать",
+  "auth.password.validation.repeating_chars": "Пароль содержит слишком много повторяющихся символов",
+  "auth.password.validation.sequential_chars": "Пароль содержит последовательные символы, которые легко угадать",
+  "auth.password.validation.leet_speak": "Пароль является распространённой паролем с простыми заменами символов",
+  "auth.password.validation.breached_password": "Этот пароль встречался в утечке данных и небезопасен для использования",
+  "auth.password.validation.personal_info": "Пароль содержит личную информацию и легко угадывается",
+  "auth.password.validation.too_weak": "Пароль слишком слабый. Пожалуйста, выберите более надёжный пароль.",
+  "auth.password.validation.too_fair": "Пароль слишком средний. Пожалуйста, выберите более надёжный пароль.",
+
+  // Email Validation Messages
+  "auth.email.validation.required": "Адрес электронной почты обязателен",
+  "auth.email.validation.too_long": "Адрес электронной почты слишком длинный (максимум 254 символа)",
+  "auth.email.validation.invalid_format": "Некорректный формат email",
+  "auth.email.validation.domain_missing": "Доменная часть должна существовать (например, primer@domen.com)",
+  "auth.email.validation.email_part_missing": "Часть электронной почты должна существовать (например, primer@domen.com)",
+  "auth.email.validation.email_part_double_dot": "В локальной части не допускаются две точки подряд (..)",
+  "auth.email.validation.domain_part_double_dot": "В доменной части не допускаются две точки подряд (..)",
+  "auth.email.validation.domain_part_dot": "Доменная часть не должна начинаться или заканчиваться точкой (.)",
+  "auth.email.validation.email_part_dot": "Локальная часть не должна начинаться или заканчиваться точкой (.)",
+  "auth.email.validation.multiple_at": "Адрес электронной почты должен содержать ровно один символ @",
+  "auth.email.validation.invalid": "Неверный формат адреса электронной почты",
+
+  // Username Validation Messages
+  "auth.validation.username.required": "Имя пользователя обязательно",
+
+  // Form Fields
+  "auth.email.placeholder": "nicitaacom@gmail.com",
+  "auth.password.placeholder_new": "NeW-RaNd0m_PasWorD_system-1",
+  "auth.password.placeholder": "RaNd0m_PasWorD_system-1",
+  "auth.username.placeholder": "HANTARESpeek",
+  "auth.email.label": "Email",
+  "auth.password.label": "Пароль",
+  "auth.username.label": "Имя пользователя",
+  "auth.email_not_allowed_with_this_domain": "Email с этим доменом не разрешён",
+
+  // Buttons
+  "auth.login.button": "Войти",
+  "auth.register.button": "Создать аккаунт",
+  "auth.recovery.button": "Сбросить пароль",
+  "auth.loading": "Пожалуйста, подождите...",
+
+  // Links
+  "auth.remember.me": "Запомнить меня",
+  "auth.forgot.password": "Забыли пароль?",
+  "auth.no.account": "Нет аккаунта?",
+  "auth.have.account": "Уже есть аккаунт?",
+  "auth.sign.up": "Зарегистрироваться",
+  "auth.sign.in": "Войти",
+  "auth.or.continue": "или продолжить с",
+  "auth.continue_with_google": "Продолжить с Google",
+  "auth.resending": "повторная отправка",
+  "auth.resent": "отправлено повторно",
+  "auth.resend_failed": "Не удалось повторно отправить письмо: {message}",
+  "auth.resend": "Отправить повторно",
+
+  // Auth database errors
+  "auth.database.error_finding_user": "Ошибка при поиске пользователя в базе данных: {message}",
+  "auth.database.user_not_registered": "Пользователь не зарегистрирован",
+  "auth.database.email_not_registered_with_credentials": "Этот адрес электронной почты не зарегистрирован с учётными данными",
+  "auth.database.invalid_credentials": "Неверные учётные данные",
+  "auth.database.supabase_error": "Ошибка аутентификации: {message}",
+  "auth.database.no_session": "Сервис аутентификации не вернул сессию",
+  "auth.database.no_user": "Сервис аутентификации не вернул пользователя.",
+
+  // Registration specific
+  "auth.register.password_mismatch": "Пароли не совпадают",
+  "auth.register.user_already_exists": "Аккаунт с этим адресом электронной почты уже существует",
+  "auth.register.user_exists_different_provider":
+    "Аккаунт с этим адресом электронной почты существует, но был создан с использованием другого метода (Google, Facebook и т.д.)",
+  "auth.register.password_hashing_failed": "Не удалось защитить пароль. Пожалуйста, попробуйте снова.",
+  "auth.register.auth_user_creation_failed": "Не удалось создать аккаунт аутентификации",
+  "auth.register.email_confirmation_required": "Аккаунт создан! Проверьте почту для подтверждения",
+  "auth.register.user_exist_email_not_confirmed": "Пользователь зарегистрирован, но адрес электронной почты не подтверждён",
+  "auth.server.missing_password_secret": "Отсутствует секрет пароля — свяжитесь с поддержкой",
+  "auth.server.missing_jwt_secret": "Отсутствует секрет JWT — свяжитесь с поддержкой",
+  "auth.server.missing_support_email": "Отсутствует адрес электронной почты службы поддержки — свяжитесь с поддержкой",
+  "auth.server.cannot_store_verification": "Не удалось сохранить подтверждение",
+  "auth.server.error_encrypting_password": "Ошибка при шифровании пароля",
+  "auth.server.invalid_data": "Не удалось получить сохранённое подтверждение",
+  "auth.register.resend_rate_limited": "Письмо уже было отправлено. Пожалуйста, попробуйте снова через {seconds} секунд.",
+  "auth.register.insert_new_user_failed": "Не удалось создать запись нового пользователя в базе данных: {message}",
+
+  // Email verification
+  "auth.verify.missing_token": "Отсутствует токен подтверждения",
+  "auth.verify.invalid_or_expired_token": "Токен подтверждения недействителен или истёк",
+  "auth.verify.invalid_token_payload": "Содержимое токена подтверждения недействительно",
+  "auth.verify.user_not_found": "Пользователь не найден",
+  "auth.verify.email_mismatch": "Адрес электронной почты не соответствует нашим данным",
+  "auth.verify.already_verified": "Адрес электронной почты уже подтверждён",
+  "auth.verify.success": "Ваш адрес электронной почты успешно подтверждён",
+  "auth.database.error": "Ошибка базы данных: {{message}}",
+
+  // Password recovery
+  "auth.database.user_not_found": "Аккаунт с этим адресом электронной почты не найден",
+  "auth.database.user_no_credentials_provider":
+    "Этот адрес электронной почты не был зарегистрирован с паролем. Попробуйте войти через Google или другой способ.",
+  "auth.database.reset_email_failed": "Не удалось отправить письмо для сброса пароля: {message}",
+  "auth.database.reset_email_sent": "Если аккаунт существует, вы скоро получите ссылку для сброса пароля",
+
+  // Other
+  "auth.recover.completed": "Восстановление завершено",
+  "auth.recover.stay_safe": "Береги себя!",
+  "auth.auth.completed": "Аутентификация завершена",
+  "auth.error.faceit_not_implemented": "Faceit не реализован — если знаешь как сделать, свяжись со мной: ",
+  "auth.error.continuing_with": "Ошибка при продолжении с",
+  "auth.continue_with_faceit": "Продолжить с Faceit",
+  "auth.continue_with_twitter": "Продолжить с Twitter",
+  "auth.page_close_in": "Я закрою эту страницу через",
+  "auth.mission_passed": "Миссия выполнена!",
+  "auth.respect_plus": "уважение+",
+  "auth.change_query_params_back_to": "Теперь измените параметры запроса обратно на ",
+  "auth.error.unknown": "Произошла неизвестная ошибка — свяжитесь с админом",
+  "auth.here": "здесь",
+  "auth.check_spam": "Если вы не получили письмо — проверьте Спам и Все письма",
+  "auth.recovery.passowrd_changed": "Ваш пароль изменён — удалите письмо",
+  "auth.recovery.session_expired": "Сессия истекла — восстановите пароль быстрее в следующий раз",
+  "auth.account.exist_google": "У вас уже есть аккаунт с Google",
+  "auth.account.exist": "У вас уже есть аккаунт с {provider}",
+  "auth.no_user_or_username": "Пользователь или имя пользователя не найдены — свяжитесь с админом",
+  "auth.error.user_exist": "Пользователь или имя пользователя не найдены — свяжитесь с админом",
+  "auth.error.not_verified_email_check_your_email": "Возможно, вы не подтвердили email — проверьте почту",
+  "auth.dont_received_email_q": "Не получили письмо?",
+  "auth.recovery.change_email": "Сменить email",
+  "auth.already_authenticated": "Вы уже авторизованы",
+  "auth.already_authenticated_subtitle": "Если хотите войти в другой аккаунт — выйдите и войдите снова",
+
+  // =================        =================
+  //                   MODALS
+  // =================        =================
+  "modal.loading.admin": "Загрузка панели администратора...",
+  "modal.loading.cart": "Загрузка корзины...",
+  "modal.loading.language": "Загрузка окна смены языка...",
+  "modal.yes": "Да",
+  "modal.no": "Нет",
+  "modal.are_you_sure_clear_cart.label": "Вы уверены, что хотите очистить корзину",
+  "modal.are_you_sure_clear_cart.primary_button": "Очистить",
+  "modal.are_you_sure_clear_cart.secondary_button": "Назад",
+  "modal.are_you_sure_delete_product.label": "Вы уверены, что хотите удалить",
+  "modal.are_you_sure_delete_product.primary_button": "Удалить",
+  "modal.are_you_sure_delete_product.secondary_button": "Назад",
+  "modal.are_you_sure_mark_ticket_as_completed_support.label": "Вы уверены, что хотите отметить этот тикет как выполненный?",
+  "modal.are_you_sure_mark_ticket_as_completed_support.subtitle_l1": "Это действие закроет тикет",
+  "modal.are_you_sure_mark_ticket_as_completed_support.subtitle_l2":
+    "Если вы не помогли, закрытие тикета может повлиять на вашу репутацию",
+  "modal.ctrl_k.title": "Поиск товаров",
+  "modal.ctrl_k.placeholder": "Поиск",
+  "modal.do_you_want_receive_check.title": "Хотите получить чек?",
+  "modal.do_you_want_receive_check.email_placeholder": "Email",
+  "modal.admin_panel.label": "Email",
+  "modal.cart.label": "Email",
+
+  // =================        =================
+  //                   TOAST
+  // =================        =================
+  "toast.success.title": "Успешно",
+  "toast.success.subtitle": "Операция выполнена успешно",
+  "toast.error.title": "Ошибка",
+  "toast.error.subtitle": "Неизвестная ошибка, обратитесь",
+  "toast.error.button": "Админ",
+  "toast.warning.title": "Предупреждение",
+  "toast.warning.subtitle": "Требует вашего внимания",
+  "toast.error.updating_quantity": "Ошибка обновления количества",
+
+  // =================     =================
+  //                   SDK
+  // =================     =================
+  "sdk.rate_limit_exeeded": "Превышен лимит запросов",
+  "sdk.rate_limit_request_failed": "Ошибка запроса лимита",
+
+  // =================        =================
+  //                   aichat
+  // =================        =================
+  "aichat.error": "Ошибка сервиса. Попробуйте снова и свяжитесь с поддержкой",
+  "aichat.error.no_reply_data": "Нет ответов?.[0]?.message?.content – свяжитесь с поддержкой",
+  "aichat.generate_image": "Создать изображение",
+  "aichat.generate_image_completed": "Вот, пожалуйста",
+  "aichat.error.generate_image": "Ошибка генерации изображения",
+  "aichat.add_to_cart": "Добавить в корзину",
+  "aichat.header_title": "AI Ассистент покупок",
+  "aichat.header_subtitle": "Найдите идеальный продукт за секунды",
+  "aichat.button.send": "Отправить",
+  "aichat.emptystate.title": "Готов помочь с покупками",
+  "aichat.emptystate.subtitle": "Опишите, что вы ищете, и я подберу для вас идеальный продукт",
+
+  // =================        =================
+  //                   product
+  // =================        =================
+  "product.quantity": "Количество",
+  "product.total": "Итого",
+  "product.subtotal": "Промежуточная сумма",
+  "product.products": "Товары",
+  "product.no_products_found": "Товары не найдены",
+  "product.add_to_cart": "Добавить в корзину", // I know it's a duplicate with aichat - this is from old functionality
+  "product.this_field_is_required": "Это поле обязательно",
+  "product.title_required": "Введите название продукта — a–z, цифры; #()_ допустимы",
+  "product.subtitle_required": "Недопустимы символы !$^*_=\\",
+  "product.price_required": "Введите цену от 1 до 999 999 с двумя знаками после запятой",
+  "product.on_stock_required": "Укажите количество на складе — 1–99 999",
+  "product.drop_files_here": "Перетащите файлы сюда",
+  "product.click_or_drop_here": "Кликните или перетащите сюда",
+  "product.update": "Обновить",
+  "product.remove": "Удалить",
+  "product.remove_all_images": "Удалить все изображения",
+  "product.placeholder.title": "Название продукта",
+  "product.placeholder.description": "Описание продукта",
+  "product.placeholder.price": "Цена продукта",
+  "product.placeholder.on_stock": "Количество на складе",
+  "product.create_product": "Создать продукт",
+  "product.no_products_to_delete": "У вас нет продуктов для удаления",
+  "product.title": "Название",
+  "product.price": "Цена",
+  "product.description": "Описание",
+  "product.no_products_to_edit": "У вас нет продуктов для редактирования",
+  "product.on_stock": "В наличии",
+  "product.warning.add_file_extension_title": "Добавьте расширение файла",
+  "product.warning.add_file_extension_subtitle": "Пожалуйста, добавьте расширение, например .jpg, .png, .avif или .webp",
+  "product.warning.max_file_size_title": "Максимальный размер файла 1 МБ",
+  "product.warning.max_file_size_subtitle": 'Максимум 1 МБ - найдите в Google "tinify png or jpg"',
+  "product.warning.max_images_title": "Максимум {maxImages} изображений",
+  "product.warning.max_images_subtitle": "Пожалуйста, используйте не более {maxImages} изображений для товара",
+  "product.warning.use_higer_resolution_title": "Используйте более высокое разрешение",
+  "product.warning.use_higer_resolution_subtitle": "Мин. ширина 1000 и высота 500 (1000x500)",
+  "product.add": "Добавить продукт",
+  "product.edit": "Редактировать продукт",
+  "product.delete": "Удалить продукт",
+  "product.error.better_prices_email": "Не удалось отправить email с запросом лучших цен",
+  "product.error.better_prices_telegram": "Не удалось отправить Telegram с запросом лучших цен",
+  "product.success.better_prices": "Запрос успешно отправлен!",
+  "product.empty_cart": "Корзина пуста",
+  "product.order_summary": "Сводка заказа",
+  "product.request_better_prices": "Запросить лучшие цены",
+  "product.clear_cart": "Очистить корзину",
+  "product.per_page": "на странице",
+  "product.error.failed_to_create_product_on_stripe": "Не удалось создать продукт в Stripe — отсутствует ID продукта",
+  "product.error.failed_to_generate_image": "Генерация изображения не удалась",
+  "product.error.image_upload_errors": "Ошибки загрузки изображения",
+  "product.error.db_insert_failed": "Ошибка вставки в базу данных",
+  "product.error.no_data_returned_from_uploaded_image": "Загруженное изображение не вернуло данных",
+
+  // =================        =================
+  //                   message
+  // =================        =================
+  "message.image_sent": "изображение отправлено",
+  "message.error.image_sent": "ошибка при отправке изображения",
+  "message.error.message_sent": "ошибка при отправке сообщения",
+
+  // =================        =================
+  //                   payment
+  // =================        =================
+  "payment.products_data_fetched": "Данные о продуктах получены — установить шаг 4",
+  "payment.error.fetch_products_data": "Ошибка получения данных о продуктах",
+  "payment.customer_email_received": "Email клиента получен — установить шаг 3",
+  "payment.error.receive_customer_email_title": "Ошибка получения email клиента",
+  "payment.error.receive_customer_email_subtitle": "Проверьте getCustomerEmailFn — свяжитесь с поддержкой",
+  "payment.email_rendered": "Email сформирован — установить шаг 5",
+  "payment.error.render_email_title": "Ошибка формирования email",
+  "payment.error.render_email_subtitle": "Пожалуйста, свяжитесь с поддержкой",
+  "payment.email_sent": "Email отправлен — установить шаг 7",
+  "payment.error.email_sent": "Ошибка отправки email",
+  "payment.substracted_on_stock_from_quantity": "Списано со склада — перенаправление на /",
+  "payment.error.substracted_on_stock_from_quantity": "Ошибка списания со склада количества товара",
+  "payment.session_id_is_valid": "sessionId действителен — установить шаг 6",
+  "payment.error.session_id_is_valid_title": "Ошибка проверки платежа",
+  "payment.error.session_id_is_valid_subtitle": "Не вводите случайный session id — ОПЛАТИТЕ ЗАКАЗ",
+  "payment.warning.do_not_use_protected_routes_title": "Не используйте защищённые маршруты!",
+  "payment.warning.do_not_use_protected_routes_subtitle_l1": "Пожалуйста, добавьте товары в корзину и",
+  "payment.warning.do_not_use_protected_routes_subtitle_l2": "оплатите заказ через платежную систему",
+  "payment.successfull": "Ваш платёж прошёл успешно",
+  "payment.check_sent_to_your_email": "Чек отправлен на ваш email 📨",
+  "payment.redirecting_to_homepage_in": "Перенаправление на главную через",
+  "payment.canceled": "Ваш платёж отменён",
+  "payment.status": "Статус платежа",
+  "payment.success_checkmark": "Метка успешной оплаты",
+  "payment.error.configuration_title": "Ошибка конфигурации",
+  "payment.error.configuration_subtitle": "Адрес кошелька для {selectedChain} не настроен в переменных окружения",
+  "payment.error.invalid_address_format_title": "Ошибка конфигурации",
+  "payment.error.invalid_address_format_subtitle":
+    "Адрес: {trimmedAddress} | Длина: {trimmedAddressLength} | Ожидается: 42 символа, начинающихся с 0x",
+  "payment.error.sending_money_with_metamask": "Ошибка в sendMoneyWithMetamask:",
+  "payment.error.metamask_not_detected": "Metamask не обнаружен",
+  "payment.error.please_install_metamask": "Пожалуйста, установите Metamask",
+  "payment.error.here": "здесь",
+  "payment.error.or_using": "или используя",
+  "payment.error.this": "это",
+  "payment.error.guide": "руководство",
+  "payment.error.or_enable_metamask": "или включите расширение Metamask. Уже сделали это?",
+  "payment.error.reload_page": "перезагрузите страницу",
+  "payment.error.please_connect_one_more_time": "Пожалуйста, подключитесь ещё раз и",
+  "payment.error.this_time_dont_cancel_request": "на этот раз не отменяйте запрос",
+  "payment.error.provider_restrictions": "Ограничения {provider}",
+  "payment.error.1m$_limit": "{provider} ограничивает покупки на сумму более 1M$",
+  "payment.error.make_total_less_than_1M$": "Удалите товары из корзины — итог должен быть меньше $1,000,000",
+  "payment.error.creating_provider_session": "Ошибка создания сессии {provider}",
+  "payment.error.unsupported_network_title": "Сеть не поддерживается",
+  "payment.error.unsupported_network_subtitle": "Пожалуйста, переключитесь на Ethereum Mainnet, Polygon или BNB Smart Chain",
+  "payment.error.failed_to_retrieve_token_price_title": "Не удалось получить цену токена",
+  "payment.error.failed_to_retrieve_token_price_subtitle":
+    "Попробуйте позже. Это не связано с поддержкой — просто CoinMarketCap сейчас нестабилен. Если повторится, попросите поддержку настроить резервный механизм.",
+  "payment.error.transaction_title": "Ошибка транзакции",
+  "payment.error.transaction_subtitle": "Пользователь отклонил подпись транзакции",
+  "payment.error.failed_to_pay_with_metamask": "Не удалось оплатить через Metamask",
+  "payment.email.thank_you_for_your_purchase": "Спасибо за покупку",
+  "payment.email.order_confirmed": "Заказ подтверждён ✓",
+  "payment.email.order_will_be_delivered_on": "Ваш заказ будет доставлен",
+  "payment.email.quantity": "Количество",
+  "payment.email.total": "Итого",
+  "payment.email.track_your_order": "Отследить заказ",
+  "payment.email.we_will_keep_you_updated": "Мы будем держать вас в курсе статуса доставки",
+  "payment.email.support": "Поддержка",
+  "payment.email.feedback": "Обратная связь",
+  "payment.email.all_rights_reserved": "Все права защищены.",
+
+  // =================        =================
+  //                   stats
+  // =================        =================
+  "stats.total_campaign_clicks": "Всего кликов по кампании",
+  "stats.across_all_sources": "По всем источникам",
+  "stats.traffic_distribution": "Распределение трафика",
+  "stats.performance": "Эффективность",
+  "stats.campaign_title": "Эффективность кампании",
+  "stats.campaign_subtitle": "Отслеживайте эффективность ваших маркетинговых кампаний",
+
+  // =================        =================
+  //                   support
+  // =================        =================
+  "support.option_1": "Получить поддержку по email",
+  "support.option_2_title": "Получить поддержку в чате",
+  "support.option_2_subtitle": "Просто нажмите в правом нижнем углу",
+  "support.option_3": "Получить поддержку в Telegram",
+  "support.back_to_tickets": "Назад к тикетам",
+  "support.no_messages_in_this_ticket": "В этом тикете нет сообщений",
+  "support.how_you_got_this_error": "Пожалуйста, опишите, как возникла эта ошибка",
+  "support.images_attached": "{number} прикреплённых изображений",
+  "support.image_attached_click_to_preview": "Изображение прикреплено - нажмите для просмотра",
+  "support.remove_image": "Удалить изображение",
+  "support.response_time": "Время ответа ~{number}s",
+  "support.loading_messages": "Загрузка сообщений",
+  "support.no_messages_yet": "Пока нет сообщений",
+  "support.error.filename_must_contain_dot": "Имя файла должно содержать одну точку перед расширением (например 'file.jpg')",
+  "support.error.file_extension_is_required": "Требуется расширение файла для загрузки в bucket БД",
+  "support.error.uploading_image": "Ошибка загрузки изображения",
+
+  // =================           =================
+  //                   trackorder
+  // =================           =================
+  "trackorder.title": "Отследить заказ",
+  "trackorder.subtitle": "Прогресс доставки в реальном времени",
+  "trackorder.order_number": "Номер заказа",
+  "trackorder.track": "Отследить",
+  "trackorder.tracking_not_available_title": "Отслеживание пока недоступно",
+  "trackorder.tracking_not_available_subtitle": "Номер для отслеживания будет отправлен в течение 24–48 часов.",
+  "trackorder.order_status": "Статус заказа",
+  "trackorder.order_status_1_title": "Заказ подтверждён",
+  "trackorder.order_status_1_subtitle": "Мы получили ваш заказ",
+  "trackorder.order_status_2_title": "В обработке",
+  "trackorder.order_status_2_subtitle": "Подготовка к отправке",
+  "trackorder.order_status_3_title": "Отправлено",
+  "trackorder.order_status_3_subtitle": "Посылка в пути",
+  "trackorder.order_status_4_title": "В доставке",
+  "trackorder.order_status_4_subtitle": "Курьер рядом",
+  "trackorder.order_status_5_title": "Доставлено",
+  "trackorder.order_status_5_subtitle": "Доставлено по адресу",
+  "trackorder.support": "Поддержка",
+  "trackorder.feedback": "Обратная связь",
+  "trackorder.location_visible_after_shipment": "Местоположение видно после отправки",
+} as const

@@ -1,13 +1,13 @@
 import { BiSearchAlt } from "react-icons/bi"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
-import { Language } from "../Language"
+import { LanguageDropdown } from "../LanguageDropdown"
 import { SwitchDarkMode } from ".."
 import { NavbarWrapper } from "./components/NavbarWrapper"
 import { AvatarDropdown, HamburgerMenu, Logo, OpenAuthModalButton, CartIcon } from "./components"
 import { ContactButton } from "./components/ContactButton"
 import { getCookie } from "@/utils/helpersSSR"
-import { TRecordCartProduct } from "@/TS/product/TRecordCartProduct"
+import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 
 export default async function Navbar() {
   const {
@@ -33,7 +33,7 @@ export default async function Navbar() {
       .select("role")
       .eq("id", user.id)
       .single()
-    if (role_error) throw role_error
+    if (role_error) throw Error(role_error.message)
     role = role_response.role
   }
 
@@ -49,7 +49,7 @@ export default async function Navbar() {
       </div>
       {/* LANGUAGE */}
       <div className="flex flex-row gap-x-2">
-        <Language className="hidden laptop:flex" />
+        <LanguageDropdown className="hidden laptop:flex" />
       </div>
 
       {/* ICONS HELP */}

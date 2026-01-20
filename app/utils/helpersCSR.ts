@@ -1,4 +1,6 @@
-export function setCookie(name: string, val: string) {
+import { TCookieName } from "@/ts/types/TCookieName"
+
+export function setCookie(name: TCookieName, val: string) {
   if (typeof document === "undefined") return
 
   const date = new Date()
@@ -15,7 +17,7 @@ export function setCookie(name: string, val: string) {
  *
  * @returns return cookie value by cookie name (type of string)
  */
-export function getCookie(name: string): string | undefined {
+export function getCookie(name: TCookieName): string | undefined {
   if (typeof document === "undefined") return
 
   const value = "; " + document.cookie

@@ -11,7 +11,7 @@ import { Link } from "@react-email/link"
 import { Tailwind } from "@react-email/tailwind"
 
 import { formatCurrency } from "../utils/currencyFormatter"
-import { TProductAfterDB } from "../TS/product/TProductAfterDB"
+import { TProductAfterDB } from "../ts/product/TProductAfterDB"
 import { getURL } from "@/utils/helpers"
 import { twMerge } from "tailwind-merge"
 import { Fragment } from "react"
@@ -19,10 +19,32 @@ import { Fragment } from "react"
 interface CheckEmailProps {
   products: TProductAfterDB[]
   deliveryDate: string
+  previewText: string
+  orderConfirmed: string
+  willBeDelivered: string
+  quantityText: string
+  totalText: string
+  trackYourOrder: string
+  weKeepYouUpdated: string
+  supportText: string
+  feedbackText: string
+  allRightsReserved: string
 }
 
-export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
-  const previewText = `Thank you for your purchase`
+export const CheckEmail = ({
+  products,
+  deliveryDate,
+  previewText,
+  orderConfirmed,
+  willBeDelivered,
+  quantityText,
+  totalText,
+  trackYourOrder,
+  weKeepYouUpdated,
+  supportText,
+  feedbackText,
+  allRightsReserved,
+}: CheckEmailProps) => {
   const totalAmount = products.reduce((total, product) => total + product.price * product.quantity, 0)
 
   return (
@@ -56,10 +78,10 @@ export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
                 marginBottom: "24px",
               }}>
               <Heading className="m-0 text-[32px] font-bold text-title text-center" style={{ lineHeight: "1.3" }}>
-                Order Confirmed ✓
+                {orderConfirmed}
               </Heading>
               <Text className="m-0 mt-3 text-[16px] text-subTitle text-center" style={{ lineHeight: "1.5" }}>
-                Your order will be delivered on <strong style={{ color: "#1a1a1a" }}>{deliveryDate}</strong>
+                {willBeDelivered} <strong style={{ color: "#1a1a1a" }}>{deliveryDate}</strong>
               </Text>
             </Section>
 
@@ -95,10 +117,8 @@ export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
                           style={{ lineHeight: "1.4", marginBottom: "8px" }}>
                           {product.title}
                         </Text>
-                        <Text
-                          className="m-0 text-[14px] text-subTitle"
-                          style={{ lineHeight: "1.5", marginBottom: "12px" }}>
-                          Quantity: {product.quantity}
+                        <Text className="m-0 text-[14px] text-subTitle" style={{ lineHeight: "1.5", marginBottom: "12px" }}>
+                          {quantityText}: {product.quantity}
                         </Text>
                         <Text className="m-0 text-[16px] font-medium text-title">
                           {formatCurrency(product.price * product.quantity)}
@@ -114,7 +134,7 @@ export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <tr>
                     <td style={{ textAlign: "left" }}>
-                      <Text className="m-0 text-[20px] font-bold text-title">Total</Text>
+                      <Text className="m-0 text-[20px] font-bold text-title">{totalText}</Text>
                     </td>
                     <td style={{ textAlign: "right" }}>
                       <Text className="m-0 text-[24px] font-bold text-title">{formatCurrency(totalAmount)}</Text>
@@ -148,10 +168,10 @@ export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
                   fontWeight: "600",
                   marginBottom: "16px",
                 }}>
-                Track Your Order
+                {trackYourOrder}
               </Link>
               <Text className="m-0 text-[14px] text-subTitle" style={{ lineHeight: "1.5" }}>
-                We&apos;ll keep you updated on your delivery status
+                {weKeepYouUpdated}
               </Text>
             </Section>
 
@@ -165,19 +185,19 @@ export const CheckEmail = ({ products, deliveryDate }: CheckEmailProps) => {
                       className="text-[14px] text-[#1ce956] mx-3"
                       href={`${getURL()}support`}
                       style={{ textDecoration: "none", fontWeight: "500" }}>
-                      Support
+                      {supportText}
                     </Link>
                     <Link
                       className="text-[14px] text-[#1ce956] mx-3"
                       href={`${getURL()}feedback`}
                       style={{ textDecoration: "none", fontWeight: "500" }}>
-                      Feedback
+                      {feedbackText}
                     </Link>
                   </td>
                 </tr>
               </table>
               <Text className="m-0 mt-6 text-[12px] text-subTitle" style={{ lineHeight: "1.5" }}>
-                © {new Date().getFullYear()} 23_store. All rights reserved.
+                © {new Date().getFullYear()} 23_store. {allRightsReserved}
               </Text>
             </Section>
           </Body>

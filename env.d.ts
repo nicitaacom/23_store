@@ -20,6 +20,7 @@ declare global {
 
       NEXT_RESEND_SECRET: string
       NEXT_PUBLIC_SUPPORT_EMAIL: string
+      NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL: string
 
       NEXT_PAYPAL_PUBLIC: string
       NEXT_PAYPAL_SECRET: string
@@ -28,7 +29,6 @@ declare global {
       NEXT_PUBLIC_METAMASK_ADRESS_BNB: string
       NEXT_PUBLIC_METAMASK_ADRESS_MATIC: string
 
-      GEMINI_API_KEY: string
       OPENAI_API_KEY: string
 
       NEXT_COINMARKETCAP_SECRET: string
@@ -39,6 +39,7 @@ declare global {
 
       TELEGRAM_BOT_TOKEN: string
       TELEGRAM_CHAT_ID: string
+      NEXT_PUBLIC_TELEGRAM_URL: string
 
       NEXT_PUBLIC_IS_DEBUG: string
     }

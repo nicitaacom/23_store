@@ -8,8 +8,10 @@ import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYo
 import useTicket from "@/hooks/support/useTicket"
 import { AreYouSureModalContainer } from "./ModalContainers"
 import { useRouter } from "next/navigation"
+import { useScopedI18n } from "@/locales/client"
 
 export function AreYouSureMarkTicketAsCompletedSupportModal() {
+  const t = useScopedI18n("modal")
   const router = useRouter()
   const areYouSureMarkTicketAsCompletedSupportModal = useAreYouSureMarkTicketAsCompletedSupportModal()
 
@@ -25,20 +27,20 @@ export function AreYouSureMarkTicketAsCompletedSupportModal() {
     <AreYouSureModalContainer
       className="pb-0"
       isOpen={areYouSureMarkTicketAsCompletedSupportModal.isOpen}
-      label={<h2 className="mb-2">Are you sure you want mark this ticket as completed?</h2>}
+      label={<h2 className="mb-2">{t("are_you_sure_mark_ticket_as_completed_support.label")}</h2>}
       subTitle={
         <div className="flex flex-col">
-          <p>This action close this ticket</p>
-          <p>If you didn&apos;t help - closing this ticket may affect on your reputation</p>
+          <p>{t("are_you_sure_mark_ticket_as_completed_support.subtitle_l1")}</p>
+          <p>{t("are_you_sure_mark_ticket_as_completed_support.subtitle_l2")}</p>
         </div>
       }
       primaryButtonIcon={FaCheck}
       primaryButtonVariant="success"
       primaryButtonAction={markTickedAsCompleted}
-      primaryButtonLabel="Yes"
+      primaryButtonLabel={t("yes")}
       secondaryButtonAction={areYouSureMarkTicketAsCompletedSupportModal.closeModal}
       secondaryButtonVariant="danger-outline"
-      secondaryButtonLabel="No"
+      secondaryButtonLabel={t("no")}
     />
   )
 }

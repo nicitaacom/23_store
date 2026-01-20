@@ -1,3 +1,5 @@
-import Input from "./Input"
+import { Input } from "./Input"
+import { MessageInput } from "./MessageInput"
+import { SearchInput } from "./SearchInput"
 
-export { Input }
+export { Input, MessageInput, SearchInput }

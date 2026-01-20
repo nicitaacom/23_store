@@ -8,7 +8,7 @@ import { BiLogOut } from "react-icons/bi"
 import { DropdownItem } from "@/components/ui/DropdownItem"
 import useUserStore from "@/store/user/userStore"
 
-export default function LogoutDropdownItem() {
+export function LogoutDropdownItem() {
   const router = useRouter()
   const userStore = useUserStore()
 

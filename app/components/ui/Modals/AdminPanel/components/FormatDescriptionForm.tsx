@@ -7,10 +7,11 @@ import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 import axios from "axios"
 
-import { IFormDataAddProduct } from "@/TS/product/IFormDataAddProduct"
+import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TUpdateProductRequest } from "@/api/products/update/route"
 import { useLoading } from "@/store/ui/useLoading"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
+import { useScopedI18n } from "@/locales/client"
 
 interface FormatDescriptionFormProps {
   id: string
@@ -18,6 +19,7 @@ interface FormatDescriptionFormProps {
 }
 
 export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormProps) {
+  const t = useScopedI18n("product")
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const { isLoading, setIsLoading } = useLoading()
@@ -71,7 +73,7 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
 
   return (
     <h1 className="flex flex-row justify-center tablet:justify-start mt-4 tablet:mt-0">
-      <p className="hidden tablet:block">Description:&nbsp;</p>
+      <p className="hidden tablet:block">{t("description")}:&nbsp;</p>
       {isEditing ? (
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>
@@ -80,7 +82,7 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
               id="subTitle"
               register={register}
               errors={errors}
-              placeholder={subTitle + " (use 'Shift + Enter' for a new line)"}
+              placeholder={subTitle}
               required
             />
           </div>

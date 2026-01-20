@@ -1,10 +1,10 @@
 import Image from "next/image"
 
-import useDarkMode from "@/store/ui/darkModeStore"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import Link from "next/link"
 
 export function Logo() {
-  const darkMode = useDarkMode.getState().isDarkMode
+  const darkMode = useDarkModeStore.getState().isDarkMode
 
   return (
     <Link href="/">

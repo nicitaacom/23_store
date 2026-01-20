@@ -1,9 +1,25 @@
-import { NavbarWrapper } from "./NavbarWrapper"
-import { HamburgerMenu } from "./HamburgerMenu"
-import { Logo } from "./Logo"
-import { AIInputSearch } from "../../../(site)/components/AISearch/AIInputSearch"
-import { CartIcon } from "./CartIcon"
-import { OpenAuthModalButton } from "./OpenAuthModalButton"
 import { AvatarDropdown } from "./AvatarDropdown"
+import { CartIcon } from "./CartIcon"
+import { ContactButton } from "./ContactButton"
+import { CtrlKBadge } from "./CtrlKBadge"
 
-export { NavbarWrapper, HamburgerMenu, Logo, AIInputSearch, CartIcon, OpenAuthModalButton, AvatarDropdown }
+import { HamburgerMenu } from "./HamburgerMenu"
+
+import { Logo } from "./Logo"
+import { LogoutDropdownItem } from "./LogoutDropdownItem"
+import { NavbarWrapper } from "./NavbarWrapper"
+import { OpenAuthModalButton } from "./OpenAuthModalButton"
+
+export {
+  AvatarDropdown,
+  CartIcon,
+  ContactButton,
+  CtrlKBadge,
+  //
+  HamburgerMenu,
+  //
+  Logo,
+  LogoutDropdownItem,
+  NavbarWrapper,
+  OpenAuthModalButton,
+}

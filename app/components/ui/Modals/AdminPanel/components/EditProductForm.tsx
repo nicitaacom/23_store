@@ -2,16 +2,18 @@
 
 import Image from "next/image"
 
-import { TProductDB } from "@/TS/product/TProductDB"
-import useDarkMode from "@/store/ui/darkModeStore"
+import { TProductDB } from "@/ts/product/TProductDB"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { OwnerProduct } from "./OwnerProduct"
+import { useScopedI18n } from "@/locales/client"
 
 interface EditProductForm {
   ownerProducts: TProductDB[]
 }
 
 export function EditProductForm({ ownerProducts }: EditProductForm) {
-  const isDarkMode = useDarkMode().isDarkMode
+  const t = useScopedI18n("product")
+  const isDarkMode = useDarkModeStore().isDarkMode
 
   return (
     <div className="w-[90%] h-full mx-auto">
@@ -29,7 +31,7 @@ export function EditProductForm({ ownerProducts }: EditProductForm) {
             width={256}
             height={256}
           />
-          <h1 className="text-2xl text-center font-bold">You have no products to edit</h1>
+          <h1 className="text-2xl text-center font-bold">{t("no_products_to_edit")}</h1>
         </div>
       )}
     </div>

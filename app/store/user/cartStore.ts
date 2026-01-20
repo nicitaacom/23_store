@@ -1,9 +1,9 @@
 import { create } from "zustand"
 import { subscribeWithSelector } from "zustand/middleware"
-import { TRecordCartProduct } from "@/TS/product/TRecordCartProduct"
+import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 import { getStorage } from "@/utils/getStorage"
 import supabaseClient from "@/libs/supabase/supabaseClient"
-import { TProductAfterDB } from "@/TS/product/TProductAfterDB"
+import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
 import useUserStore from "./userStore"
 import { logFn } from "@/utils/logFn"
 

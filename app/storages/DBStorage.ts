@@ -1,23 +1,20 @@
-import { TRecordCartProduct } from "@/TS/product/TRecordCartProduct"
-import { Json } from "@/TS/types_db"
+import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
+import { Json } from "@/ts/types_db"
 import supabaseClient from "@/libs/supabase/supabaseClient"
-import useUserStore from "@/store/user/userStore"
-import useToast from "@/store/ui/useToast"
 import { Storage } from "./Storage"
+import { getUserId } from "@/utils/getUserId"
 
 export class DBStorage extends Storage {
   async saveProducts(cartProducts: TRecordCartProduct): Promise<void> {
-    const show = useToast.getState().show
-    const { userId } = useUserStore.getState()
+    const userId = getUserId()
+
     const { error } = await supabaseClient
       .from("users_cart")
       .update({ cart_products: cartProducts as unknown as Json })
       .eq("id", userId)
     if (error) {
       // user may loss internet connection that's why I show toast
-      if (error instanceof Error) {
-        show("error", "Error updating quantity", error.message)
-      }
+      console.log(17, "CRITICAL:", error.message)
     }
   }
   async getProducts(): Promise<TRecordCartProduct> {

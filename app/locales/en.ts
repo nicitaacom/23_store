@@ -1,0 +1,402 @@
+// locales/en.ts
+// IMPORTANT RULE: every translated line should be in same amount of lines e.g en 1 line ru 1 line etc (NOT en 1 line ru 2 lines)
+
+export default {
+  hello: "Hello",
+  "hello.world": "Hello world!",
+  welcome: "Hello {name}!",
+
+  // /search route
+  "search.title": "Search",
+
+  // =================      =================
+  //                   AUTH
+  // =================      =================
+  "auth.login.title": "Holla,\nWelcome Back",
+  "auth.login.subtitle": "Hey, welcome back to your special place",
+  "auth.login.validating_password_security": "Validating password security...",
+  "auth.register.title": "Hey there,\nCreate Account",
+  "auth.register.subtitle": "Join us and start your journey today",
+  "auth.recovery.title": "Forgot Password?",
+  "auth.recovery.subtitle": "Enter your email to reset your password",
+
+  // Password Strength Levels
+  "auth.password.strength": "Password Strength",
+  "auth.password.strength.weak": "Weak",
+  "auth.password.strength.fair": "Fair",
+  "auth.password.strength.good": "Good",
+  "auth.password.strength.strong": "Strong",
+
+  // Password Validation Messages
+  "auth.password.validation.required": "Password is required",
+  "auth.password.validation.min_length": "Password must be at least 15 characters long",
+  "auth.password.validation.max_length": "Password must not exceed 128 characters (DoS protection)",
+  "auth.password.validation.prohibited_chars": "Password contains prohibited control characters",
+  "auth.password.validation.null_bytes": "Password contains null bytes which are not allowed",
+  "auth.password.validation.common_password": "This password is in the list of commonly used passwords and is easily guessable",
+  "auth.password.validation.keyboard_patterns": "Password contains keyboard patterns which are easily guessable",
+  "auth.password.validation.repeating_chars": "Password contains too many repeating characters",
+  "auth.password.validation.sequential_chars": "Password contains sequential characters which are easily guessable",
+  "auth.password.validation.leet_speak": "Password is a common password with simple character substitutions",
+  "auth.password.validation.breached_password": "This password has appeared in a data breach and is not safe to use",
+  "auth.password.validation.personal_info": "Password contains personal information and is easily guessable",
+  "auth.password.validation.too_weak": "Password is too weak. Please choose a stronger password.",
+  "auth.password.validation.too_fair": "Password is too fair. Please choose a stronger password.",
+
+  // Email Validation Messages
+  "auth.email.validation.required": "Email is required",
+  "auth.email.validation.too_long": "Email is too long (max 254 characters)",
+  "auth.email.validation.invalid_format": "Email must follow basic email format (e.g. email@example.com)",
+  "auth.email.validation.domain_missing": "Domain part must exist (e.g. email@domain.com)",
+  "auth.email.validation.email_part_missing": "Email part must exist (e.g. email@domain.com)",
+  "auth.email.validation.email_part_double_dot": "Email part should not contain consecutive dots (..)",
+  "auth.email.validation.domain_part_double_dot": "Domain part should not contain consecutive dots (..)",
+  "auth.email.validation.domain_part_dot": "Domain part must not start or end with a dot (.)",
+  "auth.email.validation.email_part_dot": "Email part must not start or end with a dot (.)",
+  "auth.email.validation.multiple_at": "Email must contain exactly one @ symbol",
+  "auth.email.validation.invalid": "Invalid email format",
+
+  // Username Validation Messages
+  "auth.validation.username.required": "Username is required",
+
+  // Form Fields
+  "auth.email.placeholder": "nicitaacom@gmail.com",
+  "auth.password.placeholder_new": "NeW-RaNd0m_PasWorD_system-1",
+  "auth.password.placeholder": "RaNd0m_PasWorD_system-1",
+  "auth.username.placeholder": "HANTARESpeek",
+  "auth.email.label": "Email",
+  "auth.password.label": "Password",
+  "auth.username.label": "Username",
+  "auth.email_not_allowed_with_this_domain": "Email with this domain is not allowed",
+
+  // Buttons
+  "auth.login.button": "Sign In",
+  "auth.register.button": "Create Account",
+  "auth.recovery.button": "Reset Password",
+  "auth.loading": "Please wait...",
+
+  // Links
+  "auth.remember.me": "Remember me",
+  "auth.forgot.password": "Forgot Password?",
+  "auth.no.account": "Don't have an account?",
+  "auth.have.account": "Already have an account?",
+  "auth.sign.up": "Sign Up",
+  "auth.sign.in": "Sign In",
+  "auth.or.continue": "or continue with",
+  "auth.continue_with_google": "Continue with Google",
+  "auth.resending": "resending",
+  "auth.resent": "resent",
+  "auth.resend_failed": "failed to resend email: {message}",
+  "auth.resend": "resend",
+
+  // Auth database errors
+  "auth.database.error_finding_user": "Error finding user in DB: {message}",
+  "auth.database.user_not_registered": "User not registered",
+  "auth.database.email_not_registered_with_credentials": "This email not registered with credentials",
+  "auth.database.invalid_credentials": "Invalid credentials",
+  "auth.database.supabase_error": "Authentication error: {message}",
+  "auth.database.no_session": "No session returned from authentication service",
+  "auth.database.no_user": "No user returned from authentication service",
+
+  // Registration specific
+  "auth.register.password_mismatch": "Passwords do not match",
+  "auth.register.user_already_exists": "An account with this email already exists",
+  "auth.register.user_exists_different_provider":
+    "An account with this email exists but was created using a different method (Google, Facebook, etc.)",
+  "auth.register.password_hashing_failed": "Failed to secure password. Please try again.",
+  "auth.register.auth_user_creation_failed": "Failed to create authentication account",
+  "auth.register.email_confirmation_required": "Account created successfully! Please check your email to confirm your account.",
+  "auth.register.user_exist_email_not_confirmed": "User registered but email not confirmed",
+  "auth.server.missing_password_secret": "Missin password secret - contact support",
+  "auth.server.missing_jwt_secret": "JWT secret missing - contact support",
+  "auth.server.missing_support_email": "Missing support email - contact support",
+  "auth.server.cannot_store_verification": "Failed when storing authentication",
+  "auth.server.error_encrypting_password": "Error encrypting password",
+  "auth.server.invalid_data": "Failed when getting stored verification",
+  "auth.register.resend_rate_limited": "Email already has been sent. Please try again in {seconds} seconds.",
+  "auth.register.insert_new_user_failed": "Failed to create a record in database for a new user: {message}",
+
+  // Email verification
+  "auth.verify.missing_token": "Verification token is missing",
+  "auth.verify.invalid_or_expired_token": "Verification token is invalid or expired",
+  "auth.verify.invalid_token_payload": "Verification token payload is invalid",
+  "auth.verify.user_not_found": "User not found",
+  "auth.verify.email_mismatch": "Email address does not match our records",
+  "auth.verify.already_verified": "Email is already verified",
+  "auth.verify.success": "Your email has been successfully verified",
+  "auth.database.error": "Database error: {message}",
+
+  // Password recovery
+  "auth.database.user_not_found": "No account found with this email address",
+  "auth.database.user_no_credentials_provider":
+    "This email was not registered with a password. Try signing in with Google or another method.",
+  "auth.database.reset_email_failed": "Failed to send password reset email: {message}",
+  "auth.database.reset_email_sent": "If an account with this email exists, you will receive a password reset link shortly.",
+
+  // Other
+  "auth.recover.completed": "Recover completed",
+  "auth.recover.stay_safe": "Stay safe!",
+  "auth.auth.completed": "Auth completed",
+  "auth.error.faceit_not_implemented": "Faceit not implemented - if you know how - contact me: ",
+  "auth.error.continuing_with": "Error continuing with",
+  "auth.continue_with_faceit": "Continue with faceit",
+  "auth.continue_with_twitter": "Continue with twitter",
+  "auth.page_close_in": "I close this page in",
+  "auth.mission_passed": "Mission passed!",
+  "auth.respect_plus": "respect+",
+  "auth.change_query_params_back_to": "Now change query params back to ",
+  "auth.error.unknown": "An unknown error occurred - contact admin",
+  "auth.here": "here",
+  "auth.check_spam": "If you don't recieve an email - check Spam and All mail",
+  "auth.recovery.passowrd_changed": "Your password changed - Delete email",
+  "auth.recovery.session_expired": "Your session has expired - recover password quicker next time",
+  "auth.account.exist_google": "You already have account with google",
+  "auth.account.exist": "You already have account with {provider}",
+  "auth.no_user_or_username": "No user or username found - contact admin",
+  "auth.error.user_exist": "No user or username found - contact admin",
+  "auth.error.not_verified_email_check_your_email": "You might not verified your email - check your email",
+  "auth.dont_received_email_q": "Don't reviced email?",
+  "auth.recovery.change_email": "Change email",
+  "auth.already_authenticated": "Already authenticated",
+  "auth.already_authenticated_subtitle": "If you want to login to another account - logout - then login into another one",
+
+  // =================        =================
+  //                   MODALS
+  // =================        =================
+  "modal.loading.admin": "Loading admin panel...",
+  "modal.loading.cart": "Loading cart...",
+  "modal.loading.language": "Loading change language modal...",
+  "modal.yes": "Yes",
+  "modal.no": "No",
+  "modal.are_you_sure_clear_cart.label": "Are you sure you want to clear cart",
+  "modal.are_you_sure_clear_cart.primary_button": "Clear",
+  "modal.are_you_sure_clear_cart.secondary_button": "Back",
+  "modal.are_you_sure_delete_product.label": "Are you sure you want delete",
+  "modal.are_you_sure_delete_product.primary_button": "Delete",
+  "modal.are_you_sure_delete_product.secondary_button": "Back",
+  "modal.are_you_sure_mark_ticket_as_completed_support.label": "Are you sure you want mark this ticket as completed?",
+  "modal.are_you_sure_mark_ticket_as_completed_support.subtitle_l1": "This action close this ticket",
+  "modal.are_you_sure_mark_ticket_as_completed_support.subtitle_l2":
+    "If you didn't help - closing this ticket may affect on your reputation",
+  "modal.ctrl_k.title": "Search for products",
+  "modal.ctrl_k.placeholder": "Search",
+  "modal.do_you_want_receive_check.title": "Do you want recieve check?",
+  "modal.do_you_want_receive_check.email_placeholder": "Email",
+  "modal.admin_panel.label": "Email",
+  "modal.cart.label": "Email",
+
+  // =================        =================
+  //                   TOAST
+  // =================        =================
+  "toast.success.title": "Success",
+  "toast.success.subtitle": "Operation completed successfully",
+  "toast.error.title": "Error",
+  "toast.error.subtitle": "Unknown error please contact",
+  "toast.error.button": "Admin",
+  "toast.warning.title": "Warning",
+  "toast.warning.subtitle": "This requires your attention",
+  "toast.error.updating_quantity": "Error updating quantity",
+
+  // =================     =================
+  //                   SDK
+  // =================     =================
+  "sdk.rate_limit_exeeded": "Rate limit exceeded",
+  "sdk.rate_limit_request_failed": "Rate limit request failed",
+
+  // =================        =================
+  //                   aichat
+  // =================        =================
+  "aichat.error": "Service error. Try again then contact support",
+  "aichat.error.no_reply_data": "It's no choices?.[0]?.message?.content - contact support",
+  "aichat.generate_image": "Generate image",
+  "aichat.generate_image_completed": "Here you go",
+  "aichat.error.generate_image": "Image generation error",
+  "aichat.add_to_cart": "Add to Cart",
+  "aichat.header_title": "AI Shopping Assistant",
+  "aichat.header_subtitle": "Find your perfect product in seconds",
+  "aichat.button.send": "Send",
+  "aichat.emptystate.title": "Ready to help you shop",
+  "aichat.emptystate.subtitle": "Describe what you are looking for and I'll guide you to the perfect product",
+
+  // =================        =================
+  //                   product
+  // =================        =================
+  "product.quantity": "Quantity",
+  "product.total": "Total",
+  "product.subtotal": "Sub-total",
+  "product.products": "Products",
+  "product.no_products_found": "No products found",
+  "product.add_to_cart": "Add to cart", // I know it's a duplicate with aichat - this is from old functionality
+  "product.this_field_is_required": "This field is required",
+  "product.title_required": "Enter a product title - a-z - numbers, and #()_ are optional",
+  "product.subtitle_required": "No !$^*_=\\ allowed",
+  "product.price_required": "Enter price from 1 to 999,999 with 2 decimal places",
+  "product.on_stock_required": "Enter how much products on stock - 1 - 99,999",
+  "product.drop_files_here": "Drop files here",
+  "product.click_or_drop_here": "Click or Drop here",
+  "product.update": "Update",
+  "product.remove": "Remove",
+  "product.remove_all_images": "Remove all images",
+  "product.placeholder.title": "Product title",
+  "product.placeholder.description": "Product description",
+  "product.placeholder.price": "Product price",
+  "product.placeholder.on_stock": "Amount on stock",
+  "product.create_product": "Create product",
+  "product.no_products_to_delete": "You have no products to delete",
+  "product.title": "Title",
+  "product.price": "Price",
+  "product.description": "Description",
+  "product.no_products_to_edit": "You have no products to edit",
+  "product.on_stock": "On stock",
+  "product.warning.add_file_extension_title": "Add file extension",
+  "product.warning.add_file_extension_subtitle": "Please add file.extention like .jpg or .png or .avif or .webp",
+  "product.warning.max_file_size_title": "Max file size is 1MB",
+  "product.warning.max_file_size_subtitle": 'Max is 1MB - google "tinify png or jpg"',
+  "product.warning.max_images_title": "Max {maxImages} images",
+  "product.warning.max_images_subtitle": "Please use max {maxImages} product images",
+  "product.warning.use_higer_resolution_title": "Use higher resolution",
+  "product.warning.use_higer_resolution_subtitle": "Min 1000 width and 500 height 1000x500",
+  "product.add": "Add product",
+  "product.edit": "Edit product",
+  "product.delete": "Delete product",
+  "product.error.better_prices_email": "Failed to send email to request better prices",
+  "product.error.better_prices_telegram": "Failed to send telegram to request better prices",
+  "product.success.better_prices": "Request sent successfully!",
+  "product.empty_cart": "Cart is empty",
+  "product.order_summary": "Order Summary",
+  "product.request_better_prices": "Request Better Prices",
+  "product.clear_cart": "Clear cart",
+  "product.per_page": "per page",
+  "product.error.failed_to_create_product_on_stripe": "Failed to create product on Stripe - missing product ID",
+  "product.error.failed_to_generate_image": "Image generation failed",
+  "product.error.image_upload_errors": "Image upload errors",
+  "product.error.db_insert_failed": "Database insert failed",
+  "product.error.no_data_returned_from_uploaded_image": "No data returned from uploaded image",
+
+  // =================        =================
+  //                   message
+  // =================        =================
+  "message.image_sent": "image sent",
+  "message.error.image_sent": "error sending image",
+  "message.error.message_sent": "error sending new message",
+
+  // =================        =================
+  //                   payment
+  // =================        =================
+  "payment.products_data_fetched": "products data fetched - set step 4",
+  "payment.error.fetch_products_data": "error fetchProductsData",
+  "payment.customer_email_received": "customer email received - set step 3",
+  "payment.error.receive_customer_email_title": "Error fetching customer email",
+  "payment.error.receive_customer_email_subtitle": "Please check getCustomerEmailFn - contact support",
+  "payment.email_rendered": "email rendered - set step 5",
+  "payment.error.render_email_title": "Error rendering email",
+  "payment.error.render_email_subtitle": "Please contact support",
+  "payment.email_sent": "email sent - set step 7",
+  "payment.error.email_sent": "Error sending email",
+  "payment.substracted_on_stock_from_quantity": "substracted on stock from quantity - redirecting to /",
+  "payment.error.substracted_on_stock_from_quantity": "Error substracting on stock from product quantity",
+  "payment.session_id_is_valid": "sessionId is valid - set step 6",
+  "payment.error.session_id_is_valid_title": "Error verifying payment",
+  "payment.error.session_id_is_valid_subtitle": "Please don't enter random session id trying to hack system - PAY FOR YOUR ORDER",
+  "payment.warning.do_not_use_protected_routes_title": "You should not use protected routes!",
+  "payment.warning.do_not_use_protected_routes_subtitle_l1": "Please add some products to cart and",
+  "payment.warning.do_not_use_protected_routes_subtitle_l2": "buy products through payment",
+  "payment.successfull": "Your payment is successful",
+  "payment.check_sent_to_your_email": "Check sent to your email 📨",
+  "payment.redirecting_to_homepage_in": "Redirecting to home page in",
+  "payment.canceled": "Your payment canceled",
+  "payment.status": "Payment status",
+  "payment.success_checkmark": "Success Checkmark",
+  "payment.error.configuration_title": "Configuration Error",
+  "payment.error.configuration_subtitle": "Wallet address for {selectedChain} is not configured in environment variables",
+  "payment.error.invalid_address_format_title": "Configuration Error",
+  "payment.error.invalid_address_format_subtitle":
+    "Address: {trimmedAddress} | Length: {trimmedAddressLength} | Expected: 42 chars starting with 0x",
+  "payment.error.sending_money_with_metamask": "Error in sendMoneyWithMetamask:",
+  "payment.error.metamask_not_detected": "Metamask not detected",
+  "payment.error.please_install_metamask": "Please install metamask",
+  "payment.error.here": "here",
+  "payment.error.or_using": "or using",
+  "payment.error.this": "this",
+  "payment.error.guide": "guide",
+  "payment.error.or_enable_metamask": "or enable metamask extention. Already done it?",
+  "payment.error.reload_page": "reload page",
+  "payment.error.please_connect_one_more_time": "Please connect one more time and",
+  "payment.error.this_time_dont_cancel_request": "this time don't cancel request",
+  "payment.error.provider_restrictions": "{provider} restrictions",
+  "payment.error.1m$_limit": "{provider} limits you to make purchase over 1M$",
+  "payment.error.make_total_less_than_1M$": "Delete products in cart - total should be less than $1,000,000",
+  "payment.error.creating_provider_session": "Error creating {provider} session",
+  "payment.error.unsupported_network_title": "Unsupported network",
+  "payment.error.unsupported_network_subtitle": "Please switch to Ethereum Mainnet, Polygon, BNB Smart Chain",
+  "payment.error.failed_to_retrieve_token_price_title": "Failed to retrieve token price",
+  "payment.error.failed_to_retrieve_token_price_subtitle":
+    "Try again later. It's nothing to do with support or you it's just coinmarketcap is playing today. If it repeats ask support to create a fallback.",
+  "payment.error.transaction_title": "Transaction error",
+  "payment.error.transaction_subtitle": "User denied transaction signature",
+  "payment.error.failed_to_pay_with_metamask": "Failed to pay with metamask",
+  "payment.email.thank_you_for_your_purchase": "Thank you for your purchase",
+  "payment.email.order_confirmed": "Order Confirmed ✓",
+  "payment.email.order_will_be_delivered_on": "Your order will be delivered on",
+  "payment.email.quantity": "Quantity",
+  "payment.email.total": "Total",
+  "payment.email.track_your_order": "Track Your Order",
+  "payment.email.we_will_keep_you_updated": "We'll keep you updated on your delivery status",
+  "payment.email.support": "Support",
+  "payment.email.feedback": "Feedback",
+  "payment.email.all_rights_reserved": "All rights reserved.",
+
+  // =================        =================
+  //                   stats
+  // =================        =================
+  "stats.total_campaign_clicks": "Total Campaign Clicks",
+  "stats.across_all_sources": "Across all sources",
+  "stats.traffic_distribution": "Traffic Distribution",
+  "stats.performance": "Performance",
+  "stats.campaign_title": "Campaign Performance",
+  "stats.campaign_subtitle": "Track your marketing campaign effectiveness",
+
+  // =================        =================
+  //                   support
+  // =================        =================
+  "support.option_1": "Get support per email",
+  "support.option_2_title": "Get support in chat",
+  "support.option_2_subtitle": "Just click in bottom right corner",
+  "support.option_3": "Get support in telegram",
+  "support.back_to_tickets": "Back to tickets",
+  "support.no_messages_in_this_ticket": "No messages in this ticket",
+  "support.how_you_got_this_error": "Please let me know how you got this error",
+  "support.images_attached": "{number} images attached",
+  "support.image_attached_click_to_preview": "Image attached - Click to preview",
+  "support.remove_image": "Remove image",
+  "support.response_time": "Response ~{number}s",
+  "support.loading_messages": "Loading messages",
+  "support.no_messages_yet": "No messages yet",
+  "support.error.filename_must_contain_dot": "Filename must contain one dot before file extension (e.g. 'file.jpg')",
+  "support.error.file_extension_is_required": "File extension is required to insert in DB bucket",
+  "support.error.uploading_image": "Error uploading image",
+
+  // =================           =================
+  //                   trackorder
+  // =================           =================
+  "trackorder.title": "Track order",
+  "trackorder.subtitle": "Real-time delivery progress",
+  "trackorder.order_number": "Order number",
+  "trackorder.track": "Track",
+  "trackorder.tracking_not_available_title": "Tracking not available yet",
+  "trackorder.tracking_not_available_subtitle": "Tracking number will be sent within 24–48 hours.",
+  "trackorder.order_status": "Order status",
+  "trackorder.order_status_1_title": "Order confirmed",
+  "trackorder.order_status_1_subtitle": "We got your order",
+  "trackorder.order_status_2_title": "Processing",
+  "trackorder.order_status_2_subtitle": "Preparing shipment",
+  "trackorder.order_status_3_title": "Shipped",
+  "trackorder.order_status_3_subtitle": "Package on route",
+  "trackorder.order_status_4_title": "Out for delivery",
+  "trackorder.order_status_4_subtitle": "Courier nearby",
+  "trackorder.order_status_5_title": "Delivered",
+  "trackorder.order_status_5_subtitle": "Delivered to address",
+  "trackorder.support": "Support",
+  "trackorder.feedback": "Feedback",
+  "trackorder.location_available_after_shipment": "Location visible after shipment",
+} as const

@@ -7,12 +7,14 @@ import { getUserId } from "@/utils/getUserId"
 import { PastedImagePreview } from "@/components/SupportButton/components/PastedImagePreview"
 import { uploadImagesAndSendMessage } from "@/functions/support/uploadImagesAndSendMessage"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useI18n } from "@/locales/client"
 
 interface MessageInputProps {
   className?: string
 }
 
 export function MessageInput({ className }: MessageInputProps) {
+  const t = useI18n()
   const { messageBodyValue, setMessageBodyValue, image } = useMessagesStore()
   const [height, setHeight] = useState(52) // Initialize with the base height for one line
 
@@ -54,7 +56,7 @@ export function MessageInput({ className }: MessageInputProps) {
         if (messageBodyValue.trim().length || image) {
           setMessageBodyValue("") // Clear the textarea after sending the message
           setHeight(36) // Reset height to initial value after message is sent
-          await uploadImagesAndSendMessage(setHeight, messageBodyValue.trim(), userId, textareaRef)
+          await uploadImagesAndSendMessage(t, setHeight, messageBodyValue.trim(), userId, textareaRef)
         }
       }
     }

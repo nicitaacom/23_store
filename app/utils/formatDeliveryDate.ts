@@ -1,5 +1,5 @@
 export function formatDeliveryDate() {
-  const deliveryDate = new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000) // Add 3 days from current date
+  const deliveryDate = new Date(new Date().getTime() + 20 * 24 * 60 * 60 * 1000) // Add 20 days from current date
 
   if (deliveryDate.getDay() === 6) {
     deliveryDate.setDate(deliveryDate.getDate() + 1) // Add 1 more day to skip Saturday

@@ -1,4 +1,4 @@
-import { TRecordCartProduct } from "@/TS/product/TRecordCartProduct"
+import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 
 export abstract class Storage {
   abstract saveProducts(cartProducts: TRecordCartProduct): void

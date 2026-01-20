@@ -7,18 +7,22 @@ import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal
 import { formatCurrency } from "@/utils/currencyFormatter"
 import useToast from "@/store/ui/useToast"
 import { useLoading } from "@/store/ui/useLoading"
-import { Product } from "@/(site)/components"
 import { requestBetterPrices } from "./functions/requestBetterPrices"
+import { Product } from "@/[locale]/(site)/components"
+import { useI18n } from "@/locales/client"
+import useUserStore from "@/store/user/userStore"
 
 export function ProductsInCart() {
+  const t = useI18n()
   const cartStore = useCartStore()
   const areYouSureClearCartModal = useAreYouSureClearCartModal()
   const toast = useToast()
   const { isLoading, setIsLoading } = useLoading()
+  const userStore = useUserStore()
 
   async function handleRequestBetterPrices() {
     setIsLoading(true)
-    const result = await requestBetterPrices(cartStore.productsData, cartStore.getProductsPrice())
+    const result = await requestBetterPrices(t, cartStore.productsData, cartStore.getProductsPrice(), userStore.email)
     setIsLoading(false)
     result.success
       ? toast.show("success", "Request sent!", result.message)
@@ -35,17 +39,17 @@ export function ProductsInCart() {
 
       <aside className="laptop:w-[380px] desktop:w-[420px] shrink-0 flex flex-col gap-y-4 laptop:border-l laptop:border-border-color/30 laptop:pl-6">
         <div className="bg-gradient-to-br from-success/5 to-success/10 border border-success/20 rounded-xl p-5">
-          <h2 className="text-sm font-medium text-subTitle uppercase tracking-wide mb-3">Order Summary</h2>
+          <h2 className="text-sm font-medium text-subTitle uppercase tracking-wide mb-3">{t("product.order_summary")}</h2>
 
           <div className="flex justify-between items-center mb-4">
-            <span className="text-base text-subTitle">Subtotal</span>
+            <span className="text-base text-subTitle">{t("product.subtotal")}</span>
             <span className="text-lg text-title font-semibold">{formatCurrency(cartStore.getProductsPrice())}</span>
           </div>
 
           <div className="h-px bg-border-color/30 mb-4" />
 
           <div className="flex justify-between items-center">
-            <span className="text-lg font-semibold text-title">Total</span>
+            <span className="text-lg font-semibold text-title">{t("product.total")}</span>
             <span className="text-2xl font-bold text-success">{formatCurrency(cartStore.getProductsPrice())}</span>
           </div>
         </div>
@@ -58,7 +62,7 @@ export function ProductsInCart() {
             rounded="lg"
             disabled={isLoading}
             onClick={handleRequestBetterPrices}>
-            Request Better Prices
+            {t("product.request_better_prices")}
           </Button>
           {/* <PaymentButtons/> */}
         </div>
@@ -70,7 +74,7 @@ export function ProductsInCart() {
           rounded="lg"
           shadow="sm"
           onClick={areYouSureClearCartModal.openModal}>
-          Clear cart
+          {t("product.clear_cart")}
         </Button>
       </aside>
     </div>

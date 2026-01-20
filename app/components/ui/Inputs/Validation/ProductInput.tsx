@@ -1,5 +1,6 @@
 "use client"
 
+import { useScopedI18n } from "@/locales/client"
 import { motion } from "framer-motion"
 import React, { useRef } from "react"
 import { FieldErrors, UseFormRegister } from "react-hook-form"
@@ -48,33 +49,34 @@ export function ProductInput({
   disabled,
   ...props
 }: InputFormProps) {
+  const t = useScopedI18n("product")
   const validationRules: ValidationRules = {
     title: {
-      requiredMessage: "This field is required",
+      requiredMessage: t("this_field_is_required"),
       pattern: {
         value: /^(?=.*[A-Za-z])[A-Za-z][A-Za-z0-9$()_+ /-]{2,48}$/,
-        message: "Enter a product title - a-z - numbers, and #()_ are optional",
+        message: t("title_required"),
       },
     },
     subTitle: {
-      requiredMessage: "This field is required",
+      requiredMessage: t("this_field_is_required"),
       pattern: {
         value: /^[-:.,()#@&%\/"'`~\[\]a-zA-Z0-9\n ]{1,10000}$/,
-        message: "No !$^*_=\\ allowed",
+        message: t("subtitle_required"),
       },
     },
     price: {
-      requiredMessage: "This field is required",
+      requiredMessage: t("this_field_is_required"),
       pattern: {
         value: /^(?!0\.?$)[1-9][0-9]{0,5}(\.\d{1,2})?$/,
-        message: "Enter price from 1 to 999,999 with 2 decimal places",
+        message: t("price_required"),
       },
     },
     onStock: {
-      requiredMessage: "This field is required",
+      requiredMessage: t("this_field_is_required"),
       pattern: {
         value: /^(?!0)[0-9.]{1,5}$/,
-        message: "Enter how much products on stock - 1 - 99,999",
+        message: t("on_stock_required"),
       },
     },
   }
@@ -116,9 +118,7 @@ export function ProductInput({
             `rounded bg-transparent outline-none text-title`,
             startIcon && "pl-10",
             endIcon && "pr-10",
-            errors[id] &&
-              errors[id]?.message &&
-              "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
+            errors[id] && errors[id]?.message && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
             disabled && "opacity-50 cursor-default pointer-events-none",
             className,
           )}
@@ -147,9 +147,7 @@ export function ProductInput({
             `rounded bg-transparent outline-none text-title`,
             startIcon && "pl-10",
             endIcon && "pr-10",
-            errors[id] &&
-              errors[id]?.message &&
-              "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
+            errors[id] && errors[id]?.message && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
             disabled && "opacity-50 cursor-default pointer-events-none",
             className,
           )}
@@ -176,10 +174,7 @@ export function ProductInput({
                 e.preventDefault()
               }
 
-              if (
-                !regex.test(key) &&
-                !["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab", "Enter"].includes(key)
-              ) {
+              if (!regex.test(key) && !["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab", "Enter"].includes(key)) {
                 e.preventDefault()
               }
             }

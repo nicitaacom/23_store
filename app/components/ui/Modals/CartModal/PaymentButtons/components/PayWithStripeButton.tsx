@@ -10,8 +10,10 @@ import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
 import { twMerge } from "tailwind-merge"
 import useUserStore from "@/store/user/userStore"
+import { useScopedI18n } from "@/locales/client"
 
 export function PayWithStripeButton() {
+  const t = useScopedI18n("payment")
   const router = useRouter()
   const toast = useToast()
   const cartStore = useCartStore()
@@ -33,10 +35,10 @@ export function PayWithStripeButton() {
       if (cartStore.getProductsPrice() > 999999) {
         toast.show(
           "error",
-          "Stripe restrictions",
+          t("error.provider_restrictions", { provider: "Stripe" }),
           <p>
-            Stripe limits you to make purchase over 1M$
-            <br /> Delete products in cart total be less $1,000,000
+            {t("error.1m$_limit", { provider: "Stripe" })}
+            <br /> {t("error.make_total_less_than_1M$")}
           </p>,
           10000,
         )
@@ -47,7 +49,7 @@ export function PayWithStripeButton() {
       }
     } catch (error) {
       if (error instanceof Error) {
-        toast.show("error", "Error creating stripe session", error.message)
+        toast.show("error", t("error.creating_provider_session", { provider: "stripe" }), error.message)
       }
     } finally {
       setIsLoading(false)
@@ -57,7 +59,8 @@ export function PayWithStripeButton() {
   return (
     <Button
       className={twMerge(
-        "group relative overflow-hidden bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 border-0 text-white font-semibold shadow-lg shadow-purple-600/30 hover:shadow-xl hover:shadow-purple-600/40 transition-all",
+        "group relative overflow-hidden bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800",
+        "border-0 text-white font-semibold shadow-lg shadow-purple-600/30 hover:shadow-xl hover:shadow-purple-600/40 transition-all",
         isLoading && "opacity-50 cursor-not-allowed",
       )}
       size="lg"

@@ -4,9 +4,10 @@ import Image from "next/image"
 import { twMerge } from "tailwind-merge"
 import { BsCheck2 } from "react-icons/bs"
 
-import { IMessageDB } from "@/TS/support/IMessage"
+import { IMessageDB } from "@/ts/support/IMessage"
 import { formatTime } from "@/utils/formatTime"
 import useSender from "@/hooks/ui/useSender"
+import { useScopedI18n } from "@/locales/client"
 
 interface MessageBoxProps {
   message: IMessageDB
@@ -15,6 +16,7 @@ interface MessageBoxProps {
 
 export function MessageBox({ message, inverseColors }: MessageBoxProps) {
   const { isOwn, avatar_url } = useSender(message.sender_avatar_url || "", message.sender_id)
+  const t = useScopedI18n("support")
 
   if (!message || !message.sender_id) {
     return null
@@ -50,8 +52,7 @@ export function MessageBox({ message, inverseColors }: MessageBoxProps) {
         </p>
 
         {message.images && message.images.length === 1 && (
-          <div
-            className={twMerge("relative w-full max-w-[220px] rounded-lg overflow-hidden border border-border-color")}>
+          <div className={twMerge("relative w-full max-w-[220px] rounded-lg overflow-hidden border border-border-color")}>
             <Image
               src={message.images[0]}
               alt="message-image"
@@ -64,7 +65,7 @@ export function MessageBox({ message, inverseColors }: MessageBoxProps) {
 
         {message.images && message.images.length > 1 && (
           <div className="text-xs text-subTitle px-3 py-1.5 bg-foreground-accent rounded-lg border border-border-color">
-            📎 {message.images.length} images attached
+            📎 {t("images_attached", { number: message.images.length })}
           </div>
         )}
         {message.body && (
