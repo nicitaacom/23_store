@@ -10,8 +10,6 @@ async function addProductToCartHandler(args: Record<string, unknown>): Promise<F
   const { product, quantity = 1, note } = args
   const { increaseProductQuantity } = useCartStore.getState()
 
-  console.log("product (addProductToCartHandler) - ", product)
-
   if (!product || typeof product !== "object") {
     return { success: false, message: "Product object is missing. Please provide product details." }
   }

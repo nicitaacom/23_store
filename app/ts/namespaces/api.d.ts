@@ -5,9 +5,13 @@ declare module API {
   type GenerateImageRequest = { prompt: string }
   type GenerateImageResponse = ArrayBuffer
 
-  // api/ai
-  type AIRequest = { promptValue: string; memory: string }
-  type AIResponse = { openai: string; memory: string }
+  // api/ai/sales-assistant
+  type AISalesAssistantRequest = { promptValue: string; memory: string }
+  type AISalesAssistantResponse = { openai: string; memory: string }
+
+  // api/ai/
+  type AIRequest = { prompt: string }
+  type AIResponse = { aiMessage: string }
 
   // /api/rateLimit
   type RateLimitRequest = {

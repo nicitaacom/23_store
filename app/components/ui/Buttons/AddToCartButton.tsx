@@ -8,7 +8,10 @@ import { useI18n, useScopedI18n } from "@/locales/client"
 interface AddToCartButtonProps {
   productId: string
 }
-
+/**
+ *
+ * @deprecated
+ */
 export function AddToCartButton({ productId }: AddToCartButtonProps) {
   const t = useScopedI18n("product")
   const cartStore = useCartStore()

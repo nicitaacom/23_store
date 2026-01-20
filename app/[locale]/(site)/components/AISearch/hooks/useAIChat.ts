@@ -23,25 +23,25 @@ export function useAIChat() {
     if (!isLoading && inputRef.current) inputRef.current.focus()
   }, [isLoading])
 
-  const handleSubmit = async () => {
-    if (!promptValue.trim() || isLoading) return
+  const handleSubmit = async (prompt?: string) => {
+    if ((!prompt && !promptValue.trim()) || isLoading) return
 
     await rateLimitSDK.rateLimit(t, "aiPrompt")
 
-    const userMessage = promptValue.trim()
+    const userMessage = prompt || promptValue.trim()
     const newConversation: ChatMessage[] = [...conversation, { role: "user", text: userMessage }]
     setConversation(newConversation)
     setPromptValue("")
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/ai", {
+      const response = await fetch("/api/ai/sales-assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           promptValue: userMessage,
           memory,
-          conversationHistory: conversation,
+          conversationHistory: newConversation,
         }),
       })
 
@@ -66,6 +66,8 @@ export function useAIChat() {
 
         if (functionResult.success) {
           setConversation([...newConversation, { role: "ai", text: functionResult.message }])
+          console.log(69, "functionResult.memory - ", functionResult.memory)
+          console.log(70, "data?.memory - ", data?.memory)
           if (functionResult.memory) setMemory(functionResult.memory)
           else if (data?.memory) setMemory(data.memory)
           return
@@ -127,6 +129,10 @@ export function useAIChat() {
     }
   }
 
+  const addToCart = async () => {
+    await handleSubmit("Add to cart")
+  }
+
   const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault()
@@ -150,6 +156,7 @@ export function useAIChat() {
     inputRef,
     handleSubmit,
     generateImage,
+    addToCart,
     handleKeyPress,
     handleTextareaInput,
   }

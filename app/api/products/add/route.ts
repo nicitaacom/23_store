@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     )
     return NextResponse.json(priceResponse.data, { status: 200 })
   } catch (error: any) {
-    console.log(13, "CREATE_PRODUCT_ERROR\n", error.response.data)
+    console.log(62, "CREATE_PRODUCT_ERROR\n", error.response.data)
     return new NextResponse(`/api/products/add/route.ts error (check termianl) ${error.response.data}`, { status: 500 })
   }
 }

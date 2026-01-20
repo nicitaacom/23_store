@@ -17,6 +17,7 @@ export function AIInputSearch() {
     inputRef,
     handleSubmit,
     generateImage,
+    addToCart,
     handleKeyPress,
     handleTextareaInput,
   } = useAIChat()
@@ -33,6 +34,7 @@ export function AIInputSearch() {
         inputRef={inputRef}
         handleSubmit={handleSubmit}
         generateImage={generateImage}
+        addToCart={addToCart}
         handleKeyPress={handleKeyPress}
         handleTextareaInput={handleTextareaInput}
       />

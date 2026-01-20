@@ -1,9 +1,10 @@
 "use client"
 
-import { Button } from "@/components/ui"
-import { useI18n, useScopedI18n } from "@/locales/client"
-import useCartStore from "@/store/user/cartStore"
 import { BsCart3 } from "react-icons/bs"
+
+import { useScopedI18n } from "@/locales/client"
+import useCartStore from "@/store/user/cartStore"
+import { Button } from "@/components/ui"
 
 interface AddToCartButtonProps {
   productId: string

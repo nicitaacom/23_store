@@ -24,41 +24,53 @@ export async function createProductFn(
   const userStore = useUserStore.getState()
 
   setIsLoading(true)
+  let priceLet: number | undefined = price
   try {
     if (!price) {
       try {
-        const priceResponse: AxiosResponse<API.AIResponse> = await axios.post("/api/ai", {
-          promptValue: `Product: ${title}. Description: ${subTitle}. Estimate realistic USD price. Return ONLY the number.
-          PRICING RULES (CRITICAL):
-          - T-shirts/Tank tops: $8-15
-          - Long sleeve shirts: $12-18
-          - Hoodies/Sweatshirts: $20-35
-          - Jackets: $30-50
-          - Pants/Jeans: $18-35
-          - Shorts: $10-20
-          - Shoes/Sneakers: $25-60
-          - Accessories (hats, bags, etc): $8-25
-          - Basic items should be at the LOWER end of the range
-          - Premium/special features can go to HIGHER end
+        const response = await fetch("/api/fetch-prices", {
+          method: "POST",
+          body: JSON.stringify({ title, subTitle }),
+          headers: { "Content-Type": "application/json" },
+        })
+        const data = await response.json()
+        console.log(39, "fetch-prices response:", data)
 
-          IMPORTANT: Use realistic market prices. T-shirts should be $10-15, NOT $25-30.`,
-          memory: "",
-        } as API.AIRequest)
+        if (data.price && data.price > 0) {
+          priceLet = data.price
+        } else {
+          const priceResponse = await axios.post("/api/ai/", {
+            promptValue: `
+Product: ${title}.
+Description: ${subTitle}.
+Estimate realistic USD price ONLY the number.
+RULES:
+- tiny adapters/connectors: realistic $1–$6
+- basic 12V accessory: realistic $4–$15
+- do NOT go above these ranges
+      `,
+            memory: "",
+          })
 
-        const aiPrice = priceResponse.data.openai
-        price = aiPrice ? parseFloat(aiPrice.replace(/[^0-9.]/g, "")) : 9.99
-
-        if (isNaN(price) || price <= 0) price = 9.99
-      } catch (error) {
-        console.error("Price estimation failed, using default:", error)
-        price = 9.99
+          const aiRaw = priceResponse.data.openai || ""
+          const parsed = parseFloat(aiRaw.replace(/[^0-9.]/g, "")) || 0
+          price = parsed > 0 ? parsed : 4.99
+        }
+      } catch (err) {
+        console.error("Price estimation failed, fallback to default 4.99:", err)
+        price = 4.99
       }
     }
 
+    // convert to Stripe integer cents
+    if (!priceLet) throw Error("Price is not defined")
+
+    const stripeAmount = Math.max(1, Math.floor(priceLet * 100))
+
     const stripeResponse = await axios.post("/api/products/add", {
-      title: title,
-      subTitle: subTitle,
-      price: price,
+      title,
+      subTitle,
+      price: stripeAmount, // in cents
     })
 
     if (!stripeResponse.data?.id || !stripeResponse.data?.product) {
@@ -132,7 +144,7 @@ export async function createProductFn(
       owner_id: userId,
       title: title,
       sub_title: subTitle,
-      price: price,
+      price: priceLet,
       on_stock: onStock,
       img_url: imagesUrls,
     }

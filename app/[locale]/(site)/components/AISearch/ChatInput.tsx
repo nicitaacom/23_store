@@ -13,6 +13,7 @@ type Props = {
   inputRef: React.RefObject<HTMLTextAreaElement>
   handleSubmit: () => void
   generateImage: () => void
+  addToCart: () => void
   handleKeyPress: (event: React.KeyboardEvent) => void
   handleTextareaInput: (event: React.FormEvent<HTMLTextAreaElement>) => void
 }
@@ -24,6 +25,7 @@ export function ChatInput({
   inputRef,
   handleSubmit,
   generateImage,
+  addToCart,
   handleKeyPress,
   handleTextareaInput,
 }: Props) {
@@ -43,7 +45,7 @@ export function ChatInput({
             <HiOutlineSparkles className="text-xl" />
           </Button>
 
-          <Button variant="ghost" size="icon-md" rounded="lg" disabled={isLoading} title="Add to Cart">
+          <Button variant="ghost" size="icon-md" rounded="lg" onClick={addToCart} disabled={isLoading} title="Add to Cart">
             <BsCart3 className="text-xl" />
           </Button>
 
