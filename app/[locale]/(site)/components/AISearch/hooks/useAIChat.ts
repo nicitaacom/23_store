@@ -5,9 +5,8 @@ import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
 import axios from "axios"
 import { uploadImageFn } from "@/functions/uploadImageFn"
-import { useI18n, useScopedI18n } from "@/locales/client"
-
-type ChatMessage = { role: "user" | "ai"; text: string }
+import { useScopedI18n } from "@/locales/client"
+import { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 
 export function useAIChat() {
   const { promptValue, setPromptValue, conversation, setConversation, memory, setMemory } = useAIChatStore()
@@ -29,7 +28,7 @@ export function useAIChat() {
     await rateLimitSDK.rateLimit(t, "aiPrompt")
 
     const userMessage = prompt || promptValue.trim()
-    const newConversation: ChatMessage[] = [...conversation, { role: "user", text: userMessage }]
+    const newConversation: TAIChatMessage[] = [...conversation, { role: "user", text: userMessage }]
     setConversation(newConversation)
     setPromptValue("")
     setIsLoading(true)

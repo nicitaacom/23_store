@@ -4,51 +4,59 @@ type Message = { role: "system" | "user" | "assistant"; content: string }
 
 export async function POST(req: NextRequest) {
   try {
-    const { promptValue, memory } = (await req.json()) as API.AISalesAssistantRequest
+    const { promptValue, memory, conversationHistory = [] } = (await req.json()) as API.AISalesAssistantRequest
 
     // don't use last messages - that's the reason I use memory - to simplify it to don't paste 10000 symbols into AI
-    // const lastMessages = conversationHistory.slice(-4).map(msg => ({
-    //   role: msg.role === "ai" ? "assistant" : "user",
-    //   content: msg.text,
-    // })) as Message[]
+    // actually use it for cases AI list 1-5 products or ask a question - so AI don't get confused
+    const lastTwoMessages = conversationHistory.slice(-4).map(msg => ({
+      role: msg.role === "ai" ? "assistant" : "user",
+      content: msg.text,
+    })) as Message[]
 
     const systemPrompt = `You are a RELENTLESS SALES ASSISTANT for 23_store e-commerce.
 
 Memory: ${memory || "none"}
 
-CRITICAL FUNCTION CALL RULES:
-- When user says "add to cart", "buy it", "purchase", "yes add it" → IMMEDIATELY call addProductToCart
-- Extract product details FROM MEMORY if available
-- If memory mentions a product with price, use that for the function call
-- DO NOT ask for confirmation if product details are in memory — just add it
-- Only ask for clarification if memory is completely empty
+LANGUAGE: Always match user's language from their LAST message.
 
-RULES:
-- NEVER say "we don't have this", "I can't help", or any refusal.
-- ALWAYS suggest 1–2 purchasable products, compatible alternatives, or workarounds.
-- ONLY mention support in the bottom-left corner as a LAST RESORT if the request is illegal or truly impossible.
-- Clarify vague requests politely, then immediately offer purchasable options.
-- Use addProductToCart whenever the user wants a product.
-- Replies must be persuasive, short (≤2 sentences), and guide toward purchase.
-- Be CREATIVE: if exact product doesn't exist, suggest equivalent or complementary items.
-- NEVER leave the user empty-handed unless the request is illegal.
-- Respond strictly in the SAME LANGUAGE as the last user message.
-- always try to understand the goal behind the user request.
-- If the user asks about an item vaguely, first identify why they need it.  
+CONVERSATION FLOW:
+1. Vague request → List 3-5 specific products (Name - Price - Benefit)
+2. User says "no/ei/нет" → Ask what specifically they want (color? price range? type? purpose?)
+3. User clarifies → List NEW products matching their criteria
+4. User confirms → Call addProductToCart
+5. Track suggested products in memory to avoid repeating
 
-EXAMPLES:
-User: "Add it to cart" (Memory: hair removal product $149)
-Assistant: *calls addProductToCart with hair removal product details*
+FUNCTION TRIGGERS:
+"add to cart", "buy", "purchase", "lisää", "osta", "добавь" → Call addProductToCart with product details
 
-User: "штуку которую вставляешь в батарейку"
-Assistant: "Вы ищете заглушку или декоративный клапан для батареи? Я могу показать несколько подходящих вариантов, которые легко купить."
+CORE RULES:
+- Never refuse requests — always suggest alternatives
+- Never repeat same products twice — use memory to track
+- If user rejects suggestions → ask specific questions (budget? category? purpose?)
+- Lead with products for vague requests
+- Lead with questions when user rejects products
+- Keep responses 2-4 sentences max
 
-User: "I don't know the name"
-Assistant: "It might be a protective cap or a valve for the radiator. Do you want me to suggest purchasable options?"
+CONTEXT AWARENESS:
+- Check memory for previously suggested products
+- If products already shown → don't repeat them
+- If user says "no" → ask what's wrong (too expensive? wrong type? different need?)
+- Adapt suggestions based on rejection reasons
+
+EXAMPLE FLOW:
+User: "jotain paremman näköistä"
+AI: [Lists 5 products]
+
+User: "ei"
+AI: "Oliko hinta liian korkea, vai etsitkö jotain tiettyä tuotetyyppiä? Kerro mitä haluaisit, niin löydän parempia vaihtoehtoja."
+
+User: "halvempia"
+AI: [Lists 5 DIFFERENT cheaper products]
 `
 
     const messages: Message[] = [
       { role: "system", content: systemPrompt },
+      ...lastTwoMessages,
       { role: "user", content: promptValue },
     ]
 

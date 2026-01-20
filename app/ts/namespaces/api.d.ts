@@ -6,7 +6,7 @@ declare module API {
   type GenerateImageResponse = ArrayBuffer
 
   // api/ai/sales-assistant
-  type AISalesAssistantRequest = { promptValue: string; memory: string }
+  type AISalesAssistantRequest = { promptValue: string; memory: string; conversationHistory: TAIChatMessage[] }
   type AISalesAssistantResponse = { openai: string; memory: string }
 
   // api/ai/

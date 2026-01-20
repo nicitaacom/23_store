@@ -29,10 +29,11 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "dall-e-3",
-        prompt: `Product photography: ${prompt}. Professional, clean background, high quality.`,
+        prompt: `Professional e-commerce product photography of ${prompt}. Studio lighting with soft shadows, clean white or gradient background, centered composition, sharp focus on product, lifestyle context if applicable. High-end catalog quality, photorealistic, appealing presentation with vibrant colors and crisp details.`,
         n: 1,
         size: "1024x1024",
-        quality: "standard",
+        quality: "standard", // "hd" | "standard"
+        style: "natural", // Added for photorealistic look
       }),
     })
 
