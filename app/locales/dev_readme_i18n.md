@@ -17,8 +17,5 @@ package.json
 7. In supabase https://supabase.com/dashboard/project/zvpzoumubcidrtkgxwqx/auth/url-configuration
    Update URLS
    from: `https://23-store.vercel.app/auth/completed?code=**`
-   to: `https://23-store.vercel.app/en/auth/completed?code=**`
-   to: `https://23-store.vercel.app/ru/auth/completed?code=**`
-   to: `https://23-store.vercel.app/se/auth/completed?code=**`
-   to: `https://23-store.vercel.app/fi/auth/completed?code=**`
-   to: `etc`
+   to: `https://23-store.vercel.app/*/auth/callback/credentials`
+   to: `https://23-store.vercel.app/*/auth/callback/oauth`
