@@ -30,3 +30,13 @@ export function getCookie(name: TCookieName): string | undefined {
 
   return undefined
 }
+
+/**
+ *
+ * delete cookie by name
+ */
+export function delCookie(name: TCookieName) {
+  if (typeof document === "undefined") return
+
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
+}

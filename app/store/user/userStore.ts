@@ -2,7 +2,7 @@ import { create } from "zustand"
 import { devtools, persist, subscribeWithSelector } from "zustand/middleware"
 import useCartStore from "./cartStore"
 import { useLoading } from "../ui/useLoading"
-import { setCookie } from "@/utils/helpersCSR"
+import { delCookie, setCookie } from "@/utils/helpersCSR"
 import { useMessagesStore } from "../ui/useMessagesStore"
 
 interface UserStore {
@@ -35,13 +35,14 @@ export const userStore = (set: SetState): UserStore => ({
     }))
   },
   logoutUser() {
+    delCookie("avatarUrl") // TODO - why do I need avatarUrl in cookies and local storage?
     set((state: UserStore) => ({
       ...state,
-      userId: "",
+      userId: null,
       isAuthenticated: false,
-      username: "",
-      email: "",
-      avatarUrl: "",
+      username: null,
+      email: null,
+      avatarUrl: null,
     }))
   },
 })
