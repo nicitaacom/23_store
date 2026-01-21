@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/Button"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import useToast from "@/store/ui/useToast"
-import { useI18n } from "@/locales/client"
+import { useCurrentLocale, useI18n } from "@/locales/client"
 
 interface ContinueWithButtonProps {
   provider: "google" | "faceit" | "twitter"
@@ -15,6 +15,7 @@ interface ContinueWithButtonProps {
 export function ContinueWithButton({ href, provider, className }: ContinueWithButtonProps) {
   const toast = useToast()
   const t = useI18n()
+  const locale = useCurrentLocale()
 
   async function continueWith(e: React.FormEvent) {
     e.preventDefault()
@@ -22,7 +23,7 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
       if (provider === "google") {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: "google",
-          options: { redirectTo: `${location.origin}/auth/callback/oauth?provider=google` },
+          options: { redirectTo: `${location.origin}/${locale}/auth/callback/oauth?provider=google` },
         })
         if (error) throw Error(error.message)
       } else if (provider === "faceit") {
