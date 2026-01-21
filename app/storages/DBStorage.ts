@@ -17,6 +17,7 @@ export class DBStorage extends Storage {
       console.log(17, "CRITICAL:", error.message)
     }
   }
+
   async getProducts(): Promise<TRecordCartProduct> {
     const cartDB_response = await supabaseClient.from("users_cart").select("cart_products").single()
     const cartDB = cartDB_response.data?.cart_products as unknown as TRecordCartProduct

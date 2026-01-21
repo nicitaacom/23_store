@@ -10,41 +10,61 @@ import { useI18n } from "@/locales/client"
 
 export default function AuthCompleted() {
   const router = useRouter()
-  const params = useSearchParams()?.get("code")?.trimEnd()
-  const provider = useSearchParams()?.get("provider")?.trimEnd()
+  const searchParams = useSearchParams()
   const t = useI18n()
 
-  const userStore = useUserStore()
+  const { setUser } = useUserStore()
 
-  //I use ?.trimEnd() to delete spaces in end of line that cause enter in auth/callback/route.ts (NextResponse.redirect)
-  const userId = useSearchParams()?.get("userId")?.trimEnd()
-  const username = useSearchParams()?.get("username")?.trimEnd()
-  const email = useSearchParams()?.get("email")?.trimEnd()
-  const avatarUrl = useSearchParams()?.get("avatarUrl")?.trimEnd()
+  // 1. helper to safely read params
+  const getParam = (key: string) => searchParams?.get(key)?.trimEnd() || ""
 
-  useEffect(() => {
-    userStore.setUser(userId ?? "", username ?? "", email ?? "", avatarUrl ?? "")
-    if (avatarUrl) setCookie("avatarUrl", avatarUrl)
-    router.prefetch("/")
-    //to prevent error about too many re-renders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const params = getParam("code")
+  const provider = getParam("provider")
+
+  const userId = getParam("userId")
+  const username = getParam("username")
+  const email = getParam("email")
+  const avatarUrl = getParam("avatarUrl")
 
   useEffect(() => {
+    // 2. provider redirect (silent)
     if (provider === "google" || provider === "twitter") {
       router.replace("/")
+      return
     }
+
+    // 3. validate auth completion
+    if (!params) {
+      const errorDescription = encodeURIComponent("auth not completed")
+      router.replace(`/error?error=${errorDescription}`)
+      return
+    }
+
+    // 4. validate required user fields
+    const requiredFields = [
+      { key: "userId", value: userId },
+      { key: "username", value: username },
+      { key: "email", value: email },
+      { key: "avatarUrl", value: avatarUrl },
+    ]
+
+    const missing: string[] = []
+
+    for (let index = 0; index < requiredFields.length; index++) {
+      if (!requiredFields[index].value) missing.push(requiredFields[index].key)
+    }
+
+    if (missing.length) throw Error(`Auth failed, missing: ${missing.join(", ")}`)
+
+    // 5. persist user
+    setUser(userId, username, email, avatarUrl)
+    setCookie("avatarUrl", avatarUrl)
+    router.prefetch("/")
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (provider === "google" || provider === "twitter") {
-    return null
-  }
-
-  if (!params) {
-    const error_description = encodeURIComponent("auth not completed")
-    return router.push(`/error?error=${error_description}`)
-  }
+  // 6. nothing to render for oauth providers
+  if (provider === "google" || provider === "twitter") return null
 
   function closePage() {
     window.close()
