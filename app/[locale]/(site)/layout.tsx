@@ -4,7 +4,7 @@ import { Metadata } from "next"
 import Navbar from "@/components/Navbar/Navbar"
 
 export const metadata: Metadata = {
-  title: "23_store - products",
+  title: "Joki - products",
   description: "Store better than amazon",
 }
 

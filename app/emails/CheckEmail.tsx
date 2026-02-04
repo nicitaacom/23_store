@@ -197,7 +197,7 @@ export const CheckEmail = ({
                 </tr>
               </table>
               <Text className="m-0 mt-6 text-[12px] text-subTitle" style={{ lineHeight: "1.5" }}>
-                © {new Date().getFullYear()} 23_store. {allRightsReserved}
+                © {new Date().getFullYear()} Joki. {allRightsReserved}
               </Text>
             </Section>
           </Body>

@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       content: msg.text,
     })) as Message[]
 
-    const systemPrompt = `You are a RELENTLESS SALES ASSISTANT for 23_store e-commerce.
+    const systemPrompt = `You are a RELENTLESS SALES ASSISTANT for Joki e-commerce.
 
 Memory: ${memory || "none"}
 

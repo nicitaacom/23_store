@@ -300,7 +300,7 @@ CREATE POLICY "Public access for insert" ON storage.objects FOR INSERT WITH CHEC
   </tr>
   <tr>
     <td style="font-weight: bold; text-align:center;font-size: 18px; color: #666666; padding: 10px 0;">
-      Verify your email on 23_store
+      Verify your email on joki
     </td>
   </tr>
   <tr>
@@ -340,7 +340,7 @@ CREATE POLICY "Public access for insert" ON storage.objects FOR INSERT WITH CHEC
 
 </details>
 
-For other templates the same - jsut change text `Verify your email on 23_store` and `Verify email`
+For other templates the same - jsut change text `Verify your email on joki` and `Verify email`
 
 <br/>
 

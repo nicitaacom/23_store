@@ -24,8 +24,6 @@
 
 ![perf-92-desktop](https://i.imgur.com/FwBjtBt.png)
 
-
-
 ### Stack - Next + TypeScript + Tailwind + supabase + zustand + stripe
 
 <br/>
@@ -76,8 +74,8 @@ sudo reboot
 ### Step 2.2 - build docker image and run docker container
 
 ```bash
-docker build -t 23_store .
-docker run -dp 3000:3000 23_store
+docker build -t joki .
+docker run -dp 3000:3000 joki
 ```
 
 To stop docker use - `docker stop <container_id_or_name>`
@@ -330,7 +328,7 @@ Confirm signup
   </tr>
   <tr>
     <td style="font-weight: bold; text-align:center;font-size: 18px; color: #666666; padding: 10px 0;">
-      Verify your email on 23_store
+      Verify your email on joki
     </td>
   </tr>
   <tr>

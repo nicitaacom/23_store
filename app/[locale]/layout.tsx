@@ -10,7 +10,7 @@ import getOwnerProducts from "@/actions/getOwnerProducts"
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_PRODUCTION_URL),
-  title: "23_store",
+  title: "Joki",
   description: "Something better than amazon",
   icons: {
     icon: [

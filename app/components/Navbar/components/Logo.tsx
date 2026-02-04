@@ -10,7 +10,7 @@ export function Logo() {
     <Link href="/">
       <Image
         className="cursor-pointer hidden mobile:flex"
-        src={darkMode ? "/23_store-dark.png" : "/23_store-light.png"}
+        src={darkMode ? "/joki-dark.png" : "/joki-light.png"}
         alt="logo"
         width={135}
         height={32}

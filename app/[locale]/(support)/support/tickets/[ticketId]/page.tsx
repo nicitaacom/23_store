@@ -51,9 +51,7 @@ export async function generateMetadata({ params: { ticketId } }: ChatPageProps):
   return {
     title: `Support chat with ${initial_messages[0].sender_username}`, // first message its ticket owner
     description:
-      initial_messages.length === 1
-        ? "message"
-        : "messages - " + `chat with ${initial_messages[0].sender_username}` + "  - 23_store",
+      initial_messages.length === 1 ? "message" : "messages - " + `chat with ${initial_messages[0].sender_username}` + "  - Joki",
     openGraph: {
       images: [{ url: "/read-your-messages.jpg" }],
     },

@@ -15,12 +15,12 @@ export async function generateMetadata({ searchParams: { query } }: SearchPagePr
 
   if (query === undefined) {
     return {
-      title: `${t("search.title")} - 23_store`,
+      title: `${t("search.title")} - Joki`,
     }
   }
 
   return {
-    title: `${t("search.title")} ${query} - 23_store`,
+    title: `${t("search.title")} ${query} - Joki`,
   }
 }
 
