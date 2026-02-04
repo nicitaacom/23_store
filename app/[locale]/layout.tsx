@@ -7,6 +7,8 @@ import { ModalsProvider, ModalsQueryProvider } from "@/providers"
 import { getCookie } from "@/utils/helpersSSR"
 import { I18nProviderClient } from "@/locales/client"
 import getOwnerProducts from "@/actions/getOwnerProducts"
+import { UTMTracker } from "@/components/UTMTracker"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_PRODUCTION_URL),
@@ -38,6 +40,9 @@ export default async function RootLayout({
   const ownerProducts = await getOwnerProducts()
   const ToastProvider = lazy(() => import("@/providers/ToastProvider"))
 
+  const { data } = await supabaseServer().auth.getUser()
+  const userId = data.user?.id ?? getCookie("anonymousId")
+
   return (
     <html lang="en" className={getCookie("darkMode") ?? "dark"}>
       <body>
@@ -46,6 +51,7 @@ export default async function RootLayout({
           <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
           <ModalsProvider />
           <ToastProvider />
+          <UTMTracker userId={userId} />
         </I18nProviderClient>
       </body>
     </html>

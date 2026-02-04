@@ -11,6 +11,7 @@ interface UserStore {
   username: string | null
   email: string | null
   avatarUrl: string | null
+  // TODO - fix this setUser - this used only when user auth - also I have emoty state in localstore but I'm logged in https://i.imgur.com/0jNrWWa.png
   setUser: (userId: string, username: string, email: string, avatarUrl: string) => void
   logoutUser: () => void
 }

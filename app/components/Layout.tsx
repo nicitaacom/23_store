@@ -3,26 +3,9 @@
 import { useEffect } from "react"
 
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { utmSourceAction } from "@/actions/utmSourceAction"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const darkMode = useDarkModeStore()
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const path = usePathname()
-
-  useEffect(() => {
-    const utm_source = searchParams?.get("utm_source")?.trimEnd() ?? ""
-    if (utm_source) {
-      async function utmSourceFn() {
-        await utmSourceAction(utm_source)
-      }
-      utmSourceFn()
-      router.replace(path)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
 
   //children is a server component
   //more info - https://www.youtube.com/watch?v=9YuHTGAAyu0

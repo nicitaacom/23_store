@@ -226,7 +226,7 @@ input::-webkit-inner-spin-button {
 @media (min-width: 1024px) {
   * {
     scrollbar-width: auto;
-    scrollbar-color: #6b7280 #ffffff;
+    scrollbar-color: #28751e #212423;
   }
 
   /* Chrome, Edge, and Safari */

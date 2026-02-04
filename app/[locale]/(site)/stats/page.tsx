@@ -1,21 +1,17 @@
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
-import { Stats } from "./components/Stats"
 import { getI18n } from "@/locales/server"
+import { UTMDashboard } from "./components/UTMDashboard"
+import { selectDBUTMStatsAction } from "./actions/selectDBUTMStatsAction"
 
 export default async function StatsPage() {
-  const { data: stats } = await supabaseAdmin.from("utm_stats").select("*").order("clicks", { ascending: false })
   const t = await getI18n()
 
-  return (
-    <div className="w-full min-h-[calc(100vh-64px)] bg-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-title mb-2">{t("stats.campaign_title")}</h1>
-          <p className="text-subTitle">{t("stats.campaign_subtitle")}</p>
-        </div>
+  const utmStatsResponse = await selectDBUTMStatsAction()
 
-        <Stats stats={stats} />
-      </div>
+  if (typeof utmStatsResponse === "string") return <h1 className="text-danger text-2xl">{utmStatsResponse}</h1>
+
+  return (
+    <div className="w-full max-h-[calc(100vh-64px)] min-h-[calc(100vh-64px)] overflow-y-scroll bg-background p-4 md:p-8">
+      <UTMDashboard utmStatsResponse={utmStatsResponse} />
     </div>
   )
 }

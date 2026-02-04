@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Component, FunctionComponent } from "react"
+import { FunctionComponent } from "react"
 import { IconType } from "react-icons"
 import { twMerge } from "tailwind-merge"
 
