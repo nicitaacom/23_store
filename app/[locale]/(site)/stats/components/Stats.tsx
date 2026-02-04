@@ -1,4 +1,3 @@
-// app/stats/components/Stats.tsx
 "use client"
 
 import CountUp from "react-countup"
