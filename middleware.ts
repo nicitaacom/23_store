@@ -25,7 +25,7 @@ import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 // ---------- i18n setup (keep yours) ----------
 const I18nMiddleware = createI18nMiddleware({
   locales: ["en", "fi", "ru", "se"] as TLocaleTag[],
-  defaultLocale: "en",
+  defaultLocale: "fi",
   urlMappingStrategy: "rewrite",
 })
 
