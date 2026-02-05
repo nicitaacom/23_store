@@ -165,7 +165,6 @@ export default {
   // =================        =================
   "modal.loading.admin": "Loading admin panel...",
   "modal.loading.cart": "Loading cart...",
-  "modal.loading.language": "Loading change language modal...",
   "modal.yes": "Yes",
   "modal.no": "No",
   "modal.are_you_sure_clear_cart.label": "Are you sure you want to clear cart",

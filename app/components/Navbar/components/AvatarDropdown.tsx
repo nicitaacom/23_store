@@ -47,11 +47,6 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
     closeDropdown()
   }
 
-  function openChangeLanguageModal() {
-    router.push("?modal=ChangeLanguage")
-    closeDropdown()
-  }
-
   function openSupportTickets() {
     router.push("/support/tickets")
     closeDropdown()
@@ -76,7 +71,6 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
         target="_blank"
       />
       {role === "SUPPORT" && <DropdownItem label="Stats" icon={IoIosStats} href="/stats" />}
-      <DropdownItem className="whitespace-nowrap" label="Change language" icon={TbWorld} onClick={openChangeLanguageModal} />
       <DropdownItem className="min-[501px]:hidden" label="Dark mode" icon={SwitchDarkMode} onClick={mode.toggleDarkMode} />
       <LogoutDropdownItem />
     </DropdownContainer>

@@ -165,7 +165,6 @@ export default {
   // =================        =================
   "modal.loading.admin": "Загрузка панели администратора...",
   "modal.loading.cart": "Загрузка корзины...",
-  "modal.loading.language": "Загрузка окна смены языка...",
   "modal.yes": "Да",
   "modal.no": "Нет",
   "modal.are_you_sure_clear_cart.label": "Вы уверены, что хотите очистить корзину",

@@ -165,7 +165,6 @@ export default {
   // =================        =================
   "modal.loading.admin": "Ladataan hallintapaneelia...",
   "modal.loading.cart": "Ladataan ostoskoria...",
-  "modal.loading.language": "Ladataan kielenvaihtoikkunaa...",
   "modal.yes": "Kyllä",
   "modal.no": "Ei",
   "modal.are_you_sure_clear_cart.label": "Haluatko varmasti tyhjentää ostoskorin",

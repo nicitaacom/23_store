@@ -165,7 +165,6 @@ export default {
   // =================        =================
   "modal.loading.admin": "Laddar adminpanel...",
   "modal.loading.cart": "Laddar kundvagn...",
-  "modal.loading.language": "Laddar språkbyte...",
   "modal.yes": "Ja",
   "modal.no": "Nej",
   "modal.are_you_sure_clear_cart.label": "Är du säker på att du vill tömma kundvagnen",

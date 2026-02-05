@@ -44,7 +44,6 @@ Modal/ModalContainers - check dev_readme.md
 
 `AreYouSureClearCartModal.tsx` - this modal appears if user want to clear cart in CartModal.tsx
 `AreYouSureDeleteProductModal.tsx` - this modal appears if user want to delete product in DeleteProductForm.tsx
-`ChangeLanguageModal.tsx` - login - click on avatar in top right corner - 'Change language'
 `CtrlKModal.tsx` - click Ctrl+K
 
 ### Usage for Button.tsx
