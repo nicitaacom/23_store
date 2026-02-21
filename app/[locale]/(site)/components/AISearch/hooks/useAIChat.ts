@@ -7,8 +7,8 @@ import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useScopedI18n } from "@/locales/client"
-import { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import { useToast } from "@/store/ui"
+import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 
 export function useAIChat() {
   const toast = useToast()
@@ -67,9 +67,20 @@ export function useAIChat() {
         const functionResult = await handleAIFunctionCall(functionCall.name, functionArgs)
 
         if (functionResult.success) {
-          setConversation([...newConversation, { role: "ai", text: functionResult.message }])
-          console.log(69, "functionResult.memory - ", functionResult.memory)
-          console.log(70, "data?.memory - ", data?.memory)
+          const aiMessage: TAIChatMessage =
+            functionCall.name === "generateImage" && functionResult.data?.imageUrl
+              ? {
+                  role: "ai",
+                  text: functionResult.message,
+                  imageUrl: String(functionResult.data.imageUrl),
+                }
+              : {
+                  role: "ai",
+                  text: functionResult.message,
+                }
+
+          setConversation([...newConversation, aiMessage])
+
           if (functionResult.memory) setMemory(functionResult.memory)
           else if (data?.memory) setMemory(data.memory)
           return

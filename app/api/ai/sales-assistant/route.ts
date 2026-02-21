@@ -6,12 +6,9 @@ export async function POST(req: NextRequest) {
   try {
     const { promptValue, memory, conversationHistory = [] } = (await req.json()) as API.AISalesAssistantRequest
 
-    // don't use last messages - that's the reason I use memory - to simplify it to don't paste 10000 symbols into AI
-    // actually use it for cases AI list 1-5 products or ask a question - so AI don't get confused
-    const lastTwoMessages = conversationHistory.slice(-4).map(msg => ({
-      role: msg.role === "ai" ? "assistant" : "user",
-      content: msg.text,
-    })) as Message[]
+    const lastTwoMessages = conversationHistory
+      .slice(-4)
+      .map(msg => ({ role: msg.role === "ai" ? "assistant" : "user", content: msg.text })) as Message[]
 
     const systemPrompt = `You are a RELENTLESS SALES ASSISTANT for Joki e-commerce.
 
@@ -28,26 +25,17 @@ CONVERSATION FLOW:
 - Vague request → List 3-5 specific products (Name - Price - Benefit).
 - User says "no/ei/нет" → Ask clarifying questions to understand their exact need.
 - User clarifies → List NEW products matching criteria.
-- User confirms → Call addProductToCart.
+- User confirms → Call addProductToCart or generateImage (if user asks for image).
 
 FUNCTION TRIGGERS:
-Keywords: "add to cart", "buy", "purchase", "lisää", "osta", "добавь" → Call addProductToCart with product details.
+Keywords: "add to cart", "buy", "purchase", "lisää", "osta", "добавь" → Call addProductToCart.
+If user asks to "generate image", "make image", "create picture" → Call generateImage.
 
 CONTEXT AWARENESS:
 - Do not repeat previously suggested products.
-- Adapt suggestions based on rejection reasons (too expensive? wrong type? different need?).
+- Adapt suggestions based on rejection reasons.
 - Always respect user's language from their last message.
 - If language cannot be detected, default to English.
-
-EXAMPLE FLOW:
-User (English): "I don't know what I want to buy"
-AI → Respond in English with 3-5 product suggestions.
-
-User (English): "Nah"
-AI → Ask in English: "Could you tell me more about what you want? Color, price range, type, or purpose?"
-
-User (Finnish): "halvempia"
-AI → Respond in Finnish with 3-5 cheaper product suggestions.
 `
 
     const messages: Message[] = [
@@ -56,6 +44,7 @@ AI → Respond in Finnish with 3-5 cheaper product suggestions.
       { role: "user", content: promptValue },
     ]
 
+    // -- functions: addProductToCart + generateImage
     const functions = [
       {
         name: "addProductToCart",
@@ -67,16 +56,29 @@ AI → Respond in Finnish with 3-5 cheaper product suggestions.
               type: "object",
               description: "Product details",
               properties: {
-                title: { type: "string", description: "Product name with size/color" },
-                subtitle: { type: "string", description: "Material, features, description" },
-                price: { type: "number", description: "Price in USD" },
+                title: { type: "string" },
+                subtitle: { type: "string" },
+                price: { type: "number" },
               },
               required: ["title", "subtitle", "price"],
             },
-            quantity: { type: "number", default: 1, description: "Number of items" },
-            note: { type: "string", description: "Optional customer note" },
+            quantity: { type: "number", default: 1 },
+            note: { type: "string" },
+            t: { type: "string", description: "optional i18n key function name" },
           },
           required: ["product"],
+        },
+      },
+      {
+        name: "generateImage",
+        description: "Generate an image for a product or idea. Returns { prompt, note }.",
+        parameters: {
+          type: "object",
+          properties: {
+            prompt: { type: "string", description: "Image prompt for the generator" },
+            memory: { type: "string", description: "Short context or memory to use in prompt" },
+          },
+          required: ["prompt"],
         },
       },
     ]
@@ -92,7 +94,7 @@ AI → Respond in Finnish with 3-5 cheaper product suggestions.
         messages,
         functions,
         function_call: "auto",
-        max_tokens: 200,
+        max_tokens: 300,
         temperature: 0.4,
       }),
     })
@@ -103,14 +105,15 @@ AI → Respond in Finnish with 3-5 cheaper product suggestions.
     }
 
     const openaiData = await openaiResponse.json()
-
-    const firstChoice = openaiData?.choices?.[0] || null
+    const firstChoice = openaiData?.choices?.[0] ?? null
     const aiMessage = firstChoice?.message ?? null
-    console.log(103, "OpenAI firstChoice:", { firstChoice })
 
     const updatedMemory = await updateMemoryFn(memory, promptValue, aiMessage)
 
-    return NextResponse.json({ openai: openaiData, memory: updatedMemory } as API.AISalesAssistantResponse)
+    return NextResponse.json({
+      openai: openaiData,
+      memory: updatedMemory,
+    } as API.AISalesAssistantResponse)
   } catch (error) {
     return NextResponse.json({
       reply: error instanceof Error ? error.message : String(error),
@@ -119,16 +122,14 @@ AI → Respond in Finnish with 3-5 cheaper product suggestions.
   }
 }
 
-// add just currently added product to memory to don't waste tokens on just adding a new product
+// keep your existing updateMemoryFn unchanged...
 async function updateMemoryFn(currentMemory: string, userPrompt: string, aiMessage?: any): Promise<string> {
   let intermediateMemory = currentMemory
-
   try {
     if (aiMessage?.function_call?.name === "addProductToCart") {
       const args = JSON.parse(aiMessage.function_call.arguments || "{}")
       const product = args.product
       const quantity = args.quantity || 1
-
       if (product?.title) {
         const memoryItems = intermediateMemory ? intermediateMemory.split(" | ") : []
         const newItem = quantity > 1 ? `${quantity}x ${product.title}` : product.title
@@ -150,16 +151,8 @@ async function updateMemoryFn(currentMemory: string, userPrompt: string, aiMessa
 
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages,
-        temperature: 0.6,
-        max_tokens: 100,
-      }),
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+      body: JSON.stringify({ model: "gpt-4o-mini", messages, temperature: 0.6, max_tokens: 100 }),
     })
 
     if (!res.ok) throw new Error(await res.text())
