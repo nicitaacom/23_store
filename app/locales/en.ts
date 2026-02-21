@@ -195,6 +195,8 @@ export default {
   "toast.warning.title": "Warning",
   "toast.warning.subtitle": "This requires your attention",
   "toast.error.updating_quantity": "Error updating quantity",
+  "toast.please_login_title": "Please login",
+  "toast.please_login_subtitle": "Please login - so that we know your email to sent you better prices on products",
 
   // =================     =================
   //                   SDK

@@ -195,6 +195,8 @@ export default {
   "toast.warning.title": "Varoitus",
   "toast.warning.subtitle": "Tämä vaatii huomiotasi",
   "toast.error.updating_quantity": "Virhe määrän päivittämisessä",
+  "toast.please_login_title": "Kirjaudu sisään",
+  "toast.please_login_subtitle": "Kirjaudu sisään, jotta tiedämme sähköpostisi ja voimme tarjota parempia hintoja tuotteista",
 
   // =================     =================
   //                   SDK

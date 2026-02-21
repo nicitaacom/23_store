@@ -9,8 +9,13 @@ import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useI18n } from "@/locales/client"
 import { useToast } from "@/store/ui"
 import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
+import useUserStore from "@/store/user/userStore"
+import { usePathname, useRouter } from "next/navigation"
 
 export function useAIChat() {
+  const router = useRouter()
+  const pathname = usePathname()
+
   const toast = useToast()
   const { promptValue, setPromptValue, conversation, setConversation, memory, setMemory } = useAIChatStore()
   const { isLoading, setIsLoading } = useLoading()
@@ -27,6 +32,13 @@ export function useAIChat() {
 
   const handleSubmit = async (prompt?: string) => {
     if ((!prompt && !promptValue.trim()) || isLoading) return
+
+    const { userId } = useUserStore.getState()
+    if (!userId) {
+      toast.show("warning", t("toast.please_login_title"), t("toast.please_login_subtitle"))
+      router.push(pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "AuthModal&variant=login")
+      return
+    }
 
     const userMessage = prompt || promptValue.trim()
     const newConversation: TAIChatMessage[] = [...conversation, { role: "user", text: userMessage }]
