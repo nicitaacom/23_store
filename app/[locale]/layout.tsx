@@ -11,7 +11,7 @@ import { UTMTracker } from "@/components/UTMTracker"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_PRODUCTION_URL),
+  metadataBase: new URL(process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_PRODUCTION_URL : "http://localhost:3023"),
   title: "Joki ",
   description: "Something better than amazon",
   icons: {
