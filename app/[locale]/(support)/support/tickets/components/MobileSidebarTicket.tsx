@@ -1,10 +1,10 @@
 "use client"
-import { ITicket } from "@/ts/support/ITicket"
+import { ITicketDB } from "@/ts/support/ITicketDB"
 import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
 interface MobileSidebarTicketProps {
-  ticket: ITicket
+  ticket: ITicketDB
   unseenMessagesAmount: number
   onClick: () => void
 }
@@ -18,10 +18,7 @@ export function MobileSidebarTicket({ ticket, unseenMessagesAmount, onClick }: M
   }
 
   return (
-    <li
-      className="relative w-full border border-border-color text-center pl-4 pr-8 py-2"
-      key={ticket.id}
-      onClick={openTicket}>
+    <li className="relative w-full border border-border-color text-center pl-4 pr-8 py-2" key={ticket.id} onClick={openTicket}>
       <h3 className={twMerge(`font-semibold truncate`, unseenMessagesAmount === 0 && "text-subTitle")}>
         {ticket.owner_username}
       </h3>
