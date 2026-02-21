@@ -2,8 +2,9 @@ import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { createI18nMiddleware } from "next-international/middleware"
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
-import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
-import { getI18n } from "@/locales/server"
+// import { getI18n } from "@/locales/server"
+
+// import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 
 /**
@@ -45,20 +46,6 @@ function isRouteProtectedForUser(pathname: string, role?: string) {
   return routes.some(route => pathname.startsWith(route))
 }
 
-// ---------- rate limit keys ----------
-export const AUTH_RATE_LIMITS = {
-  authPer15Min: {
-    windowSec: 900, // 15 min
-    maxAllowed: 5,
-    key: (userId: string) => `auth:15min:${userId}`,
-  },
-  authPerDay: {
-    windowSec: 86400, // 24h
-    maxAllowed: 50,
-    key: (userId: string) => `auth:day:${userId}`,
-  },
-} as const
-
 export async function middleware(request: NextRequest) {
   // 1. i18n routing
   const res = NextResponse.next()
@@ -74,12 +61,12 @@ export async function middleware(request: NextRequest) {
   const user = session?.user
 
   // 4. dual-tier rate limiting
-  if (user) {
-    const t = await getI18n()
-    const rateLimitSDK = new RateLimitSDK()
-    await rateLimitSDK.rateLimit(t, "authPerDay")
-    await rateLimitSDK.rateLimit(t, "authPer15Min")
-  }
+  // if (user) {
+  //   const t = await getI18n()
+  //   const rateLimitSDK = new RateLimitSDK()
+  //   await rateLimitSDK.rateLimit(t, "authPerDay")
+  //   await rateLimitSDK.rateLimit(t, "authPer15Min")
+  // }
 
   // 5. attach headers
   if (user) {
@@ -88,7 +75,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 6. role-based protected routes
-  const userRole = user?.role
+  const userRole = user?.role // TODO - implemet user.user_metadata.role (with dashboard)
   const pathname = request.nextUrl.pathname
 
   // unauthenticated access to user-protected pages
