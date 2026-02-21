@@ -1,14 +1,17 @@
 import { useRef, useEffect } from "react"
+import axios from "axios"
+
 import { useAIChatStore } from "@/components/Navbar/stores/useAIChat"
 import { useLoading } from "@/store/ui/useLoading"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
-import axios from "axios"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useScopedI18n } from "@/locales/client"
 import { TAIChatMessage } from "@/ts/types/TAIChatMessage"
+import { useToast } from "@/store/ui"
 
 export function useAIChat() {
+  const toast = useToast()
   const { promptValue, setPromptValue, conversation, setConversation, memory, setMemory } = useAIChatStore()
   const { isLoading, setIsLoading } = useLoading()
   const chatEndRef = useRef<HTMLDivElement>(null)
@@ -25,8 +28,6 @@ export function useAIChat() {
   const handleSubmit = async (prompt?: string) => {
     if ((!prompt && !promptValue.trim()) || isLoading) return
 
-    await rateLimitSDK.rateLimit(t, "aiPrompt")
-
     const userMessage = prompt || promptValue.trim()
     const newConversation: TAIChatMessage[] = [...conversation, { role: "user", text: userMessage }]
     setConversation(newConversation)
@@ -34,6 +35,8 @@ export function useAIChat() {
     setIsLoading(true)
 
     try {
+      await rateLimitSDK.rateLimit(t, "aiPrompt")
+
       const response = await fetch("/api/ai/sales-assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,8 +84,10 @@ export function useAIChat() {
 
       if (data?.memory) setMemory(data.memory)
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
       console.error(t("error"), error)
-      setConversation([...newConversation, { role: "ai", text: "Oops, something went wrong. Try again." }])
+      toast.show("error", t("error"), errorMessage)
+      setConversation([...newConversation, { role: "ai", text: `Oops, "${errorMessage}". Try again.` }])
     } finally {
       setIsLoading(false)
     }
@@ -93,9 +98,9 @@ export function useAIChat() {
 
     setIsLoading(true)
 
-    await rateLimitSDK.rateLimit(t, "aiGenerateImage")
-
     try {
+      await rateLimitSDK.rateLimit(t, "aiGenerateImage")
+
       const imageResponse = await axios.post(
         "/api/ai/generate-image",
         { prompt: `${memory} - generate image for this product` } as API.GenerateImageRequest,

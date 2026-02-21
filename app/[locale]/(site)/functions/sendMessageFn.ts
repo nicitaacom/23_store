@@ -33,11 +33,12 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
   const rateLimitSDK = new RateLimitSDK()
 
   if (isFirstMessage) {
-    if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newTicket")
-
-    setTicketId(ticketId)
-    console.log(39, "messages - ", messages)
     try {
+      if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newTicket")
+
+      setTicketId(ticketId)
+      console.log(39, "messages - ", messages)
+
       // 1. Send message in telegram
       await axios.post("/api/telegram", { message: messageBody || t("message.image_sent") } as API.TelegramRequest)
       // 2. Insert row in table 'tickets'
