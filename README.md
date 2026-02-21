@@ -1,6 +1,6 @@
 # What inside? <br/> <sub> https://23-store.vercel.app/</sub>
 
-[![23-store-overview](https://i.imgur.com/F9FiGHK.jpg)](https://streamable.com/1zdhl7)
+[![23-store-overview](https://i.imgur.com/cj9IA11.jpeg)](https://youtu.be/xZ1DOfFfpc8)
 
 <br/>
 
