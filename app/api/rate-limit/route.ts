@@ -9,7 +9,6 @@ import { headers } from "next/headers"
 import { Redis } from "@upstash/redis"
 import { Ratelimit } from "@upstash/ratelimit"
 
-import moment from "moment-timezone"
 import { TRateLimiterName } from "@/sdk/RateLimitSDK/types/TRateLimiterName"
 import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
 
@@ -45,9 +44,16 @@ export async function POST(req: Request) {
   const fullKey = `${ip}-${limiterKey}`
 
   function formatReset(reset: number, timezone: string) {
-    return moment(reset * 1000)
-      .tz(timezone)
-      .format("YYYY-MM-DD HH:mm:ss")
+    const date = new Date(reset * 1000)
+    return new Intl.DateTimeFormat("en-GB", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }).format(date)
   }
 
   // ===== ACTION SWITCH =====
