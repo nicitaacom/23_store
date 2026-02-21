@@ -27,7 +27,6 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
 
   useEffect(() => {
     if (user) {
-      console.log(29, "user - ", user)
       setUser(user.id, user.user_metadata.name, user.email!, user.user_metadata.avatar_url)
     }
   }, [])
