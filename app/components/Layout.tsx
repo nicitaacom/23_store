@@ -3,9 +3,12 @@
 import { useEffect } from "react"
 
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import { User } from "@supabase/supabase-js"
+import useUserStore from "@/store/user/userStore"
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children, user }: { children: React.ReactNode; user: User | null }) {
   const darkMode = useDarkModeStore()
+  const { setUser } = useUserStore()
 
   //children is a server component
   //more info - https://www.youtube.com/watch?v=9YuHTGAAyu0
@@ -22,6 +25,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     htmlElement.classList.toggle("dark", darkMode.isDarkMode)
   }, [darkMode.isDarkMode])
 
+  useEffect(() => {
+    if (user) {
+      console.log(29, "user - ", user)
+      setUser(user.id, user.user_metadata.name, user.email!, user.user_metadata.avatar_url)
+    }
+  }, [])
   return (
     <main
       className="flex flex-col w-full overflow-hidden min-h-screen

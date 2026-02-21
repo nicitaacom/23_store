@@ -1,5 +1,6 @@
 import { pusherServer } from "@/libs/pusher"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { getCurrentLocale } from "@/locales/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
@@ -47,8 +48,10 @@ export async function GET(request: Request) {
       // Trigger pusher to 'auth:completed' to show in another tab message like 'Authencication completed - thank you'
       await pusherServer.trigger(email, "auth:completed", null)
 
+      const locale = getCurrentLocale()
+
       return NextResponse.redirect(
-        `${requestUrl.origin}/auth/completed?code=${code}
+        `${requestUrl.origin}/${locale}/auth/completed?code=${code}
         &provider=credentials
         &userId=${user_id}
         &username=${username}

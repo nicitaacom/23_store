@@ -26,12 +26,14 @@ export default function AuthCompleted() {
   const email = getParam("email")
   const avatarUrl = getParam("avatarUrl")
 
+  console.log(29, "userId - ", userId)
+
   useEffect(() => {
     // 2. provider redirect (silent)
-    if (provider === "google" || provider === "twitter") {
-      router.replace("/")
-      return
-    }
+    // if (provider === "google" || provider === "twitter") {
+    //   router.replace("/")
+    //   return
+    // }
 
     // 3. validate auth completion
     if (!params) {

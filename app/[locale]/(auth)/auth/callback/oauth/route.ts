@@ -1,4 +1,5 @@
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { getCurrentLocale } from "@/locales/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
@@ -49,11 +50,7 @@ export async function GET(request: Request) {
       if (is_row_exist) {
         // 4. If provider_response !=== provider - add one more provider
         // For case when user signIn with google first and then with the same email with twitter
-        const { data: provider_response } = await supabaseAdmin
-          .from("users")
-          .select("providers")
-          .eq("id", user_id)
-          .single()
+        const { data: provider_response } = await supabaseAdmin.from("users").select("providers").eq("id", user_id).single()
         // Check is provider exist (for case if user login 2 times with the same provider)
         const existingProvider = provider_response?.providers?.filter(providerLabel => providerLabel === provider)
         if (!existingProvider![0]) {
@@ -88,8 +85,12 @@ export async function GET(request: Request) {
         await supabaseAdmin.from("users_cart").insert({ id: user_id })
       }
 
+      const locale = getCurrentLocale()
+
+      console.log(90, "locale - ", locale)
+
       return NextResponse.redirect(
-        `${requestUrl.origin}/auth/completed?code=${code}
+        `${requestUrl.origin}/${locale}/auth/completed?code=${code}
         &provider=${provider}
         &userId=${user_id}
         &username=${username}
@@ -101,7 +102,6 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`)
     }
   } else {
-    
     const error_description = encodeURIComponent("No code found to exchange cookies for session")
     return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`)
   }

@@ -47,7 +47,7 @@ export default async function RootLayout({
     <html lang="en" className={getCookie("darkMode") ?? "dark"}>
       <body>
         <I18nProviderClient locale={locale}>
-          <Layout>{children}</Layout>
+          <Layout user={data.user}>{children}</Layout>
           <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
           <ModalsProvider />
           <ToastProvider />
