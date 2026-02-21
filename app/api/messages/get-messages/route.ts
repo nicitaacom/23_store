@@ -1,22 +1,15 @@
-import { IMessageDB } from "@/ts/support/IMessage"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
-import { AxiosResponse } from "axios"
 import { NextResponse } from "next/server"
 
 /**
  * If userId set - route returns messages from open ticket for userId
  */
-export type TAPIMessagesGetMessagesRequest = {
-  ticketId?: string
-  userId?: string
-}
-
-type Response = IMessageDB[]
-
-export type TAPIMessagesGetMessagesResponse = AxiosResponse<Response>
 
 export async function POST(req: Request) {
-  const { ticketId, userId } = (await req.json()) as TAPIMessagesGetMessagesRequest
+  const { ticketId, userId } = (await req.json()) as {
+    ticketId?: string
+    userId?: string
+  }
 
   if (!ticketId && !userId) {
     throw new Error("Either ticketId or userId must be set")
@@ -34,7 +27,7 @@ export async function POST(req: Request) {
     ticketIdResponse = ticketId?.id
   }
   if (!ticketIdResponse) {
-    console.log(33, `no ticket with userId ${userId} - `, ticketIdResponse)
+    console.log(37, `no ticket with userId ${userId} - `, ticketIdResponse)
     return NextResponse.json([])
   }
 
