@@ -1,5 +1,3 @@
-import { toNumber } from "lodash"
-
 // utils/logFn.ts
 function getLineNumber() {
   const error = new Error()
@@ -13,6 +11,6 @@ function getLineNumber() {
 export function logFn(message: string, ...optionalParams: any[]) {
   if (process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_IS_DEBUG === "true") {
     const lineNumber = getLineNumber()
-    console.log(`[Line ${toNumber(lineNumber)}] ${message}`, ...optionalParams)
+    console.log(`[Line ${Number(lineNumber)}] ${message}`, ...optionalParams)
   }
 }
