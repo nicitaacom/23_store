@@ -1,4 +1,4 @@
-import moment from "moment-timezone"
+// import moment from "moment-timezone" // ❌ breaks Edge runtime
 import { TRateLimiterName } from "./types/TRateLimiterName"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { getUserId } from "@/utils/getUserId"
@@ -16,8 +16,9 @@ export class RateLimitSDK {
 
   private async requestFn(t: TI18nFunction, action: Action, limiterName: TRateLimiterName): Promise<API.RateLimitResponse> {
     // 1. get timezone
-    const userTimezone = moment.tz.guess()
-    const userId = getUserId()
+    // const userTimezone = moment.tz.guess() // ❌ don't use moment-timezone (breaks in Edge runtime)
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC"
+    const userId = getUserId() // use userId - otherwise you would not rate limit for not authenticated users
 
     // 2. send request
     const response = await fetch("/api/rate-limit", {
