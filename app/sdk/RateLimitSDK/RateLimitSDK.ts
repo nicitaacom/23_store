@@ -1,6 +1,7 @@
 import moment from "moment-timezone"
 import { TRateLimiterName } from "./types/TRateLimiterName"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { getUserId } from "@/utils/getUserId"
 
 type Action = API.RateLimitRequest["action"]
 
@@ -16,6 +17,7 @@ export class RateLimitSDK {
   private async requestFn(t: TI18nFunction, action: Action, limiterName: TRateLimiterName): Promise<API.RateLimitResponse> {
     // 1. get timezone
     const userTimezone = moment.tz.guess()
+    const userId = getUserId()
 
     // 2. send request
     const response = await fetch("/api/rate-limit", {
@@ -25,6 +27,7 @@ export class RateLimitSDK {
         action,
         limiterName,
         userTimezone,
+        userId,
       } satisfies API.RateLimitRequest),
     })
 

@@ -1,109 +1,113 @@
-// middleware.ts
+import type { NextRequest } from "next/server"
+import { NextResponse } from "next/server"
+import { createI18nMiddleware } from "next-international/middleware"
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
+import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
+import { getI18n } from "@/locales/server"
+import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
+
 /**
  * Combined middleware:
  *  - i18n (next-international)
- *  - verifies app-level JWT (auth_token) on the Edge runtime (experimental-edge)
+ *  - Supabase auth verification (Server Actions compatible)
  *  - attaches trusted headers: x-user-id, x-user (base64 JSON)
+ *  - dual-tier rate-limits per user/IP
+ *  - role-based protected route access
  *
  * Flow:
  * // 1. run i18n middleware (may rewrite)
- * // 2. quick-exit public/static routes (matcher covers most)
- * // 3. read auth_token cookie
- * // 4. verify JWT (jose)
- * // 5. attach x-user-id and x-user (base64) headers for server-actions
- * // 6. if invalid -> clear cookie and continue unauthenticated
- *
- * Note: jsonwebtoken is NOT safe to use in Edge. See notes below.
+ * // 2. quick-exit public/static routes
+ * // 3. initialize Supabase middleware client
+ * // 4. check user session
+ * // 5. enforce rate limits
+ * // 6. attach headers x-user-id and x-user
+ * // 7. redirect/forbid protected routes based on role
  */
 
-import { createI18nMiddleware } from "next-international/middleware"
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
-import { jwtVerify } from "jose"
-import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
-
-// ---------- i18n setup (keep yours) ----------
+// ---------- i18n setup ----------
 const I18nMiddleware = createI18nMiddleware({
   locales: ["en", "fi", "ru", "se"] as TLocaleTag[],
   defaultLocale: "fi" as TLocaleTag,
   urlMappingStrategy: "rewrite",
-  resolveLocaleFromRequest: () => "fi",
 })
 
-// ---------- runtime (fix for build error) ----------
-export const runtime = "nodejs"
-
-// ---------- helpers ----------
-function getJwtSecretKey(): Uint8Array {
-  const s = process.env.JWT_SECRET
-  if (!s) throw new Error("JWT_SECRET missing")
-  return new TextEncoder().encode(s)
+// ---------- role-based protected routes ----------
+const ROLE_PROTECTED_ROUTES: Record<string, string[]> = {
+  admin: ["/admin", "/settings"],
+  support: ["/support"],
+  user: ["/dashboard", "/account"],
 }
 
-/** cross-runtime base64 (Edge: btoa, Node: Buffer) */
-function toBase64(input: string): string {
-  if (typeof globalThis.btoa === "function") return globalThis.btoa(input)
-  // @ts-ignore runtime may provide Buffer in Node
-  return Buffer.from(input).toString("base64")
+// ---------- helper ----------
+function isRouteProtectedForUser(pathname: string, role?: string) {
+  if (!role) return false
+  const routes = ROLE_PROTECTED_ROUTES[role] ?? []
+  return routes.some(route => pathname.startsWith(route))
 }
 
-// TODO implement refresh-token because it's better for UX and security
-/**
- * Verify auth_token using jose.
- * Returns `{ userId, payload }` on success or `null` on failure.
- */
-async function verifyAuthToken(token: string): Promise<{ userId: string; payload: Record<string, unknown> } | null> {
-  try {
-    const { payload } = await jwtVerify(token, getJwtSecretKey())
-    const userId = (payload as any)?.user?.id ?? (payload as any)?.sub
-    if (!userId || typeof userId !== "string") return null
-    return { userId, payload: payload as Record<string, unknown> }
-  } catch {
-    return null
-  }
-}
+// ---------- rate limit keys ----------
+export const AUTH_RATE_LIMITS = {
+  authPer15Min: {
+    windowSec: 900, // 15 min
+    maxAllowed: 5,
+    key: (userId: string) => `auth:15min:${userId}`,
+  },
+  authPerDay: {
+    windowSec: 86400, // 24h
+    maxAllowed: 50,
+    key: (userId: string) => `auth:day:${userId}`,
+  },
+} as const
 
-// ---------- middleware entry ----------
 export async function middleware(request: NextRequest) {
-  // 1. run i18n middleware first
+  // 1. i18n routing
+  const res = NextResponse.next()
   const i18nResult = I18nMiddleware(request)
-  if (i18nResult instanceof Response) return i18nResult as Response
+  if (i18nResult instanceof Response) return i18nResult // e.g. redirect by i18n
 
-  // 2. quick-exit if no auth cookie
-  const token = request.cookies.get("auth_token")?.value
-  if (!token) return NextResponse.next()
+  // 2. init Supabase middleware client
+  const supabase = createMiddlewareClient({ req: request, res })
 
-  // 3. verify token
-  const verified = await verifyAuthToken(token)
-  if (!verified) {
-    // 4. invalid -> clear cookie and continue unauthenticated
-    const res = NextResponse.next()
-    res.cookies.set({
-      name: "auth_token",
-      value: "",
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 0,
-    })
-    return res
+  // 3. check session
+  const { data } = await supabase.auth.getSession()
+  const session = data.session
+  const user = session?.user
+
+  // 4. dual-tier rate limiting
+  if (user) {
+    const t = await getI18n()
+    const rateLimitSDK = new RateLimitSDK()
+    await rateLimitSDK.rateLimit(t, "authPerDay")
+    await rateLimitSDK.rateLimit(t, "authPer15Min")
   }
 
-  // 5. valid -> attach trusted headers for downstream server-actions
-  const headers = new Headers(request.headers)
-  headers.set("x-user-id", verified.userId)
-  try {
-    const userObj = (verified.payload as any).user ?? { id: verified.userId }
-    headers.set("x-user", toBase64(JSON.stringify(userObj)))
-  } catch {
-    /* ignore serialization issues */
+  // 5. attach headers
+  if (user) {
+    res.headers.set("x-user-id", user.id)
+    res.headers.set("x-user", Buffer.from(JSON.stringify(user)).toString("base64"))
   }
 
-  return NextResponse.next({ request: { headers } })
+  // 6. role-based protected routes
+  const userRole = user?.role
+  const pathname = request.nextUrl.pathname
+
+  // unauthenticated access to user-protected pages
+  if (!user && isRouteProtectedForUser(pathname, "user")) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/${request.nextUrl.locale || "fi"}/login`
+    return NextResponse.redirect(url)
+  }
+
+  // logged in but trying to access admin-only pages
+  if (user && isRouteProtectedForUser(pathname, "admin") && userRole !== "admin") {
+    return new NextResponse("Forbidden", { status: 403 })
+  }
+
+  // 7. return same res so Supabase cookies sync
+  return res
 }
 
-// keep your original matcher (skip api, static, _next, etc.)
+// 8. middleware matcher
 export const config = {
   matcher: ["/((?!api|static|.*\\..*|_next|favicon.ico|robots.txt|embed|auth/callback).*)"],
 }

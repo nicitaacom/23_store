@@ -24,4 +24,14 @@ export const RATE_LIMITS = {
     maxAllowed: 2, // 2 per day
     key: () => `request:betterPrices`,
   },
+  authPer15Min: {
+    windowSec: 900, // 15 minutes
+    maxAllowed: 5, // up to 5 attempts per 15 min
+    key: (userId: string) => `auth:15min:${userId}`,
+  },
+  authPerDay: {
+    windowSec: 86400, // 24 hours
+    maxAllowed: 50, // up to 50 attempts per day
+    key: (userId: string) => `auth:day:${userId}`,
+  },
 } as const

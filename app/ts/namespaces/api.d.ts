@@ -18,6 +18,7 @@ declare module API {
     limiterName: string
     action: "getRemaining" | "rateLimit"
     userTimezone: string
+    userId: string
   }
 
   type RateLimitResponse = {

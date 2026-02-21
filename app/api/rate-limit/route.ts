@@ -17,7 +17,7 @@ const limiterCache = new Map<string, Ratelimit>()
 const redis = Redis.fromEnv()
 
 export async function POST(req: Request) {
-  const { limiterName, action, userTimezone } = (await req.json()) as API.RateLimitRequest
+  const { limiterName, action, userTimezone, userId } = (await req.json()) as API.RateLimitRequest
 
   if (!limiterName || !userTimezone)
     return NextResponse.json(
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   // 2. build limiter key (may throw if required value missing)
   let limiterKey: string
   try {
-    limiterKey = getRateLimitKey({ limiterName, action, userTimezone })
+    limiterKey = getRateLimitKey({ userId, limiterName, action, userTimezone })
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 400 })
   }
@@ -75,22 +75,20 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ remaining, resetTime: formatReset(reset, userTimezone) }, { status: 200 })
-  } else
-    return NextResponse.json({ error: "action not recognized - use either rateLimit or getRemaining" }, { status: 400 })
+  } else return NextResponse.json({ error: "action not recognized - use either rateLimit or getRemaining" }, { status: 400 })
 }
 
-function getRateLimitKey(payload: API.RateLimitRequest) {
+function getRateLimitKey(payload: API.RateLimitRequest): string {
   const rateLimitDef = RATE_LIMITS[payload.limiterName as TRateLimiterName]
+  if (!rateLimitDef) throw new Error(`Rate limit config not found for ${payload.limiterName}`)
 
-  try {
-    // prefer explicit fields
-    // if ("userId" in payload && (payload as any).userId) return rateLimitDef.key((payload as any).userId)
-    // fallback to no-arg
-    return rateLimitDef.key()
-  } catch (error) {
-    // def.key should throw helpful message if param is required
-    throw error instanceof Error ? error : new Error("Failed to build rate limit key")
-  }
+  const keyBuilder = rateLimitDef.key as (() => string) | ((userId: string) => string)
+
+  if (keyBuilder.length === 0) return (keyBuilder as () => string)()
+
+  if (!payload.userId) throw new Error(`userId is required for limiter ${payload.limiterName}`)
+
+  return (keyBuilder as (userId: string) => string)(payload.userId)
 }
 
 function getRateLimiter(rateLimiterName: TRateLimiterName) {
