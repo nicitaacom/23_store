@@ -6,7 +6,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
 import { uploadImageFn } from "@/functions/uploadImageFn"
-import { useScopedI18n } from "@/locales/client"
+import { useI18n } from "@/locales/client"
 import { useToast } from "@/store/ui"
 import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 
@@ -17,7 +17,7 @@ export function useAIChat() {
   const chatEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const rateLimitSDK = new RateLimitSDK()
-  const t = useScopedI18n("aichat")
+  const t = useI18n()
 
   useEffect(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), [conversation])
 
@@ -48,7 +48,7 @@ export function useAIChat() {
       })
 
       if (!response.ok) {
-        setConversation([...newConversation, { role: "ai", text: t("error") }])
+        setConversation([...newConversation, { role: "ai", text: t("aichat.error") }])
         return
       }
 
@@ -64,7 +64,7 @@ export function useAIChat() {
           }
         })()
 
-        const functionResult = await handleAIFunctionCall(functionCall.name, functionArgs)
+        const functionResult = await handleAIFunctionCall(functionCall.name, { ...functionArgs, t })
 
         if (functionResult.success) {
           const aiMessage: TAIChatMessage =
@@ -90,14 +90,14 @@ export function useAIChat() {
         return
       }
 
-      const aiReply = data?.openai?.choices?.[0]?.message?.content || data?.reply || t("error.no_reply_data")
+      const aiReply = data?.openai?.choices?.[0]?.message?.content || data?.reply || t("aichat.error.no_reply_data")
       setConversation([...newConversation, { role: "ai", text: aiReply }])
 
       if (data?.memory) setMemory(data.memory)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
-      console.error(t("error"), error)
-      toast.show("error", t("error"), errorMessage)
+      console.error(t("aichat.error"), error)
+      toast.show("error", t("aichat.error"), errorMessage)
       setConversation([...newConversation, { role: "ai", text: `Oops, "${errorMessage}". Try again.` }])
     } finally {
       setIsLoading(false)
@@ -131,14 +131,14 @@ export function useAIChat() {
 
       setConversation([
         ...conversation,
-        { role: "user", text: `${t("generate_image")}: ${promptValue}` },
+        { role: "user", text: `${t("aichat.generate_image")}: ${promptValue}` },
         // TODO - add more variations e.g here is your generated image
-        { role: "ai", text: t("generate_image_completed"), imageUrl: uploadResult.publicUrl },
+        { role: "ai", text: t("aichat.generate_image_completed"), imageUrl: uploadResult.publicUrl },
       ])
       setPromptValue("")
     } catch (error) {
-      console.error(`${t("error.generate_image")}:`, error)
-      setConversation([...conversation, { role: "ai", text: `${t("error.generate_image")}:` }])
+      console.error(`${t("aichat.error.generate_image")}:`, error)
+      setConversation([...conversation, { role: "ai", text: `${t("aichat.error.generate_image")}:` }])
     } finally {
       setIsLoading(false)
     }

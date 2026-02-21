@@ -58,11 +58,12 @@ async function generateImageHandler(args: HandlerArgs): Promise<FunctionResult> 
     const rateLimitSDK = new RateLimitSDK()
     await rateLimitSDK.rateLimit(t, "aiGenerateImage")
 
-    const imageResp = await axios.post(
-      "/api/ai/generate-image",
-      { prompt: `${memory} ${prompt}`.trim() } as API.GenerateImageRequest,
-      { responseType: "arraybuffer" },
-    )
+    // ⚡ Combine memory + current prompt to generate accurate image
+    const fullPrompt = [memory, prompt].filter(Boolean).join(" - ")
+
+    const imageResp = await axios.post("/api/ai/generate-image", { prompt: fullPrompt } as API.GenerateImageRequest, {
+      responseType: "arraybuffer",
+    })
 
     if (imageResp.status !== 200) {
       return { success: false, message: `Image generation failed: ${imageResp.status}` }
