@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 
-import { IMessageDB } from "@/ts/support/IMessage"
+import { IMessageDB } from "@/ts/support/IMessageDB"
 import useUserStore from "@/store/user/userStore"
 
 import { MessageBox } from "../components/MessageBox"

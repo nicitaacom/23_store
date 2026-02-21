@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { pusherServer } from "@/libs/pusher"
 
-import { ITicket } from "@/ts/support/ITicket"
+import { ITicketDB } from "@/ts/support/ITicketDB"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export type TAPITicketsClose = {
@@ -24,8 +24,7 @@ export async function POST(req: Request) {
 
   // 1. Update 'tickets' to is_open:false
   const { error } = await supabaseAdmin.from("tickets").update({ is_open: false }).eq("id", ticketId)
-  if (error)
-    return NextResponse.json({ error: `Error in api/tickets/close/route.ts\n ${error.message}` }, { status: 400 })
+  if (error) return NextResponse.json({ error: `Error in api/tickets/close/route.ts\n ${error.message}` }, { status: 400 })
 
   if (closedBy === "user") {
     // On user side - clear messages
@@ -36,14 +35,14 @@ export async function POST(req: Request) {
     await pusherServer.trigger("tickets", "tickets:closeByUser", {
       id: ticketId,
       is_open: false,
-    } as ITicket)
+    } as ITicketDB)
   }
   if (closedBy === "support") {
     // separate event is required for action when support close ticket (if you change event to tickets:close it will not work)
     // I mean if you fire some event this event will be fird in all channels but data will be passed to channels in 1st prop
     // to show on user side 'rate this ticket'
     // So trigger 'tickets:closeBySupport' event and pass id in data in 'ticketId' and 'tickets' channel
-    await pusherServer.trigger([ticketId, "tickets"], "tickets:closeBySupport", { id: ticketId } as ITicket)
+    await pusherServer.trigger([ticketId, "tickets"], "tickets:closeBySupport", { id: ticketId } as ITicketDB)
   }
 
   return NextResponse.json({ message: "Ticket marked as completed (ticket closed)" }, { status: 200 })

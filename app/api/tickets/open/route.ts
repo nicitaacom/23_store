@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { pusherServer } from "@/libs/pusher"
 
-import { ITicket } from "@/ts/support/ITicket"
+import { ITicketDB } from "@/ts/support/ITicketDB"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export type TAPITicketsOpen = {
@@ -41,8 +41,7 @@ export async function POST(req: Request) {
     owner_username: ownerUsername,
     owner_avatar_url: ownerAvatarUrl,
   })
-  if (error)
-    return NextResponse.json({ error: `Error in api/tickets/open/route.ts\n ${error.message}` }, { status: 400 })
+  if (error) return NextResponse.json({ error: `Error in api/tickets/open/route.ts\n ${error.message}` }, { status: 400 })
 
   // 2. Trigger 'tickets:open' event in 'tickets' channel and pass required data
   await pusherServer.trigger("tickets", "tickets:open", {
@@ -53,7 +52,7 @@ export async function POST(req: Request) {
     is_open: true,
     last_message_body: messageBody,
     owner_avatar_url: ownerAvatarUrl,
-  } as ITicket)
+  } as ITicketDB)
 
   return NextResponse.json({ status: 200 })
 }

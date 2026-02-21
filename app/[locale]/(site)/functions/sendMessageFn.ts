@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios"
 import moment from "moment-timezone"
 
-import { IMessageDB } from "@/ts/support/IMessage"
+import { IMessageDB } from "@/ts/support/IMessageDB"
 import { TAPITicketsOpen } from "@/api/tickets/open/route"
 import { TAPIMessageSend } from "@/api/message/send/route"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { IMessageDB } from "@/ts/support/IMessage"
+import { IMessageDB } from "@/ts/support/IMessageDB"
 import { pusherServer } from "@/libs/pusher"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
@@ -33,16 +33,11 @@ export async function POST(req: Request) {
     }))
 
   // 2. Array of unseen message ids (to update it in supabase)
-  const unseenMessageIds = messages
-    .filter(message => message.sender_id !== userId && !message.seen)
-    .map(message => message.id)
+  const unseenMessageIds = messages.filter(message => message.sender_id !== userId && !message.seen).map(message => message.id)
 
   // 3. Update seen:true in 'messages' table
   if (unseenMessageIds.length !== 0) {
-    const { error: messages_error } = await supabaseAdmin
-      .from("messages")
-      .update({ seen: true })
-      .in("id", unseenMessageIds)
+    const { error: messages_error } = await supabaseAdmin.from("messages").update({ seen: true }).in("id", unseenMessageIds)
     if (messages_error) {
       console.log(35, "error updating seen message - ", messages_error)
       return NextResponse.json({ error: `ERROR_UPDATING_MESSAGE \n ${messages_error}` })

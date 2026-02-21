@@ -1,4 +1,4 @@
-export interface ITicket {
+export interface ITicketDB {
   id: string
   created_at: string
   is_open: boolean

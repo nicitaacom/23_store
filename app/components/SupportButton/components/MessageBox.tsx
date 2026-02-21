@@ -4,7 +4,7 @@ import Image from "next/image"
 import { twMerge } from "tailwind-merge"
 import { BsCheck2 } from "react-icons/bs"
 
-import { IMessageDB } from "@/ts/support/IMessage"
+import { IMessageDB } from "@/ts/support/IMessageDB"
 import { formatTime } from "@/utils/formatTime"
 import useSender from "@/hooks/ui/useSender"
 import { useScopedI18n } from "@/locales/client"

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { find } from "lodash"
 
-import { ITicket } from "@/ts/support/ITicket"
+import { ITicketDB } from "@/ts/support/ITicketDB"
 import { DesktopSidebarTicket } from "./DesktopSidebarTicket"
 import { NoTicketsFound } from "./NoTicketsFound"
 import { UnseenMessages } from "@/actions/getUnreadMessages"
@@ -13,7 +13,7 @@ import useToast from "@/store/ui/useToast"
 import { getPusherClient } from "@/libs/pusher"
 
 interface DesktopSidebarProps {
-  initialTickets: ITicket[]
+  initialTickets: ITicketDB[]
   unseenMessages: UnseenMessages[]
 }
 
@@ -35,7 +35,7 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
   useEffect(() => {
     const pusherClient = getPusherClient()
 
-    const openHandler = (ticket: ITicket) => {
+    const openHandler = (ticket: ITicketDB) => {
       setTickets(current => {
         if (find(current, { id: ticket.id })) {
           return current
@@ -46,7 +46,7 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
     }
 
     // e.g for increasing unread messages
-    const updateHandler = (ticket: ITicket) => {
+    const updateHandler = (ticket: ITicketDB) => {
       setTickets(current =>
         current.map(currentTicket => {
           if (currentTicket.id === ticket.id) {
@@ -62,23 +62,18 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
       increaseUnreadMessages(ticket.id)
     }
 
-    const closeByUserHandler = (ticket: ITicket) => {
+    const closeByUserHandler = (ticket: ITicketDB) => {
       // to fix Application error: a client-side exception has occurred (see the browser console for more information).
       router.push("/support/tickets")
 
-      toast.show(
-        "success",
-        "User closed ticket",
-        "You may check your stats here - TOTO - create support/statistic page",
-        6000,
-      )
+      toast.show("success", "User closed ticket", "You may check your stats here - TOTO - create support/statistic page", 6000)
 
       setTickets(current => {
         return [...current.filter(tckt => tckt.id !== ticket.id)]
       })
     }
 
-    const closeBySupportHandler = (ticket: ITicket) => {
+    const closeBySupportHandler = (ticket: ITicketDB) => {
       // to fix Application error: a client-side exception has occurred (see the browser console for more information).
       router.push("/support/tickets")
 

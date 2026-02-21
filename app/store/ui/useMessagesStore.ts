@@ -1,8 +1,7 @@
-import axios from "axios"
+import axios, { AxiosResponse } from "axios"
 import { create } from "zustand"
 
-import { TAPIMessagesGetMessagesRequest, TAPIMessagesGetMessagesResponse } from "@/api/messages/get-messages/route"
-import { IMessageDB } from "@/ts/support/IMessage"
+import { IMessageDB } from "@/ts/support/IMessageDB"
 import { getUserId } from "@/utils/getUserId"
 import fetchTicketId from "@/actions/fetchTicketId"
 
@@ -56,9 +55,12 @@ export const useMessagesStore = create<MessagesStore>()((set, get) => ({
       return
     }
 
-    const response: TAPIMessagesGetMessagesResponse = await axios.post("/api/messages/get-messages", {
+    const response: AxiosResponse<IMessageDB[]> = await axios.post("/api/messages/get-messages", {
       userId: userId,
-    } as TAPIMessagesGetMessagesRequest)
+    } as {
+      ticketId?: string
+      userId?: string
+    })
     const unseenAmount = response.data.filter(message => !message.seen).length
 
     let ticketIdLet: string | null = null

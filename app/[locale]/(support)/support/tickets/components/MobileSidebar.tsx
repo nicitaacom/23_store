@@ -5,7 +5,7 @@ import { twMerge } from "tailwind-merge"
 import { find } from "lodash"
 
 import { useRouter } from "next/navigation"
-import { ITicket } from "@/ts/support/ITicket"
+import { ITicketDB } from "@/ts/support/ITicketDB"
 import { UnseenMessages } from "@/actions/getUnreadMessages"
 import { getPusherClient } from "@/libs/pusher"
 import useTicket from "@/hooks/support/useTicket"
@@ -14,7 +14,7 @@ import useToast from "@/store/ui/useToast"
 import { useUnseenMessages } from "@/[locale]/(support)/store/useUnseenMessages"
 
 interface MobileSidebarProps {
-  initialTickets: ITicket[]
+  initialTickets: ITicketDB[]
   unseenMessages: UnseenMessages[]
 }
 
@@ -36,7 +36,7 @@ export function MobileSidebar({ initialTickets, unseenMessages }: MobileSidebarP
     const pusherClient = getPusherClient()
     pusherClient.subscribe("tickets")
 
-    const newHandler = (ticket: ITicket) => {
+    const newHandler = (ticket: ITicketDB) => {
       setTickets(current => {
         if (find(current, { id: ticket.id })) {
           return current
@@ -46,7 +46,7 @@ export function MobileSidebar({ initialTickets, unseenMessages }: MobileSidebarP
       })
     }
 
-    const updateHandler = (ticket: ITicket) => {
+    const updateHandler = (ticket: ITicketDB) => {
       setTickets(current =>
         current.map(currentTicket => {
           if (currentTicket.id === ticket.id) {
@@ -60,7 +60,7 @@ export function MobileSidebar({ initialTickets, unseenMessages }: MobileSidebarP
       )
     }
 
-    const closeBySupportHandler = (ticket: ITicket) => {
+    const closeBySupportHandler = (ticket: ITicketDB) => {
       // to fix Application error: a client-side exception has occurred (see the browser console for more information).
       router.push("/support/tickets")
       setTickets(current => {
@@ -68,14 +68,9 @@ export function MobileSidebar({ initialTickets, unseenMessages }: MobileSidebarP
       })
     }
 
-    const closeHandler = (ticket: ITicket) => {
+    const closeHandler = (ticket: ITicketDB) => {
       router.push("/support/tickets")
-      toast.show(
-        "success",
-        "User closed ticket",
-        "You may check your stats here - TOTO - create support/statistic page",
-        6000,
-      )
+      toast.show("success", "User closed ticket", "You may check your stats here - TOTO - create support/statistic page", 6000)
       setTickets(current => {
         return [...current.filter(tckt => tckt.id !== ticket.id)]
       })

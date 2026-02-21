@@ -6,10 +6,10 @@ import { twMerge } from "tailwind-merge"
 
 import useTicket from "@/hooks/support/useTicket"
 import useSender from "@/hooks/ui/useSender"
-import { ITicket } from "@/ts/support/ITicket"
+import { ITicketDB } from "@/ts/support/ITicketDB"
 
 interface DesktopSidebarTicketProps {
-  ticket: ITicket
+  ticket: ITicketDB
   unseenMessagesAmount: number
   onClick: () => void
 }
@@ -30,13 +30,7 @@ export function DesktopSidebarTicket({ ticket, unseenMessagesAmount, onClick }: 
       href={`/support/tickets/${ticket.id}`}
       key={ticket.id}
       onClick={onClick}>
-      <Image
-        className="w-[32px] h-[32px] rounded-full"
-        src={avatar_url}
-        alt="owner_avatar_url"
-        width={32}
-        height={32}
-      />
+      <Image className="w-[32px] h-[32px] rounded-full" src={avatar_url} alt="owner_avatar_url" width={32} height={32} />
       <div className="flex flex-col max-w-full pr-8">
         <h3 className={twMerge(`font-semibold truncate`, unseenMessagesAmount === 0 && "text-subTitle")}>
           {ticket.owner_username}
