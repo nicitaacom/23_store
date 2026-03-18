@@ -27,9 +27,10 @@ import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 
 // ---------- i18n setup ----------
 const I18nMiddleware = createI18nMiddleware({
-  locales: ["en", "fi", "ru", "se"] as TLocaleTag[],
+  locales: ["fi", "en", "ru", "se"] as TLocaleTag[],
   defaultLocale: "fi" as TLocaleTag,
   urlMappingStrategy: "rewrite",
+  resolveLocaleFromRequest: () => "fi", // bybass default broser language settings to set default locale to be "fi"
 })
 
 // ---------- role-based protected routes ----------
