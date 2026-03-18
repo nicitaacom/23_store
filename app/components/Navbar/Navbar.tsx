@@ -38,7 +38,7 @@ export default async function Navbar() {
   }
 
   // need to get avatarUrl on server and then pass to client component (because I import cookies from next/headers)
-  const avatarUrl = getCookie("avatarUrl")
+  const avatarUrl = getCookie("avatarUrl") || undefined
 
   return (
     <NavbarWrapper>

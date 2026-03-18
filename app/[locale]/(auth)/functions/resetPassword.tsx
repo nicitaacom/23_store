@@ -22,15 +22,7 @@ export async function resetPassword(password: string, displayResponseMessage: (m
         password: password,
       } as TAPIAuthRecover)
 
-      userStore.setUser(
-        response.data.user.id,
-        response.data.user.user_metadata.username || response.data.user.user_metadata.name,
-        response.data.user.email,
-        response.data.user.user_metadata.avatar_url ||
-          response.data.user?.identities![0]?.identity_data?.avatar_url ||
-          response.data.user?.identities![1]?.identity_data?.avatar_url ||
-          "",
-      )
+      userStore.setUser(response.data.user)
 
       localStorage.removeItem("email") // Remove email from localstorage
       displayResponseMessage(

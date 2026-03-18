@@ -1,60 +1,52 @@
 import { create } from "zustand"
-import { devtools, persist, subscribeWithSelector } from "zustand/middleware"
+import { devtools, subscribeWithSelector } from "zustand/middleware"
+import { User } from "@supabase/supabase-js"
 import useCartStore from "./cartStore"
 import { useLoading } from "../ui/useLoading"
-import { delCookie, setCookie } from "@/utils/helpersCSR"
+import { delCookie } from "@/utils/helpersCSR"
 import { useMessagesStore } from "../ui/useMessagesStore"
+import { normalizeUser } from "@/utils/user"
 
 interface UserStore {
-  userId: string | null
-  isAuthenticated: boolean
-  username: string | null
-  email: string | null
-  avatarUrl: string | null
-  // TODO - fix this setUser - this used only when user auth - also I have emoty state in localstore but I'm logged in https://i.imgur.com/0jNrWWa.png
-  setUser: (userId: string, username: string, email: string, avatarUrl: string) => void
+  user: User | null
+  setUser: (user: User | null) => void
+  clearUser: () => void
   logoutUser: () => void
 }
 
 type SetState = (fn: (prevState: UserStore) => UserStore) => void
 
 export const userStore = (set: SetState): UserStore => ({
-  userId: null, // it's best practice to use "" only for input value
-  isAuthenticated: false,
-  username: null,
-  email: null,
-  avatarUrl: null,
-  setUser(userId: string, username: string, email: string, avatarUrl: string) {
-    if (avatarUrl) setCookie("avatarUrl", avatarUrl) // to prevent hydration error (cookies availabe on server so content match)
+  user: null,
+  setUser(user: User | null) {
+    const normalizedUser = normalizeUser(user)
     set((state: UserStore) => ({
       ...state,
-      userId: userId,
-      isAuthenticated: true,
-      username: username,
-      email: email,
-      avatarUrl: avatarUrl,
+      user: normalizedUser,
+    }))
+  },
+  clearUser() {
+    set((state: UserStore) => ({
+      ...state,
+      user: null,
     }))
   },
   logoutUser() {
-    delCookie("avatarUrl") // TODO - why do I need avatarUrl in cookies and local storage?
+    delCookie("avatarUrl")
     set((state: UserStore) => ({
       ...state,
-      userId: null,
-      isAuthenticated: false,
-      username: null,
-      email: null,
-      avatarUrl: null,
+      user: null,
     }))
   },
 })
 
-const useUserStore = create(subscribeWithSelector(devtools(persist(userStore, { name: "userStore" }))))
+const useUserStore = create(subscribeWithSelector(devtools(userStore)))
 
 setTimeout(() => {
   useUserStore.subscribe(
-    state => state.isAuthenticated,
+    state => state.user?.id || null,
 
-    async isAuthenticated => {
+    async () => {
       const { setHasCartStoreInitialized } = useLoading.getState()
       setHasCartStoreInitialized(false) // show InitialPageLoadingSkeleton and wait until data will set in products state
       await useCartStore.getState().initialize()

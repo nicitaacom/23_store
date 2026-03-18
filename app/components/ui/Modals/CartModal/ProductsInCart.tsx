@@ -18,11 +18,11 @@ export function ProductsInCart() {
   const areYouSureClearCartModal = useAreYouSureClearCartModal()
   const toast = useToast()
   const { isLoading, setIsLoading } = useLoading()
-  const userStore = useUserStore()
+  const { user } = useUserStore()
 
   async function handleRequestBetterPrices() {
     setIsLoading(true)
-    const result = await requestBetterPrices(t, cartStore.productsData, cartStore.getProductsPrice(), userStore.email)
+    const result = await requestBetterPrices(t, cartStore.productsData, cartStore.getProductsPrice(), user?.email || null)
     setIsLoading(false)
     result.success
       ? toast.show("success", "Request sent!", result.message)

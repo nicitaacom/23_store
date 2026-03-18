@@ -22,16 +22,16 @@ export const dynamic = "force-dynamic"
 export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) {
   const t = useScopedI18n("support")
   const bottomRef = useRef<HTMLUListElement>(null)
-  const { userId } = useUserStore()
+  const { user } = useUserStore()
   const { resetUnreadMessages } = useUnseenMessages()
 
   const [messages, setMessages] = useState(initialMessages)
 
   useEffect(() => {
-    if (document.visibilityState === "visible") {
-      axios.post("/api/message/seen", { ticketId: ticket_id, messages: messages, userId: userId } as TAPIMessageSeen)
+    if (document.visibilityState === "visible" && user?.id) {
+      axios.post("/api/message/seen", { ticketId: ticket_id, messages: messages, userId: user.id } as TAPIMessageSeen)
     }
-  }, [messages, ticket_id, userId])
+  }, [messages, ticket_id, user?.id])
 
   useEffect(() => {
     const pusherClient = getPusherClient()

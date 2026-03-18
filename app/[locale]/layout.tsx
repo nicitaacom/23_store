@@ -9,6 +9,7 @@ import { I18nProviderClient } from "@/locales/client"
 import getOwnerProducts from "@/actions/getOwnerProducts"
 import { UTMTracker } from "@/components/UTMTracker"
 import supabaseServer from "@/libs/supabase/supabaseServer"
+import { normalizeUser } from "@/utils/user"
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_PRODUCTION_URL : "http://localhost:3023"),
@@ -40,14 +41,17 @@ export default async function RootLayout({
   const ownerProducts = await getOwnerProducts()
   const ToastProvider = lazy(() => import("@/providers/ToastProvider"))
 
-  const { data } = await supabaseServer().auth.getUser()
-  const userId = data.user?.id ?? getCookie("anonymousId")
+  const {
+    data: { user },
+  } = await supabaseServer().auth.getUser()
+  const normalizedUser = normalizeUser(user)
+  const userId = normalizedUser?.id ?? getCookie("anonymousId")
 
   return (
     <html lang="en" className={getCookie("darkMode") ?? "dark"}>
       <body>
         <I18nProviderClient locale={locale}>
-          <Layout user={data.user}>{children}</Layout>
+          <Layout user={normalizedUser}>{children}</Layout>
           <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
           <ModalsProvider />
           <ToastProvider />

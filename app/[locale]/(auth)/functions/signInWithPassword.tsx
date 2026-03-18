@@ -45,16 +45,8 @@ export async function signInWithPassword(
       )
     }
 
-    // Set user data in localstorage
-    if (user.user && response.data.username) {
-      userStore.setUser(
-        user.user.id,
-        response.data.username,
-        email,
-        user.user.user_metadata.avatar_url ||
-          user.user?.identities![0]?.identity_data?.avatar_url ||
-          user.user?.identities![1]?.identity_data?.avatar_url,
-      )
+    if (user.user) {
+      userStore.setUser(user.user)
       reset()
       router.refresh() //refresh to show avatarUrl in navbar
 

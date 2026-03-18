@@ -18,6 +18,12 @@ export async function GET(request: Request) {
     const supabase = createRouteHandlerClient({ cookies })
     const response = await supabase.auth.exchangeCodeForSession(code)
     if (response.data.user && response.data.user.email) {
+      const avatarUrl =
+        response.data.user.user_metadata.avatar_url ||
+        response.data.user?.identities?.[0]?.identity_data?.avatar_url ||
+        response.data.user?.identities?.[1]?.identity_data?.avatar_url ||
+        ""
+
       // 3. If provider_response !=== 'credentials' - add one more provider
       // For case when user signIn with google first and then recover password
       const { data: provider_response } = await supabaseAdmin
@@ -35,7 +41,12 @@ export async function GET(request: Request) {
         if (update_provider_error) throw update_provider_error
       }
 
-      return NextResponse.redirect(`${requestUrl.origin}?modal=AuthModal&variant=resetPassword&code=${code}`)
+      const redirectResponse = NextResponse.redirect(`${requestUrl.origin}?modal=AuthModal&variant=resetPassword&code=${code}`)
+
+      if (avatarUrl) redirectResponse.cookies.set("avatarUrl", avatarUrl, { path: "/" })
+      else redirectResponse.cookies.delete("avatarUrl")
+
+      return redirectResponse
     } else {
       const error_description = encodeURIComponent("No user found after exchanging cookies for recovering")
       return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`)

@@ -3,9 +3,9 @@ import { getCookie } from "./helpersCSR"
 import { setAnonymousId } from "./setAnonymousId"
 
 export function getUserId(): string {
-  const { userId: userIdStore } = useUserStore.getState()
+  const { user } = useUserStore.getState()
 
-  const userId = userIdStore || getCookie("anonymousId") || setAnonymousId()
+  const userId = user?.id || getCookie("anonymousId") || setAnonymousId()
 
   return userId
 }

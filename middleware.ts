@@ -48,10 +48,17 @@ function isRouteProtectedForUser(pathname: string, role?: string) {
 }
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
   // 1. i18n routing
-  const res = NextResponse.next()
   const i18nResult = I18nMiddleware(request)
+  if (pathname.includes("/auth/callback/")) {
+    if (i18nResult instanceof Response) return i18nResult
+    return NextResponse.next()
+  }
   if (i18nResult instanceof Response) return i18nResult // e.g. redirect by i18n
+
+  const res = NextResponse.next()
 
   // 2. init Supabase middleware client
   const supabase = createMiddlewareClient({ req: request, res })
@@ -77,7 +84,6 @@ export async function middleware(request: NextRequest) {
 
   // 6. role-based protected routes
   const userRole = user?.role // TODO - implemet user.user_metadata.role (with dashboard)
-  const pathname = request.nextUrl.pathname
 
   // unauthenticated access to user-protected pages
   if (!user && isRouteProtectedForUser(pathname, "user")) {
@@ -97,5 +103,5 @@ export async function middleware(request: NextRequest) {
 
 // 8. middleware matcher
 export const config = {
-  matcher: ["/((?!api|static|.*\\..*|_next|favicon.ico|robots.txt|embed|auth/callback).*)"],
+  matcher: ["/((?!api|static|.*\\..*|_next|favicon.ico|robots.txt|embed).*)"],
 }

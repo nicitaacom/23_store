@@ -16,7 +16,7 @@ import { EditProductForm } from "./components/EditProductForm"
 import { AddProductForm } from "./components/AddProductForm"
 import { DeleteProductForm } from "./components/DeleteProductForm"
 import { useLoading } from "@/store/ui/useLoading"
-import { useI18n, useScopedI18n } from "@/locales/client"
+import { useI18n } from "@/locales/client"
 
 export interface AdminPanelModalProps {
   ownerProducts: TProductDB[]
@@ -29,9 +29,9 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
   const [productAction, setProductAction] = useState("Add product")
   const { isLoading } = useLoading()
 
-  const { isAuthenticated } = useUserStore()
+  const { user } = useUserStore()
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!user) {
       router.push("/?modal=AuthModal&variant=login")
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

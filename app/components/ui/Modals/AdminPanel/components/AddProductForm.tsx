@@ -6,15 +6,12 @@ import { useForm } from "react-hook-form"
 
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
-import slugify from "@sindresorhus/slugify" // to fix error in case user upload image with not english characters
 
-import useUserStore from "@/store/user/userStore"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { Button } from "@/components/ui/Button"
 import useDragging from "@/hooks/ui/useDragging"
 import { twMerge } from "tailwind-merge"
-import { useRouter } from "next/navigation"
 import useToast from "@/store/ui/useToast"
 import { useLoading } from "@/store/ui/useLoading"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
@@ -25,7 +22,7 @@ export function AddProductForm() {
   const t = useScopedI18n("product")
   const toast = useToast()
   const { isDraggingg } = useDragging()
-  const { isLoading, setIsLoading } = useLoading()
+  const { isLoading } = useLoading()
 
   const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
   const [images, setImages] = useState<ImageListType>([])

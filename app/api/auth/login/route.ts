@@ -47,15 +47,7 @@ export async function POST(req: Request) {
       .single()
     const providers = provider_response?.providers
 
-    // 4. Return username to set it in localstorage with zustand
-    const { data: username_response } = await supabaseAdmin
-      .from("users")
-      .select("username")
-      .eq("email", body.email)
-      .single()
-    const username = username_response?.username
-
-    return NextResponse.json({ providers: providers, username: username })
+    return NextResponse.json({ providers: providers })
   } catch (error: any) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 })

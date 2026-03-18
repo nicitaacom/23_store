@@ -16,6 +16,7 @@ In this route I:
 2. If `code` I exchange this code to get cookies session (to use session data to update row)
 3. Update row when user confirmed email
 4. Trigger pusher event that show message like 'Authentication completed - thank you'
+5. Set avatarUrl cookie on server and redirect to `location.origin`
 
 ### Usage for callback/oauth/route.ts
 
@@ -28,12 +29,9 @@ In this route I:
    to show more relevant error like 'You already have account with this email - login with `google` or `twitter`'
 5. Replace avatar url if user have no avatar
    For case when user login with credentials - logout - login with google
+6. Set avatarUrl cookie on server and redirect to `location.origin`
 
 This route required for case when user click 'continue with google' or 'continue with twitter' button
-
-## Usage for completed folder
-
-This is `/auth/callback/completed` route that user see when verified email without errors
 
 ## Usage for callback/recover/route.ts
 
@@ -43,6 +41,7 @@ In this route I:
 1. Throw error if supabase throw error because link to recover password was used or expired
 2. Exchange cookies to get session data (and set session in cookies)
 3. If 'credentials' provider doesn't exist - add 'credentials' provider to `providers` column in DB
+4. Set avatarUrl cookie on server and redirect to `location.origin?modal=AuthModal&variant=resetPassword&code=...`
 
 **api/auth/recover/route.ts**
 

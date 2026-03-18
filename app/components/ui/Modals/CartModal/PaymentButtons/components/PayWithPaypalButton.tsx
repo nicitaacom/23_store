@@ -17,7 +17,7 @@ export function PayWithPaypalButton() {
   const router = useRouter()
   const toast = useToast()
   const cartStore = useCartStore()
-  const userStore = useUserStore()
+  const { user } = useUserStore()
   const { isLoading, setIsLoading } = useLoading()
 
   const payPalProductsQuery = cartStore.productsData
@@ -45,7 +45,7 @@ export function PayWithPaypalButton() {
       } else {
         const payPalResponse = await axios.post("/api/create-paypal-session", {
           payPalProductsQuery,
-          email: userStore.email,
+          email: user?.email || null,
         } as TPayPalProductsQuery)
 
         // redirect user to session.url on client side to avoid 'blocked by CORS' error

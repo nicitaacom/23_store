@@ -16,6 +16,6 @@ package.json
 6. `pnpm build` to make sure everything works
 7. In supabase https://supabase.com/dashboard/project/zvpzoumubcidrtkgxwqx/auth/url-configuration
    Update URLS
-   from: `https://23-store.vercel.app/auth/completed?code=**`
+   from: `https://23-store.vercel.app`
    to: `https://23-store.vercel.app/*/auth/callback/credentials`
    to: `https://23-store.vercel.app/*/auth/callback/oauth`

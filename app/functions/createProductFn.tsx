@@ -10,6 +10,7 @@ import useToast from "@/store/ui/useToast"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { getUserId } from "@/utils/getUserId"
+import { getAnonymousId } from "./getAnonymousId"
 
 export async function createProductFn(
   t: TI18nFunction,
@@ -117,7 +118,7 @@ RULES:
 
             const { data, error } = await supabaseClient.storage
               .from("public-images")
-              .upload(`${userStore.userId}/${fileName}`, image.file, { upsert: true })
+              .upload(`${userStore.user?.id || getAnonymousId() || getUserId()}/${fileName}`, image.file, { upsert: true })
 
             if (error) throw new Error(error.message)
 

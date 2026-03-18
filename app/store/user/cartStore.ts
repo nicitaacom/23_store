@@ -167,12 +167,12 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     const isNotExistingProductFound = ids.some(id => !updatedIds.includes(id))
 
     // if found not existing product record - delete it from DB
-    const { userId } = useUserStore.getState()
-    if (userId && isNotExistingProductFound) {
+    const { user } = useUserStore.getState()
+    if (user?.id && isNotExistingProductFound) {
       const { error: update_cart_food_error } = await supabaseClient
         .from("users_cart")
         .update({ cart_products: filtered_products })
-        .eq("id", userId)
+        .eq("id", user.id)
       if (update_cart_food_error) throw update_cart_food_error
     }
 

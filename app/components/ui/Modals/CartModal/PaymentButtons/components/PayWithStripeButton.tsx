@@ -17,7 +17,7 @@ export function PayWithStripeButton() {
   const router = useRouter()
   const toast = useToast()
   const cartStore = useCartStore()
-  const { email } = useUserStore()
+  const { user } = useUserStore()
   const { isLoading, setIsLoading } = useLoading()
 
   const stripeProductsQuery = cartStore.productsData
@@ -43,7 +43,7 @@ export function PayWithStripeButton() {
           10000,
         )
       } else {
-        const stripeResponse = await axios.post("/api/create-checkout-session", { stripeProductsQuery, email })
+        const stripeResponse = await axios.post("/api/create-checkout-session", { stripeProductsQuery, email: user?.email || null })
         //redirect user to session.url on client side to avoid 'blocked by CORS' error
         router.push(stripeResponse.data)
       }

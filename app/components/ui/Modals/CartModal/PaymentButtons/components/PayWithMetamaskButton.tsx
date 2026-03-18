@@ -56,7 +56,7 @@ export function PayWithMetamaskButton() {
   const toast = useToast()
   const cartStore = useCartStore()
   const { wallet, setWallet, openModal: openDoYouWantRecieveCheckModal } = useDoYouWantRecieveCheckModal()
-  const { isAuthenticated } = useUserStore()
+  const { user } = useUserStore()
 
   const [hasProvider, setHasProvider] = useState<boolean | null>(null)
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("ETH")
@@ -135,7 +135,7 @@ export function PayWithMetamaskButton() {
     const checksummedAddress = toChecksumAddress(trimmedAddress)
 
     try {
-      if (!isAuthenticated) {
+      if (!user) {
         openDoYouWantRecieveCheckModal(checksummedAddress)
       } else {
         await sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, checksummedAddress, t)

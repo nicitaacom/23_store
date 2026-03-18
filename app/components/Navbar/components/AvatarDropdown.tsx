@@ -4,7 +4,6 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 
 import { BsWindow } from "react-icons/bs"
-import { TbWorld } from "react-icons/tb"
 import { IoChatboxEllipsesOutline } from "react-icons/io5"
 import { IoIosStats } from "react-icons/io"
 import { FaTelegramPlane } from "react-icons/fa"
@@ -16,10 +15,20 @@ import { DropdownContainer, DropdownItem } from "@/components/ui"
 import { LogoutDropdownItem } from "./LogoutDropdownItem"
 import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import { useRef, useState } from "react"
+import { getUserAvatarUrl, getUserName } from "@/utils/user"
 
 interface AvatarDropdownProps {
   role: string
   avatarUrlServer: string | undefined
+}
+
+function getSafeAvatarUrl(avatarUrlClient: string, avatarUrlServer: string | undefined) {
+  const avatarUrl = avatarUrlClient || avatarUrlServer?.trim() || ""
+  return avatarUrl || "/placeholder.jpg"
+}
+
+function getAnonymousAvatar(isDarkMode: boolean) {
+  return isDarkMode ? "/BiUserCircle-dark.svg" : "/BiUserCircle-light.svg"
 }
 
 export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
@@ -37,10 +46,10 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
 
   useEscOrClickOutside(avatarDropdownRef, closeDropdown)
 
-  const userStore = useUserStore()
-  const mode = useDarkModeStore()
+  const { user } = useUserStore()
+  const { isDarkMode, toggleDarkMode } = useDarkModeStore()
 
-  let avatarUrl = avatarUrlServer ?? userStore.avatarUrl ?? "/placeholder.jpg"
+  const avatarUrl = user ? getSafeAvatarUrl(getUserAvatarUrl(user), avatarUrlServer) : getAnonymousAvatar(isDarkMode)
 
   function openAdminPanel() {
     router.push("?modal=AdminPanel")
@@ -59,7 +68,7 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
       dropdownRef={avatarDropdownRef}
       classNameDropdownContainer="ml-1 z-[102]"
       className="max-w-[200px]"
-      username={userStore.username || "anonymous"}
+      username={getUserName(user) || "anonymous"}
       icon={<Image className="w-[32px] h-[32px] rounded-full" src={avatarUrl} alt="user logo" width={32} height={32} />}>
       {role === "SUPPORT" && <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />}
       <DropdownItem label="Admin panel" icon={BsWindow} onClick={openAdminPanel} />
@@ -71,7 +80,7 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
         target="_blank"
       />
       {role === "SUPPORT" && <DropdownItem label="Stats" icon={IoIosStats} href="/stats" />}
-      <DropdownItem className="min-[501px]:hidden" label="Dark mode" icon={SwitchDarkMode} onClick={mode.toggleDarkMode} />
+      <DropdownItem className="min-[501px]:hidden" label="Dark mode" icon={SwitchDarkMode} onClick={toggleDarkMode} />
       <LogoutDropdownItem />
     </DropdownContainer>
   )

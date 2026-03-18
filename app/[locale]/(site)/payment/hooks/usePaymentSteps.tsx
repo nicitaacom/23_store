@@ -18,7 +18,7 @@ import { useI18n } from "@/locales/client"
 export const usePaymentSteps = (status: string | null, session_id: string | null) => {
   const router = useRouter()
   const cartStore = useCartStore()
-  const userStore = useUserStore()
+  const { user } = useUserStore()
   const { hasCartStoreInitialized } = useLoading()
   const [isValidSessionId, setIsValidSessionId] = useState(false)
   const [html, setHtml] = useState("")
@@ -51,7 +51,7 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
         checkStatusFn()
         break
       case 2:
-        getCustomerEmailFn(t, userStore.email, session_id, setCustomerEmail, setCurrentStep)
+        getCustomerEmailFn(t, user?.email || null, session_id, setCustomerEmail, setCurrentStep)
         break
       case 3:
         fetchProductsDataFromDBFn(hasCartStoreInitialized, currentStep, setCurrentStep, cartStore.fetchProductsData, t)

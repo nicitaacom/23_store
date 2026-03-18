@@ -33,8 +33,8 @@ export function useAIChat() {
   const handleSubmit = async (prompt?: string) => {
     if ((!prompt && !promptValue.trim()) || isLoading) return
 
-    const { userId } = useUserStore.getState()
-    if (!userId) {
+    const { user } = useUserStore.getState()
+    if (!user?.id) {
       toast.show("warning", t("toast.please_login_title"), t("toast.please_login_subtitle"))
       router.push(pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "AuthModal&variant=login")
       return

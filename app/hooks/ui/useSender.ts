@@ -1,23 +1,25 @@
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import useUserStore from "@/store/user/userStore"
-import { getCookie } from "@/utils/helpersCSR"
+import { getAnonymousId } from "@/functions/getAnonymousId"
+import { getUserAvatarUrl } from "@/utils/user"
 
 const useSender = (sender_avatar_url: string | undefined, sender_id: string) => {
-  const { userId, isAuthenticated, avatarUrl } = useUserStore()
+  const { user } = useUserStore()
   const { isDarkMode } = useDarkModeStore()
 
   const placeholder = "/placeholder.jpg"
   const BiUserCircleDark = "/BiUserCircle-dark.svg"
   const BiUserCircleLight = "/BiUserCircle-light.svg"
 
-  const user_id = userId === "" ? getCookie("anonymousId") : userId
+  const user_id = user?.id || getAnonymousId()
   const isOwn = user_id === sender_id
+  const avatarUrl = getUserAvatarUrl(user)
 
   let avatar_url = ""
 
   // I know it may be too much - if you know how to simplify it - go ahead and change it
   // I just see in my head how it should be it might help - https://i.imgur.com/qkNRqbI.png
-  if (!isAuthenticated || user_id?.includes("anonymousId")) {
+  if (!user || user_id?.includes("anonymousId")) {
     if (isDarkMode) avatar_url = BiUserCircleDark
     else avatar_url = BiUserCircleLight
   } else if (isOwn) {

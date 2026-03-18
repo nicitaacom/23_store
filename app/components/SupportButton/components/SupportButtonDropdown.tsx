@@ -32,8 +32,8 @@ export default function SupportButtonDropdown() {
 
   const router = useRouter()
   const bottomRef = useRef<HTMLUListElement>(null)
-  const userStore = useUserStore()
-  const userId = userStore.userId || getAnonymousId()
+  const { user } = useUserStore()
+  const userId = user?.id || getAnonymousId()
   const { isLoading } = useLoading()
 
   const { messages, ticketId, setMessages } = useMessagesStore()

@@ -27,7 +27,6 @@ export async function POST(req: Request) {
     ticketIdResponse = ticketId?.id
   }
   if (!ticketIdResponse) {
-    console.log(37, `no ticket with userId ${userId} - `, ticketIdResponse)
     return NextResponse.json([])
   }
 

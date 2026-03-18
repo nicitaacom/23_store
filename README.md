@@ -384,8 +384,6 @@ https://23-store.vercel.app/?modal=AuthModal&variant=resetPassword&code=**
 
 https://23-store.vercel.app/error?error_description=**
 
-https://23-store.vercel.app/auth/completed?code=**
-
 https://23-store.vercel.app/**
 
 https://23-store.vercel.app/auth/callback/oauth?provider=**

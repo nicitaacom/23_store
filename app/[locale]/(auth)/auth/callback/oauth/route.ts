@@ -1,5 +1,4 @@
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
-import { getCurrentLocale } from "@/locales/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
@@ -85,18 +84,12 @@ export async function GET(request: Request) {
         await supabaseAdmin.from("users_cart").insert({ id: user_id })
       }
 
-      const locale = getCurrentLocale()
+      const redirectResponse = NextResponse.redirect(requestUrl.origin)
 
-      console.log(90, "locale - ", locale)
+      if (avatarUrl) redirectResponse.cookies.set("avatarUrl", avatarUrl, { path: "/" })
+      else redirectResponse.cookies.delete("avatarUrl")
 
-      return NextResponse.redirect(
-        `${requestUrl.origin}/${locale}/auth/completed?code=${code}
-        &provider=${provider}
-        &userId=${user_id}
-        &username=${username}
-        &email=${email}
-        &avatarUrl=${avatarUrl}`,
-      )
+      return redirectResponse
     } else {
       const error_description = encodeURIComponent("No user found after exchanging cookies for registration")
       return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`)
