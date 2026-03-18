@@ -1,4 +1,5 @@
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { getPreferredAvatarUrl, getUserAvatarUrl } from "@/utils/user"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
@@ -29,11 +30,8 @@ export async function GET(request: Request) {
       const username = response.data.user.user_metadata.name
       const email = response.data.user.email
       const email_confirmed_at = response.data.user.email_confirmed_at
-      const avatarUrl =
-        response.data.user.user_metadata.avatar_url ||
-        response.data.user?.identities![0]?.identity_data?.avatar_url ||
-        response.data.user?.identities![1]?.identity_data?.avatar_url ||
-        ""
+      const avatarUrlFromAuth = getUserAvatarUrl(response.data.user)
+      let avatarUrl = avatarUrlFromAuth
 
       // 3. Insert row if user doesn't exist
       const { error: is_row_exist } = await supabaseAdmin.from("users").insert({
@@ -41,7 +39,7 @@ export async function GET(request: Request) {
         username: username,
         email: email,
         email_confirmed_at: email_confirmed_at,
-        avatar_url: avatarUrl,
+        avatar_url: avatarUrlFromAuth || null,
         providers: [provider!],
       })
 
@@ -70,12 +68,13 @@ export async function GET(request: Request) {
           .single()
 
         if (select_avatar_url_error) throw select_avatar_url_error
+        avatarUrl = getPreferredAvatarUrl(avatar_url_reponse?.avatar_url, response.data.user)
         if (!avatar_url_reponse?.avatar_url) {
           await supabaseAdmin
             .from("users")
             .update({
               email_confirmed_at: response.data.user.updated_at,
-              avatar_url: avatarUrl,
+              avatar_url: avatarUrlFromAuth || null,
             })
             .eq("id", user_id)
         }

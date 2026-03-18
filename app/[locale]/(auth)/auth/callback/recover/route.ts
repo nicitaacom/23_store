@@ -1,4 +1,5 @@
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { getPreferredAvatarUrl } from "@/utils/user"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
@@ -18,11 +19,12 @@ export async function GET(request: Request) {
     const supabase = createRouteHandlerClient({ cookies })
     const response = await supabase.auth.exchangeCodeForSession(code)
     if (response.data.user && response.data.user.email) {
-      const avatarUrl =
-        response.data.user.user_metadata.avatar_url ||
-        response.data.user?.identities?.[0]?.identity_data?.avatar_url ||
-        response.data.user?.identities?.[1]?.identity_data?.avatar_url ||
-        ""
+      const { data: userResponse } = await supabaseAdmin
+        .from("users")
+        .select("avatar_url")
+        .eq("id", response.data.user.id)
+        .maybeSingle()
+      const avatarUrl = getPreferredAvatarUrl(userResponse?.avatar_url, response.data.user)
 
       // 3. If provider_response !=== 'credentials' - add one more provider
       // For case when user signIn with google first and then recover password

@@ -22,11 +22,19 @@ export interface AdminPanelModalProps {
   ownerProducts: TProductDB[]
 }
 
+const PRODUCT_ACTIONS = {
+  add: "add",
+  edit: "edit",
+  delete: "delete",
+} as const
+
+type ProductAction = (typeof PRODUCT_ACTIONS)[keyof typeof PRODUCT_ACTIONS]
+
 export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
   const t = useI18n()
   const router = useRouter()
 
-  const [productAction, setProductAction] = useState("Add product")
+  const [productAction, setProductAction] = useState<ProductAction>(PRODUCT_ACTIONS.add)
   const { isLoading } = useLoading()
 
   const { user } = useUserStore()
@@ -40,23 +48,26 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
   return (
     <ModalQueryContainer
       className={twMerge(
-        `w-[100vw] max-w-[768px] max-h-full
-      flex flex-col bg-primary rounded-md border-[1px] border-solid border-border-color pt-8 transition-all duration-500`,
-        productAction === "Add product" && "h-[680px] tablet:max-w-[650px]",
-        productAction === "Edit product" && "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
-        productAction === "Delete product" && "h-[800px] tablet:max-w-full laptop:max-w-[1024px] desktop:max-w-[1440px]",
+        `flex w-[calc(100vw-24px)] max-h-[min(92vh,960px)] flex-col overflow-hidden border border-border-color/70
+        bg-foreground shadow-[0_20px_60px_rgba(0,0,0,0.22)] transition-all duration-300`,
+        productAction === PRODUCT_ACTIONS.add && "max-w-[680px]",
+        productAction !== PRODUCT_ACTIONS.add && "max-w-[1200px]",
       )}
       modalQuery="AdminPanel">
-      <h1 className="min-h-[40px] text-4xl text-center whitespace-nowrap mb-8">{t("modal.admin_panel.label")}</h1>
-      <ul className="min-h-[144px] tablet:min-h-[50px] flex flex-col tablet:flex-row justify-center mb-8">
+      <div className="border-b border-border-color/70 px-4 pb-4 pt-5 tablet:px-6 tablet:pb-5">
+        <div className="pr-8">
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-subTitle">Workspace</p>
+          <h1 className="text-2xl font-semibold leading-tight tablet:text-[30px]">{t("modal.admin_panel.label")}</h1>
+          <p className="mt-1 text-sm text-subTitle">Manage products with fewer clicks and cleaner inline editing.</p>
+        </div>
+      </div>
+      <div className="border-b border-border-color/70 px-4 py-4 tablet:px-6">
+        <ul className="grid grid-cols-1 gap-2 tablet:grid-cols-3">
         <li>
           <RadioButton
-            label={t("product.add")}
+            label={PRODUCT_ACTIONS.add}
             inputName="product"
-            onChange={e => {
-              setProductAction(e.target.value)
-              router.refresh()
-            }}
+            onChange={e => setProductAction(e.target.value as ProductAction)}
             disabled={isLoading}
             defaultChecked>
             <div className="flex flex-row gap-x-2 items-center">
@@ -66,12 +77,9 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
         </li>
         <li>
           <RadioButton
-            label={t("product.edit")}
+            label={PRODUCT_ACTIONS.edit}
             inputName="product"
-            onChange={e => {
-              setProductAction(e.target.value)
-              router.refresh()
-            }}
+            onChange={e => setProductAction(e.target.value as ProductAction)}
             disabled={isLoading}>
             <div className="flex flex-row gap-x-2 items-center">
               {t("product.edit")} <CiEdit className="text-warning" />
@@ -80,31 +88,29 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
         </li>
         <li>
           <RadioButton
-            label={t("product.delete")}
+            label={PRODUCT_ACTIONS.delete}
             inputName="product"
-            onChange={e => {
-              setProductAction(e.target.value)
-              router.refresh()
-            }}
+            onChange={e => setProductAction(e.target.value as ProductAction)}
             disabled={isLoading}>
             <div className="flex flex-row gap-x-2 items-center">
               {t("product.delete")} <MdOutlineDelete className="text-danger" />
             </div>
           </RadioButton>
         </li>
-      </ul>
-      <div className={twMerge(`relative w-full h-full flex flex-col items-center overflow-y-auto`)}>
+        </ul>
+      </div>
+      <div className={twMerge(`relative flex min-h-0 w-full flex-1 flex-col overflow-y-auto px-4 py-4 tablet:px-6 tablet:py-5`)}>
         {/* ADD PRODUCT */}
 
-        {productAction === "Add product" && <AddProductForm />}
+        {productAction === PRODUCT_ACTIONS.add && <AddProductForm />}
 
         {/* EDIT PRODUCT */}
 
-        {productAction === "Edit product" && <EditProductForm ownerProducts={ownerProducts} />}
+        {productAction === PRODUCT_ACTIONS.edit && <EditProductForm ownerProducts={ownerProducts} />}
 
         {/* DELETE PRODUCT */}
 
-        {productAction === "Delete product" && <DeleteProductForm ownerProducts={ownerProducts} />}
+        {productAction === PRODUCT_ACTIONS.delete && <DeleteProductForm ownerProducts={ownerProducts} />}
       </div>
     </ModalQueryContainer>
   )

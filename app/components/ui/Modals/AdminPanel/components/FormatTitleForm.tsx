@@ -72,13 +72,16 @@ export function FormatTitleForm({ id, title }: FormatTitleFormProps) {
   }, [isEditing])
 
   return (
-    <h1 className="flex flex-row">
-      <p className="hidden tablet:block">{t("title")}:&nbsp;</p>
+    <div className="min-w-0 flex-1">
+      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("title")}</p>
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>
             <ProductInput
-              className={twMerge(`w-full text-center tablet:text-start`, isLoading && "animate-pulse")}
+              className={twMerge(
+                `w-full rounded-xl border border-border-color/70 bg-background/50 px-3 py-2 text-sm text-start`,
+                isLoading && "animate-pulse",
+              )}
               id="title"
               register={register}
               errors={errors}
@@ -88,11 +91,14 @@ export function FormatTitleForm({ id, title }: FormatTitleFormProps) {
           </div>
         </form>
       ) : (
-        <div className="flex flex-row gap-x-2 items-center" role="button" onClick={enableInput}>
-          {title}
-          <CiEdit />
-        </div>
+        <button
+          className="flex min-w-0 items-center gap-x-2 rounded-xl border border-transparent px-0 py-1 text-left transition-colors duration-200 hover:text-title"
+          type="button"
+          onClick={enableInput}>
+          <span className="truncate text-base font-semibold text-title">{title}</span>
+          <CiEdit className="shrink-0 text-subTitle" />
+        </button>
       )}
-    </h1>
+    </div>
   )
 }

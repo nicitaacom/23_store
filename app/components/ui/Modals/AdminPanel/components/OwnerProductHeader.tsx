@@ -7,8 +7,8 @@ import { FormatDescriptionForm } from "./FormatDescriptionForm"
 
 export function OwnerProductHeader({ title, subTitle, price, onStock, id }: IFormDataAddProduct & { id: string }) {
   return (
-    <section className="flex flex-col">
-      <div className="flex flex-col tablet:flex-row gap-y-4 items-center tablet:items-start tablet:justify-between">
+    <section className="flex flex-col gap-y-3">
+      <div className="flex flex-col gap-3 tablet:flex-row tablet:items-start tablet:justify-between">
         <FormatTitleForm id={id} title={title} />
         <FormatPriceForm id={id} price={price} />
       </div>

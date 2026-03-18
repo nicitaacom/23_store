@@ -66,7 +66,7 @@ export const useMessagesStore = create<MessagesStore>()((set, get) => ({
     let ticketIdLet: string | null = null
     if (!state.ticketId) {
       const ticketId = await fetchTicketId()
-      if (!ticketId) return console.log(63, "no ticket id to set")
+      if (!ticketId) return
       else ticketIdLet = ticketId
     }
 

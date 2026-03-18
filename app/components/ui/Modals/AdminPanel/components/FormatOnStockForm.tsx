@@ -68,13 +68,16 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
   }, [isEditing])
 
   return (
-    <h1 className="flex flex-row justify-center tablet:justify-start mt-4 tablet:mt-0">
-      <p>{t("on_stock")}:&nbsp;</p>
+    <div className="tablet:max-w-[220px]">
+      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("on_stock")}</p>
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>
             <ProductInput
-              className={twMerge(`w-full text-center tablet:text-start`, isLoading && "animate-pulse")}
+              className={twMerge(
+                `w-full rounded-xl border border-border-color/70 bg-background/50 px-3 py-2 text-sm text-start`,
+                isLoading && "animate-pulse",
+              )}
               id="onStock"
               register={register}
               errors={errors}
@@ -84,11 +87,11 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
           </div>
         </form>
       ) : (
-        <div className="flex flex-row gap-x-2 items-center" role="button" onClick={enableInput}>
-          {onStock}
-          <CiEdit />
-        </div>
+        <button className="flex items-center gap-x-2" type="button" onClick={enableInput}>
+          <span className="text-sm font-medium text-title">{onStock}</span>
+          <CiEdit className="text-subTitle" />
+        </button>
       )}
-    </h1>
+    </div>
   )
 }

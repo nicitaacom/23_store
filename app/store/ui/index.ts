@@ -12,6 +12,7 @@ import { useLoading } from "./useLoading"
 import { useMessagesStore } from "./useMessagesStore"
 import { useSidebar } from "./useSidebar"
 import { useToast } from "./useToast"
+import { useUpdateAvatarModal } from "./useUpdateAvatarModal"
 
 export {
   useAreYouSureClearCartModal,
@@ -28,4 +29,5 @@ export {
   useMessagesStore,
   useSidebar,
   useToast,
+  useUpdateAvatarModal,
 }

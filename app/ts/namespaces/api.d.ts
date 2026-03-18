@@ -26,6 +26,16 @@ declare module API {
     resetTime: string
   }
 
+  // /api/account/avatar
+  type UpdateAvatarRequest = {
+    avatarUrl: string
+  }
+
+  type UpdateAvatarResponse = {
+    avatarUrl: string
+    resolvedAvatarUrl: string
+  }
+
   // /api/coinmarketcap
   type CoinmarketcapRequest = {
     amount: number

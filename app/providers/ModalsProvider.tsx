@@ -21,6 +21,11 @@ const CtrlKModal = async () => {
   const { CtrlKModal } = await modal
   return <CtrlKModal />
 }
+const UpdateAvatarModal = async () => {
+  const modal = import("@/components/ui/Modals/UpdateAvatarModal")
+  const { UpdateAvatarModal } = await modal
+  return <UpdateAvatarModal />
+}
 
 const DoYouWantRecieveCheckModal = async () => {
   const modal = import("@/components/ui/Modals/DoYouWantReceiveCheckModal")
@@ -41,6 +46,7 @@ export function ModalsProvider() {
       <AreYouSureDeleteProductModal />
       <AreYouSureMarkTicketAsCompletedSupportModal />
       <CtrlKModal />
+      <UpdateAvatarModal />
       <DoYouWantRecieveCheckModal />
 
       {/* Global images preview */}

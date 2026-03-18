@@ -17,6 +17,14 @@ For example you want implement some new modal - ctrl+p - `modals/dev_reamde.md` 
 
 </details>
 
+<details> <summary><b>AI instructions</b></summary>
+
+1. Image from `next/image`
+
+</details>
+
+<br/>
+
 <details> <summary><b>If you want use something (find docs)</b></summary>
 
 For example some function for that read docs in some store.ts file

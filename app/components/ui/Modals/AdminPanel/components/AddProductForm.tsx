@@ -54,7 +54,7 @@ export function AddProductForm() {
   }
 
   return (
-    <div className="w-[50%] transition-all duration-1000">
+    <div className="mx-auto flex w-full max-w-[560px] flex-col gap-y-5 transition-all duration-300">
       <ImageUploading
         multiple
         value={images}
@@ -74,48 +74,50 @@ export function AddProductForm() {
           // TODO - maxFileSize compress to AVIF in the future,
           dragProps,
         }) => (
-          <div className="w-full flex flex-col items-center justify-center gap-y-4">
+          <div className="flex w-full flex-col items-center justify-center gap-y-3">
             <Button
               className={`${
                 isDraggingg && "fixed inset-0 z-[101] !bg-[rgba(0,0,0,0.6)]"
-              } image-upload w-full bg-transparent px-16 py-8 text-xl whitespace-nowrap`}
+              } image-upload min-h-[164px] w-full rounded-2xl border border-dashed border-border-color bg-background/30 px-6 py-8 text-base whitespace-nowrap`}
               ref={dragZone}
               onClick={onImageUpload}
               disabled={isLoading}
               {...dragProps}>
-              <h1 className="pointer-events-none select-none">{isDragging ? t("drop_files_here") : t("click_or_drop_here")}</h1>
+              <div className="pointer-events-none select-none text-center">
+                <h1 className="text-lg font-semibold">{isDragging ? t("drop_files_here") : t("click_or_drop_here")}</h1>
+                <p className="mt-2 text-sm text-subTitle">Wide product images work best here.</p>
+              </div>
             </Button>
-            &nbsp;
             {imageList.map((image, index) => (
               <div
                 key={index}
-                className="flex flex-col gap-y-4 overflow-hidden rounded-xl border-[1px] border-solid border-border-color">
+                className="flex w-full flex-col gap-y-3 overflow-hidden rounded-2xl border border-border-color/70 bg-background/30 p-3">
                 <Image
-                  className="aspect-video min-w-[320px] object-cover"
+                  className="aspect-video w-full rounded-xl object-cover"
                   src={image.data_url}
                   alt="iamge"
                   width={0}
                   height={0}
                 />
-                <div className="mb-4 flex flex-row items-center justify-center gap-x-4 px-4">
-                  <Button onClick={() => onImageUpdate(index)} disabled={isLoading}>
+                <div className="flex flex-row items-center justify-end gap-x-3">
+                  <Button size="sm" variant="secondary-outline" onClick={() => onImageUpdate(index)} disabled={isLoading}>
                     {t("update")}
                   </Button>
-                  <Button variant="danger-outline" onClick={() => onImageRemove(index)} disabled={isLoading}>
+                  <Button size="sm" variant="danger-outline" onClick={() => onImageRemove(index)} disabled={isLoading}>
                     {t("remove")}
                   </Button>
                 </div>
               </div>
             ))}
-            <Button className="w-full mb-4" variant="danger-outline" onClick={void onImageRemoveAll} disabled={isLoading}>
+            <Button className="w-full" size="sm" variant="danger-outline" onClick={void onImageRemoveAll} disabled={isLoading}>
               {t("remove_all_images")}
             </Button>
           </div>
         )}
       </ImageUploading>
-      <form className="flex flex-col gap-y-2" onSubmit={handleSubmit(onSubmit)}>
+      <form className="flex flex-col gap-y-3 rounded-2xl border border-border-color/70 bg-background/25 p-4 tablet:p-5" onSubmit={handleSubmit(onSubmit)}>
         <ProductInput
-          className="border w-full py-1 px-2"
+          className="w-full rounded-xl border border-border-color/70 bg-background/60 px-3 py-2.5"
           id="title"
           register={register}
           errors={errors}
@@ -124,7 +126,7 @@ export function AddProductForm() {
           placeholder={t("placeholder.title")}
         />
         <ProductInput
-          className="border w-full py-1 px-2"
+          className="min-h-[112px] w-full rounded-xl border border-border-color/70 bg-background/60 px-3 py-2.5"
           id="subTitle"
           register={register}
           errors={errors}
@@ -133,7 +135,7 @@ export function AddProductForm() {
           placeholder={t("placeholder.description")}
         />
         <ProductInput
-          className="border w-full py-1 px-2"
+          className="w-full rounded-xl border border-border-color/70 bg-background/60 px-3 py-2.5"
           id="price"
           type="numeric"
           register={register}
@@ -143,7 +145,7 @@ export function AddProductForm() {
           placeholder={t("placeholder.price")}
         />
         <ProductInput
-          className="border w-full py-1 px-2"
+          className="w-full rounded-xl border border-border-color/70 bg-background/60 px-3 py-2.5"
           id="onStock"
           type="number"
           register={register}
@@ -154,7 +156,7 @@ export function AddProductForm() {
         />
         <div className="text-center">{responseMessage}</div>
         <Button
-          className={twMerge(`w-full mt-2`, isLoading && "opacity-50 cursor-default pointer-events-none")}
+          className={twMerge(`mt-1 w-full`, isLoading && "opacity-50 cursor-default pointer-events-none")}
           disabled={isLoading}>
           {t("create_product")}
         </Button>

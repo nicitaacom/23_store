@@ -9,6 +9,7 @@ interface UploadImageParams {
   bucket: TBuckets
   folder?: string
   suffix?: string
+  upsert?: boolean
 }
 
 /**
@@ -26,6 +27,7 @@ export async function uploadImageFn({
   bucket,
   folder,
   suffix,
+  upsert = false,
 }: UploadImageParams): Promise<string | { publicUrl: string }> {
   if (!imageFile) return "Image file is missing"
 
@@ -37,6 +39,18 @@ export async function uploadImageFn({
   // 1. Extract folder path & filename parts
   const folderPath = folder ? `${folder}/` : ""
   const [baseName, ext] = cleanedFileName[0].split(/\.(?=[^\.]+$)/) // split at last dot
+
+  if (upsert) {
+    const finalFileName = `${baseName}.${ext}`
+    const { data, error } = await supabaseClient.storage.from(bucket).upload(`${folderPath}${finalFileName}`, imageFile, {
+      upsert: true,
+    })
+    if (error?.message) return error?.message
+    if (!data) return t("product.error.no_data_returned_from_uploaded_image")
+
+    const { data: public_url } = supabaseClient.storage.from(bucket).getPublicUrl(data.path)
+    return { publicUrl: public_url.publicUrl }
+  }
 
   const { data: existingFiles, error: listError } = await supabaseClient.storage.from(bucket).list(folderPath)
   if (listError) return `Can't list files in ${folderPath || `Supabase bucket "${bucket}"`} – ${listError.message}`

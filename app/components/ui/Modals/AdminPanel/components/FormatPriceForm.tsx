@@ -12,6 +12,7 @@ import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { useLoading } from "@/store/ui/useLoading"
+import { useScopedI18n } from "@/locales/client"
 
 interface FormatPriceFormProps {
   id: string
@@ -19,6 +20,7 @@ interface FormatPriceFormProps {
 }
 
 export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
+  const t = useScopedI18n("product")
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const { isLoading, setIsLoading } = useLoading()
@@ -67,12 +69,16 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   }, [])
 
   return (
-    <h1 className="flex flex-row">
+    <div className="tablet:min-w-[150px]">
+      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle tablet:text-right">{t("price")}</p>
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>
             <ProductInput
-              className={twMerge(`text-center tablet:text-end w-full`, isLoading && "animate-pulse")}
+              className={twMerge(
+                `w-full rounded-xl border border-border-color/70 bg-background/50 px-3 py-2 text-sm text-start tablet:text-end`,
+                isLoading && "animate-pulse",
+              )}
               id="price"
               register={register}
               errors={errors}
@@ -82,11 +88,11 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
           </div>
         </form>
       ) : (
-        <div className="flex flex-row gap-x-2 items-center" role="button" onClick={enableInput}>
-          {formatCurrency(price)}
-          <CiEdit />
-        </div>
+        <button className="flex items-center gap-x-2 tablet:ml-auto" type="button" onClick={enableInput}>
+          <span className="text-sm font-semibold text-title">{formatCurrency(price)}</span>
+          <CiEdit className="text-subTitle" />
+        </button>
       )}
-    </h1>
+    </div>
   )
 }

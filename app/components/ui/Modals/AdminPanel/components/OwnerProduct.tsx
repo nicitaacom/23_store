@@ -8,21 +8,24 @@ import { OwnerProductHeader } from "./OwnerProductHeader"
 export function OwnerProduct({ ...ownerProduct }: TProductDB) {
   return (
     <article
-      className="flex flex-col tablet:flex-row justify-between border border-solid border-border-color"
+      className="overflow-hidden rounded-2xl border border-border-color/70 bg-background/25 shadow-sm"
       key={ownerProduct.id}>
-      {ownerProduct.img_url.length === 1 ? (
-        <OwnerProductImage imgUrl={ownerProduct.img_url[0]} />
-      ) : (
-        <Slider
-          images={ownerProduct.img_url.map((image, index) => ({
-            src: image,
-            alt: `${ownerProduct.title}-${index + 1}`,
-          }))}
-          width={480}
-          height={360}
-        />
-      )}
-      <div className="flex flex-col justify-between gap-y-8 tablet:gap-y-0 w-full px-2 py-2">
+      <div className="flex flex-col tablet:flex-row">
+        <div className="shrink-0 border-b border-border-color/50 tablet:border-b-0 tablet:border-r">
+          {ownerProduct.img_url.length === 1 ? (
+            <OwnerProductImage imgUrl={ownerProduct.img_url[0]} />
+          ) : (
+            <Slider
+              images={ownerProduct.img_url.map((image, index) => ({
+                src: image,
+                alt: `${ownerProduct.title}-${index + 1}`,
+              }))}
+              width={480}
+              height={360}
+            />
+          )}
+        </div>
+        <div className="flex w-full flex-col justify-between px-4 py-4 tablet:px-5">
         <OwnerProductHeader
           id={ownerProduct.id}
           title={ownerProduct.title as keyof IFormDataAddProduct}
@@ -30,6 +33,7 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
           price={ownerProduct.price}
           onStock={ownerProduct.on_stock || 0}
         />
+        </div>
       </div>
     </article>
   )

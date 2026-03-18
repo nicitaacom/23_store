@@ -6,14 +6,15 @@ interface OwnerProductImageProps {
 
 export function OwnerProductImage({ imgUrl }: OwnerProductImageProps) {
   return (
-    <figure className="relative h-[300px] tablet:aspect-video tablet:h-[125px] tablet:w-fit laptop:h-[150px] object-coverw">
+    <figure className="relative w-full overflow-hidden tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit">
       <Image
-        className="tablet:aspect-video  h-[300px] w-full tablet:h-[125px] tablet:w-fit laptop:h-[150px] object-cover"
+        className="h-[500px] w-full max-w-full object-contain tablet:h-[175px] laptop:h-[200px] desktop:h-[250px]"
         src={imgUrl}
         alt="image"
-        width={177}
-        height={100}
+        width={480}
+        height={360}
         priority
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />
     </figure>
   )

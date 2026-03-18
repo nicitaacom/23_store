@@ -16,22 +16,25 @@ export function DeleteProductForm({ ownerProducts }: DeleteProductForm) {
   const isDarkMode = useDarkModeStore().isDarkMode
 
   return (
-    <div className="w-[90%] h-full mx-auto">
+    <div className="mx-auto h-full w-full max-w-[1080px]">
       {ownerProducts.length > 0 ? (
-        <div className="flex flex-col gap-y-4">
+        <div className="flex flex-col gap-y-3">
           {ownerProducts.map(ownerProduct => (
             <OwnerDeleteProduct {...ownerProduct} key={ownerProduct.id} />
           ))}
         </div>
       ) : (
-        <div className="h-full flex flex-col gap-y-8 justify-center items-center pb-16 w-[90%] mx-auto">
+        <div className="mx-auto flex h-full w-full max-w-[440px] flex-col items-center justify-center gap-y-5 rounded-2xl border border-border-color/70 bg-background/20 px-6 py-10 text-center">
           <Image
             src={isDarkMode ? "/no-products-to-delete-dark.png" : "/no-products-to-delete-light.png"}
             alt="no-products-to-delete.png"
-            width={256}
-            height={256}
+            width={176}
+            height={176}
           />
-          <h1 className="text-2xl text-center font-bold">{t("no_products_to_delete")}</h1>
+          <div>
+            <h1 className="text-xl font-semibold">{t("no_products_to_delete")}</h1>
+            <p className="mt-2 text-sm text-subTitle">Products show up here only after they are created.</p>
+          </div>
         </div>
       )}
     </div>

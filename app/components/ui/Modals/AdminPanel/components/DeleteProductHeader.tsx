@@ -21,26 +21,24 @@ export function DeleteProductHeader({ id, title, subTitle, price }: DeleteProduc
 
   return (
     <>
-      <section className="flex flex-col">
-        <div className="flex flex-col tablet:flex-row gap-y-4 items-center tablet:items-start tablet:justify-between">
-          <div className="flex flex-row text-subTitle">
-            {t("title")}:&nbsp;<h2>{title}</h2>
+      <section className="flex flex-col gap-y-3">
+        <div className="flex flex-col gap-3 tablet:flex-row tablet:items-start tablet:justify-between">
+          <div className="flex flex-col gap-y-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("title")}</p>
+            <h2 className="text-base font-semibold text-title">{title}</h2>
           </div>
-          <div className="flex flex-row text-subTitle">
-            <p className="tablet:hidden">{t("price")}:&nbsp;</p>
-            <h2>{formatCurrency(price)}</h2>
+          <div className="flex flex-col gap-y-1 tablet:items-end">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("price")}</p>
+            <h2 className="text-sm font-semibold text-title">{formatCurrency(price)}</h2>
           </div>
         </div>
-        <div className="flex flex-row justify-center tablet:justify-start text-subTitle mt-4 tablet:mt-0">
-          {t("description")}:&nbsp;<h2>{subTitle}</h2>
+        <div className="flex flex-col gap-y-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("description")}</p>
+          <h2 className="text-sm leading-6 text-subTitle">{subTitle}</h2>
         </div>
-        {/* <div className="flex flex-row justify-center tablet:justify-start text-subTitle mt-4 tablet:mt-0">
-          On stock:&nbsp;<h2>{onStock}</h2>
-        </div> */}
       </section>
-      {/* DELETE PRODUCT FOOTER */}
-      <section className="flex justify-end">
-        <Button variant="danger" onClick={() => areYouSureDeleteProductModal.openModal(id, title)}>
+      <section className="mt-4 flex justify-end border-t border-border-color/50 pt-4">
+        <Button size="sm" variant="danger" onClick={() => areYouSureDeleteProductModal.openModal(id, title)}>
           {t("delete")}
           <BiTrash />
         </Button>

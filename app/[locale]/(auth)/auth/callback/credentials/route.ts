@@ -1,5 +1,6 @@
 import { pusherServer } from "@/libs/pusher"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { getPreferredAvatarUrl, getUserAvatarUrl } from "@/utils/user"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
@@ -23,23 +24,22 @@ export async function GET(request: Request) {
 
     // Update row that user verified email
     if (response.data.user && response.data.user.email) {
-      // Get username to set it in localstorage
-      await supabaseAdmin
-        .from("users")
-        .select("username")
-        .eq("id", response?.data.user.id)
-        .single()
-
       const email = response.data.user.email
-      // TODO add here and another callback avatar url from auth.users user_metadata when 'change avatar' logic will be done
-      const avatarUrl =
-        response.data.user.user_metadata.avatar_url ||
-        response.data.user?.identities![0]?.identity_data?.avatar_url ||
-        response.data.user?.identities![1]?.identity_data?.avatar_url ||
-        ""
+      const { data: userResponse } = await supabaseAdmin
+        .from("users")
+        .select("avatar_url")
+        .eq("id", response.data.user.id)
+        .maybeSingle()
+
+      const avatarUrlFromAuth = getUserAvatarUrl(response.data.user)
+      const avatarUrl = getPreferredAvatarUrl(userResponse?.avatar_url, response.data.user)
       await supabaseAdmin
         .from("users")
-        .update({ email_confirmed_at: response.data.user.updated_at, providers: ["credentials"] })
+        .update({
+          email_confirmed_at: response.data.user.updated_at,
+          providers: ["credentials"],
+          ...(!userResponse?.avatar_url && avatarUrlFromAuth ? { avatar_url: avatarUrlFromAuth } : {}),
+        })
         .eq("id", response.data.user.id)
 
       // Trigger pusher to 'auth:completed' to show in another tab message like 'Authencication completed - thank you'

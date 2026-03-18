@@ -72,13 +72,16 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
   }, [isEditing])
 
   return (
-    <h1 className="flex flex-row justify-center tablet:justify-start mt-4 tablet:mt-0">
-      <p className="hidden tablet:block">{t("description")}:&nbsp;</p>
+    <div>
+      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("description")}</p>
       {isEditing ? (
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>
             <ProductInput
-              className={twMerge(`border w-full text-center tablet:text-start`, isLoading && "animate-pulse")}
+              className={twMerge(
+                `min-h-[92px] w-full rounded-xl border border-border-color/70 bg-background/50 px-3 py-2 text-sm text-start`,
+                isLoading && "animate-pulse",
+              )}
               id="subTitle"
               register={register}
               errors={errors}
@@ -88,11 +91,11 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
           </div>
         </form>
       ) : (
-        <div className="flex flex-row gap-x-2 items-center" role="button" onClick={enableInput}>
-          <h2 className="text-center">{subTitle}</h2>
-          <CiEdit />
-        </div>
+        <button className="flex items-start gap-x-2 text-left" type="button" onClick={enableInput}>
+          <h2 className="line-clamp-3 text-sm leading-6 text-subTitle">{subTitle}</h2>
+          <CiEdit className="mt-1 shrink-0 text-subTitle" />
+        </button>
       )}
-    </h1>
+    </div>
   )
 }
