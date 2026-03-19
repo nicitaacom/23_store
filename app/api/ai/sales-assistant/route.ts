@@ -1,46 +1,51 @@
-import { NextRequest, NextResponse } from "next/server"
+import { getSalesAssistantContext, persistConversationTurn, updateWorkingMemory } from "@/libs/ai/chatMemory"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { cookies } from "next/headers"
+import { NextResponse } from "next/server"
 
 type Message = { role: "system" | "user" | "assistant"; content: string }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
+  let requestBody: API.AISalesAssistantRequest | null = null
+
   try {
-    const { promptValue, memory, conversationHistory = [] } = (await req.json()) as API.AISalesAssistantRequest
+    requestBody = (await req.json()) as API.AISalesAssistantRequest
+    const { promptValue, memory, conversationHistory = [] } = requestBody
 
-    const lastTwoMessages = conversationHistory
-      .slice(-4)
-      .map(msg => ({ role: msg.role === "ai" ? "assistant" : "user", content: msg.text })) as Message[]
+    const supabase = createRouteHandlerClient({ cookies })
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    const systemPrompt = `You are a RELENTLESS SALES ASSISTANT for Joki e-commerce.
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized", memory }, { status: 401 })
+    }
 
-Memory: ${memory || "none"}
+    const { recentMessages, semanticContext, recentSource, pineconeMatches } = await getSalesAssistantContext({
+      userId: user.id,
+      promptValue,
+      memory,
+      conversationHistory,
+    })
 
-CORE RULES:
-1. Always respond in the SAME LANGUAGE as the user's LAST message.
-2. Never refuse requests — always suggest alternatives.
-3. Track all suggested products in memory to avoid repeating.
-4. Keep responses concise: 2-4 sentences max.
-5. If user rejects products → ask what exactly they want (color? price? category? purpose?).
+    const systemPrompt = `You are a sales assistant for Joki e-commerce.
+Reply in the user's latest language.
+Keep replies concise: 2-4 sentences.
+Avoid repeating already suggested products.
+If the user rejects options, ask a short clarifying question.
+For vague requests, suggest 3-5 concrete products with name, price, benefit.
+If user wants to buy/add/purchase/lisaa/osta/добавь, call addProductToCart.
+If user wants an image, call generateImage.
 
-CONVERSATION FLOW:
-- Vague request → List 3-5 specific products (Name - Price - Benefit).
-- User says "no/ei/нет" → Ask clarifying questions to understand their exact need.
-- User clarifies → List NEW products matching criteria.
-- User confirms → Call addProductToCart or generateImage (if user asks for image).
+Working memory:
+${memory || "none"}
 
-FUNCTION TRIGGERS:
-Keywords: "add to cart", "buy", "purchase", "lisää", "osta", "добавь" → Call addProductToCart.
-If user asks to "generate image", "make image", "create picture" → Call generateImage.
-
-CONTEXT AWARENESS:
-- Do not repeat previously suggested products.
-- Adapt suggestions based on rejection reasons.
-- Always respect user's language from their last message.
-- If language cannot be detected, default to English.
-`
+Retrieved context:
+${semanticContext || "none"}`
 
     const messages: Message[] = [
       { role: "system", content: systemPrompt },
-      ...lastTwoMessages,
+      ...recentMessages,
       { role: "user", content: promptValue },
     ]
 
@@ -94,7 +99,7 @@ CONTEXT AWARENESS:
         messages,
         functions,
         function_call: "auto",
-        max_tokens: 300,
+        max_tokens: 220,
         temperature: 0.4,
       }),
     })
@@ -107,59 +112,41 @@ CONTEXT AWARENESS:
     const openaiData = await openaiResponse.json()
     const firstChoice = openaiData?.choices?.[0] ?? null
     const aiMessage = firstChoice?.message ?? null
+    const assistantReply = typeof aiMessage?.content === "string" ? aiMessage.content.trim() : ""
+    const hasFunctionCall = Boolean(aiMessage?.function_call?.name)
+    const updatedMemory = await updateWorkingMemory({
+      currentMemory: memory,
+      userPrompt: promptValue,
+      assistantReply: hasFunctionCall ? "" : assistantReply,
+      semanticContext,
+    })
 
-    const updatedMemory = await updateMemoryFn(memory, promptValue, aiMessage)
+    if (!hasFunctionCall && assistantReply) {
+      await persistConversationTurn({
+        userId: user.id,
+        userPrompt: promptValue,
+        assistantReply,
+        memorySummary: updatedMemory,
+      })
+    }
 
     return NextResponse.json({
       openai: openaiData,
       memory: updatedMemory,
+      debug:
+        process.env.NODE_ENV === "development"
+          ? {
+              semanticContext,
+              recentMessages,
+              recentSource,
+              pineconeMatches,
+            }
+          : undefined,
     } as API.AISalesAssistantResponse)
   } catch (error) {
     return NextResponse.json({
       reply: error instanceof Error ? error.message : String(error),
-      memory: "",
+      memory: requestBody?.memory ?? "",
     })
-  }
-}
-
-// keep your existing updateMemoryFn unchanged...
-async function updateMemoryFn(currentMemory: string, userPrompt: string, aiMessage?: any): Promise<string> {
-  let intermediateMemory = currentMemory
-  try {
-    if (aiMessage?.function_call?.name === "addProductToCart") {
-      const args = JSON.parse(aiMessage.function_call.arguments || "{}")
-      const product = args.product
-      const quantity = args.quantity || 1
-      if (product?.title) {
-        const memoryItems = intermediateMemory ? intermediateMemory.split(" | ") : []
-        const newItem = quantity > 1 ? `${quantity}x ${product.title}` : product.title
-        memoryItems.push(newItem)
-        intermediateMemory = memoryItems.join(" | ")
-      }
-    } else if (userPrompt) {
-      const memoryItems = intermediateMemory ? intermediateMemory.split(" | ") : []
-      memoryItems.push(userPrompt)
-      intermediateMemory = memoryItems.join(" | ")
-    }
-
-    const messages = [
-      { role: "system", content: "You are a summarizer: keep short, clear memory of recent chat for sales context." },
-      { role: "user", content: `Current memory: ${intermediateMemory || "none"}` },
-      { role: "user", content: `New user message: ${userPrompt}` },
-      { role: "assistant", content: `AI reply: ${aiMessage?.content || ""}` },
-    ]
-
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-      body: JSON.stringify({ model: "gpt-4o-mini", messages, temperature: 0.6, max_tokens: 100 }),
-    })
-
-    if (!res.ok) throw new Error(await res.text())
-    const data = await res.json()
-    const summary = data.choices?.[0]?.message?.content
-    return summary?.trim() || intermediateMemory
-  } catch {
-    return intermediateMemory
   }
 }

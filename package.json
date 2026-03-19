@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@metamask/detect-provider": "^2.0.0",
+    "@pinecone-database/pinecone": "^7.1.0",
     "@react-email/body": "^0.2.1",
     "@react-email/button": "^0.0.10",
     "@react-email/container": "^0.0.16",

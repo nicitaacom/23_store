@@ -12,6 +12,7 @@ export function AIInputSearch() {
     setPromptValue,
     conversation,
     memory,
+    debugContext,
     isLoading,
     chatEndRef,
     inputRef,
@@ -24,7 +25,7 @@ export function AIInputSearch() {
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col gap-5 font-primary">
-      <MemoryDebug memory={memory} />
+      <MemoryDebug memory={memory} debugContext={debugContext} />
       <ChatHeader />
       <ChatMessages conversation={conversation} isLoading={isLoading} chatEndRef={chatEndRef} />
       <ChatInput

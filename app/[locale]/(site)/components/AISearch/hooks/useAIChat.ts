@@ -15,9 +15,22 @@ import { usePathname, useRouter } from "next/navigation"
 export function useAIChat() {
   const router = useRouter()
   const pathname = usePathname()
+  const userId = useUserStore(state => state.user?.id ?? "")
 
   const toast = useToast()
-  const { promptValue, setPromptValue, conversation, setConversation, memory, setMemory } = useAIChatStore()
+  const {
+    promptValue,
+    setPromptValue,
+    conversation,
+    setConversation,
+    memory,
+    setMemory,
+    debugContext,
+    setDebugContext,
+    ownerId,
+    setOwnerId,
+    resetChat,
+  } = useAIChatStore()
   const { isLoading, setIsLoading } = useLoading()
   const chatEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -29,6 +42,33 @@ export function useAIChat() {
   useEffect(() => {
     if (!isLoading && inputRef.current) inputRef.current.focus()
   }, [isLoading])
+
+  useEffect(() => {
+    if (ownerId && ownerId !== userId) resetChat()
+    if (ownerId !== userId) setOwnerId(userId)
+  }, [ownerId, resetChat, setOwnerId, userId])
+
+  const syncFunctionTurnMemory = async (userPrompt: string, assistantReply: string, baseMemory: string) => {
+    try {
+      const response = await fetch("/api/ai/sales-assistant/memory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userPrompt,
+          assistantReply,
+          memory: baseMemory,
+        } as API.AISalesAssistantMemoryRequest),
+      })
+
+      if (!response.ok) return null
+
+      const data = (await response.json()) as API.AISalesAssistantMemoryResponse
+      return data?.memory || null
+    } catch (error) {
+      console.error("Failed to sync AI function-call memory.", error)
+      return null
+    }
+  }
 
   const handleSubmit = async (prompt?: string) => {
     if ((!prompt && !promptValue.trim()) || isLoading) return
@@ -65,6 +105,7 @@ export function useAIChat() {
       }
 
       const data = await response.json()
+      if (data?.debug) setDebugContext(data.debug)
       const functionCall = data?.openai?.choices?.[0]?.message?.function_call
 
       if (functionCall?.name) {
@@ -93,12 +134,21 @@ export function useAIChat() {
 
           setConversation([...newConversation, aiMessage])
 
-          if (functionResult.memory) setMemory(functionResult.memory)
+          const syncedMemory = await syncFunctionTurnMemory(userMessage, aiMessage.text, data?.memory || memory)
+
+          if (syncedMemory) setMemory(syncedMemory)
           else if (data?.memory) setMemory(data.memory)
+          else if (functionResult.memory) setMemory(functionResult.memory)
           return
         }
 
         setConversation([...newConversation, { role: "ai", text: functionResult.message }])
+
+        const syncedMemory = await syncFunctionTurnMemory(userMessage, functionResult.message, data?.memory || memory)
+
+        if (syncedMemory) setMemory(syncedMemory)
+        else if (data?.memory) setMemory(data.memory)
+        else if (functionResult.memory) setMemory(functionResult.memory)
         return
       }
 
@@ -178,6 +228,7 @@ export function useAIChat() {
     setPromptValue,
     conversation,
     memory,
+    debugContext,
     isLoading,
     chatEndRef,
     inputRef,

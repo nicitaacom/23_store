@@ -6,8 +6,21 @@ declare module API {
   type GenerateImageResponse = ArrayBuffer
 
   // api/ai/sales-assistant
+  type AISalesAssistantDebugMessage = { role: "user" | "assistant"; content: string }
+  type AISalesAssistantDebug = {
+    semanticContext: string
+    recentMessages: AISalesAssistantDebugMessage[]
+    recentSource: "upstash" | "browser-fallback" | "merged"
+    pineconeMatches: Array<{
+      kind: "message" | "working-memory"
+      role: "user" | "assistant" | "system"
+      text: string
+    }>
+  }
   type AISalesAssistantRequest = { promptValue: string; memory: string; conversationHistory: TAIChatMessage[] }
-  type AISalesAssistantResponse = { openai: string; memory: string }
+  type AISalesAssistantResponse = { openai: Record<string, unknown>; memory: string; debug?: AISalesAssistantDebug }
+  type AISalesAssistantMemoryRequest = { userPrompt: string; assistantReply: string; memory: string }
+  type AISalesAssistantMemoryResponse = { memory: string; error?: string }
 
   // api/ai/
   type AIRequest = { prompt: string }
