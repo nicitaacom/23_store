@@ -25,6 +25,11 @@ declare global {
       NEXT_PAYPAL_PUBLIC: string
       NEXT_PAYPAL_SECRET: string
 
+      PINECONE_INDEX: string
+      PINECONE_HOST: string
+      PINECONE_ENVIRONMENT: string
+      PINECONE_API_KEY: string
+
       NEXT_PUBLIC_METAMASK_ADRESS_ETH: string
       NEXT_PUBLIC_METAMASK_ADRESS_BNB: string
       NEXT_PUBLIC_METAMASK_ADRESS_MATIC: string
