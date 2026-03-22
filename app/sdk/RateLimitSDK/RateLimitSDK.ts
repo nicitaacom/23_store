@@ -33,7 +33,12 @@ export class RateLimitSDK {
     })
 
     // 3. handle errors
-    if (response.status === 429) throw new Error(t("sdk.rate_limit_exeeded"))
+    if (response.status === 429) {
+      const retryAfter = Number(response.headers.get("retry-after") || "0")
+      throw new Error(
+        retryAfter > 0 ? t("sdk.rate_limit_retry_after", { seconds: retryAfter }) : t("sdk.rate_limit_exeeded"),
+      )
+    }
     if (!response.ok) throw new Error(t("sdk.rate_limit_request_failed"))
 
     // 4. return parsed result

@@ -58,6 +58,10 @@ export default {
 
   // Username Validation Messages
   "auth.validation.username.required": "Username is required",
+  "auth.validation.username_invalid": "Use 3-16 characters, start with a letter, numbers optional",
+  "auth.validation.required": "This field is required",
+  "auth.validation.email_invalid": "Enter a valid email address",
+  "auth.validation.password_invalid": "Use 8-64 chars with a-z, A-Z, 0-9, optional _-%#$",
 
   // Form Fields
   "auth.email.placeholder": "nicitaacom@gmail.com",
@@ -88,6 +92,7 @@ export default {
   "auth.resent": "resent",
   "auth.resend_failed": "failed to resend email: {message}",
   "auth.resend": "resend",
+  "auth.resend_in": "resend in",
 
   // Auth database errors
   "auth.database.error_finding_user": "Error finding user in DB: {message}",
@@ -203,11 +208,13 @@ export default {
   // =================     =================
   "sdk.rate_limit_exeeded": "Rate limit exceeded",
   "sdk.rate_limit_request_failed": "Rate limit request failed",
+  "sdk.rate_limit_retry_after": "Too many requests. Try again in {seconds} seconds",
 
   // =================        =================
   //                   aichat
   // =================        =================
   "aichat.error": "Service error. Try again then contact support",
+  "aichat.error.with_reason": "Oops, \"{message}\". Try again.",
   "aichat.error.no_reply_data": "It's no choices?.[0]?.message?.content - contact support",
   "aichat.generate_image": "Generate image",
   "aichat.generate_image_completed": "Here you go",

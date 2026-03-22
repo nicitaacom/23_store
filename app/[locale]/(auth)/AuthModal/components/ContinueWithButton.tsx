@@ -32,7 +32,7 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
       } else if (provider === "twitter") {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: "twitter",
-          options: { redirectTo: `${location.origin}/auth/callback/oauth?provider=twitter` },
+          options: { redirectTo: `${location.origin}/${locale}/auth/callback/oauth?provider=twitter` },
         })
         if (error) throw Error(error.message)
       }

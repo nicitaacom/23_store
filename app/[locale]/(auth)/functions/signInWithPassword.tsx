@@ -19,6 +19,7 @@ export async function signInWithPassword(
   router: AppRouterInstance,
   displayResponseMessage: (message: React.ReactNode) => void,
   t: TI18nFunction,
+  locale: string,
 ) {
   const userStore = useUserStore.getState()
 
@@ -36,12 +37,13 @@ export async function signInWithPassword(
       const isCredentialsProvider = response.data.providers?.includes("credentials")
       const isOnlyGoogleProvider =
         Array.isArray(response.data.providers) && response.data.providers.length === 1 && response.data.providers[0] === "google"
+      const providersLabel = Array.isArray(response.data.providers) ? response.data.providers.join(", ") : ""
       throw new Error(
         isCredentialsProvider
           ? t("auth.database.invalid_credentials")
           : isOnlyGoogleProvider
             ? t("auth.account.exist_google")
-            : t("auth.account.exist", response.data.providers),
+            : t("auth.account.exist", { provider: providersLabel }),
       )
     }
 
@@ -51,15 +53,15 @@ export async function signInWithPassword(
       router.refresh() //refresh to show avatarUrl in navbar
 
       displayResponseMessage(
-        <div className="text-success flex flex-col justify-center items-center">
-          You are logged in - you may close this modal
-          <Timer label="I close this modal in" seconds={5} action={() => router.replace("/")} />
+        <div className="flex flex-col items-center justify-center gap-1 text-success">
+          <p>{t("auth.auth.completed")}</p>
+          <Timer label={t("auth.page_close_in")} seconds={5} action={() => router.replace(`/${locale}`)} />
         </div>,
       )
     } else {
       displayResponseMessage(
         <div className="text-danger flex flex-row">
-          <p>t{"auth.no_user_or_username"}&nbsp;</p>
+          <p>{t("auth.no_user_or_username")}&nbsp;</p>
           <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
             {t("auth.here")}
           </Button>
@@ -68,7 +70,7 @@ export async function signInWithPassword(
       return
     }
   } catch (error) {
-    if (error instanceof Error && error.message === "Invalid login credentials") {
+    if (error instanceof Error && error.message === t("auth.database.invalid_credentials")) {
       displayResponseMessage(<p className="text-danger">{t("auth.database.invalid_credentials")}</p>)
     } else if (error instanceof AxiosError) {
       if (error.response?.data.error === "User exists - check your email\n You might not verified your email") {
@@ -77,7 +79,7 @@ export async function signInWithPassword(
         displayResponseMessage(<p className="text-danger">{error.response?.data.error}</p>)
       }
     } else if (error instanceof Error) {
-      if (error.message === "You already have account with google") {
+      if (error.message === t("auth.account.exist_google")) {
         displayResponseMessage(
           <div className="flex flex-col justify-center items-center">
             <p className="text-danger">{t("auth.account.exist_google")}</p>
@@ -86,14 +88,16 @@ export async function signInWithPassword(
               onClick={async () =>
                 await supabaseClient.auth.signInWithOAuth({
                   provider: "google",
-                  options: { redirectTo: `${location.origin}/auth/callback/oauth?provider=google` },
+                  options: { redirectTo: `${location.origin}/${locale}/auth/callback/oauth?provider=google` },
                 })
               }>
               {t("auth.continue_with_google")}
             </Button>
           </div>,
         )
-      } else displayResponseMessage(<p className="text-danger">{error.message}</p>)
+      } else {
+        displayResponseMessage(<p className="text-danger">{error.message}</p>)
+      }
     } else {
       displayResponseMessage(<UnknownError t={t} />)
     }

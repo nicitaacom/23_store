@@ -21,7 +21,7 @@ import { AuthLogo } from "./components/AuthLogo"
 import { AuthText } from "./components/AuthText"
 import { AuthForm } from "./components/AuthForm"
 import { useCloseModalIfAlreadyLoggedIn } from "../hooks/useCloseModalIfAlreadyLoggedIn"
-import { useI18n } from "@/locales/client"
+import { useCurrentLocale, useI18n } from "@/locales/client"
 
 export interface AuthFormData {
   username: string
@@ -34,6 +34,7 @@ export function AuthModal() {
   // const emailInputRef = useRef<HTMLInputElement>(null)
   const queryParams = useSearchParams()?.get("variant")
   const t = useI18n()
+  const locale = useCurrentLocale()
 
   const [isEmailSent, setIsEmailSent] = useState(false)
   const [isAuthCompleted, setIsAuthCompleted] = useState(false)
@@ -67,7 +68,7 @@ export function AuthModal() {
 
   const onSubmit = async (data: AuthFormData) => {
     if (queryParams === "login") {
-      await signInWithPassword(data.email, data.password, reset, router, displayResponseMessage, t)
+      await signInWithPassword(data.email, data.password, reset, router, displayResponseMessage, t, locale)
     } else if (queryParams === "register") {
       await signUp(
         t,
@@ -79,10 +80,11 @@ export function AuthModal() {
         setResponseMessage,
         displayResponseMessage,
         setFocus,
+        locale,
       )
     } else if (queryParams === "recover") {
       router.refresh()
-      await recoverPassword(data.email, getValues, displayResponseMessage, t)
+      await recoverPassword(data.email, getValues, displayResponseMessage, t, locale)
       reset()
     } else if (queryParams === "resetPassword") {
       resetPassword(data.password, displayResponseMessage, t)
@@ -91,15 +93,16 @@ export function AuthModal() {
 
   return (
     <ModalQueryContainer
-      className={twMerge(`w-[500px] transition-all duration-300`, modalHeightTailwind(queryParams, errors))}
+      className={twMerge(`w-[500px] rounded-[18px] transition-all duration-300`, modalHeightTailwind(queryParams, errors))}
+      closeButtonClassName="right-3 top-3 rounded-[10px] p-[3px]"
       modalQuery="AuthModal">
-      <div className="flex flex-col justify-center gap-y-2 w-[90%] mx-auto">
+      <div className="flex flex-col justify-center gap-y-3 w-[88%] mx-auto pt-5 pb-4">
         <div
           className={twMerge(
-            `flex flex-row gap-x-4 items-center w-full`,
+            `flex flex-row gap-x-3 items-center w-full pr-12`,
             isAuthCompleted ? "justify-center" : "justify-start",
-            (queryParams === "login" || queryParams === "register") && "mb-8",
-            (errors.email || errors.password) && "!mb-4",
+            (queryParams === "login" || queryParams === "register") && "mb-5",
+            (errors.email || errors.password) && "!mb-3",
           )}>
           <AuthLogo isAuthCompleted={isAuthCompleted} isRecoverCompleted={isRecoverCompleted} />
           <AuthText queryParams={queryParams} />

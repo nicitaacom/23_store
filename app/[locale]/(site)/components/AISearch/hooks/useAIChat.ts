@@ -160,7 +160,7 @@ export function useAIChat() {
       const errorMessage = error instanceof Error ? error.message : String(error)
       console.error(t("aichat.error"), error)
       toast.show("error", t("aichat.error"), errorMessage)
-      setConversation([...newConversation, { role: "ai", text: `Oops, "${errorMessage}". Try again.` }])
+      setConversation([...newConversation, { role: "ai", text: t("aichat.error.with_reason", { message: errorMessage }) }])
     } finally {
       setIsLoading(false)
     }

@@ -40,9 +40,10 @@ export function AuthForm({
 
   return (
     <>
-      <form className="relative max-w-[450px] w-[75vw] flex flex-col gap-y-2 mb-4" onSubmit={handleSubmit(onSubmit)}>
+      <form className="relative max-w-[450px] w-[75vw] flex flex-col gap-y-3 mb-3" onSubmit={handleSubmit(onSubmit)}>
         {queryParams !== "resetPassword" && (
           <FormInput
+            className="rounded-[10px]"
             endIcon={<AiOutlineMail size={24} />}
             register={register}
             errors={errors}
@@ -51,10 +52,15 @@ export function AuthForm({
             placeholder={t("auth.email.placeholder")}
             disabled={isSubmitting || isEmailSent}
             required
+            validationMessages={{
+              required: t("auth.email.validation.required"),
+              pattern: t("auth.email.validation.invalid"),
+            }}
           />
         )}
         {queryParams !== "recover" && (
           <FormInput
+            className="rounded-[10px]"
             endIcon={<AiOutlineLock size={24} />}
             register={register}
             errors={errors}
@@ -68,23 +74,32 @@ export function AuthForm({
             }
             disabled={isSubmitting || isEmailSent}
             required
+            validationMessages={{
+              required: t("auth.password.validation.required"),
+              pattern: t("auth.validation.password_invalid"),
+            }}
           />
         )}
         {queryParams === "register" && (
           <FormInput
+            className="rounded-[10px]"
             endIcon={<AiOutlineUser size={24} />}
             register={register}
             errors={errors}
             id="username"
             label={t("auth.username.label")}
-            placeholder="HANTARESpeek"
+            placeholder={t("auth.username.placeholder")}
             disabled={isSubmitting || isEmailSent}
             required
+            validationMessages={{
+              required: t("auth.validation.username.required"),
+              pattern: t("auth.validation.username_invalid"),
+            }}
           />
         )}
 
         {/* REMBMBER-ME / FORGOT-PASSWORD */}
-        <div className="flex justify-between mb-2">
+        <div className="flex justify-between mb-1">
           <div className={twMerge(`invisible`, queryParams === "login" && "visible")}>
             {/* 'Remember me' now checkbox do nothing - expected !isChecked 1m jwt - isChecked 3m jwt */}
             <Checkbox

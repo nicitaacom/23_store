@@ -12,13 +12,14 @@ export async function resendVerificationEmail(
   setIsEmailSent: Dispatch<SetStateAction<boolean>>,
   setFocus: UseFormSetFocus<AuthFormData>,
   t: TI18nFunction,
+  locale: string,
 ) {
   try {
     const { error: resendError } = await supabaseClient.auth.resend({
       type: "signup",
       email: email,
       options: {
-        emailRedirectTo: `${location.origin}/auth/callback/credentials`,
+        emailRedirectTo: `${location.origin}/${locale}/auth/callback/credentials`,
       },
     })
     if (resendError) throw resendError
@@ -37,7 +38,7 @@ export async function resendVerificationEmail(
                 setFocus("email")
               }, 50)
             }}>
-            change email
+            {t("auth.recovery.change_email")}
           </Button>
         </div>
         <p>{t("auth.check_spam")}</p>

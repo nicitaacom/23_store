@@ -20,6 +20,10 @@ interface FormInputProps {
   errors: FieldErrors
   disabled?: boolean
   required?: boolean
+  validationMessages?: {
+    required?: string
+    pattern?: string
+  }
 }
 
 interface ValidationRules {
@@ -44,6 +48,7 @@ export function FormInput({
   register,
   errors,
   disabled = false,
+  validationMessages,
 }: FormInputProps) {
   const validationRules: ValidationRules = {
     username: {
@@ -102,10 +107,10 @@ export function FormInput({
             autoComplete={id}
             disabled={disabled}
             {...register(id, {
-              required: required ? requiredMessage : undefined,
+              required: required ? validationMessages?.required || requiredMessage : undefined,
               pattern: {
                 value: patternValue,
-                message: patternMessage,
+                message: validationMessages?.pattern || patternMessage,
               },
             })}
           />

@@ -26,9 +26,9 @@ export async function resetPassword(password: string, displayResponseMessage: (m
 
       localStorage.removeItem("email") // Remove email from localstorage
       displayResponseMessage(
-        <div className="text-success flex flex-col justify-center items-center">
+        <div className="text-success flex flex-col justify-center items-center gap-1">
           {t("auth.recovery.passowrd_changed")}
-          <Timer label="I close this window in" seconds={5} action={() => window.close()} />
+          <Timer label={t("auth.page_close_in")} seconds={5} action={() => window.close()} />
         </div>,
       )
     } else {

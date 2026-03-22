@@ -58,6 +58,10 @@ export default {
 
   // Username Validation Messages
   "auth.validation.username.required": "Имя пользователя обязательно",
+  "auth.validation.username_invalid": "Используйте 3–16 символов, начните с буквы, цифры допустимы",
+  "auth.validation.required": "Это поле обязательно",
+  "auth.validation.email_invalid": "Введите корректный адрес электронной почты",
+  "auth.validation.password_invalid": "Используйте 8–64 символа: a-z, A-Z, 0-9 и необязательные _-%#$",
 
   // Form Fields
   "auth.email.placeholder": "nicitaacom@gmail.com",
@@ -88,6 +92,7 @@ export default {
   "auth.resent": "отправлено повторно",
   "auth.resend_failed": "Не удалось повторно отправить письмо: {message}",
   "auth.resend": "Отправить повторно",
+  "auth.resend_in": "повторная отправка через",
 
   // Auth database errors
   "auth.database.error_finding_user": "Ошибка при поиске пользователя в базе данных: {message}",
@@ -203,11 +208,13 @@ export default {
   // =================     =================
   "sdk.rate_limit_exeeded": "Превышен лимит запросов",
   "sdk.rate_limit_request_failed": "Ошибка запроса лимита",
+  "sdk.rate_limit_retry_after": "Слишком много запросов. Повторите через {seconds} секунд",
 
   // =================        =================
   //                   aichat
   // =================        =================
   "aichat.error": "Ошибка сервиса. Попробуйте снова и свяжитесь с поддержкой",
+  "aichat.error.with_reason": "Упс, \"{message}\". Попробуйте снова.",
   "aichat.error.no_reply_data": "Нет ответов?.[0]?.message?.content – свяжитесь с поддержкой",
   "aichat.generate_image": "Создать изображение",
   "aichat.generate_image_completed": "Вот, пожалуйста",

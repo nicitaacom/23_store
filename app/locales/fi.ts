@@ -58,6 +58,10 @@ export default {
 
   // Username Validation Messages
   "auth.validation.username.required": "Käyttäjätunnus on pakollinen",
+  "auth.validation.username_invalid": "Käytä 3–16 merkkiä, aloita kirjaimella, numerot sallitaan",
+  "auth.validation.required": "Tämä kenttä on pakollinen",
+  "auth.validation.email_invalid": "Anna kelvollinen sähköpostiosoite",
+  "auth.validation.password_invalid": "Käytä 8–64 merkkiä: a-z, A-Z, 0-9 ja valinnaiset _-%#$",
 
   // Form Fields
   "auth.email.placeholder": "nicitaacom@gmail.com",
@@ -88,6 +92,7 @@ export default {
   "auth.resent": "lähetetty uudelleen",
   "auth.resend_failed": "Uudelleenlähetys epäonnistui: {message}",
   "auth.resend": "Lähetä uudelleen",
+  "auth.resend_in": "lähetä uudelleen",
 
   // Auth database errors
   "auth.database.error_finding_user": "Virhe käyttäjän etsimisessä tietokannasta: {message}",
@@ -203,11 +208,13 @@ export default {
   // =================     =================
   "sdk.rate_limit_exeeded": "Nopeusraja ylitetty",
   "sdk.rate_limit_request_failed": "Nopeusrajakysely epäonnistui",
+  "sdk.rate_limit_retry_after": "Liikaa pyyntöjä. Yritä uudelleen {seconds} sekunnin kuluttua",
 
   // =================        =================
   //                   aichat
   // =================        =================
   "aichat.error": "Palveluvirhe. Yritä uudelleen ja ota yhteyttä tukeen",
+  "aichat.error.with_reason": "Hups, \"{message}\". Yritä uudelleen.",
   "aichat.error.no_reply_data": "Ei vastauksia?.[0]?.message?.content – ota yhteyttä tukeen",
   "aichat.generate_image": "Luo kuva",
   "aichat.generate_image_completed": "Ole hyvä",

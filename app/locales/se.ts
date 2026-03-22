@@ -58,6 +58,10 @@ export default {
 
   // Username Validation Messages
   "auth.validation.username.required": "Användarnamn är obligatoriskt",
+  "auth.validation.username_invalid": "Använd 3–16 tecken, börja med en bokstav, siffror tillåtna",
+  "auth.validation.required": "Detta fält är obligatoriskt",
+  "auth.validation.email_invalid": "Ange en giltig e-postadress",
+  "auth.validation.password_invalid": "Använd 8–64 tecken: a-z, A-Z, 0-9 och valfria _-%#$",
 
   // Form Fields
   "auth.email.placeholder": "nicitaacom@gmail.com",
@@ -88,6 +92,7 @@ export default {
   "auth.resent": "skickat igen",
   "auth.resend_failed": "Misslyckades med att skicka igen e-post: {message}",
   "auth.resend": "Skicka igen",
+  "auth.resend_in": "skicka igen om",
 
   // Auth database errors
   "auth.database.error_finding_user": "Fel vid sökning efter användare i databasen: {message}",
@@ -203,11 +208,13 @@ export default {
   // =================     =================
   "sdk.rate_limit_exeeded": "Hastighetsgräns överskriden",
   "sdk.rate_limit_request_failed": "Begäran om hastighetsgräns misslyckades",
+  "sdk.rate_limit_retry_after": "För många förfrågningar. Försök igen om {seconds} sekunder",
 
   // =================        =================
   //                   aichat
   // =================        =================
   "aichat.error": "Tjänstfel. Försök igen och kontakta support",
+  "aichat.error.with_reason": "Hoppsan, \"{message}\". Försök igen.",
   "aichat.error.no_reply_data": "Inga svar?.[0]?.message?.content – kontakta support",
   "aichat.generate_image": "Generera bild",
   "aichat.generate_image_completed": "Varsågod",

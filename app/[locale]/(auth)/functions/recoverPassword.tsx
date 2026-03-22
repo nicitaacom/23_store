@@ -15,13 +15,14 @@ export async function recoverPassword(
   getValues: UseFormGetValues<AuthFormData>,
   displayResponseMessage: (message: ReactNode) => void,
   t: TI18nFunction,
+  locale: string,
 ) {
   try {
     const pusherClient = getPusherClient()
 
     await axios.post("/api/auth/recover", { email: email } as TAPIAuthRecover)
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: `${location.origin}/auth/callback/recover`,
+      redirectTo: `${location.origin}/${locale}/auth/callback/recover`,
     })
     if (error) throw Error(error.message)
 

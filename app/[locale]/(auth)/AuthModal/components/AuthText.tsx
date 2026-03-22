@@ -3,7 +3,7 @@ import { useI18n } from "@/locales/client"
 export function AuthText({ queryParams }: { queryParams: string | null }) {
   const t = useI18n()
   return (
-    <h1 className="text-4xl font-bold">
+    <h1 className="text-[34px] leading-none font-bold">
       {queryParams === "login"
         ? t("auth.sign.in")
         : queryParams === "register"

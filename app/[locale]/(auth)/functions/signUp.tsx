@@ -10,6 +10,7 @@ import { resendVerificationEmail } from "./resendVerificationEmail"
 import { getPusherClient } from "@/libs/pusher"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
+import { UnknownError } from "./UnknownError"
 
 export async function signUp(
   t: TI18nFunction,
@@ -22,6 +23,7 @@ export async function signUp(
   setResponseMessage: Dispatch<SetStateAction<ReactNode>>,
   displayResponseMessage: (message: React.ReactNode) => void,
   setFocus: UseFormSetFocus<AuthFormData>,
+  locale: string,
 ) {
   try {
     const pusherClient = getPusherClient()
@@ -47,11 +49,11 @@ export async function signUp(
         <div className="flex flex-col">
           <div className="flex flex-row">
             <p>{t("auth.dont_received_email_q")}&nbsp;</p>
-            <Timer label="resend in" seconds={20}>
+            <Timer label={t("auth.resend_in")} seconds={20}>
               <Button
                 type="button"
                 variant="link"
-                onClick={() => resendVerificationEmail(email, displayResponseMessage, setIsEmailSent, setFocus, t)}>
+                onClick={() => resendVerificationEmail(email, displayResponseMessage, setIsEmailSent, setFocus, t, locale)}>
                 {t("auth.resend")}
               </Button>
             </Timer>
@@ -81,14 +83,7 @@ export async function signUp(
     } else if (error instanceof Error) {
       displayResponseMessage(<p className="text-danger">{error.message}</p>)
     } else {
-      displayResponseMessage(
-        <div className="text-danger flex flex-row">
-          <p>An unknown error occurred - contact admin&nbsp;</p>
-          <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
-            here
-          </Button>
-        </div>,
-      )
+      displayResponseMessage(<UnknownError t={t} />)
     }
   }
 }
