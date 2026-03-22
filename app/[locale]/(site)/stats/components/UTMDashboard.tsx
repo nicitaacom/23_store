@@ -3,10 +3,19 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
-import { IoChevronDown, IoCalendar, IoTrendingUp } from "react-icons/io5"
-import { IUTMAggregatedStats } from "@/ts/interfaces/IUTMAggregatedStats"
+import { IoChevronDown, IoCalendar, IoTrendingUp, IoGlobeOutline, IoLocationOutline } from "react-icons/io5"
+import { IUTMAggregatedStats, IUTMCountryStat, IUTMLocationStat } from "@/ts/interfaces/IUTMAggregatedStats"
 
 const CHART_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"]
+
+const getCountryFlag = (countryCode: string | null) => {
+  if (!countryCode || countryCode.length !== 2) return "🌍"
+  return countryCode
+    .toUpperCase()
+    .split("")
+    .map(char => String.fromCodePoint(127397 + char.charCodeAt(0)))
+    .join("")
+}
 
 // Managed by Grok 4
 
@@ -78,6 +87,18 @@ const getMockData = (year: number, month: number): IUTMAggregatedStats => {
       count: Math.round((100 + index * 50) * baseMultiplier * (0.7 + Math.random() * 0.6)),
     }))
     .sort((a, b) => b.count - a.count)
+  const countryStats: IUTMCountryStat[] = [
+    { name: "Finland", code: "FI", count: Math.round(420 * baseMultiplier) },
+    { name: "Sweden", code: "SE", count: Math.round(220 * baseMultiplier) },
+    { name: "Germany", code: "DE", count: Math.round(180 * baseMultiplier) },
+    { name: "India", code: "IN", count: Math.round(60 * baseMultiplier) },
+  ]
+  const locationStats: IUTMLocationStat[] = [
+    { name: "Helsinki, Finland", country: "Finland", countryCode: "FI", region: "Uusimaa", city: "Helsinki", count: 180 },
+    { name: "Espoo, Finland", country: "Finland", countryCode: "FI", region: "Uusimaa", city: "Espoo", count: 96 },
+    { name: "Stockholm, Sweden", country: "Sweden", countryCode: "SE", region: "Stockholm County", city: "Stockholm", count: 82 },
+    { name: "Berlin, Germany", country: "Germany", countryCode: "DE", region: "Berlin", city: "Berlin", count: 64 },
+  ]
 
   // 7. Generate daily chart data for the selected period
   const chartData: { date: string; visits: number }[] = []
@@ -121,6 +142,8 @@ const getMockData = (year: number, month: number): IUTMAggregatedStats => {
     sourceStats,
     mediumStats,
     campaignStats: campaignStats.slice(0, 8),
+    countryStats,
+    locationStats,
     rawStats,
     chartData,
   }
@@ -407,6 +430,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
   if (!currentData) return null
 
   const stats = currentData
+  const topCountries = stats.countryStats.slice(0, 8)
+  const topLocations = stats.locationStats.slice(0, 6)
 
   return (
     <div className="min-h-screen bg-background p-4 mobile:p-6">
@@ -490,7 +515,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
         {/* Key Metrics */}
         <motion.div
           variants={itemVariants}
-          className="grid grid-cols-1 mobile:grid-cols-2 laptop:grid-cols-4 gap-4 mobile:gap-6 mb-8">
+          className="grid grid-cols-1 mobile:grid-cols-2 laptop:grid-cols-5 gap-4 mobile:gap-6 mb-8">
           {[
             {
               title: "Total Visits",
@@ -513,6 +538,11 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
             {
               title: "Campaigns",
               value: stats.campaignStats.length,
+              bgClass: "bg-foreground text-title border border-border-color",
+            },
+            {
+              title: "Countries",
+              value: stats.countryStats.length,
               bgClass: "bg-foreground text-title border border-border-color",
             },
           ].map((metric, index) => (
@@ -598,6 +628,107 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
               </ResponsiveContainer>
             ) : (
               <EmptyState title="Traffic medium" />
+            )}
+          </motion.div>
+        </motion.div>
+
+        <motion.div className="grid grid-cols-1 laptop:grid-cols-2 gap-6 mobile:gap-8 mt-6 mobile:mt-8">
+          <motion.div
+            variants={itemVariants}
+            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="rounded-full bg-brand/15 p-2 text-brand">
+                <IoGlobeOutline className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg mobile:text-xl font-bold text-title">Visitor Countries</h3>
+                <p className="text-sm text-subTitle">Geographic traffic based on edge headers</p>
+              </div>
+            </div>
+            {topCountries.length > 0 ? (
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={topCountries} layout="vertical" margin={{ top: 8, right: 16, bottom: 8, left: 12 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border-color) / 0.3)" horizontal={false} />
+                  <XAxis type="number" stroke="hsl(var(--subTitle))" fontSize={12} />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={120}
+                    stroke="hsl(var(--subTitle))"
+                    fontSize={12}
+                    tickFormatter={(value: string) => (value.length > 16 ? `${value.slice(0, 16)}...` : value)}
+                  />
+                  <Tooltip
+                    formatter={(value: number | string | undefined) => [`${Number(value || 0).toLocaleString()} visits`, "Traffic"]}
+                    labelFormatter={(_, payload) => {
+                      const country = payload?.[0]?.payload as IUTMCountryStat | undefined
+                      return country ? `${getCountryFlag(country.code)} ${country.name}` : "Country"
+                    }}
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--foreground))",
+                      border: "1px solid hsl(var(--border-color))",
+                      borderRadius: "8px",
+                      color: "hsl(var(--title))",
+                    }}
+                  />
+                  <Bar dataKey="count" fill="#10B981" radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyState title="Country" />
+            )}
+          </motion.div>
+
+          <motion.div
+            variants={itemVariants}
+            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="rounded-full bg-info/15 p-2 text-info">
+                <IoLocationOutline className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg mobile:text-xl font-bold text-title">Where Visitors Come From</h3>
+                <p className="text-sm text-subTitle">Top locations ranked by visit share</p>
+              </div>
+            </div>
+            {topLocations.length > 0 ? (
+              <div className="space-y-4">
+                {topLocations.map((location, index) => {
+                  const share = stats.totalVisits > 0 ? Math.round((location.count / stats.totalVisits) * 100) : 0
+
+                  return (
+                    <motion.div
+                      key={`${location.name}-${index}`}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.08 }}
+                      className="rounded-xl border border-border-color/70 bg-background/50 p-4">
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-base font-semibold text-title">
+                            {getCountryFlag(location.countryCode)} {location.name}
+                          </p>
+                          <p className="text-sm text-subTitle">{location.country || "Unknown country"}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-title">{location.count.toLocaleString()}</p>
+                          <p className="text-xs text-subTitle">{share}% of visits</p>
+                        </div>
+                      </div>
+                      <div className="h-2 overflow-hidden rounded-full bg-border-color/30">
+                        <motion.div
+                          className="h-full rounded-full bg-gradient-to-r from-brand to-info"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.max(share, 4)}%` }}
+                          transition={{ delay: 0.15 + index * 0.08, duration: 0.45 }}
+                        />
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            ) : (
+              <EmptyState title="Location" />
             )}
           </motion.div>
         </motion.div>

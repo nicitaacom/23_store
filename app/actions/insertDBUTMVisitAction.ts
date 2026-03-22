@@ -1,6 +1,7 @@
 "use server"
 
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { IUTMVisitMetadata, serializeUTMVisitMetadata } from "@/utils/utmVisitMetadata"
 
 interface UTMParams {
   utm_source?: string
@@ -10,7 +11,7 @@ interface UTMParams {
   utm_content?: string
 }
 
-export async function insertDBUTMVisitAction(userId: string, utmParams: UTMParams, userAgent: string | null) {
+export async function insertDBUTMVisitAction(userId: string, utmParams: UTMParams, metadata: IUTMVisitMetadata) {
   try {
     // 1. Insert visit tracking data
     const { error } = await supabaseAdmin.from("utm_stats").insert({
@@ -21,7 +22,7 @@ export async function insertDBUTMVisitAction(userId: string, utmParams: UTMParam
       utm_campaign: utmParams.utm_campaign,
       utm_term: utmParams.utm_term,
       utm_content: utmParams.utm_content,
-      user_agent: userAgent,
+      user_agent: serializeUTMVisitMetadata(metadata),
     })
     if (error) throw Error(error.message)
   } catch (error) {

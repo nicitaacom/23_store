@@ -104,6 +104,7 @@ function getRateLimiter(rateLimiterName: TRateLimiterName) {
   const limiter = new Ratelimit({
     redis,
     limiter: Ratelimit.fixedWindow(spec.maxAllowed, `${spec.windowSec} s`),
+    analytics: false,
   })
 
   limiterCache.set(rateLimiterName, limiter)

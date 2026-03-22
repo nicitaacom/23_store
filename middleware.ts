@@ -1,10 +1,13 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
+import { Ratelimit } from "@upstash/ratelimit"
+import { Redis } from "@upstash/redis"
 import { createI18nMiddleware } from "next-international/middleware"
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 // import { getI18n } from "@/locales/server"
 
 // import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
+import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 
 /**
@@ -40,6 +43,14 @@ const ROLE_PROTECTED_ROUTES: Record<string, string[]> = {
   user: ["/dashboard", "/account"],
 }
 
+const redis = Redis.fromEnv()
+const localePageRateLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(RATE_LIMITS.localePage.maxAllowed, `${RATE_LIMITS.localePage.windowSec} s`),
+  analytics: false,
+})
+const LOCALE_PATH_PREFIXES = ["/fi", "/en", "/ru", "/se"] as const
+
 // ---------- helper ----------
 function isRouteProtectedForUser(pathname: string, role?: string) {
   if (!role) return false
@@ -47,8 +58,38 @@ function isRouteProtectedForUser(pathname: string, role?: string) {
   return routes.some(route => pathname.startsWith(route))
 }
 
+function getClientIp(request: NextRequest) {
+  const forwardedFor = request.headers.get("x-forwarded-for")
+  if (forwardedFor) return forwardedFor.split(",")[0]?.trim() || "127.0.0.1"
+  return request.ip || request.headers.get("x-real-ip") || "127.0.0.1"
+}
+
+async function enforceLocalePageRateLimit(request: NextRequest) {
+  if (request.method !== "GET") return null
+  const normalizedPathname = request.nextUrl.pathname !== "/" ? request.nextUrl.pathname.replace(/\/+$/, "") : "/"
+  const isLocalizedPage =
+    normalizedPathname === "/" ||
+    LOCALE_PATH_PREFIXES.some(prefix => normalizedPathname === prefix || normalizedPathname.startsWith(`${prefix}/`))
+  if (!isLocalizedPage) return null
+
+  const clientIp = getClientIp(request)
+  const { success, reset } = await localePageRateLimiter.limit(clientIp)
+  if (success) return null
+
+  const retryAfter = Math.max(1, Math.ceil(reset - Date.now() / 1000))
+  return new NextResponse("Too many requests", {
+    status: 429,
+    headers: {
+      "retry-after": `${retryAfter}`,
+      "x-ratelimit-limit": `${RATE_LIMITS.localePage.maxAllowed}`,
+    },
+  })
+}
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+  const localePageRateLimitResponse = await enforceLocalePageRateLimit(request)
+  if (localePageRateLimitResponse) return localePageRateLimitResponse
 
   // 1. i18n routing
   const i18nResult = I18nMiddleware(request)

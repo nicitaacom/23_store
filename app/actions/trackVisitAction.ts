@@ -1,8 +1,24 @@
 "use server"
 
 import { headers } from "next/headers"
-import moment from "moment-timezone"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { Redis } from "@upstash/redis"
+import { Ratelimit } from "@upstash/ratelimit"
+
+import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
+import { insertDBUTMVisitAction } from "./insertDBUTMVisitAction"
+import { getCountryNameFromCode } from "@/utils/utmVisitMetadata"
+
+const redis = Redis.fromEnv()
+const utmVisitRateLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(RATE_LIMITS.utmVisit.maxAllowed, `${RATE_LIMITS.utmVisit.windowSec} s`),
+  analytics: false,
+})
+const utmVisitIpRateLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(RATE_LIMITS.utmVisitIp.maxAllowed, `${RATE_LIMITS.utmVisitIp.windowSec} s`),
+  analytics: false,
+})
 
 const extractUTMParams = (searchParams: { [key: string]: string | string[] | undefined } = {}) => ({
   utm_source: Array.isArray(searchParams.utm_source) ? searchParams.utm_source[0] : searchParams.utm_source,
@@ -17,22 +33,16 @@ export async function trackVisitAction(
   searchParams: { [key: string]: string | string[] | undefined } = {},
 ) {
   if (!userId) return console.log(20, "no user id to track visit")
+  const requestHeaders = headers()
   const utmParams = extractUTMParams(searchParams)
   const hasUTMParams = Object.values(utmParams).some(param => param !== undefined)
-
-  // 1. check if already tracked today
-  const today = moment().tz("UTC").format("YYYY-MM-DD")
-  const { data: recentVisit } = await supabaseAdmin
-    .from("utm_stats")
-    .select("id, visited_at")
-    .eq("user_id", userId)
-    .gte("visited_at", `${today}T00:00:00.000Z`)
-    .lte("visited_at", `${today}T23:59:59.999Z`)
-    .order("visited_at", { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  if (recentVisit) return // skip duplicate visit for today (track visit 1 time a day)
+  const today = new Date().toISOString().slice(0, 10)
+  const clientIp = requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() || requestHeaders.get("x-real-ip") || "127.0.0.1"
+  const [{ success: userLimitAllowed }, { success: ipLimitAllowed }] = await Promise.all([
+    utmVisitRateLimiter.limit(`${RATE_LIMITS.utmVisit.key(userId)}:${today}`),
+    utmVisitIpRateLimiter.limit(`${RATE_LIMITS.utmVisitIp.key(clientIp)}:${today}`),
+  ])
+  if (!userLimitAllowed || !ipLimitAllowed) return
 
   const finalParams = hasUTMParams
     ? utmParams
@@ -44,34 +54,13 @@ export async function trackVisitAction(
         utm_content: undefined,
       }
 
-  const userAgent = headers().get("user-agent") ?? "unknown"
-  const insertDBUTMVisitResponse = await insertDBUTMVisitAction(userId, finalParams, userAgent)
+  const countryCode = requestHeaders.get("x-vercel-ip-country")?.toUpperCase() || null
+  const insertDBUTMVisitResponse = await insertDBUTMVisitAction(userId, finalParams, {
+    userAgent: requestHeaders.get("user-agent") ?? "unknown",
+    countryCode,
+    country: getCountryNameFromCode(countryCode),
+    region: requestHeaders.get("x-vercel-ip-country-region"),
+    city: requestHeaders.get("x-vercel-ip-city"),
+  })
   if (typeof insertDBUTMVisitResponse === "string") console.log(52, "insert failed - ", insertDBUTMVisitResponse)
-}
-
-interface UTMParams {
-  utm_source?: string
-  utm_medium?: string
-  utm_campaign?: string
-  utm_term?: string
-  utm_content?: string
-}
-
-async function insertDBUTMVisitAction(userId: string, utmParams: UTMParams, userAgent: string | null) {
-  try {
-    // 1. Insert visit tracking data
-    const { error } = await supabaseAdmin.from("utm_stats").insert({
-      user_id: userId,
-      visited_at: new Date().toISOString(),
-      utm_source: utmParams.utm_source,
-      utm_medium: utmParams.utm_medium,
-      utm_campaign: utmParams.utm_campaign,
-      utm_term: utmParams.utm_term,
-      utm_content: utmParams.utm_content,
-      user_agent: userAgent,
-    })
-    if (error) throw Error(error.message)
-  } catch (error) {
-    return `Error tracking UTM visit: ${error instanceof Error ? error.message : "Unknown error"}`
-  }
 }
