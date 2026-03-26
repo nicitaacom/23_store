@@ -58,6 +58,17 @@ function isRouteProtectedForUser(pathname: string, role?: string) {
   return routes.some(route => pathname.startsWith(route))
 }
 
+function encodeBase64Fn(value: string) {
+  const bytes = new TextEncoder().encode(value)
+  let binaryString = ""
+
+  bytes.forEach(byte => {
+    binaryString += String.fromCharCode(byte)
+  })
+
+  return btoa(binaryString)
+}
+
 function getClientIp(request: NextRequest) {
   const forwardedFor = request.headers.get("x-forwarded-for")
   if (forwardedFor) return forwardedFor.split(",")[0]?.trim() || "127.0.0.1"
@@ -73,7 +84,27 @@ async function enforceLocalePageRateLimit(request: NextRequest) {
   if (!isLocalizedPage) return null
 
   const clientIp = getClientIp(request)
-  const { success, reset } = await localePageRateLimiter.limit(clientIp)
+  let success = false
+  let reset = 0
+
+  try {
+    const rateLimitResponse = await localePageRateLimiter.limit(clientIp)
+    success = rateLimitResponse.success
+    reset = rateLimitResponse.reset
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+
+    return new NextResponse(
+      `Rate limit middleware misconfigured: failed to connect to Upstash Redis. Check UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN. Original error: ${errorMessage}`,
+      {
+        status: 503,
+        headers: {
+          "content-type": "text/plain; charset=utf-8",
+        },
+      },
+    )
+  }
+
   if (success) return null
 
   const retryAfter = Math.max(1, Math.ceil(reset - Date.now() / 1000))
@@ -120,7 +151,7 @@ export async function middleware(request: NextRequest) {
   // 5. attach headers
   if (user) {
     res.headers.set("x-user-id", user.id)
-    res.headers.set("x-user", Buffer.from(JSON.stringify(user)).toString("base64"))
+    res.headers.set("x-user", encodeBase64Fn(JSON.stringify(user)))
   }
 
   // 6. role-based protected routes
