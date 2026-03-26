@@ -19,6 +19,7 @@ import { showToastWarningFn } from "./AdminPanel/functions/showToastWarningFn"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useI18n } from "@/locales/client"
 import { getUserAvatarUrl, sanitizeAvatarUrl } from "@/utils/user"
+import Image from "next/image"
 
 const accountSDK = new AccountSDK()
 
@@ -119,15 +120,19 @@ export function UpdateAvatarModal() {
 
         <div className="flex flex-col gap-y-5 px-6 py-6">
           <div className="flex flex-col items-center gap-y-3 rounded-[24px] border border-border-color bg-background px-5 py-5">
-            <img
+            <Image
               className="h-24 w-24 rounded-[28px] object-cover shadow-md"
-              src={safePreviewAvatarUrl}
               alt="avatar preview"
+              src={safePreviewAvatarUrl}
+              width={512}
+              height={512}
               onError={() => setIsPreviewBroken(true)}
             />
             <div className="flex flex-col items-center gap-y-1">
               <p className="text-sm font-medium text-title">Live preview</p>
-              <p className="text-center text-xs text-subTitle">Leave the field empty to use your provider avatar automatically.</p>
+              <p className="text-center text-xs text-subTitle">
+                Leave the field empty to use your provider avatar automatically.
+              </p>
             </div>
           </div>
 
@@ -154,7 +159,9 @@ export function UpdateAvatarModal() {
                     {...dragProps}>
                     <div className="pointer-events-none flex flex-col items-center text-center">
                       <BiUpload className="mb-3 text-title" size={28} />
-                      <h1 className="text-lg font-semibold text-title">{isDragging ? "Drop avatar here" : "Click or drop avatar here"}</h1>
+                      <h1 className="text-lg font-semibold text-title">
+                        {isDragging ? "Drop avatar here" : "Click or drop avatar here"}
+                      </h1>
                       <p className="mt-2 text-sm text-subTitle">Use drag and drop just like in AdminPanel.</p>
                     </div>
                   </Button>
@@ -163,7 +170,13 @@ export function UpdateAvatarModal() {
                   <div
                     key={index}
                     className="flex w-full flex-col gap-y-3 overflow-hidden rounded-[24px] border border-border-color/70 bg-background/30 p-3">
-                    <img className="aspect-square w-full max-h-[260px] rounded-[20px] object-cover" src={image.data_url} alt="avatar upload" />
+                    <Image
+                      className="aspect-square w-full max-h-[260px] rounded-[20px] object-cover"
+                      src={image.data_url}
+                      width={512}
+                      height={512}
+                      alt="avatar upload"
+                    />
                     <div className="flex flex-row items-center justify-end gap-x-3">
                       <Button size="sm" variant="secondary-outline" onClick={() => onImageUpdate(index)} disabled={isLoading}>
                         Update
