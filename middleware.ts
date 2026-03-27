@@ -9,6 +9,7 @@ import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
 // import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
+import { TURNSTILE_COOKIE_NAME, TURNSTILE_COOKIE_VALUE, TURNSTILE_PATH_SEGMENT, getSafeNextPath } from "@/utils/turnstile"
 
 /**
  * Combined middleware:
@@ -75,12 +76,28 @@ function getClientIp(request: NextRequest) {
   return request.ip || request.headers.get("x-real-ip") || "127.0.0.1"
 }
 
-async function enforceLocalePageRateLimit(request: NextRequest) {
+function getLocalePrefix(pathname: string) {
+  const matchedPrefix = LOCALE_PATH_PREFIXES.find(prefix => pathname === prefix || pathname.startsWith(`${prefix}/`))
+
+  return matchedPrefix || "/fi"
+}
+
+function isHumanCheckPath(pathname: string) {
+  return pathname === `/${TURNSTILE_PATH_SEGMENT}` || LOCALE_PATH_PREFIXES.some(prefix => pathname === `${prefix}/${TURNSTILE_PATH_SEGMENT}`)
+}
+
+function isTurnstileEnabled() {
+  return Boolean(process.env.NEXT_PUBLIC_CLOUDFLARE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY)
+}
+
+async function enforceLocalePageRateLimit(request: NextRequest, hasVerifiedTurnstile: boolean) {
+  if (hasVerifiedTurnstile) return null
   if (request.method !== "GET") return null
   const normalizedPathname = request.nextUrl.pathname !== "/" ? request.nextUrl.pathname.replace(/\/+$/, "") : "/"
   const isLocalizedPage =
     normalizedPathname === "/" ||
     LOCALE_PATH_PREFIXES.some(prefix => normalizedPathname === prefix || normalizedPathname.startsWith(`${prefix}/`))
+  if (isHumanCheckPath(normalizedPathname)) return null
   if (!isLocalizedPage) return null
 
   const clientIp = getClientIp(request)
@@ -119,8 +136,28 @@ async function enforceLocalePageRateLimit(request: NextRequest) {
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
-  const localePageRateLimitResponse = await enforceLocalePageRateLimit(request)
-  if (localePageRateLimitResponse) return localePageRateLimitResponse
+  const turnstileEnabled = isTurnstileEnabled()
+  const hasVerifiedTurnstile = request.cookies.get(TURNSTILE_COOKIE_NAME)?.value === TURNSTILE_COOKIE_VALUE
+  const authErrorDescription = request.nextUrl.searchParams.get("error_description")
+  const hasSupabaseAuthError = Boolean(
+    authErrorDescription && (request.nextUrl.searchParams.has("error") || request.nextUrl.searchParams.has("error_code")),
+  )
+
+  if (authErrorDescription && hasSupabaseAuthError && !pathname.includes("/error")) {
+    console.error("[auth:oauth][middleware] auth provider redirected with error", {
+      pathname,
+      error: request.nextUrl.searchParams.get("error"),
+      errorCode: request.nextUrl.searchParams.get("error_code"),
+      errorDescription: authErrorDescription,
+      fullUrl: request.nextUrl.toString(),
+    })
+    const errorUrl = request.nextUrl.clone()
+    errorUrl.pathname = `${getLocalePrefix(pathname)}/error`
+    errorUrl.search = ""
+    errorUrl.searchParams.set("error_description", authErrorDescription)
+
+    return NextResponse.redirect(errorUrl)
+  }
 
   // 1. i18n routing
   const i18nResult = I18nMiddleware(request)
@@ -129,6 +166,29 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
   if (i18nResult instanceof Response) return i18nResult // e.g. redirect by i18n
+
+  if (turnstileEnabled) {
+    if (isHumanCheckPath(pathname) && hasVerifiedTurnstile) {
+      const safeNextPath = getSafeNextPath(request.nextUrl.searchParams.get("next"), request.nextUrl.locale || "fi")
+      const nextUrl = new URL(safeNextPath, request.nextUrl.origin)
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = nextUrl.pathname
+      redirectUrl.search = nextUrl.search
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    if (!hasVerifiedTurnstile && !isHumanCheckPath(pathname)) {
+      const challengeUrl = request.nextUrl.clone()
+      challengeUrl.pathname = `${getLocalePrefix(pathname)}/${TURNSTILE_PATH_SEGMENT}`
+      challengeUrl.search = ""
+      challengeUrl.searchParams.set("next", `${pathname}${request.nextUrl.search}`)
+
+      return NextResponse.redirect(challengeUrl)
+    }
+  }
+
+  const localePageRateLimitResponse = await enforceLocalePageRateLimit(request, hasVerifiedTurnstile)
+  if (localePageRateLimitResponse) return localePageRateLimitResponse
 
   const res = NextResponse.next()
 

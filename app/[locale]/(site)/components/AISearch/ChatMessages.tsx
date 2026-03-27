@@ -11,8 +11,8 @@ type Props = { conversation: TAIChatMessage[]; isLoading: boolean; chatEndRef: R
 export function ChatMessages({ conversation, isLoading, chatEndRef }: Props) {
   const t = useScopedI18n("aichat")
   return (
-    <div className="rounded-xl border border-border-color bg-foreground-accent/30 backdrop-blur-sm overflow-hidden">
-      <div className="flex flex-col gap-3 p-4 min-h-[420px] max-h-[520px] overflow-y-auto">
+    <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-border-color bg-foreground-accent/30 backdrop-blur-sm">
+      <div className="flex h-full min-h-[360px] flex-col gap-3 overflow-y-auto p-4">
         {conversation.length === 0 && <EmptyState title={t("emptystate.title")} subtitle={t("emptystate.subtitle")} />}
 
         <AnimatePresence mode="popLayout">

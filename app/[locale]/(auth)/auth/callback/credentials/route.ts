@@ -1,5 +1,6 @@
 import { pusherServer } from "@/libs/pusher"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { getAuthErrorRedirectUrl, getLocalizedAppUrl } from "@/utils/authCallback"
 import { getPreferredAvatarUrl, getUserAvatarUrl } from "@/utils/user"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
   // Redirect to error page if supabase throw error on recover
   const error_description = requestUrl.searchParams.get("error_description")
   if (error_description) {
-    return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`) //throw error like this
+    return NextResponse.redirect(getAuthErrorRedirectUrl(requestUrl, error_description))
   }
 
   /* Exchange code for cookies - update row that user confirmed email */
@@ -21,6 +22,9 @@ export async function GET(request: Request) {
     // Exchange code to get cookies session
     const supabase = createRouteHandlerClient({ cookies })
     const response = await supabase.auth.exchangeCodeForSession(code)
+    if (response.error) {
+      return NextResponse.redirect(getAuthErrorRedirectUrl(requestUrl, response.error.message))
+    }
 
     // Update row that user verified email
     if (response.data.user && response.data.user.email) {
@@ -45,15 +49,16 @@ export async function GET(request: Request) {
       // Trigger pusher to 'auth:completed' to show in another tab message like 'Authencication completed - thank you'
       await pusherServer.trigger(email, "auth:completed", null)
 
-      const redirectResponse = NextResponse.redirect(requestUrl.origin)
+      const redirectResponse = NextResponse.redirect(getLocalizedAppUrl(requestUrl))
 
       if (avatarUrl) redirectResponse.cookies.set("avatarUrl", avatarUrl, { path: "/" })
       else redirectResponse.cookies.delete("avatarUrl")
 
       return redirectResponse
     }
+
+    return NextResponse.redirect(getAuthErrorRedirectUrl(requestUrl, "No user found after exchanging cookies for registration"))
   } else {
-    const error_description = encodeURIComponent("No user found after exchanging cookies for registration")
-    return NextResponse.redirect(`${requestUrl.origin}/error?error_description=${error_description}`)
+    return NextResponse.redirect(getAuthErrorRedirectUrl(requestUrl, "No user found after exchanging cookies for registration"))
   }
 }

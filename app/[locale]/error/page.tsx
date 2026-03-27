@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 
 import { EmailLinkInvalidOrExpired } from "./EmailLinkInvalidOrExpired"
@@ -8,8 +9,94 @@ import { AuthNotCompleted } from "./AuthNotCompleted"
 import { BackToMainButton } from "./components/BackToMainButton"
 import { NoCodeFoundError } from "./NoCodeFoundError"
 
+const AUTH_ERROR_STORAGE_KEY = "auth:lastErrorDescription"
+const AUTH_ERROR_TTL_MS = 5 * 60 * 1000
+
+type TOAuthAttempt = {
+  provider: string
+  locale: string
+  callbackBaseUrl: string
+  redirectTo: string
+  currentHref: string | null
+  startedAt: string
+}
+
+type TPersistedAuthError = {
+  value: string
+  expiresAt: number
+}
+
 export default function Error() {
-  const error_description = useSearchParams()?.get("error_description")
+  const searchParams = useSearchParams()
+  const [lastOAuthAttempt, setLastOAuthAttempt] = useState<TOAuthAttempt | null>(null)
+  const [persistedErrorDescription, setPersistedErrorDescription] = useState<string | null>(null)
+
+  const error_description = useMemo(() => {
+    const errorFromHook = searchParams?.get("error_description")
+
+    if (errorFromHook) return errorFromHook
+    if (typeof window !== "undefined") {
+      const errorFromLocation = new URLSearchParams(window.location.search).get("error_description")
+      if (errorFromLocation) return errorFromLocation
+    }
+
+    return persistedErrorDescription
+  }, [persistedErrorDescription, searchParams])
+
+  const expectedSupabaseCallbackUrl = useMemo(() => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, "")
+
+    return supabaseUrl ? `${supabaseUrl}/auth/v1/callback` : null
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const rawPayload = localStorage.getItem("oauth:lastAttempt")
+    if (!rawPayload) return
+
+    try {
+      setLastOAuthAttempt(JSON.parse(rawPayload) as TOAuthAttempt)
+    } catch (error) {
+      console.error("[auth:oauth][error-page] failed to parse oauth:lastAttempt", error)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const errorFromHook = searchParams?.get("error_description")
+    const errorFromLocation = new URLSearchParams(window.location.search).get("error_description")
+    const nextErrorDescription = errorFromHook || errorFromLocation
+
+    if (nextErrorDescription) {
+      const payload: TPersistedAuthError = {
+        value: nextErrorDescription,
+        expiresAt: Date.now() + AUTH_ERROR_TTL_MS,
+      }
+
+      sessionStorage.setItem(AUTH_ERROR_STORAGE_KEY, JSON.stringify(payload))
+      setPersistedErrorDescription(nextErrorDescription)
+      return
+    }
+
+    const rawPersistedError = sessionStorage.getItem(AUTH_ERROR_STORAGE_KEY)
+    if (!rawPersistedError) return
+
+    try {
+      const persistedError = JSON.parse(rawPersistedError) as TPersistedAuthError
+
+      if (!persistedError?.value || persistedError.expiresAt < Date.now()) {
+        sessionStorage.removeItem(AUTH_ERROR_STORAGE_KEY)
+        return
+      }
+
+      setPersistedErrorDescription(persistedError.value)
+    } catch (error) {
+      sessionStorage.removeItem(AUTH_ERROR_STORAGE_KEY)
+      console.error("[auth:oauth][error-page] failed to parse persisted auth error", error)
+    }
+  }, [searchParams])
 
   if (error_description === "Email link is invalid or has expired") {
     return <EmailLinkInvalidOrExpired />
@@ -25,6 +112,41 @@ export default function Error() {
   }
   if (error_description === "You have no access to this route - your auth not completed") {
     return <AuthNotCompleted />
+  }
+
+  if (error_description?.startsWith("Unable to exchange external code")) {
+    return (
+      <div className="min-h-screen flex flex-col gap-y-5 items-center justify-center px-4">
+        <div className="max-w-2xl flex flex-col gap-y-3 rounded-[20px] border border-danger/30 bg-background p-6 text-center">
+          <p className="text-danger text-2xl font-semibold">Google auth failed before your app received a session</p>
+          <p>
+            Supabase received Google&apos;s authorization code, but could not exchange it for tokens. This is usually a provider
+            configuration problem, not a route-rendering problem in the app.
+          </p>
+          <p className="text-danger break-all">{error_description}</p>
+          <p>
+            The most likely fix is in <span className="font-semibold">Supabase Auth &gt; Providers &gt; Google</span>: re-paste the
+            exact Google OAuth client ID and client secret for the OAuth app that owns the callback URI below.
+          </p>
+          {expectedSupabaseCallbackUrl && (
+            <p className="break-all">
+              Expected Supabase callback URI: <span className="font-mono">{expectedSupabaseCallbackUrl}</span>
+            </p>
+          )}
+          {lastOAuthAttempt && (
+            <div className="rounded-[14px] border border-border-color bg-foreground p-4 text-left">
+              <p className="mb-2 text-sm font-semibold text-title">Last OAuth attempt</p>
+              <pre className="whitespace-pre-wrap break-all text-xs text-subTitle">{JSON.stringify(lastOAuthAttempt, null, 2)}</pre>
+            </div>
+          )}
+          <p className="text-sm text-subTitle">
+            If the callback URI is already correct in Google Cloud, the next thing to fix is the Google client secret saved in
+            Supabase.
+          </p>
+        </div>
+        <BackToMainButton />
+      </div>
+    )
   }
 
   // Get error details from URL

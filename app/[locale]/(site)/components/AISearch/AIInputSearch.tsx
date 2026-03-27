@@ -24,8 +24,7 @@ export function AIInputSearch() {
   } = useAIChat()
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col gap-5 font-primary">
-      <MemoryDebug memory={memory} debugContext={debugContext} />
+    <div className="flex h-full min-h-0 w-full flex-col gap-5 font-primary">
       <ChatHeader />
       <ChatMessages conversation={conversation} isLoading={isLoading} chatEndRef={chatEndRef} />
       <ChatInput
@@ -39,6 +38,7 @@ export function AIInputSearch() {
         handleKeyPress={handleKeyPress}
         handleTextareaInput={handleTextareaInput}
       />
+      <MemoryDebug memory={memory} debugContext={debugContext} />
     </div>
   )
 }

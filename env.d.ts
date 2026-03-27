@@ -25,6 +25,9 @@ declare global {
       NEXT_PAYPAL_PUBLIC: string
       NEXT_PAYPAL_SECRET: string
 
+      NEXT_PUBLIC_CLOUDFLARE_SITE_KEY: string
+      TURNSTILE_SECRET_KEY: string
+
       PINECONE_INDEX: string
       PINECONE_HOST: string
       PINECONE_ENVIRONMENT: string
@@ -56,6 +59,20 @@ declare global {
 declare global {
   interface Window {
     ethereum: any
+    turnstile?: {
+      render: (
+        container: HTMLElement,
+        options: {
+          sitekey: string
+          callback: (token: string) => void
+          "error-callback"?: () => void
+          "expired-callback"?: () => void
+          theme?: "light" | "dark" | "auto"
+        },
+      ) => string
+      reset: (widgetId?: string) => void
+      remove: (widgetId?: string) => void
+    }
   }
 }
 

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import useToast from "@/store/ui/useToast"
 import { useCurrentLocale, useI18n } from "@/locales/client"
+import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 
 interface ContinueWithButtonProps {
   provider: "google" | "faceit" | "twitter"
@@ -20,10 +21,29 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
   async function continueWith(e: React.FormEvent) {
     e.preventDefault()
     try {
+      const callbackBaseUrl = getAuthCallbackBaseUrl()
+      const redirectTo = `${callbackBaseUrl}/${locale}/auth/callback/oauth?provider=${provider}`
+      const oauthDebugPayload = {
+        provider,
+        locale,
+        callbackBaseUrl,
+        redirectTo,
+        currentHref: typeof window !== "undefined" ? window.location.href : null,
+        startedAt: new Date().toISOString(),
+      }
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("oauth:lastAttempt", JSON.stringify(oauthDebugPayload))
+      }
+
+      console.log("[auth:oauth][client] starting OAuth flow", {
+        ...oauthDebugPayload,
+      })
+
       if (provider === "google") {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: "google",
-          options: { redirectTo: `${location.origin}/${locale}/auth/callback/oauth?provider=google` },
+          options: { redirectTo },
         })
         if (error) throw Error(error.message)
       } else if (provider === "faceit") {
@@ -32,11 +52,16 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
       } else if (provider === "twitter") {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: "twitter",
-          options: { redirectTo: `${location.origin}/${locale}/auth/callback/oauth?provider=twitter` },
+          options: { redirectTo },
         })
         if (error) throw Error(error.message)
       }
     } catch (error) {
+      console.error("[auth:oauth][client] failed to start OAuth flow", {
+        provider,
+        locale,
+        error: error instanceof Error ? error.message : String(error),
+      })
       toast.show(
         "error",
         `${t("auth.error.continuing_with")} ${provider}`,

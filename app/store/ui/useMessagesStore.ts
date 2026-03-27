@@ -45,6 +45,10 @@ export const useMessagesStore = create<MessagesStore>()((set, get) => ({
   clearUnseenMessages: () => set(() => ({ unseenMessagesNumber: 0 })),
 
   async initialize() {
+    if (typeof window === "undefined") {
+      return
+    }
+
     const state = get()
     const userId = getUserId()
     // get userId based on authenticaed user on not

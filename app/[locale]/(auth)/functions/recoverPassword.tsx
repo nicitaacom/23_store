@@ -9,6 +9,7 @@ import { Button } from "@/components/ui"
 import { getPusherClient } from "@/libs/pusher"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UnknownError } from "./UnknownError"
+import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 
 export async function recoverPassword(
   email: string,
@@ -22,7 +23,7 @@ export async function recoverPassword(
 
     await axios.post("/api/auth/recover", { email: email } as TAPIAuthRecover)
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: `${location.origin}/${locale}/auth/callback/recover`,
+      redirectTo: `${getAuthCallbackBaseUrl()}/${locale}/auth/callback/recover`,
     })
     if (error) throw Error(error.message)
 

@@ -11,6 +11,7 @@ import { AuthFormData } from "../AuthModal/AuthModal"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UnknownError } from "./UnknownError"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
+import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 
 export async function signInWithPassword(
   email: string,
@@ -88,7 +89,7 @@ export async function signInWithPassword(
               onClick={async () =>
                 await supabaseClient.auth.signInWithOAuth({
                   provider: "google",
-                  options: { redirectTo: `${location.origin}/${locale}/auth/callback/oauth?provider=google` },
+                  options: { redirectTo: `${getAuthCallbackBaseUrl()}/${locale}/auth/callback/oauth?provider=google` },
                 })
               }>
               {t("auth.continue_with_google")}

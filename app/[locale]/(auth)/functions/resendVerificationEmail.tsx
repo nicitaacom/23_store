@@ -5,6 +5,7 @@ import { AuthFormData } from "../AuthModal/AuthModal"
 import { UseFormSetFocus } from "react-hook-form"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UnknownError } from "./UnknownError"
+import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 
 export async function resendVerificationEmail(
   email: string,
@@ -19,7 +20,7 @@ export async function resendVerificationEmail(
       type: "signup",
       email: email,
       options: {
-        emailRedirectTo: `${location.origin}/${locale}/auth/callback/credentials`,
+        emailRedirectTo: `${getAuthCallbackBaseUrl()}/${locale}/auth/callback/credentials`,
       },
     })
     if (resendError) throw resendError
