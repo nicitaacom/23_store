@@ -1,80 +1,49 @@
 import Link from "next/link"
 
 import { fetchPopularProducts } from "@/libs/popularProducts"
-import { PopularProductsPreviewList } from "../components/PopularProductsPreviewList"
+import { PopularProductsLazyFeed } from "./PopularProductsLazyFeed"
 
 interface PopularProductsPageProps {
   params: { locale: string }
-  searchParams: {
-    page?: string
-    perPage?: string
-  }
 }
 
-export default async function PopularProductsPage({ params, searchParams }: PopularProductsPageProps) {
-  const page = Number(searchParams.page) || 1
-  const perPage = Number(searchParams.perPage) || 24
-  const { products, totalItems, totalPages } = await fetchPopularProducts({ page, perPage })
+export default async function PopularProductsPage({ params }: PopularProductsPageProps) {
+  const { products, totalItems } = await fetchPopularProducts({ limit: 24 })
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-6xl flex-col gap-8 px-4 py-12">
-      <section className="rounded-[32px] border border-success/20 bg-gradient-to-br from-success/10 via-background to-background p-6 shadow-2xl shadow-success/10">
-        <div className="flex flex-col gap-4 laptop:flex-row laptop:items-end laptop:justify-between">
-          <div className="flex max-w-3xl flex-col gap-3">
-            <div className="inline-flex w-fit items-center rounded-full border border-success/30 bg-success/10 px-3 py-1 text-sm font-medium text-success">
-              Demo ready collection
+    <div className="mx-auto h-[calc(100vh-64px)] w-full overflow-hidden px-4 py-2 text-title">
+      <section className="panel-scroll mx-auto flex h-full w-full max-w-[1800px] flex-col overflow-x-hidden overflow-y-auto rounded-[4px] border border-success/15 bg-gradient-to-br from-success/5 via-background to-background px-4 py-3 shadow-2xl shadow-success/5">
+        <section className="mb-4 rounded-[24px] border border-success/20 bg-[radial-gradient(circle_at_top_left,rgba(34,197,94,0.18),transparent_34%),linear-gradient(135deg,rgba(10,14,18,0.98),rgba(17,24,32,0.95))] p-5 laptop:p-6">
+          <div className="flex flex-col gap-5 laptop:flex-row laptop:items-end laptop:justify-between">
+            <div className="flex max-w-3xl flex-col gap-3">
+              <div className="inline-flex w-fit items-center rounded-[4px] border border-success/30 bg-success/10 px-3 py-1 text-sm font-medium text-success">
+                Live catalog preview
+              </div>
+              <h1 className="text-3xl font-semibold tracking-tight text-title laptop:text-4xl">Popular products preview</h1>
+              <p className="max-w-2xl text-base leading-7 text-subTitle">
+                Browse the catalog in one continuous feed. New items load automatically as you approach the bottom, so the page feels like a real storefront instead of a paginated admin list.
+              </p>
             </div>
-            <h1 className="text-4xl font-semibold tracking-tight text-title">Popular products preview</h1>
-            <p className="text-base leading-7 text-subTitle">
-              This page gives customers a clean preview of the top catalog items before they jump into the AI assistant.
-            </p>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-sm text-subTitle">
-            <span>{totalItems} items available</span>
-            <span>{perPage} per page</span>
-            <Link
-              href={`/${params.locale}`}
-              className="rounded-full border border-success/30 px-4 py-2 font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black">
-              Back to shop
-            </Link>
+            <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2">
+              <div className="rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+                <p className="text-xs uppercase tracking-[0.24em] text-subTitle">Available now</p>
+                <p className="mt-2 text-2xl font-semibold text-title">{totalItems}</p>
+              </div>
+              <div className="rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+                <p className="text-xs uppercase tracking-[0.24em] text-subTitle">Navigation</p>
+                <Link
+                  href={`/${params.locale}`}
+                  className="mt-2 inline-flex rounded-[4px] border border-success/30 px-4 py-2 font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black">
+                  Back to shop
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
+
+        <PopularProductsLazyFeed initialProducts={products} locale={params.locale} totalItems={totalItems} />
       </section>
-
-      <PopularProductsPreviewList
-        products={products}
-        locale={params.locale}
-        showHeader={false}
-      />
-
-      <div className="flex flex-col gap-4 rounded-2xl border border-border-color/20 bg-background/70 p-4 mobile:flex-row mobile:items-center mobile:justify-between">
-        <div className="text-sm text-subTitle">
-          Page {page} of {totalPages}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href={`/${params.locale}/popular-products?page=${Math.max(1, page - 1)}&perPage=${perPage}`}
-            className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
-              page <= 1
-                ? "pointer-events-none border-border-color/20 text-subTitle/50"
-                : "border-success/30 text-success hover:border-success hover:bg-success hover:text-black"
-            }`}>
-            Previous
-          </Link>
-
-          <Link
-            href={`/${params.locale}/popular-products?page=${Math.min(totalPages, page + 1)}&perPage=${perPage}`}
-            className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
-              page >= totalPages
-                ? "pointer-events-none border-border-color/20 text-subTitle/50"
-                : "border-success/30 text-success hover:border-success hover:bg-success hover:text-black"
-            }`}>
-            Next
-          </Link>
-        </div>
-      </div>
     </div>
   )
 }

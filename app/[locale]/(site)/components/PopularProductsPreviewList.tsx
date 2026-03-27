@@ -13,6 +13,7 @@ interface PopularProductsPreviewListProps {
   showHeader?: boolean
   compact?: boolean
   hotProductIds?: string[]
+  showPreviewLink?: boolean
 }
 
 export function PopularProductsPreviewList({
@@ -23,6 +24,7 @@ export function PopularProductsPreviewList({
   showHeader = true,
   compact = false,
   hotProductIds = [],
+  showPreviewLink = true,
 }: PopularProductsPreviewListProps) {
   return (
     <section className="w-full flex flex-col gap-[2px]">
@@ -83,11 +85,13 @@ export function PopularProductsPreviewList({
                       <p className={`${compact ? "text-xl" : "text-2xl"} font-bold text-success`}>{formatCurrency(product.price)}</p>
                     </div>
 
-                    <Link
-                      href={`/${locale}/popular-products`}
-                      className="rounded-[4px] border border-success/30 bg-success/10 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black">
-                      Preview list
-                    </Link>
+                    {showPreviewLink && (
+                      <Link
+                        href={`/${locale}/popular-products`}
+                        className="rounded-[4px] border border-success/30 bg-success/10 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black">
+                        Preview list
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>

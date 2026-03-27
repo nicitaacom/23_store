@@ -1,12 +1,13 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { IoMdClose } from "react-icons/io"
 import { useSwipeable } from "react-swipeable"
 import { twMerge } from "tailwind-merge"
 import { AnimatePresence, motion } from "framer-motion"
 import { useLoading } from "@/store/ui/useLoading"
+import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
 interface ModalQueryContainerProps {
   children: React.ReactNode | ((props: { closeModal: () => void }) => React.ReactNode)
@@ -27,36 +28,24 @@ export function ModalQueryContainer({
   const router = useRouter()
   const queryParams = useSearchParams()
   const isLoading = useLoading.getState().isLoading
+  const modalRef = useRef<HTMLDivElement | null>(null)
 
   const showModal = queryParams?.getAll("modal").includes(modalQuery)
   const [shouldClose, setShouldClose] = useState(false)
 
-  //correct way to add event listener to listen keydown
-  useEffect(() => {
-    //event listener required because I add event listener on document in AreYouSureModalContainer
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading])
-
   // Close modal and redirect on close
   const closeModal = useCallback(() => {
+    if (isLoading) return
     setShouldClose(true)
     setTimeout(() => {
       router.push(pathname ?? "/")
     }, 500)
-  }, [router, pathname])
+  }, [isLoading, router, pathname])
 
-  //Close modal on esc
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
-      //to prevent focus state on browser searchbar
-      event.preventDefault()
-    }
-    if (event.key === "Escape" && !isLoading) {
-      closeModal()
-    }
-  }
+  useOnEscOrClickOutside(modalRef, closeModal, {
+    isHookEnabled: showModal && !shouldClose,
+    ignoreInputs: true,
+  })
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */
   const modalBgHandler = useSwipeable({
@@ -101,7 +90,8 @@ export function ModalQueryContainer({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0.8 }}
               transition={{ duration: 0.25 }}
-              {...modalHandler}>
+              {...modalHandler}
+              ref={modalRef}>
               {!hideCloseButton && (
                 <IoMdClose
                   className={twMerge(

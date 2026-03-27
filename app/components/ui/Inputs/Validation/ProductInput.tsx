@@ -54,18 +54,34 @@ export function ProductInput({
   ...props
 }: InputFormProps) {
   const t = useScopedI18n("product")
+
+  const getInvalidCharacterMessage = (value: string) => {
+    const invalidCharacterMatch = value.match(/[^A-Za-z0-9$()_+ /,.'-]/)
+    if (!invalidCharacterMatch || invalidCharacterMatch.index === undefined) return null
+
+    const invalidCharacter = invalidCharacterMatch[0] === " " ? "space" : invalidCharacterMatch[0]
+    const start = Math.max(0, invalidCharacterMatch.index - 6)
+    const end = Math.min(value.length, invalidCharacterMatch.index + 7)
+    const context = value.slice(start, end)
+
+    return t("title_invalid_character", {
+      character: invalidCharacter,
+      context,
+    })
+  }
+
   const validationRules: ValidationRules = {
     title: {
       requiredMessage: t("this_field_is_required"),
       pattern: {
-        value: /^(?=.*[A-Za-z])[A-Za-z0-9][A-Za-z0-9$()_+ /,'-]{2,157}$/,
+        value: /^(?=.*[A-Za-z])[A-Za-z0-9][A-Za-z0-9$()_+ /,.'-]{2,157}$/,
         message: t("title_required"),
       },
     },
     subTitle: {
       requiredMessage: t("this_field_is_required"),
       pattern: {
-        value: /^[-:.,()#@&%\/"'`~\[\]a-zA-Z0-9\n ]{1,10000}$/,
+        value: /^[-:.,()#@&%\/"'`~\[\]><=+!?*_;a-zA-Z0-9\n ]{1,10000}$/,
         message: t("subtitle_required"),
       },
     },
@@ -90,23 +106,27 @@ export function ProductInput({
     pattern: { value: patternValue, message: patternMessage },
   } = validationRules[id]
 
+  const registerOptions = {
+    required: required ? requiredMessage : undefined,
+    pattern: {
+      value: patternValue,
+      message: patternMessage,
+    },
+    validate:
+      id === "title"
+        ? (value: string | number) => {
+            const stringValue = String(value ?? "")
+            if (!stringValue || patternValue.test(stringValue)) return true
+            return getInvalidCharacterMessage(stringValue) || patternMessage
+          }
+        : undefined,
+  }
+
   const { ref, ...rest } = {
-    ...register(id, {
-      required: required ? requiredMessage : undefined,
-      pattern: {
-        value: patternValue,
-        message: patternMessage,
-      },
-    }),
+    ...register(id, registerOptions),
   }
   const { ref: textArea, ...textareaRest } = {
-    ...register(id, {
-      required: required ? requiredMessage : undefined,
-      pattern: {
-        value: patternValue,
-        message: patternMessage,
-      },
-    }),
+    ...register(id, registerOptions),
   }
 
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -132,13 +152,7 @@ export function ProductInput({
           placeholder={placeholder}
           disabled={disabled}
           rows={6}
-          {...register("subTitle", {
-            required: required ? requiredMessage : undefined,
-            pattern: {
-              value: patternValue,
-              message: patternMessage,
-            },
-          })}
+          {...register("subTitle", registerOptions)}
           ref={e => {
             textArea(e)
             textareaRef.current = e // you can still assign to ref issue
@@ -162,13 +176,7 @@ export function ProductInput({
           autoComplete={id}
           placeholder={placeholder}
           disabled={disabled}
-          {...register(id, {
-            required: required ? requiredMessage : undefined,
-            pattern: {
-              value: patternValue,
-              message: patternMessage,
-            },
-          })}
+          {...register(id, registerOptions)}
           onInput={event => {
             if (type === "numeric" && numericFormat === "grouped") {
               event.currentTarget.value = formatGroupedNumberInput(event.currentTarget.value)
