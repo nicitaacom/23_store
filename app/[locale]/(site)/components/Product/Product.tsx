@@ -10,6 +10,7 @@ import { ProductQuantity } from "../ProductQuantity"
 import { ProductButtons } from "../ProductButtons"
 import { ProductImage } from "../ProductImage"
 import { RequestReplanishmentButton } from "./RequestReplanishmentButton"
+import Image from "next/image"
 
 type Props = TProductDB & {
   containerClassName?: string
@@ -17,7 +18,10 @@ type Props = TProductDB & {
 
 function Product({ ...product }: Props) {
   const isOutOfStock = product.on_stock === 0
-  const variants = useMemo(() => product.variants?.filter(variant => variant.label && variant.image_url) || [], [product.variants])
+  const variants = useMemo(
+    () => product.variants?.filter(variant => variant.label && variant.image_url) || [],
+    [product.variants],
+  )
   const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id || "")
   const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
   const previewImages = selectedVariant?.image_url ? [selectedVariant.image_url] : product.img_url
@@ -60,9 +64,7 @@ function Product({ ...product }: Props) {
             <div className="flex items-center gap-x-3 px-3 py-1.5 rounded-lg bg-background/50 border border-border-color/20 w-fit">
               <div
                 className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                  isOutOfStock
-                    ? "bg-warning animate-pulse shadow-lg shadow-warning/50"
-                    : "bg-success shadow-lg shadow-success/50"
+                  isOutOfStock ? "bg-warning animate-pulse shadow-lg shadow-warning/50" : "bg-success shadow-lg shadow-success/50"
                 }`}
               />
               <p className={`text-sm font-medium whitespace-nowrap ${isOutOfStock ? "text-warning" : "text-success"}`}>
@@ -91,7 +93,13 @@ function Product({ ...product }: Props) {
                             ? "border-success/40 bg-success/10 text-title shadow-[0_0_0_1px_rgba(34,197,94,0.18)]"
                             : "border-border-color/20 bg-background/40 text-subTitle hover:border-success/25 hover:bg-success/5",
                         )}>
-                        <img className="h-11 w-11 rounded-lg object-cover" src={variant.image_url} alt={variant.label} />
+                        <Image
+                          className="h-11 w-11 rounded-lg object-cover"
+                          width={512}
+                          height={512}
+                          src={variant.image_url}
+                          alt={variant.label}
+                        />
                         <span className="max-w-[130px] text-sm font-medium leading-5">{variant.label}</span>
                       </button>
                     )
