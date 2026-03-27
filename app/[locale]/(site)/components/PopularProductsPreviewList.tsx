@@ -3,6 +3,7 @@ import Link from "next/link"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
+import { formatNumber } from "@/utils/numberFormatter"
 
 interface PopularProductsPreviewListProps {
   products: TProductDB[]
@@ -11,6 +12,7 @@ interface PopularProductsPreviewListProps {
   subtitle?: string
   showHeader?: boolean
   compact?: boolean
+  hotProductIds?: string[]
 }
 
 export function PopularProductsPreviewList({
@@ -20,6 +22,7 @@ export function PopularProductsPreviewList({
   subtitle = "A curated preview of the products customers notice first.",
   showHeader = true,
   compact = false,
+  hotProductIds = [],
 }: PopularProductsPreviewListProps) {
   return (
     <section className="w-full flex flex-col gap-[2px]">
@@ -37,6 +40,7 @@ export function PopularProductsPreviewList({
         {products.map(product => {
           const imageUrl = product.img_url?.[0] || "/placeholder.jpg"
           const isInStock = (product.on_stock || 0) > 0
+          const isHotProduct = hotProductIds.includes(product.id)
 
           return (
             <article
@@ -55,14 +59,16 @@ export function PopularProductsPreviewList({
 
                 <div className={`flex flex-1 flex-col ${compact ? "gap-[2px] px-1 py-0.5" : "gap-[2px] px-1 py-0.5"}`}>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-[4px] bg-success/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-success">
-                      Hot now
-                    </span>
+                    {isHotProduct && (
+                      <span className="rounded-[4px] bg-success/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-success">
+                        Hot now
+                      </span>
+                    )}
                     <span
                       className={`rounded-[4px] px-3 py-1 text-xs font-medium ${
                         isInStock ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
                       }`}>
-                      {isInStock ? `${product.on_stock} in stock` : "Restocking"}
+                      {isInStock ? `${formatNumber(product.on_stock)} in stock` : "Restocking"}
                     </span>
                   </div>
 

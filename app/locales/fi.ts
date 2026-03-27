@@ -239,7 +239,7 @@ export default {
   "product.title_required": "Anna tuotteen otsikko – a–z, numerot ja #()_ sallittu",
   "product.subtitle_required": "Merkit !$^*_=\\ eivät ole sallittuja",
   "product.price_required": "Anna hinta väliltä 1–999 999 kahdella desimaalilla",
-  "product.on_stock_required": "Anna varastosaldo – 1–99 999",
+  "product.on_stock_required": "Anna varastosaldo positiivisena numerona, desimaalit sallittu",
   "product.drop_files_here": "Pudota tiedostot tähän",
   "product.click_or_drop_here": "Klikkaa tai pudota tähän",
   "product.update": "Päivitä",

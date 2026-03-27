@@ -11,6 +11,7 @@ import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
+import { formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
 
 interface FormatOnStockFormProps {
   id: string
@@ -39,7 +40,7 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
   } = useForm<IFormDataAddProduct>()
 
   const onSubmit = (data: IFormDataAddProduct) => {
-    updateTitle(data.onStock)
+    updateTitle(parseFormattedNumber(data.onStock))
   }
 
   const enableInput = () => {
@@ -79,16 +80,18 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
                 isLoading && "animate-pulse",
               )}
               id="onStock"
+              type="numeric"
+              numericFormat="grouped"
               register={register}
               errors={errors}
-              placeholder={onStock.toString()}
+              placeholder={formatNumber(onStock) || onStock.toString()}
               required
             />
           </div>
         </form>
       ) : (
         <button className="flex items-center gap-x-2" type="button" onClick={enableInput}>
-          <span className="text-sm font-medium text-title">{onStock}</span>
+          <span className="text-sm font-medium text-title">{formatNumber(onStock) || onStock}</span>
           <CiEdit className="text-subTitle" />
         </button>
       )}

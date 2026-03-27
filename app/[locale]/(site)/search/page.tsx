@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
+import { normalizeProducts } from "@/utils/productVariants"
 
 import { NoProductsFound } from "./NoProductsFound"
 import { Products } from "../components"
@@ -33,7 +34,7 @@ export default async function SearchPage({ searchParams: { query } }: SearchPage
     .or(`title.ilike.%${query}%,sub_title.ilike.%${query}%`)
     .order("price", { ascending: true })
   if (products_response.error) throw products_response.error
-  const products = products_response.data
+  const products = normalizeProducts(products_response.data)
 
   if (products.length === 0) {
     return <NoProductsFound />

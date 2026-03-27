@@ -1,8 +1,11 @@
-import { memo } from "react"
+"use client"
+
+import { memo, useMemo, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
+import { formatNumber } from "@/utils/numberFormatter"
 import { ProductQuantity } from "../ProductQuantity"
 import { ProductButtons } from "../ProductButtons"
 import { ProductImage } from "../ProductImage"
@@ -14,6 +17,10 @@ type Props = TProductDB & {
 
 function Product({ ...product }: Props) {
   const isOutOfStock = product.on_stock === 0
+  const variants = useMemo(() => product.variants?.filter(variant => variant.label && variant.image_url) || [], [product.variants])
+  const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id || "")
+  const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
+  const previewImages = selectedVariant?.image_url ? [selectedVariant.image_url] : product.img_url
 
   return (
     <article
@@ -27,7 +34,7 @@ function Product({ ...product }: Props) {
         product.containerClassName,
       )}>
       <div className="mobile:w-[200px] mobile:h-[200px] shrink-0">
-        <ProductImage imgUrl={product.img_url} productTitle={product.title} />
+        <ProductImage imgUrl={previewImages} productTitle={product.title} />
       </div>
 
       <div className="flex flex-col justify-between gap-y-4 w-full px-5 py-4 min-w-0">
@@ -59,9 +66,39 @@ function Product({ ...product }: Props) {
                 }`}
               />
               <p className={`text-sm font-medium whitespace-nowrap ${isOutOfStock ? "text-warning" : "text-success"}`}>
-                {isOutOfStock ? "Out of stock" : `${product.on_stock} units available`}
+                {isOutOfStock ? "Out of stock" : `${formatNumber(product.on_stock)} units available`}
               </p>
             </div>
+
+            {variants.length > 0 && (
+              <div className="w-full rounded-xl border border-border-color/20 bg-background/35 p-3">
+                <p className="text-sm font-medium text-title">
+                  Variant: <span className="text-success">{selectedVariant?.label}</span>
+                </p>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {variants.map(variant => {
+                    const isActive = variant.id === selectedVariant?.id
+
+                    return (
+                      <button
+                        key={variant.id}
+                        type="button"
+                        onClick={() => setSelectedVariantId(variant.id)}
+                        className={twMerge(
+                          "flex items-center gap-2 rounded-xl border px-2 py-2 text-left transition-all duration-200",
+                          isActive
+                            ? "border-success/40 bg-success/10 text-title shadow-[0_0_0_1px_rgba(34,197,94,0.18)]"
+                            : "border-border-color/20 bg-background/40 text-subTitle hover:border-success/25 hover:bg-success/5",
+                        )}>
+                        <img className="h-11 w-11 rounded-lg object-cover" src={variant.image_url} alt={variant.label} />
+                        <span className="max-w-[130px] text-sm font-medium leading-5">{variant.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </section>
 

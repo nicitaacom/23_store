@@ -239,7 +239,7 @@ export default {
   "product.title_required": "Ange en produkttitel – a–z, siffror och #()_ är tillåtna",
   "product.subtitle_required": "Inga tecken !$^*_=\\ tillåtna",
   "product.price_required": "Ange pris från 1 till 999 999 med 2 decimaler",
-  "product.on_stock_required": "Ange hur många produkter i lager – 1–99 999",
+  "product.on_stock_required": "Ange lagersaldo som ett positivt tal, decimaler tillatna",
   "product.drop_files_here": "Släpp filer här",
   "product.click_or_drop_here": "Klicka eller släpp här",
   "product.update": "Uppdatera",

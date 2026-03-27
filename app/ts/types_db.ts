@@ -54,6 +54,7 @@ export type Database = {
           price_id: string
           sub_title: string
           title: string
+          variants: Json | null
         }
         Insert: {
           id: string
@@ -64,6 +65,7 @@ export type Database = {
           price_id: string
           sub_title: string
           title: string
+          variants?: Json | null
         }
         Update: {
           id?: string
@@ -74,6 +76,7 @@ export type Database = {
           price_id?: string
           sub_title?: string
           title?: string
+          variants?: Json | null
         }
         Relationships: []
       }

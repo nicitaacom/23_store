@@ -6,6 +6,7 @@ import supabaseClient from "@/libs/supabase/supabaseClient"
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
 import useUserStore from "./userStore"
 import { logFn } from "@/utils/logFn"
+import { normalizeProducts } from "@/utils/productVariants"
 
 interface CartStore {
   products: TRecordCartProduct
@@ -39,7 +40,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
       const existingProductsRecord = await keepExistingProductsRecord(productsRecord)
       const ids = Object.keys(existingProductsRecord) // get ids ['id1','id2','id3']
       const cart_products_data_response = await supabaseClient.from("products").select().in("id", ids)
-      const cart_products = cart_products_data_response.data ?? [] // get data from DB product with ids
+      const cart_products = normalizeProducts(cart_products_data_response.data ?? []) // get data from DB product with ids
 
       // Add quantity to productsData
       const cart_products_with_quantity = cart_products.map(productData => {

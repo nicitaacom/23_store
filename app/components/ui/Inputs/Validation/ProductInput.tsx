@@ -1,6 +1,7 @@
 "use client"
 
 import { useScopedI18n } from "@/locales/client"
+import { formatGroupedNumberInput } from "@/utils/numberFormatter"
 import { motion } from "framer-motion"
 import React, { useRef } from "react"
 import { FieldErrors, UseFormRegister } from "react-hook-form"
@@ -17,6 +18,7 @@ interface InputFormProps extends React.InputHTMLAttributes<HTMLInputElement> {
   id: keyof FormData
   className?: string
   type?: string | "numeric"
+  numericFormat?: "grouped"
   required?: boolean
   register: UseFormRegister<FormData>
   startIcon?: React.ReactElement
@@ -40,6 +42,7 @@ export function ProductInput({
   className = "",
   id,
   type = "text",
+  numericFormat,
   required,
   register,
   startIcon,
@@ -47,6 +50,7 @@ export function ProductInput({
   errors,
   placeholder,
   disabled,
+  onInput,
   ...props
 }: InputFormProps) {
   const t = useScopedI18n("product")
@@ -54,7 +58,7 @@ export function ProductInput({
     title: {
       requiredMessage: t("this_field_is_required"),
       pattern: {
-        value: /^(?=.*[A-Za-z])[A-Za-z][A-Za-z0-9$()_+ /-]{2,48}$/,
+        value: /^(?=.*[A-Za-z])[A-Za-z0-9][A-Za-z0-9$()_+ /,'-]{2,157}$/,
         message: t("title_required"),
       },
     },
@@ -75,7 +79,7 @@ export function ProductInput({
     onStock: {
       requiredMessage: t("this_field_is_required"),
       pattern: {
-        value: /^(?!0)[0-9.]{1,5}$/,
+        value: /^(?:[1-9]\d*|[1-9]\d{0,2}(?:,\d{3})+)(?:\.\d{1,2})?$/,
         message: t("on_stock_required"),
       },
     },
@@ -165,17 +169,26 @@ export function ProductInput({
               message: patternMessage,
             },
           })}
+          onInput={event => {
+            if (type === "numeric" && numericFormat === "grouped") {
+              event.currentTarget.value = formatGroupedNumberInput(event.currentTarget.value)
+            }
+
+            onInput?.(event)
+          }}
           onKeyDown={e => {
             if (type === "numeric") {
+              if (e.metaKey || e.ctrlKey) return
+
               const { key, target } = e
               const { value } = target as HTMLInputElement
-              const regex = /^(?!\..)[0-9.]+$/
+              const regex = numericFormat === "grouped" ? /^(?!\..)[0-9.,]+$/ : /^(?!\..)[0-9.]+$/
 
-              if (value.length === 0 && [".", "0"].includes(key)) {
+              if (value.length === 0 && [".", ",", "0"].includes(key)) {
                 e.preventDefault()
               }
 
-              if (!regex.test(key) && !["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab", "Enter"].includes(key)) {
+              if (!regex.test(key) && !["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab", "Enter", "Home", "End"].includes(key)) {
                 e.preventDefault()
               }
             }

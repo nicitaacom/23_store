@@ -4,6 +4,7 @@ import Link from "next/link"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { fetchPopularProducts } from "@/libs/popularProducts"
+import { normalizeProducts } from "@/utils/productVariants"
 import PaginationControls from "@/components/PaginationControls"
 import { AIInputSearch } from "./components/AISearch/AIInputSearch"
 import { PopularProductsPreviewList } from "./components/PopularProductsPreviewList"
@@ -26,7 +27,7 @@ export default async function Home({ params, searchParams }: SearchProps) {
   } = await supabaseServer().auth.getUser()
   const products_response = await fetchProducts()
   if (products_response.error) throw products_response.error
-  const products = products_response.data
+  const products = normalizeProducts(products_response.data)
   const popularProductsResponse = await fetchPopularProducts({ limit: 6 })
   const addProductHref = user ? `/${params.locale}?modal=AdminPanel` : `/${params.locale}?modal=AuthModal&variant=login`
 

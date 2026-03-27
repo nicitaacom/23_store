@@ -239,7 +239,7 @@ export default {
   "product.title_required": "Введите название продукта — a–z, цифры; #()_ допустимы",
   "product.subtitle_required": "Недопустимы символы !$^*_=\\",
   "product.price_required": "Введите цену от 1 до 999 999 с двумя знаками после запятой",
-  "product.on_stock_required": "Укажите количество на складе — 1–99 999",
+  "product.on_stock_required": "Укажите остаток как положительное число, при необходимости с десятичной частью",
   "product.drop_files_here": "Перетащите файлы сюда",
   "product.click_or_drop_here": "Кликните или перетащите сюда",
   "product.update": "Обновить",

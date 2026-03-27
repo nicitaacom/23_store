@@ -83,7 +83,10 @@ function getLocalePrefix(pathname: string) {
 }
 
 function isHumanCheckPath(pathname: string) {
-  return pathname === `/${TURNSTILE_PATH_SEGMENT}` || LOCALE_PATH_PREFIXES.some(prefix => pathname === `${prefix}/${TURNSTILE_PATH_SEGMENT}`)
+  return (
+    pathname === `/${TURNSTILE_PATH_SEGMENT}` ||
+    LOCALE_PATH_PREFIXES.some(prefix => pathname === `${prefix}/${TURNSTILE_PATH_SEGMENT}`)
+  )
 }
 
 function isTurnstileEnabled() {

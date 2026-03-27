@@ -1,4 +1,5 @@
 import supabaseServer from "@/libs/supabase/supabaseServer"
+import { normalizeProducts } from "@/utils/productVariants"
 import { getUser } from "./getUser"
 
 const getOwnerProducts = async () => {
@@ -14,7 +15,7 @@ const getOwnerProducts = async () => {
     .eq("owner_id", user.id)
     .order("price", { ascending: true })
 
-  return data
+  return normalizeProducts(data ?? [])
 }
 
 export default getOwnerProducts

@@ -1,5 +1,6 @@
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { TProductDB } from "@/ts/product/TProductDB"
+import { normalizeProducts } from "@/utils/productVariants"
 
 interface FetchPopularProductsOptions {
   page?: number
@@ -42,7 +43,7 @@ export async function fetchPopularProducts({
   const totalPages = Math.max(1, Math.ceil(totalItems / resolvedPerPage))
 
   return {
-    products: response.data,
+    products: normalizeProducts(response.data),
     totalItems,
     totalPages,
     page: currentPage,

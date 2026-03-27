@@ -11,6 +11,47 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { getUserId } from "@/utils/getUserId"
 import { getAnonymousId } from "./getAnonymousId"
+import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
+
+function getFileExtensionFromContentType(contentType: string, fallbackFileName: string) {
+  const contentTypeToExtension: Record<string, string> = {
+    "image/avif": "avif",
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+  }
+
+  return contentTypeToExtension[contentType] || fallbackFileName.split(".").pop() || "jpg"
+}
+
+async function compressImageWithTinify(imageFile: File) {
+  const formData = new FormData()
+  formData.append("image", imageFile)
+
+  const response = await fetch("/api/tinify", {
+    method: "POST",
+    body: formData,
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    let errorMessage = errorText || `Tinify request failed (${response.status})`
+
+    try {
+      const parsedError = JSON.parse(errorText) as { error?: string }
+      errorMessage = parsedError.error || errorMessage
+    } catch {}
+
+    throw new Error(errorMessage)
+  }
+
+  const compressedBlob = await response.blob()
+  const contentType = response.headers.get("Content-Type") || compressedBlob.type || imageFile.type || "image/jpeg"
+  const baseName = imageFile.name.replace(/\.[^/.]+$/, "")
+  const fileExtension = getFileExtensionFromContentType(contentType, imageFile.name)
+
+  return new File([compressedBlob], `${baseName}.${fileExtension}`, { type: contentType })
+}
 
 export async function createProductFn(
   t: TI18nFunction,
@@ -19,6 +60,7 @@ export async function createProductFn(
   price?: number,
   onStock?: number,
   images?: ImageListType,
+  variants?: TProductVariantDraft[],
 ) {
   const toast = useToast.getState()
   const { setIsLoading } = useLoading.getState()
@@ -94,8 +136,9 @@ RULES:
         }
 
         const imageFile = new File([imageResponse.data], "generated_image.png", { type: "image/png" })
+        const compressedImageFile = await compressImageWithTinify(imageFile)
 
-        const uploadResult = await uploadImageFn({ t, imageFile, bucket: "public-images" })
+        const uploadResult = await uploadImageFn({ t, imageFile: compressedImageFile, bucket: "public-images" })
         if (typeof uploadResult === "string") {
           throw new Error(`Image upload failed: ${uploadResult}`)
         }
@@ -112,13 +155,14 @@ RULES:
           if (!image?.file) return
 
           try {
-            const ext = image.file.name.split(".").pop()
-            const cleanName = slugify(image.file.name.replace(/\.[^/.]+$/, ""))
+            const compressedImageFile = await compressImageWithTinify(image.file)
+            const ext = compressedImageFile.name.split(".").pop()
+            const cleanName = slugify(compressedImageFile.name.replace(/\.[^/.]+$/, ""))
             const fileName = `${cleanName}_${stripeResponse.data.id}.${ext}`
 
             const { data, error } = await supabaseClient.storage
               .from("public-images")
-              .upload(`${userStore.user?.id || getAnonymousId() || getUserId()}/${fileName}`, image.file, { upsert: true })
+              .upload(`${userStore.user?.id || getAnonymousId() || getUserId()}/${fileName}`, compressedImageFile, { upsert: true })
 
             if (error) throw new Error(error.message)
 
@@ -137,6 +181,14 @@ RULES:
       throw new Error("No images available for product")
     }
 
+    const resolvedVariants: TProductVariant[] = (variants || [])
+      .filter(variant => variant.label.trim() && imagesUrls[variant.imageIndex])
+      .map(variant => ({
+        id: variant.id,
+        label: variant.label.trim(),
+        image_url: imagesUrls[variant.imageIndex],
+      }))
+
     const userId = getUserId()
 
     const product: TProductDB = {
@@ -148,6 +200,7 @@ RULES:
       price: priceLet,
       on_stock: onStock,
       img_url: imagesUrls,
+      variants: resolvedVariants,
     }
 
     // TODO - check if it will throw because user not authenticated because violates public.users
@@ -160,10 +213,6 @@ RULES:
       productId: stripeResponse.data.product as string,
       images: imagesUrls,
     })
-
-    const url = new URL(window.location.href)
-    url.searchParams.delete("modal")
-    url.searchParams.delete("variant")
 
     return product
   } catch (error) {

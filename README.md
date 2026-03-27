@@ -156,6 +156,7 @@ create table
     sub_title character varying not null,
     price numeric not null,
     img_url character varying[] not null,
+    variants jsonb null,
     on_stock integer not null,
     owner_id uuid not null,
     id character varying not null,

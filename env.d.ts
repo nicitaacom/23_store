@@ -49,6 +49,8 @@ declare global {
       TELEGRAM_CHAT_ID: string
       NEXT_PUBLIC_TELEGRAM_URL: string
 
+      TINIFY_API_KEY_ARR: string
+
       NEXT_PUBLIC_IS_DEBUG: string
     }
   }

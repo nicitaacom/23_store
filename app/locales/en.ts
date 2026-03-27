@@ -239,7 +239,7 @@ export default {
   "product.title_required": "Enter a product title - a-z - numbers, and #()_ are optional",
   "product.subtitle_required": "No !$^*_=\\ allowed",
   "product.price_required": "Enter price from 1 to 999,999 with 2 decimal places",
-  "product.on_stock_required": "Enter how much products on stock - 1 - 99,999",
+  "product.on_stock_required": "Enter stock as a positive number with optional decimals",
   "product.drop_files_here": "Drop files here",
   "product.click_or_drop_here": "Click or Drop here",
   "product.update": "Update",

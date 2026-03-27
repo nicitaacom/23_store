@@ -46,9 +46,11 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
     <ModalQueryContainer
       hideCloseButton
       className={twMerge(
-        `flex h-[min(92vh,960px)] w-[calc(100vw-20px)] flex-col overflow-hidden rounded-[28px]
-        border border-white/10 bg-[#1b1f26]/95 shadow-[0_30px_120px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all duration-300`,
-        "tablet:w-[min(94vw,1180px)] laptop:h-auto laptop:aspect-[16/9]",
+        "flex flex-col overflow-hidden bg-[#1b1f26]/95 shadow-[0_30px_120px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all duration-300",
+        // mobile: true full-screen, no border/radius
+        "h-[100dvh] w-screen rounded-none border-0",
+        // tablet+: floating, 16:10 ratio, generous width
+        "tablet:h-auto tablet:w-[min(96vw,1400px)] tablet:aspect-[16/10] tablet:rounded-[28px] tablet:border tablet:border-white/10",
       )}
       modalQuery="AdminPanel">
       {({ closeModal }) => (
@@ -56,29 +58,23 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
           <AdminPanelHeader
             title={t("modal.admin_panel.label")}
             activeAction={productAction}
-            actionLabels={{
-              add: t("product.add"),
-              edit: t("product.edit"),
-              delete: t("product.delete"),
-            }}
+            actionLabels={{ add: t("product.add"), edit: t("product.edit"), delete: t("product.delete") }}
             onActionChange={setProductAction}
             onClose={closeModal}
             disabled={isLoading}
           />
 
-          <div className="relative min-h-0 flex-1 px-4 py-4 tablet:px-6 tablet:py-5">
+          <div className="relative min-h-0 flex-1 overflow-hidden px-3 py-3 tablet:px-6 tablet:py-5">
             {productAction === PRODUCT_ACTIONS.add && (
               <div className="h-full">
                 <AddProductForm />
               </div>
             )}
-
             {productAction === PRODUCT_ACTIONS.edit && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
                 <EditProductForm ownerProducts={ownerProducts} />
               </div>
             )}
-
             {productAction === PRODUCT_ACTIONS.delete && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
                 <DeleteProductForm ownerProducts={ownerProducts} />
