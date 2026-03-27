@@ -205,6 +205,7 @@ interface OrganicCanvasBackgroundProps {
   parentClassName?: string
   particleCount?: number
   brandHsl?: string
+  verticalOverflow?: number
 }
 
 export function OrganicCanvasBackground({
@@ -213,6 +214,7 @@ export function OrganicCanvasBackground({
   parentClassName = "",
   particleCount = 8,
   brandHsl = "210, 100%, 50%",
+  verticalOverflow = 0,
 }: OrganicCanvasBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -234,23 +236,25 @@ export function OrganicCanvasBackground({
       const width = Math.floor(containerRect.width)
       const height = Math.floor(containerRect.height)
       if (width <= 0 || height <= 0) return
+      const expandedHeight = height + verticalOverflow * 2
       const dpr = window.devicePixelRatio || 1
 
       canvas.width = width * dpr
-      canvas.height = height * dpr
+      canvas.height = expandedHeight * dpr
 
       ctx.setTransform(1, 0, 0, 1, 0, 0)
       ctx.scale(dpr, dpr)
 
       canvas.style.width = `${width}px`
-      canvas.style.height = `${height}px`
+      canvas.style.height = `${expandedHeight}px`
+      canvas.style.top = `${-verticalOverflow}px`
 
       particlesRef.current = Array.from(
         { length: particleCount },
         () =>
           new Particle({
             width: width,
-            height: height,
+            height: expandedHeight,
           }),
       )
     }
@@ -259,12 +263,13 @@ export function OrganicCanvasBackground({
       const containerRect = container.getBoundingClientRect()
       const width = Math.floor(containerRect.width)
       const height = Math.floor(containerRect.height)
+      const expandedHeight = height + verticalOverflow * 2
       if (width <= 0 || height <= 0) {
         animationRef.current = requestAnimationFrame(animate)
         return
       }
 
-      ctx.clearRect(0, 0, width, height)
+      ctx.clearRect(0, 0, width, expandedHeight)
 
       // Ensure we always have at least 2-3 visible particles
       let visibleCount = 0
@@ -311,7 +316,7 @@ export function OrganicCanvasBackground({
       if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current)
       if (observerRef.current) observerRef.current.disconnect()
     }
-  }, [particleCount, brandHsl])
+  }, [brandHsl, particleCount, verticalOverflow])
 
   return (
     <div
@@ -320,14 +325,14 @@ export function OrganicCanvasBackground({
       style={{ position: "relative" }}>
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-80"
+        className="pointer-events-none absolute left-0 right-0 w-full opacity-80"
         style={{
           mixBlendMode: "screen",
           position: "absolute",
-          top: 0,
+          top: `${-verticalOverflow}px`,
           left: 0,
           width: "100%",
-          height: "100%",
+          height: `calc(100% + ${verticalOverflow * 2}px)`,
         }}
       />
       <div className={twMerge("relative z-10 w-full h-full", parentClassName)}>{children}</div>
