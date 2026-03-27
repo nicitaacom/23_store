@@ -1,4 +1,6 @@
-import React, { useRef, useEffect } from "react"
+"use client"
+
+import React, { useEffect, useRef } from "react"
 import { twMerge } from "tailwind-merge"
 
 interface ParticleCanvas {
@@ -216,7 +218,7 @@ export function OrganicCanvasBackground({
   const containerRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number | null>(null)
   const particlesRef = useRef<Particle[]>([])
-  const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const observerRef = useRef<ResizeObserver | null>(null)
 
   useEffect(() => {
@@ -227,26 +229,22 @@ export function OrganicCanvasBackground({
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // 5. setup canvas size with proper scaling and overflow prevention
     const updateCanvasSize = () => {
       const containerRect = container.getBoundingClientRect()
       const width = Math.floor(containerRect.width)
       const height = Math.floor(containerRect.height)
-      if (width <= 0 || height <= 0) return // Early return on invalid size
+      if (width <= 0 || height <= 0) return
       const dpr = window.devicePixelRatio || 1
 
-      // Set canvas internal dimensions
       canvas.width = width * dpr
       canvas.height = height * dpr
 
-      // Scale context for high DPI
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
       ctx.scale(dpr, dpr)
 
-      // Set CSS dimensions to match container exactly
       canvas.style.width = `${width}px`
       canvas.style.height = `${height}px`
 
-      // 6. reinitialize particles with new dimensions
       particlesRef.current = Array.from(
         { length: particleCount },
         () =>
@@ -257,11 +255,14 @@ export function OrganicCanvasBackground({
       )
     }
 
-    // 7. animation loop
     const animate = () => {
       const containerRect = container.getBoundingClientRect()
       const width = Math.floor(containerRect.width)
       const height = Math.floor(containerRect.height)
+      if (width <= 0 || height <= 0) {
+        animationRef.current = requestAnimationFrame(animate)
+        return
+      }
 
       ctx.clearRect(0, 0, width, height)
 
@@ -289,14 +290,15 @@ export function OrganicCanvasBackground({
       animationRef.current = requestAnimationFrame(animate)
     }
 
-    // 8. throttled resize handler
     const handleResize = () => {
       if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current)
       resizeTimeoutRef.current = setTimeout(updateCanvasSize, 100)
     }
 
-    observerRef.current = new ResizeObserver(handleResize)
-    observerRef.current.observe(container)
+    if ("ResizeObserver" in window) {
+      observerRef.current = new ResizeObserver(handleResize)
+      observerRef.current.observe(container)
+    }
 
     updateCanvasSize()
     animate()

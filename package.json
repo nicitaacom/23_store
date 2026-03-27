@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3023",
+    "dev": "NODE_OPTIONS=\"${NODE_OPTIONS:+$NODE_OPTIONS }--disable-warning=DEP0040\" next dev -p 3023",
     "build": "next build",
-    "start": "next start -p 3023",
+    "start": "NODE_OPTIONS=\"${NODE_OPTIONS:+$NODE_OPTIONS }--disable-warning=DEP0040\" next start -p 3023",
     "lint": "next lint",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "update-types": "pnpx supabase gen types typescript --project-id zvpzoumubcidrtkgxwqx > app/TS/types_db.ts"

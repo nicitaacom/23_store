@@ -115,7 +115,8 @@ export function ProductInput({
         <textarea
           {...textareaRest}
           className={twMerge(
-            `rounded bg-transparent outline-none text-title`,
+            `w-full rounded-[22px] bg-transparent text-white outline-none transition-all duration-200 placeholder:text-white/42
+            focus:border-brand/60 focus:bg-[#151a21] focus:shadow-[0_0_0_1px_rgba(32,233,89,0.18)]`,
             startIcon && "pl-10",
             endIcon && "pr-10",
             errors[id] && errors[id]?.message && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
@@ -126,7 +127,7 @@ export function ProductInput({
           autoComplete={id}
           placeholder={placeholder}
           disabled={disabled}
-          autoFocus
+          rows={6}
           {...register("subTitle", {
             required: required ? requiredMessage : undefined,
             pattern: {
@@ -144,7 +145,8 @@ export function ProductInput({
         <input
           {...rest}
           className={twMerge(
-            `rounded bg-transparent outline-none text-title`,
+            `w-full rounded-[22px] bg-transparent text-white outline-none transition-all duration-200 placeholder:text-white/42
+            focus:border-brand/60 focus:bg-[#151a21] focus:shadow-[0_0_0_1px_rgba(32,233,89,0.18)]`,
             startIcon && "pl-10",
             endIcon && "pr-10",
             errors[id] && errors[id]?.message && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
@@ -156,7 +158,6 @@ export function ProductInput({
           autoComplete={id}
           placeholder={placeholder}
           disabled={disabled}
-          autoFocus
           {...register(id, {
             required: required ? requiredMessage : undefined,
             pattern: {

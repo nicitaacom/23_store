@@ -6,6 +6,7 @@ import ReactImageUploading, { ImageListType } from "react-images-uploading"
 import { showToastWarningFn } from "./functions/showToastWarning"
 import { useDragAndDrop } from "@/hooks/support/useDragAndDrop"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { MAX_IMAGE_FILE_SIZE_BYTES } from "@/constants/uploadLimits"
 
 export function DragAndDropArea() {
   const { image, setImage } = useMessagesStore()
@@ -47,8 +48,8 @@ export function DragAndDropArea() {
           setImage(newFiles[0])
         }}
         maxNumber={1}
-        maxFileSize={4e6}
-        onError={errors => showToastWarningFn(errors, 1)}>
+        maxFileSize={MAX_IMAGE_FILE_SIZE_BYTES}
+        onError={errors => showToastWarningFn(errors, { maxNumber: 1, maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES })}>
         {({ onImageUpload, onImageUpdate, onImageRemove, dragProps }) => (
           <div
             className="w-full h-full relative z-20 overflow-hidden"

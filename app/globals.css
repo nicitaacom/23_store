@@ -103,7 +103,7 @@ stroke='%0E00FF' - not correcrt
 stroke='0E00FF' - not correcrt
 So just add your HEX after %23
 */
-  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23FE0E00FF' stroke-width='4' stroke-dasharray='9%25%2c 10%25' stroke-dashoffset='6' stroke-linecap='butt'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' rx='28' ry='28' fill='none' stroke='%233fe06b' stroke-opacity='0.38' stroke-width='3' stroke-dasharray='10%25%2c 11%25' stroke-dashoffset='4' stroke-linecap='round'/%3e%3c/svg%3e");
 }
 
 /* disable default input styling */

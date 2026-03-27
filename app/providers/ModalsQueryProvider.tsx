@@ -10,21 +10,32 @@ import { AdminPanelModalProps } from "@/components/ui/Modals/AdminPanel/AdminPan
 type ModalKey = "AdminPanel" | "AuthModal" | "CartModal"
 type ModalEntry = { Component: React.ComponentType<any>; props?: Record<string, unknown> }
 
+function AdminModalLoading() {
+  const t = useI18n()
+
+  return <div>{t("modal.loading.admin")}</div>
+}
+
+function CartModalLoading() {
+  const t = useI18n()
+
+  return <div>{t("modal.loading.cart")}</div>
+}
+
+const AdminPanelModal = dynamic<AdminPanelModalProps>(
+  () => import("@/components/ui/Modals/AdminPanel/AdminPanelModal").then(m => m.AdminPanelModal),
+  { loading: AdminModalLoading },
+)
+
+const CartModal = dynamic(() => import("@/components/ui/Modals/CartModal/CartModal").then(m => m.CartModal), {
+  loading: CartModalLoading,
+})
+
 export function ModalsQueryProvider({ ownerProducts }: { ownerProducts: TProductDB[] }) {
   const searchParams = useSearchParams()
-  const t = useI18n()
 
   const modalParams = searchParams?.getAll("modal")
   if (!modalParams?.length) return null
-
-  const AdminPanelModal = dynamic<AdminPanelModalProps>(
-    () => import("@/components/ui/Modals/AdminPanel/AdminPanelModal").then(m => m.AdminPanelModal),
-    { loading: () => <div>{t("modal.loading.admin")}</div> },
-  )
-
-  const CartModal = dynamic(() => import("@/components/ui/Modals/CartModal/CartModal").then(m => m.CartModal), {
-    loading: () => <div>{t("modal.loading.cart")}</div>,
-  })
 
   const registry: Partial<Record<ModalKey, ModalEntry>> = {
     AdminPanel: { Component: AdminPanelModal, props: { ownerProducts } },
