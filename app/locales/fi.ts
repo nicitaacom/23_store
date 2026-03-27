@@ -233,6 +233,9 @@ export default {
   "product.total": "Yhteensä",
   "product.subtotal": "Välisummaa",
   "product.products": "Tuotteet",
+  "product.catalog_title": "Selaa koko katalogia",
+  "product.catalog_subtitle": "Valitse kuinka monta tuotetta näytetään sivulla ja siirry sivulta toiselle ilman että edelliset tulokset toistuvat.",
+  "product.open_preview_page": "Avaa esikatselusivu",
   "product.no_products_found": "Tuotteita ei löytynyt",
   "product.add_to_cart": "Lisää ostoskoriin", // I know it's a duplicate with aichat - this is from old functionality
   "product.this_field_is_required": "Tämä kenttä on pakollinen",

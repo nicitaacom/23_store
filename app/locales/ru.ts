@@ -233,6 +233,9 @@ export default {
   "product.total": "Итого",
   "product.subtotal": "Промежуточная сумма",
   "product.products": "Товары",
+  "product.catalog_title": "Просматривайте весь каталог",
+  "product.catalog_subtitle": "Выбирайте, сколько товаров показывать на странице, и переходите между страницами без повторения предыдущих результатов.",
+  "product.open_preview_page": "Открыть страницу превью",
   "product.no_products_found": "Товары не найдены",
   "product.add_to_cart": "Добавить в корзину", // I know it's a duplicate with aichat - this is from old functionality
   "product.this_field_is_required": "Это поле обязательно",

@@ -233,6 +233,9 @@ export default {
   "product.total": "Totalt",
   "product.subtotal": "Delsumma",
   "product.products": "Produkter",
+  "product.catalog_title": "Bläddra i hela katalogen",
+  "product.catalog_subtitle": "Välj hur många produkter som ska visas per sida och gå mellan sidor utan att de tidigare resultaten upprepas.",
+  "product.open_preview_page": "Öppna förhandsvisningssidan",
   "product.no_products_found": "Inga produkter hittades",
   "product.add_to_cart": "Lägg i kundvagn", // I know it's a duplicate with aichat - this is from old functionality
   "product.this_field_is_required": "Detta fält är obligatoriskt",

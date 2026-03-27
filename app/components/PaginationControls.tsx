@@ -1,4 +1,3 @@
-import React from "react"
 import { FC } from "react"
 import { Button } from "./ui"
 import { BiSkipPrevious, BiSkipNext } from "react-icons/bi"
@@ -9,15 +8,16 @@ interface PaginationControlsProps {
   currentPage: number
   totalPages: number
   perPage: number
+  basePath: string
 }
 
-const PaginationControls: FC<PaginationControlsProps> = ({ hasNextPage, hasPrevPage, currentPage, totalPages, perPage }) => {
+const PaginationControls: FC<PaginationControlsProps> = ({ hasNextPage, hasPrevPage, currentPage, totalPages, perPage, basePath }) => {
   return (
     <div className="flex flex-row gap-x-3 justify-center items-center bg-background/50 backdrop-blur-sm border border-success/20 rounded-lg p-2">
       <Button
         variant="default-outline"
         className={`border-success/30 hover:border-success hover:bg-success/10 ${!hasPrevPage ? "pointer-events-none opacity-30" : ""}`}
-        href={`/?page=${currentPage - 1}&perPage=${perPage}`}>
+        href={hasPrevPage ? `${basePath}?page=${currentPage - 1}&perPage=${perPage}` : undefined}>
         <BiSkipPrevious size={24} className="text-success" />
       </Button>
 
@@ -28,7 +28,7 @@ const PaginationControls: FC<PaginationControlsProps> = ({ hasNextPage, hasPrevP
       <Button
         variant="default-outline"
         className={`border-success/30 hover:border-success hover:bg-success/10 ${!hasNextPage ? "pointer-events-none opacity-30" : ""}`}
-        href={`/?page=${currentPage + 1}&perPage=${perPage}`}>
+        href={hasNextPage ? `${basePath}?page=${currentPage + 1}&perPage=${perPage}` : undefined}>
         <BiSkipNext size={24} className="text-success" />
       </Button>
     </div>
