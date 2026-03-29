@@ -25,7 +25,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
   return (
     <figure
       className={twMerge(
-        "relative w-full tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit object-cover",
+        "relative w-full h-full bg-black [&_.carousel]:h-full [&_.carousel-root]:h-full [&_.slider-wrapper]:h-full [&_.slider]:h-full",
         containerClassName,
       )}>
       <Carousel
@@ -36,12 +36,12 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
         axis="horizontal"
         emulateTouch={emulateTouch}
         swipeable={swipeable}
-        dynamicHeight={true}
-        renderArrowPrev={(clickHandler, hasPrev, label) => (
+        dynamicHeight={false}
+        renderArrowPrev={(clickHandler, hasPrev) => (
           <button
             className={twMerge(
-              `absolute z-[88] top-0 bottom-0 left-0 w-[40px] bg-[rgba(0,0,0,0.4)]
-               flex justify-center items-center cursor-pointer duration-500`,
+              // 1. anchor to figure via absolute, center vertically
+              "absolute z-[88] top-1/2 -translate-y-1/2 left-0 h-full w-[40px] bg-[rgba(0,0,0,0.4)] flex justify-center items-center cursor-pointer duration-500",
               !hasPrev && "opacity-50 cursor-default",
             )}
             onClick={clickHandler}
@@ -49,11 +49,10 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
             <AiFillCaretLeft className="h-6 w-6 text-white" />
           </button>
         )}
-        renderArrowNext={(clickHandler, hasNext, label) => (
+        renderArrowNext={(clickHandler, hasNext) => (
           <button
             className={twMerge(
-              `absolute z-[88] top-0 bottom-0 right-0 w-[40px] bg-[rgba(0,0,0,0.4)]
-               flex justify-center items-center cursor-pointer duration-500`,
+              "absolute z-[88] top-1/2 -translate-y-1/2 right-0 h-full w-[40px] bg-[rgba(0,0,0,0.4)] flex justify-center items-center cursor-pointer duration-500",
               !hasNext && "opacity-50 cursor-default",
             )}
             onClick={clickHandler}
@@ -63,10 +62,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
         )}>
         {images.map((image, index) => (
           <Image
-            className={twMerge(
-              `max-w-full tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] object-cover`,
-              className,
-            )}
+            className={twMerge("w-full h-full object-contain", className)}
             src={image.src}
             alt={image.alt}
             width={width}

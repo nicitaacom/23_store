@@ -37,7 +37,7 @@ function Product({ ...product }: Props) {
         "before:scale-y-0 before:transition-transform before:duration-300 hover:before:scale-y-100",
         product.containerClassName,
       )}>
-      <div className="mobile:w-[200px] mobile:h-[200px] shrink-0">
+      <div className="w-full mobile:w-[280px] aspect-video shrink-0 overflow-hidden bg-black">
         <ProductImage imgUrl={previewImages} productTitle={product.title} />
       </div>
 
@@ -73,22 +73,21 @@ function Product({ ...product }: Props) {
             </div>
 
             {variants.length > 0 && (
-              <div className="w-full rounded-xl border border-border-color/20 bg-background/35 p-3">
+              // 1. flex-col: label above, buttons below — no layout shift
+              <div className="flex flex-col gap-2">
                 <p className="text-sm font-medium text-title">
                   Variant: <span className="text-success">{selectedVariant?.label}</span>
                 </p>
-
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="flex flex-row gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-border-color/30">
                   {variants.map(variant => {
                     const isActive = variant.id === selectedVariant?.id
-
                     return (
                       <button
                         key={variant.id}
                         type="button"
                         onClick={() => setSelectedVariantId(variant.id)}
                         className={twMerge(
-                          "flex items-center gap-2 rounded-xl border px-2 py-2 text-left transition-all duration-200",
+                          "flex shrink-0 items-center gap-2 rounded-xl border px-2 py-2 text-left transition-all duration-200",
                           isActive
                             ? "border-success/40 bg-success/10 text-title shadow-[0_0_0_1px_rgba(34,197,94,0.18)]"
                             : "border-border-color/20 bg-background/40 text-subTitle hover:border-success/25 hover:bg-success/5",
