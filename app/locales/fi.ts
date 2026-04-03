@@ -276,6 +276,8 @@ export default {
   "product.warning.max_file_size_subtitle": "Lataa kuva, jonka koko on enintaan {maxFileSize}.",
   "product.warning.max_images_title": "Enintään {maxImages} kuvaa",
   "product.warning.max_images_subtitle": "Käytä enintään {maxImages} tuotekuvaa",
+  "product.warning.max_variants_title": "Enintään {maxVariants} varianttia",
+  "product.warning.max_variants_subtitle": "Käytä yhdelle tuotteelle enintään {maxVariants} varianttia",
   "product.warning.use_higer_resolution_title": "Käytä suurempaa resoluutiota",
   "product.warning.use_higer_resolution_subtitle": "Vaadittu vähimmäisresoluutio on {minResolution}px.",
   "product.add": "Lisää tuote",

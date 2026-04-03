@@ -22,7 +22,7 @@ import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFo
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { createProductFn } from "@/functions/createProductFn"
 import { useI18n, useScopedI18n } from "@/locales/client"
-import { MAX_IMAGE_FILE_SIZE_BYTES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
+import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
 
 const previewImageVariants = {
   initial: (direction: "next" | "prev") => ({
@@ -101,35 +101,39 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const onSubmit = async (data: IFormDataAddProduct) => {
     if (data.subTitle.length > 600) return toast.show("warning", "Enter shorter description", "Enter description 0-600 symbols")
 
-    const formattedOnStock = parseFormattedNumber(data.onStock)
-    const resolvedVariants = variants
-      .map(variant => ({
-        ...variant,
-        imageIndex: images.findIndex(image => image.data_url === variant.imageDataUrl),
-      }))
-      .filter(variant => variant.imageIndex >= 0)
+    try {
+      const formattedOnStock = parseFormattedNumber(data.onStock)
+      const resolvedVariants = variants
+        .map(variant => ({
+          ...variant,
+          imageIndex: images.findIndex(image => image.data_url === variant.imageDataUrl),
+        }))
+        .filter(variant => variant.imageIndex >= 0)
 
-    await createProductFn(t, data.title, data.subTitle, data.price, formattedOnStock, images, resolvedVariants)
+      await createProductFn(t, data.title, data.subTitle, data.price, formattedOnStock, images, resolvedVariants)
+      reset()
+      setImages([])
+      setVariantLabel("")
+      setVariants([])
+      setActiveImageIndex(0)
+      previousImageIndexRef.current = 0
+      onCreated?.()
 
-    reset()
-    setImages([])
-    setVariantLabel("")
-    setVariants([])
-    setActiveImageIndex(0)
-    previousImageIndexRef.current = 0
-    onCreated?.()
-
-    toast.show(
-      "success",
-      "Product created",
-      <span className="flex flex-wrap items-center gap-1">
-        <span>Create one more?</span>
-        <Button className="px-0" variant="link" href={`${pathname}?modal=AdminPanel`}>
-          Open product creation modal
-        </Button>
-      </span>,
-      12000,
-    )
+      toast.show(
+        "success",
+        "Product created",
+        <span className="flex flex-wrap items-center gap-1">
+          <span>Create one more?</span>
+          <Button className="px-0" variant="link" href={`${pathname}?modal=AdminPanel`}>
+            Open product creation modal
+          </Button>
+        </span>,
+        12000,
+      )
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      toast.show("error", "Failed to create product", errorMessage)
+    }
   }
 
   const navigateToImage = (nextIndex: number) => {
@@ -159,6 +163,14 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
     if (!images.length) {
       return toast.show("warning", "Upload image first", "Select or upload an image before creating a variant")
+    }
+
+    if (variants.length >= MAX_PRODUCT_VARIANTS) {
+      return toast.show(
+        "warning",
+        t("warning.max_variants_title", { maxVariants: MAX_PRODUCT_VARIANTS }),
+        t("warning.max_variants_subtitle", { maxVariants: MAX_PRODUCT_VARIANTS }),
+      )
     }
 
     if (!normalizedLabel) {
@@ -192,13 +204,18 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         multiple
         value={images}
         onChange={onChange}
+        maxNumber={MAX_PRODUCT_IMAGES}
         maxFileSize={MAX_IMAGE_FILE_SIZE_BYTES}
         resolutionWidth={MIN_IMAGE_RESOLUTION.width}
         resolutionHeight={MIN_IMAGE_RESOLUTION.height}
         resolutionType="more"
         dataURLKey="data_url"
         onError={errors =>
-          showToastWarningFn(tGlobal, errors, { maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES, minResolution: MIN_IMAGE_RESOLUTION })
+          showToastWarningFn(tGlobal, errors, {
+            maxNumber: MAX_PRODUCT_IMAGES,
+            maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES,
+            minResolution: MIN_IMAGE_RESOLUTION,
+          })
         }>
         {({ imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps }) => {
           const safeActiveImageIndex = imageList[activeImageIndex] ? activeImageIndex : 0
@@ -388,7 +405,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     <span
                       className={twMerge(
                         "flex h-4 w-4 items-center justify-center rounded-md border transition-colors",
-                        isPrimaryImage ? "border-[#1fe15a] bg-[#1fe15a] text-[#071a0c]" : "border-white/18 bg-transparent text-transparent",
+                        isPrimaryImage
+                          ? "border-[#1fe15a] bg-[#1fe15a] text-[#071a0c]"
+                          : "border-white/18 bg-transparent text-transparent",
                       )}>
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
                         <path
@@ -474,7 +493,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             <button
               type="button"
               onClick={addVariant}
-              disabled={isLoading || !images.length}
+              disabled={isLoading || !images.length || variants.length >= MAX_PRODUCT_VARIANTS}
               className="h-11 rounded-2xl border border-[#1fe15a]/30 bg-[#1fe15a]/10 px-4 text-[13px] font-semibold text-[#1fe15a] transition-colors hover:bg-[#1fe15a]/16 disabled:cursor-default disabled:opacity-40">
               Add variant
             </button>

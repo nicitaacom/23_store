@@ -1,65 +1,50 @@
-import axios from "axios"
+import { stripe } from "@/libs/stripe"
 import { NextResponse } from "next/server"
+import Stripe from "stripe"
 
 export async function POST(req: Request) {
   const body = await req.json()
 
-  // const images: string[] = body.images
-  const title: string = body.title
-  const subTitle: string = body.subTitle
-  const price: number = body.price
+  const title = String(body.title ?? "").trim()
+  const subTitle = String(body.subTitle ?? "")
+  const price = Number(body.price)
 
   try {
-    //Create product on Stripe https://dashboard.stripe.com/test/products/create
-    const productResponse = await axios.post(
-      "https://api.stripe.com/v1/products",
-      {
-        name: title,
-        description: subTitle,
-        type: "good",
-        // images: images,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      },
-    )
-    //Active product if it not active
-    if (!productResponse.data.active) {
-      await axios.put(
-        `https://api.stripe.com/v1/products/${productResponse.data.id}`,
-        {
-          active: true,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        },
-      )
+    if (!title) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 })
     }
 
-    // Create price for the product
-    const priceResponse = await axios.post(
-      "https://api.stripe.com/v1/prices",
+    if (!Number.isInteger(price) || price <= 0) {
+      return NextResponse.json({ error: "Price must be a positive integer amount in cents" }, { status: 400 })
+    }
+
+    const productResponse = await stripe.products.create({
+      name: title,
+      description: subTitle,
+      active: true,
+    })
+
+    const priceResponse = await stripe.prices.create({
+      product: productResponse.id,
+      unit_amount: price,
+      currency: "usd",
+    })
+
+    return NextResponse.json(
       {
-        product: productResponse.data.id,
-        unit_amount: price * 100, // Convert to cents
-        currency: "usd",
+        id: priceResponse.id,
+        product: productResponse.id,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_STRIPE_SECRET_KEY}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      },
+      { status: 200 },
     )
-    return NextResponse.json(priceResponse.data, { status: 200 })
-  } catch (error: any) {
-    console.log(62, "CREATE_PRODUCT_ERROR\n", error.response.data)
-    return new NextResponse(`/api/products/add/route.ts error (check termianl) ${error.response.data}`, { status: 500 })
+  } catch (error) {
+    if (error instanceof Stripe.errors.StripeError) {
+      console.log("CREATE_PRODUCT_ERROR (stripe)\n", error.message)
+      return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 })
+    }
+
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.log("CREATE_PRODUCT_ERROR\n", errorMessage)
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }

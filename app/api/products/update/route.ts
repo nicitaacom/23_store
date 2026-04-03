@@ -1,4 +1,5 @@
 import { stripe } from "@/libs/stripe"
+import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
 import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 import { AxiosError } from "axios"
 import { NextResponse } from "next/server"
@@ -24,14 +25,16 @@ export async function POST(req: Request) {
   try {
     /* UPDATE IMAGE */
     if (images) {
+      const stripeImages = images.filter(Boolean).slice(0, STRIPE_MAX_PRODUCT_IMAGES)
+
       // Update image on Stripe https://stripe.com/docs/api/products/update
-      const productResponse = await stripe.products.update(productId, { images: images })
+      const productResponse = await stripe.products.update(productId, { images: stripeImages })
 
       //TODO - update images in DB
 
       //Active product if it not active
       if (!productResponse.active) {
-        stripe.products.update(productId, { active: true })
+        await stripe.products.update(productId, { active: true })
       }
       return NextResponse.json(productResponse, { status: 200 })
     }
@@ -53,7 +56,7 @@ export async function POST(req: Request) {
 
       //Active product if it not active
       if (!productResponse.active) {
-        stripe.products.update(productId, { active: true })
+        await stripe.products.update(productId, { active: true })
       }
 
       return NextResponse.json(productResponse, { status: 200 })
@@ -74,7 +77,7 @@ export async function POST(req: Request) {
 
       //Active product if it not active
       if (!productResponse.active) {
-        stripe.products.update(productId, { active: true })
+        await stripe.products.update(productId, { active: true })
       }
       return NextResponse.json(productResponse, { status: 200 })
     }
@@ -92,7 +95,7 @@ export async function POST(req: Request) {
         const productResponse = await stripe.products.create({
           name: product?.title,
           description: product?.sub_title,
-          images: product.img_url,
+          images: product.img_url?.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
         })
 
         // Active product if it not active
@@ -121,25 +124,29 @@ export async function POST(req: Request) {
         throw new Error(`Update price\n Product with id ${productId} not found in DB\n`)
       }
     }
+
+    return NextResponse.json({ error: "No valid update payload provided" }, { status: 400 })
   } catch (error: any) {
-    // Best practice to throw error like this
     if (error instanceof Stripe.errors.StripeError) {
-      console.log(84, "DELETE_FOOD_ERROR\n (stripe) \n ", error.message)
-      return new NextResponse(`/api/food/delete/route.ts error (stripe) \n ${error.message}`, {
-        status: 500,
-      })
+      console.log("PRODUCT_UPDATE_ERROR\n(stripe)\n", error.message)
+      return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 })
     }
     if (error instanceof AxiosError) {
-      console.log(84, "DELETE_FOOD_ERROR (supabase) \n", error)
-      return new NextResponse(`/api/food/delete/route.ts error \n ${error}`, {
-        status: 500,
-      })
+      const errorMessage =
+        typeof error.response?.data === "string"
+          ? error.response.data
+          : typeof error.response?.data?.error === "string"
+            ? error.response.data.error
+            : error.message
+
+      console.log("PRODUCT_UPDATE_ERROR\n(axios)\n", errorMessage)
+      return NextResponse.json({ error: errorMessage }, { status: error.response?.status || 500 })
     }
     if (error instanceof Error) {
-      console.log(90, "DELETE_FOOD_ERROR\n (supabase) \n", error.message)
-      return new NextResponse(`/api/food/delete/route.ts error \n ${error}`, {
-        status: 500,
-      })
+      console.log("PRODUCT_UPDATE_ERROR\n(error)\n", error.message)
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    return NextResponse.json({ error: "Unknown product update error" }, { status: 500 })
   }
 }

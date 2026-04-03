@@ -6,12 +6,12 @@ import { useLoading } from "@/store/ui/useLoading"
 import useUserStore from "@/store/user/userStore"
 import slugify from "@sindresorhus/slugify"
 import { uploadImageFn } from "./uploadImageFn"
-import useToast from "@/store/ui/useToast"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { getUserId } from "@/utils/getUserId"
 import { getAnonymousId } from "./getAnonymousId"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
+import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 
 function getFileExtensionFromContentType(contentType: string, fallbackFileName: string) {
   const contentTypeToExtension: Record<string, string> = {
@@ -62,13 +62,16 @@ export async function createProductFn(
   images?: ImageListType,
   variants?: TProductVariantDraft[],
 ) {
-  const toast = useToast.getState()
   const { setIsLoading } = useLoading.getState()
   const userStore = useUserStore.getState()
 
   setIsLoading(true)
   let priceLet: number | undefined = price
   try {
+    if (images && images.length > MAX_PRODUCT_IMAGES) {
+      throw new Error(t("product.warning.max_images_subtitle", { maxImages: MAX_PRODUCT_IMAGES }))
+    }
+
     if (!price) {
       try {
         const response = await fetch("/api/fetch-prices", {
@@ -182,6 +185,7 @@ RULES:
     }
 
     const resolvedVariants: TProductVariant[] = (variants || [])
+      .slice(0, MAX_PRODUCT_VARIANTS)
       .filter(variant => variant.label.trim() && imagesUrls[variant.imageIndex])
       .map(variant => ({
         id: variant.id,
@@ -216,9 +220,16 @@ RULES:
 
     return product
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorMessage = axios.isAxiosError(error)
+      ? typeof error.response?.data === "string"
+        ? error.response.data
+        : typeof error.response?.data?.error === "string"
+          ? error.response.data.error
+          : error.message
+      : error instanceof Error
+        ? error.message
+        : String(error)
     console.error("createProductFn error:", errorMessage)
-    toast.show("error", "Failed to add product", errorMessage)
     throw new Error(errorMessage)
   } finally {
     setIsLoading(false)

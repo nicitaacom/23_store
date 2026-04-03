@@ -276,6 +276,8 @@ export default {
   "product.warning.max_file_size_subtitle": "Ladda upp en bild som är {maxFileSize} eller mindre.",
   "product.warning.max_images_title": "Max {maxImages} bilder",
   "product.warning.max_images_subtitle": "Använd max {maxImages} produktbilder",
+  "product.warning.max_variants_title": "Max {maxVariants} varianter",
+  "product.warning.max_variants_subtitle": "Använd högst {maxVariants} varianter för en produkt",
   "product.warning.use_higer_resolution_title": "Använd högre upplösning",
   "product.warning.use_higer_resolution_subtitle": "Minsta tillåtna upplösning är {minResolution}px.",
   "product.add": "Lägg till produkt",

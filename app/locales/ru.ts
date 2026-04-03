@@ -276,6 +276,8 @@ export default {
   "product.warning.max_file_size_subtitle": "Пожалуйста, загрузите изображение размером не больше {maxFileSize}.",
   "product.warning.max_images_title": "Максимум {maxImages} изображений",
   "product.warning.max_images_subtitle": "Пожалуйста, используйте не более {maxImages} изображений для товара",
+  "product.warning.max_variants_title": "Максимум {maxVariants} вариантов",
+  "product.warning.max_variants_subtitle": "Пожалуйста, используйте не более {maxVariants} вариантов для одного товара",
   "product.warning.use_higer_resolution_title": "Используйте более высокое разрешение",
   "product.warning.use_higer_resolution_subtitle": "Минимально допустимое разрешение: {minResolution}px.",
   "product.add": "Добавить продукт",

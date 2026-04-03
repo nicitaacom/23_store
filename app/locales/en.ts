@@ -276,6 +276,8 @@ export default {
   "product.warning.max_file_size_subtitle": "Please upload an image that is {maxFileSize} or smaller.",
   "product.warning.max_images_title": "Max {maxImages} images",
   "product.warning.max_images_subtitle": "Please use max {maxImages} product images",
+  "product.warning.max_variants_title": "Max {maxVariants} variants",
+  "product.warning.max_variants_subtitle": "Please use no more than {maxVariants} variants for one product",
   "product.warning.use_higer_resolution_title": "Use higher resolution",
   "product.warning.use_higer_resolution_subtitle": "Minimum required resolution is {minResolution}px.",
   "product.add": "Add product",
