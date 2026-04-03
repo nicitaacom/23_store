@@ -241,6 +241,7 @@ export default {
   "product.add_to_cart": "Lägg i kundvagn", // I know it's a duplicate with aichat - this is from old functionality
   "product.this_field_is_required": "Detta fält är obligatoriskt",
   "product.title_required": "Ange en produkttitel – a–z, siffror och #()_ är tillåtna",
+  "product.title_invalid_character": 'Tecknet "{character}" är inte tillåtet nära "{context}"',
   "product.subtitle_required": "Inga tecken !$^*_=\\ tillåtna",
   "product.price_required": "Ange pris från 1 till 999 999 med 2 decimaler",
   "product.on_stock_required": "Ange lagersaldo som ett positivt tal, decimaler tillatna",

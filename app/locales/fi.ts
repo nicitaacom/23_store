@@ -241,6 +241,7 @@ export default {
   "product.add_to_cart": "Lisää ostoskoriin", // I know it's a duplicate with aichat - this is from old functionality
   "product.this_field_is_required": "Tämä kenttä on pakollinen",
   "product.title_required": "Anna tuotteen otsikko – a–z, numerot ja #()_ sallittu",
+  "product.title_invalid_character": 'Merkki "{character}" ei ole sallittu kohdan "{context}" lähellä',
   "product.subtitle_required": "Merkit !$^*_=\\ eivät ole sallittuja",
   "product.price_required": "Anna hinta väliltä 1–999 999 kahdella desimaalilla",
   "product.on_stock_required": "Anna varastosaldo positiivisena numerona, desimaalit sallittu",

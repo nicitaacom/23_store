@@ -294,7 +294,7 @@ export default {
   "product.error.db_insert_failed": "Ошибка вставки в базу данных",
   "product.error.no_data_returned_from_uploaded_image": "Загруженное изображение не вернуло данных",
   "product.title_too_short": "Заголовок слишком короткий - минимум 3 символа",
-  "product.title_too_long": "Заголовок слишком длинный - максимум {max} символов (текущее: {current})",
+  "product.title_too_long": "Заголовок слишком длинный - максимум {max} символов (сейчас: {current})",
   "product.title_must_contain_letter": "Заголовок должен содержать хотя бы одну букву",
   "product.title_must_start_alphanumeric": "Заголовок должен начинаться с буквы или цифры",
 

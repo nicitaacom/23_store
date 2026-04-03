@@ -31,7 +31,7 @@ interface InputFormProps extends React.InputHTMLAttributes<HTMLInputElement> {
 interface ValidationRules {
   [key: string]: {
     requiredMessage: string
-    pattern: {
+    pattern?: {
       value: RegExp
       message: string
     }
@@ -54,30 +54,57 @@ export function ProductInput({
   ...props
 }: InputFormProps) {
   const t = useScopedI18n("product")
+  const MAX_TITLE_LENGTH = 158
+  const TITLE_INVALID_CHARACTER_REGEX = /[^A-Za-z0-9#$()_+ /,.'-]/
+  const TITLE_HAS_LETTER_REGEX = /[A-Za-z]/
+  const TITLE_MUST_START_REGEX = /^[A-Za-z0-9]/
+
+  const getInvalidCharacterContext = (value: string, invalidCharacterIndex: number) => {
+    const wordsBeforeInvalidCharacter = value
+      .slice(0, invalidCharacterIndex)
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(-2)
+      .join(" ")
+
+    if (wordsBeforeInvalidCharacter) return wordsBeforeInvalidCharacter
+
+    const wordsAfterInvalidCharacter = value
+      .slice(invalidCharacterIndex + 1)
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .join(" ")
+
+    if (wordsAfterInvalidCharacter) return wordsAfterInvalidCharacter
+
+    return value.slice(Math.max(0, invalidCharacterIndex - 6), Math.min(value.length, invalidCharacterIndex + 7)).trim()
+  }
+
+  const getReadableCharacter = (character: string) => {
+    if (character === "\n") return "newline"
+    if (character === "\t") return "tab"
+    return character
+  }
 
   const getInvalidCharacterMessage = (value: string) => {
-    const invalidCharacterMatch = value.match(/[^A-Za-z0-9$()_+ /,.'-]/)
+    const invalidCharacterMatch = value.match(TITLE_INVALID_CHARACTER_REGEX)
     if (!invalidCharacterMatch || invalidCharacterMatch.index === undefined) return null
 
-    const invalidCharacter = invalidCharacterMatch[0] === " " ? "space" : invalidCharacterMatch[0]
-    const start = Math.max(0, invalidCharacterMatch.index - 6)
-    const end = Math.min(value.length, invalidCharacterMatch.index + 7)
-    const context = value.slice(start, end)
+    const invalidCharacter = getReadableCharacter(invalidCharacterMatch[0])
+    const context = getInvalidCharacterContext(value, invalidCharacterMatch.index)
 
     return t("title_invalid_character", {
       character: invalidCharacter,
       context,
     })
   }
-  const MAX_TITLE_LENGTH = 158
 
   const validationRules: ValidationRules = {
     title: {
       requiredMessage: t("this_field_is_required"),
-      pattern: {
-        value: /^(?=.*[A-Za-z])[A-Za-z0-9][A-Za-z0-9$()_+ /,.'-]{2,156}$/,
-        message: t("title_required"),
-      },
     },
     subTitle: {
       requiredMessage: t("this_field_is_required"),
@@ -104,27 +131,29 @@ export function ProductInput({
 
   const {
     requiredMessage: requiredMessage,
-    pattern: { value: patternValue, message: patternMessage },
+    pattern,
   } = validationRules[id]
 
   const registerOptions = {
     required: required ? requiredMessage : undefined,
-    pattern: {
-      value: patternValue,
-      message: patternMessage,
-    },
+    pattern: pattern
+      ? {
+          value: pattern.value,
+          message: pattern.message,
+        }
+      : undefined,
     validate:
       id === "title"
         ? (value: string | number) => {
             const str = String(value ?? "")
-            if (!str || patternValue.test(str)) return true
+            if (!str) return true
             const invalidCharMsg = getInvalidCharacterMessage(str)
             if (invalidCharMsg) return invalidCharMsg
             if (str.length < 3) return t("title_too_short")
             if (str.length > MAX_TITLE_LENGTH) return t("title_too_long", { current: str.length, max: MAX_TITLE_LENGTH })
-            if (!/[A-Za-z]/.test(str)) return t("title_must_contain_letter")
-            if (!/^[A-Za-z0-9]/.test(str)) return t("title_must_start_alphanumeric")
-            return patternMessage
+            if (!TITLE_HAS_LETTER_REGEX.test(str)) return t("title_must_contain_letter")
+            if (!TITLE_MUST_START_REGEX.test(str)) return t("title_must_start_alphanumeric")
+            return true
           }
         : undefined,
   }
@@ -147,10 +176,12 @@ export function ProductInput({
           {...textareaRest}
           className={twMerge(
             `w-full rounded-[22px] bg-transparent text-white outline-none transition-all duration-200 placeholder:text-white/42
-            focus:border-brand/60 focus:bg-[#151a21] focus:shadow-[0_0_0_1px_rgba(32,233,89,0.18)]`,
+            focus:border-brand/60 focus:bg-[#151a21] focus:shadow-[inset_0_0_0_1px_rgba(32,233,89,0.18)]`,
             startIcon && "pl-10",
             endIcon && "pr-10",
-            errors[id] && errors[id]?.message && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
+            errors[id] &&
+              errors[id]?.message &&
+              "border-danger/70 focus:border-danger/70 focus:shadow-[inset_0_0_0_1px_hsl(var(--danger)/0.28)] focus-visible:outline-none",
             disabled && "opacity-50 cursor-default pointer-events-none",
             className,
           )}
@@ -159,7 +190,6 @@ export function ProductInput({
           placeholder={placeholder}
           disabled={disabled}
           rows={6}
-          {...register("subTitle", registerOptions)}
           ref={e => {
             textArea(e)
             textareaRef.current = e // you can still assign to ref issue
@@ -171,10 +201,12 @@ export function ProductInput({
           {...rest}
           className={twMerge(
             `w-full rounded-[22px] bg-transparent text-white outline-none transition-all duration-200 placeholder:text-white/42
-            focus:border-brand/60 focus:bg-[#151a21] focus:shadow-[0_0_0_1px_rgba(32,233,89,0.18)]`,
+            focus:border-brand/60 focus:bg-[#151a21] focus:shadow-[inset_0_0_0_1px_rgba(32,233,89,0.18)]`,
             startIcon && "pl-10",
             endIcon && "pr-10",
-            errors[id] && errors[id]?.message && "focus:ring-danger focus-visible:outline-danger focus:outline-offset-0",
+            errors[id] &&
+              errors[id]?.message &&
+              "border-danger/70 focus:border-danger/70 focus:shadow-[inset_0_0_0_1px_hsl(var(--danger)/0.28)] focus-visible:outline-none",
             disabled && "opacity-50 cursor-default pointer-events-none",
             className,
           )}
@@ -183,7 +215,6 @@ export function ProductInput({
           autoComplete={id}
           placeholder={placeholder}
           disabled={disabled}
-          {...register(id, registerOptions)}
           onInput={event => {
             if (type === "numeric" && numericFormat === "grouped") {
               event.currentTarget.value = formatGroupedNumberInput(event.currentTarget.value)
