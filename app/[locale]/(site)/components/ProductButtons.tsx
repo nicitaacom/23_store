@@ -13,7 +13,7 @@ export function ProductButtons({ productId }: ProductButtonsProps) {
   const quantity = cartStore.products?.[productId]?.quantity ?? 0
 
   return (
-    <div className={`flex flex-row gap-x-3 justify-center laptop:justify-end items-end ${quantity === 0 && "w-full"}`}>
+    <div className={`flex min-w-0 flex-wrap gap-3 justify-center laptop:justify-end items-end ${quantity === 0 ? "w-full" : ""}`}>
       {quantity === 0 ? (
         <AddToCartButton productId={productId} />
       ) : (

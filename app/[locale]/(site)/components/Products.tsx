@@ -17,8 +17,7 @@ function Products({ products }: ProductsProps) {
   const t = useScopedI18n("product")
   return (
     <div
-      className="mobile:border-[1px] broder-border-color rounded 
-    w-full max-w-[1440px] min-w-[80vw]">
+      className="w-full min-w-0 rounded mobile:border-[1px] broder-border-color">
       <div className="flex flex-row justify-between px-4">
         <h1 className="hidden tablet:flex text-lg">{t("products")}:</h1>
       </div>

@@ -29,7 +29,7 @@ function Product({ ...product }: Props) {
   return (
     <article
       className={twMerge(
-        "flex flex-col mobile:flex-row justify-between rounded-xl border border-border-color/20",
+        "flex flex-col tablet:flex-row justify-between rounded-xl border border-border-color/20",
         "bg-gradient-to-br from-success/3 to-transparent",
         "hover:from-success/8 hover:to-success/3 hover:border-success/30 hover:shadow-lg hover:shadow-success/10",
         "transition-all duration-300 group relative overflow-hidden",
@@ -37,14 +37,14 @@ function Product({ ...product }: Props) {
         "before:scale-y-0 before:transition-transform before:duration-300 hover:before:scale-y-100",
         product.containerClassName,
       )}>
-      <div className="w-full mobile:w-[280px] aspect-video shrink-0 overflow-hidden bg-black">
+      <div className="w-full tablet:w-[280px] aspect-video shrink-0 overflow-hidden bg-black">
         <ProductImage imgUrl={previewImages} productTitle={product.title} />
       </div>
 
       <div className="flex flex-col justify-between gap-y-4 w-full px-5 py-4 min-w-0">
-        <section className="flex flex-col gap-y-3 justify-between items-center mobile:items-start">
-          <div className="flex flex-col mobile:flex-row gap-x-2 gap-y-2 justify-between items-center mobile:items-start w-full">
-            <h1 className="w-full mobile:w-[60%] text-xl mobile:text-2xl text-title font-semibold text-center mobile:text-start line-clamp-2 group-hover:text-success transition-colors duration-300 min-w-0">
+        <section className="flex flex-col gap-y-3 justify-between items-center tablet:items-start">
+          <div className="flex flex-col tablet:flex-row gap-x-2 gap-y-2 justify-between items-center tablet:items-start w-full">
+            <h1 className="w-full tablet:w-[60%] text-xl mobile:text-2xl text-title font-semibold text-center tablet:text-start line-clamp-2 group-hover:text-success transition-colors duration-300 min-w-0">
               {product.title}
             </h1>
 
@@ -57,7 +57,7 @@ function Product({ ...product }: Props) {
           </div>
 
           <div className="w-full flex flex-col gap-y-2 min-w-0">
-            <h1 className="line-clamp-2 text-base mobile:text-sm text-subTitle text-center mobile:text-start leading-relaxed">
+            <h1 className="line-clamp-2 text-base mobile:text-sm text-subTitle text-center tablet:text-start leading-relaxed">
               {product.sub_title}
             </h1>
 
@@ -110,10 +110,11 @@ function Product({ ...product }: Props) {
         </section>
 
         <section
-          className={`min-h-[50px] flex flex-col mobile:flex-row gap-y-3 gap-x-4 ${isOutOfStock ? "justify-end" : "justify-between"}`}>
+          className={`min-h-[50px] min-w-0 flex flex-col tablet:flex-row gap-y-3 gap-x-4
+          ${isOutOfStock ? "justify-end" : "justify-between"}`}>
           {!isOutOfStock && <ProductQuantity productId={product.id} productPrice={product.price} />}
           {isOutOfStock ? (
-            <div className="flex flex-row justify-center mobile:justify-end items-end">
+            <div className="flex flex-row justify-center tablet:justify-end items-end">
               <RequestReplanishmentButton product={product} />
             </div>
           ) : (

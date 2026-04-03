@@ -51,7 +51,7 @@ export default async function Home({ params, searchParams }: SearchProps) {
     <div
       className="mx-auto h-[calc(100vh-64px)] w-full overflow-hidden px-4 py-2 text-2xl text-title">
       <section className="mx-auto grid h-full w-full max-w-[2200px] grid-cols-1 gap-1 4xl:max-w-[3000px] laptop:grid-cols-[minmax(0,1fr)_minmax(420px,30%)]">
-        <div className="min-h-0 overflow-hidden rounded-[4px] border border-success/15 bg-gradient-to-br from-success/5 via-background to-background px-4 py-2 shadow-2xl shadow-success/5">
+        <div className="min-h-0 min-w-0 overflow-hidden rounded-[4px] border border-success/15 bg-gradient-to-br from-success/5 via-background to-background px-4 py-2 shadow-2xl shadow-success/5">
           <div className="flex h-full min-h-0 flex-col gap-[2px]">
             <section className="shrink-0 flex flex-col gap-[2px]">
             <div className="flex flex-col gap-[2px] laptop:flex-row laptop:items-end laptop:justify-between">
