@@ -248,6 +248,7 @@ export default {
   "product.drop_files_here": "Släpp filer här",
   "product.click_or_drop_here": "Klicka eller släpp här",
   "product.update": "Uppdatera",
+  "product.primary_image": "Primär bild",
   "product.remove": "Ta bort",
   "product.remove_all_images": "Ta bort alla bilder",
   "product.placeholder.title": "Produkttitel",

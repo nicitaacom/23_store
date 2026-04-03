@@ -248,6 +248,7 @@ export default {
   "product.drop_files_here": "Drop files here",
   "product.click_or_drop_here": "Click or Drop here",
   "product.update": "Update",
+  "product.primary_image": "Primary image",
   "product.remove": "Remove",
   "product.remove_all_images": "Remove all images",
   "product.placeholder.title": "Product title",

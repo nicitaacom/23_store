@@ -248,6 +248,7 @@ export default {
   "product.drop_files_here": "Перетащите файлы сюда",
   "product.click_or_drop_here": "Кликните или перетащите сюда",
   "product.update": "Обновить",
+  "product.primary_image": "Первая картинка",
   "product.remove": "Удалить",
   "product.remove_all_images": "Удалить все изображения",
   "product.placeholder.title": "Название продукта",

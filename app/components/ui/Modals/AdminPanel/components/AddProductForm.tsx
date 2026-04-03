@@ -136,6 +136,24 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setActiveImageIndex(currentIndex => (nextIndex === currentIndex ? currentIndex : nextIndex))
   }
 
+  const makeImagePrimary = (imageIndex: number) => {
+    if (imageIndex <= 0) return
+
+    setImages(currentImages => {
+      if (!currentImages[imageIndex]) return currentImages
+
+      const nextImages = [...currentImages]
+      const [selectedImage] = nextImages.splice(imageIndex, 1)
+
+      if (!selectedImage) return currentImages
+
+      nextImages.unshift(selectedImage)
+      return nextImages
+    })
+
+    setActiveImageIndex(0)
+  }
+
   const addVariant = () => {
     const normalizedLabel = variantLabel.trim()
 
@@ -185,6 +203,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         {({ imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps }) => {
           const safeActiveImageIndex = imageList[activeImageIndex] ? activeImageIndex : 0
           const activeImage = imageList[safeActiveImageIndex]
+          const isPrimaryImage = safeActiveImageIndex === 0
           const hasPrevImage = safeActiveImageIndex > 0
           const hasNextImage = safeActiveImageIndex < imageList.length - 1
           const imageDirection = safeActiveImageIndex >= previousImageIndexRef.current ? "next" : "prev"
@@ -357,10 +376,31 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 <div className={twMerge("grid shrink-0 gap-1.5", imageList.length > 1 ? "grid-cols-3" : "grid-cols-2")}>
                   <button
                     type="button"
-                    onClick={() => onImageUpdate(safeActiveImageIndex)}
+                    onClick={() => makeImagePrimary(safeActiveImageIndex)}
                     disabled={isLoading}
-                    className="h-9 rounded-xl border border-white/10 bg-white/[0.04] text-[11px] font-medium text-white/60 transition-colors hover:bg-white/[0.07] hover:text-white/80 disabled:opacity-40">
-                    just {t("update")}
+                    aria-pressed={isPrimaryImage}
+                    className={twMerge(
+                      "flex h-9 items-center justify-center gap-2 rounded-xl border text-[11px] font-medium transition-colors disabled:opacity-40",
+                      isPrimaryImage
+                        ? "border-[#1fe15a]/35 bg-[#1fe15a]/12 text-[#1fe15a]"
+                        : "border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/[0.07] hover:text-white/80",
+                    )}>
+                    <span
+                      className={twMerge(
+                        "flex h-4 w-4 items-center justify-center rounded-md border transition-colors",
+                        isPrimaryImage ? "border-[#1fe15a] bg-[#1fe15a] text-[#071a0c]" : "border-white/18 bg-transparent text-transparent",
+                      )}>
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                        <path
+                          d="M2 5.2L4.1 7.3L8 2.8"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    {t("primary_image")}
                   </button>
                   <button
                     type="button"

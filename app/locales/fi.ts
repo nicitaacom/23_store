@@ -248,6 +248,7 @@ export default {
   "product.drop_files_here": "Pudota tiedostot tähän",
   "product.click_or_drop_here": "Klikkaa tai pudota tähän",
   "product.update": "Päivitä",
+  "product.primary_image": "Ensisijainen kuva",
   "product.remove": "Poista",
   "product.remove_all_images": "Poista kaikki kuvat",
   "product.placeholder.title": "Tuotteen otsikko",
