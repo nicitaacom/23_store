@@ -45,7 +45,7 @@ export function DropdownContainer({
   }, [])
 
   return (
-    <div className={`relative z-10 ${classNameDropdownContainer}`} ref={dropdownRef}>
+    <div className={twMerge("relative z-10", classNameDropdownContainer)} ref={dropdownRef}>
       <div className="cursor-pointer hover:brightness-75 duration-300" onClick={handleClick}>
         {icon}
       </div>

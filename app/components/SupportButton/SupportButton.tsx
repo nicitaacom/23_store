@@ -26,6 +26,7 @@ export default function SupportButton() {
   //w-[400px] should be = section w-[400px]
   return (
     <DropdownContainer
+      classNameDropdownContainer="fixed bottom-4 right-6 z-[120]"
       className="w-[280px] mobile:w-[375px] top-[-480px] mobile:top-[-570px] desktop:top-[-585px]
        translate-x-[-32.5px] desktop:translate-x-[-40px] before:translate-y-[402px] mobile:before:translate-y-[492px]
        before:border-l-0 before:border-t-0 before:border-r before:border-b before:bg-foreground-accent before:z-[2]"
@@ -36,8 +37,8 @@ export default function SupportButton() {
       dropdownRef={dropDownRef}
       icon={
         <Button
-          className="w-[48px] h-[48px] px-3 desktop:px-4 desktop:w-[64px] desktop:h-[64px] fixed bottom-4 right-6 rounded-full
-          border border-border-color"
+          className="h-[48px] w-[48px] rounded-full border border-border-color bg-background/95 px-3 shadow-lg shadow-black/30
+          backdrop-blur-sm desktop:h-[64px] desktop:w-[64px] desktop:px-4"
           variant="default-outline">
           <BiSupport className="text-icon-color w-[32px] h-[32px] desktop:w-[32px] desktop:h-[32px]" />
         </Button>

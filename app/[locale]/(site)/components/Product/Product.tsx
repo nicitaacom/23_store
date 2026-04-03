@@ -14,6 +14,7 @@ import Image from "next/image"
 
 type Props = TProductDB & {
   containerClassName?: string
+  showViewButton?: boolean
 }
 
 function Product({ ...product }: Props) {
@@ -118,7 +119,7 @@ function Product({ ...product }: Props) {
               <RequestReplanishmentButton product={product} />
             </div>
           ) : (
-            <ProductButtons productId={product.id} />
+            <ProductButtons productId={product.id} showViewButton={product.showViewButton} />
           )}
         </section>
       </div>

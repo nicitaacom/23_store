@@ -56,7 +56,8 @@ body,
 :root {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   /* This is strongly recommended when modal isOpen */
   /* overflow-y: auto; */
   /* Red color because user should not see this */

@@ -1,18 +1,21 @@
 "use client"
 
+import { BsCart3 } from "react-icons/bs"
 import useCartStore from "@/store/user/cartStore"
 import { useCallback } from "react"
 import { Button } from ".."
-import { useI18n, useScopedI18n } from "@/locales/client"
+import { useScopedI18n } from "@/locales/client"
+import { twMerge } from "tailwind-merge"
 
 interface AddToCartButtonProps {
   productId: string
+  className?: string
 }
 /**
  *
  * @deprecated
  */
-export function AddToCartButton({ productId }: AddToCartButtonProps) {
+export function AddToCartButton({ productId, className }: AddToCartButtonProps) {
   const t = useScopedI18n("product")
   const cartStore = useCartStore()
 
@@ -23,8 +26,12 @@ export function AddToCartButton({ productId }: AddToCartButtonProps) {
 
   return (
     <Button
-      className="min-w-[50px] max-h-[50px] h-[50px] laptop:w-fit text-xl font-medium"
+      className={twMerge("w-full mobile:w-fit font-medium", className)}
       variant="success-outline"
+      size="lg"
+      rounded="lg"
+      shadow="sm"
+      rightIcon={<BsCart3 className="text-lg" />}
       onClick={() => increaseProductQuantity(productId)}>
       {t("add_to_cart")}
     </Button>

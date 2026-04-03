@@ -1,27 +1,44 @@
 "use client"
 
 import { AddToCartButton } from "@/components/ui/Buttons/AddToCartButton"
+import { Button } from "@/components/ui"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
 import useCartStore from "@/store/user/cartStore"
+import { FiExternalLink } from "react-icons/fi"
 
 interface ProductButtonsProps {
   productId: string
+  showViewButton?: boolean
 }
 
-export function ProductButtons({ productId }: ProductButtonsProps) {
+export function ProductButtons({ productId, showViewButton = true }: ProductButtonsProps) {
   const cartStore = useCartStore()
   const quantity = cartStore.products?.[productId]?.quantity ?? 0
+  const locale = useCurrentLocale()
+  const t = useScopedI18n("product")
 
   return (
-    <div className={`flex min-w-0 flex-wrap gap-3 justify-center laptop:justify-end items-end ${quantity === 0 ? "w-full" : ""}`}>
-      {quantity === 0 ? (
-        <AddToCartButton productId={productId} />
-      ) : (
+    <div className="flex w-full min-w-0 flex-wrap items-end justify-center gap-3 laptop:justify-end">
+      {quantity === 0 ? <AddToCartButton productId={productId} /> : (
         <>
           <ProductQuantityButton action="increase" productId={productId} />
           <ProductQuantityButton action="decrease" productId={productId} />
           <ProductQuantityButton action="clear" productId={productId} />
         </>
+      )}
+
+      {showViewButton && (
+        <Button
+          className="w-full mobile:w-fit font-medium"
+          href={`/${locale}/products/${productId}`}
+          variant="info-outline"
+          size="lg"
+          rounded="lg"
+          shadow="sm"
+          rightIcon={<FiExternalLink className="text-base" />}>
+          {t("view_product")}
+        </Button>
       )}
     </div>
   )
