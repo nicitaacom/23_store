@@ -1,53 +1,53 @@
-import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
-import { RefObject, useEffect, useState, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
-export const useDragAndDrop = (ref: RefObject<HTMLElement | null>) => {
+export const useDragAndDrop = () => {
   const [isDragging, setIsDragging] = useState(false)
   const dragCounter = useRef(0)
-  const { imageFiles } = useSupportDropdown()
 
-  const handleDrop = () => {
-    dragCounter.current--
-    if (dragCounter.current <= 0) {
-      setIsDragging(false)
-    }
-  }
+  const handleDrop = useCallback(() => {
+    dragCounter.current = 0
+    setIsDragging(false)
+  }, [])
 
   useEffect(() => {
-    const node = ref.current
-    if (!node) return
+    const hasFiles = (event: DragEvent) => Array.from(event.dataTransfer?.types ?? []).includes("Files")
 
-    const handleDragEnter = (e: DragEvent) => {
-      if (!node.contains(e.target as Node)) return
-      dragCounter.current++
+    const handleDragEnter = (event: DragEvent) => {
+      if (!hasFiles(event)) return
+
+      event.preventDefault()
+      dragCounter.current += 1
       setIsDragging(true)
     }
 
-    const handleDragLeave = (e: DragEvent) => {
-      if (!node.contains(e.target as Node)) return
-      dragCounter.current--
+    const handleDragLeave = (event: DragEvent) => {
+      if (!hasFiles(event)) return
+
+      dragCounter.current -= 1
+
       if (dragCounter.current <= 0) {
+        dragCounter.current = 0
         setIsDragging(false)
       }
     }
 
-    const handleDragEnd = () => {
-      dragCounter.current = 0
-      setIsDragging(false)
+    const handleDragOver = (event: DragEvent) => {
+      if (!hasFiles(event)) return
+      event.preventDefault()
     }
 
-    node.addEventListener("dragenter", handleDragEnter)
-    node.addEventListener("dragleave", handleDragLeave)
-    // node.addEventListener("drop", handleDrop)
-    node.addEventListener("dragend", handleDragEnd)
+    window.addEventListener("dragenter", handleDragEnter)
+    window.addEventListener("dragleave", handleDragLeave)
+    window.addEventListener("dragover", handleDragOver)
+    window.addEventListener("drop", handleDrop)
 
     return () => {
-      node.removeEventListener("dragenter", handleDragEnter)
-      node.removeEventListener("dragleave", handleDragLeave)
-      // node.removeEventListener("drop", handleDrop)
-      node.removeEventListener("dragend", handleDragEnd)
+      window.removeEventListener("dragenter", handleDragEnter)
+      window.removeEventListener("dragleave", handleDragLeave)
+      window.removeEventListener("dragover", handleDragOver)
+      window.removeEventListener("drop", handleDrop)
     }
-  }, [ref, imageFiles])
+  }, [handleDrop])
 
   return { isDragging, handleDrop }
 }

@@ -123,7 +123,7 @@ export function ProductInput({
     onStock: {
       requiredMessage: t("this_field_is_required"),
       pattern: {
-        value: /^(?:[1-9]\d*|[1-9]\d{0,2}(?:,\d{3})+)(?:\.\d{1,2})?$/,
+        value: /^(?:0|[1-9]\d*|[1-9]\d{0,2}(?:,\d{3})+)(?:\.\d{1,2})?$/,
         message: t("on_stock_required"),
       },
     },
@@ -230,7 +230,11 @@ export function ProductInput({
               const { value } = target as HTMLInputElement
               const regex = numericFormat === "grouped" ? /^(?!\..)[0-9.,]+$/ : /^(?!\..)[0-9.]+$/
 
-              if (value.length === 0 && [".", ",", "0"].includes(key)) {
+              if (value.length === 0 && [".", ","].includes(key)) {
+                e.preventDefault()
+              }
+
+              if (id === "price" && value.length === 0 && key === "0") {
                 e.preventDefault()
               }
 

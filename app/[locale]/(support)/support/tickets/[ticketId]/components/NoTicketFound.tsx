@@ -8,19 +8,21 @@ export function NoTicketFound({ ticketId }: { ticketId: string }) {
   const { isDarkMode } = useDarkModeStore()
 
   return (
-    <main
-      className="w-full h-full laptop:w-[calc(100%-16rem)] bg-foreground-accent flex flex-col gap-y-16 justify-center items-center
-    shadow-[inset_0px_8px_6px_rgba(0,0,0,0.4)] pb-8 z-[100]">
-      <Image
-        className="hidden mobile:block ml-6 w-[360px] h-[180px] laptop:w-[480px] laptop:h-[240px]"
-        src={isDarkMode ? "/no-ticket-with-ticketId-found-dark.png" : "/no-ticket-with-ticketId-found-light.png"}
-        alt="No ticket id found"
-        width={480}
-        height={240}
-      />
-      <div className="flex flex-col gap-y-2 px-8">
-        <h1 className="text-lg laptop:text-2xl text-center ">No ticket found with id {ticketId}</h1>
-        <BackToTickets />
+    <main className="flex h-full min-w-0 flex-1 items-center justify-center rounded-2xl border border-border-color/35 bg-foreground/35 px-6 py-8">
+      <div className="flex max-w-xl flex-col items-center gap-6 px-6 py-8 text-center">
+        <Image
+          className="hidden h-[180px] w-[360px] mobile:block laptop:h-[220px] laptop:w-[440px]"
+          src={isDarkMode ? "/no-ticket-with-ticketId-found-dark.png" : "/no-ticket-with-ticketId-found-light.png"}
+          alt="No ticket id found"
+          width={480}
+          height={240}
+        />
+        <div className="flex flex-col gap-y-2 px-2">
+          <p className="font-primary text-[11px] font-semibold uppercase tracking-[0.28em] text-subTitle">Support workspace</p>
+          <h1 className="mt-2 font-secondary text-2xl font-bold tracking-tight text-title laptop:text-4xl">No ticket found</h1>
+          <p className="text-sm leading-6 text-subTitle">The conversation with id {ticketId} may have been closed, deleted, or the link is no longer valid.</p>
+          <BackToTickets />
+        </div>
       </div>
     </main>
   )

@@ -23,7 +23,9 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
     created_at: moment().tz("Europe/Berlin").format(),
     seen: false,
     body: messageBody,
+    images: imageUrl ? [imageUrl] : null,
     sender_id: sender_id,
+    sender_avatar_url: null,
     sender_username: sender_id,
     ticket_id: ticketId,
   }
@@ -69,7 +71,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
       senderUsername: message.sender_id,
       senderAvatarUrl: null, // TODO getAvatarUrl()
       messageBody: message.body,
-      images: [imageUrl],
+      images: imageUrl ? [imageUrl] : undefined,
       messageSender: "user",
     } as TAPIMessageSend)
   } catch (error) {

@@ -9,6 +9,7 @@ import { formatNumber } from "@/utils/numberFormatter"
 import { ProductQuantity } from "../ProductQuantity"
 import { ProductButtons } from "../ProductButtons"
 import { ProductImage } from "../ProductImage"
+import { ProductLikeButton } from "../ProductLikeButton"
 import { RequestReplanishmentButton } from "./RequestReplanishmentButton"
 import Image from "next/image"
 
@@ -38,8 +39,9 @@ function Product({ ...product }: Props) {
         "before:scale-y-0 before:transition-transform before:duration-300 hover:before:scale-y-100",
         product.containerClassName,
       )}>
-      <div className="w-full tablet:w-[280px] aspect-video shrink-0 overflow-hidden bg-black">
+      <div className="relative w-full tablet:w-[280px] aspect-video shrink-0 overflow-hidden bg-black">
         <ProductImage imgUrl={previewImages} productTitle={product.title} />
+        <ProductLikeButton className="absolute right-3 top-3 z-10" productId={product.id} />
       </div>
 
       <div className="flex flex-col justify-between gap-y-4 w-full px-5 py-4 min-w-0">
@@ -119,7 +121,7 @@ function Product({ ...product }: Props) {
               <RequestReplanishmentButton product={product} />
             </div>
           ) : (
-            <ProductButtons productId={product.id} showViewButton={product.showViewButton} />
+            <ProductButtons ownerId={product.owner_id} productId={product.id} showViewButton={product.showViewButton} />
           )}
         </section>
       </div>

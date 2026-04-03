@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
+import { Fragment, useEffect, useRef } from "react"
+import { BiSupport } from "react-icons/bi"
 
+import { DragAndDropArea } from "./DragAndDropArea/DragAndDropArea"
 import { IMessageDB } from "@/ts/support/IMessageDB"
 import useUserStore from "@/store/user/userStore"
-
 import { MessageBox } from "../components/MessageBox"
 import { MessageInput } from "../../ui/Inputs/MessageInput"
 import { getAnonymousId } from "@/functions/getAnonymousId"
@@ -14,109 +14,144 @@ import { useScrollToBottom } from "@/hooks/ui/supportButton/useScrollToBottom"
 import { MarkTicketAsCompletedUser } from "../components/MarkTicketAsCompletedUser"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import { useLoading } from "@/store/ui/useLoading"
+import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import { getPusherClient } from "@/libs/pusher"
 import { useScopedI18n } from "@/locales/client"
-import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
+
+function isSameDay(left: string, right: string) {
+  const leftDate = new Date(left)
+  const rightDate = new Date(right)
+
+  return (
+    leftDate.getFullYear() === rightDate.getFullYear() &&
+    leftDate.getMonth() === rightDate.getMonth() &&
+    leftDate.getDate() === rightDate.getDate()
+  )
+}
+
+function getDayLabel(dateString: string) {
+  const date = new Date(dateString)
+  const today = new Date()
+
+  if (isSameDay(dateString, today.toISOString())) {
+    return "Today"
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    day: "numeric",
+    month: "short",
+  }).format(date)
+}
 
 export default function SupportButtonDropdown() {
   const t = useScopedI18n("support")
-
-  const dropDownRef = useRef<HTMLDivElement>(null)
-  const [isShowDropdown, setIsShowDropdown] = useState(false)
-
-  function closeDropdown() {
-    setIsShowDropdown(false)
-  }
-
-  useEscOrClickOutside(dropDownRef, closeDropdown)
-
-  const router = useRouter()
   const bottomRef = useRef<HTMLUListElement>(null)
   const { user } = useUserStore()
   const userId = user?.id || getAnonymousId()
   const { isLoading } = useLoading()
-
+  const { isDropdown } = useSupportDropdown()
   const { messages, ticketId, setMessages } = useMessagesStore()
-  useMarkMessagesAsSeen(isShowDropdown, ticketId, messages, userId, isLoading)
-  useScrollToBottom(bottomRef, isShowDropdown)
+
+  useMarkMessagesAsSeen(isDropdown, ticketId, messages, userId, isLoading)
+  useScrollToBottom(bottomRef, isDropdown)
 
   useEffect(() => {
     const pusherClient = getPusherClient()
-    // I want to initialize connection with pusher only in case isDropdown and userId
-    // because user may be not authenticated and that's why I set anonymousId when user send first message
-    if (userId && isShowDropdown && ticketId) {
-      pusherClient.subscribe(ticketId)
-      if (bottomRef.current) {
-        bottomRef.current.scrollTop = bottomRef.current.scrollHeight
-      }
 
-      const newMessageHandler = (message: IMessageDB) => {
-        // Check if the message with the same id already exists
-        const messageExists = messages.some(msg => msg.id === message.id)
+    if (!userId || !isDropdown || !ticketId) return
 
-        // Update the state based on whether the message exists or not
-        setMessages(messageExists ? messages : [...messages, message])
+    pusherClient.subscribe(ticketId)
 
-        //Timeout is required here because without it scroll to bottom doesn't work
-        setTimeout(() => {
-          if (bottomRef.current) {
-            bottomRef.current.scrollTop = bottomRef.current.scrollHeight
-          }
-        }, 10)
-      }
-
-      const seenHandler = (updatedMessages: IMessageDB[]) => {
-        setMessages(
-          messages.map(existingMessage => updatedMessages.find(msg => msg.id === existingMessage.id) || existingMessage),
-        )
-      }
-
-      const closeHandler = () => {
-        setMessages([])
-      }
-
-      pusherClient.bind("messages:new", newMessageHandler) // show new msg and scrollToBottom
-      pusherClient.bind("messages:seen", seenHandler) // set 'seen:true'
-      pusherClient.bind("tickets:closeByUser", closeHandler) // to clear messages
-      pusherClient.bind("tickets:closeBySupport", closeHandler) // to clear messages
-
-      return () => {
-        pusherClient.unsubscribe(ticketId)
-        pusherClient.unbind("messages:new", newMessageHandler)
-        pusherClient.unbind("messages:seen", seenHandler)
-        pusherClient.unbind("tickets:closeByUser", closeHandler)
-        pusherClient.unbind("tickets:closeBySupport", closeHandler)
-      }
+    if (bottomRef.current) {
+      bottomRef.current.scrollTop = bottomRef.current.scrollHeight
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages, ticketId, router])
+
+    const newMessageHandler = (message: IMessageDB) => {
+      const messageExists = messages.some(currentMessage => currentMessage.id === message.id)
+      setMessages(messageExists ? messages : [...messages, message])
+
+      setTimeout(() => {
+        if (bottomRef.current) {
+          bottomRef.current.scrollTop = bottomRef.current.scrollHeight
+        }
+      }, 10)
+    }
+
+    const seenHandler = (updatedMessages: IMessageDB[]) => {
+      setMessages(messages.map(message => updatedMessages.find(updatedMessage => updatedMessage.id === message.id) || message))
+    }
+
+    const closeHandler = () => {
+      setMessages([])
+    }
+
+    pusherClient.bind("messages:new", newMessageHandler)
+    pusherClient.bind("messages:seen", seenHandler)
+    pusherClient.bind("tickets:closeByUser", closeHandler)
+    pusherClient.bind("tickets:closeBySupport", closeHandler)
+
+    return () => {
+      pusherClient.unsubscribe(ticketId)
+      pusherClient.unbind("messages:new", newMessageHandler)
+      pusherClient.unbind("messages:seen", seenHandler)
+      pusherClient.unbind("tickets:closeByUser", closeHandler)
+      pusherClient.unbind("tickets:closeBySupport", closeHandler)
+    }
+  }, [isDropdown, messages, setMessages, ticketId, userId])
 
   return (
-    <section
-      className="relative h-[400px] mobile:h-[490px] w-[280px] mobile:w-[375px] flex flex-col bg-foreground-accent
-     rounded-lg overflow-hidden shadow-lg">
-      <div className="w-full bg-foreground border-b border-border-color py-3 flex justify-center items-center px-8 relative">
-        <h1 className="text-[1.1rem] mobile:text-[1.4rem] font-semibold text-title">{t("response_time", { number: 15 })}</h1>
-        <div className="absolute right-4 z-20">
-          <MarkTicketAsCompletedUser messagesLength={messages?.length ?? 0} ticketId={ticketId} />
+    <section className="relative flex h-[440px] w-[min(92vw,390px)] flex-col overflow-hidden rounded-[28px] border border-white/8 bg-[#13151b] shadow-[0_28px_90px_rgba(0,0,0,0.45)] mobile:h-[540px]">
+      <div className="border-b border-white/8 bg-[#171922] px-4 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-500/12 text-violet-300">
+              <BiSupport size={20} />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-base font-semibold text-slate-100 mobile:text-lg">Support chat</h1>
+              <p className="mt-0.5 text-xs text-slate-500">{t("response_time", { number: 15 })}</p>
+            </div>
+          </div>
+          <MarkTicketAsCompletedUser messagesLength={messages.length} ticketId={ticketId} />
         </div>
       </div>
+
       {isLoading ? (
-        <div className="flex-1 flex items-center justify-center text-subTitle">{t("loading_messages")}...</div>
+        <div className="flex flex-1 items-center justify-center px-6">
+          <div className="rounded-[22px] border border-white/8 bg-[#1a1d26] px-5 py-4 text-center shadow-[0_12px_32px_rgba(0,0,0,0.22)]">
+            <p className="text-sm font-medium text-slate-100">{t("loading_messages")}...</p>
+          </div>
+        </div>
       ) : (
-        <div className="flex flex-col flex-1 overflow-y-auto pt-6 z-20">
+        <div className="relative flex min-h-0 flex-1 flex-col bg-[linear-gradient(180deg,#171922_0%,#101218_100%)]">
           {messages.length ? (
-            <ul className="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-2" ref={bottomRef}>
-              {messages?.map(message => <MessageBox key={message.id} message={message} />)}
+            <ul className="panel-scroll flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4" ref={bottomRef}>
+              {messages.map((message, index) => (
+                <Fragment key={message.id}>
+                  {(index === 0 || !isSameDay(messages[index - 1].created_at, message.created_at)) && (
+                    <li className="flex justify-center py-1">
+                      <span className="rounded-full border border-white/8 bg-[#20232d] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-slate-500 shadow-[0_8px_18px_rgba(0,0,0,0.2)]">
+                        {getDayLabel(message.created_at)}
+                      </span>
+                    </li>
+                  )}
+                  <MessageBox message={message} />
+                </Fragment>
+              ))}
             </ul>
           ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-subTitle text-sm">{t("no_messages_yet")}.</p>
+            <div className="flex flex-1 items-center justify-center px-5 py-6">
+              <div className="max-w-[260px] rounded-[24px] border border-white/8 bg-[#1a1d26] px-5 py-6 text-center shadow-[0_14px_36px_rgba(0,0,0,0.22)]">
+                <p className="text-base font-semibold text-slate-100">Support is ready</p>
+                <p className="mt-2 text-sm leading-6 text-slate-500">{t("no_messages_yet")}.</p>
+              </div>
             </div>
           )}
           <MessageInput />
         </div>
       )}
+
+      <DragAndDropArea />
     </section>
   )
 }

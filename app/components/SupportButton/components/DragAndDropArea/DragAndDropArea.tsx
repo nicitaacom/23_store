@@ -1,7 +1,7 @@
 "use client"
 
-import { useRef } from "react"
 import ReactImageUploading, { ImageListType } from "react-images-uploading"
+import { twMerge } from "tailwind-merge"
 
 import { showToastWarningFn } from "./functions/showToastWarning"
 import { useDragAndDrop } from "@/hooks/support/useDragAndDrop"
@@ -10,37 +10,10 @@ import { MAX_IMAGE_FILE_SIZE_BYTES } from "@/constants/uploadLimits"
 
 export function DragAndDropArea() {
   const { image, setImage } = useMessagesStore()
-
-  const wrapperRef = useRef<HTMLDivElement | null>(null)
-  const { isDragging, handleDrop } = useDragAndDrop(wrapperRef)
+  const { isDragging, handleDrop } = useDragAndDrop()
 
   return (
-    <div className={`absolute inset-0 w-full h-full ${isDragging ? "z-20" : "z-10"}`}>
-      {/* Top padding */}
-      <div
-        className="absolute top-[56px] left-0 right-0 h-8 bg-background/80 backdrop-blur-sm text-white/60 text-center shadow-lg z-20"
-        ref={wrapperRef}>
-        drag&drop here
-      </div>
-
-      {/* Left padding */}
-      {/* <div
-        className="absolute top-0 bottom-0 left-0 w-8 bg-background/80 backdrop-blur-sm rounded-l-lg shadow-lg z-20"
-        ref={wrapperRef}
-      /> */}
-
-      {/* Right padding */}
-      {/* <div
-        className="absolute top-0 bottom-0 right-0 w-8 bg-background/80 backdrop-blur-sm rounded-r-lg shadow-lg z-20"
-        ref={wrapperRef}
-      /> */}
-
-      {/* Bottom padding */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-sm shadow-lg z-20"
-        ref={wrapperRef}
-      />
-
+    <div className={twMerge("pointer-events-none absolute inset-0", isDragging ? "z-30" : "z-0")}>
       <ReactImageUploading
         value={image as unknown as ImageListType}
         onChange={value => {
@@ -50,22 +23,23 @@ export function DragAndDropArea() {
         maxNumber={1}
         maxFileSize={MAX_IMAGE_FILE_SIZE_BYTES}
         onError={errors => showToastWarningFn(errors, { maxNumber: 1, maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES })}>
-        {({ onImageUpload, onImageUpdate, onImageRemove, dragProps }) => (
+        {({ dragProps }) => (
           <div
-            className="w-full h-full relative z-20 overflow-hidden"
+            className={twMerge("absolute inset-0 transition-all duration-200", isDragging ? "pointer-events-auto" : "pointer-events-none")}
             {...dragProps}
-            onDrop={e => {
-              dragProps.onDrop(e), handleDrop()
-            }}
-            ref={wrapperRef}>
-            <section className="w-full h-full relative">
-              {isDragging && (
-                <div
-                  className="absolute w-full h-full  inset-0.5 bottom-2 z-[4999] bg-[rgba(0,0,0,0.6)] max-w-[100%] 
-                  flex justify-center items-center text-title pointer-events-auto">
-                  Drag & drop here
-                </div>
-              )}
+            onDrop={event => {
+              dragProps.onDrop(event)
+              handleDrop()
+            }}>
+            <section
+              className={twMerge(
+                "absolute inset-3 flex items-center justify-center rounded-[24px] border-2 border-dashed transition-all duration-200",
+                isDragging ? "border-success/45 bg-background/72 opacity-100 backdrop-blur-sm" : "border-transparent opacity-0",
+              )}>
+              <div className="rounded-[20px] border border-success/20 bg-success/10 px-4 py-3 text-center shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
+                <p className="text-sm font-semibold text-title">Drop image here</p>
+                <p className="mt-1 text-xs text-subTitle">Attach 1 image to your support message</p>
+              </div>
             </section>
           </div>
         )}

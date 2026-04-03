@@ -28,10 +28,10 @@ export default async function SupportChatLayout({ children }: { children: React.
     <>
       <ClientOnly>
         <Navbar />
-        <div className="flex flex-row h-[calc(100vh-64px)]">
+        <div className="flex h-[calc(100vh-64px)] min-h-0 bg-background px-2 pb-2 pt-2 laptop:gap-4 laptop:px-4 laptop:pb-4">
           <DesktopSidebar unseenMessages={unreadMessages ?? []} initialTickets={initialTickets} />
           <MobileSidebar unseenMessages={unreadMessages ?? []} initialTickets={initialTickets} />
-          {children}
+          <div className="flex min-w-0 flex-1">{children}</div>
         </div>
       </ClientOnly>
     </>

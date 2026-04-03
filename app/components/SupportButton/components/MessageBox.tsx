@@ -1,13 +1,15 @@
 "use client"
 
 import Image from "next/image"
-import { twMerge } from "tailwind-merge"
+import { useState } from "react"
 import { BsCheck2 } from "react-icons/bs"
+import { twMerge } from "tailwind-merge"
 
-import { IMessageDB } from "@/ts/support/IMessageDB"
-import { formatTime } from "@/utils/formatTime"
 import useSender from "@/hooks/ui/useSender"
 import { useScopedI18n } from "@/locales/client"
+import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
+import { IMessageDB } from "@/ts/support/IMessageDB"
+import { formatTime } from "@/utils/formatTime"
 
 interface MessageBoxProps {
   message: IMessageDB
@@ -17,78 +19,105 @@ interface MessageBoxProps {
 export function MessageBox({ message, inverseColors }: MessageBoxProps) {
   const { isOwn, avatar_url } = useSender(message.sender_avatar_url || "", message.sender_id)
   const t = useScopedI18n("support")
+  const { setImage } = useGlobalImagePreview()
+  const [isOpeningImage, setIsOpeningImage] = useState(false)
 
   if (!message || !message.sender_id) {
     return null
   }
 
-  // TODO - show gray-bg for !isOwn messages
-  const messageIsOwn = twMerge(
-    isOwn
-      ? `rounded-br-[4px] before:rounded-tl-[4px]
-      bg-foreground-accent before:bg-foreground-accent`
-      : `rounded-bl-[4px] before:left-[6px] before:border-l-0 before:border-r-2
-       before:rounded-tr-[4px] before:rounded-br-sm before:rounded-tl-sm
-      before:rotate-[145deg] before:bottom-[-6px]
-      bg-foreground before:bg-foreground`,
-    inverseColors && isOwn && "bg-foreground before:bg-foreground",
-    inverseColors && !isOwn && "bg-foreground-accent before:bg-foreground-accent",
-  )
+  const ownBubbleClass =
+    "rounded-br-md border-violet-400/35 bg-violet-600 text-white shadow-[0_10px_24px_rgba(109,40,217,0.26)]"
+  const foreignBubbleClass =
+    "rounded-bl-md border-white/8 bg-[#21232b] text-slate-100 shadow-[0_10px_24px_rgba(0,0,0,0.22)]"
+  const bubbleBaseClass = "w-fit max-w-full break-words rounded-[20px] border px-4 py-3 text-[13px] leading-[1.5]"
+  const metaTime = formatTime(message.created_at, !inverseColors)
+  const incomingLabel = message.sender_username || "Support"
+
+  async function handleOpenImage(imageUrl: string) {
+    try {
+      setIsOpeningImage(true)
+
+      const response = await fetch(imageUrl)
+      if (!response.ok) return
+
+      const blob = await response.blob()
+      const fileName = imageUrl.split("/").pop()?.split("?")[0] || "chat-image"
+      const imageFile = new File([blob], fileName, { type: blob.type || "image/jpeg" })
+
+      setImage(imageFile, isOwn ? "user" : "support", true)
+    } finally {
+      setIsOpeningImage(false)
+    }
+  }
 
   return (
-    <div className={twMerge(`w-full flex gap-x-2`, isOwn && "justify-end")}>
-      <Image
-        className={`w-[36px] h-[36px] mt-1 rounded-full select-none pointer-events-none flex-shrink-0 ${
-          isOwn ? "order-last" : "order-first"
-        }`}
-        src={avatar_url}
-        alt="user-image"
-        width={36}
-        height={36}
-      />
-      <article className={twMerge("relative max-w-[70%] flex flex-col gap-1.5", isOwn ? "items-end" : "items-start")}>
-        <p className={twMerge("text-[10px] text-subTitle px-1", isOwn ? "text-end" : "text-start")}>
-          {formatTime(message.created_at)}
-        </p>
+    <li className={twMerge("flex w-full items-end gap-2.5", isOwn && "justify-end")}>
+      {!isOwn && (
+        <Image
+          className="h-8 w-8 shrink-0 rounded-full border border-white/10 bg-[#23252d] object-cover shadow-[0_4px_12px_rgba(0,0,0,0.22)]"
+          src={avatar_url}
+          alt="Sender avatar"
+          width={32}
+          height={32}
+          sizes="32px"
+        />
+      )}
+
+      <article className={twMerge("flex max-w-[min(82%,440px)] flex-col gap-1.5", isOwn && "items-end")}>
 
         {message.images && message.images.length === 1 && (
-          <div className={twMerge("relative w-full max-w-[220px] rounded-lg overflow-hidden border border-border-color")}>
+          <button
+            className={twMerge("relative w-full max-w-[240px] overflow-hidden rounded-[22px] border", isOwn ? ownBubbleClass : foreignBubbleClass)}
+            onClick={() => handleOpenImage(message.images![0])}
+            type="button">
             <Image
+              className={twMerge("max-h-[220px] w-full object-cover transition-transform duration-300 hover:scale-[1.02]", isOpeningImage && "opacity-70")}
               src={message.images[0]}
-              alt="message-image"
-              width={220}
-              height={220}
-              className="w-full h-auto object-cover max-h-[180px]"
+              alt="Message attachment"
+              width={240}
+              height={240}
+              sizes="240px"
             />
-          </div>
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent px-3 py-2 text-left">
+              <p className="text-[11px] font-medium text-white">{isOpeningImage ? "Opening preview..." : "Open image"}</p>
+            </div>
+          </button>
         )}
 
         {message.images && message.images.length > 1 && (
-          <div className="text-xs text-subTitle px-3 py-1.5 bg-foreground-accent rounded-lg border border-border-color">
-            📎 {t("images_attached", { number: message.images.length })}
+          <div className={twMerge("w-fit rounded-[18px] border px-3 py-2 text-xs", isOwn ? ownBubbleClass : foreignBubbleClass)}>
+            {t("images_attached", { number: message.images.length })}
           </div>
         )}
+
         {message.body && (
           <div
             className={twMerge(
-              `relative w-fit max-w-full break-words rounded-lg text-[13px] text-title px-3 py-2
-       before:content-[''] before:absolute before:w-0 before:h-0 before:bottom-0
-       before:border-[6px] before:border-solid`,
-              isOwn
-                ? "bg-success/15 border border-success/30 pr-8 before:right-[-11px] before:border-t-success/30 before:border-l-success/30 before:border-r-transparent before:border-b-transparent"
-                : "bg-foreground-accent border border-border-color before:left-[-11px] before:border-t-border-color before:border-r-border-color before:border-l-transparent before:border-b-transparent",
+              bubbleBaseClass,
+              "whitespace-pre-wrap",
+              isOwn ? ownBubbleClass : foreignBubbleClass,
             )}>
             {message.body}
           </div>
         )}
 
-        {isOwn && (
-          <>
-            <BsCheck2 className="absolute bottom-[2px] right-2.5 text-success-accent" size={18} />
-            {message.seen && <BsCheck2 className="absolute bottom-[2px] right-1.5 text-success-accent" size={18} />}
-          </>
-        )}
+        <div
+          className={twMerge(
+            "flex items-center gap-1.5 px-1 text-[10px] text-slate-500",
+            isOwn && "justify-end",
+          )}>
+          {!isOwn && <span className="font-medium text-slate-400">{incomingLabel}</span>}
+          {!isOwn && <span className="h-1 w-1 rounded-full bg-slate-600" />}
+          <span>{metaTime}</span>
+          {isOwn && (
+            <span className="relative ml-1 flex items-center pr-2 text-violet-300">
+              <BsCheck2 size={14} />
+              {message.seen && <BsCheck2 className="absolute left-[5px]" size={14} />}
+            </span>
+          )}
+        </div>
       </article>
-    </div>
+    </li>
   )
 }

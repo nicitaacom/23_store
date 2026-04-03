@@ -25,15 +25,14 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
 
   const [tickets, setTickets] = useState(initialTickets)
   const { unreadMessages, setUnreadMessages, resetUnreadMessages, increaseUnreadMessages } = useUnseenMessages()
+
   useEffect(() => {
-    // Call the setUnreadMessages function when needed
     setUnreadMessages(unseenMessages)
   }, [unseenMessages, setUnreadMessages])
 
-  // TODO - go to /support/tickets on esc
-
   useEffect(() => {
     const pusherClient = getPusherClient()
+    pusherClient.subscribe("tickets")
 
     const openHandler = (ticket: ITicketDB) => {
       setTickets(current => {
@@ -93,7 +92,7 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
       pusherClient.unbind("tickets:closeByUser", closeByUserHandler)
       pusherClient.unbind("tickets:closeBySupport", closeBySupportHandler)
     }
-  }, [increaseUnreadMessages, router, tickets, toast])
+  }, [increaseUnreadMessages, router, toast])
 
   if (tickets.length === 0) {
     return <NoTicketsFound />
@@ -107,11 +106,23 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
   }
 
   return (
-    <aside className="hidden laptop:block h-full shadow-[1px_1px_4px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[101] overflow-y-auto">
-      <nav className="flex flex-col">
+    <aside className="hidden h-full w-[320px] shrink-0 laptop:flex">
+      <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border-color/35 bg-foreground/45">
+        <div className="border-b border-border-color/35 px-5 py-5">
+          <p className="font-primary text-[11px] font-semibold uppercase tracking-[0.28em] text-success">Support inbox</p>
+          <div className="mt-3 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="font-secondary text-2xl font-bold tracking-tight text-title">Open tickets</h2>
+              <p className="mt-1 text-sm text-subTitle">Unread conversations stay pinned at the top.</p>
+            </div>
+            <span className="rounded-full border border-success/20 bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
+              {tickets.length}
+            </span>
+          </div>
+        </div>
+        <nav className="panel-scroll flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3">
         {tickets
           ?.slice()
-          // sort by decreasing unread messages e.g from 99 to 1
           .sort((a, b) => (unreadMessages[b.id] || 0) - (unreadMessages[a.id] || 0))
           .map(ticket => (
             <DesktopSidebarTicket
@@ -121,7 +132,8 @@ export function DesktopSidebar({ initialTickets, unseenMessages }: DesktopSideba
               onClick={() => openTicket(ticket.id)}
             />
           ))}
-      </nav>
+        </nav>
+      </div>
     </aside>
   )
 }

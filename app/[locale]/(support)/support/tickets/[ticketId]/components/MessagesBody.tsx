@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { Fragment, useEffect, useRef, useState } from "react"
 import { find } from "lodash"
 import axios from "axios"
 
@@ -11,6 +11,31 @@ import { getPusherClient } from "@/libs/pusher"
 import { MessageBox } from "@/components/SupportButton/components/MessageBox"
 import { useUnseenMessages } from "@/[locale]/(support)/store/useUnseenMessages"
 import { useScopedI18n } from "@/locales/client"
+
+function isSameDay(left: string, right: string) {
+  const leftDate = new Date(left)
+  const rightDate = new Date(right)
+
+  return (
+    leftDate.getFullYear() === rightDate.getFullYear() &&
+    leftDate.getMonth() === rightDate.getMonth() &&
+    leftDate.getDate() === rightDate.getDate()
+  )
+}
+
+function getDayLabel(dateString: string) {
+  const date = new Date(dateString)
+  const today = new Date()
+
+  if (isSameDay(dateString, today.toISOString())) {
+    return "Today"
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    day: "numeric",
+    month: "short",
+  }).format(date)
+}
 
 interface MessagesBodyProps {
   initialMessages: IMessageDB[]
@@ -81,23 +106,33 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
 
   if (messages.length === 0) {
     return (
-      <main
-        className="w-full h-full hidden laptop:flex flex-col gap-y-2 bg-foreground-accent
-      justify-center items-center
-    shadow-[inset_0px_8px_6px_rgba(0,0,0,0.4)] z-[100]">
-        <p>{t("no_messages_in_this_ticket")}</p>
-        <p>
-          {t("how_you_got_this_error")} - {process.env.NEXT_PUBLIC_SUPPORT_EMAIL}
-        </p>
+      <main className="flex flex-1 items-center justify-center px-6 py-8">
+        <div className="max-w-md rounded-2xl border border-white/8 bg-[#1a1d26] px-6 py-7 text-center shadow-[0_14px_36px_rgba(0,0,0,0.22)]">
+          <p className="font-secondary text-2xl font-semibold tracking-tight text-slate-100">{t("no_messages_in_this_ticket")}</p>
+          <p className="mt-3 text-sm leading-6 text-slate-500">
+            {t("how_you_got_this_error")} - {process.env.NEXT_PUBLIC_SUPPORT_EMAIL}
+          </p>
+        </div>
       </main>
     )
   }
 
   return (
-    <ul className="w-full h-full flex gap-y-2 flex-col justify-start items-end px-8 py-6 overflow-y-auto" ref={bottomRef}>
-      {messages.map(message => (
-        <MessageBox inverseColors={true} message={message} key={message.id} />
-      ))}
-    </ul>
+    <div className="min-h-0 flex-1 bg-[linear-gradient(180deg,#171922_0%,#101218_100%)] px-4 py-4 laptop:px-6">
+      <ul className="panel-scroll flex h-full w-full flex-col gap-4 overflow-y-auto pr-1" ref={bottomRef}>
+        {messages.map((message, index) => (
+          <Fragment key={message.id}>
+            {(index === 0 || !isSameDay(messages[index - 1].created_at, message.created_at)) && (
+              <li className="flex justify-center py-1">
+                <span className="rounded-full border border-white/8 bg-[#20232d] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-slate-500 shadow-[0_8px_18px_rgba(0,0,0,0.2)]">
+                  {getDayLabel(message.created_at)}
+                </span>
+              </li>
+            )}
+            <MessageBox inverseColors={true} message={message} />
+          </Fragment>
+        ))}
+      </ul>
+    </div>
   )
 }

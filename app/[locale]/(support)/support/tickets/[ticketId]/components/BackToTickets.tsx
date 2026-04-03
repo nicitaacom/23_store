@@ -12,8 +12,9 @@ export function BackToTickets() {
 
   return (
     <Button
-      className="flex laptop:hidden flex-row gap-x-2 group"
+      className="group mt-4 flex flex-row gap-x-2 self-center laptop:hidden"
       variant="default-outline"
+      rounded="full"
       onClick={() => router.push("/support/tickets")}>
       <IoMdArrowRoundBack className="group-hover:-translate-x-0.5 duration-300" />
       {t("back_to_tickets")}

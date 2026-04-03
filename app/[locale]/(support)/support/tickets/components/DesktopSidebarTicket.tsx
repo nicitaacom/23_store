@@ -24,30 +24,39 @@ export function DesktopSidebarTicket({ ticket, unseenMessagesAmount, onClick }: 
   return (
     <Link
       className={twMerge(
-        `relative flex flex-row gap-x-2 px-4 py-2 hover:bg-foreground-accent duration-150 cursor-pointer pr-12 border-b border-border-color`,
-        ticketId === ticket.id && "bg-brand/20",
+        "group relative flex items-start gap-3 rounded-xl border border-transparent bg-transparent px-3 py-3 transition-colors duration-150 hover:border-border-color/25 hover:bg-background/35",
+        ticketId === ticket.id && "border-border-color/40 bg-background/60",
       )}
       href={`/support/tickets/${ticket.id}`}
       key={ticket.id}
       onClick={onClick}>
-      <Image className="w-[32px] h-[32px] rounded-full" src={avatar_url} alt="owner_avatar_url" width={32} height={32} />
-      <div className="flex flex-col max-w-full pr-8">
-        <h3 className={twMerge(`font-semibold truncate`, unseenMessagesAmount === 0 && "text-subTitle")}>
-          {ticket.owner_username}
-        </h3>
-        <p className="text-sm truncate">{ticket.last_message_body}</p>
+      <Image
+        className="h-10 w-10 rounded-xl border border-border-color/35 object-cover"
+        src={avatar_url}
+        alt="Owner avatar"
+        width={40}
+        height={40}
+        sizes="40px"
+      />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start gap-2">
+          <h3 className={twMerge("min-w-0 flex-1 truncate text-sm font-semibold text-title", unseenMessagesAmount === 0 && "text-title")}>
+            {ticket.owner_username}
+          </h3>
+          {unseenMessagesAmount > 0 && (
+            <span className="rounded-full border border-info/20 bg-info/90 px-2 py-0.5 text-[11px] font-semibold leading-5 text-title-foreground">
+              {unseenMessagesAmount > 99 ? "99+" : unseenMessagesAmount}
+            </span>
+          )}
+        </div>
+        <p className="mt-1 truncate text-xs leading-5 text-subTitle">{ticket.last_message_body || "No messages yet"}</p>
+        <div className="mt-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-subTitle/75">
+          <span>Ticket</span>
+          <span className="h-1 w-1 rounded-full bg-subTitle/40" />
+          <span>#{ticket.id.slice(0, 8)}</span>
+        </div>
         {unseenMessagesAmount > 0 && (
-          <>
-            <div
-              className={`before:absolute before:w-[25px] before:h-[25px] before:bg-info before:rounded-full
-        before:right-2 before:translate-y-[-140%] before:z-[9]
-        after:absolute after:w-[20px] after:h-[20px] after:text-title-foreground
-        after:right-2.5 after:translate-y-[-175%] after:z-[9]`}
-            />
-            <div className="absolute w-[20px] text-center right-0 translate-x-[-50%] translate-y-[37.5%] z-[11] text-title-foreground">
-              {unseenMessagesAmount > 99 ? 99 : unseenMessagesAmount}
-            </div>
-          </>
+          <div className="absolute inset-y-3 left-0 w-0.5 rounded-full bg-success" />
         )}
       </div>
     </Link>

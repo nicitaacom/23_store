@@ -6,15 +6,16 @@ export function NoTicketsFound() {
   const { isDarkMode } = useDarkModeStore()
 
   return (
-    <aside className="hidden laptop:flex justify-center items-center h-full shadow-[1px_3px_5px_rgba(0,0,0,0.5)] w-64 bg-foreground z-[99]">
-      <div className="flex flex-col gap-y-2 justify-center items-center px-4">
+    <aside className="hidden h-full w-[320px] shrink-0 laptop:flex">
+      <div className="flex h-full w-full flex-col items-center justify-center rounded-2xl border border-border-color/35 bg-foreground/45 px-6 text-center">
         <Image
           src={isDarkMode ? "/no-tickets-found-dark.png" : "/no-tickets-found-light.png"}
           alt="no tickets found"
           width={256}
           height={153}
         />
-        <h1>No tickets found</h1>
+        <h1 className="mt-6 font-secondary text-2xl font-bold tracking-tight text-title">No tickets found</h1>
+        <p className="mt-3 max-w-xs text-sm leading-6 text-subTitle">New customer conversations will appear here as soon as they open a ticket.</p>
       </div>
     </aside>
   )

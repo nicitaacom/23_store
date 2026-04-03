@@ -1,50 +1,50 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef } from "react"
 import { BiSupport } from "react-icons/bi"
+import { twMerge } from "tailwind-merge"
 
-import { Button, DropdownContainer } from "../ui"
+import { Button } from "../ui"
 import SupportButtonDropdown from "@/components/SupportButton/components/SupportButtonDropdown"
-import { DragAndDropArea } from "./components/DragAndDropArea/DragAndDropArea"
 import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
+import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 
 // export feault in order to lazy import this
 export default function SupportButton() {
-  const dropDownRef = useRef<HTMLDivElement>(null)
-  const [isShowDropdown, setIsShowDropdown] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const { unseenMessagesNumber } = useMessagesStore()
+  const { isDropdown, closeDropdown, toggle } = useSupportDropdown()
 
-  function closeDropdown() {
-    setIsShowDropdown(false)
-  }
-  function toggleDropdown() {
-    setIsShowDropdown(!isShowDropdown)
-  }
+  useEscOrClickOutside(dropdownRef, closeDropdown, { isHookEnabled: isDropdown })
 
-  useEscOrClickOutside(dropDownRef, closeDropdown)
-
-  //before:translate-y-[402px] should be +2px then <section className="h-[400px]
-  //w-[400px] should be = section w-[400px]
   return (
-    <DropdownContainer
-      classNameDropdownContainer="fixed bottom-4 right-6 z-[120]"
-      className="w-[280px] mobile:w-[375px] top-[-480px] mobile:top-[-570px] desktop:top-[-585px]
-       translate-x-[-32.5px] desktop:translate-x-[-40px] before:translate-y-[402px] mobile:before:translate-y-[492px]
-       before:border-l-0 before:border-t-0 before:border-r before:border-b before:bg-foreground-accent before:z-[2]"
-      classNameIsDropdownTrue="translate-y-[-4px]"
-      classNameIsDropdownFalse="translate-y-[5px]"
-      isDropdown={isShowDropdown}
-      toggle={toggleDropdown}
-      dropdownRef={dropDownRef}
-      icon={
-        <Button
-          className="h-[48px] w-[48px] rounded-full border border-border-color bg-background/95 px-3 shadow-lg shadow-black/30
-          backdrop-blur-sm desktop:h-[64px] desktop:w-[64px] desktop:px-4"
-          variant="default-outline">
-          <BiSupport className="text-icon-color w-[32px] h-[32px] desktop:w-[32px] desktop:h-[32px]" />
-        </Button>
-      }>
-      <SupportButtonDropdown />
-      <DragAndDropArea />
-    </DropdownContainer>
+    <div className="fixed bottom-4 right-4 z-[120] mobile:bottom-5 mobile:right-5" ref={dropdownRef}>
+      <div
+        className={twMerge(
+          "pointer-events-none absolute bottom-[calc(100%+14px)] right-0 origin-bottom-right transition-all duration-200",
+          isDropdown ? "visible translate-y-0 opacity-100" : "invisible translate-y-3 opacity-0",
+        )}>
+        <div className="pointer-events-auto">
+          <SupportButtonDropdown />
+        </div>
+      </div>
+
+      <Button
+        className="relative h-14 w-14 rounded-full border border-success/30 bg-background/95 px-0 shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-success/45 hover:bg-foreground/80 desktop:h-16 desktop:w-16"
+        variant="default-outline"
+        size="icon-md"
+        rounded="full"
+        onClick={toggle}
+        aria-expanded={isDropdown}
+        aria-label="Open support chat">
+        <BiSupport className="h-7 w-7 text-icon-color desktop:h-8 desktop:w-8" />
+        {unseenMessagesNumber > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 min-w-[22px] rounded-full border border-background bg-success px-1.5 py-0.5 text-[11px] font-semibold text-title-foreground">
+            {unseenMessagesNumber > 99 ? "99+" : unseenMessagesNumber}
+          </span>
+        )}
+      </Button>
+    </div>
   )
 }

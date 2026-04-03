@@ -1,6 +1,8 @@
 import { stripe } from "@/libs/stripe"
 import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
 import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
+import { TProductVariant } from "@/ts/product/TProductVariant"
+import { normalizeProductVariants } from "@/utils/productVariants"
 import { AxiosError } from "axios"
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
@@ -11,18 +13,41 @@ export type TUpdateProductRequest = {
   title?: string
   subTitle?: string
   price?: number
+  onStock?: number
+  variants?: TProductVariant[] | null
 }
 
 export async function POST(req: Request) {
   const body: TUpdateProductRequest = await req.json()
 
+  const supabase = supabaseServerAction()
   const productId = body.productId
   const images = body.images
   const title = body.title
   const subTitle = body.subTitle
   const price = body.price
+  const onStock = body.onStock
+  const variants = body.variants
 
   try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { data: existingProduct, error: existingProductError } = await supabase.from("products").select("*").eq("id", productId).single()
+
+    if (existingProductError || !existingProduct) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 })
+    }
+
+    if (existingProduct.owner_id !== user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
     /* UPDATE IMAGE */
     if (images) {
       const stripeImages = images.filter(Boolean).slice(0, STRIPE_MAX_PRODUCT_IMAGES)
@@ -30,7 +55,9 @@ export async function POST(req: Request) {
       // Update image on Stripe https://stripe.com/docs/api/products/update
       const productResponse = await stripe.products.update(productId, { images: stripeImages })
 
-      //TODO - update images in DB
+      const { error: updateImagesError } = await supabase.from("products").update({ img_url: images }).eq("id", productId)
+      if (updateImagesError)
+        throw new Error(`update product images \n Path:/api/products/update/route.ts \n Error message:\n ${updateImagesError.message}`)
 
       //Active product if it not active
       if (!productResponse.active) {
@@ -40,12 +67,12 @@ export async function POST(req: Request) {
     }
 
     /* UPDATE TITLE */
-    if (title) {
+    if (typeof title === "string") {
       //Create update on Stripe https://stripe.com/docs/api/products/update
       const productResponse = await stripe.products.update(productId, { name: title })
 
       // Update title in DB
-      const { error: update_title_error } = await supabaseServerAction()
+      const { error: update_title_error } = await supabase
         .from("products")
         .update({ title: title })
         .eq("id", productId)
@@ -63,10 +90,10 @@ export async function POST(req: Request) {
     }
 
     /* UPDATE DESCRIPTION */
-    if (subTitle) {
+    if (typeof subTitle === "string") {
       //Update on Stripe https://stripe.com/docs/api/products/update
       const productResponse = await stripe.products.update(productId, { description: subTitle })
-      const { error: update_description_error } = await supabaseServerAction()
+      const { error: update_description_error } = await supabase
         .from("products")
         .update({ sub_title: subTitle })
         .eq("id", productId)
@@ -82,20 +109,38 @@ export async function POST(req: Request) {
       return NextResponse.json(productResponse, { status: 200 })
     }
 
+    /* UPDATE VARIANTS */
+    if (variants !== undefined) {
+      const normalizedVariants = normalizeProductVariants(variants)
+      const { error: updateVariantsError } = await supabase.from("products").update({ variants: normalizedVariants }).eq("id", productId)
+
+      if (updateVariantsError)
+        throw new Error(`update product variants \n Path:/api/products/update/route.ts \n Error message:\n ${updateVariantsError.message}`)
+
+      return NextResponse.json({ success: true, variants: normalizedVariants }, { status: 200 })
+    }
+
+    /* UPDATE ON STOCK */
+    if (typeof onStock === "number") {
+      const { error: updateOnStockError } = await supabase.from("products").update({ on_stock: onStock }).eq("id", productId)
+
+      if (updateOnStockError)
+        throw new Error(`update product on_stock \n Path:/api/products/update/route.ts \n Error message:\n ${updateOnStockError.message}`)
+
+      return NextResponse.json({ success: true, onStock }, { status: 200 })
+    }
+
     /* UPDATE PRICE */
-    if (price) {
+    if (typeof price === "number") {
       //Updating price on stripe its another process - first you archive this product
       //then you create new product with updated price - BS - lmao
 
-      // Get data from DB to create new product on stripe
-      const { data: product } = await supabaseServerAction().from("products").select("*").eq("id", productId).single()
-
       // Create new product on stripe
-      if (product) {
+      if (existingProduct) {
         const productResponse = await stripe.products.create({
-          name: product?.title,
-          description: product?.sub_title,
-          images: product.img_url?.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
+          name: existingProduct.title,
+          description: existingProduct.sub_title,
+          images: existingProduct.img_url?.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
         })
 
         // Active product if it not active
@@ -114,7 +159,7 @@ export async function POST(req: Request) {
         await stripe.products.update(productId, { active: false })
 
         // Update id and price_id in DB to associate new product on stripe with product in DB
-        await supabaseServerAction()
+        await supabase
           .from("products")
           .update({ id: productResponse.id, price_id: priceResponse.id, price: price })
           .eq("id", productId)

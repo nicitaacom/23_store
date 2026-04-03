@@ -7,7 +7,7 @@
 /* if you do any changes here it requires manually changes in Skeleton*/
 @layer base {
   :root {
-    --brand: 137deg 82% 22%; /* 0a6624 */
+    --brand: 137deg 82% 19%;
     --background: 0deg 0% 93%;
     --foreground: 0deg 0% 84%;
     --foreground-accent: 0deg 0% 75%;
@@ -29,7 +29,7 @@
   }
   /* I did it using rgb color picker and contrast checker */
   .dark {
-    --brand: 137deg 82% 52%; /* 20e959 */
+    --brand: 137deg 82% 44%;
     --background: 0deg 0% 7%;
     --foreground: 0deg 0% 16%;
     --foreground-accent: 0deg 0% 25%;

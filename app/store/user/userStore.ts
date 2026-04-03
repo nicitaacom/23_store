@@ -16,7 +16,7 @@ interface UserStore {
 
 type SetState = (fn: (prevState: UserStore) => UserStore) => void
 
-export const userStore = (set: SetState): UserStore => ({
+const userStore = (set: SetState): UserStore => ({
   user: null,
   setUser(user: User | null) {
     const normalizedUser = normalizeUser(user)

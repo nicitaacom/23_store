@@ -6,6 +6,7 @@ import { cache } from "react"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import type { IMessageDB } from "@/ts/support/IMessageDB"
 
 interface ChatPageProps {
   params: {
@@ -23,10 +24,11 @@ const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
   const { data: messages_by_id_response, error: messages_by_id_error } = await supabaseAdmin
     .from("messages")
     .select("*")
+    .order("created_at", { ascending: true })
     .eq("ticket_id", ticketId)
   if (messages_by_id_error) console.log(23, "messages by id error - ", messages_by_id_error.message)
   if (!messages_by_id_response) return notFound()
-  return messages_by_id_response
+  return messages_by_id_response as IMessageDB[]
 })
 
 // cache ticket is_open state because by initial idea ticket can't be reopened
@@ -47,11 +49,22 @@ export async function generateStaticParams(): Promise<string[]> {
 
 export async function generateMetadata({ params: { ticketId } }: ChatPageProps): Promise<Metadata> {
   const initial_messages = await getInitialMessagesByTicketIdCache(ticketId)
+  const firstMessage = initial_messages[0]
+
+  if (!firstMessage?.sender_username) {
+    return {
+      title: "Support chat",
+      description: "Support conversation - Joki",
+      openGraph: {
+        images: [{ url: "/read-your-messages.jpg" }],
+      },
+      twitter: { card: "summary_large_image" },
+    }
+  }
 
   return {
-    title: `Support chat with ${initial_messages[0].sender_username}`, // first message its ticket owner
-    description:
-      initial_messages.length === 1 ? "message" : "messages - " + `chat with ${initial_messages[0].sender_username}` + "  - Joki",
+    title: `Support chat with ${firstMessage.sender_username}`,
+    description: initial_messages.length === 1 ? "message" : `messages - chat with ${firstMessage.sender_username} - Joki`,
     openGraph: {
       images: [{ url: "/read-your-messages.jpg" }],
     },
@@ -62,24 +75,25 @@ export async function generateMetadata({ params: { ticketId } }: ChatPageProps):
 export default async function ChatPage({ params: { ticketId } }: ChatPageProps) {
   const initial_messages = await getInitialMessagesByTicketIdCache(ticketId)
   const is_ticket_open = await getIsTicketOpenCache(ticketId)
+  const firstMessage = initial_messages[0]
 
   if (!initial_messages || !is_ticket_open) {
     return <ThisTicketIsCompleted ticketId={ticketId} />
-  } else if (initial_messages.length > 0 && initial_messages[0].ticket_id) {
+  } else if (initial_messages.length > 0 && firstMessage?.ticket_id && firstMessage.sender_username) {
     return (
       <main
         className={twMerge(
-          `hidden w-full h-full laptop:w-[calc(100%-16rem)] bg-foreground-accent
-       flex-col justify-between items-center z-[100]`,
+          "flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-color/35 bg-foreground/35",
           ticketId && "flex",
         )}>
         <MessagesHeader
-          owner_avatar_url={initial_messages[0].sender_avatar_url || ""}
-          owner_id={initial_messages[0].sender_id}
-          owner_username={initial_messages[0].sender_username}
+          owner_avatar_url={firstMessage.sender_avatar_url || ""}
+          owner_id={firstMessage.sender_id}
+          owner_username={firstMessage.sender_username}
+          ticket_id={firstMessage.ticket_id}
         />
-        <MessagesBody ticket_id={initial_messages[0].ticket_id} initialMessages={initial_messages ?? []} />
-        <MessagesFooter ticket_id={initial_messages[0].ticket_id} />
+        <MessagesBody ticket_id={firstMessage.ticket_id} initialMessages={initial_messages ?? []} />
+        <MessagesFooter ticket_id={firstMessage.ticket_id} />
       </main>
     )
   } else {

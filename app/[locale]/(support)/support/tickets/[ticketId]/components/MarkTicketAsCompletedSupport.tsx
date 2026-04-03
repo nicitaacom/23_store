@@ -1,25 +1,23 @@
 "use client"
 
-import Image from "next/image"
+import { FiCheckCircle } from "react-icons/fi"
 
-import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import { Button } from "@/components/ui"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
 
 export function MarkTicketAsCompletedSupport() {
-  const { isDarkMode } = useDarkModeStore()
   const areYouSureMarkTicketAsCompletedSupportModal = useAreYouSureMarkTicketAsCompletedSupportModal()
 
   return (
-    <div
-      className="p-2 hover:bg-success/10 duration-150 rounded-md w-fit cursor-pointer"
-      role="button"
-      onClick={areYouSureMarkTicketAsCompletedSupportModal.openModal}>
-      <Image
-        src={isDarkMode ? "/mark-ticket-as-completed-dark.png" : "/mark-ticket-as-completed-light.png"}
-        alt="close ticket"
-        width={32}
-        height={32}
-      />
-    </div>
+    <Button
+      className="rounded-full border-success/25 bg-success/10 px-3 text-success hover:bg-success/15"
+      leftIcon={<FiCheckCircle size={15} />}
+      variant="success-outline"
+      size="sm"
+      rounded="full"
+      onClick={areYouSureMarkTicketAsCompletedSupportModal.openModal}
+      type="button">
+      Close
+    </Button>
   )
 }

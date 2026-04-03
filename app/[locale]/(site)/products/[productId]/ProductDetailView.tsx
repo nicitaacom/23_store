@@ -3,17 +3,20 @@
 import Image from "next/image"
 import { useEffect, useMemo, useState } from "react"
 import { BsShieldCheck, BsStars } from "react-icons/bs"
-import { FiCheckCircle, FiPackage, FiTruck } from "react-icons/fi"
+import { FiCheckCircle, FiEdit3, FiPackage, FiTruck } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
 import { AddToCartButton } from "@/components/ui/Buttons/AddToCartButton"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
-import { useScopedI18n } from "@/locales/client"
+import { Button } from "@/components/ui"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import useCartStore from "@/store/user/cartStore"
+import useUserStore from "@/store/user/userStore"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { RequestReplanishmentButton } from "../../components/Product/RequestReplanishmentButton"
+import { ProductLikeButton } from "../../components/ProductLikeButton"
 
 interface ProductDetailViewProps {
   product: TProductDB
@@ -21,8 +24,11 @@ interface ProductDetailViewProps {
 
 export function ProductDetailView({ product }: ProductDetailViewProps) {
   const t = useScopedI18n("product")
+  const locale = useCurrentLocale()
   const quantity = useCartStore(state => state.products?.[product.id]?.quantity ?? 0)
+  const user = useUserStore(state => state.user)
   const isOutOfStock = (product.on_stock ?? 0) <= 0
+  const isOwner = user?.id === product.owner_id
 
   const variants = useMemo(
     () => product.variants?.filter(variant => variant.label && variant.image_url) || [],
@@ -114,24 +120,42 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
       <aside className="flex flex-col gap-4">
         <section className="rounded-[28px] border border-success/20 bg-gradient-to-br from-success/10 via-background to-background p-6 shadow-2xl shadow-success/10">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <span
-              className={twMerge(
-                "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium",
-                isOutOfStock
-                  ? "border-warning/30 bg-warning/10 text-warning"
-                  : "border-success/30 bg-success/10 text-success",
-              )}>
-              <FiCheckCircle className="text-base" />
-              {availabilityLabel}
-            </span>
-
-            {selectedVariant && (
-              <span className="inline-flex items-center gap-2 rounded-full border border-border-color/20 bg-background/60 px-3 py-1 text-sm text-title">
-                <FiPackage className="text-base text-success" />
-                {t("variant")}: {selectedVariant.label}
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={twMerge(
+                  "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium",
+                  isOutOfStock
+                    ? "border-warning/30 bg-warning/10 text-warning"
+                    : "border-success/30 bg-success/10 text-success",
+                )}>
+                <FiCheckCircle className="text-base" />
+                {availabilityLabel}
               </span>
-            )}
+
+              {selectedVariant && (
+                <span className="inline-flex items-center gap-2 rounded-full border border-border-color/20 bg-background/60 px-3 py-1 text-sm text-title">
+                  <FiPackage className="text-base text-success" />
+                  {t("variant")}: {selectedVariant.label}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {isOwner && (
+                <Button
+                  className="font-medium"
+                  href={`/${locale}/products/${product.id}/manage`}
+                  variant="success-outline"
+                  size="sm"
+                  rounded="lg"
+                  shadow="sm"
+                  rightIcon={<FiEdit3 className="text-sm" />}>
+                  {t("manage_product")}
+                </Button>
+              )}
+              <ProductLikeButton productId={product.id} />
+            </div>
           </div>
 
           <h1 className="text-3xl font-semibold leading-tight text-title mobile:text-4xl">{product.title}</h1>
