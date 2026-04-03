@@ -23,7 +23,7 @@ export function ProductButtons({ productId, ownerId, showViewButton = true }: Pr
   const isOwner = user?.id === ownerId
 
   return (
-    <div className="flex w-full min-w-0 flex-wrap items-end justify-center gap-3 laptop:justify-end">
+    <div className="flex w-full min-w-0 flex-wrap items-end justify-center gap-3 tablet:justify-end">
       {isOwner && (
         <Button
           className="w-full mobile:w-fit font-medium"
@@ -37,7 +37,9 @@ export function ProductButtons({ productId, ownerId, showViewButton = true }: Pr
         </Button>
       )}
 
-      {quantity === 0 ? <AddToCartButton productId={productId} /> : (
+      {quantity === 0 ? (
+        <AddToCartButton productId={productId} />
+      ) : (
         <>
           <ProductQuantityButton action="increase" productId={productId} />
           <ProductQuantityButton action="decrease" productId={productId} />

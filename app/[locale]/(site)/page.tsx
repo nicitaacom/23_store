@@ -1,6 +1,7 @@
 import { cache } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import { BiPlus, BiWindowOpen } from "react-icons/bi"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getScopedI18n } from "@/locales/server"
@@ -62,7 +63,7 @@ export default async function Home({ params, searchParams }: SearchProps) {
   const entries = filteredProducts.slice(start, end)
 
   return (
-    <div className="mx-auto h-[calc(100vh-64px)] w-full overflow-hidden px-4 py-2 text-2xl text-title">
+    <div className="mx-auto h-[calc(100vh-64px)] w-full overflow-hidden px-4 pb-[72px] pt-2 text-2xl text-title laptop:pb-2">
       <section className="mx-auto grid h-full w-full max-w-[2200px] grid-cols-1 gap-1 4xl:max-w-[3000px] laptop:grid-cols-[minmax(0,1fr)_minmax(420px,30%)]">
         <div className="min-h-0 min-w-0 overflow-hidden rounded-[4px] border border-success/15 bg-gradient-to-br from-success/5 via-background to-background px-4 py-2 shadow-2xl shadow-success/5">
           <div className="flex h-full min-h-0 flex-col gap-[2px]">
@@ -97,21 +98,25 @@ export default async function Home({ params, searchParams }: SearchProps) {
                     </div>
                   </div>
                 </div>
-                <div className="flex max-w-3xl flex-col gap-3">
-                  <h1 className="text-3xl font-semibold leading-tight tracking-tight text-title laptop:text-4xl">
+                <div className="flex max-w-3xl flex-col gap-2">
+                  <h1 className="truncate whitespace-nowrap text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl laptop:text-4xl">
                     {t("catalog_title")}
                   </h1>
-                  <p className="max-w-3xl text-base leading-7 text-subTitle">{t("catalog_subtitle")}</p>
-                  <div className="flex flex-wrap items-center gap-[2px] pt-1">
+                  <p className="hidden max-w-3xl text-base leading-7 text-subTitle tablet:block">{t("catalog_subtitle")}</p>
+                  <div className="flex flex-row items-center gap-[2px] pt-1">
                     <Link
                       href={addProductHref}
-                      className="inline-flex w-fit items-center justify-center rounded-[4px] border border-success/30 px-5 py-3 text-base font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black">
-                      {t("add")}
+                      aria-label={t("add")}
+                      className="inline-flex h-10 w-fit items-center justify-center whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black mobile:text-base max-[480px]:flex-1 max-[480px]:px-0 max-[480px]:py-0">
+                      <BiPlus className="hidden text-xl max-[480px]:block" />
+                      <span className="max-[480px]:hidden">{t("add")}</span>
                     </Link>
                     <Link
                       href={`/${params.locale}/popular-products`}
-                      className="inline-flex w-fit items-center justify-center rounded-[4px] border border-success/30 px-5 py-3 text-base font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black">
-                      {t("open_preview_page")}
+                      aria-label={t("open_preview_page")}
+                      className="inline-flex h-10 w-fit items-center justify-center whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black mobile:text-base max-[480px]:flex-1 max-[480px]:px-0 max-[480px]:py-0">
+                      <BiWindowOpen className="hidden text-xl max-[480px]:block" />
+                      <span className="max-[480px]:hidden">{t("open_preview_page")}</span>
                     </Link>
                   </div>
                 </div>
@@ -145,9 +150,7 @@ export default async function Home({ params, searchParams }: SearchProps) {
           </div>
         </div>
 
-        <aside className="panel-scroll min-h-0 overflow-x-hidden overflow-y-auto rounded-[4px] border border-border-color/20 bg-background/90 px-4 py-2 shadow-2xl shadow-black/10">
-          <AIInputSearch />
-        </aside>
+        <AIInputSearch />
       </section>
     </div>
   )
