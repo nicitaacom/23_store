@@ -69,12 +69,13 @@ export function ProductInput({
       context,
     })
   }
+  const MAX_TITLE_LENGTH = 158
 
   const validationRules: ValidationRules = {
     title: {
       requiredMessage: t("this_field_is_required"),
       pattern: {
-        value: /^(?=.*[A-Za-z])[A-Za-z0-9][A-Za-z0-9$()_+ /,.'-]{2,157}$/,
+        value: /^(?=.*[A-Za-z])[A-Za-z0-9][A-Za-z0-9$()_+ /,.'-]{2,156}$/,
         message: t("title_required"),
       },
     },
@@ -115,9 +116,15 @@ export function ProductInput({
     validate:
       id === "title"
         ? (value: string | number) => {
-            const stringValue = String(value ?? "")
-            if (!stringValue || patternValue.test(stringValue)) return true
-            return getInvalidCharacterMessage(stringValue) || patternMessage
+            const str = String(value ?? "")
+            if (!str || patternValue.test(str)) return true
+            const invalidCharMsg = getInvalidCharacterMessage(str)
+            if (invalidCharMsg) return invalidCharMsg
+            if (str.length < 3) return t("title_too_short")
+            if (str.length > MAX_TITLE_LENGTH) return t("title_too_long", { current: str.length, max: MAX_TITLE_LENGTH })
+            if (!/[A-Za-z]/.test(str)) return t("title_must_contain_letter")
+            if (!/^[A-Za-z0-9]/.test(str)) return t("title_must_start_alphanumeric")
+            return patternMessage
           }
         : undefined,
   }
@@ -196,7 +203,10 @@ export function ProductInput({
                 e.preventDefault()
               }
 
-              if (!regex.test(key) && !["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab", "Enter", "Home", "End"].includes(key)) {
+              if (
+                !regex.test(key) &&
+                !["Backspace", "ArrowLeft", "ArrowRight", "Delete", "Tab", "Enter", "Home", "End"].includes(key)
+              ) {
                 e.preventDefault()
               }
             }

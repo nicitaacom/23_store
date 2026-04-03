@@ -214,7 +214,7 @@ export default {
   //                   aichat
   // =================        =================
   "aichat.error": "Service error. Try again then contact support",
-  "aichat.error.with_reason": "Oops, \"{message}\". Try again.",
+  "aichat.error.with_reason": 'Oops, "{message}". Try again.',
   "aichat.error.no_reply_data": "It's no choices?.[0]?.message?.content - contact support",
   "aichat.generate_image": "Generate image",
   "aichat.generate_image_completed": "Here you go",
@@ -234,13 +234,14 @@ export default {
   "product.subtotal": "Sub-total",
   "product.products": "Products",
   "product.catalog_title": "Browse the full catalog",
-  "product.catalog_subtitle": "Choose how many items to show per page and move through the catalog without repeating the previous results.",
+  "product.catalog_subtitle":
+    "Choose how many items to show per page and move through the catalog without repeating the previous results.",
   "product.open_preview_page": "Open preview page",
   "product.no_products_found": "No products found",
   "product.add_to_cart": "Add to cart", // I know it's a duplicate with aichat - this is from old functionality
   "product.this_field_is_required": "This field is required",
   "product.title_required": "Enter a product title - a-z - numbers, and #()_ are optional",
-  "product.title_invalid_character": "Character \"{character}\" is not allowed near \"{context}\"",
+  "product.title_invalid_character": 'Character "{character}" is not allowed near "{context}"',
   "product.subtitle_required": "No !$^*_=\\ allowed",
   "product.price_required": "Enter price from 1 to 999,999 with 2 decimal places",
   "product.on_stock_required": "Enter stock as a positive number with optional decimals",
@@ -256,7 +257,8 @@ export default {
   "product.create_product": "Create product",
   "product.add_form.eyebrow": "New product",
   "product.add_form.title": "Add a product that feels ready to publish",
-  "product.add_form.subtitle": "Upload a strong cover image, write a clear description, and keep inventory details tidy in one place.",
+  "product.add_form.subtitle":
+    "Upload a strong cover image, write a clear description, and keep inventory details tidy in one place.",
   "product.add_form.media_title": "Product gallery",
   "product.add_form.media_subtitle": "Drag images in, swap previews quickly, and review the visual story before publishing.",
   "product.add_form.details_title": "Product details",
@@ -291,6 +293,10 @@ export default {
   "product.error.image_upload_errors": "Image upload errors",
   "product.error.db_insert_failed": "Database insert failed",
   "product.error.no_data_returned_from_uploaded_image": "No data returned from uploaded image",
+  "product.title_too_short": "Title is too short - minimum 3 characters",
+  "product.title_too_long": "Title is too long - maximum {max} characters (current: {current})",
+  "product.title_must_contain_letter": "Title must contain at least one letter",
+  "product.title_must_start_alphanumeric": "Title must start with a letter or number",
 
   // =================        =================
   //                   message

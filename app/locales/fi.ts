@@ -214,7 +214,7 @@ export default {
   //                   aichat
   // =================        =================
   "aichat.error": "Palveluvirhe. Yritä uudelleen ja ota yhteyttä tukeen",
-  "aichat.error.with_reason": "Hups, \"{message}\". Yritä uudelleen.",
+  "aichat.error.with_reason": 'Hups, "{message}". Yritä uudelleen.',
   "aichat.error.no_reply_data": "Ei vastauksia?.[0]?.message?.content – ota yhteyttä tukeen",
   "aichat.generate_image": "Luo kuva",
   "aichat.generate_image_completed": "Ole hyvä",
@@ -234,7 +234,8 @@ export default {
   "product.subtotal": "Välisummaa",
   "product.products": "Tuotteet",
   "product.catalog_title": "Selaa koko katalogia",
-  "product.catalog_subtitle": "Valitse kuinka monta tuotetta näytetään sivulla ja siirry sivulta toiselle ilman että edelliset tulokset toistuvat.",
+  "product.catalog_subtitle":
+    "Valitse kuinka monta tuotetta näytetään sivulla ja siirry sivulta toiselle ilman että edelliset tulokset toistuvat.",
   "product.open_preview_page": "Avaa esikatselusivu",
   "product.no_products_found": "Tuotteita ei löytynyt",
   "product.add_to_cart": "Lisää ostoskoriin", // I know it's a duplicate with aichat - this is from old functionality
@@ -255,7 +256,8 @@ export default {
   "product.create_product": "Luo tuote",
   "product.add_form.eyebrow": "Uusi tuote",
   "product.add_form.title": "Lisää tuote siistissä julkaisukuntoisessa näkymässä",
-  "product.add_form.subtitle": "Lataa hyvä kansikuva, kirjoita selkeä kuvaus ja pidä varastotiedot järjestyksessä yhdessä paikassa.",
+  "product.add_form.subtitle":
+    "Lataa hyvä kansikuva, kirjoita selkeä kuvaus ja pidä varastotiedot järjestyksessä yhdessä paikassa.",
   "product.add_form.media_title": "Tuotekuvagalleria",
   "product.add_form.media_subtitle": "Vedä kuvia sisään, vaihda esikatseluja ja tarkista kokonaisuus ennen julkaisua.",
   "product.add_form.details_title": "Tuotetiedot",
@@ -290,6 +292,10 @@ export default {
   "product.error.image_upload_errors": "Virheitä kuvan latauksessa",
   "product.error.db_insert_failed": "Tietokantaan lisäys epäonnistui",
   "product.error.no_data_returned_from_uploaded_image": "Ladatusta kuvasta ei palautunut tietoja",
+  "product.title_too_short": "Otsikko on liian lyhyt - vähintään 3 merkkiä",
+  "product.title_too_long": "Otsikko on liian pitkä - enintään {max} merkkiä (nykyinen: {current})",
+  "product.title_must_contain_letter": "Otsikon on sisällettävä vähintään yksi kirjain",
+  "product.title_must_start_alphanumeric": "Otsikon on alettava kirjaimella tai numerolla",
 
   // =================        =================
   //                   message

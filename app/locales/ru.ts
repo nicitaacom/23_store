@@ -214,7 +214,7 @@ export default {
   //                   aichat
   // =================        =================
   "aichat.error": "Ошибка сервиса. Попробуйте снова и свяжитесь с поддержкой",
-  "aichat.error.with_reason": "Упс, \"{message}\". Попробуйте снова.",
+  "aichat.error.with_reason": 'Упс, "{message}". Попробуйте снова.',
   "aichat.error.no_reply_data": "Нет ответов?.[0]?.message?.content – свяжитесь с поддержкой",
   "aichat.generate_image": "Создать изображение",
   "aichat.generate_image_completed": "Вот, пожалуйста",
@@ -234,13 +234,14 @@ export default {
   "product.subtotal": "Промежуточная сумма",
   "product.products": "Товары",
   "product.catalog_title": "Просматривайте весь каталог",
-  "product.catalog_subtitle": "Выбирайте, сколько товаров показывать на странице, и переходите между страницами без повторения предыдущих результатов.",
+  "product.catalog_subtitle":
+    "Выбирайте, сколько товаров показывать на странице, и переходите между страницами без повторения предыдущих результатов.",
   "product.open_preview_page": "Открыть страницу превью",
   "product.no_products_found": "Товары не найдены",
   "product.add_to_cart": "Добавить в корзину", // I know it's a duplicate with aichat - this is from old functionality
   "product.this_field_is_required": "Это поле обязательно",
   "product.title_required": "Введите название продукта — a–z, цифры; #()_ допустимы",
-  "product.title_invalid_character": "Недопустимый символ \"{character}\" рядом с \"{context}\"",
+  "product.title_invalid_character": 'Недопустимый символ "{character}" рядом с "{context}"',
   "product.subtitle_required": "Недопустимы символы !$^*_=\\",
   "product.price_required": "Введите цену от 1 до 999 999 с двумя знаками после запятой",
   "product.on_stock_required": "Укажите остаток как положительное число, при необходимости с десятичной частью",
@@ -256,7 +257,8 @@ export default {
   "product.create_product": "Создать продукт",
   "product.add_form.eyebrow": "Новый товар",
   "product.add_form.title": "Добавьте товар в аккуратном и понятном виде",
-  "product.add_form.subtitle": "Загрузите хорошее изображение, напишите полное описание и заполните данные по наличию в одном месте.",
+  "product.add_form.subtitle":
+    "Загрузите хорошее изображение, напишите полное описание и заполните данные по наличию в одном месте.",
   "product.add_form.media_title": "Галерея товара",
   "product.add_form.media_subtitle": "Перетаскивайте изображения, быстро меняйте превью и проверяйте подачу до публикации.",
   "product.add_form.details_title": "Детали товара",
@@ -291,6 +293,10 @@ export default {
   "product.error.image_upload_errors": "Ошибки загрузки изображения",
   "product.error.db_insert_failed": "Ошибка вставки в базу данных",
   "product.error.no_data_returned_from_uploaded_image": "Загруженное изображение не вернуло данных",
+  "product.title_too_short": "Заголовок слишком короткий - минимум 3 символа",
+  "product.title_too_long": "Заголовок слишком длинный - максимум {max} символов (текущее: {current})",
+  "product.title_must_contain_letter": "Заголовок должен содержать хотя бы одну букву",
+  "product.title_must_start_alphanumeric": "Заголовок должен начинаться с буквы или цифры",
 
   // =================        =================
   //                   message

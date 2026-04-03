@@ -214,7 +214,7 @@ export default {
   //                   aichat
   // =================        =================
   "aichat.error": "Tjänstfel. Försök igen och kontakta support",
-  "aichat.error.with_reason": "Hoppsan, \"{message}\". Försök igen.",
+  "aichat.error.with_reason": 'Hoppsan, "{message}". Försök igen.',
   "aichat.error.no_reply_data": "Inga svar?.[0]?.message?.content – kontakta support",
   "aichat.generate_image": "Generera bild",
   "aichat.generate_image_completed": "Varsågod",
@@ -234,7 +234,8 @@ export default {
   "product.subtotal": "Delsumma",
   "product.products": "Produkter",
   "product.catalog_title": "Bläddra i hela katalogen",
-  "product.catalog_subtitle": "Välj hur många produkter som ska visas per sida och gå mellan sidor utan att de tidigare resultaten upprepas.",
+  "product.catalog_subtitle":
+    "Välj hur många produkter som ska visas per sida och gå mellan sidor utan att de tidigare resultaten upprepas.",
   "product.open_preview_page": "Öppna förhandsvisningssidan",
   "product.no_products_found": "Inga produkter hittades",
   "product.add_to_cart": "Lägg i kundvagn", // I know it's a duplicate with aichat - this is from old functionality
@@ -255,7 +256,8 @@ export default {
   "product.create_product": "Skapa produkt",
   "product.add_form.eyebrow": "Ny produkt",
   "product.add_form.title": "Lägg till en produkt i en tydlig publiceringsvy",
-  "product.add_form.subtitle": "Ladda upp en stark omslagsbild, skriv en tydlig beskrivning och håll lageruppgifterna samlade på ett ställe.",
+  "product.add_form.subtitle":
+    "Ladda upp en stark omslagsbild, skriv en tydlig beskrivning och håll lageruppgifterna samlade på ett ställe.",
   "product.add_form.media_title": "Produktgalleri",
   "product.add_form.media_subtitle": "Dra in bilder, byt förhandsvisningar och kontrollera helheten innan publicering.",
   "product.add_form.details_title": "Produktdetaljer",
@@ -290,6 +292,10 @@ export default {
   "product.error.image_upload_errors": "Fel vid bilduppladdning",
   "product.error.db_insert_failed": "Databasinfogning misslyckades",
   "product.error.no_data_returned_from_uploaded_image": "Ingen data returnerades från uppladdad bild",
+  "product.title_too_short": "Titeln är för kort - minst 3 tecken",
+  "product.title_too_long": "Titeln är för lång - max {max} tecken (nuvarande: {current})",
+  "product.title_must_contain_letter": "Titeln måste innehålla minst en bokstav",
+  "product.title_must_start_alphanumeric": "Titeln måste börja med en bokstav eller siffra",
 
   // =================        =================
   //                   message
