@@ -236,6 +236,8 @@ export default {
   "product.catalog_title": "Bläddra i hela katalogen",
   "product.catalog_subtitle":
     "Välj hur många produkter som ska visas per sida och gå mellan sidor utan att de tidigare resultaten upprepas.",
+  "product.catalog_search_placeholder": "Sök produkter efter namn eller beskrivning",
+  "product.catalog_search_action": "Sök",
   "product.open_preview_page": "Öppna förhandsvisningssidan",
   "product.no_products_found": "Inga produkter hittades",
   "product.add_to_cart": "Lägg i kundvagn", // I know it's a duplicate with aichat - this is from old functionality

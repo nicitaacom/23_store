@@ -13,6 +13,7 @@ export default function ProductsPerPage({ className }: { className?: string }) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const selectedPerPage = Number(searchParams?.get("perPage") || 5)
+  const selectedQuery = searchParams?.get("query")?.trim() || ""
 
   /* for close on clicking outside */
   const dropdownContainerRef = useRef<HTMLDivElement>(null)
@@ -65,6 +66,19 @@ export default function ProductsPerPage({ className }: { className?: string }) {
     return () => setHover(index)
   }
 
+  const createHref = (nextPerPage: number) => {
+    const params = new URLSearchParams({
+      page: "1",
+      perPage: String(nextPerPage),
+    })
+
+    if (selectedQuery) {
+      params.set("query", selectedQuery)
+    }
+
+    return `${pathname}?${params.toString()}`
+  }
+
   return (
     <div
       className={`relative flex justify-between items-center gap-x-2 border-[1px] border-solid rounded-[4px]
@@ -103,7 +117,7 @@ export default function ProductsPerPage({ className }: { className?: string }) {
               setCurrentValuePerPage(perPage)
               setShowDropdown(false)
             }}
-            href={`${pathname}?page=1&perPage=${perPage}`}
+            href={createHref(perPage)}
             key={perPage}>
             {perPage}
           </Link>

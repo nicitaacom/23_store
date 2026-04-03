@@ -236,6 +236,8 @@ export default {
   "product.catalog_title": "Просматривайте весь каталог",
   "product.catalog_subtitle":
     "Выбирайте, сколько товаров показывать на странице, и переходите между страницами без повторения предыдущих результатов.",
+  "product.catalog_search_placeholder": "Ищите товары по названию или описанию",
+  "product.catalog_search_action": "Поиск",
   "product.open_preview_page": "Открыть страницу превью",
   "product.no_products_found": "Товары не найдены",
   "product.add_to_cart": "Добавить в корзину", // I know it's a duplicate with aichat - this is from old functionality

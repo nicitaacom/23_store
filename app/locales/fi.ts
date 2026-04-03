@@ -236,6 +236,8 @@ export default {
   "product.catalog_title": "Selaa koko katalogia",
   "product.catalog_subtitle":
     "Valitse kuinka monta tuotetta näytetään sivulla ja siirry sivulta toiselle ilman että edelliset tulokset toistuvat.",
+  "product.catalog_search_placeholder": "Hae tuotteita nimellä tai kuvauksella",
+  "product.catalog_search_action": "Hae",
   "product.open_preview_page": "Avaa esikatselusivu",
   "product.no_products_found": "Tuotteita ei löytynyt",
   "product.add_to_cart": "Lisää ostoskoriin", // I know it's a duplicate with aichat - this is from old functionality

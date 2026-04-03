@@ -236,6 +236,8 @@ export default {
   "product.catalog_title": "Browse the full catalog",
   "product.catalog_subtitle":
     "Choose how many items to show per page and move through the catalog without repeating the previous results.",
+  "product.catalog_search_placeholder": "Search products by name or description",
+  "product.catalog_search_action": "Search",
   "product.open_preview_page": "Open preview page",
   "product.no_products_found": "No products found",
   "product.add_to_cart": "Add to cart", // I know it's a duplicate with aichat - this is from old functionality
