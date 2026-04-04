@@ -276,7 +276,7 @@ export default {
   "product.title_required": "Ange en produkttitel – a–z, siffror och #()_ är tillåtna",
   "product.title_invalid_character": 'Tecknet "{character}" är inte tillåtet nära "{context}"',
   "product.subtitle_required": "Inga tecken !$^*_=\\ tillåtna",
-  "product.price_required": "Ange pris från 1 till 999 999 med 2 decimaler",
+  "product.price_required": "Ange pris från 0,01 till 999 999 med 2 decimaler",
   "product.on_stock_required": "Ange lagersaldo som ett positivt tal, decimaler tillatna",
   "product.drop_files_here": "Släpp filer här",
   "product.click_or_drop_here": "Klicka eller släpp här",

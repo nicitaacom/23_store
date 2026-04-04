@@ -116,7 +116,7 @@ export function ProductInput({
     price: {
       requiredMessage: t("this_field_is_required"),
       pattern: {
-        value: /^(?!0\.?$)[1-9][0-9]{0,5}(\.\d{1,2})?$/,
+        value: /^(?:0\.\d{1,2}|[1-9][0-9]{0,5}(?:\.\d{1,2})?)$/,
         message: t("price_required"),
       },
     },
@@ -231,10 +231,6 @@ export function ProductInput({
               const regex = numericFormat === "grouped" ? /^(?!\..)[0-9.,]+$/ : /^(?!\..)[0-9.]+$/
 
               if (value.length === 0 && [".", ","].includes(key)) {
-                e.preventDefault()
-              }
-
-              if (id === "price" && value.length === 0 && key === "0") {
                 e.preventDefault()
               }
 
