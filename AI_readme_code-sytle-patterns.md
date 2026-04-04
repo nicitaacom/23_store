@@ -25,6 +25,7 @@ Use this as the default style when generating code for this project.
 8. Use descriptive names like `index`, `context`, `error`, `value`, `item`, `store`.
 9. Use `useEffect` only when needed and keep side effects in hooks, not components.
 10. Keep UI minimalistic: small gaps, compact paddings, clean borders, soft blur, subtle shadows.
+11. For Zustand, do not use selector style like `useStore(state => state.value)`. Use `const { value, action } = useStore()` and derive values after destructuring.
 
 ## General architecture
 

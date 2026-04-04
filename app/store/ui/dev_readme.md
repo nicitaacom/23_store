@@ -12,7 +12,11 @@ In `DeleteProductHeader` I pass in props:
 1. id - to set id of product to delete - I use it to send API call
 
 ```ts
-await axios.post("/api/products/delete", { id: areYouSureDeleteProductModal.id })
+await fetch("/api/products/delete", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ id: areYouSureDeleteProductModal.id }),
+})
 2. title - to show name of the product to delete like 'Are you sure you want to delete `${title}`?'
 ```
 
