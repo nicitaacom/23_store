@@ -64,7 +64,7 @@ export default {
   "auth.validation.password_invalid": "Käytä 8–64 merkkiä: a-z, A-Z, 0-9 ja valinnaiset _-%#$",
 
   // Form Fields
-  "auth.email.placeholder": "nicitaacom@gmail.com",
+  "auth.email.placeholder": "example@gmail.com",
   "auth.password.placeholder_new": "NeW-RaNd0m_PasWorD_system-1",
   "auth.password.placeholder": "RaNd0m_PasWorD_system-1",
   "auth.username.placeholder": "HANTARESpeek",

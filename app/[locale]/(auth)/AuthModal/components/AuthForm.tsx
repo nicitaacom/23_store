@@ -33,7 +33,7 @@ export function AuthForm({
   isEmailSent,
   responseMessage,
 }: AuthFormProps) {
-  const pathname = usePathname()
+  const pathname = usePathname() || ""
   const t = useI18n()
 
   const [isChecked, setIsChecked] = useState(false)

@@ -54,7 +54,7 @@ export function ProductInput({
   ...props
 }: InputFormProps) {
   const t = useScopedI18n("product")
-  const MAX_DESCRIPTION_LENGTH = 7200
+  const MAX_DESCRIPTION_LENGTH = 2200
   const DESCRIPTION_INVALID_CHARACTER_REGEX = /[!$^*_=\\]/
 
   const containsOnlyPrintableText = (value: string, allowNewlines = false) => {
@@ -211,6 +211,7 @@ export function ProductInput({
           autoComplete={id}
           placeholder={placeholder}
           disabled={disabled}
+          maxLength={id === "subTitle" ? MAX_DESCRIPTION_LENGTH : props.maxLength}
           rows={6}
           ref={e => {
             textArea(e)

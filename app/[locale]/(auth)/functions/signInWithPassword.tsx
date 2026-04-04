@@ -62,7 +62,7 @@ export async function signInWithPassword(
       displayResponseMessage(
         <div className="text-danger flex flex-row">
           <p>{t("auth.no_user_or_username")}&nbsp;</p>
-          <Button className="text-info" href="https://t.me/nicitaacom" variant="link">
+          <Button className="text-info" href={process.env.NEXT_PUBLIC_TELEGRAM_URL} variant="link">
             {t("auth.here")}
           </Button>
         </div>,

@@ -10,8 +10,8 @@ import { useScopedI18n } from "@/locales/client"
 
 export default function Payment() {
   const router = useRouter()
-  const status = useSearchParams()?.get("status")
-  const session_id = useSearchParams()?.get("session_id")
+  const status = useSearchParams()?.get("status") ?? null
+  const session_id = useSearchParams()?.get("session_id") ?? null
   const { currentStep, cartStore } = usePaymentSteps(status, session_id)
   const t = useScopedI18n("payment")
 

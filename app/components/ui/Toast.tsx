@@ -36,7 +36,7 @@ export default function Toast() {
       defaultSubtitle: (
         <p className="flex flex-wrap">
           {t("toast.error.subtitle")} -&nbsp;
-          <Button className="inline-block text-info" variant="link" href="t.me/nicitaacom">
+          <Button className="inline-block text-info" variant="link" href={process.env.NEXT_PUBLIC_TELEGRAM_URL}>
             {t("toast.error.button")}
           </Button>
         </p>

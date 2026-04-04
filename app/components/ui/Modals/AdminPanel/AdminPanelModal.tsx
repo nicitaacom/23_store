@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
@@ -32,17 +32,13 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
   const t = useI18n()
   const router = useRouter()
   const { products: hydratedOwnerProducts, hydrate: hydrateOwnerProducts } = useOwnerProductsStore()
-  const hasHydratedOwnerProductsRef = useRef(false)
 
   const [productAction, setProductAction] = useState<ProductAction>(PRODUCT_ACTIONS.add)
   const { isLoading } = useLoading()
 
   const { user } = useUserStore()
   useEffect(() => {
-    if (hasHydratedOwnerProductsRef.current) return
-
     hydrateOwnerProducts(ownerProducts)
-    hasHydratedOwnerProductsRef.current = true
   }, [hydrateOwnerProducts, ownerProducts])
 
   useEffect(() => {

@@ -15,6 +15,7 @@ export const useCloseModalIfAlreadyLoggedIn = (queryParams: "login" | "recover" 
   useEffect(() => {
     if (typeof window === "undefined") return
     if (!user || !queryParams) return
+    if (!searchParams) return
 
     const modal = searchParams.get("modal")
     const variant = searchParams.get("variant")

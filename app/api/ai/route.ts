@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       function_call: "auto",
-      max_tokens: 200,
+      max_tokens: 20000,
       temperature: 0.4,
     })
 

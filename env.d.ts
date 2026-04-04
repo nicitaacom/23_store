@@ -49,6 +49,10 @@ declare global {
       TELEGRAM_CHAT_ID: string
       NEXT_PUBLIC_TELEGRAM_URL: string
 
+      NEXT_PUBLIC_AWS_REGION: string
+      AWS_ACCESS_KEY_ID: string
+      AWS_SECRET_ACCESS_KEY: string
+
       TINIFY_API_KEY_ARR: string
 
       NEXT_PUBLIC_IS_DEBUG: string

@@ -32,9 +32,10 @@ export interface AuthFormData {
 export function AuthModal() {
   const router = useRouter()
   // const emailInputRef = useRef<HTMLInputElement>(null)
-  const queryParams = useSearchParams()?.get("variant")
+  const queryParams = useSearchParams()?.get("variant") ?? null
   const t = useI18n()
   const locale = useCurrentLocale()
+  const authVariant = queryParams === "login" || queryParams === "recover" || queryParams === "resetPassword" ? queryParams : null
 
   const [isEmailSent, setIsEmailSent] = useState(false)
   const [isAuthCompleted, setIsAuthCompleted] = useState(false)
@@ -64,7 +65,7 @@ export function AuthModal() {
 
   useRecoverCompleted(isRecoverCompleted, setIsRecoverCompleted, getValues)
 
-  useCloseModalIfAlreadyLoggedIn(queryParams as "login" | "recover" | "resetPassword")
+  useCloseModalIfAlreadyLoggedIn(authVariant)
 
   const onSubmit = async (data: AuthFormData) => {
     if (queryParams === "login") {

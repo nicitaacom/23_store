@@ -1,4 +1,6 @@
 import { stripe } from "@/libs/stripe"
+import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
+import { normalizeProductImageUrls } from "@/utils/product"
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
 
@@ -8,6 +10,7 @@ export async function POST(req: Request) {
   const title = String(body.title ?? "").trim()
   const description = String(body.description ?? "")
   const price = Number(body.price)
+  const images = normalizeProductImageUrls(body.images)
 
   try {
     if (!title) {
@@ -22,6 +25,7 @@ export async function POST(req: Request) {
       name: title,
       description,
       active: true,
+      images: images.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
     })
 
     const priceResponse = await stripe.prices.create({

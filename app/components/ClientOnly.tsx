@@ -15,8 +15,8 @@ const ClientOnly: React.FC<ClientOnlyProps> = ({ children }) => {
   const { hasCartStoreInitialized } = useLoading() // this loading state required to get cartStore initialize
   // otherwise components will be rendered without result of initialize()
 
-  const path = usePathname()
-  const ticketId = useParams()
+  const path = usePathname() || ""
+  const ticketId = useParams() || {}
   const isLoading = !hasMountedState || !hasCartStoreInitialized
 
   useEffect(() => {

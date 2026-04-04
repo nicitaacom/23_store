@@ -64,7 +64,7 @@ export default {
   "auth.validation.password_invalid": "Используйте 8–64 символа: a-z, A-Z, 0-9 и необязательные _-%#$",
 
   // Form Fields
-  "auth.email.placeholder": "nicitaacom@gmail.com",
+  "auth.email.placeholder": "example@gmail.com",
   "auth.password.placeholder_new": "NeW-RaNd0m_PasWorD_system-1",
   "auth.password.placeholder": "RaNd0m_PasWorD_system-1",
   "auth.username.placeholder": "HANTARESpeek",

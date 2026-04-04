@@ -26,6 +26,24 @@ declare module API {
 
   type ProductsTranslateResponse = ProductsTranslations
 
+  type ProductsTranslateAndInsertRequest = {
+    id: string
+    price_id: string
+    owner_id: string
+    title: string
+    description: string
+    price: number
+    on_stock: number
+    img_url: string[]
+    variants?: ProductsVariant[] | null
+  }
+
+  type ProductsTranslateAndInsertResponse = {
+    ok: boolean
+    error?: string
+    translations?: ProductsTranslations
+  }
+
   type ProductsFetchSuggestedPriceRequest = {
     title: string
     description: string
@@ -39,6 +57,7 @@ declare module API {
     title: string
     description: string
     price: number
+    images?: string[]
   }
 
   type ProductsAddResponse = {

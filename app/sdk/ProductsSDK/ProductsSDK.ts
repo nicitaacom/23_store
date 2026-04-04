@@ -16,10 +16,41 @@ export class ProductsSDK extends BaseSDK {
   }
 
   async translateProduct(request: API.ProductsTranslateRequest) {
-    return this.postJson<API.ProductsTranslateRequest, API.ProductsTranslateResponse>(
-      "/api/translate-product",
-      request satisfies API.ProductsTranslateRequest,
-    )
+    try {
+      return await this.postJson<API.ProductsTranslateRequest, API.ProductsTranslateResponse>(
+        "/api/translate-product",
+        request satisfies API.ProductsTranslateRequest,
+      )
+    } catch (error) {
+      console.error("[ProductsSDK.translateProduct] request failed", {
+        error: error instanceof Error ? error.message : String(error),
+        titleLength: request.title?.length ?? 0,
+        descriptionLength: request.description?.length ?? 0,
+        titlePreview: request.title?.slice(0, 120),
+        descriptionPreview: request.description?.slice(0, 120),
+      })
+      throw error
+    }
+  }
+
+  async translateAndInsertInDB(request: API.ProductsTranslateAndInsertRequest) {
+    try {
+      return await this.postJson<API.ProductsTranslateAndInsertRequest, API.ProductsTranslateAndInsertResponse>(
+        "/api/products/translate-insert",
+        request satisfies API.ProductsTranslateAndInsertRequest,
+      )
+    } catch (error) {
+      console.error("[ProductsSDK.translateAndInsertInDB] request failed", {
+        error: error instanceof Error ? error.message : String(error),
+        productId: request.id,
+        ownerId: request.owner_id,
+        imageCount: request.img_url?.length ?? 0,
+        variantsCount: request.variants?.length ?? 0,
+        titlePreview: request.title?.slice(0, 120),
+        descriptionPreview: request.description?.slice(0, 120),
+      })
+      throw error
+    }
   }
 
   async fetchSuggestedPrice(request: API.ProductsFetchSuggestedPriceRequest) {
@@ -51,10 +82,10 @@ export class ProductsSDK extends BaseSDK {
   }
 
   async getPopularProducts(start: number, end: number) {
-    const response = await this.getJson<{ products?: TProductDB[] }>(
-      "/api/popular-products",
-      { start, end } satisfies API.ProductsPopularRequest,
-    )
+    const response = await this.getJson<{ products?: TProductDB[] }>("/api/popular-products", {
+      start,
+      end,
+    } satisfies API.ProductsPopularRequest)
 
     return response.products || []
   }

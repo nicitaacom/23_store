@@ -11,6 +11,7 @@
     "update-types": "pnpx supabase gen types typescript --project-id zvpzoumubcidrtkgxwqx > app/TS/types_db.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-lambda": "^3.1024.0",
     "@metamask/detect-provider": "^2.0.0",
     "@pinecone-database/pinecone": "^7.1.0",
     "@react-email/body": "^0.2.1",
