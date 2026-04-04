@@ -1,11 +1,12 @@
 "use client"
 
 import { useRef, useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { BiUpArrow } from "react-icons/bi"
 import { TbWorld } from "react-icons/tb"
 
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
-import { useChangeLocale, useCurrentLocale } from "@/locales/client"
+import { useCurrentLocale } from "@/locales/client"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
 type Locale = {
@@ -21,11 +22,25 @@ const locales: Locale[] = [
   { code: "se", name: "Swedish", flag: "🇸🇪" },
 ]
 
+const LOCALE_COOKIE_NAME = "Next-Locale"
+
+function stripLocalePrefix(pathname: string, locales: TLocaleTag[]) {
+  const matchedLocale = locales.find(locale => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`))
+
+  if (!matchedLocale) return pathname || "/"
+
+  const pathWithoutLocale = pathname.slice(matchedLocale.length + 1)
+
+  return pathWithoutLocale || "/"
+}
+
 export function LanguageDropdown({ className }: { className?: string }) {
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownContainerRef = useRef<HTMLDivElement>(null)
 
-  const changeLocale = useChangeLocale({ preserveSearchParams: true })
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const locale = useCurrentLocale()
   const currentLocale = locales.find(l => l.code === locale)
 
@@ -33,7 +48,19 @@ export function LanguageDropdown({ className }: { className?: string }) {
   useOnEscOrClickOutside(dropdownContainerRef, () => setShowDropdown(false), { isHookEnabled: showDropdown })
 
   const handleLocaleChange = (code: TLocaleTag) => {
-    changeLocale(code)
+    if (code === locale) {
+      setShowDropdown(false)
+      return
+    }
+
+    document.cookie = `${LOCALE_COOKIE_NAME}=${code}; path=/; samesite=strict`
+
+    const nextPathname = stripLocalePrefix(pathname || "/", locales.map(locale => locale.code))
+    const nextSearch = searchParams?.toString() || ""
+    const nextUrl = `${nextPathname}${nextSearch ? `?${nextSearch}` : ""}`
+
+    router.replace(nextUrl)
+    router.refresh()
     setShowDropdown(false)
   }
 

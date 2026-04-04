@@ -83,6 +83,7 @@ export async function POST(req: Request) {
 
   try {
     const parsedPayload = normalizePayload((await req.json()) as API.ProductsTranslateAndInsertRequest)
+    const lambdaEvent = buildLambdaEvent(parsedPayload)
     const invalidFields = getInvalidPayloadFields(parsedPayload)
 
     if (invalidFields.length > 0) {
@@ -106,11 +107,13 @@ export async function POST(req: Request) {
       descriptionLength: parsedPayload.description?.length ?? 0,
     })
 
+    console.info("[products/translate-insert] lambda body\n" + JSON.stringify(parsedPayload, null, 2))
+
     const response = await lambda.send(
       new InvokeCommand({
         FunctionName: lambdaFnName,
         InvocationType: InvocationType.Event,
-        Payload: Buffer.from(JSON.stringify(buildLambdaEvent(parsedPayload))),
+        Payload: Buffer.from(JSON.stringify(lambdaEvent)),
       }),
     )
 

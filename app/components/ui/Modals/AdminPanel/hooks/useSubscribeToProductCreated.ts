@@ -84,6 +84,11 @@ export function useSubscribeToProductCreated({
         variants: matchedPendingProduct?.variants ?? null,
       }
 
+      console.info("[products] received product:created", {
+        title: payload.title,
+        product: createdProduct,
+      })
+
       if (matchedPendingProduct) {
         useOwnerProductsStore.getState().replaceProduct(matchedPendingProduct.optimisticProductId, createdProduct)
       } else {
