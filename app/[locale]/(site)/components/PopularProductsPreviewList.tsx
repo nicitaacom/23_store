@@ -4,7 +4,7 @@ import Link from "next/link"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
-import { pt, toProductLocale } from "@/utils/product"
+import { getProductPrimaryImageUrl, pt, toProductLocale } from "@/utils/product"
 
 interface PopularProductsPreviewListProps {
   products: TProductDB[]
@@ -44,7 +44,7 @@ export function PopularProductsPreviewList({
       <div className={`grid grid-cols-1 gap-[2px] ${compact ? "2xl:grid-cols-2" : "laptop:grid-cols-2"}`}>
         {products.map(product => {
           const translation = pt(product, productLocale)
-          const imageUrl = product.img_url?.[0] || "/placeholder.jpg"
+          const imageUrl = getProductPrimaryImageUrl(product)
           const isInStock = (product.on_stock || 0) > 0
           const isHotProduct = hotProductIds.includes(product.id)
 

@@ -23,7 +23,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
-import { pt } from "@/utils/product"
+import { normalizeProductImageUrls, pt } from "@/utils/product"
 
 interface ManageProductViewProps {
   product: TProductDB
@@ -224,7 +224,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       }),
     )
 
-    return uploadedImages.filter((imageUrl): imageUrl is string => Boolean(imageUrl))
+    return normalizeProductImageUrls(uploadedImages)
   }, [images, product.id, product.owner_id, tGlobal])
 
   const buildResolvedVariants = useCallback(

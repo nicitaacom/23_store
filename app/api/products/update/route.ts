@@ -3,6 +3,7 @@ import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
 import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 import { ProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
+import { normalizeProductImageUrls } from "@/utils/product"
 import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 import { AxiosError } from "axios"
 import { NextResponse } from "next/server"
@@ -51,12 +52,13 @@ export async function POST(req: Request) {
 
     /* UPDATE IMAGE */
     if (images) {
-      const stripeImages = images.filter(Boolean).slice(0, STRIPE_MAX_PRODUCT_IMAGES)
+      const normalizedImages = normalizeProductImageUrls(images)
+      const stripeImages = normalizedImages.slice(0, STRIPE_MAX_PRODUCT_IMAGES)
 
       // Update image on Stripe https://stripe.com/docs/api/products/update
       const productResponse = await stripe.products.update(productId, { images: stripeImages })
 
-      const { error: updateImagesError } = await supabase.from("products").update({ img_url: images }).eq("id", productId)
+      const { error: updateImagesError } = await supabase.from("products").update({ img_url: normalizedImages }).eq("id", productId)
       if (updateImagesError)
         throw new Error(`update product images \n Path:/api/products/update/route.ts \n Error message:\n ${updateImagesError.message}`)
 

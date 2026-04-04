@@ -4,6 +4,7 @@ import { MdOutlineDeleteOutline } from "react-icons/md"
 import { Button } from ".."
 import useCartStore from "@/store/user/cartStore"
 import { useCallback } from "react"
+import { twMerge } from "tailwind-merge"
 
 type ProductQuantityAction = "increase" | "decrease" | "clear"
 
@@ -29,33 +30,34 @@ export function ProductQuantityButton({ className, productId, action }: ProductQ
       variant: "success-outline" as const,
       content: "+",
       icon: null,
-      size: "icon-lg" as const,
-      rounded: "lg" as const,
+      size: "icon-md" as const,
     },
     decrease: {
       variant: "danger-outline" as const,
       content: "-",
       icon: null,
-      size: "icon-lg" as const,
-      rounded: "lg" as const,
+      size: "icon-md" as const,
     },
     clear: {
       variant: "danger-outline" as const,
       content: "Clear",
-      icon: <MdOutlineDeleteOutline className="text-xl" />,
-      size: "lg" as const,
-      rounded: "lg" as const,
+      icon: <MdOutlineDeleteOutline />,
+      size: "md" as const,
     },
   }[action]
 
   return (
     <Button
-      className={`font-semibold hover:shadow-lg transition-all ${
-        action === "clear" ? "font-secondary text-lg font-medium" : "text-2xl"
-      } ${className}`}
+      className={twMerge(
+        "rounded font-medium transition-all",
+        action === "clear"
+          ? "w-full mobile:w-fit"
+          : "min-w-10 text-lg",
+        className,
+      )}
       variant={config.variant}
       size={config.size}
-      rounded={config.rounded}
+      rounded="lg"
       shadow="sm"
       rightIcon={config.icon}
       onClick={handleClick}>

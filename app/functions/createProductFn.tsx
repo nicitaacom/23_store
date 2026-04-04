@@ -12,7 +12,7 @@ import { getUserId } from "@/utils/getUserId"
 import { getAnonymousId } from "./getAnonymousId"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
-import { normalizeProductTranslations } from "@/utils/product"
+import { normalizeProductImageUrls, normalizeProductTranslations } from "@/utils/product"
 
 type CreateProductFnInput = {
   title: string
@@ -204,17 +204,19 @@ RULES:
       if (errorMessages.length) throw new Error(`${t("product.error.image_upload_errors")}: ${errorMessages.join(", ")}`)
     }
 
-    if (!imagesUrls.length) {
+    const normalizedImageUrls = normalizeProductImageUrls(imagesUrls)
+
+    if (!normalizedImageUrls.length) {
       throw new Error("No images available for product")
     }
 
     const resolvedVariants: TProductVariant[] = (variants || [])
       .slice(0, MAX_PRODUCT_VARIANTS)
-      .filter(variant => variant.label.trim() && imagesUrls[variant.imageIndex])
+      .filter(variant => variant.label.trim() && normalizedImageUrls[variant.imageIndex])
       .map(variant => ({
         id: variant.id,
         label: variant.label.trim(),
-        image_url: imagesUrls[variant.imageIndex],
+        image_url: normalizedImageUrls[variant.imageIndex],
       }))
 
     const userId = getUserId()
@@ -226,7 +228,7 @@ RULES:
       translations: productTranslations,
       price: priceLet,
       on_stock: onStock ?? 0,
-      img_url: imagesUrls,
+      img_url: normalizedImageUrls,
       variants: resolvedVariants,
     }
 
@@ -238,7 +240,7 @@ RULES:
 
     await axios.post("/api/products/update", {
       productId: stripeResponse.data.product as string,
-      images: imagesUrls,
+      images: normalizedImageUrls,
     })
 
     return product

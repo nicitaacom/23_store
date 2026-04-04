@@ -26,9 +26,9 @@ export function AddToCartButton({ productId, className }: AddToCartButtonProps) 
 
   return (
     <Button
-      className={twMerge("w-full mobile:w-fit font-medium", className)}
+      className={twMerge("w-full mobile:w-fit rounded font-medium", className)}
       variant="success-outline"
-      size="lg"
+      size="md"
       rounded="lg"
       shadow="sm"
       rightIcon={<BsCart3 className="text-lg" />}

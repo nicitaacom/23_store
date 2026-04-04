@@ -22,7 +22,7 @@ import { TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { getUserId } from "@/utils/getUserId"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
-import { createRawProductTranslations } from "@/utils/product"
+import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils/product"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { createProductFn } from "@/functions/createProductFn"
 import { useI18n, useScopedI18n } from "@/locales/client"
@@ -243,7 +243,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         image_url: images[variant.imageIndex]?.data_url || "",
       }))
       .filter(variant => variant.label && variant.image_url)
-    const optimisticImages = images.map(image => image.data_url || "").filter(Boolean)
+    const optimisticImages = normalizeProductImageUrls(images.map(image => image.data_url || ""))
     const optimisticProductId = `optimistic-${crypto.randomUUID()}`
     const optimisticProduct: TProductDB = {
       id: optimisticProductId,

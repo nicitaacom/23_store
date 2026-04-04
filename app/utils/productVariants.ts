@@ -1,6 +1,6 @@
 import { ProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
-import { normalizeProductTranslations } from "./product"
+import { normalizeProductImageUrls, normalizeProductTranslations } from "./product"
 
 function isProductVariant(value: unknown): value is TProductVariant {
   if (!value || typeof value !== "object") return false
@@ -16,11 +16,16 @@ export function normalizeProductVariants(value: unknown): TProductVariant[] | nu
   return variants.length ? variants : null
 }
 
-export function normalizeProduct<T extends { variants?: unknown; translations?: unknown }>(
+export function normalizeProduct<T extends { img_url?: unknown; variants?: unknown; translations?: unknown }>(
   product: T,
-): Omit<T, "variants" | "translations"> & { variants: TProductVariant[] | null; translations: ProductTranslations } {
+): Omit<T, "img_url" | "variants" | "translations"> & {
+  img_url: string[]
+  variants: TProductVariant[] | null
+  translations: ProductTranslations
+} {
   return {
     ...product,
+    img_url: normalizeProductImageUrls(product.img_url),
     variants: normalizeProductVariants(product.variants),
     translations: normalizeProductTranslations(product.translations),
   }

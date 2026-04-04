@@ -5,8 +5,8 @@ import { Button } from "@/components/ui"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
 import useCartStore from "@/store/user/cartStore"
-import useUserStore from "@/store/user/userStore"
-import { FiEdit3, FiExternalLink } from "react-icons/fi"
+import { FiExternalLink } from "react-icons/fi"
+import { ManageProductButton } from "./ManageProductButton"
 
 interface ProductButtonsProps {
   productId: string
@@ -19,24 +19,10 @@ export function ProductButtons({ productId, ownerId, showViewButton = true }: Pr
   const quantity = cartStore.products?.[productId]?.quantity ?? 0
   const locale = useCurrentLocale()
   const t = useScopedI18n("product")
-  const user = useUserStore(state => state.user)
-  const isOwner = user?.id === ownerId
 
   return (
     <div className="flex w-full min-w-0 flex-wrap items-end justify-center gap-3 tablet:justify-end">
-      {isOwner && (
-        <Button
-          className="w-full border border-white/8 bg-[#000000] text-title hover:border-warning/25
-          hover:bg-[#111111] hover:text-title mobile:w-fit font-medium"
-          href={`/${locale}/products/${productId}/manage`}
-          variant="ghost"
-          size="lg"
-          rounded="lg"
-          shadow="sm"
-          rightIcon={<FiEdit3 className="text-base text-warning" />}>
-          {t("manage_product")}
-        </Button>
-      )}
+      <ManageProductButton className="rounded" productId={productId} ownerId={ownerId} />
 
       {quantity === 0 ? (
         <AddToCartButton productId={productId} />
@@ -50,10 +36,10 @@ export function ProductButtons({ productId, ownerId, showViewButton = true }: Pr
 
       {showViewButton && (
         <Button
-          className="w-full mobile:w-fit font-medium"
+          className="w-full mobile:w-fit rounded font-medium"
           href={`/${locale}/products/${productId}`}
           variant="info-outline"
-          size="lg"
+          size="md"
           rounded="lg"
           shadow="sm"
           rightIcon={<FiExternalLink className="text-base" />}>

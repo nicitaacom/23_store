@@ -22,6 +22,14 @@ export function createRawProductTranslations(title: string, description: string)
   }
 }
 
+export function normalizeProductImageUrls(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  return value.filter((image): image is string => typeof image === "string" && image.trim().length > 0)
+}
+
 export function normalizeProductTranslations(value: unknown): ProductTranslations {
   if (!value || typeof value !== "object") {
     return createRawProductTranslations("", "")
@@ -52,6 +60,15 @@ export function normalizeProductTranslations(value: unknown): ProductTranslation
 
 export const pt = (product: TProductDB, locale: ProductLocale) =>
   product.translations[locale] ?? product.translations.fi
+
+export function getProductGalleryImages(product: Pick<TProductDB, "img_url">) {
+  const images = normalizeProductImageUrls(product.img_url)
+  return images.length ? images : ["/placeholder.jpg"]
+}
+
+export function getProductPrimaryImageUrl(product: Pick<TProductDB, "img_url">) {
+  return getProductGalleryImages(product)[0]
+}
 
 export function sortProductsByLocale<T extends { translations: ProductTranslations }>(products: T[], locale: ProductLocale = "fi") {
   return [...products].sort((a, b) => {

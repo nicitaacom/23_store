@@ -7,7 +7,7 @@ import { useCurrentLocale } from "@/locales/client"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
-import { pt } from "@/utils/product"
+import { getProductGalleryImages, pt } from "@/utils/product"
 import { ProductQuantity } from "../ProductQuantity"
 import { ProductButtons } from "../ProductButtons"
 import { ProductImage } from "../ProductImage"
@@ -30,12 +30,12 @@ function Product({ ...product }: Props) {
   )
   const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id || "")
   const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
-  const previewImages = selectedVariant?.image_url ? [selectedVariant.image_url] : product.img_url
+  const previewImages = useMemo(() => getProductGalleryImages(product), [product.img_url])
 
   return (
     <article
       className={twMerge(
-        "flex flex-col tablet:flex-row justify-between rounded-xl border border-border-color/20",
+        "flex flex-col tablet:flex-row justify-between rounded border border-border-color/20",
         "bg-gradient-to-br from-success/3 to-transparent",
         "hover:from-success/8 hover:to-success/3 hover:border-success/30 hover:shadow-lg hover:shadow-success/10",
         "transition-all duration-300 group relative overflow-hidden",
@@ -55,7 +55,7 @@ function Product({ ...product }: Props) {
               {translation.title}
             </h1>
 
-            <div className="flex items-center gap-x-3 px-3 py-1.5 rounded-lg bg-success/10 border border-success/20 shrink-0">
+            <div className="flex items-center gap-x-3 px-3 py-1.5 rounded border border-success/20 bg-success/10 shrink-0">
               <span className="text-sm text-subTitle font-medium whitespace-nowrap">Price:</span>
               <h1 className="text-xl mobile:text-2xl text-success font-bold tracking-tight whitespace-nowrap">
                 {formatCurrency(product.price)}
@@ -68,7 +68,7 @@ function Product({ ...product }: Props) {
               {translation.description}
             </h1>
 
-            <div className="flex items-center gap-x-3 px-3 py-1.5 rounded-lg bg-background/50 border border-border-color/20 w-fit">
+            <div className="flex items-center gap-x-3 px-3 py-1.5 rounded border border-border-color/20 bg-background/50 w-fit">
               <div
                 className={`w-2.5 h-2.5 rounded-full shrink-0 ${
                   isOutOfStock ? "bg-warning animate-pulse shadow-lg shadow-warning/50" : "bg-success shadow-lg shadow-success/50"
