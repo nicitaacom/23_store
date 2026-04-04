@@ -8,7 +8,7 @@ import { AreYouSureModalContainer } from "./ModalContainers/AreYouSureModalConta
 import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 
 export function AreYouSureDeleteProductModal() {
   const t = useScopedI18n("modal")
@@ -18,23 +18,20 @@ export function AreYouSureDeleteProductModal() {
   const areYouSureDeleteProductModal = useAreYouSureDeleteProductModal()
 
   async function deleteProduct() {
+    if (!areYouSureDeleteProductModal.id) return
+
     setIsLoading(true)
-    //archive product on stripe first and then in DB
-    const response = await fetch("/api/products/delete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: areYouSureDeleteProductModal.id }),
-    })
+    try {
+      //archive product on stripe first and then in DB
+      await productsSDK.deleteProduct({ id: areYouSureDeleteProductModal.id })
 
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
+      //close modal and refresh - so user immediately see changes
+      areYouSureDeleteProductModal.closeModal()
+      cartStore.fetchProductsData()
+      router.refresh()
+    } finally {
+      setIsLoading(false)
     }
-
-    //close modal and refresh - so user immediately see changes
-    areYouSureDeleteProductModal.closeModal()
-    cartStore.fetchProductsData()
-    router.refresh()
-    setIsLoading(false)
   }
 
   return (

@@ -25,7 +25,7 @@ import { createProductFn } from "@/functions/createProductFn"
 import { useI18n, useScopedI18n } from "@/locales/client"
 import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
 import { TProductDB } from "@/ts/product/TProductDB"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 
 const previewImageVariants = {
   initial: (direction: "next" | "prev") => ({
@@ -166,20 +166,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     resolvedVariants: TProductVariantDraft[]
   }) => {
     try {
-      const translationResponse = await fetch("/api/translate-product", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: normalizedTitle,
-          description: normalizedDescription,
-        }),
+      const translations = await productsSDK.translateProduct({
+        title: normalizedTitle,
+        description: normalizedDescription,
       })
-
-      if (!translationResponse.ok) {
-        throw new Error(await getResponseErrorMessage(translationResponse))
-      }
-
-      const translations = await translationResponse.json()
 
       useOwnerProductsStore.getState().updateProduct(optimisticProductId, product => ({
         ...product,

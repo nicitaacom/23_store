@@ -3,7 +3,7 @@ import { create } from "zustand"
 import { IMessageDB } from "@/ts/support/IMessageDB"
 import { getUserId } from "@/utils/getUserId"
 import fetchTicketId from "@/actions/fetchTicketId"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 
 type MessagesStore = {
   messages: IMessageDB[]
@@ -59,22 +59,7 @@ export const useMessagesStore = create<MessagesStore>()((set, get) => ({
       return
     }
 
-    const response = await fetch("/api/messages/get-messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: userId,
-      } as {
-        ticketId?: string
-        userId?: string
-      }),
-    })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
-
-    const messages = (await response.json()) as IMessageDB[]
+    const messages = await supportSDK.getMessages({ userId })
     const unseenAmount = messages.filter(message => !message.seen).length
 
     let ticketIdLet: string | null = null

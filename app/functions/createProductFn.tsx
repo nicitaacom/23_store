@@ -12,7 +12,8 @@ import { getAnonymousId } from "./getAnonymousId"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 import { normalizeProductImageUrls, normalizeProductTranslations } from "@/utils/product"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { aiSDK } from "@/sdk/AISDK/AISDK"
 
 type CreateProductFnInput = {
   title: string
@@ -37,28 +38,7 @@ function getFileExtensionFromContentType(contentType: string, fallbackFileName: 
 }
 
 async function compressImageWithTinify(imageFile: File) {
-  const formData = new FormData()
-  formData.append("image", imageFile)
-
-  const response = await fetch("/api/tinify", {
-    method: "POST",
-    body: formData,
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    let errorMessage = errorText || `Tinify request failed (${response.status})`
-
-    try {
-      const parsedError = JSON.parse(errorText) as { error?: string }
-      errorMessage = parsedError.error || errorMessage
-    } catch {}
-
-    throw new Error(errorMessage)
-  }
-
-  const compressedBlob = await response.blob()
-  const contentType = response.headers.get("Content-Type") || compressedBlob.type || imageFile.type || "image/jpeg"
+  const { blob: compressedBlob, contentType } = await productsSDK.compressImage(imageFile)
   const baseName = imageFile.name.replace(/\.[^/.]+$/, "")
   const fileExtension = getFileExtensionFromContentType(contentType, imageFile.name)
 
@@ -70,20 +50,12 @@ async function resolveProductTranslations(title: string, description: string, tr
     return normalizeProductTranslations(translations)
   }
 
-  const response = await fetch("/api/translate-product", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  return normalizeProductTranslations(
+    await productsSDK.translateProduct({
       title,
       description,
     }),
-  })
-
-  if (!response.ok) {
-    throw new Error(await getResponseErrorMessage(response))
-  }
-
-  return normalizeProductTranslations(await response.json())
+  )
 }
 
 export async function createProductFn(t: TI18nFunction, input: CreateProductFnInput) {
@@ -106,22 +78,13 @@ export async function createProductFn(t: TI18nFunction, input: CreateProductFnIn
 
     if (!price) {
       try {
-        const response = await fetch("/api/fetch-prices", {
-          method: "POST",
-          body: JSON.stringify({ title, description }),
-          headers: { "Content-Type": "application/json" },
-        })
-        const data = await response.json()
+        const data = await productsSDK.fetchSuggestedPrice({ title, description })
         console.log(39, "fetch-prices response:", data)
 
         if (data.price && data.price > 0) {
           priceLet = data.price
         } else {
-          const priceResponse = await fetch("/api/ai/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              promptValue: `
+          const priceData = await aiSDK.prompt(`
 Product: ${title}.
 Description: ${description}.
 Estimate realistic USD price ONLY the number.
@@ -129,17 +92,8 @@ RULES:
 - tiny adapters/connectors: realistic $1–$6
 - basic 12V accessory: realistic $4–$15
 - do NOT go above these ranges
-      `,
-              memory: "",
-            }),
-          })
-
-          if (!priceResponse.ok) {
-            throw new Error(await getResponseErrorMessage(priceResponse))
-          }
-
-          const priceData = await priceResponse.json()
-          const aiRaw = priceData.openai || ""
+      `)
+          const aiRaw = priceData.aiMessage || ""
           const parsed = parseFloat(aiRaw.replace(/[^0-9.]/g, "")) || 0
           priceLet = parsed > 0 ? parsed : 4.99
         }
@@ -154,21 +108,11 @@ RULES:
 
     const stripeAmount = Math.max(1, Math.floor(priceLet * 100))
 
-    const stripeResponse = await fetch("/api/products/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: canonicalTranslation.title,
-        description: canonicalTranslation.description,
-        price: stripeAmount,
-      }),
+    const stripeData = await productsSDK.addProduct({
+      title: canonicalTranslation.title,
+      description: canonicalTranslation.description,
+      price: stripeAmount,
     })
-
-    if (!stripeResponse.ok) {
-      throw new Error(await getResponseErrorMessage(stripeResponse))
-    }
-
-    const stripeData = (await stripeResponse.json()) as { id?: string; product?: string }
 
     if (!stripeData.id || !stripeData.product) {
       throw new Error(t("product.error.failed_to_create_product_on_stripe"))
@@ -179,18 +123,10 @@ RULES:
 
     if (!images?.length) {
       try {
-        const imageResponse = await fetch("/api/ai/generate-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: `${title}. ${description}` } as API.GenerateImageRequest),
-        })
+        const generatedImage = await aiSDK.generateImageBuffer(`${title}. ${description}`)
 
-        if (!imageResponse.ok) {
-          throw new Error(`${t("product.error.failed_to_generate_image")}: ${await getResponseErrorMessage(imageResponse)}`)
-        }
-
-        const imageFile = new File([await imageResponse.arrayBuffer()], "generated_image.png", {
-          type: imageResponse.headers.get("Content-Type") || "image/png",
+        const imageFile = new File([generatedImage.buffer], "generated_image.png", {
+          type: generatedImage.contentType,
         })
         const compressedImageFile = await compressImageWithTinify(imageFile)
 
@@ -267,18 +203,10 @@ RULES:
       throw new Error(`${t("product.error.db_insert_failed")}: ${insertResponse.error.message}`)
     }
 
-    const updateResponse = await fetch("/api/products/update", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        productId: stripeData.product,
-        images: normalizedImageUrls,
-      }),
+    await productsSDK.updateProduct({
+      productId: stripeData.product,
+      images: normalizedImageUrls,
     })
-
-    if (!updateResponse.ok) {
-      throw new Error(await getResponseErrorMessage(updateResponse))
-    }
 
     return product
   } catch (error) {

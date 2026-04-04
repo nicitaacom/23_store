@@ -1,6 +1,5 @@
 import { getUserId } from "@/utils/getUserId"
-import { TAPITicketGetTicketIdData, TAPITicketGetTicketIdRequest } from "@/api/ticket/get-ticket-id/route"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 
 // simple in-memory cache (browser + server safe)
 let ticketIdPromiseCache: Promise<string | undefined> | null = null
@@ -14,21 +13,7 @@ const fetchTicketId = async (): Promise<string | undefined> => {
 
   ticketIdPromiseCache = (async () => {
     try {
-      const response = await fetch("/api/ticket/get-ticket-id", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-        } satisfies TAPITicketGetTicketIdRequest),
-      })
-
-      if (!response.ok) {
-        throw new Error(await getResponseErrorMessage(response))
-      }
-
-      const data = (await response.json()) as TAPITicketGetTicketIdData | ""
-
-      return typeof data === "string" ? undefined : data.ticket_id ?? undefined
+      return supportSDK.getTicketId({ userId })
     } catch (error) {
       console.error(33, "error - ", error)
       return crypto.randomUUID()

@@ -1,10 +1,9 @@
 import { Dispatch, SetStateAction } from "react"
 
-import { TAPIVerifyPayment, TAPIVerifyPaymentResponse } from "@/api/verify-payment/route"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useToast from "@/store/ui/useToast"
 import { logFn } from "@/utils/logFn"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function verifySessionIdFn(
   setIsValidSessionId: Dispatch<SetStateAction<boolean>>,
@@ -16,19 +15,7 @@ export async function verifySessionIdFn(
 
   if (session_id) {
     try {
-      const response = await fetch(`/api/verify-payment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          session_id,
-        } as TAPIVerifyPayment),
-      })
-
-      if (!response.ok) {
-        throw new Error(await getResponseErrorMessage(response))
-      }
-
-      const data = (await response.json()) as TAPIVerifyPaymentResponse
+      const data = await productsSDK.verifyPayment({ session_id })
       setIsValidSessionId(data.valid)
       logFn(t("payment.session_id_is_valid"))
       setCurrentStep(6)

@@ -1,10 +1,9 @@
 import { Dispatch, SetStateAction } from "react"
 
-import { TAPISendEmail } from "@/api/send-email/route"
+import { emailsSDK } from "@/sdk/EmailsSDK/EmailsSDK"
 import useToast from "@/store/ui/useToast"
 import { logFn } from "@/utils/logFn"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 interface EmailData {
   from: string
@@ -17,15 +16,7 @@ export async function sendEmailFn(emailData: EmailData, setCurrentStep: Dispatch
   const toast = useToast.getState()
 
   try {
-    const response = await fetch("/api/send-email/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(emailData as TAPISendEmail),
-    })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
+    await emailsSDK.sendEmail(emailData)
 
     logFn(t("payment.email_sent"))
     setCurrentStep(7)

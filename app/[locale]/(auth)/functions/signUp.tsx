@@ -1,6 +1,6 @@
 import { Dispatch, ReactNode, SetStateAction } from "react"
 
-import { TAPIAuthRegister } from "@/api/auth/register/route"
+import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { AuthFormData } from "../AuthModal/AuthModal"
 import { UseFormGetValues, UseFormSetFocus } from "react-hook-form"
 import { Timer } from "../AuthModal/components"
@@ -10,7 +10,6 @@ import { getPusherClient } from "@/libs/pusher"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
 import { UnknownError } from "./UnknownError"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function signUp(
   t: TI18nFunction,
@@ -28,19 +27,7 @@ export async function signUp(
   try {
     const pusherClient = getPusherClient()
 
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: username,
-        email: email,
-        password: password,
-      } as TAPIAuthRegister),
-    })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
+    await accountSDK.signUp({ username, email, password })
 
     setIsEmailSent(true)
     if (getValues("email")) {

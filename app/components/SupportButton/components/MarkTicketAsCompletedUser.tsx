@@ -8,12 +8,10 @@ import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
 import { Button } from "@/components/ui"
-import { TAPITicketsClose } from "@/api/tickets/close/route"
-import { TAPITicketsRate } from "@/api/tickets/rate/route"
 import { getPusherClient } from "@/libs/pusher"
+import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 interface MarkTicketAsCompletedUserProps {
   ticketId: string | null
@@ -34,15 +32,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
   async function closeTicket() {
     setShowMarkTicketAsCompleted(false)
     setShowRateThisTicket(true)
-    const response = await fetch("api/tickets/close", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ticketId, closedBy: "user" } as TAPITicketsClose),
-    })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
+    await supportSDK.closeTicket({ ticketId: ticketId || "", closedBy: "user" })
   }
 
   async function rateTicket(ratingValue: number | null) {
@@ -60,15 +50,7 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
     }
 
     router.refresh()
-    const response = await fetch("/api/tickets/rate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ticketId, rate: ratingValue } as TAPITicketsRate),
-    })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
+    await supportSDK.rateTicket({ ticketId, rate: ratingValue })
   }
 
   useEffect(() => {

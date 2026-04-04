@@ -10,8 +10,8 @@ import {
   sendAndConfirmTransaction,
   Keypair,
 } from "@solana/web3.js"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export const sendMoneyWithMetamask = async (
   productsPrice: number,
@@ -56,21 +56,11 @@ export const sendMoneyWithMetamask = async (
     }
 
     // 4. proceed to get price conversion for the specific token
-    const response = await fetch(`${location.origin}/api/coinmarketcap`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: productsPrice,
-        symbol: "USD",
-        convert: chainToken,
-      } as API.CoinmarketcapRequest),
+    const data = await productsSDK.getCoinmarketcapQuote({
+      amount: productsPrice,
+      symbol: "USD",
+      convert: chainToken,
     })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
-
-    const data = (await response.json()) as API.CoinmarketcapResponse
 
     // 5. check if the token price is available
     const tokenPrice = data.data[0].quote[chainToken]?.price

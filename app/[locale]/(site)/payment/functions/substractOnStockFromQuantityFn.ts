@@ -1,11 +1,10 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
-import { TAPIPaymentSuccess } from "@/api/payment/success/route"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 import useToast from "@/store/ui/useToast"
 import { logFn } from "@/utils/logFn"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function substractOnStockFromQuantityFn(
   products: TRecordCartProduct,
@@ -15,15 +14,7 @@ export async function substractOnStockFromQuantityFn(
 ) {
   const toast = useToast.getState()
   try {
-    const response = await fetch("/api/payment/success", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cartProducts: products } as TAPIPaymentSuccess),
-    })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
+    await productsSDK.completePayment({ cartProducts: products })
 
     clearCart()
     router.replace("/")

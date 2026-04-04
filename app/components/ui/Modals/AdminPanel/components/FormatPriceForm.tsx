@@ -6,13 +6,12 @@ import { CiEdit } from "react-icons/ci"
 import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
-import { TUpdateProductRequest } from "@/api/products/update/route"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 
 interface FormatPriceFormProps {
   id: string
@@ -28,20 +27,17 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
 
   async function updateTitle(price: number) {
     setIsLoading(true)
-    const response = await fetch("/api/products/update", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId: id, price: price } as TUpdateProductRequest),
-    })
+    try {
+      await productsSDK.updateProduct({
+        productId: id,
+        price,
+      })
 
-    if (!response.ok) {
+      setIsEditing(false)
+      router.refresh()
+    } finally {
       setIsLoading(false)
-      throw new Error(await getResponseErrorMessage(response))
     }
-
-    setIsEditing(false)
-    setIsLoading(false)
-    router.refresh()
   }
 
   const {

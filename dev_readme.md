@@ -8,6 +8,37 @@
 
 <br/>
 
+### Naming (terminology)
+
+<details> <summary><b>Terminology so you understand it better</b></summary>
+
+set - set in state (not DB)<br/>
+get - get from state (not DB)<br/>
+upd - update state (not DB)<br/>
+create - form to add smth (not DB and/or DB)<br/>
+add - add configured new state to arr e.g to labelsArr configured label+hex (not DB and/or DB)<br/>
+addEmpty - a initial state to array e.g to VPSConfigs initial VPS config with no data
+push - push smth in arr in state only for this arr e.g email labels (not DB and/or DB)<br/>
+remove - filter smth from arr state (not DB and/or DB)<br/>
+increase - add number to number state (not DB and/or DB)<br/>
+decrease - remove number from number state (not DB and/or DB)<br/>
+toggle - toggle boolean state (not DB and/or DB)<br/>
+
+extract - extract smth from smth e.g scheduledTimeISO from idName<br/>
+group - return group from smth<br/>
+
+selectDB - select smth from Supbase<br/>
+insertDB - insert smth in Supbase<br/>
+updateDB - update smth in Supabase<br/>
+deleteDB - delete smth in Supabase<br/>
+
+getRedis - get something from Redis<br/>
+setRedis - set something in Redis<br/>
+updRedis - update something in Redis<br/>
+delRedis - delete something from Redis<br/>
+
+</details>
+
 ## Docs
 
 <details> <summary><b>If you want implement something (find docs)</b></summary>

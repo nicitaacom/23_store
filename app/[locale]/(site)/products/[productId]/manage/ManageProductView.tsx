@@ -9,13 +9,13 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa"
 import { FiSave, FiTrash2 } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
-import { TUpdateProductRequest } from "@/api/products/update/route"
 import { Button } from "@/components/ui"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { showToastWarningFn } from "@/components/ui/Modals/AdminPanel/functions/showToastWarningFn"
 import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useCurrentLocale, useI18n, useScopedI18n } from "@/locales/client"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useToast from "@/store/ui/useToast"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductDB } from "@/ts/product/TProductDB"
@@ -23,7 +23,6 @@ import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVari
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
 import { normalizeProductImageUrls, pt } from "@/utils/product"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 interface ManageProductViewProps {
   product: TProductDB
@@ -45,18 +44,8 @@ function stringifyValue(value: unknown) {
   return JSON.stringify(value ?? null)
 }
 
-async function postProductUpdate(request: TUpdateProductRequest) {
-  const response = await fetch("/api/products/update", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(request),
-  })
-
-  if (!response.ok) {
-    throw new Error(await getResponseErrorMessage(response))
-  }
-
-  return response
+async function postProductUpdate(request: API.ProductsUpdateRequest) {
+  return productsSDK.updateProduct(request)
 }
 
 export function ManageProductView({ product }: ManageProductViewProps) {
@@ -286,24 +275,23 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         let nextProductId = product.id
 
         if (stringifyValue(nextTranslations) !== stringifyValue(product.translations)) {
-          await postProductUpdate({ productId: nextProductId, translations: nextTranslations } as TUpdateProductRequest)
+          await postProductUpdate({ productId: nextProductId, translations: nextTranslations })
         }
 
         if (stringifyValue(resolvedImageUrls) !== stringifyValue(product.img_url)) {
-          await postProductUpdate({ productId: nextProductId, images: resolvedImageUrls } as TUpdateProductRequest)
+          await postProductUpdate({ productId: nextProductId, images: resolvedImageUrls })
         }
 
         if (stringifyValue(resolvedVariants) !== stringifyValue(product.variants ?? null)) {
-          await postProductUpdate({ productId: nextProductId, variants: resolvedVariants } as TUpdateProductRequest)
+          await postProductUpdate({ productId: nextProductId, variants: resolvedVariants })
         }
 
         if (normalizedOnStock !== product.on_stock) {
-          await postProductUpdate({ productId: nextProductId, onStock: normalizedOnStock } as TUpdateProductRequest)
+          await postProductUpdate({ productId: nextProductId, onStock: normalizedOnStock })
         }
 
         if (normalizedPrice !== product.price) {
-          const response = await postProductUpdate({ productId: nextProductId, price: normalizedPrice } as TUpdateProductRequest)
-          const responseData = (await response.json()) as { id?: string }
+          const responseData = (await postProductUpdate({ productId: nextProductId, price: normalizedPrice })) as { id?: string }
           nextProductId = responseData.id || nextProductId
         }
 
@@ -345,15 +333,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
     setIsSaving(true)
     try {
-      const response = await fetch("/api/products/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: product.id }),
-      })
-
-      if (!response.ok) {
-        throw new Error(await getResponseErrorMessage(response))
-      }
+      await productsSDK.deleteProduct({ id: product.id })
 
       toast.show("success", t("product_deleted"), currentTranslation.title)
       router.push(`/${locale}`)

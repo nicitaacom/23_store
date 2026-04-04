@@ -1,9 +1,9 @@
 "use client"
 
-import { trackVisitAction } from "@/actions/trackVisitAction"
 import { useEffect } from "react"
 import { getCookie } from "@/utils/helpersCSR"
 import { setAnonymousId } from "@/utils/setAnonymousId"
+import { utmSDK } from "@/sdk/UTMSDK/UTMSDK"
 
 export function UTMTracker({ userId }: { userId: string | undefined }) {
   useEffect(() => {
@@ -12,7 +12,10 @@ export function UTMTracker({ userId }: { userId: string | undefined }) {
     const trackingUserId = userId || getCookie("anonymousId") || setAnonymousId()
 
     async function trackVisit() {
-      await trackVisitAction(trackingUserId, params)
+      await utmSDK.trackVisit({
+        userId: trackingUserId,
+        searchParams: params,
+      })
       const url = window.location.origin + window.location.pathname
       window.history.replaceState({}, "", url)
     }

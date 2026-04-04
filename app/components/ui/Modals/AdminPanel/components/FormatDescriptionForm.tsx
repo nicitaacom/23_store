@@ -7,12 +7,11 @@ import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
-import { TUpdateProductRequest } from "@/api/products/update/route"
 import { useLoading } from "@/store/ui/useLoading"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { ProductTranslations } from "@/ts/product/TProductDB"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 
 interface FormatDescriptionFormProps {
   id: string
@@ -30,10 +29,8 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
 
   async function updateTitle(description: string) {
     setIsLoading(true)
-    const response = await fetch("/api/products/update", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      await productsSDK.updateProduct({
         productId: id,
         translations: {
           ...translations,
@@ -42,17 +39,13 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
             description,
           },
         },
-      } as TUpdateProductRequest),
-    })
+      })
 
-    if (!response.ok) {
+      setIsEditing(false)
+      router.refresh()
+    } finally {
       setIsLoading(false)
-      throw new Error(await getResponseErrorMessage(response))
     }
-
-    setIsEditing(false)
-    setIsLoading(false)
-    router.refresh()
   }
 
   const {

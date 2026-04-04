@@ -8,11 +8,10 @@ import { useForm } from "react-hook-form"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
-import { TUpdateProductRequest } from "@/api/products/update/route"
 import { useLoading } from "@/store/ui/useLoading"
 import { ProductTranslations } from "@/ts/product/TProductDB"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 
 interface FormatTitleFormProps {
   id: string
@@ -30,10 +29,8 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
 
   async function updateTitle(title: string) {
     setIsLoading(true)
-    const response = await fetch("/api/products/update", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      await productsSDK.updateProduct({
         productId: id,
         translations: {
           ...translations,
@@ -42,17 +39,13 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
             title,
           },
         },
-      } as TUpdateProductRequest),
-    })
+      })
 
-    if (!response.ok) {
+      router.refresh()
+      setIsEditing(false)
+    } finally {
       setIsLoading(false)
-      throw new Error(await getResponseErrorMessage(response))
     }
-
-    router.refresh()
-    setIsEditing(false)
-    setIsLoading(false)
   }
 
   const {

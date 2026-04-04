@@ -3,6 +3,7 @@ import { useRef, useEffect } from "react"
 import { useAIChatStore } from "@/components/Navbar/stores/useAIChat"
 import { useLoading } from "@/store/ui/useLoading"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
+import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useI18n } from "@/locales/client"
@@ -10,7 +11,6 @@ import { useToast } from "@/store/ui"
 import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import useUserStore from "@/store/user/userStore"
 import { usePathname, useRouter } from "next/navigation"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export function useAIChat() {
   const router = useRouter()
@@ -51,19 +51,11 @@ export function useAIChat() {
 
   const syncFunctionTurnMemory = async (userPrompt: string, assistantReply: string, baseMemory: string) => {
     try {
-      const response = await fetch("/api/ai/sales-assistant/memory", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userPrompt,
-          assistantReply,
-          memory: baseMemory,
-        } as API.AISalesAssistantMemoryRequest),
+      const data = await aiSDK.syncSalesAssistantMemory({
+        userPrompt,
+        assistantReply,
+        memory: baseMemory,
       })
-
-      if (!response.ok) return null
-
-      const data = (await response.json()) as API.AISalesAssistantMemoryResponse
       return data?.memory || null
     } catch (error) {
       console.error("Failed to sync AI function-call memory.", error)
@@ -90,24 +82,28 @@ export function useAIChat() {
     try {
       await rateLimitSDK.rateLimit(t, "aiPrompt")
 
-      const response = await fetch("/api/ai/sales-assistant", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          promptValue: userMessage,
-          memory,
-          conversationHistory: newConversation,
-        }),
+      const data = await aiSDK.chatWithSalesAssistant({
+        promptValue: userMessage,
+        memory,
+        conversationHistory: newConversation,
       })
-
-      if (!response.ok) {
-        setConversation([...newConversation, { role: "ai", text: t("aichat.error") }])
-        return
-      }
-
-      const data = await response.json()
       if (data?.debug) setDebugContext(data.debug)
-      const functionCall = data?.openai?.choices?.[0]?.message?.function_call
+      const openAIMessage = (
+        data?.openai as
+          | {
+              choices?: Array<{
+                message?: {
+                  content?: string
+                  function_call?: {
+                    name?: string
+                    arguments?: string
+                  }
+                }
+              }>
+            }
+          | undefined
+      )?.choices?.[0]?.message
+      const functionCall = openAIMessage?.function_call
 
       if (functionCall?.name) {
         const functionArgs = (() => {
@@ -153,7 +149,7 @@ export function useAIChat() {
         return
       }
 
-      const aiReply = data?.openai?.choices?.[0]?.message?.content || data?.reply || t("aichat.error.no_reply_data")
+      const aiReply = openAIMessage?.content || t("aichat.error.no_reply_data")
       setConversation([...newConversation, { role: "ai", text: aiReply }])
 
       if (data?.memory) setMemory(data.memory)
@@ -175,18 +171,10 @@ export function useAIChat() {
     try {
       await rateLimitSDK.rateLimit(t, "aiGenerateImage")
 
-      const imageResponse = await fetch("/api/ai/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: `${memory} - generate image for this product` } as API.GenerateImageRequest),
-      })
+      const generatedImage = await aiSDK.generateImageBuffer(`${memory} - generate image for this product`)
 
-      if (!imageResponse.ok) {
-        throw new Error(await getResponseErrorMessage(imageResponse))
-      }
-
-      const imageFile = new File([await imageResponse.arrayBuffer()], "generated_image.png", {
-        type: imageResponse.headers.get("Content-Type") || "image/png",
+      const imageFile = new File([generatedImage.buffer], "generated_image.png", {
+        type: generatedImage.contentType,
       })
 
       const uploadResult = await uploadImageFn({ t, imageFile, bucket: "public-images" })

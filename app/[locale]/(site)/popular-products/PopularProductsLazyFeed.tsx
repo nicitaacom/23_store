@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react"
 
 import { useLazyLoading } from "@/hooks/useLazyLoading"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { PopularProductsPreviewList } from "../components/PopularProductsPreviewList"
 
@@ -19,14 +20,12 @@ export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }:
   const [products, setProducts] = useState(initialProducts)
 
   const fetchPopularProducts = useCallback(async (start: number, end: number) => {
-    const response = await fetch(`/api/popular-products?start=${start}&end=${end}`)
-    if (!response.ok) {
-      console.error("Failed to fetch popular products", await response.text())
+    try {
+      return await productsSDK.getPopularProducts(start, end)
+    } catch (error) {
+      console.error("Failed to fetch popular products", error)
       return []
     }
-
-    const data = (await response.json()) as { products?: TProductDB[] }
-    return data.products || []
   }, [])
 
   const {

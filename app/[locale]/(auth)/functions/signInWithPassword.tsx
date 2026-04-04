@@ -2,7 +2,7 @@ import { UseFormReset } from "react-hook-form"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 
-import { TAPIAuthLogin } from "@/api/auth/login/route"
+import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import useUserStore from "@/store/user/userStore"
 import { Button } from "@/components/ui"
 import { Timer } from "../AuthModal/components"
@@ -11,7 +11,6 @@ import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UnknownError } from "./UnknownError"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function signInWithPassword(
   email: string,
@@ -26,17 +25,7 @@ export async function signInWithPassword(
 
   try {
     // Check is user with this email doesn't exist and return providers and username
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email } as TAPIAuthLogin),
-    })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
-
-    const existingUserData = await response.json()
+    const existingUserData = await accountSDK.signInWithEmail(email)
     const { data: user, error: signInError } = await supabaseClient.auth.signInWithPassword({
       email: email,
       password: password,

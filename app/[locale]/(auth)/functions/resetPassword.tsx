@@ -1,12 +1,11 @@
 import { ReactNode } from "react"
 
-import { TAPIAuthRecover } from "@/api/auth/recover/route"
+import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import useUserStore from "@/store/user/userStore"
 import { Timer } from "../AuthModal/components"
 import { Button } from "@/components/ui"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UnknownError } from "./UnknownError"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function resetPassword(password: string, displayResponseMessage: (message: ReactNode) => void, t: TI18nFunction) {
   const userStore = useUserStore.getState()
@@ -17,22 +16,12 @@ export async function resetPassword(password: string, displayResponseMessage: (m
     const parsedEmail = JSON.parse(email ?? "")
 
     if (parsedEmail.expires > new Date().getTime()) {
-      const response = await fetch("api/auth/reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: parsedEmail.value,
-          password: password,
-        } as TAPIAuthRecover),
+      const data = await accountSDK.resetPassword({
+        email: parsedEmail.value,
+        password,
       })
 
-      if (!response.ok) {
-        throw new Error(await getResponseErrorMessage(response))
-      }
-
-      const data = await response.json()
-
-      userStore.setUser(data.user)
+      userStore.setUser((data.user as Parameters<typeof userStore.setUser>[0]) ?? null)
 
       localStorage.removeItem("email") // Remove email from localstorage
       displayResponseMessage(

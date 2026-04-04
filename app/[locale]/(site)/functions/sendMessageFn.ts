@@ -1,13 +1,12 @@
 import moment from "moment-timezone"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
-import { TAPITicketsOpen } from "@/api/tickets/open/route"
-import { TAPIMessageSend } from "@/api/message/send/route"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import { getUserId } from "@/utils/getUserId"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
+import { emailsSDK } from "@/sdk/EmailsSDK/EmailsSDK"
 
 export async function sendMessageFn(t: TI18nFunction, messageBody: string, sender_id: string, imageUrl: string | null) {
   // Don't allow to send empty message (just with spaces and/or newlines)
@@ -42,32 +41,16 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
       console.log(39, "messages - ", messages)
 
       // 1. Send message in telegram
-      const telegramResponse = await fetch("/api/telegram", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: messageBody || t("message.image_sent") } as API.TelegramRequest),
-      })
-
-      if (!telegramResponse.ok) {
-        throw new Error(await getResponseErrorMessage(telegramResponse))
-      }
+      await emailsSDK.sendTelegramMessage(messageBody || t("message.image_sent"))
 
       // 2. Insert row in table 'tickets'
-      const ticketResponse = await fetch("/api/tickets/open", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ticketId: message.ticket_id,
-          ownerId: sender_id,
-          ownerUsername: sender_id,
-          messageBody: messageBody || t("message.image_sent"),
-          ownerAvatarUrl: null,
-        } as TAPITicketsOpen),
+      await supportSDK.openTicket({
+        ticketId: message.ticket_id,
+        ownerId: sender_id,
+        ownerUsername: sender_id,
+        messageBody: messageBody || t("message.image_sent"),
+        ownerAvatarUrl: null,
       })
-
-      if (!ticketResponse.ok) {
-        throw new Error(await getResponseErrorMessage(ticketResponse))
-      }
     } catch (error) {
       console.log(53, t("message.error.image_sent"), error)
       setMessages([])
@@ -75,14 +58,11 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
     }
   }
 
-  try {
-    if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newMessage")
+    try {
+      if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newMessage")
 
-    // 3. Insert message in table 'messages'
-    const response = await fetch("/api/message/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      // 3. Insert message in table 'messages'
+      await supportSDK.sendMessage({
         id: message.id,
         ticketId: message.ticket_id,
         senderId: message.sender_id,
@@ -91,12 +71,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
         messageBody: message.body,
         images: imageUrl ? [imageUrl] : undefined,
         messageSender: "user",
-      } as TAPIMessageSend),
-    })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
+      })
   } catch (error) {
     console.log(75, t("message.error.message_sent"), error)
     setMessages(messages.slice(0, -1)) // delete last message and keep other

@@ -3,16 +3,11 @@
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui"
 import { getSafeNextPath } from "@/utils/turnstile"
+import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 
 type TurnstileChallengeProps = {
   locale: string
   nextPath: string
-}
-
-type TVerifyTurnstileResponse = {
-  success: boolean
-  error?: string
-  errorCodes?: string[]
 }
 
 export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps) {
@@ -36,25 +31,23 @@ export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps
           setStatus("verifying")
           setErrorMessage(null)
 
-          const response = await fetch("/api/turnstile/verify", {
-            method: "POST",
-            headers: {
-              "content-type": "application/json",
-            },
-            body: JSON.stringify({ token }),
-          })
+          try {
+            const payload = await accountSDK.verifyTurnstile(token)
 
-          const payload = (await response.json().catch(() => null)) as TVerifyTurnstileResponse | null
+            if (!payload?.success) {
+              setStatus("error")
+              setErrorMessage(payload?.error || "Turnstile verification failed")
+              window.turnstile?.reset(widgetIdRef.current ?? undefined)
+              return
+            }
 
-          if (!response.ok || !payload?.success) {
+            setStatus("verified")
+            window.location.assign(getSafeNextPath(nextPath, locale))
+          } catch (error) {
             setStatus("error")
-            setErrorMessage(payload?.error || "Turnstile verification failed")
+            setErrorMessage(error instanceof Error ? error.message : "Turnstile verification failed")
             window.turnstile?.reset(widgetIdRef.current ?? undefined)
-            return
           }
-
-          setStatus("verified")
-          window.location.assign(getSafeNextPath(nextPath, locale))
         },
         "error-callback": () => {
           setStatus("error")

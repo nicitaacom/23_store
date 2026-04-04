@@ -1,7 +1,7 @@
 import { ReactNode } from "react"
 import { UseFormGetValues } from "react-hook-form"
 
-import { TAPIAuthRecover } from "@/api/auth/recover/route"
+import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { AuthFormData } from "../AuthModal/AuthModal"
 import { Button } from "@/components/ui"
@@ -9,7 +9,6 @@ import { getPusherClient } from "@/libs/pusher"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UnknownError } from "./UnknownError"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function recoverPassword(
   email: string,
@@ -21,15 +20,7 @@ export async function recoverPassword(
   try {
     const pusherClient = getPusherClient()
 
-    const response = await fetch("/api/auth/recover", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email } as TAPIAuthRecover),
-    })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
+    await accountSDK.recoverPassword(email)
 
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
       redirectTo: `${getAuthCallbackBaseUrl()}/${locale}/auth/callback/recover`,

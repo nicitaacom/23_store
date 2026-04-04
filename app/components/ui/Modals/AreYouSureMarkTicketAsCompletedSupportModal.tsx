@@ -2,13 +2,12 @@
 
 import { FaCheck } from "react-icons/fa"
 
-import { TAPITicketsClose } from "@/api/tickets/close/route"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
 import useTicket from "@/hooks/support/useTicket"
 import { AreYouSureModalContainer } from "./ModalContainers"
 import { useRouter } from "next/navigation"
 import { useScopedI18n } from "@/locales/client"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 
 export function AreYouSureMarkTicketAsCompletedSupportModal() {
   const t = useScopedI18n("modal")
@@ -19,15 +18,7 @@ export function AreYouSureMarkTicketAsCompletedSupportModal() {
 
   async function markTickedAsCompleted() {
     areYouSureMarkTicketAsCompletedSupportModal.closeModal()
-    const response = await fetch("/api/tickets/close", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ticketId: ticketId, closedBy: "support" } as TAPITicketsClose),
-    })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
+    await supportSDK.closeTicket({ ticketId, closedBy: "support" })
 
     router.refresh()
   }

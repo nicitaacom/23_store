@@ -3,13 +3,13 @@
 import { Fragment, useEffect, useRef, useState } from "react"
 import { find } from "lodash"
 
-import { TAPIMessageSeen } from "@/api/message/seen/route"
 import { IMessageDB } from "@/ts/support/IMessageDB"
 import useUserStore from "@/store/user/userStore"
 import { getPusherClient } from "@/libs/pusher"
 import { MessageBox } from "@/components/SupportButton/components/MessageBox"
 import { useUnseenMessages } from "@/[locale]/(support)/store/useUnseenMessages"
 import { useScopedI18n } from "@/locales/client"
+import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 
 function isSameDay(left: string, right: string) {
   const leftDate = new Date(left)
@@ -53,11 +53,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
 
   useEffect(() => {
     if (document.visibilityState === "visible" && user?.id) {
-      void fetch("/api/message/seen", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticketId: ticket_id, messages: messages, userId: user.id } as TAPIMessageSeen),
-      })
+      void supportSDK.markMessagesAsSeen({ ticketId: ticket_id, messages, userId: user.id })
     }
   }, [messages, ticket_id, user?.id])
 

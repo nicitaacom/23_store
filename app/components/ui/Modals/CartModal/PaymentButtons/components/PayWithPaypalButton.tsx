@@ -1,8 +1,8 @@
 "use client"
 
-import { TPayPalProductsQuery } from "@/api/create-paypal-session/route"
 import { Button } from "@/components/ui"
 import { useScopedI18n } from "@/locales/client"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
@@ -10,7 +10,6 @@ import useUserStore from "@/store/user/userStore"
 import { useRouter } from "next/navigation"
 import { FaPaypal } from "react-icons/fa"
 import { twMerge } from "tailwind-merge"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export function PayWithPaypalButton() {
   const t = useScopedI18n("payment")
@@ -43,21 +42,13 @@ export function PayWithPaypalButton() {
           10000,
         )
       } else {
-        const payPalResponse = await fetch("/api/create-paypal-session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        // redirect user to session.url on client side to avoid 'blocked by CORS' error
+        router.push(
+          await productsSDK.createPayPalSession({
             payPalProductsQuery,
             email: user?.email || null,
-          } as TPayPalProductsQuery),
-        })
-
-        if (!payPalResponse.ok) {
-          throw new Error(await getResponseErrorMessage(payPalResponse))
-        }
-
-        // redirect user to session.url on client side to avoid 'blocked by CORS' error
-        router.push(await payPalResponse.text())
+          }),
+        )
       }
     } catch (error) {
       toast.show("error", t("error.creating_provider_session", { provider: "paypal" }), error instanceof Error ? error.message : String(error))

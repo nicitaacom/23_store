@@ -3,9 +3,8 @@
 import { FormEvent, useState } from "react"
 import { FiSend } from "react-icons/fi"
 import useUserStore from "@/store/user/userStore"
-import { TAPIMessageSend } from "@/api/message/send/route"
 import { getUserAvatarUrl, getUserName } from "@/utils/user"
-import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 
 export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   const { user } = useUserStore()
@@ -18,23 +17,15 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
     if (!trimmedMessage) return
 
     setMessage("")
-    const response = await fetch("/api/message/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messageBody: trimmedMessage,
-        ticketId: ticket_id,
-        senderId: user?.id,
-        senderUsername: getUserName(user),
-        senderAvatarUrl: getUserAvatarUrl(user),
-        images: undefined,
-        messageSender: "support",
-      } as TAPIMessageSend),
+    await supportSDK.sendMessage({
+      messageBody: trimmedMessage,
+      ticketId: ticket_id,
+      senderId: user?.id || "",
+      senderUsername: getUserName(user),
+      senderAvatarUrl: getUserAvatarUrl(user),
+      images: undefined,
+      messageSender: "support",
     })
-
-    if (!response.ok) {
-      throw new Error(await getResponseErrorMessage(response))
-    }
   }
 
   return (

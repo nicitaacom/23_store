@@ -1,19 +1,49 @@
-export class AccountSDK {
+import { BaseSDK } from "@/sdk/BaseSDK"
+
+export class AccountSDK extends BaseSDK {
   async updateAvatarUrl(avatarUrl: string): Promise<API.UpdateAvatarResponse> {
-    const response = await fetch("/api/account/avatar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    return this.postJson<API.UpdateAvatarRequest, API.UpdateAvatarResponse>(
+      "/api/account/avatar",
+      {
         avatarUrl,
-      } satisfies API.UpdateAvatarRequest),
-    })
+      } satisfies API.UpdateAvatarRequest,
+    )
+  }
 
-    const data = (await response.json()) as API.UpdateAvatarResponse & { error?: string }
+  async signInWithEmail(email: string) {
+    return this.postJson<API.AccountSignInRequest, API.AccountSignInResponse>(
+      "/api/auth/login",
+      { email } satisfies API.AccountSignInRequest,
+    )
+  }
 
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to update avatar")
-    }
+  async signUp(request: API.AccountSignUpRequest) {
+    return this.postJson<API.AccountSignUpRequest, API.AccountSignUpResponse>(
+      "/api/auth/register",
+      request satisfies API.AccountSignUpRequest,
+    )
+  }
 
-    return data
+  async recoverPassword(email: string) {
+    return this.postJson<API.AccountRecoverRequest, API.AccountRecoverResponse>(
+      "/api/auth/recover",
+      { email } satisfies API.AccountRecoverRequest,
+    )
+  }
+
+  async resetPassword(request: API.AccountResetRequest) {
+    return this.postJson<API.AccountResetRequest, API.AccountResetResponse>(
+      "/api/auth/reset",
+      request satisfies API.AccountResetRequest,
+    )
+  }
+
+  async verifyTurnstile(token: string) {
+    return this.postJson<API.AccountVerifyTurnstileRequest, API.AccountVerifyTurnstileResponse>(
+      "/api/turnstile/verify",
+      { token } satisfies API.AccountVerifyTurnstileRequest,
+    )
   }
 }
+
+export const accountSDK = new AccountSDK()
