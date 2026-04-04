@@ -25,7 +25,7 @@ export function LanguageDropdown({ className }: { className?: string }) {
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownContainerRef = useRef<HTMLDivElement>(null)
 
-  const changeLocale = useChangeLocale()
+  const changeLocale = useChangeLocale({ preserveSearchParams: true })
   const locale = useCurrentLocale()
   const currentLocale = locales.find(l => l.code === locale)
 
