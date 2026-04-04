@@ -11,25 +11,34 @@ import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TUpdateProductRequest } from "@/api/products/update/route"
 import { useLoading } from "@/store/ui/useLoading"
-import { useScopedI18n } from "@/locales/client"
+import { ProductTranslations } from "@/ts/product/TProductDB"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 
 interface FormatTitleFormProps {
   id: string
-  title: string
+  translations: ProductTranslations
 }
 
-export function FormatTitleForm({ id, title }: FormatTitleFormProps) {
+export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const t = useScopedI18n("product")
+  const locale = useCurrentLocale()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
+  const currentTranslation = translations[locale] ?? translations.fi
 
   async function updateTitle(title: string) {
     setIsLoading(true)
     await axios.post("/api/products/update", {
       productId: id,
-      title: title,
+      translations: {
+        ...translations,
+        [locale]: {
+          ...currentTranslation,
+          title,
+        },
+      },
     } as TUpdateProductRequest)
     router.refresh()
     setIsEditing(false)
@@ -85,7 +94,7 @@ export function FormatTitleForm({ id, title }: FormatTitleFormProps) {
               id="title"
               register={register}
               errors={errors}
-              placeholder={title}
+              placeholder={currentTranslation.title}
               required
             />
           </div>
@@ -95,7 +104,7 @@ export function FormatTitleForm({ id, title }: FormatTitleFormProps) {
           className="flex min-w-0 items-center gap-x-2 rounded-xl border border-transparent px-0 py-1 text-left transition-colors duration-200 hover:text-title"
           type="button"
           onClick={enableInput}>
-          <span className="truncate text-base font-semibold text-title">{title}</span>
+          <span className="truncate text-base font-semibold text-title">{currentTranslation.title}</span>
           <CiEdit className="shrink-0 text-subTitle" />
         </button>
       )}

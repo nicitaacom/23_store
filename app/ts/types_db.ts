@@ -48,34 +48,31 @@ export type Database = {
         Row: {
           id: string
           img_url: string[]
-          on_stock: number | null
+          on_stock: number
           owner_id: string
           price: number
           price_id: string
-          sub_title: string
-          title: string
+          translations: Json
           variants: Json | null
         }
         Insert: {
           id: string
           img_url: string[]
-          on_stock?: number | null
+          on_stock: number
           owner_id: string
           price: number
           price_id: string
-          sub_title: string
-          title: string
+          translations: Json
           variants?: Json | null
         }
         Update: {
           id?: string
           img_url?: string[]
-          on_stock?: number | null
+          on_stock?: number
           owner_id?: string
           price?: number
           price_id?: string
-          sub_title?: string
-          title?: string
+          translations?: Json
           variants?: Json | null
         }
         Relationships: []

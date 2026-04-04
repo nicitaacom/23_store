@@ -275,6 +275,7 @@ export default {
   "product.this_field_is_required": "This field is required",
   "product.title_required": "Enter a product title - a-z - numbers, and #()_ are optional",
   "product.title_invalid_character": 'Character "{character}" is not allowed near "{context}"',
+  "product.description_invalid_character": 'Character "{character}" is not allowed near "{context}"',
   "product.subtitle_required": "No !$^*_=\\ allowed",
   "product.price_required": "Enter price from 0.01 to 999,999 with 2 decimal places",
   "product.on_stock_required": "Enter stock as a positive number with optional decimals",
@@ -313,6 +314,8 @@ export default {
   "product.warning.max_variants_subtitle": "Please use no more than {maxVariants} variants for one product",
   "product.warning.use_higer_resolution_title": "Use higher resolution",
   "product.warning.use_higer_resolution_subtitle": "Minimum required resolution is {minResolution}px.",
+  "product.warning.use_higer_resolution_subtitle_with_uploaded":
+    "You uploaded {uploadedResolution}px but minimum required resolution is {minResolution}px.",
   "product.add": "Add product",
   "product.edit": "Edit product",
   "product.delete": "Delete product",
@@ -329,10 +332,11 @@ export default {
   "product.error.image_upload_errors": "Image upload errors",
   "product.error.db_insert_failed": "Database insert failed",
   "product.error.no_data_returned_from_uploaded_image": "No data returned from uploaded image",
-  "product.title_too_short": "Title is too short - minimum 3 characters",
-  "product.title_too_long": "Title is too long - maximum {max} characters (current: {current})",
-  "product.title_must_contain_letter": "Title must contain at least one letter",
-  "product.title_must_start_alphanumeric": "Title must start with a letter or number",
+  "product.title_too_short": "Title is too short - minimum 2 characters",
+  "product.title_printable_only": "Title can contain printable characters only",
+  "product.description_too_short": "Description is too short - minimum 10 characters",
+  "product.description_too_long": "Description is too long - maximum {max} characters",
+  "product.description_printable_only": "Description can contain printable characters and new lines only",
 
   // =================        =================
   //                   message

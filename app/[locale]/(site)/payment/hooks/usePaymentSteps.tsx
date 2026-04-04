@@ -13,7 +13,7 @@ import { fetchProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
 import { useLoading } from "@/store/ui/useLoading"
 import { logFn } from "@/utils/logFn"
 import { useFetchProductsData } from "./useFetchProductsData"
-import { useI18n } from "@/locales/client"
+import { useCurrentLocale, useI18n } from "@/locales/client"
 
 export const usePaymentSteps = (status: string | null, session_id: string | null) => {
   const router = useRouter()
@@ -26,6 +26,7 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
   const [customerEmail, setCustomerEmail] = useState<string | null>(null)
   const deliveryDate = formatDeliveryDate()
   const t = useI18n()
+  const locale = useCurrentLocale()
 
   const emailData = {
     from: process.env.NEXT_PUBLIC_SUPPORT_EMAIL,
@@ -57,7 +58,7 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
         fetchProductsDataFromDBFn(hasCartStoreInitialized, currentStep, setCurrentStep, cartStore.fetchProductsData, t)
         break
       case 4:
-        renderEmailFn(cartStore.productsData, deliveryDate, setHtml, setCurrentStep, t)
+        renderEmailFn(cartStore.productsData, locale, deliveryDate, setHtml, setCurrentStep, t)
         break
       case 5:
         verifySessionIdFn(setIsValidSessionId, session_id, setCurrentStep, t)

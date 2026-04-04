@@ -14,6 +14,7 @@ import { DeleteProductForm } from "./components/DeleteProductForm"
 import { AdminPanelHeader } from "./components/AdminPanelHeader"
 import { useLoading } from "@/store/ui/useLoading"
 import { useI18n } from "@/locales/client"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 
 export interface AdminPanelModalProps {
   ownerProducts: TProductDB[]
@@ -30,11 +31,17 @@ type ProductAction = (typeof PRODUCT_ACTIONS)[keyof typeof PRODUCT_ACTIONS]
 export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
   const t = useI18n()
   const router = useRouter()
+  const hydratedOwnerProducts = useOwnerProductsStore(state => state.products)
+  const hydrateOwnerProducts = useOwnerProductsStore(state => state.hydrate)
 
   const [productAction, setProductAction] = useState<ProductAction>(PRODUCT_ACTIONS.add)
   const { isLoading } = useLoading()
 
   const { user } = useUserStore()
+  useEffect(() => {
+    hydrateOwnerProducts(ownerProducts)
+  }, [hydrateOwnerProducts, ownerProducts])
+
   useEffect(() => {
     if (!user) {
       router.push("/?modal=AuthModal&variant=login")
@@ -72,12 +79,12 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
             )}
             {productAction === PRODUCT_ACTIONS.edit && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
-                <EditProductForm ownerProducts={ownerProducts} />
+                <EditProductForm ownerProducts={hydratedOwnerProducts} />
               </div>
             )}
             {productAction === PRODUCT_ACTIONS.delete && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
-                <DeleteProductForm ownerProducts={ownerProducts} />
+                <DeleteProductForm ownerProducts={hydratedOwnerProducts} />
               </div>
             )}
           </div>

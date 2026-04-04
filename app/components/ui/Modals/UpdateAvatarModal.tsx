@@ -142,7 +142,9 @@ export function UpdateAvatarModal() {
             onChange={handleImageChange}
             maxNumber={1}
             dataURLKey="data_url"
-            onError={errors => showToastWarningFn(t, errors, { maxNumber: 1 })}>
+            onError={(errors, files) => {
+              void showToastWarningFn(t, errors, { maxNumber: 1 }, files)
+            }}>
             {({ imageList, onImageUpload, onImageUpdate, onImageRemove, isDragging, dragProps }) => (
               <div className="flex w-full flex-col items-center justify-center gap-y-3">
                 {!imageList.length ? (

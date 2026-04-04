@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   const body = await req.json()
 
   const title = String(body.title ?? "").trim()
-  const subTitle = String(body.subTitle ?? "")
+  const description = String(body.description ?? "")
   const price = Number(body.price)
 
   try {
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
     const productResponse = await stripe.products.create({
       name: title,
-      description: subTitle,
+      description,
       active: true,
     })
 

@@ -275,6 +275,7 @@ export default {
   "product.this_field_is_required": "Это поле обязательно",
   "product.title_required": "Введите название продукта — a–z, цифры; #()_ допустимы",
   "product.title_invalid_character": 'Недопустимый символ "{character}" рядом с "{context}"',
+  "product.description_invalid_character": 'Недопустимый символ "{character}" рядом с "{context}"',
   "product.subtitle_required": "Недопустимы символы !$^*_=\\",
   "product.price_required": "Введите цену от 0,01 до 999 999 с двумя знаками после запятой",
   "product.on_stock_required": "Укажите остаток как положительное число, при необходимости с десятичной частью",
@@ -313,6 +314,8 @@ export default {
   "product.warning.max_variants_subtitle": "Пожалуйста, используйте не более {maxVariants} вариантов для одного товара",
   "product.warning.use_higer_resolution_title": "Используйте более высокое разрешение",
   "product.warning.use_higer_resolution_subtitle": "Минимально допустимое разрешение: {minResolution}px.",
+  "product.warning.use_higer_resolution_subtitle_with_uploaded":
+    "Вы загрузили изображение {uploadedResolution}px, но минимально допустимое разрешение: {minResolution}px.",
   "product.add": "Добавить продукт",
   "product.edit": "Редактировать продукт",
   "product.delete": "Удалить продукт",
@@ -329,10 +332,11 @@ export default {
   "product.error.image_upload_errors": "Ошибки загрузки изображения",
   "product.error.db_insert_failed": "Ошибка вставки в базу данных",
   "product.error.no_data_returned_from_uploaded_image": "Загруженное изображение не вернуло данных",
-  "product.title_too_short": "Заголовок слишком короткий - минимум 3 символа",
-  "product.title_too_long": "Заголовок слишком длинный - максимум {max} символов (сейчас: {current})",
-  "product.title_must_contain_letter": "Заголовок должен содержать хотя бы одну букву",
-  "product.title_must_start_alphanumeric": "Заголовок должен начинаться с буквы или цифры",
+  "product.title_too_short": "Заголовок слишком короткий - минимум 2 символа",
+  "product.title_printable_only": "Заголовок может содержать только печатаемые символы",
+  "product.description_too_short": "Описание слишком короткое - минимум 10 символов",
+  "product.description_too_long": "Описание слишком длинное - максимум {max} символов",
+  "product.description_printable_only": "Описание может содержать только печатаемые символы и переводы строк",
 
   // =================        =================
   //                   message

@@ -1,6 +1,7 @@
 import useToast from "@/store/ui/useToast"
-import { ErrorsType } from "react-images-uploading"
+import { ErrorsType, ImageListType } from "react-images-uploading"
 import { formatUploadFileSize, formatUploadResolution, MAX_IMAGE_FILE_SIZE_BYTES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
+import { getInvalidUploadedImageResolution } from "@/utils/getUploadedImageResolution"
 
 interface ShowToastWarningOptions {
   maxNumber?: number
@@ -11,7 +12,7 @@ interface ShowToastWarningOptions {
   }
 }
 
-export function showToastWarningFn(errors: ErrorsType, options: ShowToastWarningOptions = {}) {
+export async function showToastWarningFn(errors: ErrorsType, options: ShowToastWarningOptions = {}, files?: ImageListType) {
   const toast = useToast.getState()
 
   const maxImages = options.maxNumber ?? 5
@@ -25,6 +26,15 @@ export function showToastWarningFn(errors: ErrorsType, options: ShowToastWarning
   } else if (errors?.maxNumber) {
     return toast.show("warning", `Max ${maxImages} images`, `Please use max ${maxImages} images`)
   } else if (errors?.resolution) {
-    return toast.show("warning", "Use higher resolution", `Minimum required resolution is ${minResolution}px.`)
+    const uploadedResolutionData = await getInvalidUploadedImageResolution(files, options.minResolution ?? MIN_IMAGE_RESOLUTION)
+    const uploadedResolution = uploadedResolutionData ? formatUploadResolution(uploadedResolutionData) : null
+
+    return toast.show(
+      "warning",
+      "Use higher resolution",
+      uploadedResolution
+        ? `You uploaded ${uploadedResolution}px but minimum required resolution is ${minResolution}px.`
+        : `Minimum required resolution is ${minResolution}px.`,
+    )
   }
 }

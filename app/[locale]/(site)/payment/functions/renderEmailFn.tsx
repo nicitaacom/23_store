@@ -9,6 +9,7 @@ import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 
 export async function renderEmailFn(
   productsData: TProductAfterDB[],
+  locale: string,
   deliveryDate: string,
   setHtml: Dispatch<SetStateAction<string>>,
   setCurrentStep: Dispatch<SetStateAction<number>>,
@@ -21,6 +22,7 @@ export async function renderEmailFn(
       const emailMessageString = await renderAsync(
         <CheckEmail
           products={productsData}
+          locale={locale}
           deliveryDate={deliveryDate}
           previewText={t("payment.email.thank_you_for_your_purchase")}
           orderConfirmed={t("payment.email.order_confirmed")}

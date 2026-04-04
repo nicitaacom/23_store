@@ -1,7 +1,8 @@
 "use client"
 
-import { FormEvent, useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
+import { FormEvent, useEffect, useRef, useState, useTransition } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { BiLoaderAlt, BiSearchAlt } from "react-icons/bi"
 
 import { useDebounce } from "@/hooks/useDebounce"
 
@@ -36,8 +37,10 @@ export function CatalogSearchForm({
   submitLabel,
 }: CatalogSearchFormProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const normalizedInitialQuery = initialQuery.trim()
   const [query, setQuery] = useState(normalizedInitialQuery)
+  const [isPending, startTransition] = useTransition()
   const debouncedQuery = useDebounce(query.trim(), 3000)
   const lastNavigatedQueryRef = useRef(normalizedInitialQuery)
 
@@ -49,12 +52,22 @@ export function CatalogSearchForm({
   }, [initialQuery])
 
   useEffect(() => {
+    const currentQuery = searchParams?.get("query")?.trim() ?? ""
+
+    if (currentQuery === lastNavigatedQueryRef.current) {
+      setQuery(currentQuery)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
     const nextQuery = debouncedQuery.trim()
 
     if (nextQuery === lastNavigatedQueryRef.current) return
 
     lastNavigatedQueryRef.current = nextQuery
-    router.replace(createCatalogSearchHref(locale, perPage, nextQuery), { scroll: false })
+    startTransition(() => {
+      router.replace(createCatalogSearchHref(locale, perPage, nextQuery), { scroll: false })
+    })
   }, [debouncedQuery, locale, perPage, router])
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -65,16 +78,28 @@ export function CatalogSearchForm({
     if (nextQuery === lastNavigatedQueryRef.current) return
 
     lastNavigatedQueryRef.current = nextQuery
-    router.replace(createCatalogSearchHref(locale, perPage, nextQuery), { scroll: false })
+    startTransition(() => {
+      router.replace(createCatalogSearchHref(locale, perPage, nextQuery), { scroll: false })
+    })
   }
 
   return (
     <form
-      className="flex w-full items-center justify-between gap-2 rounded-[2px] border border-success/15 bg-gradient-to-r from-background via-background/95 to-success/5 p-1 shadow-[0_18px_45px_rgba(34,197,94,0.08)] backdrop-blur-sm"
+      className={`relative flex w-full items-center justify-between gap-2 overflow-hidden rounded-[2px] border p-1 shadow-[0_18px_45px_rgba(34,197,94,0.08)] backdrop-blur-sm transition-all duration-300 ${
+        isPending
+          ? "border-success/40 bg-gradient-to-r from-background via-success/10 to-background shadow-[0_20px_60px_rgba(34,197,94,0.18)]"
+          : "border-success/15 bg-gradient-to-r from-background via-background/95 to-success/5"
+      }`}
       onSubmit={handleSubmit}>
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-transparent via-success/20 to-transparent transition-opacity duration-300 ${
+          isPending ? "animate-[searchSweep_1.2s_linear_infinite] opacity-100" : "opacity-0"
+        }`}
+      />
       <input
         aria-label={ariaLabel}
-        className="h-10 w-full rounded-[2px] bg-transparent px-3 text-base text-title outline-none placeholder:text-subTitle"
+        className="relative h-10 w-full rounded-[2px] bg-transparent px-3 text-base text-title outline-none placeholder:text-subTitle"
         name="query"
         onChange={event => setQuery(event.currentTarget.value)}
         placeholder={placeholder}
@@ -82,10 +107,20 @@ export function CatalogSearchForm({
         value={query}
       />
       <button
-        className="inline-flex h-10 shrink-0 items-center justify-center rounded-[2px] border border-success/30 bg-success/10 px-4 text-sm font-semibold text-success transition-all duration-300 hover:border-success hover:bg-success hover:text-black"
+        aria-busy={isPending}
+        className={`relative inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-[2px] border px-4 text-sm font-semibold transition-all duration-300 ${
+          isPending
+            ? "border-success bg-success text-black"
+            : "border-success/30 bg-success/10 text-success hover:border-success hover:bg-success hover:text-black"
+        }`}
+        disabled={isPending}
         type="submit">
-        {submitLabel}
+        {isPending ? <BiLoaderAlt className="animate-spin text-base" /> : <BiSearchAlt className="text-base" />}
+        <span>{isPending ? "Searching..." : submitLabel}</span>
       </button>
+      <span aria-live="polite" className="sr-only">
+        {isPending ? "Searching products" : ""}
+      </span>
     </form>
   )
 }

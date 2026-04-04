@@ -238,13 +238,13 @@ CREATE POLICY "SUPPORT/ADMIN select" ON messages FOR SELECT USING (
 -- 🛒 Products Table
 CREATE TABLE IF NOT EXISTS public.products (
   price_id VARCHAR NOT NULL,
-  title VARCHAR NOT NULL,
-  sub_title VARCHAR NOT NULL,
+  id VARCHAR NOT NULL,
+  translations JSONB NOT NULL DEFAULT '{}'::jsonb,
   price NUMERIC NOT NULL,
   img_url VARCHAR[] NOT NULL,
   on_stock INTEGER NOT NULL,
   owner_id UUID NOT NULL REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  id VARCHAR NOT NULL,
+  variants jsonb null,
   PRIMARY KEY (price_id, owner_id, id)
 );
 

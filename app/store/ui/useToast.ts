@@ -19,15 +19,22 @@ export interface IToast {
   variant: ToastVariant
   title?: string
   subTitle?: React.ReactNode
-  show: (status: ToastVariant, title?: string, subTitle?: React.ReactNode, timeoutInMs?: number) => void
+  show: (status: ToastVariant, title?: string, subTitle?: React.ReactNode, timeoutInMs?: number | null) => void
   close: () => void
 }
+
+let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 export const useToast = create<IToast>(set => ({
   isOpen: false,
   variant: "success",
 
   show: (status, title, subTitle, timeoutInMs = 8000) => {
+    if (toastTimer) {
+      clearTimeout(toastTimer)
+      toastTimer = null
+    }
+
     set({
       isOpen: true,
       variant: status,
@@ -35,12 +42,21 @@ export const useToast = create<IToast>(set => ({
       subTitle,
     })
 
-    const timer = setTimeout(() => set({ isOpen: false }), timeoutInMs)
-
-    // Cleanup timer on unmount
-    return () => clearTimeout(timer)
+    if (typeof timeoutInMs === "number" && timeoutInMs > 0) {
+      toastTimer = setTimeout(() => {
+        toastTimer = null
+        set({ isOpen: false })
+      }, timeoutInMs)
+    }
   },
 
-  close: () => set({ isOpen: false }),
+  close: () => {
+    if (toastTimer) {
+      clearTimeout(toastTimer)
+      toastTimer = null
+    }
+
+    set({ isOpen: false })
+  },
 }))
 export default useToast

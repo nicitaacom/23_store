@@ -1,43 +1,14 @@
 import React from "react"
 
-const AreYouSureClearCartModal = async () => {
-  const modal = import("@/components/ui/Modals/AreYouSureClearCartModal")
-  const { AreYouSureClearCartModal } = await modal
-  return <AreYouSureClearCartModal />
-}
-const AreYouSureDeleteProductModal = async () => {
-  const modal = import("@/components/ui/Modals/AreYouSureDeleteProductModal")
-  const { AreYouSureDeleteProductModal } = await modal
-  return <AreYouSureDeleteProductModal />
-}
-const AreYouSureMarkTicketAsCompletedSupportModal = async () => {
-  const modal = import("@/components/ui/Modals/AreYouSureMarkTicketAsCompletedSupportModal")
-  const { AreYouSureMarkTicketAsCompletedSupportModal } = await modal
-  return <AreYouSureMarkTicketAsCompletedSupportModal />
-}
-
-const CtrlKModal = async () => {
-  const modal = import("@/components/ui/Modals/CtrlKModal")
-  const { CtrlKModal } = await modal
-  return <CtrlKModal />
-}
-const UpdateAvatarModal = async () => {
-  const modal = import("@/components/ui/Modals/UpdateAvatarModal")
-  const { UpdateAvatarModal } = await modal
-  return <UpdateAvatarModal />
-}
-
-const DoYouWantRecieveCheckModal = async () => {
-  const modal = import("@/components/ui/Modals/DoYouWantReceiveCheckModal")
-  const { DoYouWantReceiveCheckModal: DoYouWantRecieveCheckModal } = await modal
-  return <DoYouWantRecieveCheckModal />
-}
-
-const GlobalImagePreviewPortal = async () => {
-  const modal = import("@/components/GlobalImagePreviewPortal")
-  const { GlobalImagePreviewPortal } = await modal
-  return <GlobalImagePreviewPortal />
-}
+import { GlobalImagePreviewPortal } from "@/components/GlobalImagePreviewPortal"
+import {
+  AreYouSureClearCartModal,
+  AreYouSureDeleteProductModal,
+  AreYouSureMarkTicketAsCompletedSupportModal,
+  CtrlKModal,
+  DoYouWantReceiveCheckModal,
+  UpdateAvatarModal,
+} from "@/components/ui/Modals"
 
 export function ModalsProvider() {
   return (
@@ -47,7 +18,7 @@ export function ModalsProvider() {
       <AreYouSureMarkTicketAsCompletedSupportModal />
       <CtrlKModal />
       <UpdateAvatarModal />
-      <DoYouWantRecieveCheckModal />
+      <DoYouWantReceiveCheckModal />
 
       {/* Global images preview */}
       <GlobalImagePreviewPortal />

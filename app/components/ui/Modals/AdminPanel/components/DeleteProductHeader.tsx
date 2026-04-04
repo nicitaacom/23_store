@@ -10,12 +10,11 @@ import { useScopedI18n } from "@/locales/client"
 interface DeleteProductHeaderProps {
   id: string
   title: string
-  subTitle: string
-  // onStock: number
+  description: string
   price: number
 }
 
-export function DeleteProductHeader({ id, title, subTitle, price }: DeleteProductHeaderProps) {
+export function DeleteProductHeader({ id, title, description, price }: DeleteProductHeaderProps) {
   const t = useScopedI18n("product")
   const areYouSureDeleteProductModal = useAreYouSureDeleteProductModal()
 
@@ -34,7 +33,7 @@ export function DeleteProductHeader({ id, title, subTitle, price }: DeleteProduc
         </div>
         <div className="flex flex-col gap-y-1">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("description")}</p>
-          <h2 className="text-sm leading-6 text-subTitle">{subTitle}</h2>
+          <h2 className="text-sm leading-6 text-subTitle">{description}</h2>
         </div>
       </section>
       <section className="mt-4 flex justify-end border-t border-border-color/50 pt-4">

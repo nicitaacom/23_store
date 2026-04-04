@@ -4,6 +4,7 @@ import Link from "next/link"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
+import { pt, toProductLocale } from "@/utils/product"
 
 interface PopularProductsPreviewListProps {
   products: TProductDB[]
@@ -26,6 +27,8 @@ export function PopularProductsPreviewList({
   hotProductIds = [],
   showPreviewLink = true,
 }: PopularProductsPreviewListProps) {
+  const productLocale = toProductLocale(locale)
+
   return (
     <section className="w-full flex flex-col gap-[2px]">
       {showHeader && (
@@ -40,6 +43,7 @@ export function PopularProductsPreviewList({
 
       <div className={`grid grid-cols-1 gap-[2px] ${compact ? "2xl:grid-cols-2" : "laptop:grid-cols-2"}`}>
         {products.map(product => {
+          const translation = pt(product, productLocale)
           const imageUrl = product.img_url?.[0] || "/placeholder.jpg"
           const isInStock = (product.on_stock || 0) > 0
           const isHotProduct = hotProductIds.includes(product.id)
@@ -52,7 +56,7 @@ export function PopularProductsPreviewList({
                 <div className={`relative w-full overflow-hidden ${compact ? "h-44 mobile:h-auto mobile:w-40" : "h-56 mobile:h-auto mobile:w-56"}`}>
                   <Image
                     src={imageUrl}
-                    alt={product.title}
+                    alt={translation.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes={compact ? "(max-width: 768px) 100vw, 160px" : "(max-width: 768px) 100vw, 224px"}
@@ -75,8 +79,8 @@ export function PopularProductsPreviewList({
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <h3 className={`${compact ? "text-xl" : "text-2xl"} font-semibold text-title`}>{product.title}</h3>
-                    <p className={`text-sm leading-6 text-subTitle ${compact ? "line-clamp-2" : "line-clamp-3"}`}>{product.sub_title}</p>
+                    <h3 className={`${compact ? "text-xl" : "text-2xl"} font-semibold text-title`}>{translation.title}</h3>
+                    <p className={`text-sm leading-6 text-subTitle ${compact ? "line-clamp-2" : "line-clamp-3"}`}>{translation.description}</p>
                   </div>
 
                   <div className="mt-auto flex items-center justify-between gap-3">

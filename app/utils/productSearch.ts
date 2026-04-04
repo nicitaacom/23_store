@@ -1,6 +1,7 @@
+import { ProductTranslations } from "@/ts/product/TProductDB"
+
 type SearchableProduct = {
-  title: string
-  sub_title: string
+  translations: ProductTranslations
 }
 
 function normalizeSearchText(value: string) {
@@ -23,7 +24,10 @@ export function productMatchesSearchQuery(product: SearchableProduct, query: str
   const queryTokens = tokenizeSearchText(query)
   if (queryTokens.length === 0) return true
 
-  const productTokens = tokenizeSearchText(`${product.title} ${product.sub_title}`)
+  const searchableText = Object.values(product.translations)
+    .map(translation => `${translation.title} ${translation.description}`)
+    .join(" ")
+  const productTokens = tokenizeSearchText(searchableText)
   if (productTokens.length === 0) return false
 
   return queryTokens.every(queryToken => productTokens.some(productToken => productToken.startsWith(queryToken)))

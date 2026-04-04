@@ -54,10 +54,13 @@ export function ProductInput({
   ...props
 }: InputFormProps) {
   const t = useScopedI18n("product")
-  const MAX_TITLE_LENGTH = 158
-  const TITLE_INVALID_CHARACTER_REGEX = /[^A-Za-z0-9#$()_+ /,.'-]/
-  const TITLE_HAS_LETTER_REGEX = /[A-Za-z]/
-  const TITLE_MUST_START_REGEX = /^[A-Za-z0-9]/
+  const MAX_DESCRIPTION_LENGTH = 7200
+  const DESCRIPTION_INVALID_CHARACTER_REGEX = /[!$^*_=\\]/
+
+  const containsOnlyPrintableText = (value: string, allowNewlines = false) => {
+    const normalizedValue = allowNewlines ? value.replace(/\r?\n/g, "") : value
+    return !/[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Cn}]/u.test(normalizedValue)
+  }
 
   const getInvalidCharacterContext = (value: string, invalidCharacterIndex: number) => {
     const wordsBeforeInvalidCharacter = value
@@ -66,9 +69,13 @@ export function ProductInput({
       .split(/\s+/)
       .filter(Boolean)
       .slice(-2)
-      .join(" ")
 
-    if (wordsBeforeInvalidCharacter) return wordsBeforeInvalidCharacter
+    const invalidCharacter = value[invalidCharacterIndex] || ""
+    const contextParts = [...wordsBeforeInvalidCharacter, invalidCharacter].filter(Boolean)
+
+    if (contextParts.length > 0) {
+      return contextParts.join(" ")
+    }
 
     const wordsAfterInvalidCharacter = value
       .slice(invalidCharacterIndex + 1)
@@ -76,11 +83,12 @@ export function ProductInput({
       .split(/\s+/)
       .filter(Boolean)
       .slice(0, 2)
-      .join(" ")
 
-    if (wordsAfterInvalidCharacter) return wordsAfterInvalidCharacter
+    if (wordsAfterInvalidCharacter.length > 0) {
+      return [invalidCharacter, ...wordsAfterInvalidCharacter].join(" ")
+    }
 
-    return value.slice(Math.max(0, invalidCharacterIndex - 6), Math.min(value.length, invalidCharacterIndex + 7)).trim()
+    return invalidCharacter
   }
 
   const getReadableCharacter = (character: string) => {
@@ -89,17 +97,14 @@ export function ProductInput({
     return character
   }
 
-  const getInvalidCharacterMessage = (value: string) => {
-    const invalidCharacterMatch = value.match(TITLE_INVALID_CHARACTER_REGEX)
+  const getInvalidCharacterMessage = (value: string, invalidCharacterRegex: RegExp, key: "title_invalid_character" | "description_invalid_character") => {
+    const invalidCharacterMatch = value.match(invalidCharacterRegex)
     if (!invalidCharacterMatch || invalidCharacterMatch.index === undefined) return null
 
     const invalidCharacter = getReadableCharacter(invalidCharacterMatch[0])
     const context = getInvalidCharacterContext(value, invalidCharacterMatch.index)
 
-    return t("title_invalid_character", {
-      character: invalidCharacter,
-      context,
-    })
+    return t(key, { character: invalidCharacter, context })
   }
 
   const validationRules: ValidationRules = {
@@ -108,10 +113,6 @@ export function ProductInput({
     },
     subTitle: {
       requiredMessage: t("this_field_is_required"),
-      pattern: {
-        value: /^[-:.,()#@&%\/"'`~\[\]><=+!?*_;a-zA-Z0-9\n ]{1,10000}$/,
-        message: t("subtitle_required"),
-      },
     },
     price: {
       requiredMessage: t("this_field_is_required"),
@@ -145,17 +146,30 @@ export function ProductInput({
     validate:
       id === "title"
         ? (value: string | number) => {
-            const str = String(value ?? "")
-            if (!str) return true
-            const invalidCharMsg = getInvalidCharacterMessage(str)
-            if (invalidCharMsg) return invalidCharMsg
-            if (str.length < 3) return t("title_too_short")
-            if (str.length > MAX_TITLE_LENGTH) return t("title_too_long", { current: str.length, max: MAX_TITLE_LENGTH })
-            if (!TITLE_HAS_LETTER_REGEX.test(str)) return t("title_must_contain_letter")
-            if (!TITLE_MUST_START_REGEX.test(str)) return t("title_must_start_alphanumeric")
+            const str = String(value ?? "").trim()
+            if (!str) return t("this_field_is_required")
+            if (str.length < 2) return t("title_too_short")
+            if (!containsOnlyPrintableText(str)) return t("title_printable_only")
+            const invalidCharacterMessage = getInvalidCharacterMessage(str, /[^\p{L}\p{N}\p{P}\p{Zs}]/u, "title_invalid_character")
+            if (invalidCharacterMessage) return invalidCharacterMessage
             return true
           }
-        : undefined,
+        : id === "subTitle"
+          ? (value: string | number) => {
+              const str = String(value ?? "")
+              if (!str.trim()) return t("this_field_is_required")
+              if (str.trim().length < 10) return t("description_too_short")
+              if (str.length > MAX_DESCRIPTION_LENGTH) return t("description_too_long", { max: MAX_DESCRIPTION_LENGTH })
+              if (!containsOnlyPrintableText(str, true)) return t("description_printable_only")
+              const invalidCharacterMessage = getInvalidCharacterMessage(
+                str,
+                DESCRIPTION_INVALID_CHARACTER_REGEX,
+                "description_invalid_character",
+              )
+              if (invalidCharacterMessage) return invalidCharacterMessage
+              return true
+          }
+          : undefined,
   }
 
   const { ref, ...rest } = {
@@ -167,6 +181,14 @@ export function ProductInput({
 
   const inputRef = useRef<HTMLInputElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const currentFieldValue = id === "subTitle" ? textareaRef.current?.value || "" : inputRef.current?.value || ""
+  const fallbackErrorMessage =
+    id === "subTitle"
+      ? getInvalidCharacterMessage(currentFieldValue, DESCRIPTION_INVALID_CHARACTER_REGEX, "description_invalid_character")
+      : id === "title"
+        ? getInvalidCharacterMessage(currentFieldValue, /[^\p{L}\p{N}\p{P}\p{Zs}]/u, "title_invalid_character")
+        : null
+  const errorMessage = fallbackErrorMessage || (errors[id]?.message as React.ReactNode)
 
   return (
     <div className={`relative`}>
@@ -250,9 +272,9 @@ export function ProductInput({
         />
       )}
       <div className="absolute top-[50%] right-2 translate-y-[-50%] translate-x-[50%]">{endIcon}</div>
-      {errors[id] && errors[id]?.message && (
+      {errors[id] && errorMessage && (
         <motion.p className="font-secondary text-danger text-xs" initial={{ x: 0 }} animate={{ x: [0, -2, 2, 0] }}>
-          {errors[id]?.message as React.ReactNode}
+          {errorMessage}
         </motion.p>
       )}
     </div>

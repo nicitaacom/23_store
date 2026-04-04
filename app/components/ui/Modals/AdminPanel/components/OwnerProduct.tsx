@@ -1,11 +1,17 @@
+"use client"
+
 import { Slider } from "@/components/ui"
+import { useCurrentLocale } from "@/locales/client"
 import { TProductDB } from "@/ts/product/TProductDB"
-import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
+import { pt } from "@/utils/product"
 
 import { OwnerProductImage } from "./OwnerProductImage"
 import { OwnerProductHeader } from "./OwnerProductHeader"
 
 export function OwnerProduct({ ...ownerProduct }: TProductDB) {
+  const locale = useCurrentLocale()
+  const translation = pt(ownerProduct, locale)
+
   return (
     <article
       className="overflow-hidden rounded-2xl border border-border-color/70 bg-background/25 shadow-sm"
@@ -18,7 +24,7 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
             <Slider
               images={ownerProduct.img_url.map((image, index) => ({
                 src: image,
-                alt: `${ownerProduct.title}-${index + 1}`,
+                alt: `${translation.title}-${index + 1}`,
               }))}
               width={480}
               height={360}
@@ -26,13 +32,12 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
           )}
         </div>
         <div className="flex w-full flex-col justify-between px-4 py-4 tablet:px-5">
-        <OwnerProductHeader
-          id={ownerProduct.id}
-          title={ownerProduct.title as keyof IFormDataAddProduct}
-          subTitle={ownerProduct.sub_title}
-          price={ownerProduct.price}
-          onStock={ownerProduct.on_stock || 0}
-        />
+          <OwnerProductHeader
+            id={ownerProduct.id}
+            translations={ownerProduct.translations}
+            price={ownerProduct.price}
+            onStock={ownerProduct.on_stock}
+          />
         </div>
       </div>
     </article>

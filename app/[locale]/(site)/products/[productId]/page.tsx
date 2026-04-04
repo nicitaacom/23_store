@@ -6,6 +6,7 @@ import { BiArrowBack, BiChevronRight } from "react-icons/bi"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getScopedI18n } from "@/locales/server"
+import { pt, toProductLocale } from "@/utils/product"
 import { normalizeProduct } from "@/utils/productVariants"
 import { ProductDetailView } from "./ProductDetailView"
 
@@ -32,16 +33,18 @@ const getProductById = cache(async (productId: string) => {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const product = await getProductById(params.productId)
+  const translation = product ? pt(product, toProductLocale(params.locale)) : null
 
   return {
-    title: product ? `${product.title} - Joki` : "Product - Joki",
-    description: product?.sub_title ?? "Product page",
+    title: translation ? `${translation.title} - Joki` : "Product - Joki",
+    description: translation?.description ?? "Product page",
   }
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const t = await getScopedI18n("product")
   const product = await getProductById(params.productId)
+  const translation = product ? pt(product, toProductLocale(params.locale)) : null
 
   if (!product) {
     notFound()
@@ -55,7 +58,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {t("products")}
           </Link>
           <BiChevronRight className="text-base opacity-60" />
-          <span className="max-w-full truncate text-title">{product.title}</span>
+          <span className="max-w-full truncate text-title">{translation?.title}</span>
         </nav>
 
         <Link

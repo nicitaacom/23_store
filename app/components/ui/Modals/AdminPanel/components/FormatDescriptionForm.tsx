@@ -11,23 +11,35 @@ import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TUpdateProductRequest } from "@/api/products/update/route"
 import { useLoading } from "@/store/ui/useLoading"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
-import { useScopedI18n } from "@/locales/client"
+import { ProductTranslations } from "@/ts/product/TProductDB"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 
 interface FormatDescriptionFormProps {
   id: string
-  subTitle: string
+  translations: ProductTranslations
 }
 
-export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormProps) {
+export function FormatDescriptionForm({ id, translations }: FormatDescriptionFormProps) {
   const t = useScopedI18n("product")
+  const locale = useCurrentLocale()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
+  const currentTranslation = translations[locale] ?? translations.fi
 
-  async function updateTitle(subTitle: string) {
+  async function updateTitle(description: string) {
     setIsLoading(true)
-    await axios.post("/api/products/update", { productId: id, subTitle: subTitle } as TUpdateProductRequest)
+    await axios.post("/api/products/update", {
+      productId: id,
+      translations: {
+        ...translations,
+        [locale]: {
+          ...currentTranslation,
+          description,
+        },
+      },
+    } as TUpdateProductRequest)
     setIsEditing(false)
     setIsLoading(false)
     router.refresh()
@@ -85,14 +97,14 @@ export function FormatDescriptionForm({ id, subTitle }: FormatDescriptionFormPro
               id="subTitle"
               register={register}
               errors={errors}
-              placeholder={subTitle}
+              placeholder={currentTranslation.description}
               required
             />
           </div>
         </form>
       ) : (
         <button className="flex items-start gap-x-2 text-left" type="button" onClick={enableInput}>
-          <h2 className="line-clamp-3 text-sm leading-6 text-subTitle">{subTitle}</h2>
+          <h2 className="line-clamp-3 text-sm leading-6 text-subTitle">{currentTranslation.description}</h2>
           <CiEdit className="mt-1 shrink-0 text-subTitle" />
         </button>
       )}

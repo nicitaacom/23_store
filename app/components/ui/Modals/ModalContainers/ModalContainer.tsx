@@ -24,7 +24,7 @@ export function ModalContainer({
   label,
   children,
 }: ModalContainerProps) {
-  const isLoading = useLoading.getState().isLoading
+  const isLoading = useLoading(state => state.isLoading)
 
   //correct way to add event listener to listen keydown
   useEffect(() => {
@@ -72,14 +72,14 @@ export function ModalContainer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
           {...modalBgHandler}>
           <motion.div
             className={`relative bg-foreground border-[1px] border-border-color rounded-md py-8 z-[50] shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            initial={{ y: 14, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 8, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 420, damping: 34, mass: 0.9 }}
             {...modalHandler}>
             <IoMdClose
               className={twMerge(

@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
 import { useForm } from "react-hook-form"
-import { usePathname } from "next/navigation"
+import axios from "axios"
+import cloneDeep from "lodash/cloneDeep"
+import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
@@ -15,14 +17,17 @@ import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { Button } from "@/components/ui/Button"
 import useDragging from "@/hooks/ui/useDragging"
 import useToast from "@/store/ui/useToast"
-import { useLoading } from "@/store/ui/useLoading"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { formatCurrency } from "@/utils/currencyFormatter"
+import { getUserId } from "@/utils/getUserId"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
+import { createRawProductTranslations } from "@/utils/product"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { createProductFn } from "@/functions/createProductFn"
 import { useI18n, useScopedI18n } from "@/locales/client"
 import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
+import { TProductDB } from "@/ts/product/TProductDB"
 
 const previewImageVariants = {
   initial: (direction: "next" | "prev") => ({
@@ -40,6 +45,7 @@ const previewImageVariants = {
 }
 
 const MAX_DESCRIPTION_LENGTH = 7200
+const BEFORE_UNLOAD_MESSAGE = "Translation in progress, are you sure you want to leave?"
 
 interface AddProductFormProps {
   onCreated?: () => void
@@ -48,15 +54,15 @@ interface AddProductFormProps {
 export function AddProductForm({ onCreated }: AddProductFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()
-  const pathname = usePathname()
+  const router = useRouter()
   const toast = useToast()
   const { isDraggingg } = useDragging()
-  const { isLoading } = useLoading()
 
   const [images, setImages] = useState<ImageListType>([])
   const [variantLabel, setVariantLabel] = useState("")
   const [variants, setVariants] = useState<TProductVariantDraft[]>([])
   const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [pendingTranslationsAmount, setPendingTranslationsAmount] = useState(0)
   const dragZone = useRef<HTMLButtonElement | null>(null)
   const previousImageIndexRef = useRef(0)
 
@@ -99,45 +105,182 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   // Shared className applied to every ProductInput — guarantees identical backgrounds
   const inputCn =
     "w-full rounded-2xl border border-white/10 !bg-white/[0.04] px-4 text-[15px] text-white placeholder:text-white/25 shadow-none transition-colors focus:border-white/20 focus:!bg-white/[0.06] disabled:opacity-50"
+  const isLoading = false
 
-  const onSubmit = async (data: IFormDataAddProduct) => {
-    if (data.subTitle.length > MAX_DESCRIPTION_LENGTH) {
-      return toast.show("warning", "Enter shorter description", `Enter description 0-${MAX_DESCRIPTION_LENGTH} symbols`)
+  const updateBackgroundToast = (nextPendingTranslationsAmount: number) => {
+    if (nextPendingTranslationsAmount <= 0) {
+      toast.close()
+      return
     }
 
+    const pendingProductsLabel = nextPendingTranslationsAmount === 1 ? "1 product is processing." : `${nextPendingTranslationsAmount} products are processing.`
+    toast.show(
+      "success",
+      "Creating product, translating...",
+      `${pendingProductsLabel} You can create another product while AI finishes translation.`,
+      null,
+    )
+  }
+
+  const increasePendingTranslations = () => {
+    setPendingTranslationsAmount(currentPendingTranslationsAmount => {
+      const nextPendingTranslationsAmount = currentPendingTranslationsAmount + 1
+      updateBackgroundToast(nextPendingTranslationsAmount)
+      return nextPendingTranslationsAmount
+    })
+  }
+
+  const decreasePendingTranslations = (showCompletedToast = false) => {
+    setPendingTranslationsAmount(currentPendingTranslationsAmount => {
+      const nextPendingTranslationsAmount = Math.max(0, currentPendingTranslationsAmount - 1)
+
+      if (nextPendingTranslationsAmount > 0) {
+        updateBackgroundToast(nextPendingTranslationsAmount)
+      } else if (showCompletedToast) {
+        toast.show("success", "Product created", "AI translation completed.")
+      } else {
+        toast.close()
+      }
+
+      return nextPendingTranslationsAmount
+    })
+  }
+
+  const restoreProductsAfterFailure = (rollbackSnapshot: { products: TProductDB[]; error: string | null }, optimisticProductId: string, errorMessage: string) => {
+    const currentProducts = useOwnerProductsStore.getState().products
+    const snapshotIds = new Set(rollbackSnapshot.products.map(product => product.id))
+    const productsAddedAfterSnapshot = currentProducts.filter(
+      product => !snapshotIds.has(product.id) && product.id !== optimisticProductId,
+    )
+
+    useOwnerProductsStore.getState().restore({
+      products: [...productsAddedAfterSnapshot, ...rollbackSnapshot.products],
+      error: errorMessage,
+    })
+  }
+
+  const createProductInBackgroundFn = async ({
+    optimisticProductId,
+    rollbackSnapshot,
+    normalizedTitle,
+    normalizedDescription,
+    price,
+    formattedOnStock,
+    submitImages,
+    resolvedVariants,
+  }: {
+    optimisticProductId: string
+    rollbackSnapshot: { products: TProductDB[]; error: string | null }
+    normalizedTitle: string
+    normalizedDescription: string
+    price: number
+    formattedOnStock: number
+    submitImages: ImageListType
+    resolvedVariants: TProductVariantDraft[]
+  }) => {
     try {
-      const formattedOnStock = parseFormattedNumber(data.onStock)
-      const resolvedVariants = variants
-        .map(variant => ({
-          ...variant,
-          imageIndex: images.findIndex(image => image.data_url === variant.imageDataUrl),
-        }))
-        .filter(variant => variant.imageIndex >= 0)
+      const translationResponse = await axios.post("/api/translate-product", {
+        title: normalizedTitle,
+        description: normalizedDescription,
+      })
+      const translations = translationResponse.data
 
-      await createProductFn(t, data.title, data.subTitle, data.price, formattedOnStock, images, resolvedVariants)
-      reset()
-      setImages([])
-      setVariantLabel("")
-      setVariants([])
-      setActiveImageIndex(0)
-      previousImageIndexRef.current = 0
-      onCreated?.()
+      useOwnerProductsStore.getState().updateProduct(optimisticProductId, product => ({
+        ...product,
+        translations,
+      }))
 
-      toast.show(
-        "success",
-        "Product created",
-        <span className="flex flex-wrap items-center gap-1">
-          <span>Create one more?</span>
-          <Button className="px-0" variant="link" href={`${pathname}?modal=AdminPanel`}>
-            Open product creation modal
-          </Button>
-        </span>,
-        12000,
-      )
+      const createdProduct = await createProductFn(t, {
+        title: normalizedTitle,
+        description: normalizedDescription,
+        price,
+        onStock: formattedOnStock,
+        images: submitImages,
+        variants: resolvedVariants,
+        translations,
+        manageLoading: false,
+      })
+
+      useOwnerProductsStore.getState().replaceProduct(optimisticProductId, createdProduct)
+      router.refresh()
+      decreasePendingTranslations(true)
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorMessage = axios.isAxiosError(error)
+        ? typeof error.response?.data === "string"
+          ? error.response.data
+          : typeof error.response?.data?.error === "string"
+            ? error.response.data.error
+            : error.message
+        : error instanceof Error
+          ? error.message
+          : String(error)
+
+      restoreProductsAfterFailure(rollbackSnapshot, optimisticProductId, errorMessage)
+      decreasePendingTranslations(false)
       toast.show("error", "Failed to create product", errorMessage)
     }
+  }
+
+  const onSubmit = async (data: IFormDataAddProduct) => {
+    const normalizedTitle = data.title.trim()
+    const normalizedDescription = data.subTitle.trim()
+    const rollbackSnapshot = cloneDeep({
+      products: useOwnerProductsStore.getState().products,
+      error: useOwnerProductsStore.getState().error,
+    })
+
+    const formattedOnStock = parseFormattedNumber(data.onStock)
+    const resolvedVariants = variants
+      .map(variant => ({
+        ...variant,
+        imageIndex: images.findIndex(image => image.data_url === variant.imageDataUrl),
+      }))
+      .filter(variant => variant.imageIndex >= 0)
+    const optimisticVariants = resolvedVariants
+      .map(variant => ({
+        id: variant.id,
+        label: variant.label.trim(),
+        image_url: images[variant.imageIndex]?.data_url || "",
+      }))
+      .filter(variant => variant.label && variant.image_url)
+    const optimisticImages = images.map(image => image.data_url || "").filter(Boolean)
+    const optimisticProductId = `optimistic-${crypto.randomUUID()}`
+    const optimisticProduct: TProductDB = {
+      id: optimisticProductId,
+      price_id: optimisticProductId,
+      owner_id: getUserId(),
+      translations: createRawProductTranslations(normalizedTitle, normalizedDescription),
+      price: Number(data.price) || 0,
+      img_url: optimisticImages.length ? optimisticImages : ["/placeholder.jpg"],
+      variants: optimisticVariants.length ? optimisticVariants : null,
+      on_stock: formattedOnStock,
+    }
+
+    useOwnerProductsStore.getState().setError(null)
+    useOwnerProductsStore.getState().addProduct(optimisticProduct)
+
+    const submitImages = [...images]
+
+    reset()
+    setImages([])
+    setVariantLabel("")
+    setVariants([])
+    setActiveImageIndex(0)
+    previousImageIndexRef.current = 0
+    onCreated?.()
+
+    increasePendingTranslations()
+
+    void createProductInBackgroundFn({
+      optimisticProductId,
+      rollbackSnapshot,
+      normalizedTitle,
+      normalizedDescription,
+      price: data.price,
+      formattedOnStock,
+      submitImages,
+      resolvedVariants,
+    })
   }
 
   const navigateToImage = (nextIndex: number) => {
@@ -201,6 +344,19 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     previousImageIndexRef.current = activeImageIndex
   }, [activeImageIndex])
 
+  useEffect(() => {
+    if (pendingTranslationsAmount === 0) return
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = BEFORE_UNLOAD_MESSAGE
+      return BEFORE_UNLOAD_MESSAGE
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [pendingTranslationsAmount])
+
   return (
     <div className="mx-auto grid h-full min-h-0 w-full gap-3 tablet:grid-cols-[minmax(0,1fr)_minmax(0,1.45fr)]">
       {/* ── LEFT: Image Gallery only ── */}
@@ -214,13 +370,18 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         resolutionHeight={MIN_IMAGE_RESOLUTION.height}
         resolutionType="more"
         dataURLKey="data_url"
-        onError={errors =>
-          showToastWarningFn(tGlobal, errors, {
-            maxNumber: MAX_PRODUCT_IMAGES,
-            maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES,
-            minResolution: MIN_IMAGE_RESOLUTION,
-          })
-        }>
+        onError={(errors, files) => {
+          void showToastWarningFn(
+            tGlobal,
+            errors,
+            {
+              maxNumber: MAX_PRODUCT_IMAGES,
+              maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES,
+              minResolution: MIN_IMAGE_RESOLUTION,
+            },
+            files,
+          )
+        }}>
         {({ imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps }) => {
           const safeActiveImageIndex = imageList[activeImageIndex] ? activeImageIndex : 0
           const activeImage = imageList[safeActiveImageIndex]

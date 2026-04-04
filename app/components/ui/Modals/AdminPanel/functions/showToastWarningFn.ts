@@ -1,7 +1,8 @@
 import useToast from "@/store/ui/useToast"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { ErrorsType } from "react-images-uploading"
+import { ErrorsType, ImageListType } from "react-images-uploading"
 import { formatUploadFileSize, formatUploadResolution, MAX_IMAGE_FILE_SIZE_BYTES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
+import { getInvalidUploadedImageResolution } from "@/utils/getUploadedImageResolution"
 
 interface ShowToastWarningOptions {
   maxNumber?: number
@@ -12,7 +13,12 @@ interface ShowToastWarningOptions {
   }
 }
 
-export function showToastWarningFn(t: TI18nFunction, errors: ErrorsType, options: ShowToastWarningOptions = {}) {
+export async function showToastWarningFn(
+  t: TI18nFunction,
+  errors: ErrorsType,
+  options: ShowToastWarningOptions = {},
+  files?: ImageListType,
+) {
   const toast = useToast.getState()
 
   const maxImages = options.maxNumber ?? 5
@@ -34,10 +40,15 @@ export function showToastWarningFn(t: TI18nFunction, errors: ErrorsType, options
       t("product.warning.max_images_subtitle", { maxImages }),
     )
   } else if (errors?.resolution) {
+    const uploadedResolutionData = await getInvalidUploadedImageResolution(files, options.minResolution ?? MIN_IMAGE_RESOLUTION)
+    const uploadedResolution = uploadedResolutionData ? formatUploadResolution(uploadedResolutionData) : null
+
     return toast.show(
       "warning",
       t("product.warning.use_higer_resolution_title"),
-      t("product.warning.use_higer_resolution_subtitle", { minResolution }),
+      uploadedResolution
+        ? t("product.warning.use_higer_resolution_subtitle_with_uploaded", { uploadedResolution, minResolution })
+        : t("product.warning.use_higer_resolution_subtitle", { minResolution }),
     )
   }
 }

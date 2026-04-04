@@ -6,6 +6,7 @@ import { BiArrowBack, BiChevronRight } from "react-icons/bi"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getScopedI18n } from "@/locales/server"
+import { pt, toProductLocale } from "@/utils/product"
 import { normalizeProduct } from "@/utils/productVariants"
 import { ManageProductView } from "./ManageProductView"
 
@@ -32,16 +33,18 @@ const getProductById = cache(async (productId: string) => {
 
 export async function generateMetadata({ params }: ManageProductPageProps): Promise<Metadata> {
   const product = await getProductById(params.productId)
+  const translation = product ? pt(product, toProductLocale(params.locale)) : null
 
   return {
-    title: product ? `Manage ${product.title} - Joki` : "Manage product - Joki",
-    description: product?.sub_title ?? "Manage product page",
+    title: translation ? `Manage ${translation.title} - Joki` : "Manage product - Joki",
+    description: translation?.description ?? "Manage product page",
   }
 }
 
 export default async function ManageProductPage({ params }: ManageProductPageProps) {
   const t = await getScopedI18n("product")
   const product = await getProductById(params.productId)
+  const translation = product ? pt(product, toProductLocale(params.locale)) : null
   const {
     data: { user },
   } = await supabaseServer().auth.getUser()
@@ -59,7 +62,7 @@ export default async function ManageProductPage({ params }: ManageProductPagePro
           </Link>
           <BiChevronRight className="text-base opacity-60" />
           <Link href={`/${params.locale}/products/${product.id}`} className="transition-colors duration-200 hover:text-success">
-            {product.title}
+            {translation?.title}
           </Link>
           <BiChevronRight className="text-base opacity-60" />
           <span className="text-title">{t("manage_product")}</span>

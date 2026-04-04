@@ -30,7 +30,14 @@ async function addProductToCartHandler(args: HandlerArgs): Promise<FunctionResul
 
   try {
     const i18n = (args.t as unknown as TI18nFunction) ?? fallbackT
-    const createdProduct = await createProductFn(i18n, typed.title, typed.subtitle, typed.price, 0, [], [])
+    const createdProduct = await createProductFn(i18n, {
+      title: typed.title,
+      description: typed.subtitle,
+      price: typed.price,
+      onStock: 0,
+      images: [],
+      variants: [],
+    })
     if (!createdProduct?.id) return { success: false, message: "Failed to create product. No id." }
 
     for (let i = 0; i < Number(quantity || 1); i++) increaseProductQuantity(createdProduct.id)

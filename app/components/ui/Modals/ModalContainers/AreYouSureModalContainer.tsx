@@ -69,7 +69,7 @@ export function AreYouSureModalContainer({
   secondaryButtonLabel,
   className,
 }: AreYouSureModalContainerProps) {
-  const isLoading = useLoading.getState().isLoading
+  const isLoading = useLoading(state => state.isLoading)
 
   //correct way to add event listener to listen keydown
   useEffect(() => {
@@ -119,14 +119,14 @@ export function AreYouSureModalContainer({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
+          transition={{ duration: 0.16, ease: "easeOut" }}
           {...modalBgHandler}>
           <motion.div
             className={`relative bg-foreground border-[1px] border-border-color rounded-md z-[100] py-8 shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
-            initial={{ scale: 0.8, opacity: 0.8 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0.8 }}
-            transition={{ duration: 0.25 }}
+            initial={{ y: 12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 8, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 440, damping: 36, mass: 0.85 }}
             {...modalHandler}>
             <IoMdClose
               className={twMerge(

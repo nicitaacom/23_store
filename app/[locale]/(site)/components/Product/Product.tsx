@@ -3,9 +3,11 @@
 import { memo, useMemo, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
+import { useCurrentLocale } from "@/locales/client"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
+import { pt } from "@/utils/product"
 import { ProductQuantity } from "../ProductQuantity"
 import { ProductButtons } from "../ProductButtons"
 import { ProductImage } from "../ProductImage"
@@ -19,6 +21,8 @@ type Props = TProductDB & {
 }
 
 function Product({ ...product }: Props) {
+  const locale = useCurrentLocale()
+  const translation = pt(product, locale)
   const isOutOfStock = product.on_stock === 0
   const variants = useMemo(
     () => product.variants?.filter(variant => variant.label && variant.image_url) || [],
@@ -40,7 +44,7 @@ function Product({ ...product }: Props) {
         product.containerClassName,
       )}>
       <div className="relative w-full tablet:w-[280px] aspect-video shrink-0 overflow-hidden bg-black">
-        <ProductImage imgUrl={previewImages} productTitle={product.title} />
+        <ProductImage imgUrl={previewImages} productTitle={translation.title} />
         <ProductLikeButton className="absolute right-3 top-3 z-10" productId={product.id} />
       </div>
 
@@ -48,7 +52,7 @@ function Product({ ...product }: Props) {
         <section className="flex flex-col gap-y-3 justify-between items-center tablet:items-start">
           <div className="flex flex-col tablet:flex-row gap-x-2 gap-y-2 justify-between items-center tablet:items-start w-full">
             <h1 className="w-full tablet:w-[60%] text-xl mobile:text-2xl text-title font-semibold text-center tablet:text-start line-clamp-2 group-hover:text-success transition-colors duration-300 min-w-0">
-              {product.title}
+              {translation.title}
             </h1>
 
             <div className="flex items-center gap-x-3 px-3 py-1.5 rounded-lg bg-success/10 border border-success/20 shrink-0">
@@ -61,7 +65,7 @@ function Product({ ...product }: Props) {
 
           <div className="w-full flex flex-col gap-y-2 min-w-0">
             <h1 className="line-clamp-2 text-base mobile:text-sm text-subTitle text-center tablet:text-start leading-relaxed">
-              {product.sub_title}
+              {translation.description}
             </h1>
 
             <div className="flex items-center gap-x-3 px-3 py-1.5 rounded-lg bg-background/50 border border-border-color/20 w-fit">

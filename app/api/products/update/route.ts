@@ -1,8 +1,9 @@
 import { stripe } from "@/libs/stripe"
 import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
 import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
+import { ProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
-import { normalizeProductVariants } from "@/utils/productVariants"
+import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 import { AxiosError } from "axios"
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
@@ -10,8 +11,7 @@ import Stripe from "stripe"
 export type TUpdateProductRequest = {
   productId: string
   images?: string[]
-  title?: string
-  subTitle?: string
+  translations?: ProductTranslations
   price?: number
   onStock?: number
   variants?: TProductVariant[] | null
@@ -23,8 +23,7 @@ export async function POST(req: Request) {
   const supabase = supabaseServerAction()
   const productId = body.productId
   const images = body.images
-  const title = body.title
-  const subTitle = body.subTitle
+  const translations = body.translations
   const price = body.price
   const onStock = body.onStock
   const variants = body.variants
@@ -48,6 +47,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
+    const normalizedExistingProduct = normalizeProduct(existingProduct)
+
     /* UPDATE IMAGE */
     if (images) {
       const stripeImages = images.filter(Boolean).slice(0, STRIPE_MAX_PRODUCT_IMAGES)
@@ -66,46 +67,27 @@ export async function POST(req: Request) {
       return NextResponse.json(productResponse, { status: 200 })
     }
 
-    /* UPDATE TITLE */
-    if (typeof title === "string") {
-      //Create update on Stripe https://stripe.com/docs/api/products/update
-      const productResponse = await stripe.products.update(productId, { name: title })
+    /* UPDATE TRANSLATIONS */
+    if (translations) {
+      const productResponse = await stripe.products.update(productId, {
+        name: translations.fi.title,
+        description: translations.fi.description,
+      })
 
-      // Update title in DB
-      const { error: update_title_error } = await supabase
+      const { error: updateTranslationsError } = await supabase
         .from("products")
-        .update({ title: title })
+        .update({ translations })
         .eq("id", productId)
-      if (update_title_error)
+      if (updateTranslationsError) {
         throw new Error(
-          `update product title \n Path:/api/products/update/route.ts \n Error message:\n ${update_title_error.message}`,
+          `update product translations \n Path:/api/products/update/route.ts \n Error message:\n ${updateTranslationsError.message}`,
         )
+      }
 
-      //Active product if it not active
       if (!productResponse.active) {
         await stripe.products.update(productId, { active: true })
       }
 
-      return NextResponse.json(productResponse, { status: 200 })
-    }
-
-    /* UPDATE DESCRIPTION */
-    if (typeof subTitle === "string") {
-      //Update on Stripe https://stripe.com/docs/api/products/update
-      const productResponse = await stripe.products.update(productId, { description: subTitle })
-      const { error: update_description_error } = await supabase
-        .from("products")
-        .update({ sub_title: subTitle })
-        .eq("id", productId)
-      if (update_description_error)
-        throw new Error(
-          `update product sub_title \n Path:/api/products/update/route.ts \n Error message:\n ${update_description_error.message}`,
-        )
-
-      //Active product if it not active
-      if (!productResponse.active) {
-        await stripe.products.update(productId, { active: true })
-      }
       return NextResponse.json(productResponse, { status: 200 })
     }
 
@@ -136,11 +118,12 @@ export async function POST(req: Request) {
       //then you create new product with updated price - BS - lmao
 
       // Create new product on stripe
-      if (existingProduct) {
+      if (normalizedExistingProduct) {
+        const canonicalTranslation = normalizedExistingProduct.translations.fi
         const productResponse = await stripe.products.create({
-          name: existingProduct.title,
-          description: existingProduct.sub_title,
-          images: existingProduct.img_url?.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
+          name: canonicalTranslation.title,
+          description: canonicalTranslation.description,
+          images: normalizedExistingProduct.img_url?.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
         })
 
         // Active product if it not active

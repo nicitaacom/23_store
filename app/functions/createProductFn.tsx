@@ -6,12 +6,24 @@ import { useLoading } from "@/store/ui/useLoading"
 import useUserStore from "@/store/user/userStore"
 import slugify from "@sindresorhus/slugify"
 import { uploadImageFn } from "./uploadImageFn"
-import { TProductDB } from "@/ts/product/TProductDB"
+import { ProductTranslations, TProductDB } from "@/ts/product/TProductDB"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { getUserId } from "@/utils/getUserId"
 import { getAnonymousId } from "./getAnonymousId"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
+import { normalizeProductTranslations } from "@/utils/product"
+
+type CreateProductFnInput = {
+  title: string
+  description: string
+  price?: number
+  onStock?: number
+  images?: ImageListType
+  variants?: TProductVariantDraft[]
+  translations?: ProductTranslations
+  manageLoading?: boolean
+}
 
 function getFileExtensionFromContentType(contentType: string, fallbackFileName: string) {
   const contentTypeToExtension: Record<string, string> = {
@@ -53,30 +65,42 @@ async function compressImageWithTinify(imageFile: File) {
   return new File([compressedBlob], `${baseName}.${fileExtension}`, { type: contentType })
 }
 
-export async function createProductFn(
-  t: TI18nFunction,
-  title: string,
-  subTitle: string,
-  price?: number,
-  onStock?: number,
-  images?: ImageListType,
-  variants?: TProductVariantDraft[],
-) {
+async function resolveProductTranslations(title: string, description: string, translations?: ProductTranslations) {
+  if (translations) {
+    return normalizeProductTranslations(translations)
+  }
+
+  const response = await axios.post("/api/translate-product", {
+    title,
+    description,
+  })
+
+  return normalizeProductTranslations(response.data)
+}
+
+export async function createProductFn(t: TI18nFunction, input: CreateProductFnInput) {
   const { setIsLoading } = useLoading.getState()
   const userStore = useUserStore.getState()
+  const { title, description, price, onStock, images, variants, translations, manageLoading = true } = input
 
-  setIsLoading(true)
+  if (manageLoading) {
+    setIsLoading(true)
+  }
+
   let priceLet: number | undefined = price
   try {
     if (images && images.length > MAX_PRODUCT_IMAGES) {
       throw new Error(t("product.warning.max_images_subtitle", { maxImages: MAX_PRODUCT_IMAGES }))
     }
 
+    const productTranslations = await resolveProductTranslations(title, description, translations)
+    const canonicalTranslation = productTranslations.fi
+
     if (!price) {
       try {
         const response = await fetch("/api/fetch-prices", {
           method: "POST",
-          body: JSON.stringify({ title, subTitle }),
+          body: JSON.stringify({ title, description }),
           headers: { "Content-Type": "application/json" },
         })
         const data = await response.json()
@@ -88,7 +112,7 @@ export async function createProductFn(
           const priceResponse = await axios.post("/api/ai/", {
             promptValue: `
 Product: ${title}.
-Description: ${subTitle}.
+Description: ${description}.
 Estimate realistic USD price ONLY the number.
 RULES:
 - tiny adapters/connectors: realistic $1–$6
@@ -100,11 +124,11 @@ RULES:
 
           const aiRaw = priceResponse.data.openai || ""
           const parsed = parseFloat(aiRaw.replace(/[^0-9.]/g, "")) || 0
-          price = parsed > 0 ? parsed : 4.99
+          priceLet = parsed > 0 ? parsed : 4.99
         }
       } catch (err) {
         console.error("Price estimation failed, fallback to default 4.99:", err)
-        price = 4.99
+        priceLet = 4.99
       }
     }
 
@@ -114,8 +138,8 @@ RULES:
     const stripeAmount = Math.max(1, Math.floor(priceLet * 100))
 
     const stripeResponse = await axios.post("/api/products/add", {
-      title,
-      subTitle,
+      title: canonicalTranslation.title,
+      description: canonicalTranslation.description,
       price: stripeAmount, // in cents
     })
 
@@ -130,7 +154,7 @@ RULES:
       try {
         const imageResponse = await axios.post(
           "/api/ai/generate-image",
-          { prompt: `${title}. ${subTitle}` } as API.GenerateImageRequest,
+          { prompt: `${title}. ${description}` } as API.GenerateImageRequest,
           { responseType: "arraybuffer" },
         )
 
@@ -199,10 +223,9 @@ RULES:
       id: stripeResponse.data.product,
       price_id: stripeResponse.data.id,
       owner_id: userId,
-      title: title,
-      sub_title: subTitle,
+      translations: productTranslations,
       price: priceLet,
-      on_stock: onStock,
+      on_stock: onStock ?? 0,
       img_url: imagesUrls,
       variants: resolvedVariants,
     }
@@ -232,6 +255,8 @@ RULES:
     console.error("createProductFn error:", errorMessage)
     throw new Error(errorMessage)
   } finally {
-    setIsLoading(false)
+    if (manageLoading) {
+      setIsLoading(false)
+    }
   }
 }

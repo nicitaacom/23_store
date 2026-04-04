@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server"
 
+import openai from "@/libs/openai"
+
 export const runtime = "nodejs"
 
 export async function POST(req: NextRequest) {
@@ -13,41 +15,16 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const openaiKey = process.env.OPENAI_API_KEY
-    if (!openaiKey) {
-      return new Response(JSON.stringify({ error: "OPENAI_API_KEY not configured" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      })
-    }
-
-    const response = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${openaiKey}`,
-      },
-      body: JSON.stringify({
-        model: "dall-e-3",
-        prompt: `Professional e-commerce product photography of ${prompt}. Studio lighting with soft shadows, clean white or gradient background, centered composition, sharp focus on product, lifestyle context if applicable. High-end catalog quality, photorealistic, appealing presentation with vibrant colors and crisp details.`,
-        n: 1,
-        size: "1024x1024",
-        quality: "standard", // "hd" | "standard"
-        style: "natural", // Added for photorealistic look
-      }),
+    const response = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: `Professional e-commerce product photography of ${prompt}. Studio lighting with soft shadows, clean white or gradient background, centered composition, sharp focus on product, lifestyle context if applicable. High-end catalog quality, photorealistic, appealing presentation with vibrant colors and crisp details.`,
+      n: 1,
+      size: "1024x1024",
+      quality: "standard",
+      style: "natural",
     })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("OpenAI DALL-E error:", errorText)
-      return new Response(JSON.stringify({ error: `DALL-E failed: ${errorText}` }), {
-        status: response.status,
-        headers: { "Content-Type": "application/json" },
-      })
-    }
-
-    const data = await response.json()
-    const imageUrl = data.data?.[0]?.url
+    const imageUrl = response.data?.[0]?.url
 
     if (!imageUrl) {
       return new Response(JSON.stringify({ error: "No image URL in response" }), {

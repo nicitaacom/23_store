@@ -1,5 +1,6 @@
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { TProductDB } from "@/ts/product/TProductDB"
+import { sortProductsByLocale } from "@/utils/product"
 import { normalizeProducts } from "@/utils/productVariants"
 
 interface FetchPopularProductsOptions {
@@ -31,7 +32,6 @@ export async function fetchPopularProducts({
     .select("*", { count: "exact" })
     .order("on_stock", { ascending: false, nullsFirst: false })
     .order("price", { ascending: true })
-    .order("title", { ascending: true })
     .range(from, to)
 
   if (response.error) {
@@ -43,7 +43,7 @@ export async function fetchPopularProducts({
   const totalPages = Math.max(1, Math.ceil(totalItems / resolvedPerPage))
 
   return {
-    products: normalizeProducts(response.data),
+    products: sortProductsByLocale(normalizeProducts(response.data), "fi"),
     totalItems,
     totalPages,
     page: currentPage,

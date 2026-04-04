@@ -275,6 +275,7 @@ export default {
   "product.this_field_is_required": "Tämä kenttä on pakollinen",
   "product.title_required": "Anna tuotteen otsikko – a–z, numerot ja #()_ sallittu",
   "product.title_invalid_character": 'Merkki "{character}" ei ole sallittu kohdan "{context}" lähellä',
+  "product.description_invalid_character": 'Merkki "{character}" ei ole sallittu kohdan "{context}" lähellä',
   "product.subtitle_required": "Merkit !$^*_=\\ eivät ole sallittuja",
   "product.price_required": "Anna hinta väliltä 0,01–999 999 kahdella desimaalilla",
   "product.on_stock_required": "Anna varastosaldo positiivisena numerona, desimaalit sallittu",
@@ -313,6 +314,8 @@ export default {
   "product.warning.max_variants_subtitle": "Käytä yhdelle tuotteelle enintään {maxVariants} varianttia",
   "product.warning.use_higer_resolution_title": "Käytä suurempaa resoluutiota",
   "product.warning.use_higer_resolution_subtitle": "Vaadittu vähimmäisresoluutio on {minResolution}px.",
+  "product.warning.use_higer_resolution_subtitle_with_uploaded":
+    "Lataamasi kuva on {uploadedResolution}px, mutta vaadittu vähimmäisresoluutio on {minResolution}px.",
   "product.add": "Lisää tuote",
   "product.edit": "Muokkaa tuotetta",
   "product.delete": "Poista tuote",
@@ -329,10 +332,11 @@ export default {
   "product.error.image_upload_errors": "Virheitä kuvan latauksessa",
   "product.error.db_insert_failed": "Tietokantaan lisäys epäonnistui",
   "product.error.no_data_returned_from_uploaded_image": "Ladatusta kuvasta ei palautunut tietoja",
-  "product.title_too_short": "Otsikko on liian lyhyt - vähintään 3 merkkiä",
-  "product.title_too_long": "Otsikko on liian pitkä - enintään {max} merkkiä (nykyinen: {current})",
-  "product.title_must_contain_letter": "Otsikon on sisällettävä vähintään yksi kirjain",
-  "product.title_must_start_alphanumeric": "Otsikon on alettava kirjaimella tai numerolla",
+  "product.title_too_short": "Otsikko on liian lyhyt - vähintään 2 merkkiä",
+  "product.title_printable_only": "Otsikko saa sisältää vain tulostettavia merkkejä",
+  "product.description_too_short": "Kuvaus on liian lyhyt - vähintään 10 merkkiä",
+  "product.description_too_long": "Kuvaus on liian pitkä - enintään {max} merkkiä",
+  "product.description_printable_only": "Kuvaus saa sisältää vain tulostettavia merkkejä ja rivinvaihtoja",
 
   // =================        =================
   //                   message

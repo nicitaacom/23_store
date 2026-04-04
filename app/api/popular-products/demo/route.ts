@@ -5,6 +5,7 @@ import axios from "axios"
 
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { TablesInsert } from "@/ts/types_db"
+import { createRawProductTranslations } from "@/utils/product"
 
 const PLACEHOLDER_IMAGE = "/placeholder.jpg"
 const FAKE_SHOP_API_URL = "http://fake-shop-api.ap-south-1.elasticbeanstalk.com/app/v1/products"
@@ -80,8 +81,7 @@ function formatFakeProductSeed(
     id: `demo-popular-product-${ownerFragment}-${itemNumber}`,
     price_id: `demo-price-${ownerFragment}-${itemNumber}`,
     owner_id: ownerId,
-    title: `${baseTitle} ${itemNumber}`,
-    sub_title: subtitle,
+    translations: createRawProductTranslations(`${baseTitle} ${itemNumber}`, subtitle),
     price,
     on_stock: stockValue,
     img_url: uniqueImages.length ? uniqueImages : [PLACEHOLDER_IMAGE],

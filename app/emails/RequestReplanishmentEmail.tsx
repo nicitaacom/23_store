@@ -14,6 +14,7 @@ import { Tailwind } from "@react-email/tailwind"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "../utils/currencyFormatter"
 import { getURL } from "@/utils/helpers"
+import { pt } from "@/utils/product"
 
 interface RequestReplanishmentEmailProps {
   product: TProductDB
@@ -25,6 +26,7 @@ interface RequestReplanishmentEmailProps {
  */
 export const RequestReplanishmentEmail = ({ product }: RequestReplanishmentEmailProps) => {
   const previewText = `User requested replanishment`
+  const translation = pt(product, "en")
   return (
     <Tailwind
       config={{
@@ -61,8 +63,8 @@ export const RequestReplanishmentEmail = ({ product }: RequestReplanishmentEmail
             <Section className="w-[480px] max-w-[480px] mb-2 border border-solid border-border-color pb-0">
               {product && (
                 <Section>
-                  <Img style={{ objectFit: "cover" }} src={product.img_url[0]} width="480" height="240" alt={product.title} />
-                  <Text className="m-0 px-4 py-2 text-title text-2xl text-center">{product.title}</Text>
+                  <Img style={{ objectFit: "cover" }} src={product.img_url[0]} width="480" height="240" alt={translation.title} />
+                  <Text className="m-0 px-4 py-2 text-title text-2xl text-center">{translation.title}</Text>
                   <Text className="mb-8 mt-0 text-title text-xl text-center">{formatCurrency(product.price)}</Text>
                 </Section>
               )}

@@ -1,11 +1,16 @@
 "use client"
 
 import { TProductDB } from "@/ts/product/TProductDB"
+import { useCurrentLocale } from "@/locales/client"
+import { pt } from "@/utils/product"
 import { OwnerProductImage } from "./OwnerProductImage"
 import { Slider } from "@/components/ui"
 import { DeleteProductHeader } from "./DeleteProductHeader"
 
 export function OwnerDeleteProduct({ ...ownerProduct }: TProductDB) {
+  const locale = useCurrentLocale()
+  const translation = pt(ownerProduct, locale)
+
   return (
     <article
       className="overflow-hidden rounded-2xl border border-border-color/70 bg-background/25 shadow-sm"
@@ -18,7 +23,7 @@ export function OwnerDeleteProduct({ ...ownerProduct }: TProductDB) {
             <Slider
               images={ownerProduct.img_url.map((image, index) => ({
                 src: image,
-                alt: `${ownerProduct.title}-${index + 1}`,
+                alt: `${translation.title}-${index + 1}`,
               }))}
               width={480}
               height={360}
@@ -26,12 +31,12 @@ export function OwnerDeleteProduct({ ...ownerProduct }: TProductDB) {
           )}
         </div>
         <div className="flex w-full flex-col justify-between px-4 py-4 tablet:px-5">
-        <DeleteProductHeader
-          id={ownerProduct.id}
-          title={ownerProduct.title}
-          subTitle={ownerProduct.sub_title}
-          price={ownerProduct.price}
-        />
+          <DeleteProductHeader
+            id={ownerProduct.id}
+            title={translation.title}
+            description={translation.description}
+            price={ownerProduct.price}
+          />
         </div>
       </div>
     </article>

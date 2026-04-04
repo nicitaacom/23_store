@@ -15,6 +15,7 @@ import useUserStore from "@/store/user/userStore"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
+import { pt } from "@/utils/product"
 import { RequestReplanishmentButton } from "../../components/Product/RequestReplanishmentButton"
 import { ProductLikeButton } from "../../components/ProductLikeButton"
 
@@ -25,6 +26,7 @@ interface ProductDetailViewProps {
 export function ProductDetailView({ product }: ProductDetailViewProps) {
   const t = useScopedI18n("product")
   const locale = useCurrentLocale()
+  const translation = pt(product, locale)
   const quantity = useCartStore(state => state.products?.[product.id]?.quantity ?? 0)
   const user = useUserStore(state => state.user)
   const isOutOfStock = (product.on_stock ?? 0) <= 0
@@ -89,7 +91,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                     ? "border-success shadow-lg shadow-success/20"
                     : "border-border-color/20 hover:border-success/30 hover:bg-success/5",
                 )}>
-                <Image src={image} alt={`${product.title}-${index + 1}`} fill className="object-cover" sizes="80px" />
+                <Image src={image} alt={`${translation.title}-${index + 1}`} fill className="object-cover" sizes="80px" />
               </button>
             ))}
           </div>
@@ -100,7 +102,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             <div className="relative aspect-[4/5] w-full">
               <Image
                 src={activeImage}
-                alt={selectedVariant?.label || product.title}
+                alt={selectedVariant?.label || translation.title}
                 fill
                 priority
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 70vw, 50vw"
@@ -110,7 +112,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           </div>
 
           <div className="mt-3 flex items-center justify-between rounded-2xl border border-border-color/20 bg-background/70 px-4 py-3 text-sm text-subTitle">
-            <span className="truncate">{selectedVariant?.label || product.title}</span>
+            <span className="truncate">{selectedVariant?.label || translation.title}</span>
             <span className="shrink-0 text-success">
               {activeImageIndex + 1}/{galleryImages.length}
             </span>
@@ -144,13 +146,13 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             <div className="flex items-center gap-2">
               {isOwner && (
                 <Button
-                  className="font-medium"
+                  className="border border-white/8 bg-[#0f1318] !text-warning hover:border-warning/25 hover:bg-[#151b24] hover:!text-warning"
                   href={`/${locale}/products/${product.id}/manage`}
-                  variant="success-outline"
+                  variant="ghost"
                   size="sm"
                   rounded="lg"
                   shadow="sm"
-                  rightIcon={<FiEdit3 className="text-sm" />}>
+                  rightIcon={<FiEdit3 className="text-sm text-warning" />}>
                   {t("manage_product")}
                 </Button>
               )}
@@ -158,8 +160,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             </div>
           </div>
 
-          <h1 className="text-3xl font-semibold leading-tight text-title mobile:text-4xl">{product.title}</h1>
-          <p className="mt-3 text-base leading-7 text-subTitle">{product.sub_title}</p>
+          <h1 className="text-3xl font-semibold leading-tight text-title mobile:text-4xl">{translation.title}</h1>
+          <p className="mt-3 text-base leading-7 text-subTitle">{translation.description}</p>
 
           <div className="mt-5 grid gap-3 mobile:grid-cols-2">
             <div className="rounded-2xl border border-success/20 bg-black/20 p-4">
@@ -212,7 +214,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-subTitle">{t("selected_variant")}</p>
-              <h2 className="mt-2 text-2xl font-semibold text-title">{selectedVariant?.label || product.title}</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-title">{selectedVariant?.label || translation.title}</h2>
             </div>
 
             {!isOutOfStock && quantity > 0 && (
@@ -251,7 +253,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
         <section className="rounded-[28px] border border-border-color/20 bg-background/70 p-6">
           <h2 className="text-lg font-semibold text-title">{t("product_details")}</h2>
-          <p className="mt-3 text-base leading-7 text-subTitle">{product.sub_title}</p>
+          <p className="mt-3 text-base leading-7 text-subTitle">{translation.description}</p>
 
           <div className="mt-5 grid gap-3">
             {highlights.map(({ icon: Icon, label }) => (

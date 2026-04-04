@@ -26,13 +26,14 @@ export function ProductButtons({ productId, ownerId, showViewButton = true }: Pr
     <div className="flex w-full min-w-0 flex-wrap items-end justify-center gap-3 tablet:justify-end">
       {isOwner && (
         <Button
-          className="w-full mobile:w-fit font-medium"
+          className="w-full border border-white/8 bg-[#000000] text-title hover:border-warning/25
+          hover:bg-[#111111] hover:text-title mobile:w-fit font-medium"
           href={`/${locale}/products/${productId}/manage`}
-          variant="success-outline"
+          variant="ghost"
           size="lg"
           rounded="lg"
           shadow="sm"
-          rightIcon={<FiEdit3 className="text-base" />}>
+          rightIcon={<FiEdit3 className="text-base text-warning" />}>
           {t("manage_product")}
         </Button>
       )}

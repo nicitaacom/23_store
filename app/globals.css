@@ -90,6 +90,15 @@ body {
   font-family: "Inter", sans-serif;
 }
 
+@keyframes searchSweep {
+  0% {
+    transform: translateX(-140%);
+  }
+  100% {
+    transform: translateX(520%);
+  }
+}
+
 #root {
   display: flex;
   flex-flow: column;

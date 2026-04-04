@@ -8,6 +8,7 @@ import { Text } from "@react-email/text"
 import { Hr } from "@react-email/hr"
 import { Img } from "@react-email/img"
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
+import { pt } from "@/utils/product"
 
 interface RequestBetterPricesEmailProps {
   products: TProductAfterDB[]
@@ -30,19 +31,23 @@ export function RequestBetterPricesEmail({ products, totalPrice, userEmail }: Re
 
           <Section style={productsSection}>
             <Heading style={h2}>Products:</Heading>
-            {products.map((product, index) => (
-              <div key={product.id} style={productCard}>
-                {product.img_url?.map(url => <Img key={url} src={url} alt={product.title} style={productImage} />)}
+            {products.map((product, index) => {
+              const translation = pt(product, "en")
+
+              return (
+                <div key={product.id} style={productCard}>
+                  {product.img_url?.map(url => <Img key={url} src={url} alt={translation.title} style={productImage} />)}
                 <Text style={productNumber}>#{index + 1}</Text>
-                <Text style={productName}>{product.title}</Text>
-                {product.sub_title && <Text style={productSubtitle}>{product.sub_title}</Text>}
+                  <Text style={productName}>{translation.title}</Text>
+                  {translation.description && <Text style={productSubtitle}>{translation.description}</Text>}
                 <div style={productDetails}>
                   <Text style={productPrice}>Price: ${product.price.toFixed(2)}</Text>
                   <Text style={productQuantity}>Quantity: {product.quantity}</Text>
                   <Text style={productTotal}>Subtotal: ${(product.price * product.quantity).toFixed(2)}</Text>
                 </div>
-              </div>
-            ))}
+                </div>
+              )
+            })}
           </Section>
 
           <Hr style={hr} />

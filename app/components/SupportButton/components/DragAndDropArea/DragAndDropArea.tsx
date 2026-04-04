@@ -22,7 +22,9 @@ export function DragAndDropArea() {
         }}
         maxNumber={1}
         maxFileSize={MAX_IMAGE_FILE_SIZE_BYTES}
-        onError={errors => showToastWarningFn(errors, { maxNumber: 1, maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES })}>
+        onError={(errors, files) => {
+          void showToastWarningFn(errors, { maxNumber: 1, maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES }, files)
+        }}>
         {({ dragProps }) => (
           <div
             className={twMerge("absolute inset-0 transition-all duration-200", isDragging ? "pointer-events-auto" : "pointer-events-none")}

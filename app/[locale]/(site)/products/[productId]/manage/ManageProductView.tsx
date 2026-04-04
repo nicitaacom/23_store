@@ -23,6 +23,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
+import { pt } from "@/utils/product"
 
 interface ManageProductViewProps {
   product: TProductDB
@@ -50,6 +51,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const locale = useCurrentLocale()
   const router = useRouter()
   const toast = useToast()
+  const currentTranslation = pt(product, locale)
 
   const [images, setImages] = useState<ImageListType>(() => product.img_url.map(image => ({ data_url: image })))
   const [activeImageIndex, setActiveImageIndex] = useState(0)
@@ -64,10 +66,10 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     formState: { errors },
   } = useForm<IFormDataAddProduct>({
     defaultValues: {
-      title: product.title,
-      subTitle: product.sub_title,
+      title: currentTranslation.title,
+      subTitle: currentTranslation.description,
       price: product.price,
-      onStock: product.on_stock ?? 0,
+      onStock: product.on_stock,
     },
   })
 
@@ -76,10 +78,10 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const priceValue = watch("price")
   const onStockValue = watch("onStock")
 
-  const previewTitle = titleValue?.trim() || product.title
-  const previewDescription = subTitleValue?.trim() || product.sub_title
+  const previewTitle = titleValue?.trim() || currentTranslation.title
+  const previewDescription = subTitleValue?.trim() || currentTranslation.description
   const previewPrice = Number(priceValue) > 0 ? formatCurrency(Number(priceValue)) : formatCurrency(product.price)
-  const previewStock = formatNumber(onStockValue ?? product.on_stock ?? 0) || "0"
+  const previewStock = formatNumber(onStockValue ?? product.on_stock) || "0"
   const activeImage = images[activeImageIndex]
 
   const navigateToImage = useCallback(
@@ -258,15 +260,19 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         const normalizedSubTitle = data.subTitle.trim()
         const normalizedPrice = Number(data.price)
         const normalizedOnStock = parseFormattedNumber(String(data.onStock))
+        const nextTranslations = {
+          ...product.translations,
+          [locale]: {
+            ...(product.translations[locale] ?? product.translations.fi),
+            title: normalizedTitle,
+            description: normalizedSubTitle,
+          },
+        }
 
         let nextProductId = product.id
 
-        if (normalizedTitle !== product.title) {
-          await axios.post("/api/products/update", { productId: nextProductId, title: normalizedTitle } as TUpdateProductRequest)
-        }
-
-        if (normalizedSubTitle !== product.sub_title) {
-          await axios.post("/api/products/update", { productId: nextProductId, subTitle: normalizedSubTitle } as TUpdateProductRequest)
+        if (stringifyValue(nextTranslations) !== stringifyValue(product.translations)) {
+          await axios.post("/api/products/update", { productId: nextProductId, translations: nextTranslations } as TUpdateProductRequest)
         }
 
         if (stringifyValue(resolvedImageUrls) !== stringifyValue(product.img_url)) {
@@ -277,7 +283,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           await axios.post("/api/products/update", { productId: nextProductId, variants: resolvedVariants } as TUpdateProductRequest)
         }
 
-        if (normalizedOnStock !== (product.on_stock ?? 0)) {
+        if (normalizedOnStock !== product.on_stock) {
           await axios.post("/api/products/update", { productId: nextProductId, onStock: normalizedOnStock } as TUpdateProductRequest)
         }
 
@@ -310,8 +316,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       product.img_url,
       product.on_stock,
       product.price,
-      product.sub_title,
-      product.title,
+      product.translations,
       product.variants,
       resolveImageUrls,
       router,
@@ -326,7 +331,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     setIsSaving(true)
     try {
       await axios.post("/api/products/delete", { id: product.id })
-      toast.show("success", t("product_deleted"), product.title)
+      toast.show("success", t("product_deleted"), currentTranslation.title)
       router.push(`/${locale}`)
       router.refresh()
     } catch (error) {
@@ -335,7 +340,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     } finally {
       setIsSaving(false)
     }
-  }, [locale, product.id, product.title, router, t, toast])
+  }, [currentTranslation.title, locale, product.id, router, t, toast])
 
   const variantCards = useMemo(
     () =>
@@ -406,7 +411,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                     ? "border-success/55 shadow-lg shadow-success/10"
                     : "border-white/8 hover:border-success/25 hover:bg-[#141a22]",
                 )}>
-                <Image src={image.data_url || "/placeholder.jpg"} alt={`${product.title}-${index + 1}`} fill className="object-cover" sizes="80px" />
+                <Image src={image.data_url || "/placeholder.jpg"} alt={`${previewTitle}-${index + 1}`} fill className="object-cover" sizes="80px" />
               </button>
             ))}
           </div>
@@ -422,13 +427,18 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           resolutionHeight={MIN_IMAGE_RESOLUTION.height}
           resolutionType="more"
           dataURLKey="data_url"
-          onError={errors =>
-            showToastWarningFn(tGlobal, errors, {
-              maxNumber: MAX_PRODUCT_IMAGES,
-              maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES,
-              minResolution: MIN_IMAGE_RESOLUTION,
-            })
-          }>
+          onError={(errors, files) => {
+            void showToastWarningFn(
+              tGlobal,
+              errors,
+              {
+                maxNumber: MAX_PRODUCT_IMAGES,
+                maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES,
+                minResolution: MIN_IMAGE_RESOLUTION,
+              },
+              files,
+            )
+          }}>
           {({ onImageUpload, dragProps }) => (
             <div className="order-1 tablet:order-2">
               <div className="overflow-hidden rounded-[28px] border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(24,110,52,0.24),transparent_34%),linear-gradient(180deg,rgba(10,13,18,0.98),rgba(6,8,12,0.99))] shadow-[0_24px_80px_rgba(0,0,0,0.45)]">

@@ -15,9 +15,11 @@ import { TProductAfterDB } from "../ts/product/TProductAfterDB"
 import { getURL } from "@/utils/helpers"
 import { twMerge } from "tailwind-merge"
 import { Fragment } from "react"
+import { pt, toProductLocale } from "@/utils/product"
 
 interface CheckEmailProps {
   products: TProductAfterDB[]
+  locale: string
   deliveryDate: string
   previewText: string
   orderConfirmed: string
@@ -33,6 +35,7 @@ interface CheckEmailProps {
 
 export const CheckEmail = ({
   products,
+  locale,
   deliveryDate,
   previewText,
   orderConfirmed,
@@ -45,6 +48,7 @@ export const CheckEmail = ({
   feedbackText,
   allRightsReserved,
 }: CheckEmailProps) => {
+  const productLocale = toProductLocale(locale)
   const totalAmount = products.reduce((total, product) => total + product.price * product.quantity, 0)
 
   return (
@@ -95,39 +99,43 @@ export const CheckEmail = ({
                 padding: "32px",
                 marginBottom: "16px",
               }}>
-              {products?.map((product, index) => (
-                <Section
-                  className={twMerge(index !== products.length - 1 && "pb-6 mb-6 border-b border-[#e5e5e5]")}
-                  key={product.id}
-                  style={{ padding: 0 }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <tr>
-                      <td style={{ width: "120px", verticalAlign: "top", paddingRight: "20px" }}>
-                        <Img
-                          style={{ objectFit: "cover", borderRadius: "8px", display: "block" }}
-                          src={product.img_url[0]}
-                          width="120"
-                          height="120"
-                          alt={product.title}
-                        />
-                      </td>
-                      <td style={{ verticalAlign: "top" }}>
-                        <Text
-                          className="m-0 text-[18px] font-semibold text-title"
-                          style={{ lineHeight: "1.4", marginBottom: "8px" }}>
-                          {product.title}
-                        </Text>
-                        <Text className="m-0 text-[14px] text-subTitle" style={{ lineHeight: "1.5", marginBottom: "12px" }}>
-                          {quantityText}: {product.quantity}
-                        </Text>
-                        <Text className="m-0 text-[16px] font-medium text-title">
-                          {formatCurrency(product.price * product.quantity)}
-                        </Text>
-                      </td>
-                    </tr>
-                  </table>
-                </Section>
-              ))}
+              {products?.map((product, index) => {
+                const translation = pt(product, productLocale)
+
+                return (
+                  <Section
+                    className={twMerge(index !== products.length - 1 && "pb-6 mb-6 border-b border-[#e5e5e5]")}
+                    key={product.id}
+                    style={{ padding: 0 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <tr>
+                        <td style={{ width: "120px", verticalAlign: "top", paddingRight: "20px" }}>
+                          <Img
+                            style={{ objectFit: "cover", borderRadius: "8px", display: "block" }}
+                            src={product.img_url[0]}
+                            width="120"
+                            height="120"
+                            alt={translation.title}
+                          />
+                        </td>
+                        <td style={{ verticalAlign: "top" }}>
+                          <Text
+                            className="m-0 text-[18px] font-semibold text-title"
+                            style={{ lineHeight: "1.4", marginBottom: "8px" }}>
+                            {translation.title}
+                          </Text>
+                          <Text className="m-0 text-[14px] text-subTitle" style={{ lineHeight: "1.5", marginBottom: "12px" }}>
+                            {quantityText}: {product.quantity}
+                          </Text>
+                          <Text className="m-0 text-[16px] font-medium text-title">
+                            {formatCurrency(product.price * product.quantity)}
+                          </Text>
+                        </td>
+                      </tr>
+                    </table>
+                  </Section>
+                )
+              })}
 
               {/* TOTAL */}
               <Section style={{ borderTop: "2px solid #e5e5e5", paddingTop: "24px", marginTop: "24px" }}>

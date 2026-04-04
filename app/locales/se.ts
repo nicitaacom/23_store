@@ -275,6 +275,7 @@ export default {
   "product.this_field_is_required": "Detta fält är obligatoriskt",
   "product.title_required": "Ange en produkttitel – a–z, siffror och #()_ är tillåtna",
   "product.title_invalid_character": 'Tecknet "{character}" är inte tillåtet nära "{context}"',
+  "product.description_invalid_character": 'Tecknet "{character}" är inte tillåtet nära "{context}"',
   "product.subtitle_required": "Inga tecken !$^*_=\\ tillåtna",
   "product.price_required": "Ange pris från 0,01 till 999 999 med 2 decimaler",
   "product.on_stock_required": "Ange lagersaldo som ett positivt tal, decimaler tillatna",
@@ -313,6 +314,8 @@ export default {
   "product.warning.max_variants_subtitle": "Använd högst {maxVariants} varianter för en produkt",
   "product.warning.use_higer_resolution_title": "Använd högre upplösning",
   "product.warning.use_higer_resolution_subtitle": "Minsta tillåtna upplösning är {minResolution}px.",
+  "product.warning.use_higer_resolution_subtitle_with_uploaded":
+    "Du laddade upp {uploadedResolution}px men minsta tillåtna upplösning är {minResolution}px.",
   "product.add": "Lägg till produkt",
   "product.edit": "Redigera produkt",
   "product.delete": "Radera produkt",
@@ -329,10 +332,11 @@ export default {
   "product.error.image_upload_errors": "Fel vid bilduppladdning",
   "product.error.db_insert_failed": "Databasinfogning misslyckades",
   "product.error.no_data_returned_from_uploaded_image": "Ingen data returnerades från uppladdad bild",
-  "product.title_too_short": "Titeln är för kort - minst 3 tecken",
-  "product.title_too_long": "Titeln är för lång - max {max} tecken (nuvarande: {current})",
-  "product.title_must_contain_letter": "Titeln måste innehålla minst en bokstav",
-  "product.title_must_start_alphanumeric": "Titeln måste börja med en bokstav eller siffra",
+  "product.title_too_short": "Titeln är för kort - minst 2 tecken",
+  "product.title_printable_only": "Titeln får bara innehålla utskrivbara tecken",
+  "product.description_too_short": "Beskrivningen är för kort - minst 10 tecken",
+  "product.description_too_long": "Beskrivningen är för lång - max {max} tecken",
+  "product.description_printable_only": "Beskrivningen får bara innehålla utskrivbara tecken och radbrytningar",
 
   // =================        =================
   //                   message
