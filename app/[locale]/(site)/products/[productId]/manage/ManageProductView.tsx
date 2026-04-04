@@ -1,6 +1,5 @@
 "use client"
 
-import axios from "axios"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useCallback, useMemo, useState } from "react"
@@ -24,6 +23,7 @@ import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVari
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
 import { normalizeProductImageUrls, pt } from "@/utils/product"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 interface ManageProductViewProps {
   product: TProductDB
@@ -43,6 +43,20 @@ function normalizeVariantsForDraft(product: TProductDB): TProductVariantDraft[] 
 
 function stringifyValue(value: unknown) {
   return JSON.stringify(value ?? null)
+}
+
+async function postProductUpdate(request: TUpdateProductRequest) {
+  const response = await fetch("/api/products/update", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+  })
+
+  if (!response.ok) {
+    throw new Error(await getResponseErrorMessage(response))
+  }
+
+  return response
 }
 
 export function ManageProductView({ product }: ManageProductViewProps) {
@@ -272,24 +286,25 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         let nextProductId = product.id
 
         if (stringifyValue(nextTranslations) !== stringifyValue(product.translations)) {
-          await axios.post("/api/products/update", { productId: nextProductId, translations: nextTranslations } as TUpdateProductRequest)
+          await postProductUpdate({ productId: nextProductId, translations: nextTranslations } as TUpdateProductRequest)
         }
 
         if (stringifyValue(resolvedImageUrls) !== stringifyValue(product.img_url)) {
-          await axios.post("/api/products/update", { productId: nextProductId, images: resolvedImageUrls } as TUpdateProductRequest)
+          await postProductUpdate({ productId: nextProductId, images: resolvedImageUrls } as TUpdateProductRequest)
         }
 
         if (stringifyValue(resolvedVariants) !== stringifyValue(product.variants ?? null)) {
-          await axios.post("/api/products/update", { productId: nextProductId, variants: resolvedVariants } as TUpdateProductRequest)
+          await postProductUpdate({ productId: nextProductId, variants: resolvedVariants } as TUpdateProductRequest)
         }
 
         if (normalizedOnStock !== product.on_stock) {
-          await axios.post("/api/products/update", { productId: nextProductId, onStock: normalizedOnStock } as TUpdateProductRequest)
+          await postProductUpdate({ productId: nextProductId, onStock: normalizedOnStock } as TUpdateProductRequest)
         }
 
         if (normalizedPrice !== product.price) {
-          const response = await axios.post("/api/products/update", { productId: nextProductId, price: normalizedPrice } as TUpdateProductRequest)
-          nextProductId = response.data?.id || nextProductId
+          const response = await postProductUpdate({ productId: nextProductId, price: normalizedPrice } as TUpdateProductRequest)
+          const responseData = (await response.json()) as { id?: string }
+          nextProductId = responseData.id || nextProductId
         }
 
         toast.show("success", t("changes_saved"), t("manage_product_success"))
@@ -330,7 +345,16 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
     setIsSaving(true)
     try {
-      await axios.post("/api/products/delete", { id: product.id })
+      const response = await fetch("/api/products/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: product.id }),
+      })
+
+      if (!response.ok) {
+        throw new Error(await getResponseErrorMessage(response))
+      }
+
       toast.show("success", t("product_deleted"), currentTranslation.title)
       router.push(`/${locale}`)
       router.refresh()

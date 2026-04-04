@@ -1,5 +1,4 @@
 import { useEffect } from "react"
-import axios from "axios"
 
 import { TAPIMessageSeen } from "@/api/message/seen/route"
 import { IMessageDB } from "@/ts/support/IMessageDB"
@@ -16,7 +15,11 @@ export const useMarkMessagesAsSeen = (
 
   useEffect(() => {
     if (isDropdown && !isLoading && !!ticketId && messages.length > 0 && !!userId && isActiveTab) {
-      axios.post("/api/message/seen", { ticketId, messages, userId } as TAPIMessageSeen)
+      void fetch("/api/message/seen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticketId, messages, userId } as TAPIMessageSeen),
+      })
     }
   }, [isDropdown, ticketId, messages, userId, isLoading, isActiveTab])
 }

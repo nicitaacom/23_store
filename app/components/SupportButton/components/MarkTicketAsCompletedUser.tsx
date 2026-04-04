@@ -5,7 +5,6 @@ import { useEffect, useState } from "react"
 import { CiStar } from "react-icons/ci"
 import { FaStar } from "react-icons/fa"
 import { useRouter } from "next/navigation"
-import axios from "axios"
 import { twMerge } from "tailwind-merge"
 
 import { Button } from "@/components/ui"
@@ -14,6 +13,7 @@ import { TAPITicketsRate } from "@/api/tickets/rate/route"
 import { getPusherClient } from "@/libs/pusher"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 interface MarkTicketAsCompletedUserProps {
   ticketId: string | null
@@ -34,7 +34,15 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
   async function closeTicket() {
     setShowMarkTicketAsCompleted(false)
     setShowRateThisTicket(true)
-    await axios.post("api/tickets/close", { ticketId, closedBy: "user" } as TAPITicketsClose)
+    const response = await fetch("api/tickets/close", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticketId, closedBy: "user" } as TAPITicketsClose),
+    })
+
+    if (!response.ok) {
+      throw new Error(await getResponseErrorMessage(response))
+    }
   }
 
   async function rateTicket(ratingValue: number | null) {
@@ -52,7 +60,15 @@ export function MarkTicketAsCompletedUser({ ticketId, messagesLength }: MarkTick
     }
 
     router.refresh()
-    await axios.post("/api/tickets/rate", { ticketId, rate: ratingValue } as TAPITicketsRate)
+    const response = await fetch("/api/tickets/rate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticketId, rate: ratingValue } as TAPITicketsRate),
+    })
+
+    if (!response.ok) {
+      throw new Error(await getResponseErrorMessage(response))
+    }
   }
 
   useEffect(() => {

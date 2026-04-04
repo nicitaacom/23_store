@@ -1,6 +1,6 @@
-import axios from "axios"
 import { getUserId } from "@/utils/getUserId"
-import { TAPITicketGetTicketIdRequest, TAPITicketGetTicketIdResponse } from "@/api/ticket/get-ticket-id/route"
+import { TAPITicketGetTicketIdData, TAPITicketGetTicketIdRequest } from "@/api/ticket/get-ticket-id/route"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 // simple in-memory cache (browser + server safe)
 let ticketIdPromiseCache: Promise<string | undefined> | null = null
@@ -14,11 +14,21 @@ const fetchTicketId = async (): Promise<string | undefined> => {
 
   ticketIdPromiseCache = (async () => {
     try {
-      const response: TAPITicketGetTicketIdResponse = await axios.post("/api/ticket/get-ticket-id", {
-        userId,
-      } satisfies TAPITicketGetTicketIdRequest)
+      const response = await fetch("/api/ticket/get-ticket-id", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+        } satisfies TAPITicketGetTicketIdRequest),
+      })
 
-      return response.data?.ticket_id ?? undefined
+      if (!response.ok) {
+        throw new Error(await getResponseErrorMessage(response))
+      }
+
+      const data = (await response.json()) as TAPITicketGetTicketIdData | ""
+
+      return typeof data === "string" ? undefined : data.ticket_id ?? undefined
     } catch (error) {
       console.error(33, "error - ", error)
       return crypto.randomUUID()

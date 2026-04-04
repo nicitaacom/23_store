@@ -1,5 +1,4 @@
 import { Dispatch, ReactNode, SetStateAction } from "react"
-import axios, { AxiosError } from "axios"
 
 import { TAPIAuthRegister } from "@/api/auth/register/route"
 import { AuthFormData } from "../AuthModal/AuthModal"
@@ -11,6 +10,7 @@ import { getPusherClient } from "@/libs/pusher"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
 import { UnknownError } from "./UnknownError"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function signUp(
   t: TI18nFunction,
@@ -28,15 +28,19 @@ export async function signUp(
   try {
     const pusherClient = getPusherClient()
 
-    const signUpResponse = await axios
-      .post("/api/auth/register", {
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         username: username,
         email: email,
         password: password,
-      } as TAPIAuthRegister)
-      .catch(error => {
-        throw error
-      })
+      } as TAPIAuthRegister),
+    })
+
+    if (!response.ok) {
+      throw new Error(await getResponseErrorMessage(response))
+    }
 
     setIsEmailSent(true)
     if (getValues("email")) {
@@ -74,14 +78,12 @@ export async function signUp(
       )
     }, 5000)
   } catch (error) {
-    if (error instanceof AxiosError) {
-      if (error.response?.data.error === "User exists - check your email\n You might not verified your email") {
+    if (error instanceof Error) {
+      if (error.message === "User exists - check your email\n You might not verified your email") {
         displayResponseMessage(<UserExistEmailNotConfirmed t={t} />)
       } else {
-        displayResponseMessage(<p className="text-danger">{error.response?.data.error}</p>)
+        displayResponseMessage(<p className="text-danger">{error.message}</p>)
       }
-    } else if (error instanceof Error) {
-      displayResponseMessage(<p className="text-danger">{error.message}</p>)
     } else {
       displayResponseMessage(<UnknownError t={t} />)
     }

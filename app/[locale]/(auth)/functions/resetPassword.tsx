@@ -1,4 +1,3 @@
-import axios, { AxiosError } from "axios"
 import { ReactNode } from "react"
 
 import { TAPIAuthRecover } from "@/api/auth/recover/route"
@@ -7,6 +6,7 @@ import { Timer } from "../AuthModal/components"
 import { Button } from "@/components/ui"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UnknownError } from "./UnknownError"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function resetPassword(password: string, displayResponseMessage: (message: ReactNode) => void, t: TI18nFunction) {
   const userStore = useUserStore.getState()
@@ -17,12 +17,22 @@ export async function resetPassword(password: string, displayResponseMessage: (m
     const parsedEmail = JSON.parse(email ?? "")
 
     if (parsedEmail.expires > new Date().getTime()) {
-      const response = await axios.post("api/auth/reset", {
-        email: parsedEmail.value,
-        password: password,
-      } as TAPIAuthRecover)
+      const response = await fetch("api/auth/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: parsedEmail.value,
+          password: password,
+        } as TAPIAuthRecover),
+      })
 
-      userStore.setUser(response.data.user)
+      if (!response.ok) {
+        throw new Error(await getResponseErrorMessage(response))
+      }
+
+      const data = await response.json()
+
+      userStore.setUser(data.user)
 
       localStorage.removeItem("email") // Remove email from localstorage
       displayResponseMessage(
@@ -36,10 +46,7 @@ export async function resetPassword(password: string, displayResponseMessage: (m
       throw new Error(t("auth.recovery.session_expired"))
     }
   } catch (error) {
-    //This is required to show custom error message (check api/dev_readme.md)
-    if (error instanceof AxiosError) {
-      displayResponseMessage(<p className="text-danger">{error.response?.data.error}</p>)
-    } else if (error instanceof Error) {
+    if (error instanceof Error) {
       displayResponseMessage(<p className="text-danger">{error.message}</p>)
     } else {
       displayResponseMessage(<UnknownError t={t} />)

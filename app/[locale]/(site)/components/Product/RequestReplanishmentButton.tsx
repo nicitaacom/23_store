@@ -1,13 +1,13 @@
 "use client"
 
 import { HiOutlineRefresh } from "react-icons/hi"
-import axios from "axios"
 
 import useToast from "@/store/ui/useToast"
 import { TAPISendEmailRequestReplanishment } from "@/api/send-email/request-replanishment/route"
 import { useEffect, useState } from "react"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { Button } from "@/components/ui"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export function RequestReplanishmentButton({ product }: { product: TProductDB }) {
   const toast = useToast()
@@ -32,11 +32,21 @@ export function RequestReplanishmentButton({ product }: { product: TProductDB })
 
   async function requestReplanishment() {
     // 2. Send email to owner and let product owner to unsubscribe from taht email
-    await axios.post("/api/send-email/request-replanishment", {
-      owner_id: product.owner_id,
-      subject: "Request replanishment",
-      html: html,
-    } as TAPISendEmailRequestReplanishment)
+    const response = await fetch("/api/send-email/request-replanishment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        owner_id: product.owner_id,
+        subject: "Request replanishment",
+        html: html,
+      } as TAPISendEmailRequestReplanishment),
+    })
+
+    if (!response.ok) {
+      toast.show("error", "Failed to request replenishment", await getResponseErrorMessage(response))
+      return
+    }
+
     // 3. TODO - Add amount of requests about replanishment
     // https://github.com/users/nicitaacom/projects/5/views/1?sortedBy%5Bdirection%5D=desc&sortedBy%5BcolumnId%5D=59471618&pane=issue&itemId=50280346
 

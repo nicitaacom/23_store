@@ -1,4 +1,3 @@
-import axios from "axios"
 import { NextResponse } from "next/server"
 import { TURNSTILE_COOKIE_MAX_AGE_SECONDS, TURNSTILE_COOKIE_NAME, TURNSTILE_COOKIE_VALUE } from "@/utils/turnstile"
 
@@ -29,15 +28,19 @@ export async function POST(request: Request) {
     formData.set("remoteip", remoteIp)
   }
 
-  const { data: verificationResult } = await axios.post<TTurnstileVerifyResponse>(
-    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-    formData.toString(),
-    {
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-      },
+  const verificationResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
     },
-  )
+    body: formData.toString(),
+  })
+
+  if (!verificationResponse.ok) {
+    return NextResponse.json({ success: false, error: "Cloudflare Turnstile request failed" }, { status: verificationResponse.status })
+  }
+
+  const verificationResult = (await verificationResponse.json()) as TTurnstileVerifyResponse
 
   if (!verificationResult.success) {
     return NextResponse.json(

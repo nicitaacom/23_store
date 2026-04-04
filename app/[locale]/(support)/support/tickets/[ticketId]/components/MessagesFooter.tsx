@@ -1,11 +1,11 @@
 "use client"
 
 import { FormEvent, useState } from "react"
-import axios from "axios"
 import { FiSend } from "react-icons/fi"
 import useUserStore from "@/store/user/userStore"
 import { TAPIMessageSend } from "@/api/message/send/route"
 import { getUserAvatarUrl, getUserName } from "@/utils/user"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   const { user } = useUserStore()
@@ -18,16 +18,23 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
     if (!trimmedMessage) return
 
     setMessage("")
-    await axios.post("/api/message/send", {
-      messageBody: trimmedMessage,
-      ticketId: ticket_id,
-      senderId: user?.id,
-      senderUsername: getUserName(user),
-      senderAvatarUrl: getUserAvatarUrl(user),
-      // TODO - images logic in the future
-      images: undefined,
-      messageSender: "support",
-    } as TAPIMessageSend)
+    const response = await fetch("/api/message/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messageBody: trimmedMessage,
+        ticketId: ticket_id,
+        senderId: user?.id,
+        senderUsername: getUserName(user),
+        senderAvatarUrl: getUserAvatarUrl(user),
+        images: undefined,
+        messageSender: "support",
+      } as TAPIMessageSend),
+    })
+
+    if (!response.ok) {
+      throw new Error(await getResponseErrorMessage(response))
+    }
   }
 
   return (

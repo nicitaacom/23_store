@@ -1,5 +1,4 @@
 import { useRef, useEffect } from "react"
-import axios from "axios"
 
 import { useAIChatStore } from "@/components/Navbar/stores/useAIChat"
 import { useLoading } from "@/store/ui/useLoading"
@@ -11,11 +10,13 @@ import { useToast } from "@/store/ui"
 import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import useUserStore from "@/store/user/userStore"
 import { usePathname, useRouter } from "next/navigation"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export function useAIChat() {
   const router = useRouter()
   const pathname = usePathname()
-  const userId = useUserStore(state => state.user?.id ?? "")
+  const { user } = useUserStore()
+  const userId = user?.id ?? ""
 
   const toast = useToast()
   const {
@@ -174,17 +175,19 @@ export function useAIChat() {
     try {
       await rateLimitSDK.rateLimit(t, "aiGenerateImage")
 
-      const imageResponse = await axios.post(
-        "/api/ai/generate-image",
-        { prompt: `${memory} - generate image for this product` } as API.GenerateImageRequest,
-        { responseType: "arraybuffer" },
-      )
+      const imageResponse = await fetch("/api/ai/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: `${memory} - generate image for this product` } as API.GenerateImageRequest),
+      })
 
-      if (imageResponse.status !== 200) {
-        throw new Error(`Image generation failed with status ${imageResponse.status}`)
+      if (!imageResponse.ok) {
+        throw new Error(await getResponseErrorMessage(imageResponse))
       }
 
-      const imageFile = new File([imageResponse.data], "generated_image.png", { type: "image/png" })
+      const imageFile = new File([await imageResponse.arrayBuffer()], "generated_image.png", {
+        type: imageResponse.headers.get("Content-Type") || "image/png",
+      })
 
       const uploadResult = await uploadImageFn({ t, imageFile, bucket: "public-images" })
       if (typeof uploadResult === "string") {

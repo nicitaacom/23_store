@@ -1,5 +1,4 @@
 import { ReactNode } from "react"
-import axios, { AxiosError } from "axios"
 import { UseFormGetValues } from "react-hook-form"
 
 import { TAPIAuthRecover } from "@/api/auth/recover/route"
@@ -10,6 +9,7 @@ import { getPusherClient } from "@/libs/pusher"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UnknownError } from "./UnknownError"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function recoverPassword(
   email: string,
@@ -21,7 +21,16 @@ export async function recoverPassword(
   try {
     const pusherClient = getPusherClient()
 
-    await axios.post("/api/auth/recover", { email: email } as TAPIAuthRecover)
+    const response = await fetch("/api/auth/recover", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email } as TAPIAuthRecover),
+    })
+
+    if (!response.ok) {
+      throw new Error(await getResponseErrorMessage(response))
+    }
+
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
       redirectTo: `${getAuthCallbackBaseUrl()}/${locale}/auth/callback/recover`,
     })
@@ -37,9 +46,7 @@ export async function recoverPassword(
 
     displayResponseMessage(<p className="text-success">{t("auth.database.reset_email_sent")}</p>)
   } catch (error) {
-    if (error instanceof AxiosError) {
-      displayResponseMessage(<p className="text-danger">{error.response?.data.error}</p>)
-    } else if (error instanceof Error) {
+    if (error instanceof Error) {
       displayResponseMessage(<p className="text-danger">{error.message}</p>)
     } else {
       displayResponseMessage(<UnknownError t={t} />)

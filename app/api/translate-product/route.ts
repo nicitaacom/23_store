@@ -4,6 +4,8 @@ import openai from "@/libs/openai"
 import { ProductTranslations } from "@/ts/product/TProductDB"
 import { PRODUCT_LOCALES } from "@/utils/product"
 
+export const maxDuration = 60
+
 const TRANSLATOR_SYSTEM_PROMPT = `Translate the given product title and description into EN, FI, RU, SE.
 
 Rules:
@@ -11,7 +13,7 @@ Rules:
 - Preserve formatting, line breaks, and special characters exactly
 - Include all 4 languages even if input is already in one of them
 
-Respond ONLY with raw JSON, no markdown:
+Respond fast without doing much reasoning ONLY with raw JSON, no markdown:
 {"en":{"title":"...","description":"..."},"fi":{"title":"...","description":"..."},"ru":{"title":"...","description":"..."},"se":{"title":"...","description":"..."}}`
 
 const TRANSLATION_SCHEMA: Record<string, unknown> = {
@@ -60,20 +62,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Title and description are required" }, { status: 400 })
     }
 
-    const response = await openai.responses.create({
-      model: "gpt-5-nano",
-      instructions: TRANSLATOR_SYSTEM_PROMPT,
-      input: `title: ${title}\ndescription: ${description}`,
-      // temperature: 0, // DO NOT use temperature with gpt-5-nano
-      text: {
-        format: {
-          type: "json_schema",
-          name: "product_translations",
-          strict: true,
-          schema: TRANSLATION_SCHEMA,
+    const response = await openai.responses.create(
+      {
+        model: "gpt-5-nano",
+        instructions: TRANSLATOR_SYSTEM_PROMPT,
+        input: `title: ${title}\ndescription: ${description}`,
+        text: {
+          format: {
+            type: "json_schema",
+            name: "product_translations",
+            strict: true,
+            schema: TRANSLATION_SCHEMA,
+          },
         },
       },
-    })
+      { timeout: 15000 },
+    )
 
     const outputText = response.output_text?.trim()
     if (!outputText) {
@@ -88,6 +92,7 @@ export async function POST(req: Request) {
     return NextResponse.json(parsed)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    return new Response(errorMessage, { status: 500 })
+    const status = errorMessage.toLowerCase().includes("timeout") ? 504 : 500
+    return new Response(errorMessage, { status })
   }
 }

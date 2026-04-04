@@ -7,10 +7,10 @@ import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
 import useUserStore from "@/store/user/userStore"
-import axios, { AxiosError } from "axios"
 import { useRouter } from "next/navigation"
 import { FaPaypal } from "react-icons/fa"
 import { twMerge } from "tailwind-merge"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export function PayWithPaypalButton() {
   const t = useScopedI18n("payment")
@@ -43,18 +43,24 @@ export function PayWithPaypalButton() {
           10000,
         )
       } else {
-        const payPalResponse = await axios.post("/api/create-paypal-session", {
-          payPalProductsQuery,
-          email: user?.email || null,
-        } as TPayPalProductsQuery)
+        const payPalResponse = await fetch("/api/create-paypal-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            payPalProductsQuery,
+            email: user?.email || null,
+          } as TPayPalProductsQuery),
+        })
+
+        if (!payPalResponse.ok) {
+          throw new Error(await getResponseErrorMessage(payPalResponse))
+        }
 
         // redirect user to session.url on client side to avoid 'blocked by CORS' error
-        router.push(payPalResponse.data)
+        router.push(await payPalResponse.text())
       }
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.show("error", t("error.creating_provider_session", { provider: "paypal" }), error.response?.data)
-      }
+      toast.show("error", t("error.creating_provider_session", { provider: "paypal" }), error instanceof Error ? error.message : String(error))
     }
     setIsLoading(false)
   }

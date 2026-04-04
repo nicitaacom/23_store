@@ -13,8 +13,8 @@ interface ProductLikeButtonProps {
 
 export function ProductLikeButton({ productId, className }: ProductLikeButtonProps) {
   const t = useScopedI18n("product")
-  const isLiked = useLikedProductsStore(state => state.likedProductIds.includes(productId))
-  const toggleProductLike = useLikedProductsStore(state => state.toggleProductLike)
+  const { likedProductIds, toggleProductLike } = useLikedProductsStore()
+  const isLiked = likedProductIds.includes(productId)
 
   return (
     <button

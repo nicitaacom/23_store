@@ -35,7 +35,6 @@
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.1",
     "autoprefixer": "10.4.16",
-    "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "disposable-email-domains": "^1.0.62",
     "framer-motion": "^10.18.0",

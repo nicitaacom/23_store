@@ -1,7 +1,6 @@
 "use client"
 
 import { FaCheck } from "react-icons/fa"
-import axios from "axios"
 
 import { TAPITicketsClose } from "@/api/tickets/close/route"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
@@ -9,6 +8,7 @@ import useTicket from "@/hooks/support/useTicket"
 import { AreYouSureModalContainer } from "./ModalContainers"
 import { useRouter } from "next/navigation"
 import { useScopedI18n } from "@/locales/client"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export function AreYouSureMarkTicketAsCompletedSupportModal() {
   const t = useScopedI18n("modal")
@@ -19,7 +19,16 @@ export function AreYouSureMarkTicketAsCompletedSupportModal() {
 
   async function markTickedAsCompleted() {
     areYouSureMarkTicketAsCompletedSupportModal.closeModal()
-    await axios.post("/api/tickets/close", { ticketId: ticketId, closedBy: "support" } as TAPITicketsClose)
+    const response = await fetch("/api/tickets/close", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticketId: ticketId, closedBy: "support" } as TAPITicketsClose),
+    })
+
+    if (!response.ok) {
+      throw new Error(await getResponseErrorMessage(response))
+    }
+
     router.refresh()
   }
 

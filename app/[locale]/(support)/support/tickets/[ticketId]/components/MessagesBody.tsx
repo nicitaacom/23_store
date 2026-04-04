@@ -2,7 +2,6 @@
 
 import { Fragment, useEffect, useRef, useState } from "react"
 import { find } from "lodash"
-import axios from "axios"
 
 import { TAPIMessageSeen } from "@/api/message/seen/route"
 import { IMessageDB } from "@/ts/support/IMessageDB"
@@ -54,7 +53,11 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
 
   useEffect(() => {
     if (document.visibilityState === "visible" && user?.id) {
-      axios.post("/api/message/seen", { ticketId: ticket_id, messages: messages, userId: user.id } as TAPIMessageSeen)
+      void fetch("/api/message/seen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticketId: ticket_id, messages: messages, userId: user.id } as TAPIMessageSeen),
+      })
     }
   }, [messages, ticket_id, user?.id])
 

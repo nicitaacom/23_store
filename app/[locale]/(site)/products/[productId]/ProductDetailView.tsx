@@ -27,7 +27,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const t = useScopedI18n("product")
   const locale = useCurrentLocale()
   const translation = pt(product, locale)
-  const quantity = useCartStore(state => state.products?.[product.id]?.quantity ?? 0)
+  const { products } = useCartStore()
+  const quantity = products?.[product.id]?.quantity ?? 0
   const isOutOfStock = (product.on_stock ?? 0) <= 0
 
   const variants = useMemo(

@@ -68,7 +68,7 @@ For examples see files in this folder
         }
 
         const messagehandler = (message: IMessage) => {
-          //TODO - axios.post('api/messages/{ticketId}/seen')
+          //TODO - fetch('api/messages/{ticketId}/seen', { method: "POST" })
           setMessages(current => {
             if (find(current, { id: message.id })) {
               return current
@@ -112,7 +112,7 @@ For examples see files in this folder
 
       ```ts
             const messagehandler = (message: IMessage) => {
-          //TODO - axios.post('api/messages/{ticketId}/seen')
+          //TODO - fetch('api/messages/{ticketId}/seen', { method: "POST" })
           setMessages(current => {
             if (find(current, { id: message.id })) {
               return current

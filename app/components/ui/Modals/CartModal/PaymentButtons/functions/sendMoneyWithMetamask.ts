@@ -1,5 +1,4 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import axios, { AxiosResponse } from "axios"
 import { TWallet } from "@/store/ui/useDoYouWantRecieveCheckModal"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
@@ -12,6 +11,7 @@ import {
   Keypair,
 } from "@solana/web3.js"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export const sendMoneyWithMetamask = async (
   productsPrice: number,
@@ -56,14 +56,24 @@ export const sendMoneyWithMetamask = async (
     }
 
     // 4. proceed to get price conversion for the specific token
-    const response: AxiosResponse<API.CoinmarketcapResponse> = await axios.post(`${location.origin}/api/coinmarketcap`, {
-      amount: productsPrice,
-      symbol: "USD",
-      convert: chainToken,
-    } as API.CoinmarketcapRequest)
+    const response = await fetch(`${location.origin}/api/coinmarketcap`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: productsPrice,
+        symbol: "USD",
+        convert: chainToken,
+      } as API.CoinmarketcapRequest),
+    })
+
+    if (!response.ok) {
+      throw new Error(await getResponseErrorMessage(response))
+    }
+
+    const data = (await response.json()) as API.CoinmarketcapResponse
 
     // 5. check if the token price is available
-    const tokenPrice = response.data.data[0].quote[chainToken]?.price
+    const tokenPrice = data.data[0].quote[chainToken]?.price
     if (!tokenPrice) {
       toast.show(
         "error",

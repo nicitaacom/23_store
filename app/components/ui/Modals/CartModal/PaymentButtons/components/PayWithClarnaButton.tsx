@@ -4,10 +4,10 @@ import { SiKlarna } from "react-icons/si"
 import { twMerge } from "tailwind-merge"
 
 import useCartStore from "@/store/user/cartStore"
-import axios, { AxiosError } from "axios"
 import useToast from "@/store/ui/useToast"
 import { useLoading } from "@/store/ui/useLoading"
 import { Button } from "@/components/ui"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export function PayWithKlarnaButton() {
   const toast = useToast()
@@ -26,11 +26,12 @@ export function PayWithKlarnaButton() {
   async function createKlarnaSession() {
     setIsLoading(true)
     try {
-      const response = await axios.post("/api/create-klarna-session")
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.show("error", "Error creating paypal session", error.response?.data)
+      const response = await fetch("/api/create-klarna-session", { method: "POST" })
+      if (!response.ok) {
+        throw new Error(await getResponseErrorMessage(response))
       }
+    } catch (error) {
+      toast.show("error", "Error creating paypal session", error instanceof Error ? error.message : String(error))
     }
     setIsLoading(false)
   }

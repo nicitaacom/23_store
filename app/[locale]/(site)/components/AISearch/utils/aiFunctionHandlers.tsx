@@ -1,10 +1,10 @@
 // src/utils/aiFunctionHandlers.ts
-import axios from "axios"
 import { createProductFn } from "@/functions/createProductFn"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import useCartStore from "@/store/user/cartStore"
 import type { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { uploadImageFn } from "@/functions/uploadImageFn"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 type FunctionResult = {
   success: boolean
@@ -68,15 +68,19 @@ async function generateImageHandler(args: HandlerArgs): Promise<FunctionResult> 
     // ⚡ Combine memory + current prompt to generate accurate image
     const fullPrompt = [memory, prompt].filter(Boolean).join(" - ")
 
-    const imageResp = await axios.post("/api/ai/generate-image", { prompt: fullPrompt } as API.GenerateImageRequest, {
-      responseType: "arraybuffer",
+    const imageResp = await fetch("/api/ai/generate-image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: fullPrompt } as API.GenerateImageRequest),
     })
 
-    if (imageResp.status !== 200) {
+    if (!imageResp.ok) {
       return { success: false, message: `Image generation failed: ${imageResp.status}` }
     }
 
-    const imageFile = new File([imageResp.data], "generated_image.png", { type: "image/png" })
+    const imageFile = new File([await imageResp.arrayBuffer()], "generated_image.png", {
+      type: imageResp.headers.get("Content-Type") || "image/png",
+    })
 
     const uploadResult = await uploadImageFn({ t, imageFile, bucket: "public-images" })
     if (!uploadResult || typeof uploadResult === "string") {

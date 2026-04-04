@@ -24,7 +24,7 @@ export function ModalContainer({
   label,
   children,
 }: ModalContainerProps) {
-  const isLoading = useLoading(state => state.isLoading)
+  const { isLoading } = useLoading()
 
   //correct way to add event listener to listen keydown
   useEffect(() => {

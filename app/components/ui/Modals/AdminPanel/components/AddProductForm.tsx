@@ -4,9 +4,6 @@ import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
 import { useForm } from "react-hook-form"
-import axios from "axios"
-import cloneDeep from "lodash/cloneDeep"
-import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
@@ -28,6 +25,7 @@ import { createProductFn } from "@/functions/createProductFn"
 import { useI18n, useScopedI18n } from "@/locales/client"
 import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
 import { TProductDB } from "@/ts/product/TProductDB"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 const previewImageVariants = {
   initial: (direction: "next" | "prev") => ({
@@ -54,8 +52,7 @@ interface AddProductFormProps {
 export function AddProductForm({ onCreated }: AddProductFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()
-  const router = useRouter()
-  const toast = useToast()
+  const { show: showToast, close: closeToast } = useToast()
   const { isDraggingg } = useDragging()
 
   const [images, setImages] = useState<ImageListType>([])
@@ -65,6 +62,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [pendingTranslationsAmount, setPendingTranslationsAmount] = useState(0)
   const dragZone = useRef<HTMLButtonElement | null>(null)
   const previousImageIndexRef = useRef(0)
+  const pendingTranslationsAmountRef = useRef(0)
 
   const onChange = (imageList: ImageListType) => {
     setImages(imageList)
@@ -109,12 +107,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   const updateBackgroundToast = (nextPendingTranslationsAmount: number) => {
     if (nextPendingTranslationsAmount <= 0) {
-      toast.close()
+      closeToast()
       return
     }
 
     const pendingProductsLabel = nextPendingTranslationsAmount === 1 ? "1 product is processing." : `${nextPendingTranslationsAmount} products are processing.`
-    toast.show(
+    showToast(
       "success",
       "Creating product, translating...",
       `${pendingProductsLabel} You can create another product while AI finishes translation.`,
@@ -123,45 +121,35 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   }
 
   const increasePendingTranslations = () => {
-    setPendingTranslationsAmount(currentPendingTranslationsAmount => {
-      const nextPendingTranslationsAmount = currentPendingTranslationsAmount + 1
-      updateBackgroundToast(nextPendingTranslationsAmount)
-      return nextPendingTranslationsAmount
-    })
+    const nextPendingTranslationsAmount = pendingTranslationsAmountRef.current + 1
+    pendingTranslationsAmountRef.current = nextPendingTranslationsAmount
+    setPendingTranslationsAmount(nextPendingTranslationsAmount)
+    updateBackgroundToast(nextPendingTranslationsAmount)
   }
 
   const decreasePendingTranslations = (showCompletedToast = false) => {
-    setPendingTranslationsAmount(currentPendingTranslationsAmount => {
-      const nextPendingTranslationsAmount = Math.max(0, currentPendingTranslationsAmount - 1)
+    const nextPendingTranslationsAmount = Math.max(0, pendingTranslationsAmountRef.current - 1)
+    pendingTranslationsAmountRef.current = nextPendingTranslationsAmount
+    setPendingTranslationsAmount(nextPendingTranslationsAmount)
 
-      if (nextPendingTranslationsAmount > 0) {
-        updateBackgroundToast(nextPendingTranslationsAmount)
-      } else if (showCompletedToast) {
-        toast.show("success", "Product created", "AI translation completed.")
-      } else {
-        toast.close()
-      }
-
-      return nextPendingTranslationsAmount
-    })
+    if (nextPendingTranslationsAmount > 0) {
+      updateBackgroundToast(nextPendingTranslationsAmount)
+    } else if (showCompletedToast) {
+      showToast("success", "Product created", "AI translation completed.")
+    } else {
+      closeToast()
+    }
   }
 
-  const restoreProductsAfterFailure = (rollbackSnapshot: { products: TProductDB[]; error: string | null }, optimisticProductId: string, errorMessage: string) => {
-    const currentProducts = useOwnerProductsStore.getState().products
-    const snapshotIds = new Set(rollbackSnapshot.products.map(product => product.id))
-    const productsAddedAfterSnapshot = currentProducts.filter(
-      product => !snapshotIds.has(product.id) && product.id !== optimisticProductId,
-    )
+  const rollbackOptimisticProduct = (optimisticProductId: string, errorMessage: string) => {
+    const { removeProduct, setError } = useOwnerProductsStore.getState()
 
-    useOwnerProductsStore.getState().restore({
-      products: [...productsAddedAfterSnapshot, ...rollbackSnapshot.products],
-      error: errorMessage,
-    })
+    removeProduct(optimisticProductId)
+    setError(errorMessage)
   }
 
   const createProductInBackgroundFn = async ({
     optimisticProductId,
-    rollbackSnapshot,
     normalizedTitle,
     normalizedDescription,
     price,
@@ -170,7 +158,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     resolvedVariants,
   }: {
     optimisticProductId: string
-    rollbackSnapshot: { products: TProductDB[]; error: string | null }
     normalizedTitle: string
     normalizedDescription: string
     price: number
@@ -179,11 +166,20 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     resolvedVariants: TProductVariantDraft[]
   }) => {
     try {
-      const translationResponse = await axios.post("/api/translate-product", {
-        title: normalizedTitle,
-        description: normalizedDescription,
+      const translationResponse = await fetch("/api/translate-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: normalizedTitle,
+          description: normalizedDescription,
+        }),
       })
-      const translations = translationResponse.data
+
+      if (!translationResponse.ok) {
+        throw new Error(await getResponseErrorMessage(translationResponse))
+      }
+
+      const translations = await translationResponse.json()
 
       useOwnerProductsStore.getState().updateProduct(optimisticProductId, product => ({
         ...product,
@@ -202,32 +198,20 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       })
 
       useOwnerProductsStore.getState().replaceProduct(optimisticProductId, createdProduct)
-      router.refresh()
+      useOwnerProductsStore.getState().setError(null)
       decreasePendingTranslations(true)
     } catch (error) {
-      const errorMessage = axios.isAxiosError(error)
-        ? typeof error.response?.data === "string"
-          ? error.response.data
-          : typeof error.response?.data?.error === "string"
-            ? error.response.data.error
-            : error.message
-        : error instanceof Error
-          ? error.message
-          : String(error)
+      const errorMessage = error instanceof Error ? error.message : String(error)
 
-      restoreProductsAfterFailure(rollbackSnapshot, optimisticProductId, errorMessage)
+      rollbackOptimisticProduct(optimisticProductId, errorMessage)
       decreasePendingTranslations(false)
-      toast.show("error", "Failed to create product", errorMessage)
+      showToast("error", "Failed to create product", errorMessage)
     }
   }
 
   const onSubmit = async (data: IFormDataAddProduct) => {
     const normalizedTitle = data.title.trim()
     const normalizedDescription = data.subTitle.trim()
-    const rollbackSnapshot = cloneDeep({
-      products: useOwnerProductsStore.getState().products,
-      error: useOwnerProductsStore.getState().error,
-    })
 
     const formattedOnStock = parseFormattedNumber(data.onStock)
     const resolvedVariants = variants
@@ -273,7 +257,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
     void createProductInBackgroundFn({
       optimisticProductId,
-      rollbackSnapshot,
       normalizedTitle,
       normalizedDescription,
       price: data.price,
@@ -309,11 +292,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     const normalizedLabel = variantLabel.trim()
 
     if (!images.length) {
-      return toast.show("warning", "Upload image first", "Select or upload an image before creating a variant")
+      return showToast("warning", "Upload image first", "Select or upload an image before creating a variant")
     }
 
     if (variants.length >= MAX_PRODUCT_VARIANTS) {
-      return toast.show(
+      return showToast(
         "warning",
         t("warning.max_variants_title", { maxVariants: MAX_PRODUCT_VARIANTS }),
         t("warning.max_variants_subtitle", { maxVariants: MAX_PRODUCT_VARIANTS }),
@@ -321,7 +304,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     }
 
     if (!normalizedLabel) {
-      return toast.show("warning", "Variant label required", "Enter a variant label like Bright Black Gray")
+      return showToast("warning", "Variant label required", "Enter a variant label like Bright Black Gray")
     }
 
     setVariants(currentVariants => [

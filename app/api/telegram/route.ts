@@ -1,5 +1,5 @@
-import axios from "axios"
 import { NextResponse } from "next/server"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function POST(req: Request) {
   const body: API.TelegramRequest = await req.json()
@@ -13,26 +13,32 @@ export async function POST(req: Request) {
     if (!TOKEN) throw Error("No telegram token")
     if (!CHAT_ID) throw Error("No telegram chat id")
 
-    const response = await axios.post(URI_API, {
-      chat_id: CHAT_ID,
-      parse_mode: "html",
-      text: message,
+    const response = await fetch(URI_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        parse_mode: "html",
+        text: message,
+      }),
     })
 
-    if (!response.data?.ok)
+    const responseData = await response.json()
+
+    if (!response.ok || !responseData?.ok)
       return NextResponse.json(
         {
-          message: response.data?.description || "Telegram API error",
-          data: response.data,
+          message: responseData?.description || (response.ok ? "Telegram API error" : await getResponseErrorMessage(response)),
+          data: responseData,
           status: response.status,
-          statusText: response.statusText,
+          statusText: response.statusText || "Telegram API error",
         } as API.TelegramResponse,
         { status: response.status || 500 },
       )
 
     return NextResponse.json(
       {
-        data: response.data,
+        data: responseData,
         status: response.status,
         statusText: response.statusText,
       } as API.TelegramResponse,

@@ -1,9 +1,9 @@
-import axios, { AxiosResponse } from "axios"
 import { create } from "zustand"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
 import { getUserId } from "@/utils/getUserId"
 import fetchTicketId from "@/actions/fetchTicketId"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 type MessagesStore = {
   messages: IMessageDB[]
@@ -59,13 +59,23 @@ export const useMessagesStore = create<MessagesStore>()((set, get) => ({
       return
     }
 
-    const response: AxiosResponse<IMessageDB[]> = await axios.post("/api/messages/get-messages", {
-      userId: userId,
-    } as {
-      ticketId?: string
-      userId?: string
+    const response = await fetch("/api/messages/get-messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: userId,
+      } as {
+        ticketId?: string
+        userId?: string
+      }),
     })
-    const unseenAmount = response.data.filter(message => !message.seen).length
+
+    if (!response.ok) {
+      throw new Error(await getResponseErrorMessage(response))
+    }
+
+    const messages = (await response.json()) as IMessageDB[]
+    const unseenAmount = messages.filter(message => !message.seen).length
 
     let ticketIdLet: string | null = null
     if (!state.ticketId) {
@@ -76,7 +86,7 @@ export const useMessagesStore = create<MessagesStore>()((set, get) => ({
 
     set(() => ({
       unseenMessagesNumber: unseenAmount,
-      messages: response.data,
+      messages,
       ticketId: ticketIdLet,
     }))
   },

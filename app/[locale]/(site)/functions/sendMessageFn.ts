@@ -1,4 +1,3 @@
-import axios, { AxiosError } from "axios"
 import moment from "moment-timezone"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
@@ -8,6 +7,7 @@ import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import { getUserId } from "@/utils/getUserId"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function sendMessageFn(t: TI18nFunction, messageBody: string, sender_id: string, imageUrl: string | null) {
   // Don't allow to send empty message (just with spaces and/or newlines)
@@ -42,21 +42,36 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
       console.log(39, "messages - ", messages)
 
       // 1. Send message in telegram
-      await axios.post("/api/telegram", { message: messageBody || t("message.image_sent") } as API.TelegramRequest)
-      // 2. Insert row in table 'tickets'
-      await axios.post("/api/tickets/open", {
-        ticketId: message.ticket_id,
-        ownerId: sender_id,
-        ownerUsername: sender_id,
-        messageBody: messageBody || t("message.image_sent"),
-        ownerAvatarUrl: null, // TODO - getAvatarUrl() - set avatar here based on isAuthenticated
-      } as TAPITicketsOpen)
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        console.log(53, t("message.error.image_sent"), error.response)
-        setMessages([]) // in case error delete message
-        setTicketId("")
+      const telegramResponse = await fetch("/api/telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: messageBody || t("message.image_sent") } as API.TelegramRequest),
+      })
+
+      if (!telegramResponse.ok) {
+        throw new Error(await getResponseErrorMessage(telegramResponse))
       }
+
+      // 2. Insert row in table 'tickets'
+      const ticketResponse = await fetch("/api/tickets/open", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ticketId: message.ticket_id,
+          ownerId: sender_id,
+          ownerUsername: sender_id,
+          messageBody: messageBody || t("message.image_sent"),
+          ownerAvatarUrl: null,
+        } as TAPITicketsOpen),
+      })
+
+      if (!ticketResponse.ok) {
+        throw new Error(await getResponseErrorMessage(ticketResponse))
+      }
+    } catch (error) {
+      console.log(53, t("message.error.image_sent"), error)
+      setMessages([])
+      setTicketId("")
     }
   }
 
@@ -64,16 +79,24 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
     if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newMessage")
 
     // 3. Insert message in table 'messages'
-    await axios.post("/api/message/send", {
-      id: message.id,
-      ticketId: message.ticket_id,
-      senderId: message.sender_id,
-      senderUsername: message.sender_id,
-      senderAvatarUrl: null, // TODO getAvatarUrl()
-      messageBody: message.body,
-      images: imageUrl ? [imageUrl] : undefined,
-      messageSender: "user",
-    } as TAPIMessageSend)
+    const response = await fetch("/api/message/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: message.id,
+        ticketId: message.ticket_id,
+        senderId: message.sender_id,
+        senderUsername: message.sender_id,
+        senderAvatarUrl: null,
+        messageBody: message.body,
+        images: imageUrl ? [imageUrl] : undefined,
+        messageSender: "user",
+      } as TAPIMessageSend),
+    })
+
+    if (!response.ok) {
+      throw new Error(await getResponseErrorMessage(response))
+    }
   } catch (error) {
     console.log(75, t("message.error.message_sent"), error)
     setMessages(messages.slice(0, -1)) // delete last message and keep other

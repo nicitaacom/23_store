@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { CiEdit } from "react-icons/ci"
 import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
-import axios from "axios"
 
 import { TUpdateProductRequest } from "@/api/products/update/route"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
@@ -13,6 +12,7 @@ import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 interface FormatPriceFormProps {
   id: string
@@ -28,7 +28,17 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
 
   async function updateTitle(price: number) {
     setIsLoading(true)
-    await axios.post("/api/products/update", { productId: id, price: price } as TUpdateProductRequest)
+    const response = await fetch("/api/products/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId: id, price: price } as TUpdateProductRequest),
+    })
+
+    if (!response.ok) {
+      setIsLoading(false)
+      throw new Error(await getResponseErrorMessage(response))
+    }
+
     setIsEditing(false)
     setIsLoading(false)
     router.refresh()

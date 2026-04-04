@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 import { useForm } from "react-hook-form"
-import axios from "axios"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
@@ -13,6 +12,7 @@ import { TUpdateProductRequest } from "@/api/products/update/route"
 import { useLoading } from "@/store/ui/useLoading"
 import { ProductTranslations } from "@/ts/product/TProductDB"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 interface FormatTitleFormProps {
   id: string
@@ -30,16 +30,26 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
 
   async function updateTitle(title: string) {
     setIsLoading(true)
-    await axios.post("/api/products/update", {
-      productId: id,
-      translations: {
-        ...translations,
-        [locale]: {
-          ...currentTranslation,
-          title,
+    const response = await fetch("/api/products/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: id,
+        translations: {
+          ...translations,
+          [locale]: {
+            ...currentTranslation,
+            title,
+          },
         },
-      },
-    } as TUpdateProductRequest)
+      } as TUpdateProductRequest),
+    })
+
+    if (!response.ok) {
+      setIsLoading(false)
+      throw new Error(await getResponseErrorMessage(response))
+    }
+
     router.refresh()
     setIsEditing(false)
     setIsLoading(false)

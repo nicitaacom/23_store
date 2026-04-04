@@ -45,7 +45,7 @@ interface Response {
   customerEmail: string | null
 }
 
-export type TAPICustomerResponse = AxiosResponse<Response>
+export type TAPICustomerResponse = Response
 
 return NextResponse.json({ customerEmail: session.customer_details?.email })
 ```
@@ -53,9 +53,13 @@ return NextResponse.json({ customerEmail: session.customer_details?.email })
 ### TypeScript in API routes (Client side)
 
 ```ts
-const response: TAPICustomerResponse = await axios.post("/api/customer", {
-  session_id: session_id,
-} as TAPICustomerRequest)
+const response = await fetch("/api/customer", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    session_id: session_id,
+  } as TAPICustomerRequest),
+})
 ```
 
 <br/>
@@ -94,12 +98,6 @@ catch (error: any) {
         status: 500,
       })
     }
-    if (error instanceof AxiosError) {
-      console.log(84, "DELETE_FOOD_ERROR (supabase) \n", error)
-      return new NextResponse(`/api/food/delete/route.ts error \n ${error}`, {
-        status: 500,
-      })
-    }
     if (error instanceof Error) {
       console.log(90, "DELETE_FOOD_ERROR\n (supabase) \n", error.message)
       return new NextResponse(`/api/food/delete/route.ts error \n ${error}`, {
@@ -113,11 +111,19 @@ catch (error: any) {
 
 ```ts
 try {
-  await axios.post("/api/product/delete", { productId: id } as TAPIProductDelete)
+  const response = await fetch("/api/product/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productId: id } as TAPIProductDelete),
+  })
+
+  if (!response.ok) {
+    throw new Error(await response.text())
+  }
 } catch (error) {
-  if (error instanceof AxiosError) {
-    console.log(26, error.response?.data)
-    toast.show("error", "Error deleting product", error.response?.data, 15000)
+  if (error instanceof Error) {
+    console.log(26, error.message)
+    toast.show("error", "Error deleting product", error.message, 15000)
   }
 }
 ```

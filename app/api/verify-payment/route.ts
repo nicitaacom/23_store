@@ -7,9 +7,7 @@ export type TAPIVerifyPayment = {
 }
 
 export type TAPIVerifyPaymentResponse = {
-  data: {
-    valid: boolean
-  }
+  valid: boolean
 }
 
 export async function POST(req: Request) {

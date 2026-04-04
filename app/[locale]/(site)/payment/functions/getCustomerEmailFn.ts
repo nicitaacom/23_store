@@ -1,10 +1,10 @@
-import axios from "axios"
 import { Dispatch, SetStateAction } from "react"
 
-import { TAPICustomer, TAPICustomerResponse } from "@/api/customer/route"
+import { TAPICustomer, TAPICustomerData } from "@/api/customer/route"
 import useToast from "@/store/ui/useToast"
 import { logFn } from "@/utils/logFn"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export async function getCustomerEmailFn(
   t: TI18nFunction,
@@ -21,9 +21,17 @@ export async function getCustomerEmailFn(
     setCurrentStep(3)
   } else {
     try {
-      const {
-        data: { customerEmail },
-      }: TAPICustomerResponse = await axios.post("/api/customer", { session_id } as TAPICustomer)
+      const response = await fetch("/api/customer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id } as TAPICustomer),
+      })
+
+      if (!response.ok) {
+        throw new Error(await getResponseErrorMessage(response))
+      }
+
+      const { customerEmail } = (await response.json()) as TAPICustomerData
       if (customerEmail) {
         setCustomerEmail(customerEmail)
       }

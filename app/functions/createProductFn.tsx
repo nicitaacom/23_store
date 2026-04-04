@@ -1,5 +1,4 @@
 import { ImageListType } from "react-images-uploading"
-import axios, { AxiosResponse } from "axios"
 
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useLoading } from "@/store/ui/useLoading"
@@ -13,6 +12,7 @@ import { getAnonymousId } from "./getAnonymousId"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 import { normalizeProductImageUrls, normalizeProductTranslations } from "@/utils/product"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 type CreateProductFnInput = {
   title: string
@@ -70,12 +70,20 @@ async function resolveProductTranslations(title: string, description: string, tr
     return normalizeProductTranslations(translations)
   }
 
-  const response = await axios.post("/api/translate-product", {
-    title,
-    description,
+  const response = await fetch("/api/translate-product", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title,
+      description,
+    }),
   })
 
-  return normalizeProductTranslations(response.data)
+  if (!response.ok) {
+    throw new Error(await getResponseErrorMessage(response))
+  }
+
+  return normalizeProductTranslations(await response.json())
 }
 
 export async function createProductFn(t: TI18nFunction, input: CreateProductFnInput) {
@@ -109,8 +117,11 @@ export async function createProductFn(t: TI18nFunction, input: CreateProductFnIn
         if (data.price && data.price > 0) {
           priceLet = data.price
         } else {
-          const priceResponse = await axios.post("/api/ai/", {
-            promptValue: `
+          const priceResponse = await fetch("/api/ai/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              promptValue: `
 Product: ${title}.
 Description: ${description}.
 Estimate realistic USD price ONLY the number.
@@ -119,10 +130,16 @@ RULES:
 - basic 12V accessory: realistic $4–$15
 - do NOT go above these ranges
       `,
-            memory: "",
+              memory: "",
+            }),
           })
 
-          const aiRaw = priceResponse.data.openai || ""
+          if (!priceResponse.ok) {
+            throw new Error(await getResponseErrorMessage(priceResponse))
+          }
+
+          const priceData = await priceResponse.json()
+          const aiRaw = priceData.openai || ""
           const parsed = parseFloat(aiRaw.replace(/[^0-9.]/g, "")) || 0
           priceLet = parsed > 0 ? parsed : 4.99
         }
@@ -137,13 +154,23 @@ RULES:
 
     const stripeAmount = Math.max(1, Math.floor(priceLet * 100))
 
-    const stripeResponse = await axios.post("/api/products/add", {
-      title: canonicalTranslation.title,
-      description: canonicalTranslation.description,
-      price: stripeAmount, // in cents
+    const stripeResponse = await fetch("/api/products/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: canonicalTranslation.title,
+        description: canonicalTranslation.description,
+        price: stripeAmount,
+      }),
     })
 
-    if (!stripeResponse.data?.id || !stripeResponse.data?.product) {
+    if (!stripeResponse.ok) {
+      throw new Error(await getResponseErrorMessage(stripeResponse))
+    }
+
+    const stripeData = (await stripeResponse.json()) as { id?: string; product?: string }
+
+    if (!stripeData.id || !stripeData.product) {
       throw new Error(t("product.error.failed_to_create_product_on_stripe"))
     }
 
@@ -152,17 +179,19 @@ RULES:
 
     if (!images?.length) {
       try {
-        const imageResponse = await axios.post(
-          "/api/ai/generate-image",
-          { prompt: `${title}. ${description}` } as API.GenerateImageRequest,
-          { responseType: "arraybuffer" },
-        )
+        const imageResponse = await fetch("/api/ai/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: `${title}. ${description}` } as API.GenerateImageRequest),
+        })
 
-        if (imageResponse.status !== 200) {
-          throw new Error(`${t("product.error.failed_to_generate_image")} (${imageResponse.status})`)
+        if (!imageResponse.ok) {
+          throw new Error(`${t("product.error.failed_to_generate_image")}: ${await getResponseErrorMessage(imageResponse)}`)
         }
 
-        const imageFile = new File([imageResponse.data], "generated_image.png", { type: "image/png" })
+        const imageFile = new File([await imageResponse.arrayBuffer()], "generated_image.png", {
+          type: imageResponse.headers.get("Content-Type") || "image/png",
+        })
         const compressedImageFile = await compressImageWithTinify(imageFile)
 
         const uploadResult = await uploadImageFn({ t, imageFile: compressedImageFile, bucket: "public-images" })
@@ -185,7 +214,7 @@ RULES:
             const compressedImageFile = await compressImageWithTinify(image.file)
             const ext = compressedImageFile.name.split(".").pop()
             const cleanName = slugify(compressedImageFile.name.replace(/\.[^/.]+$/, ""))
-            const fileName = `${cleanName}_${stripeResponse.data.id}.${ext}`
+            const fileName = `${cleanName}_${stripeData.id}.${ext}`
 
             const { data, error } = await supabaseClient.storage
               .from("public-images")
@@ -222,8 +251,8 @@ RULES:
     const userId = getUserId()
 
     const product: TProductDB = {
-      id: stripeResponse.data.product,
-      price_id: stripeResponse.data.id,
+      id: stripeData.product,
+      price_id: stripeData.id,
       owner_id: userId,
       translations: productTranslations,
       price: priceLet,
@@ -238,22 +267,22 @@ RULES:
       throw new Error(`${t("product.error.db_insert_failed")}: ${insertResponse.error.message}`)
     }
 
-    await axios.post("/api/products/update", {
-      productId: stripeResponse.data.product as string,
-      images: normalizedImageUrls,
+    const updateResponse = await fetch("/api/products/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: stripeData.product,
+        images: normalizedImageUrls,
+      }),
     })
+
+    if (!updateResponse.ok) {
+      throw new Error(await getResponseErrorMessage(updateResponse))
+    }
 
     return product
   } catch (error) {
-    const errorMessage = axios.isAxiosError(error)
-      ? typeof error.response?.data === "string"
-        ? error.response.data
-        : typeof error.response?.data?.error === "string"
-          ? error.response.data.error
-          : error.message
-      : error instanceof Error
-        ? error.message
-        : String(error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
     console.error("createProductFn error:", errorMessage)
     throw new Error(errorMessage)
   } finally {

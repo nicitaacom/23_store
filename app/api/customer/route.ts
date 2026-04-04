@@ -1,5 +1,4 @@
 import { stripe } from "@/libs/stripe"
-import { AxiosResponse } from "axios"
 import { NextResponse } from "next/server"
 
 export type TAPICustomer = {
@@ -9,8 +8,6 @@ export type TAPICustomer = {
 export interface TAPICustomerData {
   customerEmail: string | null
 }
-
-export type TAPICustomerResponse<T = any> = AxiosResponse<TAPICustomerData>
 
 export async function POST(req: Request) {
   const { session_id } = (await req.json()) as TAPICustomer

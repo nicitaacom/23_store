@@ -2,13 +2,13 @@
 
 import { useRouter } from "next/navigation"
 import { BiTrash } from "react-icons/bi"
-import axios from "axios"
 
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
 import { AreYouSureModalContainer } from "./ModalContainers/AreYouSureModalContainer"
 import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export function AreYouSureDeleteProductModal() {
   const t = useScopedI18n("modal")
@@ -20,7 +20,15 @@ export function AreYouSureDeleteProductModal() {
   async function deleteProduct() {
     setIsLoading(true)
     //archive product on stripe first and then in DB
-    await axios.post("/api/products/delete", { id: areYouSureDeleteProductModal.id })
+    const response = await fetch("/api/products/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: areYouSureDeleteProductModal.id }),
+    })
+
+    if (!response.ok) {
+      throw new Error(await getResponseErrorMessage(response))
+    }
 
     //close modal and refresh - so user immediately see changes
     areYouSureDeleteProductModal.closeModal()

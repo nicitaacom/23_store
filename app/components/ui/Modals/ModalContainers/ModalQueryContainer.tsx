@@ -27,7 +27,7 @@ export function ModalQueryContainer({
   const pathname = usePathname()
   const router = useRouter()
   const queryParams = useSearchParams()
-  const isLoading = useLoading(state => state.isLoading)
+  const { isLoading } = useLoading()
   const modalRef = useRef<HTMLDivElement | null>(null)
 
   const showModal = queryParams?.getAll("modal").includes(modalQuery)

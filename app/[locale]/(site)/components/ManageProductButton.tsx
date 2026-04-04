@@ -28,7 +28,7 @@ export function ManageProductButton({
 }: ManageProductButtonProps) {
   const locale = useCurrentLocale()
   const t = useScopedI18n("product")
-  const user = useUserStore(state => state.user)
+  const { user } = useUserStore()
 
   if (user?.id !== ownerId) {
     return null

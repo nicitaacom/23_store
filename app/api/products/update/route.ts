@@ -5,7 +5,6 @@ import { ProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
 import { normalizeProductImageUrls } from "@/utils/product"
 import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
-import { AxiosError } from "axios"
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
 
@@ -160,17 +159,6 @@ export async function POST(req: Request) {
     if (error instanceof Stripe.errors.StripeError) {
       console.log("PRODUCT_UPDATE_ERROR\n(stripe)\n", error.message)
       return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 })
-    }
-    if (error instanceof AxiosError) {
-      const errorMessage =
-        typeof error.response?.data === "string"
-          ? error.response.data
-          : typeof error.response?.data?.error === "string"
-            ? error.response.data.error
-            : error.message
-
-      console.log("PRODUCT_UPDATE_ERROR\n(axios)\n", errorMessage)
-      return NextResponse.json({ error: errorMessage }, { status: error.response?.status || 500 })
     }
     if (error instanceof Error) {
       console.log("PRODUCT_UPDATE_ERROR\n(error)\n", error.message)

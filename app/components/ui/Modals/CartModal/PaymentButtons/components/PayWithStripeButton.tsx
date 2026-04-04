@@ -2,7 +2,6 @@
 
 import { FaStripeS } from "react-icons/fa"
 import { useRouter } from "next/navigation"
-import axios from "axios"
 
 import { Button } from "@/components/ui"
 import useToast from "@/store/ui/useToast"
@@ -11,6 +10,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import { twMerge } from "tailwind-merge"
 import useUserStore from "@/store/user/userStore"
 import { useScopedI18n } from "@/locales/client"
+import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
 export function PayWithStripeButton() {
   const t = useScopedI18n("payment")
@@ -43,9 +43,18 @@ export function PayWithStripeButton() {
           10000,
         )
       } else {
-        const stripeResponse = await axios.post("/api/create-checkout-session", { stripeProductsQuery, email: user?.email || null })
+        const stripeResponse = await fetch("/api/create-checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ stripeProductsQuery, email: user?.email || null }),
+        })
+
+        if (!stripeResponse.ok) {
+          throw new Error(await getResponseErrorMessage(stripeResponse))
+        }
+
         //redirect user to session.url on client side to avoid 'blocked by CORS' error
-        router.push(stripeResponse.data)
+        router.push(await stripeResponse.text())
       }
     } catch (error) {
       if (error instanceof Error) {
