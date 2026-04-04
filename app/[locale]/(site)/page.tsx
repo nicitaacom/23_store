@@ -7,10 +7,12 @@ import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getScopedI18n } from "@/locales/server"
 import { perPage as perPageOptions } from "@/constant/perPage"
 import { normalizeProducts } from "@/utils/productVariants"
+import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import PaginationControls from "@/components/PaginationControls"
 import ProductsPerPage from "@/components/ProductsPerPage"
 import { AIInputSearch } from "./components/AISearch/AIInputSearch"
 import { Products } from "./components"
+import { CatalogSearchForm } from "./components/CatalogSearchForm"
 
 interface SearchProps {
   params: { locale: string }
@@ -39,13 +41,7 @@ export default async function Home({ params, searchParams }: SearchProps) {
       : Array.isArray(searchQueryValue)
         ? (searchQueryValue[0]?.trim() ?? "")
         : ""
-  const normalizedSearchQuery = searchQuery.toLowerCase()
-  const filteredProducts =
-    normalizedSearchQuery.length > 0
-      ? products.filter(product =>
-          [product.title, product.sub_title].some(value => value.toLowerCase().includes(normalizedSearchQuery)),
-        )
-      : products
+  const filteredProducts = searchQuery ? filterProductsBySearchQuery(products, searchQuery) : products
   const addProductHref = user ? `/${params.locale}?modal=AdminPanel` : `/${params.locale}?modal=AuthModal&variant=login`
 
   //Logic for pagination
@@ -71,26 +67,14 @@ export default async function Home({ params, searchParams }: SearchProps) {
               <div className="flex flex-col gap-3">
                 <div className="flex w-full flex-row items-start justify-between gap-3">
                   <div className="w-full max-w-[480px] max-[480px]:max-w-none">
-                    <form
-                      action={`/${params.locale}`}
-                      className="flex w-full items-center justify-between gap-2 rounded-[2px] border border-success/15 bg-gradient-to-r from-background via-background/95 to-success/5 p-1 shadow-[0_18px_45px_rgba(34,197,94,0.08)] backdrop-blur-sm"
-                      method="get">
-                      <input type="hidden" name="page" value="1" />
-                      <input type="hidden" name="perPage" value={perPage} />
-                      <input
-                        aria-label={t("catalog_search_action")}
-                        className="h-10 w-full rounded-[2px] bg-transparent px-3 text-base text-title outline-none placeholder:text-subTitle"
-                        defaultValue={searchQuery}
-                        name="query"
-                        placeholder={t("catalog_search_placeholder")}
-                        type="search"
-                      />
-                      <button
-                        className="inline-flex h-10 shrink-0 items-center justify-center rounded-[2px] border border-success/30 bg-success/10 px-4 text-sm font-semibold text-success transition-all duration-300 hover:border-success hover:bg-success hover:text-black"
-                        type="submit">
-                        {t("catalog_search_action")}
-                      </button>
-                    </form>
+                    <CatalogSearchForm
+                      ariaLabel={t("catalog_search_action")}
+                      initialQuery={searchQuery}
+                      locale={params.locale}
+                      perPage={perPage}
+                      placeholder={t("catalog_search_placeholder")}
+                      submitLabel={t("catalog_search_action")}
+                    />
                   </div>
                   <div className="flex justify-end max-[480px]:hidden">
                     <div className="inline-flex w-fit items-center rounded-[2px] border border-success/25 bg-success/10 px-3 py-1 text-sm font-medium tracking-wide text-success">

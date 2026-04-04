@@ -1,27 +1,58 @@
 "use client"
 
-import { redirect } from "next/navigation"
+import { FormEvent, useEffect, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import { BiSearchAlt } from "react-icons/bi"
 import { SearchInput } from "../Inputs/SearchInput"
 import { ModalContainer } from "./ModalContainers/"
 import { useCtrlKModal } from "@/store/ui/useCtrlKModal"
-import { useScopedI18n } from "@/locales/client"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
+import { useDebounce } from "@/hooks/useDebounce"
 
 export function CtrlKModal() {
   const t = useScopedI18n("modal")
+  const locale = useCurrentLocale()
+  const router = useRouter()
   const ctrlKModal = useCtrlKModal()
+  const [searchQuery, setSearchQuery] = useState("")
+  const debouncedSearchQuery = useDebounce(searchQuery.trim(), 2000)
+  const lastSearchQueryRef = useRef("")
 
-  function searchProducts(formData: FormData) {
-    const searchQuery = formData.get("searchQuery")?.toString()
+  useEffect(() => {
+    if (ctrlKModal.isOpen) return
 
+    setSearchQuery("")
+    lastSearchQueryRef.current = ""
+  }, [ctrlKModal.isOpen])
+
+  useEffect(() => {
+    if (!ctrlKModal.isOpen) return
+
+    searchProducts(debouncedSearchQuery)
+  }, [ctrlKModal.isOpen, debouncedSearchQuery])
+
+  function createSearchHref(query: string) {
+    const params = new URLSearchParams({
+      page: "1",
+      query,
+    })
+
+    return `/${locale}?${params.toString()}`
+  }
+
+  function searchProducts(nextQuery: string) {
+    const normalizedQuery = nextQuery.trim()
+
+    if (!normalizedQuery || normalizedQuery === lastSearchQueryRef.current) return
+
+    lastSearchQueryRef.current = normalizedQuery
     ctrlKModal.closeModal()
-    if (searchQuery === "") {
-      redirect("/")
-    }
+    router.push(createSearchHref(normalizedQuery))
+  }
 
-    if (searchQuery) {
-      redirect("/search?query=" + searchQuery)
-    }
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    searchProducts(searchQuery)
   }
 
   return (
@@ -30,12 +61,16 @@ export function CtrlKModal() {
       className="relative w-full max-w-[450px]"
       isOpen={ctrlKModal.isOpen}
       onClose={ctrlKModal.closeModal}>
-      <form action={searchProducts} className="flex flex-col gap-y-2">
+      <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>
         <h1 className="flex justify-center">{t("ctrl_k.title")}</h1>
         <SearchInput
+          autoComplete="off"
           startIcon={<BiSearchAlt className="text-icon-color" size={24} />}
           name="searchQuery"
+          onChange={event => setSearchQuery(event.currentTarget.value)}
           placeholder={t("ctrl_k.placeholder")}
+          type="search"
+          value={searchQuery}
         />
       </form>
     </ModalContainer>

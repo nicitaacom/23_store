@@ -51,7 +51,16 @@ function useEscOrClickOutside(
   useEffect(() => {
     if (!isHookEnabled) return
 
+    const isIgnoredTarget = (target: EventTarget | null) => {
+      if (!(target instanceof Node)) return false
+
+      const targetElement = target instanceof Element ? target : target.parentElement
+      return !!targetElement?.closest("[data-click-outside-ignore]")
+    }
+
     const handleClick = (e: MouseEvent) => {
+      if (isIgnoredTarget(e.target)) return
+
       if (ref.current && !ref.current.contains(e.target as Node)) {
         onClose()
         if (isInner) e.stopPropagation()

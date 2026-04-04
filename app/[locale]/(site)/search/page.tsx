@@ -2,6 +2,7 @@ import { Metadata } from "next"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { normalizeProducts } from "@/utils/productVariants"
+import { filterProductsBySearchQuery } from "@/utils/productSearch"
 
 import { NoProductsFound } from "./NoProductsFound"
 import { Products } from "../components"
@@ -26,15 +27,9 @@ export async function generateMetadata({ searchParams: { query } }: SearchPagePr
 }
 
 export default async function SearchPage({ searchParams: { query } }: SearchPageProps) {
-  // https://github.com/nicitaacom/19_spotify-clone/blob/development/actions/getSongsByTitle.ts
-  // https://supabase.com/docs/reference/javascript/or
-  const products_response = await supabaseServer()
-    .from("products")
-    .select("*")
-    .or(`title.ilike.%${query}%,sub_title.ilike.%${query}%`)
-    .order("price", { ascending: true })
+  const products_response = await supabaseServer().from("products").select("*").order("price", { ascending: true })
   if (products_response.error) throw products_response.error
-  const products = normalizeProducts(products_response.data)
+  const products = filterProductsBySearchQuery(normalizeProducts(products_response.data), query)
 
   if (products.length === 0) {
     return <NoProductsFound />

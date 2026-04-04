@@ -39,6 +39,8 @@ const previewImageVariants = {
   }),
 }
 
+const MAX_DESCRIPTION_LENGTH = 7200
+
 interface AddProductFormProps {
   onCreated?: () => void
 }
@@ -99,7 +101,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     "w-full rounded-2xl border border-white/10 !bg-white/[0.04] px-4 text-[15px] text-white placeholder:text-white/25 shadow-none transition-colors focus:border-white/20 focus:!bg-white/[0.06] disabled:opacity-50"
 
   const onSubmit = async (data: IFormDataAddProduct) => {
-    if (data.subTitle.length > 600) return toast.show("warning", "Enter shorter description", "Enter description 0-600 symbols")
+    if (data.subTitle.length > MAX_DESCRIPTION_LENGTH) {
+      return toast.show("warning", "Enter shorter description", `Enter description 0-${MAX_DESCRIPTION_LENGTH} symbols`)
+    }
 
     try {
       const formattedOnStock = parseFormattedNumber(data.onStock)

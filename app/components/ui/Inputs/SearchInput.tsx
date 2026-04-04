@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge"
 
-interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   type?: string
   className?: string
   startIcon?: React.ReactElement

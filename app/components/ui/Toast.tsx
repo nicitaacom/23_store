@@ -55,6 +55,7 @@ export default function Toast() {
 
   return (
     <motion.div
+      data-click-outside-ignore
       className={`fixed right-[2%] bottom-[2%] border-[1px] ${currentConfig.borderColor}
           bg-foreground flex gap-x-4 w-auto max-w-[30%] rounded-lg px-4 py-2 z-[4999]`}
       initial={{ y: 100, opacity: 0 }}
