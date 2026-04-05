@@ -105,7 +105,6 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
               id="subTitle"
               register={register}
               errors={errors}
-              required
               placeholder={currentTranslation.description}
             />
           </div>

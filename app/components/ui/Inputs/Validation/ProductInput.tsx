@@ -206,7 +206,7 @@ export function ProductInput({
             errors[id] &&
               errors[id]?.message &&
               "border-danger/70 focus:border-danger/70 focus:shadow-[inset_0_0_0_1px_hsl(var(--danger)/0.28)] focus-visible:outline-none",
-            disabled && "opacity-50 cursor-default pointer-events-none",
+            disabled && "opacity-50 cursor-default",
             className,
           )}
           id={id}
@@ -231,7 +231,7 @@ export function ProductInput({
             errors[id] &&
               errors[id]?.message &&
               "border-danger/70 focus:border-danger/70 focus:shadow-[inset_0_0_0_1px_hsl(var(--danger)/0.28)] focus-visible:outline-none",
-            disabled && "opacity-50 cursor-default pointer-events-none",
+            disabled && "opacity-50 cursor-default",
             className,
           )}
           id={id}

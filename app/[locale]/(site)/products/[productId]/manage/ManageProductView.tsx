@@ -607,7 +607,6 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 register={register}
                 errors={errors}
                 disabled={isSaving}
-                required
                 placeholder={t("placeholder.description")}
               />
             </div>

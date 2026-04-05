@@ -698,7 +698,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             register={register}
             errors={errors}
             disabled={isLoading}
-            required
             placeholder={t("placeholder.description")}
           />
         </div>
