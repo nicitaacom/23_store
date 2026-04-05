@@ -9,6 +9,27 @@ const EMPTY_TRANSLATION: ProductTranslation = {
   description: "",
 }
 
+function getNormalizedTranslationField(value: unknown) {
+  return typeof value === "string" ? value.trim() : ""
+}
+
+function getFirstAvailableTranslation(candidate: Partial<Record<ProductLocale, Partial<ProductTranslation> | null | undefined>>) {
+  for (const locale of PRODUCT_LOCALES) {
+    const translation = candidate[locale]
+    const title = getNormalizedTranslationField(translation?.title)
+    const description = getNormalizedTranslationField(translation?.description)
+
+    if (title || description) {
+      return {
+        title,
+        description,
+      } satisfies ProductTranslation
+    }
+  }
+
+  return EMPTY_TRANSLATION
+}
+
 export function toProductLocale(locale: string): ProductLocale {
   return PRODUCT_LOCALES.includes(locale as ProductLocale) ? (locale as ProductLocale) : "fi"
 }
@@ -36,24 +57,24 @@ export function normalizeProductTranslations(value: unknown): ProductTranslation
   }
 
   const candidate = value as Partial<Record<ProductLocale, Partial<ProductTranslation> | null | undefined>>
-  const fallback = candidate.fi
+  const fallback = getFirstAvailableTranslation(candidate)
 
   return {
     en: {
-      title: candidate.en?.title ?? fallback?.title ?? EMPTY_TRANSLATION.title,
-      description: candidate.en?.description ?? fallback?.description ?? EMPTY_TRANSLATION.description,
+      title: getNormalizedTranslationField(candidate.en?.title) || fallback.title || EMPTY_TRANSLATION.title,
+      description: getNormalizedTranslationField(candidate.en?.description) || fallback.description || EMPTY_TRANSLATION.description,
     },
     fi: {
-      title: candidate.fi?.title ?? EMPTY_TRANSLATION.title,
-      description: candidate.fi?.description ?? EMPTY_TRANSLATION.description,
+      title: getNormalizedTranslationField(candidate.fi?.title) || fallback.title || EMPTY_TRANSLATION.title,
+      description: getNormalizedTranslationField(candidate.fi?.description) || fallback.description || EMPTY_TRANSLATION.description,
     },
     ru: {
-      title: candidate.ru?.title ?? fallback?.title ?? EMPTY_TRANSLATION.title,
-      description: candidate.ru?.description ?? fallback?.description ?? EMPTY_TRANSLATION.description,
+      title: getNormalizedTranslationField(candidate.ru?.title) || fallback.title || EMPTY_TRANSLATION.title,
+      description: getNormalizedTranslationField(candidate.ru?.description) || fallback.description || EMPTY_TRANSLATION.description,
     },
     se: {
-      title: candidate.se?.title ?? fallback?.title ?? EMPTY_TRANSLATION.title,
-      description: candidate.se?.description ?? fallback?.description ?? EMPTY_TRANSLATION.description,
+      title: getNormalizedTranslationField(candidate.se?.title) || fallback.title || EMPTY_TRANSLATION.title,
+      description: getNormalizedTranslationField(candidate.se?.description) || fallback.description || EMPTY_TRANSLATION.description,
     },
   }
 }
