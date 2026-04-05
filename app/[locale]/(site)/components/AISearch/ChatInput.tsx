@@ -84,8 +84,9 @@ export function ChatInput({
             rounded="lg"
             onClick={handleSubmit}
             disabled={!promptValue.trim() || isLoading}
+            className="disabled:border-border-color/35 disabled:bg-background/55 disabled:text-subTitle"
             rightIcon={<AiOutlineSend className="text-base" />}>
-            <span className="hidden mobile:inline text-sm text-black">{t("button.send")}</span>
+            <span className="hidden mobile:inline text-sm">{t("button.send")}</span>
           </Button>
         </div>
       </div>
