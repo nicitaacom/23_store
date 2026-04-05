@@ -3,7 +3,14 @@ import { ImageListType } from "react-images-uploading"
 import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
-import { PRODUCT_DESCRIPTION_PATTERN, PRODUCT_TITLE_HAS_LETTER_REGEX, PRODUCT_TITLE_INVALID_CHARACTER_REGEX, PRODUCT_TITLE_MUST_START_REGEX } from "@/utils/productValidation"
+import {
+  PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX,
+  PRODUCT_DESCRIPTION_PATTERN,
+  PRODUCT_TITLE_HAS_LETTER_REGEX,
+  PRODUCT_TITLE_INVALID_CHARACTER_REGEX,
+  PRODUCT_TITLE_MUST_START_REGEX,
+  getInvalidCharacterDetails,
+} from "@/utils/productValidation"
 import { uploadImageFn } from "./uploadImageFn"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
@@ -200,6 +207,11 @@ export async function createStripeProduct(
   }
 
   if (trimmedDescription && !PRODUCT_DESCRIPTION_PATTERN.test(trimmedDescription)) {
+    const invalidCharacterDetails = getInvalidCharacterDetails(trimmedDescription, PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX)
+    if (invalidCharacterDetails) {
+      throw new Error(t("product.description_invalid_character", invalidCharacterDetails))
+    }
+
     throw new Error(t("product.subtitle_required"))
   }
 

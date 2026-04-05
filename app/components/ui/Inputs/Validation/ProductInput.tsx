@@ -8,11 +8,13 @@ import {
 } from "@/constants/productLimits"
 import { useScopedI18n } from "@/locales/client"
 import {
+  PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX,
   PRODUCT_DESCRIPTION_PATTERN,
-  PRODUCT_TITLE_HAS_LETTER_REGEX,
   PRODUCT_TITLE_INVALID_CHARACTER_REGEX,
+  PRODUCT_TITLE_HAS_LETTER_REGEX,
   PRODUCT_TITLE_MUST_START_REGEX,
   PRODUCT_TITLE_PATTERN,
+  getInvalidCharacterDetails,
 } from "@/utils/productValidation"
 import { formatGroupedNumberInput } from "@/utils/numberFormatter"
 import { motion } from "framer-motion"
@@ -68,44 +70,16 @@ export function ProductInput({
 }: InputFormProps) {
   const t = useScopedI18n("product")
 
-  const getInvalidCharacterContext = (value: string, invalidCharacterIndex: number) => {
-    const wordsBeforeInvalidCharacter = value
-      .slice(0, invalidCharacterIndex)
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(-2)
-      .join(" ")
+  const getInvalidCharacterMessage = (fieldId: keyof FormData, value: string) => {
+    const invalidCharacterDetails = getInvalidCharacterDetails(
+      value,
+      fieldId === "subTitle" ? PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX : PRODUCT_TITLE_INVALID_CHARACTER_REGEX,
+    )
+    if (!invalidCharacterDetails) return null
 
-    if (wordsBeforeInvalidCharacter) return wordsBeforeInvalidCharacter
-
-    const wordsAfterInvalidCharacter = value
-      .slice(invalidCharacterIndex + 1)
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .join(" ")
-
-    if (wordsAfterInvalidCharacter) return wordsAfterInvalidCharacter
-
-    return value.slice(Math.max(0, invalidCharacterIndex - 6), Math.min(value.length, invalidCharacterIndex + 7)).trim()
-  }
-
-  const getReadableCharacter = (character: string) => {
-    if (character === "\n") return "newline"
-    if (character === "\t") return "tab"
-    return character
-  }
-
-  const getInvalidCharacterMessage = (value: string) => {
-    const invalidCharacterMatch = value.match(PRODUCT_TITLE_INVALID_CHARACTER_REGEX)
-    if (!invalidCharacterMatch || invalidCharacterMatch.index === undefined) return null
-
-    const invalidCharacter = getReadableCharacter(invalidCharacterMatch[0])
-    const context = getInvalidCharacterContext(value, invalidCharacterMatch.index)
-
-    return t("title_invalid_character", { character: invalidCharacter, context })
+    return fieldId === "subTitle"
+      ? t("description_invalid_character", invalidCharacterDetails)
+      : t("title_invalid_character", invalidCharacterDetails)
   }
 
   const validationRules: ValidationRules = {
@@ -157,7 +131,7 @@ export function ProductInput({
         ? (value: string | number) => {
             const str = String(value ?? "")
             if (!str || (patternValue && patternValue.test(str))) return true
-            const invalidCharacterMessage = getInvalidCharacterMessage(str)
+            const invalidCharacterMessage = getInvalidCharacterMessage(id, str)
             if (invalidCharacterMessage) return invalidCharacterMessage
             if (str.length < MIN_PRODUCT_TITLE_LENGTH) return t("title_too_short")
             if (str.length > MAX_PRODUCT_TITLE_LENGTH)
@@ -173,7 +147,10 @@ export function ProductInput({
               if (str.trim().length < MIN_PRODUCT_DESCRIPTION_LENGTH) return t("description_too_short")
               if (str.length > MAX_PRODUCT_DESCRIPTION_LENGTH)
                 return t("description_too_long", { max: MAX_PRODUCT_DESCRIPTION_LENGTH })
-              return true
+              if (patternValue?.test(str)) return true
+              const invalidCharacterMessage = getInvalidCharacterMessage(id, str)
+              if (invalidCharacterMessage) return invalidCharacterMessage
+              return patternMessage
             }
           : undefined,
   }
@@ -188,7 +165,7 @@ export function ProductInput({
   const inputRef = useRef<HTMLInputElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const currentFieldValue = id === "subTitle" ? textareaRef.current?.value || "" : inputRef.current?.value || ""
-  const fallbackErrorMessage = id === "title" ? getInvalidCharacterMessage(currentFieldValue) : null
+  const fallbackErrorMessage = ["title", "subTitle"].includes(id) ? getInvalidCharacterMessage(id, currentFieldValue) : null
   const errorMessage = fallbackErrorMessage || (errors[id]?.message as React.ReactNode)
 
   return (
