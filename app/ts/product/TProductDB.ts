@@ -8,7 +8,7 @@ export type TProductDB = {
   owner_id: string
   id: string // prod_id
   translations: ProductTranslations
-  price: number
+  price: number // base price, used when no variant selected
   img_url: string[]
   variants?: TProductVariant[] | null
   on_stock: number

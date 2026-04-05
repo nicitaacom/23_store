@@ -271,11 +271,12 @@ CREATE TABLE IF NOT EXISTS public.products (
   price_id VARCHAR NOT NULL,
   id VARCHAR NOT NULL,
   translations JSONB NOT NULL DEFAULT '{}'::jsonb,
-  price NUMERIC NOT NULL,
+  price NUMERIC NOT NULL, -- base price, used when no variant selected
   img_url VARCHAR[] NOT NULL,
   on_stock INTEGER NOT NULL,
   owner_id UUID NOT NULL REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  variants jsonb null,
+  -- variants stored as JSONB array: [{id, label, image_url, price}]
+  variants JSONB NULL,
   PRIMARY KEY (price_id, owner_id, id)
 );
 
@@ -297,7 +298,6 @@ CREATE TABLE IF NOT EXISTS public.users_cart (
 ALTER TABLE users_cart ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Self select" ON users_cart FOR SELECT USING (id = auth.uid());
 CREATE POLICY "Self update" ON users_cart FOR UPDATE USING (id = auth.uid());
-
 -- 📊 UTM Stats Table (tracking marketing campaign performance)
 CREATE TABLE IF NOT EXISTS public.utm_stats (
   id UUID NOT NULL DEFAULT gen_random_uuid(),
