@@ -60,6 +60,7 @@ type PendingFormSnapshot = {
 const EMPTY_PRODUCT_FORM_VALUES: Partial<IFormDataAddProduct> = {
   title: "",
   subTitle: "",
+  onStock: "" as never,
 }
 
 export function AddProductForm({ onCreated }: AddProductFormProps) {
@@ -92,10 +93,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     register,
     handleSubmit,
     reset,
-    resetField,
     watch,
     formState: { errors },
-  } = useForm<IFormDataAddProduct>()
+  } = useForm<IFormDataAddProduct>({
+    defaultValues: EMPTY_PRODUCT_FORM_VALUES,
+  })
 
   const titleValue = watch("title")
   const descriptionValue = watch("subTitle")
@@ -165,7 +167,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   const clearForm = () => {
     reset(EMPTY_PRODUCT_FORM_VALUES)
-    resetField("onStock")
     setImages([])
     setVariants([])
     setActiveImageIndex(0)
