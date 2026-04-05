@@ -688,18 +688,6 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           <div className="flex flex-wrap gap-3">
             <Button
               className="font-medium"
-              type="submit"
-              disabled={isSaving}
-              variant="success"
-              size="lg"
-              rounded="lg"
-              shadow="sm"
-              rightIcon={<FiSave className="text-base" />}>
-              {isSaving ? t("saving_changes") : t("save_changes")}
-            </Button>
-
-            <Button
-              className="font-medium"
               type="button"
               onClick={deleteProduct}
               disabled={isSaving}
@@ -709,6 +697,18 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               shadow="sm"
               rightIcon={<FiTrash2 className="text-base" />}>
               {t("delete")}
+            </Button>
+
+            <Button
+              className="font-medium mobile:ml-auto"
+              type="submit"
+              disabled={isSaving}
+              variant="success"
+              size="lg"
+              rounded="lg"
+              shadow="sm"
+              rightIcon={<FiSave className="text-base" />}>
+              {isSaving ? t("saving_changes") : t("save_changes")}
             </Button>
           </div>
         </section>
