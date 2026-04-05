@@ -11,6 +11,7 @@ export function useSetUser(user: User | null) {
   const userStore = useUserStore()
   const { setUser, clearUser, logoutUser } = userStore
   const didRecoverUserRef = useRef(false)
+  const currentUserRef = useRef<User | null>(normalizeUser(user))
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
@@ -20,9 +21,12 @@ export function useSetUser(user: User | null) {
   }, [])
 
   useEffect(() => {
-    if (!user) return
+    const normalizedUser = normalizeUser(user)
+    currentUserRef.current = normalizedUser
 
-    setUser(normalizeUser(user))
+    if (!normalizedUser) return
+
+    setUser(normalizedUser)
     didRecoverUserRef.current = false
   }, [setUser, user])
 
@@ -36,8 +40,11 @@ export function useSetUser(user: User | null) {
 
       if (!isMounted) return
 
-      if (clientUser) {
-        setUser(normalizeUser(clientUser))
+      const normalizedClientUser = normalizeUser(clientUser)
+
+      if (normalizedClientUser) {
+        currentUserRef.current = normalizedClientUser
+        setUser(normalizedClientUser)
 
         if (!didRecoverUserRef.current) {
           didRecoverUserRef.current = true
@@ -47,6 +54,7 @@ export function useSetUser(user: User | null) {
         return
       }
 
+      currentUserRef.current = null
       clearUser()
     }
 
@@ -57,21 +65,39 @@ export function useSetUser(user: User | null) {
     const {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange((event, session) => {
+      const previousUser = currentUserRef.current
+      const nextUser = normalizeUser(session?.user)
+      const previousUserSignature = JSON.stringify(normalizeUser(previousUser))
+      const nextUserSignature = JSON.stringify(nextUser)
+
       if (event === "SIGNED_OUT") {
+        currentUserRef.current = null
         logoutUser()
         startTransition(() => router.refresh())
         return
       }
 
-      if (session?.user) {
-        setUser(normalizeUser(session.user))
+      if (!nextUser) {
+        currentUserRef.current = null
+        clearUser()
+        return
+      }
 
-        if (event === "SIGNED_IN" || event === "USER_UPDATED") {
-          startTransition(() => router.refresh())
-        }
+      currentUserRef.current = nextUser
+
+      if (previousUserSignature !== nextUserSignature) {
+        setUser(nextUser)
+      }
+
+      const shouldRefresh =
+        (event === "SIGNED_IN" && previousUser?.id !== nextUser.id) ||
+        (event === "USER_UPDATED" && previousUserSignature !== nextUserSignature)
+
+      if (shouldRefresh) {
+        startTransition(() => router.refresh())
       }
     })
 
     return () => subscription.unsubscribe()
-  }, [logoutUser, router, setUser])
+  }, [clearUser, logoutUser, router, setUser])
 }

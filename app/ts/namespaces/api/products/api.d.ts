@@ -19,13 +19,6 @@ declare module API {
     image_url: string
   }
 
-  type ProductsTranslateRequest = {
-    title: string
-    description: string
-  }
-
-  type ProductsTranslateResponse = ProductsTranslations
-
   type ProductsTranslateAndInsertRequest = {
     id: string
     price_id: string

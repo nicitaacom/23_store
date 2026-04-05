@@ -23,7 +23,10 @@ import {
  * 3. Tinify every image and fail if compression fails.
  * 4. Upload all tinified images and fail if upload fails.
  * 5. Create the Stripe product and price with uploaded images.
- * 6. Invoke the Lambda asynchronously so it can translate, insert into Supabase, and notify clients.
+ * 6. Insert the product into Supabase immediately and hand translation off to Lambda.
+ *
+ * We use Lambda for translation because Vercel server functions can time out
+ * around 60 seconds, while the translation job may take 3-5 minutes.
  */
 export async function createProductFn(t: TI18nFunction, input: CreateProductFnInput) {
   const { setIsLoading } = useLoading.getState()
@@ -47,7 +50,7 @@ export async function createProductFn(t: TI18nFunction, input: CreateProductFnIn
     const stripeProduct = await createStripeProduct(title, description, resolvedPrice, uploadedImageUrls, t)
     const userId = getUserId()
 
-    const lambdaResponse = await productsSDK.translateAndInsertInDB({
+    const createProductResponse = await productsSDK.translateAndInsertInDB({
       id: stripeProduct.productId,
       price_id: stripeProduct.priceId,
       owner_id: userId,
@@ -59,8 +62,8 @@ export async function createProductFn(t: TI18nFunction, input: CreateProductFnIn
       variants: resolvedVariants,
     })
 
-    if (!lambdaResponse.ok) {
-      throw new Error(lambdaResponse.error || t("product.error.db_insert_failed"))
+    if (!createProductResponse.ok) {
+      throw new Error(createProductResponse.error || t("product.error.db_insert_failed"))
     }
 
     return {

@@ -15,24 +15,6 @@ export class ProductsSDK extends BaseSDK {
     }
   }
 
-  async translateProduct(request: API.ProductsTranslateRequest) {
-    try {
-      return await this.postJson<API.ProductsTranslateRequest, API.ProductsTranslateResponse>(
-        "/api/translate-product",
-        request satisfies API.ProductsTranslateRequest,
-      )
-    } catch (error) {
-      console.error("[ProductsSDK.translateProduct] request failed", {
-        error: error instanceof Error ? error.message : String(error),
-        titleLength: request.title?.length ?? 0,
-        descriptionLength: request.description?.length ?? 0,
-        titlePreview: request.title?.slice(0, 120),
-        descriptionPreview: request.description?.slice(0, 120),
-      })
-      throw error
-    }
-  }
-
   async translateAndInsertInDB(request: API.ProductsTranslateAndInsertRequest) {
     try {
       return await this.postJson<API.ProductsTranslateAndInsertRequest, API.ProductsTranslateAndInsertResponse>(

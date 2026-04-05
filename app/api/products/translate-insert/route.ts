@@ -1,26 +1,9 @@
-import { InvokeCommand, InvocationType, LambdaClient } from "@aws-sdk/client-lambda"
 import { NextResponse } from "next/server"
+import { insertDBProduct } from "./insertDBProduct"
+import { invokeTranslateProductLambda } from "./invokeTranslateProductLambda"
 
+export const runtime = "nodejs"
 export const maxDuration = 30
-
-const lambdaFnName = "23-ai-translate"
-
-const lambda = new LambdaClient({
-  region: process.env.NEXT_PUBLIC_AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-})
-
-type TLambdaProxyEvent = {
-  body: string
-  headers: Record<string, string>
-  httpMethod: "POST"
-  path: string
-  resource: string
-  isBase64Encoded: false
-}
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message
@@ -64,26 +47,25 @@ function getInvalidPayloadFields(payload: API.ProductsTranslateAndInsertRequest)
 
   return invalidFields
 }
-
-function buildLambdaEvent(payload: API.ProductsTranslateAndInsertRequest): TLambdaProxyEvent {
-  return {
-    body: JSON.stringify(payload),
-    headers: {
-      "content-type": "application/json",
-    },
-    httpMethod: "POST",
-    path: "/api/products/translate-insert",
-    resource: "/api/products/translate-insert",
-    isBase64Encoded: false,
-  }
-}
-
+/**
+ * Creates the product row in Supabase immediately with source-text translations,
+ * then asks Lambda to translate, upsert the final localized values, and emit
+ * the final realtime event later.
+ *
+ * Reason we use Lambda for translation instead of doing it in the Next.js/Vercel app:
+ * Vercel server execution is time-limited to about 60 seconds, while product
+ * translation can take around 3-5 minutes.
+ *
+ * Important ownership boundary:
+ * this route only performs the initial insert and Lambda handoff.
+ * Lambda is responsible for the eventual `product:created` Pusher event after
+ * the translated upsert is finished.
+ */
 export async function POST(req: Request) {
   const requestId = crypto.randomUUID()
 
   try {
     const parsedPayload = normalizePayload((await req.json()) as API.ProductsTranslateAndInsertRequest)
-    const lambdaEvent = buildLambdaEvent(parsedPayload)
     const invalidFields = getInvalidPayloadFields(parsedPayload)
 
     if (invalidFields.length > 0) {
@@ -96,9 +78,8 @@ export async function POST(req: Request) {
       )
     }
 
-    console.info("[products/translate-insert] invoking lambda", {
+    console.info("[products/translate-insert] creating product", {
       requestId,
-      functionName: lambdaFnName,
       productId: parsedPayload.id,
       ownerId: parsedPayload.owner_id,
       imageCount: parsedPayload.img_url?.length ?? 0,
@@ -107,23 +88,35 @@ export async function POST(req: Request) {
       descriptionLength: parsedPayload.description?.length ?? 0,
     })
 
-    console.info("[products/translate-insert] lambda body\n" + JSON.stringify(parsedPayload, null, 2))
+    const insertDBProductResponse = await insertDBProduct(parsedPayload)
+    if (typeof insertDBProductResponse === "string") {
+      throw new Error(insertDBProductResponse)
+    }
 
-    const response = await lambda.send(
-      new InvokeCommand({
-        FunctionName: lambdaFnName,
-        InvocationType: InvocationType.Event,
-        Payload: Buffer.from(JSON.stringify(lambdaEvent)),
-      }),
-    )
+    const invokeTranslateProductLambdaResponse = await invokeTranslateProductLambda(parsedPayload)
+    if (typeof invokeTranslateProductLambdaResponse !== "string") {
+      console.info("[products/translate-insert] lambda invoked", {
+        requestId,
+        functionName: invokeTranslateProductLambdaResponse.functionName,
+        productId: parsedPayload.id,
+        statusCode: invokeTranslateProductLambdaResponse.statusCode,
+        executedVersion: invokeTranslateProductLambdaResponse.executedVersion,
+      })
+    } else {
+      console.warn("[products/translate-insert] lambda invoke failed after product insert", {
+        requestId,
+        productId: parsedPayload.id,
+        errorMessage: invokeTranslateProductLambdaResponse,
+      })
+    }
 
-    console.info("[products/translate-insert] lambda success", {
+    console.info("[products/translate-insert] product created", {
       requestId,
-      statusCode: response.StatusCode,
-      executedVersion: response.ExecutedVersion,
+      productId: parsedPayload.id,
+      ownerId: parsedPayload.owner_id,
     })
 
-    return NextResponse.json({ ok: true } satisfies API.ProductsTranslateAndInsertResponse, { status: response.StatusCode ?? 202 })
+    return NextResponse.json({ ok: true } satisfies API.ProductsTranslateAndInsertResponse, { status: 200 })
   } catch (error) {
     const errorMessage = getErrorMessage(error)
 
