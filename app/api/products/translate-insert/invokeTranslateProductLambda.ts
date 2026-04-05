@@ -36,11 +36,17 @@ export async function invokeTranslateProductLambda(
   payload: API.ProductsTranslateAndInsertRequest,
 ): Promise<{ functionName: string; statusCode?: number; executedVersion?: string } | string> {
   try {
+    const lambdaEvent = buildLambdaEvent(payload)
+
+    console.info("[products/translate-insert] invoking lambda with payload", {
+      payload: JSON.parse(lambdaEvent.body),
+    })
+
     const response = await lambda.send(
       new InvokeCommand({
         FunctionName: lambdaFnName,
-        InvocationType: InvocationType.Event,
-        Payload: Buffer.from(JSON.stringify(buildLambdaEvent(payload))),
+        InvocationType: InvocationType.RequestResponse,
+        Payload: Buffer.from(JSON.stringify(lambdaEvent)),
       }),
     )
 
