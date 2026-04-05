@@ -157,7 +157,7 @@ export function ProductInput({
         : id === "subTitle"
           ? (value: string | number) => {
               const str = String(value ?? "")
-              if (!str.trim()) return t("this_field_is_required")
+              if (!str.trim()) return required ? t("this_field_is_required") : true
               if (str.trim().length < 10) return t("description_too_short")
               if (str.length > MAX_DESCRIPTION_LENGTH) return t("description_too_long", { max: MAX_DESCRIPTION_LENGTH })
               if (!containsOnlyPrintableText(str, true)) return t("description_printable_only")

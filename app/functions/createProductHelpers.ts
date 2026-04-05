@@ -30,6 +30,11 @@ export type StripeProductDraft = {
   productId: string
 }
 
+export function getDefaultVariantPrice(variants: Pick<TProductVariant, "price">[] | Pick<TProductVariantDraft, "price">[] | undefined) {
+  const firstVariantPrice = variants?.[0]?.price
+  return typeof firstVariantPrice === "number" && Number.isFinite(firstVariantPrice) && firstVariantPrice > 0 ? firstVariantPrice : null
+}
+
 export function getFileExtensionFromContentType(contentType: string, fallbackFileName: string) {
   const contentTypeToExtension: Record<string, string> = {
     "image/avif": "avif",
@@ -49,9 +54,19 @@ export async function compressImageWithTinify(imageFile: File) {
   return new File([compressedBlob], `${baseName}.${fileExtension}`, { type: contentType })
 }
 
-export async function resolveProductPrice(title: string, description: string, price?: number) {
+export async function resolveProductPrice(
+  title: string,
+  description: string,
+  price?: number,
+  variants?: Pick<TProductVariant, "price">[] | Pick<TProductVariantDraft, "price">[],
+) {
   if (price && price > 0) {
     return price
+  }
+
+  const defaultVariantPrice = getDefaultVariantPrice(variants)
+  if (defaultVariantPrice) {
+    return defaultVariantPrice
   }
 
   try {

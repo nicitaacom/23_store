@@ -92,20 +92,19 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     register,
     handleSubmit,
     reset,
+    resetField,
     watch,
     formState: { errors },
   } = useForm<IFormDataAddProduct>()
 
   const titleValue = watch("title")
   const descriptionValue = watch("subTitle")
-  const priceValue = watch("price")
   const onStockValue = watch("onStock")
 
   const previewTitle = titleValue?.trim() || t("placeholder.title")
   const previewDescription = descriptionValue?.trim() || t("placeholder.description")
-
-  const numericPrice = typeof priceValue === "number" ? priceValue : Number(priceValue)
-  const previewPrice = Number.isFinite(numericPrice) && numericPrice > 0 ? formatCurrency(numericPrice) : "--"
+  const defaultVariant = variants[0]
+  const previewPrice = defaultVariant?.price ? formatCurrency(defaultVariant.price) : "--"
 
   const onStockInputValue =
     typeof onStockValue === "string" ? onStockValue : typeof onStockValue === "number" ? String(onStockValue) : ""
@@ -118,7 +117,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   // Shared className applied to every ProductInput — guarantees identical backgrounds
   const inputCn =
-    "w-full border-white/10 !bg-white/[0.04] text-[14px] text-white placeholder:text-white/25 shadow-none transition-colors focus:border-white/20 focus:!bg-white/[0.06] disabled:opacity-50"
+    "w-full border-white/15 !bg-white/[0.07] text-[14px] text-white placeholder:text-white/40 shadow-none transition-colors focus:border-success-accent/35 focus:!bg-white/[0.09] disabled:opacity-50"
   const isLoading = isSubmitting
 
   const updateBackgroundToast = (nextPendingTranslationsAmount: number) => {
@@ -166,6 +165,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   const clearForm = () => {
     reset(EMPTY_PRODUCT_FORM_VALUES)
+    resetField("onStock")
     setImages([])
     setVariants([])
     setActiveImageIndex(0)
@@ -197,7 +197,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     optimisticProductId,
     normalizedTitle,
     normalizedDescription,
-    price,
     formattedOnStock,
     submitImages,
     resolvedVariants,
@@ -206,7 +205,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     optimisticProductId: string
     normalizedTitle: string
     normalizedDescription: string
-    price: number
     formattedOnStock: number
     submitImages: ImageListType
     resolvedVariants: TProductVariantDraft[]
@@ -216,7 +214,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       await createProductFn(t, {
         title: normalizedTitle,
         description: normalizedDescription,
-        price,
         onStock: formattedOnStock,
         images: submitImages,
         variants: resolvedVariants,
@@ -243,13 +240,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     try {
       const normalizedTitle = data.title.trim()
       const normalizedDescription = data.subTitle.trim()
-      const formattedPrice = parseFormattedNumber(data.price)
       const formattedOnStock = parseFormattedNumber(data.onStock)
-
-      if (!Number.isFinite(formattedPrice) || formattedPrice <= 0) {
-        showToast("warning", "Price required", t("price_required"))
-        return
-      }
 
       if (!Number.isFinite(formattedOnStock) || formattedOnStock < 0) {
         showToast("warning", "Stock required", t("on_stock_required"))
@@ -275,14 +266,21 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           price: variant.price,
         }))
         .filter(variant => variant.label && variant.image_url)
+      const defaultVariantPrice = optimisticVariants[0]?.price
       const optimisticImages = normalizeProductImageUrls(images.map(image => image.data_url || ""))
       const optimisticProductId = `optimistic-${crypto.randomUUID()}`
+
+      if (!defaultVariantPrice || defaultVariantPrice <= 0) {
+        showToast("warning", t("variant"), t("manage_variant_empty"))
+        return
+      }
+
       const optimisticProduct: TProductDB = {
         id: optimisticProductId,
         price_id: optimisticProductId,
         owner_id: getUserId(),
         translations: createRawProductTranslations(normalizedTitle, normalizedDescription),
-        price: formattedPrice,
+        price: defaultVariantPrice,
         img_url: optimisticImages,
         variants: optimisticVariants.length ? optimisticVariants : null,
         on_stock: formattedOnStock,
@@ -295,7 +293,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         owner_id: optimisticProduct.owner_id,
         title: normalizedTitle,
         description: normalizedDescription,
-        price: formattedPrice,
+        price: defaultVariantPrice,
         on_stock: formattedOnStock,
         img_url: optimisticProduct.img_url,
         variants: optimisticProduct.variants,
@@ -320,7 +318,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         optimisticProductId,
         normalizedTitle,
         normalizedDescription,
-        price: formattedPrice,
         formattedOnStock,
         submitImages,
         resolvedVariants,
@@ -701,7 +698,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             register={register}
             errors={errors}
             disabled={isLoading}
-            required
             placeholder={t("placeholder.description")}
           />
         </div>
@@ -712,7 +708,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             <label className="grid flex-1 gap-1.5">
               <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_label")}</span>
               <input
-                className="h-10 w-full rounded border border-white/10 bg-white/[0.04] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/20"
+                className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
                 value={variantLabel}
                 onChange={event => setVariantLabel(event.target.value)}
                 placeholder={t("variant_label")}
@@ -722,7 +718,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             <label className="grid gap-1.5">
               <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_price")}</span>
               <input
-                className="h-10 w-full rounded border border-white/10 bg-white/[0.04] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/20"
+                className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
                 value={variantPrice}
                 onChange={event => setVariantPrice(formatGroupedNumberInput(event.target.value))}
                 placeholder={t("placeholder.price")}
@@ -739,9 +735,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             </button>
           </div>
 
-          <p className="text-[11px] text-white/35">{t("manage_variant_help")}</p>
+          <p className="text-[11px] text-white/50">{t("manage_variant_help")}</p>
 
-          {variants.length > 0 && (
+          {variants.length > 0 ? (
             <div className="grid gap-2 tablet:grid-cols-2">
               {variants.map(variant => {
                 const variantImage = images.find(image => image.data_url === variant.imageDataUrl)
@@ -778,42 +774,30 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 )
               })}
             </div>
+          ) : (
+            <div className="rounded border border-border-color/35 bg-background/35 px-3 py-3 text-sm text-subTitle">
+              {t("manage_variant_empty")}
+            </div>
           )}
         </div>
 
-        {/* Price + Stock */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="grid gap-1.5">
-            <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("price")}</label>
-            <ProductInput
-              className={twMerge(inputCn, "h-12")}
-              id="price"
-              type="numeric"
-              register={register}
-              errors={errors}
-              disabled={isLoading}
-              required
-              placeholder={t("placeholder.price")}
-            />
-          </div>
-          <div className="grid gap-1.5">
-            <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("on_stock")}</label>
-            <ProductInput
-              className={twMerge(inputCn, "h-12")}
-              id="onStock"
-              type="numeric"
-              numericFormat="grouped"
-              register={register}
-              errors={errors}
-              disabled={isLoading}
-              required
-              placeholder={t("placeholder.on_stock")}
-            />
-          </div>
+        <div className="grid gap-1.5">
+          <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("on_stock")}</label>
+          <ProductInput
+            className={twMerge(inputCn, "h-12")}
+            id="onStock"
+            type="numeric"
+            numericFormat="grouped"
+            register={register}
+            errors={errors}
+            disabled={isLoading}
+            required
+            placeholder={t("placeholder.on_stock")}
+          />
         </div>
 
         {/* Live preview row */}
-        <div className="grid grid-cols-2 gap-2 rounded border border-white/8 bg-white/[0.02] p-3">
+        <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3 tablet:grid-cols-2">
           <div>
             <p className="text-[10px] font-medium uppercase tracking-widest text-white/30">{t("price")}</p>
             <p className="mt-1 text-sm font-semibold text-white/75">{previewPrice}</p>
@@ -827,11 +811,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         {/* Submit */}
         <button
           type="submit"
-          disabled={isLoading || !images.length}
+          disabled={isLoading || !images.length || variants.length === 0}
           className={twMerge(
             "mt-auto min-h-[40px] w-full rounded border border-success-accent bg-success-accent px-4 py-2 text-[14px] font-semibold text-title-foreground transition-colors duration-150",
             "hover:bg-success-accent/90 active:scale-[0.99]",
-            (isLoading || !images.length) && "cursor-not-allowed opacity-50",
+            (isLoading || !images.length || variants.length === 0) && "cursor-not-allowed opacity-50",
           )}>
           {t("create_product")}
         </button>

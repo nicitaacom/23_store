@@ -18,12 +18,13 @@ import {
  * Creates a product through the full creation pipeline.
  *
  * Steps:
- * 1. Resolve a price when one was not provided.
- * 2. Validate and resolve the uploaded source images.
- * 3. Tinify every image and fail if compression fails.
- * 4. Upload all tinified images and fail if upload fails.
- * 5. Create the Stripe product and price with uploaded images.
- * 6. Insert the product into Supabase immediately and hand translation off to Lambda.
+ * 1. Validate and resolve the uploaded source images.
+ * 2. Tinify every image and fail if compression fails.
+ * 3. Upload all tinified images and fail if upload fails.
+ * 4. Resolve variants against uploaded images.
+ * 5. Resolve a base product price, preferring the first variant price.
+ * 6. Create the Stripe product and price with uploaded images.
+ * 7. Insert the product into Supabase immediately and hand translation off to Lambda.
  *
  * We use Lambda for translation because Vercel server functions can time out
  * around 60 seconds, while the translation job may take 3-5 minutes.
@@ -37,7 +38,6 @@ export async function createProductFn(t: TI18nFunction, input: CreateProductFnIn
   }
 
   try {
-    const resolvedPrice = await resolveProductPrice(title, description, price)
     const sourceImageFiles = await resolveSourceProductImages(images)
     const tinifiedImageFiles = await tinifyProductImages(sourceImageFiles)
     const uploadedImageUrls = normalizeProductImageUrls(await uploadProductImages(tinifiedImageFiles, t))
@@ -47,6 +47,7 @@ export async function createProductFn(t: TI18nFunction, input: CreateProductFnIn
     }
 
     const resolvedVariants = resolveUploadedProductVariants(variants, uploadedImageUrls)
+    const resolvedPrice = await resolveProductPrice(title, description, price, resolvedVariants)
     const stripeProduct = await createStripeProduct(title, description, resolvedPrice, uploadedImageUrls, t)
     const userId = getUserId()
 

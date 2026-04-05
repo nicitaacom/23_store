@@ -32,6 +32,7 @@ function normalizeVariants(variants: API.ProductsTranslateAndInsertRequest["vari
 function normalizePayload(payload: API.ProductsTranslateAndInsertRequest): API.ProductsTranslateAndInsertRequest {
   return {
     ...payload,
+    description: typeof payload.description === "string" ? payload.description : "",
     price: parseNumericValue(payload.price),
     on_stock: parseNumericValue(payload.on_stock),
     variants: normalizeVariants(payload.variants),
@@ -45,7 +46,6 @@ function getInvalidPayloadFields(payload: API.ProductsTranslateAndInsertRequest)
   if (!payload.price_id?.trim()) invalidFields.push("price_id")
   if (!payload.owner_id?.trim()) invalidFields.push("owner_id")
   if (!payload.title?.trim()) invalidFields.push("title")
-  if (!payload.description?.trim()) invalidFields.push("description")
   if (!Number.isFinite(payload.price)) invalidFields.push("price")
   if (!Number.isFinite(payload.on_stock)) invalidFields.push("on_stock")
   if (!Array.isArray(payload.img_url) || payload.img_url.length === 0 || payload.img_url.some(imageUrl => !imageUrl?.trim())) {

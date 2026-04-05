@@ -73,19 +73,17 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     defaultValues: {
       title: currentTranslation.title,
       subTitle: currentTranslation.description,
-      price: product.price,
       onStock: product.on_stock,
     },
   })
 
   const titleValue = watch("title")
   const subTitleValue = watch("subTitle")
-  const priceValue = watch("price")
   const onStockValue = watch("onStock")
 
   const previewTitle = titleValue?.trim() || currentTranslation.title
   const previewDescription = subTitleValue?.trim() || currentTranslation.description
-  const previewPrice = Number(priceValue) > 0 ? formatCurrency(Number(priceValue)) : formatCurrency(product.price)
+  const previewPrice = variants[0]?.price > 0 ? formatCurrency(variants[0].price) : formatCurrency(product.price)
   const previewStock = formatNumber(onStockValue ?? product.on_stock) || "0"
   const activeImage = images[activeImageIndex]
 
@@ -282,6 +280,10 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         return toast.show("warning", t("manage_upload_image_first_title"), t("manage_upload_image_first_subtitle"))
       }
 
+      if (!variants.length) {
+        return toast.show("warning", t("variant"), t("manage_variant_empty"))
+      }
+
       setIsSaving(true)
 
       try {
@@ -289,8 +291,13 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         const resolvedVariants = buildResolvedVariants(resolvedImageUrls)
         const normalizedTitle = data.title.trim()
         const normalizedSubTitle = data.subTitle.trim()
-        const normalizedPrice = Number(data.price)
         const normalizedOnStock = parseFormattedNumber(String(data.onStock))
+        const normalizedPrice = resolvedVariants[0]?.price
+
+        if (!normalizedPrice || normalizedPrice <= 0) {
+          throw new Error(t("manage_variant_empty"))
+        }
+
         const nextTranslations = {
           ...product.translations,
           [locale]: {
@@ -600,25 +607,11 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 register={register}
                 errors={errors}
                 disabled={isSaving}
-                required
                 placeholder={t("placeholder.description")}
               />
             </div>
 
             <div className="grid gap-4 mobile:grid-cols-2">
-              <div className="grid gap-1.5">
-                <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("price")}</label>
-                <ProductInput
-                  className={twMerge(inputCn, "h-12")}
-                  id="price"
-                  register={register}
-                  errors={errors}
-                  disabled={isSaving}
-                  required
-                  placeholder={String(product.price)}
-                />
-              </div>
-
               <div className="grid gap-1.5">
                 <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("on_stock")}</label>
                 <ProductInput
@@ -632,6 +625,11 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   required
                   placeholder={String(product.on_stock ?? 0)}
                 />
+              </div>
+
+              <div className="rounded-2xl border border-success/18 bg-success/8 px-4 py-3">
+                <p className="text-xs uppercase tracking-[0.2em] text-subTitle">{t("price")}</p>
+                <p className="mt-2 text-lg font-semibold text-success">{previewPrice}</p>
               </div>
             </div>
           </div>
