@@ -1,6 +1,19 @@
 "use client"
 
+import {
+  MAX_PRODUCT_DESCRIPTION_LENGTH,
+  MAX_PRODUCT_TITLE_LENGTH,
+  MIN_PRODUCT_DESCRIPTION_LENGTH,
+  MIN_PRODUCT_TITLE_LENGTH,
+} from "@/constants/productLimits"
 import { useScopedI18n } from "@/locales/client"
+import {
+  PRODUCT_DESCRIPTION_PATTERN,
+  PRODUCT_TITLE_HAS_LETTER_REGEX,
+  PRODUCT_TITLE_INVALID_CHARACTER_REGEX,
+  PRODUCT_TITLE_MUST_START_REGEX,
+  PRODUCT_TITLE_PATTERN,
+} from "@/utils/productValidation"
 import { formatGroupedNumberInput } from "@/utils/numberFormatter"
 import { motion } from "framer-motion"
 import React, { useRef } from "react"
@@ -54,13 +67,6 @@ export function ProductInput({
   ...props
 }: InputFormProps) {
   const t = useScopedI18n("product")
-  const MAX_DESCRIPTION_LENGTH = 2200
-  const DESCRIPTION_INVALID_CHARACTER_REGEX = /[!$^*_=\\]/
-
-  const containsOnlyPrintableText = (value: string, allowNewlines = false) => {
-    const normalizedValue = allowNewlines ? value.replace(/\r?\n/g, "") : value
-    return !/[\p{Cc}\p{Cf}\p{Cs}\p{Co}\p{Cn}]/u.test(normalizedValue)
-  }
 
   const getInvalidCharacterContext = (value: string, invalidCharacterIndex: number) => {
     const wordsBeforeInvalidCharacter = value
@@ -69,13 +75,9 @@ export function ProductInput({
       .split(/\s+/)
       .filter(Boolean)
       .slice(-2)
+      .join(" ")
 
-    const invalidCharacter = value[invalidCharacterIndex] || ""
-    const contextParts = [...wordsBeforeInvalidCharacter, invalidCharacter].filter(Boolean)
-
-    if (contextParts.length > 0) {
-      return contextParts.join(" ")
-    }
+    if (wordsBeforeInvalidCharacter) return wordsBeforeInvalidCharacter
 
     const wordsAfterInvalidCharacter = value
       .slice(invalidCharacterIndex + 1)
@@ -83,12 +85,11 @@ export function ProductInput({
       .split(/\s+/)
       .filter(Boolean)
       .slice(0, 2)
+      .join(" ")
 
-    if (wordsAfterInvalidCharacter.length > 0) {
-      return [invalidCharacter, ...wordsAfterInvalidCharacter].join(" ")
-    }
+    if (wordsAfterInvalidCharacter) return wordsAfterInvalidCharacter
 
-    return invalidCharacter
+    return value.slice(Math.max(0, invalidCharacterIndex - 6), Math.min(value.length, invalidCharacterIndex + 7)).trim()
   }
 
   const getReadableCharacter = (character: string) => {
@@ -97,22 +98,30 @@ export function ProductInput({
     return character
   }
 
-  const getInvalidCharacterMessage = (value: string, invalidCharacterRegex: RegExp, key: "title_invalid_character" | "description_invalid_character") => {
-    const invalidCharacterMatch = value.match(invalidCharacterRegex)
+  const getInvalidCharacterMessage = (value: string) => {
+    const invalidCharacterMatch = value.match(PRODUCT_TITLE_INVALID_CHARACTER_REGEX)
     if (!invalidCharacterMatch || invalidCharacterMatch.index === undefined) return null
 
     const invalidCharacter = getReadableCharacter(invalidCharacterMatch[0])
     const context = getInvalidCharacterContext(value, invalidCharacterMatch.index)
 
-    return t(key, { character: invalidCharacter, context })
+    return t("title_invalid_character", { character: invalidCharacter, context })
   }
 
   const validationRules: ValidationRules = {
     title: {
       requiredMessage: t("this_field_is_required"),
+      pattern: {
+        value: PRODUCT_TITLE_PATTERN,
+        message: t("title_required"),
+      },
     },
     subTitle: {
       requiredMessage: t("this_field_is_required"),
+      pattern: {
+        value: PRODUCT_DESCRIPTION_PATTERN,
+        message: t("subtitle_required"),
+      },
     },
     price: {
       requiredMessage: t("this_field_is_required"),
@@ -130,45 +139,42 @@ export function ProductInput({
     },
   }
 
-  const {
-    requiredMessage: requiredMessage,
-    pattern,
-  } = validationRules[id]
+  const { requiredMessage: requiredMessage, pattern } = validationRules[id]
+  const patternValue = pattern?.value
+  const patternMessage = pattern?.message
 
   const registerOptions = {
     required: required ? requiredMessage : undefined,
-    pattern: pattern
-      ? {
-          value: pattern.value,
-          message: pattern.message,
-        }
-      : undefined,
+    pattern:
+      patternValue && patternMessage
+        ? {
+            value: patternValue,
+            message: patternMessage,
+          }
+        : undefined,
     validate:
       id === "title"
         ? (value: string | number) => {
-            const str = String(value ?? "").trim()
-            if (!str) return t("this_field_is_required")
-            if (str.length < 2) return t("title_too_short")
-            if (!containsOnlyPrintableText(str)) return t("title_printable_only")
-            const invalidCharacterMessage = getInvalidCharacterMessage(str, /[^\p{L}\p{N}\p{P}\p{Zs}]/u, "title_invalid_character")
+            const str = String(value ?? "")
+            if (!str || (patternValue && patternValue.test(str))) return true
+            const invalidCharacterMessage = getInvalidCharacterMessage(str)
             if (invalidCharacterMessage) return invalidCharacterMessage
-            return true
+            if (str.length < MIN_PRODUCT_TITLE_LENGTH) return t("title_too_short")
+            if (str.length > MAX_PRODUCT_TITLE_LENGTH)
+              return t("title_too_long", { current: str.length, max: MAX_PRODUCT_TITLE_LENGTH })
+            if (!PRODUCT_TITLE_HAS_LETTER_REGEX.test(str)) return t("title_must_contain_letter")
+            if (!PRODUCT_TITLE_MUST_START_REGEX.test(str)) return t("title_must_start_alphanumeric")
+            return patternMessage
           }
         : id === "subTitle"
           ? (value: string | number) => {
               const str = String(value ?? "")
               if (!str.trim()) return required ? t("this_field_is_required") : true
-              if (str.trim().length < 10) return t("description_too_short")
-              if (str.length > MAX_DESCRIPTION_LENGTH) return t("description_too_long", { max: MAX_DESCRIPTION_LENGTH })
-              if (!containsOnlyPrintableText(str, true)) return t("description_printable_only")
-              const invalidCharacterMessage = getInvalidCharacterMessage(
-                str,
-                DESCRIPTION_INVALID_CHARACTER_REGEX,
-                "description_invalid_character",
-              )
-              if (invalidCharacterMessage) return invalidCharacterMessage
+              if (str.trim().length < MIN_PRODUCT_DESCRIPTION_LENGTH) return t("description_too_short")
+              if (str.length > MAX_PRODUCT_DESCRIPTION_LENGTH)
+                return t("description_too_long", { max: MAX_PRODUCT_DESCRIPTION_LENGTH })
               return true
-          }
+            }
           : undefined,
   }
 
@@ -182,17 +188,14 @@ export function ProductInput({
   const inputRef = useRef<HTMLInputElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const currentFieldValue = id === "subTitle" ? textareaRef.current?.value || "" : inputRef.current?.value || ""
-  const fallbackErrorMessage =
-    id === "subTitle"
-      ? getInvalidCharacterMessage(currentFieldValue, DESCRIPTION_INVALID_CHARACTER_REGEX, "description_invalid_character")
-      : id === "title"
-        ? getInvalidCharacterMessage(currentFieldValue, /[^\p{L}\p{N}\p{P}\p{Zs}]/u, "title_invalid_character")
-        : null
+  const fallbackErrorMessage = id === "title" ? getInvalidCharacterMessage(currentFieldValue) : null
   const errorMessage = fallbackErrorMessage || (errors[id]?.message as React.ReactNode)
 
   return (
     <div className="relative">
-      {startIcon && <div className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-icon-color">{startIcon}</div>}
+      {startIcon && (
+        <div className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-icon-color">{startIcon}</div>
+      )}
       {id === "subTitle" ? (
         <textarea
           {...textareaRest}
@@ -210,7 +213,7 @@ export function ProductInput({
           autoComplete={id}
           placeholder={placeholder}
           disabled={disabled}
-          maxLength={id === "subTitle" ? MAX_DESCRIPTION_LENGTH : props.maxLength}
+          maxLength={MAX_PRODUCT_DESCRIPTION_LENGTH}
           rows={6}
           ref={e => {
             textArea(e)
@@ -236,6 +239,7 @@ export function ProductInput({
           autoComplete={id}
           placeholder={placeholder}
           disabled={disabled}
+          maxLength={id === "title" ? MAX_PRODUCT_TITLE_LENGTH : props.maxLength}
           onInput={event => {
             if (type === "numeric" && numericFormat === "grouped") {
               event.currentTarget.value = formatGroupedNumberInput(event.currentTarget.value)

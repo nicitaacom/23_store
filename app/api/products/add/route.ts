@@ -1,4 +1,5 @@
 import { stripe } from "@/libs/stripe"
+import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
 import { normalizeProductImageUrls } from "@/utils/product"
 import { NextResponse } from "next/server"
@@ -15,6 +16,14 @@ export async function POST(req: Request) {
   try {
     if (!title) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 })
+    }
+
+    if (title.length < MIN_PRODUCT_TITLE_LENGTH) {
+      return NextResponse.json({ error: `Title is too short - minimum ${MIN_PRODUCT_TITLE_LENGTH} characters` }, { status: 400 })
+    }
+
+    if (title.length > MAX_PRODUCT_TITLE_LENGTH) {
+      return NextResponse.json({ error: `Title is too long - maximum ${MAX_PRODUCT_TITLE_LENGTH} characters` }, { status: 400 })
     }
 
     if (!Number.isInteger(price) || price <= 0) {

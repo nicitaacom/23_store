@@ -1,7 +1,9 @@
 import { ImageListType } from "react-images-uploading"
 
+import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
+import { PRODUCT_DESCRIPTION_PATTERN, PRODUCT_TITLE_HAS_LETTER_REGEX, PRODUCT_TITLE_INVALID_CHARACTER_REGEX, PRODUCT_TITLE_MUST_START_REGEX } from "@/utils/productValidation"
 import { uploadImageFn } from "./uploadImageFn"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
@@ -165,10 +167,44 @@ export async function createStripeProduct(
   images: string[],
   t: TI18nFunction,
 ): Promise<StripeProductDraft> {
+  const trimmedTitle = title.trim()
   const stripeAmount = Math.max(1, Math.floor(price * 100))
   const trimmedDescription = description.trim()
+
+  if (!trimmedTitle) {
+    throw new Error("Title is required")
+  }
+
+  if (trimmedTitle.length < MIN_PRODUCT_TITLE_LENGTH) {
+    throw new Error(`Title is too short - minimum ${MIN_PRODUCT_TITLE_LENGTH} characters`)
+  }
+
+  if (trimmedTitle.length > MAX_PRODUCT_TITLE_LENGTH) {
+    throw new Error(t("product.title_too_long", { current: trimmedTitle.length, max: MAX_PRODUCT_TITLE_LENGTH }))
+  }
+
+  if (!PRODUCT_TITLE_HAS_LETTER_REGEX.test(trimmedTitle)) {
+    throw new Error(t("product.title_must_contain_letter"))
+  }
+
+  if (!PRODUCT_TITLE_MUST_START_REGEX.test(trimmedTitle)) {
+    throw new Error(t("product.title_must_start_alphanumeric"))
+  }
+
+  if (PRODUCT_TITLE_INVALID_CHARACTER_REGEX.test(trimmedTitle)) {
+    throw new Error(t("product.title_required"))
+  }
+
+  if (trimmedDescription.length > MAX_PRODUCT_DESCRIPTION_LENGTH) {
+    throw new Error(t("product.description_too_long", { max: MAX_PRODUCT_DESCRIPTION_LENGTH }))
+  }
+
+  if (trimmedDescription && !PRODUCT_DESCRIPTION_PATTERN.test(trimmedDescription)) {
+    throw new Error(t("product.subtitle_required"))
+  }
+
   const stripeData = await productsSDK.addProduct({
-    title,
+    title: trimmedTitle,
     ...(trimmedDescription ? { description: trimmedDescription } : {}),
     price: stripeAmount,
     images,

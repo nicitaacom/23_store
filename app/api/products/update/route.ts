@@ -1,4 +1,5 @@
 import { stripe } from "@/libs/stripe"
+import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
 import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 import { ProductTranslations } from "@/ts/product/TProductDB"
@@ -88,8 +89,22 @@ export async function POST(req: Request) {
 
     /* UPDATE TRANSLATIONS */
     if (translations) {
+      const fiTitle = translations.fi.title.trim()
+
+      if (!fiTitle) {
+        return NextResponse.json({ error: "Title is required" }, { status: 400 })
+      }
+
+      if (fiTitle.length < MIN_PRODUCT_TITLE_LENGTH) {
+        return NextResponse.json({ error: `Title is too short - minimum ${MIN_PRODUCT_TITLE_LENGTH} characters` }, { status: 400 })
+      }
+
+      if (fiTitle.length > MAX_PRODUCT_TITLE_LENGTH) {
+        return NextResponse.json({ error: `Title is too long - maximum ${MAX_PRODUCT_TITLE_LENGTH} characters` }, { status: 400 })
+      }
+
       const productResponse = await stripe.products.update(productId, {
-        name: translations.fi.title,
+        name: fiTitle,
         ...getStripeDescriptionPayload(translations.fi.description),
       })
 
@@ -139,8 +154,22 @@ export async function POST(req: Request) {
       // Create new product on stripe
       if (normalizedExistingProduct) {
         const canonicalTranslation = normalizedExistingProduct.translations.fi
+        const canonicalTitle = canonicalTranslation.title.trim()
+
+        if (!canonicalTitle) {
+          throw new Error("Title is required")
+        }
+
+        if (canonicalTitle.length < MIN_PRODUCT_TITLE_LENGTH) {
+          throw new Error(`Title is too short - minimum ${MIN_PRODUCT_TITLE_LENGTH} characters`)
+        }
+
+        if (canonicalTitle.length > MAX_PRODUCT_TITLE_LENGTH) {
+          throw new Error(`Title is too long - maximum ${MAX_PRODUCT_TITLE_LENGTH} characters`)
+        }
+
         const productResponse = await stripe.products.create({
-          name: canonicalTranslation.title,
+          name: canonicalTitle,
           ...getStripeDescriptionPayload(canonicalTranslation.description),
           images: normalizedExistingProduct.img_url?.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
         })

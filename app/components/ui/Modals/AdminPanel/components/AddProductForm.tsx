@@ -41,7 +41,6 @@ const previewImageVariants = {
   }),
 }
 
-const MAX_DESCRIPTION_LENGTH = 2200
 const BEFORE_UNLOAD_MESSAGE = "Translation in progress, are you sure you want to leave?"
 
 interface AddProductFormProps {
@@ -699,6 +698,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             register={register}
             errors={errors}
             disabled={isLoading}
+            required
             placeholder={t("placeholder.description")}
           />
         </div>
