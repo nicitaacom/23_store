@@ -1,6 +1,6 @@
 "use client"
 
-import { MutableRefObject, useEffect } from "react"
+import { MutableRefObject, useEffect, useRef } from "react"
 
 import { getPusherClient } from "@/libs/pusher"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -61,6 +61,12 @@ export function useSubscribeToProductCreated({
   pendingCreatedProductsRef: MutableRefObject<PendingCreatedProduct[]>
   decreasePendingTranslations: (showCompletedToast?: boolean) => void
 }) {
+  const decreasePendingTranslationsRef = useRef(decreasePendingTranslations)
+
+  useEffect(() => {
+    decreasePendingTranslationsRef.current = decreasePendingTranslations
+  }, [decreasePendingTranslations])
+
   useEffect(() => {
     const pusherClient = getPusherClient()
 
@@ -93,7 +99,7 @@ export function useSubscribeToProductCreated({
       }
 
       useOwnerProductsStore.getState().setError(null)
-      decreasePendingTranslations(true)
+      decreasePendingTranslationsRef.current(true)
     }
 
     pusherClient.subscribe("products")
@@ -103,5 +109,5 @@ export function useSubscribeToProductCreated({
       pusherClient.unsubscribe("products")
       pusherClient.unbind("product:created", productCreatedHandler)
     }
-  }, [decreasePendingTranslations, pendingCreatedProductsRef])
+  }, [pendingCreatedProductsRef])
 }
