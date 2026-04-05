@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 
 import { Button } from "../.."
+import type { ButtonProps } from "../../Button"
 import { useLoading } from "@/store/ui/useLoading"
 
 interface AreYouSureModalContainerProps {
@@ -53,6 +54,15 @@ interface AreYouSureModalContainerProps {
     | undefined
   secondaryButtonIcon?: IconType
   className?: string
+  closeButtonClassName?: string
+  contentClassName?: string
+  titleClassName?: string
+  subTitleClassName?: string
+  actionsClassName?: string
+  primaryButtonClassName?: string
+  primaryButtonSize?: ButtonProps["size"]
+  secondaryButtonClassName?: string
+  secondaryButtonSize?: ButtonProps["size"]
 }
 
 export function AreYouSureModalContainer({
@@ -68,6 +78,15 @@ export function AreYouSureModalContainer({
   secondaryButtonAction,
   secondaryButtonLabel,
   className,
+  closeButtonClassName,
+  contentClassName,
+  titleClassName,
+  subTitleClassName,
+  actionsClassName,
+  primaryButtonClassName,
+  primaryButtonSize = "md",
+  secondaryButtonClassName,
+  secondaryButtonSize = "md",
 }: AreYouSureModalContainerProps) {
   const { isLoading } = useLoading()
 
@@ -82,6 +101,7 @@ export function AreYouSureModalContainer({
 
   /* onClose - close modal - show scrollbar */
   function closeModal() {
+    if (isLoading) return
     secondaryButtonAction()
   }
 
@@ -114,15 +134,21 @@ export function AreYouSureModalContainer({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-[0] bg-[rgba(0,0,0,0.2)] z-[2000]
-         flex justify-center items-center"
+          data-click-outside-ignore
+          className="fixed inset-0 z-[2000] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.16, ease: "easeOut" }}
           {...modalBgHandler}>
           <motion.div
-            className={`relative bg-foreground border-[1px] border-border-color rounded-md z-[100] py-8 shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
+            data-click-outside-ignore
+            role="dialog"
+            aria-modal="true"
+            className={twMerge(
+              "relative z-[100] w-[min(calc(100vw-2rem),560px)] overflow-hidden rounded-lg border border-border-color/35 bg-foreground/95 shadow-compact",
+              className,
+            )}
             initial={{ y: 12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 8, opacity: 0 }}
@@ -130,28 +156,35 @@ export function AreYouSureModalContainer({
             {...modalHandler}>
             <IoMdClose
               className={twMerge(
-                `absolute right-[0] top-[0] border-b-[1px] border-l-[1px] text-icon-color border-border-color rounded-bl-md cursor-pointer`,
+                "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
+                closeButtonClassName,
                 isLoading && "opacity-50 cursor-default pointer-events-none",
               )}
-              size={32}
+              size={22}
               onClick={closeModal}
             />
-            <div className="flex flex-col gap-y-4 pt-6 px-6 pb-8 max-w-[600px]">
-              <div className="flex flex-col text-center tablet:text-start">
-                <div className="text-2xl text-title">{label}</div>
-                <div className="text-subTitle">{subTitle}</div>
+            <div
+              className={twMerge(
+                "flex max-w-[620px] flex-col gap-4 px-4 pb-4 pt-5 tablet:px-5",
+                contentClassName,
+              )}>
+              <div className={twMerge("flex flex-col gap-2 pr-10 text-start", titleClassName)}>
+                <div className="font-secondary text-xl font-bold leading-tight text-title">{label}</div>
+                {subTitle && <div className={twMerge("text-sm leading-6 text-subTitle", subTitleClassName)}>{subTitle}</div>}
               </div>
-              <div className="flex flex-row gap-x-2 justify-center tablet:justify-end">
+              <div className={twMerge("flex flex-col-reverse gap-3 tablet:flex-row tablet:justify-end", actionsClassName)}>
                 <Button
-                  className="flex flex-row gap-x-1"
+                  className={twMerge("px-3", secondaryButtonClassName)}
                   variant={secondaryButtonVariant ? secondaryButtonVariant : "default-outline"}
+                  size={secondaryButtonSize}
                   onClick={secondaryButtonAction}
                   disabled={isLoading}>
                   {secondaryButtonLabel} {SecondaryButtonIcon && <SecondaryButtonIcon />}
                 </Button>
                 <Button
-                  className="flex flex-row gap-x-1"
+                  className={twMerge("px-3", primaryButtonClassName)}
                   variant={primaryButtonVariant ? primaryButtonVariant : "info"}
+                  size={primaryButtonSize}
                   onClick={primaryButtonAction}
                   disabled={isLoading}>
                   {primaryButtonLabel} {PrimaryButtonIcon && <PrimaryButtonIcon />}

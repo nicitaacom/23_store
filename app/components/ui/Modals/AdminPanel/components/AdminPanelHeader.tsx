@@ -50,17 +50,17 @@ export function AdminPanelHeader({
   return (
     <OrganicCanvasBackground
       className={twMerge(
-        "h-[56px] overflow-hidden rounded-t-[28px] border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.16),transparent_32%),linear-gradient(135deg,rgba(13,17,23,0.98),rgba(20,26,35,0.94))] tablet:h-[60px]",
+        "h-[52px] overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.12),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))] tablet:h-[56px] tablet:rounded-t-lg",
         className,
       )}
-      parentClassName="relative flex h-full items-center justify-between gap-2 px-3 py-2 tablet:px-4"
+      parentClassName="relative flex h-full items-center justify-between gap-2 px-2 py-2 tablet:px-3"
       particleCount={3}
       brandHsl="137, 82%, 52%"
       verticalOverflow={18}>
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-emerald-300/85">Workspace</p>
-          <h1 className="mt-[2px] truncate text-[20px] font-semibold leading-none text-white tablet:text-[24px]">{title}</h1>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-success/85">Workspace</p>
+          <h1 className="mt-px truncate text-[18px] font-semibold leading-none text-white tablet:text-[20px]">{title}</h1>
         </div>
 
         <div className="ml-2 hidden min-w-0 flex-1 items-center gap-[2px] mobile:flex">
@@ -72,10 +72,14 @@ export function AdminPanelHeader({
               <button
                 key={action}
                 className={twMerge(
-                  "flex h-9 min-w-0 items-center gap-[6px] rounded-[14px] border px-3 text-sm transition-all duration-200",
+                  "flex h-8 min-w-0 items-center gap-1 rounded border px-2.5 text-xs transition-colors duration-150",
                   isActive
-                    ? "border-brand bg-brand/12 text-white shadow-[0_0_0_1px_rgba(32,233,89,0.18)]"
-                    : "border-white/8 bg-white/[0.03] text-white/72 hover:bg-white/[0.05]",
+                    ? action === PRODUCT_ACTIONS.add
+                      ? "border-success/50 bg-success/20 text-success-accent"
+                      : action === PRODUCT_ACTIONS.edit
+                        ? "border-warning/50 bg-warning/20 text-warning"
+                        : "border-danger/50 bg-danger/20 text-danger"
+                    : "border-white/8 bg-white/[0.03] text-white/72 hover:bg-white/[0.05] hover:text-white",
                   disabled && "pointer-events-none opacity-50",
                 )}
                 type="button"
@@ -90,13 +94,13 @@ export function AdminPanelHeader({
 
       <button
         className={twMerge(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/16 bg-white/8 text-white transition-all duration-200 hover:bg-white/14",
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/16 bg-white/8 text-white transition-colors duration-150 hover:bg-white/14",
           disabled && "pointer-events-none opacity-50",
         )}
         type="button"
         onClick={onClose}
         aria-label="Close admin panel">
-        <IoMdClose size={24} />
+        <IoMdClose size={20} />
       </button>
     </OrganicCanvasBackground>
   )

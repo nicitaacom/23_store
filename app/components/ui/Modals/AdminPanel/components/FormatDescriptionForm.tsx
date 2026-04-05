@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
 import { CiEdit } from "react-icons/ci"
 import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
@@ -12,6 +11,8 @@ import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { ProductTranslations } from "@/ts/product/TProductDB"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import useToast from "@/store/ui/useToast"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 
 interface FormatDescriptionFormProps {
   id: string
@@ -21,16 +22,17 @@ interface FormatDescriptionFormProps {
 export function FormatDescriptionForm({ id, translations }: FormatDescriptionFormProps) {
   const t = useScopedI18n("product")
   const locale = useCurrentLocale()
-  const router = useRouter()
+  const toast = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
   const currentTranslation = translations[locale] ?? translations.fi
+  const replaceProduct = useOwnerProductsStore(state => state.replaceProduct)
 
-  async function updateTitle(description: string) {
+  async function updateDescription(description: string) {
     setIsLoading(true)
     try {
-      await productsSDK.updateProduct({
+      const response = await productsSDK.updateProduct({
         productId: id,
         translations: {
           ...translations,
@@ -41,8 +43,11 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
         },
       })
 
+      replaceProduct(id, response.product)
       setIsEditing(false)
-      router.refresh()
+      toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
+    } catch (error) {
+      toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)
     }
@@ -55,7 +60,7 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   } = useForm<IFormDataAddProduct>()
 
   const onSubmit = (data: IFormDataAddProduct) => {
-    updateTitle(data.subTitle)
+    updateDescription(data.subTitle)
   }
 
   const enableInput = () => {
@@ -87,14 +92,14 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   }, [isEditing])
 
   return (
-    <div>
+    <div className="rounded border border-border-color/30 bg-background/70 p-3 shadow-none">
       <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("description")}</p>
       {isEditing ? (
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>
             <ProductInput
               className={twMerge(
-                `min-h-[92px] w-full rounded-xl border border-border-color/70 bg-background/50 px-3 py-2 text-sm text-start`,
+                "min-h-[92px] w-full border-border-color/50 bg-background/60 text-start",
                 isLoading && "animate-pulse",
               )}
               id="subTitle"
@@ -106,7 +111,7 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
           </div>
         </form>
       ) : (
-        <button className="flex items-start gap-x-2 text-left" type="button" onClick={enableInput}>
+        <button className="flex items-start gap-2 text-left" type="button" onClick={enableInput}>
           <h2 className="line-clamp-3 text-sm leading-6 text-subTitle">{currentTranslation.description}</h2>
           <CiEdit className="mt-1 shrink-0 text-subTitle" />
         </button>

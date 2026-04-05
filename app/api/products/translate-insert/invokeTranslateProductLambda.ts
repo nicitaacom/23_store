@@ -58,6 +58,12 @@ export async function invokeTranslateProductLambda(
       throw new Error(payloadText || `Lambda execution failed with ${response.FunctionError}`)
     }
 
+    console.info("[lambda] response:", {
+      statusCode: response.StatusCode,
+      functionError: response.FunctionError,
+      payload: response.Payload ? new TextDecoder().decode(response.Payload) : null,
+    })
+
     return {
       functionName: lambdaFnName,
       region: lambdaRegion,

@@ -1,17 +1,18 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
 import { CiEdit } from "react-icons/ci"
 import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
-import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
 import { formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import useToast from "@/store/ui/useToast"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 
 interface FormatOnStockFormProps {
   id: string
@@ -20,17 +21,27 @@ interface FormatOnStockFormProps {
 
 export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
   const t = useScopedI18n("product")
-  const router = useRouter()
+  const toast = useToast()
   const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
+  const replaceProduct = useOwnerProductsStore(state => state.replaceProduct)
 
-  async function updateTitle(onStock: number) {
+  async function updateOnStock(onStock: number) {
     setIsLoading(true)
-    await supabaseClient.from("products").update({ on_stock: onStock }).eq("id", id)
-    setIsEditing(false)
-    setIsLoading(false)
-    router.refresh()
+    try {
+      const response = await productsSDK.updateProduct({
+        productId: id,
+        onStock,
+      })
+      replaceProduct(id, response.product)
+      setIsEditing(false)
+      toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
+    } catch (error) {
+      toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const {
@@ -40,7 +51,7 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
   } = useForm<IFormDataAddProduct>()
 
   const onSubmit = (data: IFormDataAddProduct) => {
-    updateTitle(parseFormattedNumber(data.onStock))
+    updateOnStock(parseFormattedNumber(data.onStock))
   }
 
   const enableInput = () => {
@@ -69,14 +80,14 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
   }, [isEditing])
 
   return (
-    <div className="tablet:max-w-[220px]">
+    <div className={twMerge("rounded border border-border-color/30 bg-background/70 px-3 py-2 shadow-none tablet:max-w-[220px]")}>
       <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("on_stock")}</p>
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>
             <ProductInput
               className={twMerge(
-                `w-full rounded-xl border border-border-color/70 bg-background/50 px-3 py-2 text-sm text-start`,
+                "w-full border-border-color/50 bg-background/60 text-start",
                 isLoading && "animate-pulse",
               )}
               id="onStock"
@@ -90,7 +101,7 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
           </div>
         </form>
       ) : (
-        <button className="flex items-center gap-x-2" type="button" onClick={enableInput}>
+        <button className="flex items-center gap-2" type="button" onClick={enableInput}>
           <span className="text-sm font-medium text-title">{formatNumber(onStock) || onStock}</span>
           <CiEdit className="text-subTitle" />
         </button>

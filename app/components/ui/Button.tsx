@@ -6,71 +6,68 @@ import { VariantProps, cva } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
 
 const buttonVariants = cva(
-  `inline-flex items-center justify-center font-medium outline-none
-  transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none
-  focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background
-  active:scale-[0.98] whitespace-nowrap`,
+  `inline-flex items-center justify-center border font-primary font-medium outline-none
+  transition-[background-color,border-color,color,transform,box-shadow] duration-150 disabled:opacity-50 disabled:pointer-events-none
+  focus-visible:ring-1 focus-visible:ring-brand/35 focus-visible:ring-offset-1 focus-visible:ring-offset-background
+  active:scale-[0.99] whitespace-nowrap`,
   {
     variants: {
       variant: {
-        default: "bg-brand text-title-foreground hover:bg-brand/90 focus-visible:ring-brand/80 shadow-sm",
-        "default-outline": "bg-transparent border border-brand text-title hover:bg-brand/10 focus-visible:ring-brand/60",
+        default: "border-brand/25 bg-brand/12 text-brand hover:border-brand/35 hover:bg-brand/18",
+        "default-outline": "border-border-color/40 bg-background/55 text-title hover:border-brand/30 hover:bg-brand/8",
 
         primary: "bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500 shadow-sm",
         "primary-outline": "bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500",
 
         secondary:
-          "bg-gray-200 text-gray-900 hover:bg-gray-300 focus-visible:ring-gray-400 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600",
-        "secondary-outline":
-          "bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-400 dark:border-gray-600 dark:text-gray-300",
+          "border-border-color/35 bg-foreground/65 text-title hover:border-border-color/45 hover:bg-foreground/85",
+        "secondary-outline": "border-border-color/35 bg-transparent text-title hover:bg-foreground/35",
 
-        info: "bg-info text-title-foreground hover:bg-info/90 focus-visible:ring-info/80 shadow-sm",
-        "info-outline": "bg-transparent border border-info text-info hover:bg-info/10 focus-visible:ring-info/60",
+        info: "border-info/25 bg-info/12 text-info hover:border-info/35 hover:bg-info/18",
+        "info-outline": "border-info/30 bg-transparent text-info hover:bg-info/10",
 
-        warning: "bg-warning text-title-foreground hover:bg-warning/90 focus-visible:ring-warning/80 shadow-sm",
-        "warning-outline": "bg-transparent border border-warning text-warning hover:bg-warning/10 focus-visible:ring-warning/60",
+        warning: "border-warning/25 bg-warning/12 text-warning hover:border-warning/35 hover:bg-warning/18",
+        "warning-outline": "border-warning/30 bg-transparent text-warning hover:bg-warning/10",
 
-        danger: "bg-danger text-title-foreground hover:bg-danger/90 focus-visible:ring-danger/80 shadow-sm",
-        "danger-outline": "bg-transparent border border-danger text-danger hover:bg-danger/10 focus-visible:ring-danger/60",
+        danger: "border-danger/25 bg-danger/14 text-danger hover:border-danger/35 hover:bg-danger/20",
+        "danger-outline": "border-danger/30 bg-transparent text-danger hover:bg-danger/10",
 
-        success: "bg-success text-title-foreground hover:bg-success/90 focus-visible:ring-success/80 shadow-sm",
-        "success-outline": "bg-transparent border border-success text-success hover:bg-success/10 focus-visible:ring-success/60",
+        success: "border-success/25 bg-success/12 text-success hover:border-success/35 hover:bg-success/18",
+        "success-outline": "border-success/30 bg-transparent text-success hover:bg-success/10",
 
-        ghost: "bg-transparent hover:bg-gray-100 text-title focus-visible:ring-gray-400 dark:hover:bg-gray-800",
-        link: "bg-transparent text-info hover:text-info/80 underline-offset-4 hover:underline focus-visible:ring-info/60",
+        ghost: "border-transparent bg-transparent text-title hover:border-border-color/25 hover:bg-foreground/35",
+        link: "border-transparent bg-transparent px-0 text-info hover:text-info/80 underline-offset-2 hover:underline focus-visible:ring-0",
 
-        gradient:
-          "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 focus-visible:ring-purple-500 shadow-md",
+        gradient: "border-brand/35 bg-brand/18 text-brand hover:bg-brand/24",
 
-        "nav-link": `relative font-bold text-title bg-transparent
+        "nav-link": `relative border-transparent font-bold text-title bg-transparent
           before:absolute before:bottom-[-4px] before:left-0 before:w-full before:h-[3px]
           before:bg-brand before:rounded-md before:transition-all before:duration-300
           before:scale-x-0 before:origin-left
           hover:before:scale-x-100 focus-visible:ring-brand/60`,
 
-        icon: "bg-transparent hover:bg-gray-100 text-title focus-visible:ring-gray-400 dark:hover:bg-gray-800",
+        icon: "border-border-color/35 bg-background/55 text-title hover:bg-foreground/35",
 
-        "continue-with": `w-full bg-transparent border border-border-color hover:bg-gray-50
-          focus-visible:ring-border-color/60 dark:hover:bg-gray-800`,
+        "continue-with": "w-full border-border-color/35 bg-background/65 text-title hover:bg-foreground/35",
       },
 
       size: {
-        xs: "h-7 px-2 text-xs gap-1",
-        sm: "h-8 px-3 text-sm gap-1.5",
-        md: "h-10 px-4 text-sm gap-2",
-        lg: "h-11 px-6 text-base gap-2",
-        xl: "h-12 px-8 text-lg gap-2.5",
-        "icon-xs": "h-7 w-7 p-0",
-        "icon-sm": "h-8 w-8 p-0",
-        "icon-md": "h-10 w-10 p-0",
-        "icon-lg": "h-11 w-11 p-0",
-        "icon-xl": "h-12 w-12 p-0",
+        xs: "h-6 px-2 text-[11px] gap-1",
+        sm: "h-7 px-2.5 text-xs gap-1",
+        md: "h-8 px-3 text-sm gap-1.5",
+        lg: "h-9 px-3.5 text-sm gap-1.5",
+        xl: "h-10 px-4 text-base gap-2",
+        "icon-xs": "h-6 w-6 p-0",
+        "icon-sm": "h-7 w-7 p-0",
+        "icon-md": "h-8 w-8 p-0",
+        "icon-lg": "h-9 w-9 p-0",
+        "icon-xl": "h-10 w-10 p-0",
       },
 
       rounded: {
         none: "rounded-none",
-        sm: "rounded-sm",
-        md: "rounded-md",
+        sm: "rounded-[2px]",
+        md: "rounded",
         lg: "rounded-lg",
         xl: "rounded-xl",
         full: "rounded-full",
@@ -78,10 +75,10 @@ const buttonVariants = cva(
 
       shadow: {
         none: "shadow-none",
-        sm: "shadow-sm",
-        md: "shadow-md",
-        lg: "shadow-lg",
-        xl: "shadow-xl",
+        sm: "shadow-[0_1px_0_rgba(255,255,255,0.03)]",
+        md: "shadow-compact",
+        lg: "shadow-compact-lg",
+        xl: "shadow-compact-lg",
       },
 
       active: {
@@ -181,11 +178,11 @@ function LoadingSpinner({ size }: { size?: ButtonProps["size"] }) {
     : size === "xs"
       ? "h-3 w-3"
       : size === "sm"
-        ? "h-3.5 w-3.5"
+        ? "h-3 w-3"
         : size === "lg"
-          ? "h-5 w-5"
+          ? "h-4 w-4"
           : size === "xl"
-            ? "h-6 w-6"
+            ? "h-5 w-5"
             : "h-4 w-4"
 
   return (

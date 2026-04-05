@@ -24,17 +24,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   }
 
   return (
-    <div className={`relative ${className}`}>
-      {startIcon && (
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-subTitle flex items-center pointer-events-none">
-          {startIcon}
-        </div>
-      )}
-      {endIcon && <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">{endIcon}</div>}
+    <div className="relative">
+      {startIcon && <div className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-icon-color">{startIcon}</div>}
+      {endIcon && <div className="absolute right-2 top-1/2 -translate-y-1/2 text-icon-color">{endIcon}</div>}
       <input
         className={twMerge(
-          `w-full rounded border border-solid bg-transparent px-4 py-2 mb-1 outline-none text-title 
-          ${startIcon ? "pl-10" : ""} ${endIcon ? "pr-10" : ""}`,
+          "h-8 w-full rounded border border-border-color/35 bg-background/70 px-3 text-sm text-title outline-none transition-colors duration-150 placeholder:text-subTitle/55 focus:border-brand/35 focus:bg-background",
+          startIcon && "pl-8",
+          endIcon && "pr-8",
+          className,
         )}
         type={type}
         inputMode={type === "number" ? "numeric" : undefined}

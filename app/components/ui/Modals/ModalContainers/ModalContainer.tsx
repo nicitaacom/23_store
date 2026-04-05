@@ -35,6 +35,7 @@ export function ModalContainer({
 
   /* onClose - close modal - show scrollbar */
   function closeModal() {
+    if (isLoading) return
     onClose()
   }
 
@@ -65,8 +66,7 @@ export function ModalContainer({
       {isOpen && (
         <motion.div
           className={twMerge(
-            `fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[49]
-         flex justify-center items-center`,
+            `fixed inset-0 z-[49] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px]`,
             classnameContainer,
           )}
           initial={{ opacity: 0 }}
@@ -75,22 +75,25 @@ export function ModalContainer({
           transition={{ duration: 0.18, ease: "easeOut" }}
           {...modalBgHandler}>
           <motion.div
-            className={`relative bg-foreground border-[1px] border-border-color rounded-md py-8 z-[50] shadow-[0px_0px_4px_8px_rgba(0,0,0,0.3)] ${className}`}
+            className={twMerge(
+              "relative z-[50] overflow-hidden rounded-lg border border-border-color/35 bg-foreground shadow-compact",
+              className,
+            )}
             initial={{ y: 14, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 8, opacity: 0 }}
             transition={{ type: "spring", stiffness: 420, damping: 34, mass: 0.9 }}
             {...modalHandler}>
             <IoMdClose
-              className={twMerge(
-                `absolute right-[0] top-[0] border-b-[1px] border-l-[1px] text-icon-color border-border-color rounded-bl-md cursor-pointer`,
-                isLoading && "opacity-50 cursor-default pointer-events-none",
-              )}
-              size={32}
+                className={twMerge(
+                  "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
+                  isLoading && "opacity-50 cursor-default pointer-events-none",
+                )}
+              size={22}
               onClick={closeModal}
             />
-            <div className="flex flex-col gap-y-4 px-4 max-w-[600px]">
-              {label && <div className="py-2 text-2xl text-center text-title">{label}</div>}
+            <div className="flex max-w-[600px] flex-col gap-3 px-4 pb-4 pt-5">
+              {label && <div className="py-1 text-xl text-center text-title">{label}</div>}
               {children}
             </div>
           </motion.div>

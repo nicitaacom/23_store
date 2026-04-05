@@ -21,11 +21,15 @@ export function SearchInput({
   ...props
 }: InputProps) {
   return (
-    <div className={`relative ${className}`}>
-      <div className="absolute top-[50%] translate-y-[-50%] translate-x-[50%]">{startIcon}</div>
+    <div className="relative">
+      {startIcon && <div className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-icon-color">{startIcon}</div>}
       <input
-        className={twMerge(`w-full rounded border-[1px] border-solid bg-transparent text-title px-4 py-2 mb-1 outline-none 
-        ${startIcon && "pl-10"}`)}
+        className={twMerge(
+          "h-8 w-full rounded border border-border-color/35 bg-background/70 px-3 text-sm text-title outline-none transition-colors duration-150 placeholder:text-subTitle/55 focus:border-brand/35 focus:bg-background",
+          startIcon && "pl-8",
+          endIcon && "pr-8",
+          className,
+        )}
         type={type}
         inputMode={type === "number" ? "numeric" : undefined}
         pattern={pattern}
@@ -34,7 +38,7 @@ export function SearchInput({
         autoFocus
         {...props}
       />
-      <div className="absolute right-0 top-[50%] translate-y-[-55%] translate-x-[-25%]">{endIcon}</div>
+      {endIcon && <div className="absolute right-2 top-1/2 -translate-y-1/2 text-icon-color">{endIcon}</div>}
     </div>
   )
 }

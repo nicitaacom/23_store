@@ -1,14 +1,19 @@
 import Image from "next/image"
+import { twMerge } from "tailwind-merge"
 
 interface OwnerProductImageProps {
   imgUrl: string
+  className?: string
 }
 
-export function OwnerProductImage({ imgUrl }: OwnerProductImageProps) {
+export const OWNER_PRODUCT_MEDIA_WRAPPER_CLASSNAME =
+  "mx-auto aspect-[4/3] w-full max-w-[480px] overflow-hidden rounded bg-black/[0.04] tablet:mx-0 tablet:max-w-none tablet:w-[233px] laptop:w-[267px] desktop:w-[333px]"
+
+export function OwnerProductImage({ imgUrl, className }: OwnerProductImageProps) {
   return (
-    <figure className="relative w-full overflow-hidden tablet:aspect-video h-[500px] tablet:h-[175px] laptop:h-[200px] desktop:h-[250px] tablet:w-fit">
+    <figure className={twMerge("relative h-full w-full overflow-hidden bg-black/[0.04]", className)}>
       <Image
-        className="h-[500px] w-full max-w-full object-contain tablet:h-[175px] laptop:h-[200px] desktop:h-[250px]"
+        className="h-full w-full max-w-full object-contain"
         src={imgUrl}
         alt="image"
         width={480}

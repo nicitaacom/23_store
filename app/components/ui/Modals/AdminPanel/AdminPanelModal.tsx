@@ -15,6 +15,7 @@ import { AdminPanelHeader } from "./components/AdminPanelHeader"
 import { useLoading } from "@/store/ui/useLoading"
 import { useI18n } from "@/locales/client"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { AdminPanelDeleteConfirmDialog, PendingDeleteProduct } from "./components/AdminPanelDeleteConfirmDialog"
 
 export interface AdminPanelModalProps {
   ownerProducts: TProductDB[]
@@ -34,12 +35,15 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
   const { products: hydratedOwnerProducts, hydrate: hydrateOwnerProducts } = useOwnerProductsStore()
 
   const [productAction, setProductAction] = useState<ProductAction>(PRODUCT_ACTIONS.add)
+  const [pendingDeleteProduct, setPendingDeleteProduct] = useState<PendingDeleteProduct | null>(null)
   const { isLoading } = useLoading()
 
   const { user } = useUserStore()
   useEffect(() => {
-    hydrateOwnerProducts(ownerProducts)
-  }, [hydrateOwnerProducts, ownerProducts])
+    if (hydratedOwnerProducts.length === 0) {
+      hydrateOwnerProducts(ownerProducts)
+    }
+  }, [hydrateOwnerProducts, hydratedOwnerProducts.length, ownerProducts])
 
   useEffect(() => {
     if (!user) {
@@ -51,12 +55,13 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
   return (
     <ModalQueryContainer
       hideCloseButton
+      disableDismiss={!!pendingDeleteProduct}
       className={twMerge(
-        "flex flex-col overflow-hidden bg-[#1b1f26]/95 shadow-[0_30px_120px_rgba(0,0,0,0.45)] backdrop-blur-xl transition-all duration-300",
+        "flex flex-col overflow-hidden border-border-color/35 bg-background shadow-compact-lg transition-all duration-300",
         // mobile: true full-screen, no border/radius
         "h-[100dvh] w-screen rounded-none border-0",
         // tablet+: floating, 16:10 ratio, generous width
-        "tablet:h-auto tablet:w-[min(96vw,1400px)] tablet:aspect-[16/10] tablet:rounded-[28px] tablet:border tablet:border-white/10",
+        "tablet:h-auto tablet:w-[min(96vw,1400px)] tablet:aspect-[16/10] tablet:rounded-lg tablet:border",
       )}
       modalQuery="AdminPanel">
       {({ closeModal }) => (
@@ -67,10 +72,10 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
             actionLabels={{ add: t("product.add"), edit: t("product.edit"), delete: t("product.delete") }}
             onActionChange={setProductAction}
             onClose={closeModal}
-            disabled={isLoading}
+            disabled={isLoading || !!pendingDeleteProduct}
           />
 
-          <div className="relative min-h-0 flex-1 overflow-hidden px-3 py-3 tablet:px-6 tablet:py-5">
+          <div className="relative min-h-0 flex-1 overflow-hidden px-2 py-2 tablet:px-3 tablet:py-3">
             {productAction === PRODUCT_ACTIONS.add && (
               <div className="h-full">
                 <AddProductForm />
@@ -83,10 +88,15 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
             )}
             {productAction === PRODUCT_ACTIONS.delete && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
-                <DeleteProductForm ownerProducts={hydratedOwnerProducts} />
+                <DeleteProductForm
+                  ownerProducts={hydratedOwnerProducts}
+                  onRequestDelete={(id, title) => setPendingDeleteProduct({ id, title })}
+                />
               </div>
             )}
           </div>
+
+          <AdminPanelDeleteConfirmDialog product={pendingDeleteProduct} onClose={() => setPendingDeleteProduct(null)} />
         </>
       )}
     </ModalQueryContainer>

@@ -67,13 +67,26 @@ declare module API {
     variants?: ProductsVariant[] | null
   }
 
-  type ProductsUpdateResponse = Record<string, unknown>
-
   type ProductsDeleteRequest = {
     id: string
   }
 
-  type ProductsDeleteResponse = Record<string, unknown>
+  type ProductsUpdateResponse = {
+    product: {
+      price_id: string
+      owner_id: string
+      id: string
+      translations: ProductsTranslations
+      price: number
+      img_url: string[]
+      variants?: ProductsVariant[] | null
+      on_stock: number
+    }
+  }
+
+  type ProductsDeleteResponse = {
+    id: string
+  }
 
   type ProductsPopularRequest = {
     start: number

@@ -27,10 +27,10 @@ export function MessageBox({ message, inverseColors }: MessageBoxProps) {
   }
 
   const ownBubbleClass =
-    "rounded-br-md border-violet-400/35 bg-violet-600 text-white shadow-[0_10px_24px_rgba(109,40,217,0.26)]"
+    "rounded-br border-violet-400/35 bg-violet-600 text-white shadow-compact"
   const foreignBubbleClass =
-    "rounded-bl-md border-white/8 bg-[#21232b] text-slate-100 shadow-[0_10px_24px_rgba(0,0,0,0.22)]"
-  const bubbleBaseClass = "w-fit max-w-full break-words rounded-[20px] border px-4 py-3 text-[13px] leading-[1.5]"
+    "rounded-bl border-white/8 bg-[#21232b] text-slate-100 shadow-compact"
+  const bubbleBaseClass = "w-fit max-w-full break-words rounded border px-3 py-2 text-[13px] leading-[1.5]"
   const metaTime = formatTime(message.created_at, !inverseColors)
   const incomingLabel = message.sender_username || "Support"
 
@@ -52,10 +52,10 @@ export function MessageBox({ message, inverseColors }: MessageBoxProps) {
   }
 
   return (
-    <li className={twMerge("flex w-full items-end gap-2.5", isOwn && "justify-end")}>
+    <li className={twMerge("flex w-full items-end gap-2", isOwn && "justify-end")}>
       {!isOwn && (
         <Image
-          className="h-8 w-8 shrink-0 rounded-full border border-white/10 bg-[#23252d] object-cover shadow-[0_4px_12px_rgba(0,0,0,0.22)]"
+          className="h-8 w-8 shrink-0 rounded border border-white/10 bg-[#23252d] object-cover shadow-compact"
           src={avatar_url}
           alt="Sender avatar"
           width={32}
@@ -64,11 +64,11 @@ export function MessageBox({ message, inverseColors }: MessageBoxProps) {
         />
       )}
 
-      <article className={twMerge("flex max-w-[min(82%,440px)] flex-col gap-1.5", isOwn && "items-end")}>
+      <article className={twMerge("flex max-w-[min(82%,440px)] flex-col gap-1", isOwn && "items-end")}>
 
         {message.images && message.images.length === 1 && (
           <button
-            className={twMerge("relative w-full max-w-[240px] overflow-hidden rounded-[22px] border", isOwn ? ownBubbleClass : foreignBubbleClass)}
+            className={twMerge("relative w-full max-w-[240px] overflow-hidden rounded border", isOwn ? ownBubbleClass : foreignBubbleClass)}
             onClick={() => handleOpenImage(message.images![0])}
             type="button">
             <Image
@@ -86,7 +86,7 @@ export function MessageBox({ message, inverseColors }: MessageBoxProps) {
         )}
 
         {message.images && message.images.length > 1 && (
-          <div className={twMerge("w-fit rounded-[18px] border px-3 py-2 text-xs", isOwn ? ownBubbleClass : foreignBubbleClass)}>
+          <div className={twMerge("w-fit rounded border px-2 py-1 text-xs", isOwn ? ownBubbleClass : foreignBubbleClass)}>
             {t("images_attached", { number: message.images.length })}
           </div>
         )}

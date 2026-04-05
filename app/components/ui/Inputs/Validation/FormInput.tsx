@@ -90,33 +90,35 @@ export function FormInput({
     <div>
       <label className="block text-sm font-medium leading-6" htmlFor={id}>
         {label}
-        <div className="flex flex-col">
-          <div className="absolute left-2 translate-y-[35%] text-icon-color">{startIcon}</div>
-          <input
-            className={twMerge(
-              `px-4 py-2 bg-background border border-border-color rounded text-subTitle placeholder:opacity-25 outline-none`,
-              startIcon && "pl-9",
-              endIcon && "pr-9",
-              errors[id] && "focus:ring-rose-500 focus-visible:outline-rose-600",
-              disabled && "opacity-50 cursor-default pointer-events-none",
-              className,
-            )}
-            id={id}
-            type={type}
-            placeholder={placeholder}
-            autoComplete={id}
-            disabled={disabled}
-            {...register(id, {
-              required: required ? validationMessages?.required || requiredMessage : undefined,
-              pattern: {
-                value: patternValue,
-                message: validationMessages?.pattern || patternMessage,
-              },
-            })}
-          />
-          <div className="absolute right-2 translate-y-[35%] text-icon-color">{endIcon}</div>
+        <div className="flex flex-col gap-1">
+          <div className="relative">
+            {startIcon && <div className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-icon-color">{startIcon}</div>}
+            {endIcon && <div className="absolute right-2 top-1/2 -translate-y-1/2 text-icon-color">{endIcon}</div>}
+            <input
+              className={twMerge(
+                "h-8 w-full rounded border border-border-color/35 bg-background/70 px-3 text-sm text-title outline-none transition-colors duration-150 placeholder:text-subTitle/55 focus:border-brand/35 focus:bg-background",
+                startIcon && "pl-8",
+                endIcon && "pr-8",
+                errors[id] && "focus:ring-rose-500 focus-visible:outline-rose-600",
+                disabled && "opacity-50 cursor-default pointer-events-none",
+                className,
+              )}
+              id={id}
+              type={type}
+              placeholder={placeholder}
+              autoComplete={id}
+              disabled={disabled}
+              {...register(id, {
+                required: required ? validationMessages?.required || requiredMessage : undefined,
+                pattern: {
+                  value: patternValue,
+                  message: validationMessages?.pattern || patternMessage,
+                },
+              })}
+            />
+          </div>
           {errors[id] && errors[id]?.message && (
-            <span className="text-danger">{errors[id]?.message as React.ReactNode}</span>
+            <span className="text-xs text-danger">{errors[id]?.message as React.ReactNode}</span>
           )}
         </div>
       </label>

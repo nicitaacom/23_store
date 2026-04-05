@@ -191,16 +191,15 @@ export function ProductInput({
   const errorMessage = fallbackErrorMessage || (errors[id]?.message as React.ReactNode)
 
   return (
-    <div className={`relative`}>
-      <div className="absolute top-[50%] translate-y-[-50%] translate-x-[50%]">{startIcon}</div>
+    <div className="relative">
+      {startIcon && <div className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-icon-color">{startIcon}</div>}
       {id === "subTitle" ? (
         <textarea
           {...textareaRest}
           className={twMerge(
-            `w-full rounded-[22px] bg-transparent text-white outline-none transition-all duration-200 placeholder:text-white/42
-            focus:border-brand/60 focus:bg-[#151a21] focus:shadow-[inset_0_0_0_1px_rgba(32,233,89,0.18)]`,
-            startIcon && "pl-10",
-            endIcon && "pr-10",
+            "min-h-[92px] w-full resize-y rounded border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none transition-colors duration-150 placeholder:text-white/32 focus:border-white/20 focus:bg-white/[0.06]",
+            startIcon && "pl-8",
+            endIcon && "pr-8",
             errors[id] &&
               errors[id]?.message &&
               "border-danger/70 focus:border-danger/70 focus:shadow-[inset_0_0_0_1px_hsl(var(--danger)/0.28)] focus-visible:outline-none",
@@ -223,10 +222,9 @@ export function ProductInput({
         <input
           {...rest}
           className={twMerge(
-            `w-full rounded-[22px] bg-transparent text-white outline-none transition-all duration-200 placeholder:text-white/42
-            focus:border-brand/60 focus:bg-[#151a21] focus:shadow-[inset_0_0_0_1px_rgba(32,233,89,0.18)]`,
-            startIcon && "pl-10",
-            endIcon && "pr-10",
+            "w-full rounded border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none transition-colors duration-150 placeholder:text-white/32 focus:border-white/20 focus:bg-white/[0.06]",
+            startIcon && "pl-8",
+            endIcon && "pr-8",
             errors[id] &&
               errors[id]?.message &&
               "border-danger/70 focus:border-danger/70 focus:shadow-[inset_0_0_0_1px_hsl(var(--danger)/0.28)] focus-visible:outline-none",
@@ -272,7 +270,7 @@ export function ProductInput({
           {...props}
         />
       )}
-      <div className="absolute top-[50%] right-2 translate-y-[-50%] translate-x-[50%]">{endIcon}</div>
+      {endIcon && <div className="absolute right-2 top-1/2 -translate-y-1/2 text-icon-color">{endIcon}</div>}
       {errors[id] && errorMessage && (
         <motion.p className="font-secondary text-danger text-xs" initial={{ x: 0 }} animate={{ x: [0, -2, 2, 0] }}>
           {errorMessage}

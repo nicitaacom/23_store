@@ -111,7 +111,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   // Shared className applied to every ProductInput — guarantees identical backgrounds
   const inputCn =
-    "w-full rounded-2xl border border-white/10 !bg-white/[0.04] px-4 text-[15px] text-white placeholder:text-white/25 shadow-none transition-colors focus:border-white/20 focus:!bg-white/[0.06] disabled:opacity-50"
+    "w-full border-white/10 !bg-white/[0.04] text-[14px] text-white placeholder:text-white/25 shadow-none transition-colors focus:border-white/20 focus:!bg-white/[0.06] disabled:opacity-50"
   const isLoading = isSubmitting
 
   const updateBackgroundToast = (nextPendingTranslationsAmount: number) => {
@@ -435,16 +435,16 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 type="button"
                 {...dragProps}
                 className={twMerge(
-                  "group flex shrink-0 flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-4 text-center transition-all duration-200",
-                  "hover:border-[#1fe15a]/40 hover:bg-[#1fe15a]/[0.04]",
-                  isDragging && "border-[#1fe15a]/60 bg-[#1fe15a]/[0.07]",
+                  "group flex shrink-0 flex-col items-center justify-center gap-1.5 rounded border border-dashed border-white/15 bg-white/[0.02] px-4 py-4 text-center transition-colors duration-150",
+                  "hover:border-success-accent/40 hover:bg-success-accent/10",
+                  isDragging && "border-success-accent/60 bg-success-accent/12",
                   isDraggingg && "fixed inset-0 z-[101] rounded-none border-0 bg-[#0a0f15]/95",
                 )}>
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/[0.05]">
+                <div className="flex h-8 w-8 items-center justify-center rounded bg-white/[0.05] text-success-accent">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path
                       d="M8 2v8M5 5l3-3 3 3"
-                      stroke="#1fe15a"
+                      stroke="currentColor"
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -466,7 +466,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               </button>
 
               {/* 16:9 main preview — object-contain gives black bars for square images */}
-              <div className="relative w-full shrink-0 overflow-hidden rounded-2xl bg-black" style={{ aspectRatio: "16/9" }}>
+              <div className="relative w-full shrink-0 overflow-hidden rounded bg-black" style={{ aspectRatio: "16/9" }}>
                 {activeImage ? (
                   <>
                     <AnimatePresence initial={false} custom={imageDirection} mode="popLayout">
@@ -518,7 +518,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                   </>
                 ) : (
                   <div className="flex h-full w-full flex-col items-center justify-center gap-2">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.04]">
+                    <div className="flex h-12 w-12 items-center justify-center rounded bg-white/[0.04]">
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <rect x="2" y="4" width="16" height="12" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
                         <circle cx="7" cy="8.5" r="1.5" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
@@ -540,7 +540,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     <span className="rounded-lg bg-black/50 px-2 py-1 text-[11px] font-medium text-white/70 backdrop-blur-sm">
                       {previewStock}
                     </span>
-                    <span className="rounded-lg border border-[#1fe15a]/20 bg-[#1fe15a]/15 px-2 py-1 text-[11px] font-semibold text-[#1fe15a] backdrop-blur-sm">
+                    <span className="rounded border border-success-accent/20 bg-success-accent/12 px-2 py-1 text-[11px] font-semibold text-success-accent backdrop-blur-sm">
                       {previewPrice}
                     </span>
                   </div>
@@ -569,7 +569,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                       onClick={() => navigateToImage(index)}
                       className={twMerge(
                         "relative h-11 flex-1 overflow-hidden rounded-xl border-2 border-transparent transition-all duration-150",
-                        index === safeActiveImageIndex && "border-[#1fe15a]/60",
+                        index === safeActiveImageIndex && "border-success-accent/60",
                       )}>
                       <Image
                         className="h-full w-full object-cover"
@@ -581,7 +581,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     </button>
                   ))}
                   {imageList.length > 5 && (
-                    <div className="flex h-11 min-w-[36px] items-center justify-center rounded-xl bg-white/[0.05] text-[10px] font-medium text-white/50">
+                    <div className="flex h-11 min-w-[36px] items-center justify-center rounded bg-white/[0.05] text-[10px] font-medium text-white/50">
                       +{imageList.length - 5}
                     </div>
                   )}
@@ -597,16 +597,16 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     disabled={isLoading}
                     aria-pressed={isPrimaryImage}
                     className={twMerge(
-                      "flex h-9 items-center justify-center gap-2 rounded-xl border text-[11px] font-medium transition-colors disabled:opacity-40",
+                      "flex h-9 items-center justify-center gap-2 rounded border text-[11px] font-medium transition-colors disabled:opacity-40",
                       isPrimaryImage
-                        ? "border-[#1fe15a]/35 bg-[#1fe15a]/12 text-[#1fe15a]"
+                        ? "border-success-accent/35 bg-success-accent/12 text-success-accent"
                         : "border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/[0.07] hover:text-white/80",
                     )}>
                     <span
                       className={twMerge(
-                        "flex h-4 w-4 items-center justify-center rounded-md border transition-colors",
+                        "flex h-4 w-4 items-center justify-center rounded border transition-colors",
                         isPrimaryImage
-                          ? "border-[#1fe15a] bg-[#1fe15a] text-[#071a0c]"
+                          ? "border-success-accent bg-success-accent text-title-foreground"
                           : "border-white/18 bg-transparent text-transparent",
                       )}>
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
@@ -625,7 +625,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     type="button"
                     onClick={() => onImageRemove(safeActiveImageIndex)}
                     disabled={isLoading}
-                    className="h-9 rounded-xl border border-red-500/20 bg-red-500/[0.06] text-[11px] font-medium text-red-400/80 transition-colors hover:bg-red-500/[0.12] disabled:opacity-40">
+                    className="h-9 rounded border border-danger/20 bg-danger/8 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
                     {t("remove")}
                   </button>
                   {imageList.length > 1 && (
@@ -636,7 +636,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                         setActiveImageIndex(0)
                       }}
                       disabled={isLoading}
-                      className="h-9 rounded-xl border border-red-500/20 bg-red-500/[0.06] text-[11px] font-medium text-red-400/80 transition-colors hover:bg-red-500/[0.12] disabled:opacity-40">
+                      className="h-9 rounded border border-danger/20 bg-danger/8 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
                       {t("remove_all_images")}
                     </button>
                   )}
@@ -685,12 +685,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         </div>
 
         {/* ── Variants (moved from left col) ── */}
-        <div className="grid gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-3">
+        <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3">
           <div className="flex items-end gap-2">
             <label className="grid flex-1 gap-1.5">
               <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">Variant label</span>
               <input
-                className="h-11 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-[14px] text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/20"
+                className="h-10 w-full rounded border border-white/10 bg-white/[0.04] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/20"
                 value={variantLabel}
                 onChange={event => setVariantLabel(event.target.value)}
                 placeholder="Bright Black Gray"
@@ -701,7 +701,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               type="button"
               onClick={addVariant}
               disabled={isLoading || !images.length || variants.length >= MAX_PRODUCT_VARIANTS}
-              className="h-11 rounded-2xl border border-[#1fe15a]/30 bg-[#1fe15a]/10 px-4 text-[13px] font-semibold text-[#1fe15a] transition-colors hover:bg-[#1fe15a]/16 disabled:cursor-default disabled:opacity-40">
+              className="h-10 rounded border border-success-accent/30 bg-success-accent/10 px-4 text-[13px] font-semibold text-success-accent transition-colors hover:bg-success-accent/15 disabled:cursor-default disabled:opacity-40">
               Add variant
             </button>
           </div>
@@ -716,12 +716,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 if (!variantImage) return null
 
                 return (
-                  <div key={variant.id} className="flex items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-2">
+                  <div key={variant.id} className="flex items-center gap-2 rounded border border-white/8 bg-white/[0.03] p-2">
                     <button
                       type="button"
                       tabIndex={-1}
                       onClick={() => variantImageIndex >= 0 && navigateToImage(variantImageIndex)}
-                      className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10">
+                      className="relative h-14 w-14 shrink-0 overflow-hidden rounded border border-white/10">
                       <Image
                         className="h-full w-full object-cover"
                         src={variantImage.data_url}
@@ -738,7 +738,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                       type="button"
                       tabIndex={-1}
                       onClick={() => removeVariant(variant.id)}
-                      className="rounded-xl border border-red-500/20 bg-red-500/[0.06] px-3 py-2 text-[11px] font-medium text-red-400/80 transition-colors hover:bg-red-500/[0.12]">
+                      className="rounded border border-danger/20 bg-danger/8 px-3 py-2 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12">
                       Remove
                     </button>
                   </div>
@@ -780,7 +780,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         </div>
 
         {/* Live preview row */}
-        <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-3">
+        <div className="grid grid-cols-2 gap-2 rounded border border-white/8 bg-white/[0.02] p-3">
           <div>
             <p className="text-[10px] font-medium uppercase tracking-widest text-white/30">{t("price")}</p>
             <p className="mt-1 text-sm font-semibold text-white/75">{previewPrice}</p>
@@ -796,8 +796,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           type="submit"
           disabled={isLoading || !images.length}
           className={twMerge(
-            "mt-auto min-h-[48px] w-full rounded-2xl bg-[#1fe15a] px-4 py-3 text-[14px] font-semibold text-[#071a0c] transition-all duration-200",
-            "hover:bg-[#2cec64] active:scale-[0.99]",
+            "mt-auto min-h-[40px] w-full rounded border border-success-accent bg-success-accent px-4 py-2 text-[14px] font-semibold text-title-foreground transition-colors duration-150",
+            "hover:bg-success-accent/90 active:scale-[0.99]",
             (isLoading || !images.length) && "cursor-not-allowed opacity-50",
           )}>
           {t("create_product")}

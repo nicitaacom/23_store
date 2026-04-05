@@ -56,20 +56,20 @@ export default function Toast() {
   return (
     <motion.div
       data-click-outside-ignore
-      className={`fixed right-[2%] bottom-[2%] border-[1px] ${currentConfig.borderColor}
-          bg-foreground flex gap-x-4 w-auto max-w-[30%] rounded-lg px-4 py-2 z-[4999]`}
+      className={`fixed bottom-[2%] right-[2%] z-[4999] flex w-auto max-w-[min(92vw,420px)] gap-3 rounded
+        border ${currentConfig.borderColor} bg-foreground/95 px-3 py-2 shadow-compact`}
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 100, opacity: 0 }}
       transition={{ duration: 0.3 }}>
       <div className={`flex items-center ${currentConfig.iconColor}`}>{currentConfig.icon}</div>
 
-      <div className="flex flex-col w-full">
-        <div className="text-title font-bold">
+      <div className="flex w-full flex-col gap-0.5">
+        <div className="font-semibold text-title">
           <h1 className="whitespace-pre-wrap">{title || currentConfig.defaultTitle}</h1>
         </div>
 
-        <div className="text-subTitle whitespace-pre-wrap">{subTitle || currentConfig.defaultSubtitle}</div>
+        <div className="whitespace-pre-wrap text-sm text-subTitle">{subTitle || currentConfig.defaultSubtitle}</div>
       </div>
     </motion.div>
   )

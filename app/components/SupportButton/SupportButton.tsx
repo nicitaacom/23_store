@@ -31,16 +31,16 @@ export default function SupportButton() {
       </div>
 
       <Button
-        className="relative h-14 w-14 rounded-full border border-success/30 bg-background/95 px-0 shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:border-success/45 hover:bg-foreground/80 desktop:h-16 desktop:w-16"
+        className="relative h-12 w-12 border border-success/30 bg-background/95 px-0 shadow-compact backdrop-blur-xl transition-colors duration-150 hover:border-success/45 hover:bg-foreground/80 desktop:h-14 desktop:w-14"
         variant="default-outline"
         size="icon-md"
-        rounded="full"
+        rounded="lg"
         onClick={toggle}
         aria-expanded={isDropdown}
         aria-label="Open support chat">
-        <BiSupport className="h-7 w-7 text-icon-color desktop:h-8 desktop:w-8" />
+        <BiSupport className="h-6 w-6 text-icon-color desktop:h-7 desktop:w-7" />
         {unseenMessagesNumber > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 min-w-[22px] rounded-full border border-background bg-success px-1.5 py-0.5 text-[11px] font-semibold text-title-foreground">
+          <span className="absolute -right-0.5 -top-0.5 min-w-[20px] rounded border border-background bg-success px-1.5 py-0.5 text-[10px] font-semibold text-title-foreground">
             {unseenMessagesNumber > 99 ? "99+" : unseenMessagesNumber}
           </span>
         )}

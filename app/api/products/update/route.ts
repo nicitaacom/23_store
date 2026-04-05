@@ -37,6 +37,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    async function getUpdatedProductResponse(updatedProductId: string) {
+      const { data: updatedProduct, error: updatedProductError } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", updatedProductId)
+        .single()
+
+      if (updatedProductError || !updatedProduct) {
+        throw new Error(`Updated product not found for id ${updatedProductId}`)
+      }
+
+      return NextResponse.json({ product: normalizeProduct(updatedProduct) }, { status: 200 })
+    }
+
     const { data: existingProduct, error: existingProductError } = await supabase.from("products").select("*").eq("id", productId).single()
 
     if (existingProductError || !existingProduct) {
@@ -65,7 +79,7 @@ export async function POST(req: Request) {
       if (!productResponse.active) {
         await stripe.products.update(productId, { active: true })
       }
-      return NextResponse.json(productResponse, { status: 200 })
+      return getUpdatedProductResponse(productId)
     }
 
     /* UPDATE TRANSLATIONS */
@@ -89,7 +103,7 @@ export async function POST(req: Request) {
         await stripe.products.update(productId, { active: true })
       }
 
-      return NextResponse.json(productResponse, { status: 200 })
+      return getUpdatedProductResponse(productId)
     }
 
     /* UPDATE VARIANTS */
@@ -100,7 +114,7 @@ export async function POST(req: Request) {
       if (updateVariantsError)
         throw new Error(`update product variants \n Path:/api/products/update/route.ts \n Error message:\n ${updateVariantsError.message}`)
 
-      return NextResponse.json({ success: true, variants: normalizedVariants }, { status: 200 })
+      return getUpdatedProductResponse(productId)
     }
 
     /* UPDATE ON STOCK */
@@ -110,7 +124,7 @@ export async function POST(req: Request) {
       if (updateOnStockError)
         throw new Error(`update product on_stock \n Path:/api/products/update/route.ts \n Error message:\n ${updateOnStockError.message}`)
 
-      return NextResponse.json({ success: true, onStock }, { status: 200 })
+      return getUpdatedProductResponse(productId)
     }
 
     /* UPDATE PRICE */
@@ -148,7 +162,7 @@ export async function POST(req: Request) {
           .update({ id: productResponse.id, price_id: priceResponse.id, price: price })
           .eq("id", productId)
 
-        return NextResponse.json(productResponse, { status: 200 })
+        return getUpdatedProductResponse(productResponse.id)
       } else {
         throw new Error(`Update price\n Product with id ${productId} not found in DB\n`)
       }

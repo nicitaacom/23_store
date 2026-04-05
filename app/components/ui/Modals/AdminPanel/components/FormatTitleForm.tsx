@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 import { useForm } from "react-hook-form"
@@ -12,6 +11,8 @@ import { useLoading } from "@/store/ui/useLoading"
 import { ProductTranslations } from "@/ts/product/TProductDB"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import useToast from "@/store/ui/useToast"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 
 interface FormatTitleFormProps {
   id: string
@@ -21,16 +22,17 @@ interface FormatTitleFormProps {
 export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const t = useScopedI18n("product")
   const locale = useCurrentLocale()
-  const router = useRouter()
+  const toast = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
   const currentTranslation = translations[locale] ?? translations.fi
+  const replaceProduct = useOwnerProductsStore(state => state.replaceProduct)
 
   async function updateTitle(title: string) {
     setIsLoading(true)
     try {
-      await productsSDK.updateProduct({
+      const response = await productsSDK.updateProduct({
         productId: id,
         translations: {
           ...translations,
@@ -41,8 +43,11 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
         },
       })
 
-      router.refresh()
+      replaceProduct(id, response.product)
       setIsEditing(false)
+      toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
+    } catch (error) {
+      toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)
     }
@@ -91,7 +96,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
           <div ref={inputRef}>
             <ProductInput
               className={twMerge(
-                `w-full rounded-xl border border-border-color/70 bg-background/50 px-3 py-2 text-sm text-start`,
+                "w-full border-border-color/50 bg-background/60 text-start",
                 isLoading && "animate-pulse",
               )}
               id="title"
@@ -104,7 +109,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
         </form>
       ) : (
         <button
-          className="flex min-w-0 items-center gap-x-2 rounded-xl border border-transparent px-0 py-1 text-left transition-colors duration-200 hover:text-title"
+          className="flex min-w-0 items-center gap-2 rounded px-1 py-1 text-left transition-colors duration-150 hover:bg-background/35"
           type="button"
           onClick={enableInput}>
           <span className="truncate text-base font-semibold text-title">{currentTranslation.title}</span>

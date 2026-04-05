@@ -105,11 +105,11 @@ export function UpdateAvatarModal() {
       className="relative w-[92vw] max-w-[520px] overflow-hidden border-none bg-transparent p-0 shadow-none"
       isOpen={updateAvatarModal.isOpen}
       onClose={updateAvatarModal.closeModal}>
-      <div className="rounded-[28px] border border-border-color bg-foreground shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
-        <div className="border-b border-border-color bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] px-6 py-6">
+      <div className="rounded-lg border border-border-color/35 bg-foreground/95 shadow-compact">
+        <div className="border-b border-border-color/30 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] px-4 py-4">
           <div className="flex items-center gap-x-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border-color bg-background">
-              <BiImageAdd className="text-title" size={24} />
+            <div className="flex h-9 w-9 items-center justify-center rounded border border-border-color/35 bg-background">
+              <BiImageAdd className="text-title" size={20} />
             </div>
             <div className="flex flex-col">
               <h2 className="text-xl font-semibold text-title">Update avatar</h2>
@@ -118,10 +118,10 @@ export function UpdateAvatarModal() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-y-5 px-6 py-6">
-          <div className="flex flex-col items-center gap-y-3 rounded-[24px] border border-border-color bg-background px-5 py-5">
+        <div className="flex flex-col gap-4 px-4 py-4">
+          <div className="flex flex-col items-center gap-3 rounded border border-border-color/30 bg-background/70 px-4 py-4 shadow-none">
             <Image
-              className="h-24 w-24 rounded-[28px] object-cover shadow-md"
+              className="h-20 w-20 rounded object-cover shadow-compact"
               alt="avatar preview"
               src={safePreviewAvatarUrl}
               width={512}
@@ -146,11 +146,11 @@ export function UpdateAvatarModal() {
               void showToastWarningFn(t, errors, { maxNumber: 1 }, files)
             }}>
             {({ imageList, onImageUpload, onImageUpdate, onImageRemove, isDragging, dragProps }) => (
-              <div className="flex w-full flex-col items-center justify-center gap-y-3">
+              <div className="flex w-full flex-col items-center justify-center gap-3">
                 {!imageList.length ? (
                   <Button
                     className={twMerge(
-                      "image-upload min-h-[156px] w-full rounded-[24px] border border-dashed px-6 py-8 text-base",
+                      "image-upload min-h-[156px] w-full rounded border border-dashed px-4 py-6 text-base",
                       isDragging
                         ? "border-brand bg-brand/10 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
                         : "border-border-color bg-background/30",
@@ -171,15 +171,15 @@ export function UpdateAvatarModal() {
                 {imageList.map((image, index) => (
                   <div
                     key={index}
-                    className="flex w-full flex-col gap-y-3 overflow-hidden rounded-[24px] border border-border-color/70 bg-background/30 p-3">
+                    className="flex w-full flex-col gap-3 overflow-hidden rounded border border-border-color/30 bg-background/70 p-3 shadow-none">
                     <Image
-                      className="aspect-square w-full max-h-[260px] rounded-[20px] object-cover"
+                      className="aspect-square w-full max-h-[260px] rounded object-cover"
                       src={image.data_url}
                       width={512}
                       height={512}
                       alt="avatar upload"
                     />
-                    <div className="flex flex-row items-center justify-end gap-x-3">
+                    <div className="flex flex-row items-center justify-end gap-2">
                       <Button size="sm" variant="secondary-outline" onClick={() => onImageUpdate(index)} disabled={isLoading}>
                         Update
                       </Button>
@@ -201,7 +201,7 @@ export function UpdateAvatarModal() {
             )}
           </ImageUploading>
 
-          <div className="flex flex-col gap-y-2">
+          <div className="flex flex-col gap-2">
             <p className="text-sm font-medium text-title">Avatar URL</p>
             <Input
               type="url"
@@ -213,7 +213,7 @@ export function UpdateAvatarModal() {
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 mobile:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 mobile:grid-cols-2">
             <Button
               variant="secondary-outline"
               fullWidth

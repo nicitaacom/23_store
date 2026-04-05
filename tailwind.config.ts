@@ -7,6 +7,17 @@ const config: Config = {
       primary: ["Inter", "sans-serif"],
       secondary: ["Proxima Nova", "sans-serif"],
     },
+    borderRadius: {
+      none: "0px",
+      sm: "2px",
+      DEFAULT: "4px",
+      md: "4px",
+      lg: "6px",
+      xl: "8px",
+      "2xl": "10px",
+      "3xl": "12px",
+      full: "9999px",
+    },
     screens: {
       mobile: "415px",
       // => @media (min-width: 415px) { ... }
@@ -37,6 +48,10 @@ const config: Config = {
         warning: "hsl(var(--warning) / 1)",
         success: "hsl(var(--success) / 1)",
         "success-accent": "hsl(var(--success-accent) / 1)",
+      },
+      boxShadow: {
+        compact: "0 10px 28px rgba(0, 0, 0, 0.16)",
+        "compact-lg": "0 16px 38px rgba(0, 0, 0, 0.2)",
       },
     },
   },

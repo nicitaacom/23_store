@@ -100,12 +100,12 @@ export default function SupportButtonDropdown() {
   }, [isDropdown, messages, setMessages, ticketId, userId])
 
   return (
-    <section className="relative flex h-[440px] w-[min(92vw,390px)] flex-col overflow-hidden rounded-[28px] border border-white/8 bg-[#13151b] shadow-[0_28px_90px_rgba(0,0,0,0.45)] mobile:h-[540px]">
-      <div className="border-b border-white/8 bg-[#171922] px-4 py-4">
+    <section className="relative flex h-[440px] w-[min(92vw,390px)] flex-col overflow-hidden rounded-lg border border-white/8 bg-[#13151b] shadow-compact-lg mobile:h-[540px]">
+      <div className="border-b border-white/8 bg-[#171922] px-3 py-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-500/12 text-violet-300">
-              <BiSupport size={20} />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-violet-500/12 text-violet-300">
+              <BiSupport size={18} />
             </div>
             <div className="min-w-0">
               <h1 className="text-base font-semibold text-slate-100 mobile:text-lg">Support chat</h1>
@@ -117,20 +117,20 @@ export default function SupportButtonDropdown() {
       </div>
 
       {isLoading ? (
-        <div className="flex flex-1 items-center justify-center px-6">
-          <div className="rounded-[22px] border border-white/8 bg-[#1a1d26] px-5 py-4 text-center shadow-[0_12px_32px_rgba(0,0,0,0.22)]">
+        <div className="flex flex-1 items-center justify-center px-4">
+          <div className="rounded border border-white/8 bg-[#1a1d26] px-4 py-3 text-center shadow-compact">
             <p className="text-sm font-medium text-slate-100">{t("loading_messages")}...</p>
           </div>
         </div>
       ) : (
         <div className="relative flex min-h-0 flex-1 flex-col bg-[linear-gradient(180deg,#171922_0%,#101218_100%)]">
           {messages.length ? (
-            <ul className="panel-scroll flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4" ref={bottomRef}>
+            <ul className="panel-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3" ref={bottomRef}>
               {messages.map((message, index) => (
                 <Fragment key={message.id}>
                   {(index === 0 || !isSameDay(messages[index - 1].created_at, message.created_at)) && (
                     <li className="flex justify-center py-1">
-                      <span className="rounded-full border border-white/8 bg-[#20232d] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-slate-500 shadow-[0_8px_18px_rgba(0,0,0,0.2)]">
+                      <span className="rounded border border-white/8 bg-[#20232d] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500 shadow-compact">
                         {getDayLabel(message.created_at)}
                       </span>
                     </li>
@@ -140,8 +140,8 @@ export default function SupportButtonDropdown() {
               ))}
             </ul>
           ) : (
-            <div className="flex flex-1 items-center justify-center px-5 py-6">
-              <div className="max-w-[260px] rounded-[24px] border border-white/8 bg-[#1a1d26] px-5 py-6 text-center shadow-[0_14px_36px_rgba(0,0,0,0.22)]">
+            <div className="flex flex-1 items-center justify-center px-4 py-5">
+              <div className="max-w-[260px] rounded border border-white/8 bg-[#1a1d26] px-4 py-5 text-center shadow-compact">
                 <p className="text-base font-semibold text-slate-100">Support is ready</p>
                 <p className="mt-2 text-sm leading-6 text-slate-500">{t("no_messages_yet")}.</p>
               </div>

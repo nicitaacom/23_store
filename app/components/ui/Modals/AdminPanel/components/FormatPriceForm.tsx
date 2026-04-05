@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
 import { CiEdit } from "react-icons/ci"
 import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
@@ -12,6 +11,8 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import useToast from "@/store/ui/useToast"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 
 interface FormatPriceFormProps {
   id: string
@@ -20,21 +21,25 @@ interface FormatPriceFormProps {
 
 export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   const t = useScopedI18n("product")
-  const router = useRouter()
+  const toast = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
+  const replaceProduct = useOwnerProductsStore(state => state.replaceProduct)
 
-  async function updateTitle(price: number) {
+  async function updatePrice(price: number) {
     setIsLoading(true)
     try {
-      await productsSDK.updateProduct({
+      const response = await productsSDK.updateProduct({
         productId: id,
         price,
       })
 
+      replaceProduct(id, response.product)
       setIsEditing(false)
-      router.refresh()
+      toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
+    } catch (error) {
+      toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)
     }
@@ -47,7 +52,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   } = useForm<IFormDataAddProduct>()
 
   const onSubmit = (data: IFormDataAddProduct) => {
-    updateTitle(data.price)
+    updatePrice(data.price)
   }
 
   const enableInput = () => {
@@ -60,7 +65,8 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
       setIsEditing(false)
     }
     if (event.key === "Enter") {
-      handleSubmit(onSubmit) // call on submit like this to prevent x3 re-render
+      const onSubmitForm = handleSubmit(onSubmit)
+      onSubmitForm()
     }
   }
 
@@ -75,14 +81,14 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   }, [])
 
   return (
-    <div className="tablet:min-w-[150px]">
+    <div className={twMerge("rounded border border-border-color/30 bg-background/70 px-3 py-2 shadow-none tablet:min-w-[148px]")}>
       <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle tablet:text-right">{t("price")}</p>
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
           <div ref={inputRef}>
             <ProductInput
               className={twMerge(
-                `w-full rounded-xl border border-border-color/70 bg-background/50 px-3 py-2 text-sm text-start tablet:text-end`,
+                "w-full border-border-color/50 bg-background/60 text-start tablet:text-end",
                 isLoading && "animate-pulse",
               )}
               id="price"
@@ -94,7 +100,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
           </div>
         </form>
       ) : (
-        <button className="flex items-center gap-x-2 tablet:ml-auto" type="button" onClick={enableInput}>
+        <button className="flex items-center gap-2 tablet:ml-auto" type="button" onClick={enableInput}>
           <span className="text-sm font-semibold text-title">{formatCurrency(price)}</span>
           <CiEdit className="text-subTitle" />
         </button>

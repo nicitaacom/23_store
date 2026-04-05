@@ -46,22 +46,20 @@ export function DropdownContainer({
 
   return (
     <div className={twMerge("relative z-10", classNameDropdownContainer)} ref={dropdownRef}>
-      <div className="cursor-pointer hover:brightness-75 duration-300" onClick={handleClick}>
+      <div className="cursor-pointer transition-opacity duration-150 hover:opacity-80" onClick={handleClick}>
         {icon}
       </div>
 
       <div
         className={twMerge(
-          `absolute top-[45px] right-[0%] w-[500px] z-[2] text-title-foreground
-      before:w-4 before:h-4 before:bg-foreground before:border-l-[1px] before:border-t-[1px] before:border-solid before:border-border-color
-       before:rotate-45 before:absolute before:top-[-8px] before:right-[0] before:translate-x-[-50%]`,
+          `absolute right-0 top-[calc(100%+6px)] z-[2] w-[min(92vw,280px)] text-title`,
           isDropdown
-            ? `opacity-100 visible translate-y-0 transition-all duration-300 ${classNameIsDropdownTrue}`
-            : `opacity-0 invisible translate-y-[-20px] transition-all duration-300 ${classNameIsDropdownFalse}`,
+            ? `visible translate-y-0 opacity-100 transition-all duration-150 ${classNameIsDropdownTrue}`
+            : `invisible -translate-y-1 opacity-0 transition-all duration-150 ${classNameIsDropdownFalse}`,
           className,
         )}>
-        <div className="text-md border-[1px] border-solid border-border-color bg-foreground rounded-md">
-          {username && hasMounted && <h1 className="text-center">Hi {username}</h1>}
+        <div className="overflow-hidden rounded-lg border border-border-color/35 bg-foreground/95 text-sm shadow-compact">
+          {username && hasMounted && <h1 className="border-b border-border-color/30 px-3 py-2 text-center text-title">Hi {username}</h1>}
           {children}
         </div>
       </div>

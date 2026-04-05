@@ -82,7 +82,7 @@ export function MessageInput({ className }: MessageInputProps) {
   return (
     <div className="w-full border-t border-white/8 bg-[#171922] px-3 py-3">
       <PastedImagePreview />
-      <div className="flex items-end gap-3 rounded-[22px] border border-white/8 bg-[#20232d] px-4 py-3 shadow-[0_12px_26px_rgba(0,0,0,0.24)]">
+      <div className="flex items-end gap-2 rounded border border-white/8 bg-[#20232d] px-3 py-2 shadow-compact">
         <textarea
           ref={textareaRef}
           className={twMerge(
@@ -99,7 +99,7 @@ export function MessageInput({ className }: MessageInputProps) {
             height: `${height}px`,
           }}></textarea>
         <button
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-600 text-white shadow-[0_10px_22px_rgba(124,58,237,0.22)] transition-transform duration-150 hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-45"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-violet-500/35 bg-violet-600 text-white shadow-compact transition-colors duration-150 hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-45"
           disabled={!messageBodyValue.trim().length && !image}
           onClick={submitMessage}
           type="button">

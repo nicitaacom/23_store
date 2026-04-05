@@ -10,22 +10,31 @@ interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export function Checkbox({ isChecked, onChange, label, labelClassName = "", disabled, ...props }: CheckboxProps) {
+  const inputId = props.id ?? label
+
   return (
-    <div className={twMerge(`checkbox-container`, disabled && "opacity-50 cursor-default pointer-events-none")}>
+    <label
+      className={twMerge(
+        "inline-flex cursor-pointer items-center gap-2 text-sm",
+        disabled && "opacity-50 cursor-default pointer-events-none",
+      )}
+      htmlFor={inputId}>
       <input
-        className="bg-foreground cursor-pointer"
+        className="sr-only"
         type="checkbox"
-        id="check"
+        id={inputId}
         checked={isChecked}
         onChange={onChange}
         {...props}
       />
-      <label className={`${labelClassName} font-secondary text-sm select-none cursor-pointer`} onClick={onChange}>
-        {label}
-      </label>
-      {isChecked && (
-        <BsCheckLg className="absolute left-[2px] bottom-[2px] text-black pointer-events-none select-none" />
-      )}
-    </div>
+      <span
+        className={twMerge(
+          "flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border border-border-color/50 bg-background/70 text-brand transition-colors duration-150",
+          isChecked ? "border-brand/45 bg-brand/12" : "hover:border-brand/25 hover:bg-brand/8",
+        )}>
+        <BsCheckLg className={twMerge("h-3 w-3 transition-opacity duration-150", !isChecked && "opacity-0")} />
+      </span>
+      <span className={twMerge("select-none text-sm text-title", labelClassName)}>{label}</span>
+    </label>
   )
 }

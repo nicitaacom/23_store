@@ -15,6 +15,7 @@ interface ModalQueryContainerProps {
   className?: string
   closeButtonClassName?: string
   hideCloseButton?: boolean
+  disableDismiss?: boolean
 }
 
 export function ModalQueryContainer({
@@ -23,6 +24,7 @@ export function ModalQueryContainer({
   className,
   closeButtonClassName,
   hideCloseButton = false,
+  disableDismiss = false,
 }: ModalQueryContainerProps) {
   const pathname = usePathname()
   const router = useRouter()
@@ -35,22 +37,24 @@ export function ModalQueryContainer({
 
   // Close modal and redirect on close
   const closeModal = useCallback(() => {
-    if (isLoading) return
+    if (isLoading || disableDismiss) return
     setShouldClose(true)
     setTimeout(() => {
       router.push(pathname ?? "/")
     }, 260)
-  }, [isLoading, router, pathname])
+  }, [disableDismiss, isLoading, router, pathname])
 
   useOnEscOrClickOutside(modalRef, closeModal, {
-    isHookEnabled: showModal && !shouldClose,
+    isHookEnabled: showModal && !shouldClose && !disableDismiss,
     ignoreInputs: true,
   })
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */
   const modalBgHandler = useSwipeable({
     onTouchStartOrOnMouseDown: () => {
-      closeModal()
+      if (!disableDismiss) {
+        closeModal()
+      }
     },
     trackMouse: true,
   })
@@ -72,8 +76,7 @@ export function ModalQueryContainer({
     <AnimatePresence>
       {(showModal || shouldClose) && (
         <motion.div
-          className="fixed inset-[0] bg-[rgba(0,0,0,0.5)] backdrop-blur z-[1601]
-         flex justify-center items-center"
+          className="fixed inset-0 z-[1601] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px]"
           initial={{ opacity: 0 }}
           animate={shouldClose ? { opacity: 0 } : { opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -81,8 +84,7 @@ export function ModalQueryContainer({
           {...modalBgHandler}>
           <motion.div
             className={twMerge(
-              `relative z-[1600] rounded-[24px] border border-border-color bg-foreground
-              shadow-[0px_24px_80px_rgba(0,0,0,0.32)]`,
+              "relative z-[1600] overflow-hidden rounded-lg border border-border-color/35 bg-foreground shadow-compact",
               className,
             )}
             initial={{ y: 16, opacity: 0 }}
@@ -94,11 +96,11 @@ export function ModalQueryContainer({
             {!hideCloseButton && (
               <IoMdClose
                 className={twMerge(
-                  `absolute right-4 top-4 rounded-full border border-border-color/70 bg-background/70 p-1 text-icon-color cursor-pointer transition-colors duration-200 hover:bg-foreground-accent/40`,
+                  "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
                   closeButtonClassName,
-                  isLoading && "opacity-50 cursor-default pointer-events-none",
+                  (isLoading || disableDismiss) && "opacity-50 cursor-default pointer-events-none",
                 )}
-                size={32}
+                size={22}
                 onClick={closeModal}
               />
             )}
