@@ -57,6 +57,11 @@ type PendingFormSnapshot = {
   variantPrice: string
 }
 
+const EMPTY_PRODUCT_FORM_VALUES: Partial<IFormDataAddProduct> = {
+  title: "",
+  subTitle: "",
+}
+
 export function AddProductForm({ onCreated }: AddProductFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()
@@ -157,6 +162,16 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
     removeProduct(optimisticProductId)
     setError(errorMessage)
+  }
+
+  const clearForm = () => {
+    reset(EMPTY_PRODUCT_FORM_VALUES)
+    setImages([])
+    setVariants([])
+    setActiveImageIndex(0)
+    previousImageIndexRef.current = 0
+    setVariantLabel("")
+    setVariantPrice("")
   }
 
   const restoreFormSnapshot = (snapshot: PendingFormSnapshot) => {
@@ -296,13 +311,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       }
       const submitImages = [...images]
 
-      reset()
-      setImages([])
-      setVariantLabel("")
-      setVariantPrice("")
-      setVariants([])
-      setActiveImageIndex(0)
-      previousImageIndexRef.current = 0
+      clearForm()
       onCreated?.()
 
       increasePendingTranslations()

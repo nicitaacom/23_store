@@ -1,7 +1,6 @@
 "use client"
 
 import { MutableRefObject, useEffect } from "react"
-import { useRouter } from "next/navigation"
 
 import { getPusherClient } from "@/libs/pusher"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -62,8 +61,6 @@ export function useSubscribeToProductCreated({
   pendingCreatedProductsRef: MutableRefObject<PendingCreatedProduct[]>
   decreasePendingTranslations: (showCompletedToast?: boolean) => void
 }) {
-  const router = useRouter()
-
   useEffect(() => {
     const pusherClient = getPusherClient()
 
@@ -97,7 +94,6 @@ export function useSubscribeToProductCreated({
 
       useOwnerProductsStore.getState().setError(null)
       decreasePendingTranslations(true)
-      router.refresh()
     }
 
     pusherClient.subscribe("products")
@@ -107,5 +103,5 @@ export function useSubscribeToProductCreated({
       pusherClient.unsubscribe("products")
       pusherClient.unbind("product:created", productCreatedHandler)
     }
-  }, [decreasePendingTranslations, pendingCreatedProductsRef, router])
+  }, [decreasePendingTranslations, pendingCreatedProductsRef])
 }
