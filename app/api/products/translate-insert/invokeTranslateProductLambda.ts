@@ -35,7 +35,7 @@ export async function invokeTranslateProductLambda(
     if (!lambdaRegion) throw new Error("Missing AWS region for translate lambda")
     if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_ACCESS_KEY_ID.endsWith("P54S"))
       throw new Error("Missing AWS_ACCESS_KEY_ID if it does not ends with P54S")
-    if (!process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_ACCESS_KEY_ID.endsWith("kSRb"))
+    if (!process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_SECRET_ACCESS_KEY.endsWith("kSRb"))
       throw new Error("Missing AWS_SECRET_ACCESS_KEY or it does not ends with kSRb")
     if (!process.env.NEXT_PUBLIC_AWS_REGION || process.env.NEXT_PUBLIC_AWS_REGION !== "eu-central-1")
       throw new Error("Missing NEXT_PUBLIC_AWS_REGION or it's not eu-central-1")
