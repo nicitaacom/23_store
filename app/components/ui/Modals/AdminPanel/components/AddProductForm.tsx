@@ -238,6 +238,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         return
       }
 
+      if (!images.length) {
+        showToast("warning", "Image required", "Please upload at least 1 product image")
+        return
+      }
+
       const resolvedVariants = variants
         .map(variant => ({
           ...variant,
@@ -259,7 +264,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         owner_id: getUserId(),
         translations: createRawProductTranslations(normalizedTitle, normalizedDescription),
         price: formattedPrice,
-        img_url: optimisticImages.length ? optimisticImages : ["/placeholder.jpg"],
+        img_url: optimisticImages,
         variants: optimisticVariants.length ? optimisticVariants : null,
         on_stock: formattedOnStock,
       }
@@ -789,11 +794,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         {/* Submit */}
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || !images.length}
           className={twMerge(
             "mt-auto min-h-[48px] w-full rounded-2xl bg-[#1fe15a] px-4 py-3 text-[14px] font-semibold text-[#071a0c] transition-all duration-200",
             "hover:bg-[#2cec64] active:scale-[0.99]",
-            isLoading && "cursor-not-allowed opacity-50",
+            (isLoading || !images.length) && "cursor-not-allowed opacity-50",
           )}>
           {t("create_product")}
         </button>

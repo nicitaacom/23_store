@@ -1,59 +1,48 @@
 import { InvokeCommand, InvocationType, LambdaClient } from "@aws-sdk/client-lambda"
 
-const lambdaFnName = "23-ai-translate"
+const lambdaRegion = process.env.AWS_REGION || process.env.NEXT_PUBLIC_AWS_REGION
+const lambdaFnName = process.env.AWS_TRANSLATE_LAMBDA_FUNCTION_NAME || "23-ai-translate"
 
 const lambda = new LambdaClient({
-  region: process.env.NEXT_PUBLIC_AWS_REGION,
+  region: lambdaRegion,
+  maxAttempts: 3,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 })
 
-type TLambdaProxyEvent = {
-  body: string
-  headers: Record<string, string>
-  httpMethod: "POST"
-  path: string
-  resource: string
-  isBase64Encoded: false
-}
-
-function buildLambdaEvent(payload: API.ProductsTranslateAndInsertRequest): TLambdaProxyEvent {
-  return {
-    body: JSON.stringify(payload),
-    headers: {
-      "content-type": "application/json",
-    },
-    httpMethod: "POST",
-    path: "/api/products/translate-insert",
-    resource: "/api/products/translate-insert",
-    isBase64Encoded: false,
-  }
-}
-
 export async function invokeTranslateProductLambda(
   payload: API.ProductsTranslateAndInsertRequest,
-): Promise<{ functionName: string; statusCode?: number; executedVersion?: string } | string> {
+): Promise<{ functionName: string; region?: string; statusCode?: number; executedVersion?: string; requestId?: string } | string> {
   try {
-    const lambdaEvent = buildLambdaEvent(payload)
+    if (!lambdaRegion) {
+      throw new Error("Missing AWS region for translate lambda")
+    }
 
     console.info("[products/translate-insert] invoking lambda with payload", {
-      payload: JSON.parse(lambdaEvent.body),
+      payload,
     })
 
     const response = await lambda.send(
       new InvokeCommand({
         FunctionName: lambdaFnName,
         InvocationType: InvocationType.RequestResponse,
-        Payload: Buffer.from(JSON.stringify(lambdaEvent)),
+        Payload: Buffer.from(JSON.stringify(payload)),
       }),
     )
 
+    if (response.FunctionError) {
+      const payloadText = response.Payload ? new TextDecoder().decode(response.Payload) : ""
+      throw new Error(payloadText || `Lambda execution failed with ${response.FunctionError}`)
+    }
+
     return {
       functionName: lambdaFnName,
+      region: lambdaRegion,
       statusCode: response.StatusCode,
       executedVersion: response.ExecutedVersion,
+      requestId: response.$metadata.requestId,
     }
   } catch (error) {
     if (error instanceof Error) return error.message

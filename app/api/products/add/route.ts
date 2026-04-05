@@ -21,6 +21,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Price must be a positive integer amount in cents" }, { status: 400 })
     }
 
+    if (!images.length) {
+      return NextResponse.json({ error: "At least 1 image is required" }, { status: 400 })
+    }
+
     const productResponse = await stripe.products.create({
       name: title,
       description,

@@ -19,7 +19,7 @@ import {
  *
  * Steps:
  * 1. Resolve a price when one was not provided.
- * 2. Resolve source images, generating one with AI when none were provided.
+ * 2. Validate and resolve the uploaded source images.
  * 3. Tinify every image and fail if compression fails.
  * 4. Upload all tinified images and fail if upload fails.
  * 5. Create the Stripe product and price with uploaded images.
@@ -38,7 +38,7 @@ export async function createProductFn(t: TI18nFunction, input: CreateProductFnIn
 
   try {
     const resolvedPrice = await resolveProductPrice(title, description, price)
-    const sourceImageFiles = await resolveSourceProductImages(title, description, images, t)
+    const sourceImageFiles = await resolveSourceProductImages(images)
     const tinifiedImageFiles = await tinifyProductImages(sourceImageFiles)
     const uploadedImageUrls = normalizeProductImageUrls(await uploadProductImages(tinifiedImageFiles, t))
 

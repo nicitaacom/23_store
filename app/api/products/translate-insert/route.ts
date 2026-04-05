@@ -98,9 +98,11 @@ export async function POST(req: Request) {
       console.info("[products/translate-insert] lambda invoked", {
         requestId,
         functionName: invokeTranslateProductLambdaResponse.functionName,
+        region: invokeTranslateProductLambdaResponse.region,
         productId: parsedPayload.id,
         statusCode: invokeTranslateProductLambdaResponse.statusCode,
         executedVersion: invokeTranslateProductLambdaResponse.executedVersion,
+        lambdaRequestId: invokeTranslateProductLambdaResponse.requestId,
       })
     } else {
       console.warn("[products/translate-insert] lambda invoke failed after product insert", {

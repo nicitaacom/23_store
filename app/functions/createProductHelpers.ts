@@ -83,23 +83,9 @@ RULES:
   }
 }
 
-export async function generateProductImageFile(title: string, description: string, t: TI18nFunction) {
-  try {
-    const generatedImage = await aiSDK.generateImageBuffer(`${title}. ${description}`)
-
-    return new File([generatedImage.buffer], "generated_image.png", {
-      type: generatedImage.contentType,
-    })
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error("[createProduct] AI image generation failed", { errorMessage, title })
-    throw new Error(`${t("product.error.failed_to_generate_image")}: ${errorMessage}`)
-  }
-}
-
-export async function resolveSourceProductImages(title: string, description: string, images: ImageListType | undefined, t: TI18nFunction) {
+export async function resolveSourceProductImages(images: ImageListType | undefined) {
   if (images && images.length > MAX_PRODUCT_IMAGES) {
-    throw new Error(t("product.warning.max_images_subtitle", { maxImages: MAX_PRODUCT_IMAGES }))
+    throw new Error(`Please use max ${MAX_PRODUCT_IMAGES} product images`)
   }
 
   const uploadedImageFiles = (images || []).map(image => image.file).filter((file): file is File => Boolean(file))
@@ -108,7 +94,7 @@ export async function resolveSourceProductImages(title: string, description: str
     return uploadedImageFiles
   }
 
-  return [await generateProductImageFile(title, description, t)]
+  throw new Error("At least 1 image is required")
 }
 
 export async function tinifyProductImages(imageFiles: File[]) {
