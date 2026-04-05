@@ -2,6 +2,7 @@ import { InvokeCommand, InvocationType, LambdaClient } from "@aws-sdk/client-lam
 
 const lambdaRegion = process.env.NEXT_PUBLIC_AWS_REGION
 const lambdaFnName = "23-ai-translate"
+const lambdaInvokeTimeoutMs = 20_000
 
 const lambda = new LambdaClient({
   region: lambdaRegion,
@@ -26,11 +27,25 @@ function buildLambdaPayload(payload: API.ProductsTranslateAndInsertRequest): API
   }
 }
 
+type TInvokeTranslateProductLambdaResponse =
+  | {
+      status: "invoked"
+      functionName: string
+      region?: string
+      statusCode?: number
+      executedVersion?: string
+      requestId?: string
+    }
+  | {
+      status: "timeout"
+      functionName: string
+      region?: string
+      timeoutMs: number
+    }
+
 export async function invokeTranslateProductLambda(
   payload: API.ProductsTranslateAndInsertRequest,
-): Promise<
-  { functionName: string; region?: string; statusCode?: number; executedVersion?: string; requestId?: string } | string
-> {
+): Promise<TInvokeTranslateProductLambdaResponse | string> {
   try {
     if (!lambdaRegion) throw new Error("Missing AWS region for translate lambda")
     if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_ACCESS_KEY_ID.endsWith("P54S"))
@@ -45,32 +60,51 @@ export async function invokeTranslateProductLambda(
     console.info(`[products/translate-insert] invoking lambda with payload ${JSON.stringify(lambdaPayload)}`)
     console.info("[lambda] config:", { lambdaRegion, lambdaFnName })
 
-    const response = await lambda.send(
-      new InvokeCommand({
-        FunctionName: lambdaFnName,
-        InvocationType: InvocationType.RequestResponse,
-        Payload: Buffer.from(JSON.stringify(lambdaPayload)),
-      }),
-    )
+    const response = await Promise.race<TInvokeTranslateProductLambdaResponse>([
+      lambda
+        .send(
+          new InvokeCommand({
+            FunctionName: lambdaFnName,
+            InvocationType: InvocationType.RequestResponse,
+            Payload: Buffer.from(JSON.stringify(lambdaPayload)),
+          }),
+        )
+        .then(response => {
+          if (response.FunctionError) {
+            const payloadText = response.Payload ? new TextDecoder().decode(response.Payload) : ""
+            throw new Error(payloadText || `Lambda execution failed with ${response.FunctionError}`)
+          }
 
-    if (response.FunctionError) {
-      const payloadText = response.Payload ? new TextDecoder().decode(response.Payload) : ""
-      throw new Error(payloadText || `Lambda execution failed with ${response.FunctionError}`)
-    }
+          console.info("[lambda] response:", {
+            statusCode: response.StatusCode,
+            functionError: response.FunctionError,
+            payload: response.Payload ? new TextDecoder().decode(response.Payload) : null,
+          })
 
-    console.info("[lambda] response:", {
-      statusCode: response.StatusCode,
-      functionError: response.FunctionError,
-      payload: response.Payload ? new TextDecoder().decode(response.Payload) : null,
-    })
+          return {
+            status: "invoked",
+            functionName: lambdaFnName,
+            region: lambdaRegion,
+            statusCode: response.StatusCode,
+            executedVersion: response.ExecutedVersion,
+            requestId: response.$metadata.requestId,
+          }
+        }),
+      new Promise(resolve =>
+        setTimeout(
+          () =>
+            resolve({
+              status: "timeout",
+              functionName: lambdaFnName,
+              region: lambdaRegion,
+              timeoutMs: lambdaInvokeTimeoutMs,
+            }),
+          lambdaInvokeTimeoutMs,
+        ),
+      ),
+    ])
 
-    return {
-      functionName: lambdaFnName,
-      region: lambdaRegion,
-      statusCode: response.StatusCode,
-      executedVersion: response.ExecutedVersion,
-      requestId: response.$metadata.requestId,
-    }
+    return response
   } catch (error) {
     if (error instanceof Error) return error.message
     return String(error)

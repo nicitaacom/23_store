@@ -112,17 +112,7 @@ export async function POST(req: Request) {
     }
 
     const invokeTranslateProductLambdaResponse = await invokeTranslateProductLambda(parsedPayload)
-    if (typeof invokeTranslateProductLambdaResponse !== "string") {
-      console.info("[products/translate-insert] lambda invoked", {
-        requestId,
-        functionName: invokeTranslateProductLambdaResponse.functionName,
-        region: invokeTranslateProductLambdaResponse.region,
-        productId: parsedPayload.id,
-        statusCode: invokeTranslateProductLambdaResponse.statusCode,
-        executedVersion: invokeTranslateProductLambdaResponse.executedVersion,
-        lambdaRequestId: invokeTranslateProductLambdaResponse.requestId,
-      })
-    } else {
+    if (typeof invokeTranslateProductLambdaResponse === "string") {
       const rollbackError = await deleteDBProduct(parsedPayload.id)
 
       console.error("[products/translate-insert] lambda invoke failed after product insert", {
@@ -133,6 +123,26 @@ export async function POST(req: Request) {
       })
 
       throw new Error(invokeTranslateProductLambdaResponse)
+    }
+
+    if (invokeTranslateProductLambdaResponse.status === "timeout") {
+      console.warn("[products/translate-insert] lambda invoke timed out, continuing without blocking response", {
+        requestId,
+        productId: parsedPayload.id,
+        functionName: invokeTranslateProductLambdaResponse.functionName,
+        region: invokeTranslateProductLambdaResponse.region,
+        timeoutMs: invokeTranslateProductLambdaResponse.timeoutMs,
+      })
+    } else {
+      console.info("[products/translate-insert] lambda invoked", {
+        requestId,
+        functionName: invokeTranslateProductLambdaResponse.functionName,
+        region: invokeTranslateProductLambdaResponse.region,
+        productId: parsedPayload.id,
+        statusCode: invokeTranslateProductLambdaResponse.statusCode,
+        executedVersion: invokeTranslateProductLambdaResponse.executedVersion,
+        lambdaRequestId: invokeTranslateProductLambdaResponse.requestId,
+      })
     }
 
     console.info("[products/translate-insert] product created", {
