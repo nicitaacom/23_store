@@ -16,3 +16,10 @@ export async function insertDBProduct(payload: API.ProductsTranslateAndInsertReq
   if (insertError) return insertError.message
   return null
 }
+
+export async function deleteDBProduct(productId: string): Promise<string | null> {
+  const { error: deleteError } = await supabaseAdmin.from("products").delete().eq("id", productId)
+
+  if (deleteError) return deleteError.message
+  return null
+}

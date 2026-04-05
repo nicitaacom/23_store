@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { insertDBProduct } from "./insertDBProduct"
+import { deleteDBProduct, insertDBProduct } from "./insertDBProduct"
 import { invokeTranslateProductLambda } from "./invokeTranslateProductLambda"
 
 export const runtime = "nodejs"
@@ -105,11 +105,16 @@ export async function POST(req: Request) {
         lambdaRequestId: invokeTranslateProductLambdaResponse.requestId,
       })
     } else {
-      console.warn("[products/translate-insert] lambda invoke failed after product insert", {
+      const rollbackError = await deleteDBProduct(parsedPayload.id)
+
+      console.error("[products/translate-insert] lambda invoke failed after product insert", {
         requestId,
         productId: parsedPayload.id,
         errorMessage: invokeTranslateProductLambdaResponse,
+        rollbackError,
       })
+
+      throw new Error(invokeTranslateProductLambdaResponse)
     }
 
     console.info("[products/translate-insert] product created", {
