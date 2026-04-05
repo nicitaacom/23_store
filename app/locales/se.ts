@@ -261,6 +261,8 @@ export default {
   "product.product_deleted": "Produkten har tagits bort",
   "product.manage_upload_image_first_title": "Ladda upp en bild först",
   "product.manage_upload_image_first_subtitle": "Lägg till minst en bild innan du sparar eller skapar varianter.",
+  "product.manage_keep_one_image_title": "Behåll minst en bild",
+  "product.manage_keep_one_image_subtitle": "Produkten måste ha minst en bild kvar i galleriet.",
   "product.manage_variant_label_required": "Ange ett variantnamn innan du lägger till den.",
   "product.manage_variant_help": "Välj en bild till vänster och koppla den till en variant här.",
   "product.manage_variant_empty": "Inga varianter ännu. Lägg till en för snabbval i butiken.",

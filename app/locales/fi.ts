@@ -261,6 +261,8 @@ export default {
   "product.product_deleted": "Tuote poistettu",
   "product.manage_upload_image_first_title": "Lataa kuva ensin",
   "product.manage_upload_image_first_subtitle": "Lisää vähintään yksi kuva ennen tallennusta tai varianttien luontia.",
+  "product.manage_keep_one_image_title": "Pidä vähintään yksi kuva",
+  "product.manage_keep_one_image_subtitle": "Tällä tuotteella täytyy olla vähintään yksi kuva galleriassa.",
   "product.manage_variant_label_required": "Anna variantille nimi ennen lisäämistä.",
   "product.manage_variant_help": "Valitse esikatselukuva vasemmalta ja liitä se varianttiin täällä.",
   "product.manage_variant_empty": "Variantteja ei ole vielä. Lisää sellainen nopeita valintoja varten.",

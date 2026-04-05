@@ -87,6 +87,10 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const previewStock = formatNumber(onStockValue ?? product.on_stock) || "0"
   const activeImage = images[activeImageIndex]
 
+  const showCannotRemoveLastImageToast = useCallback(() => {
+    toast.show("warning", t("manage_keep_one_image_title"), t("manage_keep_one_image_subtitle"))
+  }, [t, toast])
+
   const navigateToImage = useCallback(
     (nextIndex: number) => {
       if (!images[nextIndex]) return
@@ -120,6 +124,11 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
   const removeImageAt = useCallback(
     (imageIndex: number) => {
+      if (images.length <= 1) {
+        showCannotRemoveLastImageToast()
+        return
+      }
+
       const removedImage = images[imageIndex]
       if (!removedImage?.data_url) return
 
@@ -132,14 +141,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         return Math.min(currentIndex, nextLength - 1)
       })
     },
-    [images],
+    [images, showCannotRemoveLastImageToast],
   )
-
-  const removeAllImages = useCallback(() => {
-    setImages([])
-    setVariants([])
-    setActiveImageIndex(0)
-  }, [])
 
   const addVariant = useCallback(() => {
     const normalizedLabel = variantLabel.trim()
@@ -517,20 +520,11 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   <button
                     type="button"
                     onClick={() => removeImageAt(activeImageIndex)}
-                    disabled={!images.length}
+                    disabled={!images.length || images.length === 1}
                     className="rounded-2xl border border-danger/18 bg-danger/8 px-4 py-3 text-sm font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
                     {t("remove")}
                   </button>
                 </div>
-
-                {images.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={removeAllImages}
-                    className="mt-3 rounded-2xl border border-danger/18 bg-danger/8 px-4 py-3 text-sm font-medium text-danger transition-colors hover:bg-danger/12">
-                    {t("remove_all_images")}
-                  </button>
-                )}
 
                 <div className="mt-5 rounded-2xl border border-white/8 bg-[#0f1318] px-4 py-3">
                   <p className="text-xs uppercase tracking-[0.2em] text-subTitle">{t("on_stock")}</p>

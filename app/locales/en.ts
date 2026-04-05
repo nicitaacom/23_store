@@ -261,6 +261,8 @@ export default {
   "product.product_deleted": "Product deleted",
   "product.manage_upload_image_first_title": "Upload image first",
   "product.manage_upload_image_first_subtitle": "Add at least one image before saving or creating variants.",
+  "product.manage_keep_one_image_title": "Keep at least one image",
+  "product.manage_keep_one_image_subtitle": "This product must keep one image in its gallery.",
   "product.manage_variant_label_required": "Enter a variant label before adding it.",
   "product.manage_variant_help": "Pick a preview image on the left, then attach it to a variant here.",
   "product.manage_variant_empty": "No variants yet. Add one to create quick-switch options for shoppers.",

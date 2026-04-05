@@ -261,6 +261,8 @@ export default {
   "product.product_deleted": "Товар удален",
   "product.manage_upload_image_first_title": "Сначала загрузите изображение",
   "product.manage_upload_image_first_subtitle": "Добавьте хотя бы одно изображение перед сохранением или созданием вариантов.",
+  "product.manage_keep_one_image_title": "Оставьте хотя бы одно изображение",
+  "product.manage_keep_one_image_subtitle": "У этого товара должно остаться хотя бы одно изображение в галерее.",
   "product.manage_variant_label_required": "Введите название варианта перед добавлением.",
   "product.manage_variant_help": "Выберите превью слева и привяжите его к варианту здесь.",
   "product.manage_variant_empty": "Вариантов пока нет. Добавьте их, чтобы покупатели могли быстро переключаться.",
