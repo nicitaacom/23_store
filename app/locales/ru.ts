@@ -282,7 +282,7 @@ export default {
   "product.secure_checkout": "Безопасная оплата и защищенный заказ",
   "product.support_ready": "Помощь рядом, если нужно выбрать товар",
   "product.this_field_is_required": "Это поле обязательно",
-  "product.title_required": "Введите название продукта — a–z, цифры; #()_ допустимы",
+  "product.title_required": "Введите название продукта — a–z, цифры; #()%_ допустимы",
   "product.title_invalid_character": 'Недопустимый символ "{character}" рядом с "{context}"',
   "product.description_invalid_character": 'Недопустимый символ "{character}" рядом с "{context}"',
   "product.subtitle_required": "Недопустимы символы !$^*_=\\",

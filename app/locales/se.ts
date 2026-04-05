@@ -282,7 +282,7 @@ export default {
   "product.secure_checkout": "Säker checkout och trygga betalningar",
   "product.support_ready": "Support redo om du behöver hjälp att välja",
   "product.this_field_is_required": "Detta fält är obligatoriskt",
-  "product.title_required": "Ange en produkttitel – a–z, siffror och #()_ är tillåtna",
+  "product.title_required": "Ange en produkttitel – a–z, siffror och #()%_ är tillåtna",
   "product.title_invalid_character": 'Tecknet "{character}" är inte tillåtet nära "{context}"',
   "product.description_invalid_character": 'Tecknet "{character}" är inte tillåtet nära "{context}"',
   "product.subtitle_required": "Inga tecken !$^*_=\\ tillåtna",

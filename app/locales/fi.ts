@@ -282,7 +282,7 @@ export default {
   "product.secure_checkout": "Turvallinen kassaprosessi ja maksut",
   "product.support_ready": "Tuki auttaa, jos tarvitset apua valintaan",
   "product.this_field_is_required": "Tämä kenttä on pakollinen",
-  "product.title_required": "Anna tuotteen otsikko – a–z, numerot ja #()_ sallittu",
+  "product.title_required": "Anna tuotteen otsikko – a–z, numerot ja #()%_ sallittu",
   "product.title_invalid_character": 'Merkki "{character}" ei ole sallittu kohdan "{context}" lähellä',
   "product.description_invalid_character": 'Merkki "{character}" ei ole sallittu kohdan "{context}" lähellä',
   "product.subtitle_required": "Merkit !$^*_=\\ eivät ole sallittuja",
