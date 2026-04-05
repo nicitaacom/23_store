@@ -166,9 +166,10 @@ export async function createStripeProduct(
   t: TI18nFunction,
 ): Promise<StripeProductDraft> {
   const stripeAmount = Math.max(1, Math.floor(price * 100))
+  const trimmedDescription = description.trim()
   const stripeData = await productsSDK.addProduct({
     title,
-    description,
+    ...(trimmedDescription ? { description: trimmedDescription } : {}),
     price: stripeAmount,
     images,
   })

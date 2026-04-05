@@ -49,7 +49,7 @@ declare module API {
 
   type ProductsAddRequest = {
     title: string
-    description: string
+    description?: string
     price: number
     images: string[]
   }

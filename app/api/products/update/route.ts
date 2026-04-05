@@ -27,6 +27,10 @@ export async function POST(req: Request) {
   const price = body.price
   const onStock = body.onStock
   const variants = body.variants
+  const getStripeDescriptionPayload = (description: string | undefined) => {
+    const trimmedDescription = description?.trim()
+    return trimmedDescription ? { description: trimmedDescription } : {}
+  }
 
   try {
     const {
@@ -86,7 +90,7 @@ export async function POST(req: Request) {
     if (translations) {
       const productResponse = await stripe.products.update(productId, {
         name: translations.fi.title,
-        description: translations.fi.description,
+        ...getStripeDescriptionPayload(translations.fi.description),
       })
 
       const { error: updateTranslationsError } = await supabase
@@ -137,7 +141,7 @@ export async function POST(req: Request) {
         const canonicalTranslation = normalizedExistingProduct.translations.fi
         const productResponse = await stripe.products.create({
           name: canonicalTranslation.title,
-          description: canonicalTranslation.description,
+          ...getStripeDescriptionPayload(canonicalTranslation.description),
           images: normalizedExistingProduct.img_url?.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
         })
 

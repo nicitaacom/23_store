@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const body = await req.json()
 
   const title = String(body.title ?? "").trim()
-  const description = String(body.description ?? "")
+  const description = String(body.description ?? "").trim()
   const price = Number(body.price)
   const images = normalizeProductImageUrls(body.images)
 
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
     const productResponse = await stripe.products.create({
       name: title,
-      description,
+      ...(description ? { description } : {}),
       active: true,
       images: images.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
     })
