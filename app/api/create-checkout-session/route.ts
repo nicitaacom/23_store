@@ -3,29 +3,33 @@ import { NextResponse } from "next/server"
 import { stripe } from "@/libs/stripe"
 import { getURL } from "@/utils/helpers"
 
-type stripeProductType = {
-  price: string
+type StripeCheckoutLineItem = {
+  imageUrl?: string | null
+  name: string
   quantity: number
-  email?: string
+  unitAmount: number
 }
 
 export async function POST(request: Request) {
   const body = (await request.json()) as { stripeProductsQuery: string; email: string | undefined }
 
   try {
-    // Decoding url to get json from this %7B%22price%22%3A%22price_1O8TYeDEq5VtEmnoi7r1D4Gs%22%2C%22quantity%22%3A1%7D
-    const productsQuery = decodeURIComponent(body.stripeProductsQuery)
-
-    // split & if query has multiple objects to get array from this
-    // {"price":"price_1O8TYeDEq5VtEmnoi7r1D4Gs","quantity":1}&{"price":"price_1O7174DEq5VtEmno3dk9tomc","quantity":1}
-    const productsStringArray = productsQuery.includes("&") ? productsQuery.split("&") : [productsQuery]
-
-    // Parsing string to convert string type to json type
-    const productsJsonArray: stripeProductType[] = productsStringArray.map(product => JSON.parse(product))
+    const productsJsonArray = JSON.parse(decodeURIComponent(body.stripeProductsQuery)) as StripeCheckoutLineItem[]
+    const line_items = productsJsonArray.map(product => ({
+      price_data: {
+        currency: "usd",
+        product_data: {
+          images: product.imageUrl ? [product.imageUrl] : undefined,
+          name: product.name,
+        },
+        unit_amount: product.unitAmount,
+      },
+      quantity: product.quantity,
+    }))
 
     const session = await stripe.checkout.sessions.create({
       billing_address_collection: "required",
-      line_items: productsJsonArray,
+      line_items,
       mode: "payment",
       customer_email: body.email,
       success_url: `${getURL()}payment/?status=success&session_id={CHECKOUT_SESSION_ID}`,

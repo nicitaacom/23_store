@@ -5,6 +5,7 @@ import { Button } from "@/components/ui"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
 import useCartStore from "@/store/user/cartStore"
+import { createCartProductKey } from "@/utils/cartProducts"
 import { FiExternalLink } from "react-icons/fi"
 import { ManageProductButton } from "./ManageProductButton"
 
@@ -12,11 +13,12 @@ interface ProductButtonsProps {
   productId: string
   ownerId: string
   showViewButton?: boolean
+  variantId?: string | null
 }
 
-export function ProductButtons({ productId, ownerId, showViewButton = true }: ProductButtonsProps) {
+export function ProductButtons({ productId, ownerId, showViewButton = true, variantId }: ProductButtonsProps) {
   const cartStore = useCartStore()
-  const quantity = cartStore.products?.[productId]?.quantity ?? 0
+  const quantity = cartStore.products?.[createCartProductKey(productId, variantId)]?.quantity ?? 0
   const locale = useCurrentLocale()
   const t = useScopedI18n("product")
 
@@ -25,12 +27,12 @@ export function ProductButtons({ productId, ownerId, showViewButton = true }: Pr
       <ManageProductButton className="rounded" productId={productId} ownerId={ownerId} />
 
       {quantity === 0 ? (
-        <AddToCartButton productId={productId} />
+        <AddToCartButton productId={productId} variantId={variantId} />
       ) : (
         <>
-          <ProductQuantityButton action="increase" productId={productId} />
-          <ProductQuantityButton action="decrease" productId={productId} />
-          <ProductQuantityButton action="clear" productId={productId} />
+          <ProductQuantityButton action="increase" productId={productId} variantId={variantId} />
+          <ProductQuantityButton action="decrease" productId={productId} variantId={variantId} />
+          <ProductQuantityButton action="clear" productId={productId} variantId={variantId} />
         </>
       )}
 

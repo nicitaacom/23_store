@@ -20,11 +20,21 @@ function parseNumericValue(value: unknown) {
   return Number(normalizedValue)
 }
 
+function normalizeVariants(variants: API.ProductsTranslateAndInsertRequest["variants"]) {
+  if (!Array.isArray(variants)) return variants
+
+  return variants.map(variant => ({
+    ...variant,
+    price: parseNumericValue((variant as API.ProductsVariant & { price?: number | string }).price),
+  }))
+}
+
 function normalizePayload(payload: API.ProductsTranslateAndInsertRequest): API.ProductsTranslateAndInsertRequest {
   return {
     ...payload,
     price: parseNumericValue(payload.price),
     on_stock: parseNumericValue(payload.on_stock),
+    variants: normalizeVariants(payload.variants),
   }
 }
 
@@ -42,6 +52,14 @@ function getInvalidPayloadFields(payload: API.ProductsTranslateAndInsertRequest)
     invalidFields.push("img_url")
   }
   if (payload.variants !== undefined && payload.variants !== null && !Array.isArray(payload.variants)) {
+    invalidFields.push("variants")
+  }
+  if (
+    Array.isArray(payload.variants) &&
+    payload.variants.some(
+      variant => !variant.id?.trim() || !variant.label?.trim() || !variant.image_url?.trim() || !Number.isFinite(variant.price) || variant.price <= 0,
+    )
+  ) {
     invalidFields.push("variants")
   }
 

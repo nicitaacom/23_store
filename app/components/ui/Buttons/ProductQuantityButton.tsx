@@ -12,17 +12,18 @@ interface ProductQuantityButtonProps {
   className?: string
   productId: string
   action: ProductQuantityAction
+  variantId?: string | null
 }
 
-export function ProductQuantityButton({ className, productId, action }: ProductQuantityButtonProps) {
+export function ProductQuantityButton({ className, productId, action, variantId }: ProductQuantityButtonProps) {
   const { increaseProductQuantity, decreaseProductQuantity, clearProductQuantity } = useCartStore()
 
   // 1. Handle button click based on action type
   const handleClick = useCallback(() => {
-    action === "increase" && increaseProductQuantity(productId)
-    action === "decrease" && decreaseProductQuantity(productId)
-    action === "clear" && clearProductQuantity(productId)
-  }, [action, productId, increaseProductQuantity, decreaseProductQuantity, clearProductQuantity])
+    action === "increase" && increaseProductQuantity(productId, variantId)
+    action === "decrease" && decreaseProductQuantity(productId, variantId)
+    action === "clear" && clearProductQuantity(productId, variantId)
+  }, [action, productId, variantId, increaseProductQuantity, decreaseProductQuantity, clearProductQuantity])
 
   // 2. Get button config based on action
   const config = {

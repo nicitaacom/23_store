@@ -12,6 +12,7 @@ import { Button } from "@/components/ui"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import useCartStore from "@/store/user/cartStore"
 import { TProductDB } from "@/ts/product/TProductDB"
+import { createCartProductKey, getProductPriceForVariant } from "@/utils/cartProducts"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { pt } from "@/utils/product"
@@ -28,7 +29,6 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const locale = useCurrentLocale()
   const translation = pt(product, locale)
   const { products } = useCartStore()
-  const quantity = products?.[product.id]?.quantity ?? 0
   const isOutOfStock = (product.on_stock ?? 0) <= 0
 
   const variants = useMemo(
@@ -37,6 +37,8 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   )
   const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id || "")
   const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
+  const selectedPrice = getProductPriceForVariant(product, selectedVariant?.id)
+  const quantity = products?.[createCartProductKey(product.id, selectedVariant?.id)]?.quantity ?? 0
 
   const galleryImages = useMemo(() => {
     const orderedImages = [selectedVariant?.image_url, ...(product.img_url || [])].filter((image): image is string => Boolean(image))
@@ -50,7 +52,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
     setActiveImage(currentImage => (galleryImages.includes(currentImage) ? currentImage : galleryImages[0]))
   }, [galleryImages])
 
-  const subtotal = formatCurrency(quantity * product.price)
+  const subtotal = formatCurrency(quantity * selectedPrice)
   const availabilityLabel = isOutOfStock
     ? t("out_of_stock_label")
     : t("units_available", { count: formatNumber(product.on_stock ?? 0) })
@@ -159,7 +161,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           <div className="mt-5 grid gap-3 mobile:grid-cols-2">
             <div className="rounded-[2px] border border-success/20 bg-black/20 p-4">
               <p className="text-xs uppercase tracking-[0.24em] text-subTitle">{t("price")}</p>
-              <p className="mt-2 text-2xl font-bold tracking-tight text-success">{formatCurrency(product.price)}</p>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-success">{formatCurrency(selectedPrice)}</p>
             </div>
 
             <div className="rounded-[2px] border border-border-color/20 bg-background/50 p-4">
@@ -194,7 +196,10 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                         height={56}
                         className="h-14 w-14 rounded-[2px] object-cover"
                       />
-                      <span className="max-w-[160px] text-sm font-medium leading-5 text-title">{variant.label}</span>
+                      <div className="min-w-0">
+                        <span className="block max-w-[160px] text-sm font-medium leading-5 text-title">{variant.label}</span>
+                        <span className="text-xs text-success">{formatCurrency(variant.price)}</span>
+                      </div>
                     </button>
                   )
                 })}
@@ -233,12 +238,12 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <RequestReplanishmentButton product={product} />
               </div>
             ) : quantity === 0 ? (
-              <AddToCartButton className="w-full justify-between px-5 mobile:w-full" productId={product.id} />
+              <AddToCartButton className="w-full justify-between px-5 mobile:w-full" productId={product.id} variantId={selectedVariant?.id} />
             ) : (
               <>
-                <ProductQuantityButton action="decrease" productId={product.id} className="min-w-[56px]" />
-                <ProductQuantityButton action="increase" productId={product.id} className="min-w-[56px]" />
-                <ProductQuantityButton action="clear" productId={product.id} className="mobile:px-6" />
+                <ProductQuantityButton action="decrease" productId={product.id} variantId={selectedVariant?.id} className="min-w-[56px]" />
+                <ProductQuantityButton action="increase" productId={product.id} variantId={selectedVariant?.id} className="min-w-[56px]" />
+                <ProductQuantityButton action="clear" productId={product.id} variantId={selectedVariant?.id} className="mobile:px-6" />
               </>
             )}
           </div>

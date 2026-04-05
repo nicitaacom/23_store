@@ -17,6 +17,7 @@ declare module API {
     id: string
     label: string
     image_url: string
+    price: number
   }
 
   type ProductsTranslateAndInsertRequest = {

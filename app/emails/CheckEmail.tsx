@@ -112,10 +112,10 @@ export const CheckEmail = ({
                         <td style={{ width: "120px", verticalAlign: "top", paddingRight: "20px" }}>
                           <Img
                             style={{ objectFit: "cover", borderRadius: "8px", display: "block" }}
-                            src={product.img_url[0]}
+                            src={product.selectedVariant?.image_url || product.img_url[0]}
                             width="120"
                             height="120"
-                            alt={translation.title}
+                            alt={product.selectedVariant?.label || translation.title}
                           />
                         </td>
                         <td style={{ verticalAlign: "top" }}>
@@ -127,6 +127,11 @@ export const CheckEmail = ({
                           <Text className="m-0 text-[14px] text-subTitle" style={{ lineHeight: "1.5", marginBottom: "12px" }}>
                             {quantityText}: {product.quantity}
                           </Text>
+                          {product.selectedVariant?.label && (
+                            <Text className="m-0 text-[14px] text-subTitle" style={{ lineHeight: "1.5", marginBottom: "12px" }}>
+                              Variant: {product.selectedVariant.label}
+                            </Text>
+                          )}
                           <Text className="m-0 text-[16px] font-medium text-title">
                             {formatCurrency(product.price * product.quantity)}
                           </Text>

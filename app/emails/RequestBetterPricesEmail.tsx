@@ -36,9 +36,12 @@ export function RequestBetterPricesEmail({ products, totalPrice, userEmail }: Re
 
               return (
                 <div key={product.id} style={productCard}>
-                  {product.img_url?.map(url => <Img key={url} src={url} alt={translation.title} style={productImage} />)}
+                  {(product.selectedVariant?.image_url ? [product.selectedVariant.image_url] : product.img_url)?.map(url => (
+                    <Img key={url} src={url} alt={product.selectedVariant?.label || translation.title} style={productImage} />
+                  ))}
                 <Text style={productNumber}>#{index + 1}</Text>
                   <Text style={productName}>{translation.title}</Text>
+                  {product.selectedVariant?.label && <Text style={productSubtitle}>Variant: {product.selectedVariant.label}</Text>}
                   {translation.description && <Text style={productSubtitle}>{translation.description}</Text>}
                 <div style={productDetails}>
                   <Text style={productPrice}>Price: ${product.price.toFixed(2)}</Text>

@@ -108,7 +108,7 @@ export async function POST(req: Request) {
 
     /* UPDATE VARIANTS */
     if (variants !== undefined) {
-      const normalizedVariants = normalizeProductVariants(variants)
+      const normalizedVariants = normalizeProductVariants(variants, normalizedExistingProduct.price)
       const { error: updateVariantsError } = await supabase.from("products").update({ variants: normalizedVariants }).eq("id", productId)
 
       if (updateVariantsError)

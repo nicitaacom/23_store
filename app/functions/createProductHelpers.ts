@@ -171,12 +171,13 @@ export async function createStripeProduct(
 export function resolveUploadedProductVariants(variants: TProductVariantDraft[] | undefined, imageUrls: string[]) {
   return (variants || [])
     .slice(0, MAX_PRODUCT_VARIANTS)
-    .filter(variant => variant.label.trim() && imageUrls[variant.imageIndex])
+    .filter(variant => variant.label.trim() && imageUrls[variant.imageIndex] && variant.price > 0)
     .map(
       (variant): TProductVariant => ({
         id: variant.id,
         label: variant.label.trim(),
         image_url: imageUrls[variant.imageIndex],
+        price: variant.price,
       }),
     )
 }

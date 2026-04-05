@@ -7,6 +7,8 @@ import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
 import useUserStore from "./userStore"
 import { logFn } from "@/utils/logFn"
 import { normalizeProducts } from "@/utils/productVariants"
+import { createCartProductKey, getProductVariantById } from "@/utils/cartProducts"
+import { Json } from "@/ts/types_db"
 
 interface CartStore {
   products: TRecordCartProduct
@@ -14,9 +16,9 @@ interface CartStore {
   keepExistingProductsRecord: (food: TRecordCartProduct) => Promise<TRecordCartProduct> // for case I user delete some food
   fetchProductsData: () => Promise<void>
   getCartQuantity: () => number
-  increaseProductQuantity: (id: string) => void
-  decreaseProductQuantity: (id: string) => void
-  clearProductQuantity: (id: string) => void
+  increaseProductQuantity: (id: string, variantId?: string | null) => void
+  decreaseProductQuantity: (id: string, variantId?: string | null) => void
+  clearProductQuantity: (id: string, variantId?: string | null) => void
   getProductsPrice: () => number
   hasProducts: () => boolean
   clearCart: () => void
@@ -31,28 +33,48 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
   productsData: [],
   async fetchProductsData() {
     const products = get().products
+    if (!products || Object.values(products).length === 0) {
+      set(() => ({
+        productsData: [],
+      }))
+      return
+    }
+
     // fetch products data only if some products in cart
     // otherwise everytime I fetch data I neeed to check is some products in reacord to featch
     logFn("products - ", products)
-    if (products && Object.values(products).length !== 0) {
-      const keepExistingProductsRecord = get().keepExistingProductsRecord
-      const productsRecord = get().products
-      const existingProductsRecord = await keepExistingProductsRecord(productsRecord)
-      const ids = Object.keys(existingProductsRecord) // get ids ['id1','id2','id3']
-      const cart_products_data_response = await supabaseClient.from("products").select().in("id", ids)
-      const cart_products = normalizeProducts(cart_products_data_response.data ?? []) // get data from DB product with ids
+    const keepExistingProductsRecord = get().keepExistingProductsRecord
+    const productsRecord = get().products
+    const existingProductsRecord = await keepExistingProductsRecord(productsRecord)
+    const ids = [...new Set(Object.values(existingProductsRecord).map(product => product.id).filter(Boolean))]
+    const cart_products_data_response = await supabaseClient.from("products").select().in("id", ids)
+    const cart_products = normalizeProducts(cart_products_data_response.data ?? []) // get data from DB product with ids
+    const productMap = new Map(cart_products.map(product => [product.id, product]))
 
-      // Add quantity to productsData
-      const cart_products_with_quantity = cart_products.map(productData => {
-        const quantity = get().products[productData.id].quantity ?? 0
-        return { ...productData, quantity }
-      })
+    const cart_products_with_quantity = Object.entries(existingProductsRecord).reduce<TProductAfterDB[]>((accum, [cartKey, cartProduct]) => {
+        const productData = productMap.get(cartProduct.id)
+        if (!productData) return accum
 
-      set(() => ({
-        products: existingProductsRecord,
-        productsData: cart_products_with_quantity,
-      }))
-    }
+        const selectedVariant = getProductVariantById(productData, cartProduct.variantId)
+        const linePrice = selectedVariant?.price ?? productData.price
+
+        accum.push({
+          ...productData,
+          basePrice: productData.price,
+          cartKey,
+          price: linePrice,
+          quantity: cartProduct.quantity,
+          selectedVariant,
+          variantId: selectedVariant?.id ?? cartProduct.variantId ?? null,
+        })
+
+        return accum
+      }, [])
+
+    set(() => ({
+      products: existingProductsRecord,
+      productsData: cart_products_with_quantity,
+    }))
   },
   getCartQuantity() {
     //I check get().products because when I authenticated I got error
@@ -64,27 +86,25 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
         }, 0)
       : 0
   },
-  increaseProductQuantity(id: string) {
+  increaseProductQuantity(id: string, variantId?: string | null) {
     const updatedProducts = { ...get().products }
-    let updatedProductsData = [...get().productsData]
-
-    const product = updatedProducts[id]
+    const cartKey = createCartProductKey(id, variantId)
+    const updatedProductsData = get().productsData.map(productData =>
+      productData.cartKey === cartKey ? { ...productData, quantity: productData.quantity + 1 } : productData,
+    )
+    const product = updatedProducts[cartKey]
 
     // if user try to add more product in cart than on stock
     // ignore on_stock due to new store implementation
     // if (product && product.quantity === on_stock) return
 
     if (product) {
-      updatedProducts[id].quantity++
-      updatedProductsData.map(updatedProduct => {
-        if (updatedProduct.id === id) {
-          return { ...updatedProduct, quantity: updatedProduct.quantity++ }
-        } else return updatedProduct
-      })
+      updatedProducts[cartKey].quantity++
     } else {
-      updatedProducts[id] = {
+      updatedProducts[cartKey] = {
         id,
         quantity: 1,
+        variantId: variantId ?? null,
         //no sence to create logic because I don't add product in cart
         //I can add prodcut in store
       }
@@ -92,28 +112,26 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
 
     set(() => ({
       products: updatedProducts,
-      // TODO - check is it work fine when I increase quantity in cart (e.g from 2 to 3)
+      productsData: updatedProductsData,
     }))
   },
 
-  decreaseProductQuantity(id: string) {
+  decreaseProductQuantity(id: string, variantId?: string | null) {
     const updatedProducts = { ...get().products }
     let updatedProductsData = [...get().productsData]
-
-    const product = updatedProducts[id]
+    const cartKey = createCartProductKey(id, variantId)
+    const product = updatedProducts[cartKey]
 
     if (!product) return
 
     if (product.quantity === 1) {
-      delete updatedProducts[id]
-      updatedProductsData = updatedProductsData.filter(updatedProduct => updatedProduct.id !== id)
+      delete updatedProducts[cartKey]
+      updatedProductsData = updatedProductsData.filter(updatedProduct => updatedProduct.cartKey !== cartKey)
     } else {
-      updatedProducts[id].quantity--
-      updatedProductsData.map(updatedProduct => {
-        if (updatedProduct.id === id) {
-          return { ...updatedProduct, quantity: updatedProduct.quantity-- }
-        }
-      })
+      updatedProducts[cartKey].quantity--
+      updatedProductsData = updatedProductsData.map(updatedProduct =>
+        updatedProduct.cartKey === cartKey ? { ...updatedProduct, quantity: updatedProduct.quantity - 1 } : updatedProduct,
+      )
     }
 
     set(() => ({
@@ -121,15 +139,15 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
       productsData: updatedProductsData,
     }))
   },
-  clearProductQuantity(id: string) {
+  clearProductQuantity(id: string, variantId?: string | null) {
     const updatedProducts = { ...get().products }
     let updatedProductsData = [...get().productsData]
-
-    const product = updatedProducts[id]
+    const cartKey = createCartProductKey(id, variantId)
+    const product = updatedProducts[cartKey]
 
     if (!product) return
-    delete updatedProducts[id]
-    updatedProductsData = updatedProductsData.filter(updatedProduct => updatedProduct.id !== id)
+    delete updatedProducts[cartKey]
+    updatedProductsData = updatedProductsData.filter(updatedProduct => updatedProduct.cartKey !== cartKey)
 
     set(() => ({
       products: updatedProducts,
@@ -138,8 +156,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
   },
   getProductsPrice() {
     return get().productsData.reduce((totalPrice, product) => {
-      const quantity = get().products[product.id].quantity ?? 0
-      return product.on_stock === 0 ? totalPrice : totalPrice + product.price * quantity
+      return product.on_stock === 0 ? totalPrice : totalPrice + product.price * product.quantity
     }, 0)
   },
   clearCart() {
@@ -152,27 +169,28 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     return Object.keys(get().products).length > 0
   },
   async keepExistingProductsRecord(products: TRecordCartProduct) {
-    if (!products) return
-    const ids = Object.keys(products) // get object keys (prod_id)
+    if (!products || Object.keys(products).length === 0) return {}
+
+    const ids = [...new Set(Object.values(products).map(product => product.id).filter(Boolean))]
     const { data: existing_ids_response } = await supabaseClient.from("products").select("id").in("id", ids)
     const existing_ids = existing_ids_response ?? [] // array with existing objects id in DB [{id:'prod_id'}]
     const updatedIds = existing_ids.map(productData => productData.id) // string[] ['id']
 
-    const filtered_products = Object.keys(products) // array of existing records [prod_someId:{ICartProduct}]
-      .filter(key => updatedIds.includes(key))
-      .reduce((obj: any, key) => {
-        obj[key] = products[key]
-        return obj
-      }, {})
+    const filtered_products = Object.entries(products).reduce<TRecordCartProduct>((accum, [cartKey, cartProduct]) => {
+      if (updatedIds.includes(cartProduct.id)) {
+        accum[cartKey] = cartProduct
+      }
+      return accum
+    }, {})
 
-    const isNotExistingProductFound = ids.some(id => !updatedIds.includes(id))
+    const isNotExistingProductFound = Object.keys(products).length !== Object.keys(filtered_products).length
 
     // if found not existing product record - delete it from DB
     const { user } = useUserStore.getState()
     if (user?.id && isNotExistingProductFound) {
       const { error: update_cart_food_error } = await supabaseClient
         .from("users_cart")
-        .update({ cart_products: filtered_products })
+        .update({ cart_products: filtered_products as unknown as Json })
         .eq("id", user.id)
       if (update_cart_food_error) throw update_cart_food_error
     }
@@ -185,7 +203,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     const keepExistingProductsRecord = get().keepExistingProductsRecord
     const storage = getStorage()
     const products = await storage.getProducts() // get products from localstorage or DB based on isAuthenticated
-    const existingProducts = await keepExistingProductsRecord(products) // keep in record only existing productis in DB
+    const existingProducts = await keepExistingProductsRecord(products || {}) // keep in record only existing productis in DB
 
     set(() => ({
       products: existingProducts,

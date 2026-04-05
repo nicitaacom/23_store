@@ -19,14 +19,16 @@ export function PayWithPaypalButton() {
   const { user } = useUserStore()
   const { isLoading, setIsLoading } = useLoading()
 
-  const payPalProductsQuery = cartStore.productsData
-    // .filter(product => product.on_stock > 0)
-    .map(product => ({
-      price: product.price_id,
-      quantity: product.quantity,
-    }))
-    .map(item => `${encodeURIComponent(JSON.stringify(item))}`)
-    .join("&")
+  const payPalProductsQuery = encodeURIComponent(
+    JSON.stringify(
+      cartStore.productsData.map(product => ({
+        imageUrl: product.selectedVariant?.image_url || product.img_url[0] || null,
+        name: product.selectedVariant ? `${product.translations.fi.title} - ${product.selectedVariant.label}` : product.translations.fi.title,
+        quantity: product.quantity,
+        unitAmount: Math.max(1, Math.round(product.price * 100)),
+      })),
+    ),
+  )
 
   async function createPayPalSessionWithStripe() {
     setIsLoading(true)

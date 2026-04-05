@@ -33,7 +33,7 @@ export function ProductsInCart() {
     <div className="flex flex-col laptop:flex-row gap-6 h-full overflow-hidden">
       <section className="flex-1 flex flex-col gap-y-4 overflow-y-auto pr-2 hide-scrollbar">
         {cartStore.productsData.map(productData => (
-          <Product {...productData} containerClassName="border border-border-color/30 shrink-0" key={productData.id} />
+          <Product {...productData} containerClassName="border border-border-color/30 shrink-0" key={productData.cartKey} />
         ))}
       </section>
 

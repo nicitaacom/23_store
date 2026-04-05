@@ -2,17 +2,19 @@
 
 import { useI18n, useScopedI18n } from "@/locales/client"
 import useCartStore from "@/store/user/cartStore"
+import { createCartProductKey } from "@/utils/cartProducts"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { useMemo } from "react"
 
 interface ProductQuantityProps {
   productId: string
   productPrice: number
+  variantId?: string | null
 }
 
-export function ProductQuantity({ productId, productPrice }: ProductQuantityProps) {
+export function ProductQuantity({ productId, productPrice, variantId }: ProductQuantityProps) {
   const { products } = useCartStore()
-  const quantity = products?.[productId]?.quantity ?? 0
+  const quantity = products?.[createCartProductKey(productId, variantId)]?.quantity ?? 0
   const t = useScopedI18n("product")
 
   const subTotal = useMemo(() => {

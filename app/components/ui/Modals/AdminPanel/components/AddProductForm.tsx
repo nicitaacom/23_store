@@ -54,6 +54,7 @@ type PendingFormSnapshot = {
   variants: TProductVariantDraft[]
   activeImageIndex: number
   variantLabel: string
+  variantPrice: string
 }
 
 export function AddProductForm({ onCreated }: AddProductFormProps) {
@@ -64,6 +65,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   const [images, setImages] = useState<ImageListType>([])
   const [variantLabel, setVariantLabel] = useState("")
+  const [variantPrice, setVariantPrice] = useState("")
   const [variants, setVariants] = useState<TProductVariantDraft[]>([])
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [pendingTranslationsAmount, setPendingTranslationsAmount] = useState(0)
@@ -164,6 +166,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setActiveImageIndex(snapshot.activeImageIndex)
     previousImageIndexRef.current = snapshot.activeImageIndex
     setVariantLabel(snapshot.variantLabel)
+    setVariantPrice(snapshot.variantPrice)
   }
 
   const removePendingCreatedProduct = (optimisticProductId: string) => {
@@ -254,6 +257,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           id: variant.id,
           label: variant.label.trim(),
           image_url: images[variant.imageIndex]?.data_url || "",
+          price: variant.price,
         }))
         .filter(variant => variant.label && variant.image_url)
       const optimisticImages = normalizeProductImageUrls(images.map(image => image.data_url || ""))
@@ -288,12 +292,14 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         variants: [...variants],
         activeImageIndex,
         variantLabel,
+        variantPrice,
       }
       const submitImages = [...images]
 
       reset()
       setImages([])
       setVariantLabel("")
+      setVariantPrice("")
       setVariants([])
       setActiveImageIndex(0)
       previousImageIndexRef.current = 0
@@ -342,6 +348,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   const addVariant = () => {
     const normalizedLabel = variantLabel.trim()
+    const normalizedPrice = parseFormattedNumber(variantPrice)
 
     if (!images.length) {
       return showToast("warning", "Upload image first", "Select or upload an image before creating a variant")
@@ -359,6 +366,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       return showToast("warning", "Variant label required", "Enter a variant label like Bright Black Gray")
     }
 
+    if (!Number.isFinite(normalizedPrice) || normalizedPrice <= 0) {
+      return showToast("warning", t("variant_price"), t("manage_variant_price_required"))
+    }
+
     setVariants(currentVariants => [
       ...currentVariants,
       {
@@ -366,9 +377,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         label: normalizedLabel,
         imageIndex: activeImageIndex,
         imageDataUrl: images[activeImageIndex]?.data_url || "",
+        price: normalizedPrice,
       },
     ])
     setVariantLabel("")
+    setVariantPrice("")
   }
 
   const removeVariant = (variantId: string) => {
@@ -686,27 +699,38 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
         {/* ── Variants (moved from left col) ── */}
         <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3">
-          <div className="flex items-end gap-2">
+          <div className="grid gap-2 tablet:grid-cols-[minmax(0,1fr)_180px_auto]">
             <label className="grid flex-1 gap-1.5">
-              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">Variant label</span>
+              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_label")}</span>
               <input
                 className="h-10 w-full rounded border border-white/10 bg-white/[0.04] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/20"
                 value={variantLabel}
                 onChange={event => setVariantLabel(event.target.value)}
-                placeholder="Bright Black Gray"
+                placeholder={t("variant_label")}
                 disabled={isLoading}
+              />
+            </label>
+            <label className="grid gap-1.5">
+              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_price")}</span>
+              <input
+                className="h-10 w-full rounded border border-white/10 bg-white/[0.04] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/20"
+                value={variantPrice}
+                onChange={event => setVariantPrice(formatGroupedNumberInput(event.target.value))}
+                placeholder={t("placeholder.price")}
+                disabled={isLoading}
+                inputMode="decimal"
               />
             </label>
             <button
               type="button"
               onClick={addVariant}
               disabled={isLoading || !images.length || variants.length >= MAX_PRODUCT_VARIANTS}
-              className="h-10 rounded border border-success-accent/30 bg-success-accent/10 px-4 text-[13px] font-semibold text-success-accent transition-colors hover:bg-success-accent/15 disabled:cursor-default disabled:opacity-40">
-              Add variant
+              className="h-10 rounded border border-success-accent/30 bg-success-accent/10 px-4 text-[13px] font-semibold text-success-accent transition-colors tablet:self-end hover:bg-success-accent/15 disabled:cursor-default disabled:opacity-40">
+              {t("add_variant_action")}
             </button>
           </div>
 
-          <p className="text-[11px] text-white/35">Choose an image on the left, then save it as a variant preview button.</p>
+          <p className="text-[11px] text-white/35">{t("manage_variant_help")}</p>
 
           {variants.length > 0 && (
             <div className="grid gap-2 tablet:grid-cols-2">
@@ -732,14 +756,14 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     </button>
                     <div className="min-w-0 flex-1">
                       <p className="line-clamp-2 text-sm font-medium text-white">{variant.label}</p>
-                      <p className="mt-0.5 text-[11px] text-white/35">Preview variant</p>
+                      <p className="mt-0.5 text-[11px] text-success">{formatCurrency(variant.price)}</p>
                     </div>
                     <button
                       type="button"
                       tabIndex={-1}
                       onClick={() => removeVariant(variant.id)}
                       className="rounded border border-danger/20 bg-danger/8 px-3 py-2 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12">
-                      Remove
+                      {t("remove")}
                     </button>
                   </div>
                 )

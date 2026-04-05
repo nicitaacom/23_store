@@ -21,7 +21,7 @@ import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { formatCurrency } from "@/utils/currencyFormatter"
-import { formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
+import { formatGroupedNumberInput, formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
 import { normalizeProductImageUrls, pt } from "@/utils/product"
 
 interface ManageProductViewProps {
@@ -37,6 +37,7 @@ function normalizeVariantsForDraft(product: TProductDB): TProductVariantDraft[] 
     label: variant.label,
     imageIndex: Math.max(product.img_url.findIndex(image => image === variant.image_url), 0),
     imageDataUrl: variant.image_url,
+    price: variant.price > 0 ? variant.price : product.price,
   }))
 }
 
@@ -59,6 +60,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const [images, setImages] = useState<ImageListType>(() => product.img_url.map(image => ({ data_url: image })))
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [variantLabel, setVariantLabel] = useState("")
+  const [variantPrice, setVariantPrice] = useState("")
   const [variants, setVariants] = useState<TProductVariantDraft[]>(() => normalizeVariantsForDraft(product))
   const [isSaving, setIsSaving] = useState(false)
 
@@ -147,6 +149,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const addVariant = useCallback(() => {
     const normalizedLabel = variantLabel.trim()
     const activeImageDataUrl = images[activeImageIndex]?.data_url
+    const normalizedPrice = parseFormattedNumber(variantPrice)
 
     if (!images.length || !activeImageDataUrl) {
       return toast.show("warning", t("manage_upload_image_first_title"), t("manage_upload_image_first_subtitle"))
@@ -154,6 +157,10 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
     if (!normalizedLabel) {
       return toast.show("warning", t("variant_label"), t("manage_variant_label_required"))
+    }
+
+    if (!Number.isFinite(normalizedPrice) || normalizedPrice <= 0) {
+      return toast.show("warning", t("variant_price"), t("manage_variant_price_required"))
     }
 
     if (variants.length >= MAX_PRODUCT_VARIANTS) {
@@ -171,14 +178,31 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         label: normalizedLabel,
         imageIndex: activeImageIndex,
         imageDataUrl: activeImageDataUrl,
+        price: normalizedPrice,
       },
     ])
     setVariantLabel("")
-  }, [activeImageIndex, images, t, toast, variantLabel, variants.length])
+    setVariantPrice("")
+  }, [activeImageIndex, images, t, toast, variantLabel, variantPrice, variants.length])
 
   const updateVariantLabel = useCallback((variantId: string, nextLabel: string) => {
     setVariants(currentVariants =>
       currentVariants.map(variant => (variant.id === variantId ? { ...variant, label: nextLabel } : variant)),
+    )
+  }, [])
+
+  const updateVariantPrice = useCallback((variantId: string, nextPrice: string) => {
+    const normalizedPrice = parseFormattedNumber(nextPrice)
+
+    setVariants(currentVariants =>
+      currentVariants.map(variant =>
+        variant.id === variantId
+          ? {
+              ...variant,
+              price: Number.isFinite(normalizedPrice) && normalizedPrice > 0 ? normalizedPrice : 0,
+            }
+          : variant,
+      ),
     )
   }, [])
 
@@ -244,11 +268,12 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             id: variant.id,
             label: variant.label.trim(),
             image_url: resolvedImageUrls[imageIndex],
+            price: variant.price > 0 ? variant.price : product.price,
           } satisfies TProductVariant
         })
         .filter((variant): variant is TProductVariant => Boolean(variant))
     },
-    [images, variants],
+    [images, product.price, variants],
   )
 
   const onSubmit = useCallback(
@@ -294,8 +319,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         }
 
         if (normalizedPrice !== product.price) {
-          const responseData = (await postProductUpdate({ productId: nextProductId, price: normalizedPrice })) as { id?: string }
-          nextProductId = responseData.id || nextProductId
+          const responseData = await postProductUpdate({ productId: nextProductId, price: normalizedPrice })
+          nextProductId = responseData.product?.id || nextProductId
         }
 
         toast.show("success", t("changes_saved"), t("manage_product_success"))
@@ -380,6 +405,15 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   disabled={isSaving}
                 />
 
+                <input
+                  value={variant.price > 0 ? formatGroupedNumberInput(String(variant.price)) : ""}
+                  onChange={event => updateVariantPrice(variant.id, event.target.value)}
+                  className="w-full rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
+                  placeholder={t("placeholder.price")}
+                  disabled={isSaving}
+                  inputMode="decimal"
+                />
+
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
@@ -399,7 +433,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           </div>
         )
       }),
-    [assignCurrentImageToVariant, images, isSaving, navigateToImage, removeVariant, t, updateVariantLabel, variants],
+    [assignCurrentImageToVariant, images, isSaving, navigateToImage, removeVariant, t, updateVariantLabel, updateVariantPrice, variants],
   )
 
   return (
@@ -605,7 +639,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
         <section className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
           <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap items-end gap-3">
+            <div className="grid gap-3 mobile:grid-cols-[minmax(0,1fr)_180px_auto]">
               <label className="grid min-w-0 flex-1 gap-1.5">
                 <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_label")}</span>
                 <input
@@ -614,6 +648,18 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   onChange={event => setVariantLabel(event.target.value)}
                   placeholder={t("variant_label")}
                   disabled={isSaving}
+                />
+              </label>
+
+              <label className="grid gap-1.5">
+                <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_price")}</span>
+                <input
+                  className="h-12 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-[15px] text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/20"
+                  value={variantPrice}
+                  onChange={event => setVariantPrice(formatGroupedNumberInput(event.target.value))}
+                  placeholder={t("placeholder.price")}
+                  disabled={isSaving}
+                  inputMode="decimal"
                 />
               </label>
 

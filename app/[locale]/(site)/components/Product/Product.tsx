@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useMemo, useState } from "react"
+import { memo, useEffect, useMemo, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { useCurrentLocale } from "@/locales/client"
@@ -8,6 +8,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getProductGalleryImages, pt } from "@/utils/product"
+import { getProductPriceForVariant } from "@/utils/cartProducts"
 import { ProductQuantity } from "../ProductQuantity"
 import { ProductButtons } from "../ProductButtons"
 import { ProductImage } from "../ProductImage"
@@ -16,8 +17,10 @@ import { RequestReplanishmentButton } from "./RequestReplanishmentButton"
 import Image from "next/image"
 
 type Props = TProductDB & {
+  cartKey?: string
   containerClassName?: string
   showViewButton?: boolean
+  variantId?: string | null
 }
 
 function Product({ ...product }: Props) {
@@ -28,9 +31,15 @@ function Product({ ...product }: Props) {
     () => product.variants?.filter(variant => variant.label && variant.image_url) || [],
     [product.variants],
   )
-  const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id || "")
+  const [selectedVariantId, setSelectedVariantId] = useState(product.variantId || variants[0]?.id || "")
   const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
   const previewImages = useMemo(() => getProductGalleryImages(product), [product.img_url])
+  const selectedPrice = getProductPriceForVariant(product, selectedVariant?.id)
+  const isVariantSelectionLocked = Boolean(product.cartKey)
+
+  useEffect(() => {
+    setSelectedVariantId(product.variantId || variants[0]?.id || "")
+  }, [product.variantId, variants])
 
   return (
     <article
@@ -58,7 +67,7 @@ function Product({ ...product }: Props) {
             <div className="flex items-center gap-x-3 px-3 py-1.5 rounded border border-success/20 bg-success/10 shrink-0">
               <span className="text-sm text-subTitle font-medium whitespace-nowrap">Price:</span>
               <h1 className="text-xl mobile:text-2xl text-success font-bold tracking-tight whitespace-nowrap">
-                {formatCurrency(product.price)}
+                {formatCurrency(selectedPrice)}
               </h1>
             </div>
           </div>
@@ -85,32 +94,53 @@ function Product({ ...product }: Props) {
                 <p className="text-sm font-medium text-title">
                   Variant: <span className="text-success">{selectedVariant?.label}</span>
                 </p>
-                <div className="flex flex-row gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-border-color/30">
-                  {variants.map(variant => {
-                    const isActive = variant.id === selectedVariant?.id
-                    return (
-                      <button
-                        key={variant.id}
-                        type="button"
-                        onClick={() => setSelectedVariantId(variant.id)}
-                        className={twMerge(
-                          "flex shrink-0 items-center gap-2 rounded-xl border px-2 py-2 text-left transition-all duration-200",
-                          isActive
-                            ? "border-success/40 bg-success/10 text-title shadow-[0_0_0_1px_rgba(34,197,94,0.18)]"
-                            : "border-border-color/20 bg-background/40 text-subTitle hover:border-success/25 hover:bg-success/5",
-                        )}>
-                        <Image
-                          className="h-11 w-11 rounded-lg object-cover"
-                          width={512}
-                          height={512}
-                          src={variant.image_url}
-                          alt={variant.label}
-                        />
-                        <span className="max-w-[130px] text-sm font-medium leading-5">{variant.label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
+                {isVariantSelectionLocked ? (
+                  <div className="flex w-fit items-center gap-2 rounded-xl border border-success/30 bg-success/8 px-2 py-2">
+                    {selectedVariant?.image_url && (
+                      <Image
+                        className="h-11 w-11 rounded-lg object-cover"
+                        width={512}
+                        height={512}
+                        src={selectedVariant.image_url}
+                        alt={selectedVariant.label}
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <span className="block max-w-[130px] text-sm font-medium leading-5">{selectedVariant?.label}</span>
+                      <span className="text-xs text-success">{formatCurrency(selectedPrice)}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-row gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-border-color/30">
+                    {variants.map(variant => {
+                      const isActive = variant.id === selectedVariant?.id
+                      return (
+                        <button
+                          key={variant.id}
+                          type="button"
+                          onClick={() => setSelectedVariantId(variant.id)}
+                          className={twMerge(
+                            "flex shrink-0 items-center gap-2 rounded-xl border px-2 py-2 text-left transition-all duration-200",
+                            isActive
+                              ? "border-success/40 bg-success/10 text-title shadow-[0_0_0_1px_rgba(34,197,94,0.18)]"
+                              : "border-border-color/20 bg-background/40 text-subTitle hover:border-success/25 hover:bg-success/5",
+                          )}>
+                          <Image
+                            className="h-11 w-11 rounded-lg object-cover"
+                            width={512}
+                            height={512}
+                            src={variant.image_url}
+                            alt={variant.label}
+                          />
+                          <div className="min-w-0">
+                            <span className="block max-w-[130px] text-sm font-medium leading-5">{variant.label}</span>
+                            <span className="text-xs text-success">{formatCurrency(variant.price)}</span>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -119,13 +149,13 @@ function Product({ ...product }: Props) {
         <section
           className={`min-h-[50px] min-w-0 flex flex-col tablet:flex-row gap-y-3 gap-x-4
           ${isOutOfStock ? "justify-end" : "justify-between"}`}>
-          {!isOutOfStock && <ProductQuantity productId={product.id} productPrice={product.price} />}
+          {!isOutOfStock && <ProductQuantity productId={product.id} productPrice={selectedPrice} variantId={selectedVariant?.id} />}
           {isOutOfStock ? (
             <div className="flex flex-row justify-center tablet:justify-end items-end">
               <RequestReplanishmentButton product={product} />
             </div>
           ) : (
-            <ProductButtons ownerId={product.owner_id} productId={product.id} showViewButton={product.showViewButton} />
+            <ProductButtons ownerId={product.owner_id} productId={product.id} showViewButton={product.showViewButton} variantId={selectedVariant?.id} />
           )}
         </section>
       </div>
