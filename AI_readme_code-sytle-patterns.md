@@ -2,7 +2,9 @@
 
 Use this as the default style when generating code for this project.
 
-## SDK-first API rule
+Stack check in `package.json`
+
+## 1. Code patterns for SDK - API rule
 
 When fetching internal app data, do not call `fetch("/api/...")` directly from feature code if it belongs to a real entity/domain.
 
@@ -92,15 +94,229 @@ updateDBProduct
 deleteDBProduct
 ```
 
-## Core stack
+## 2. Code patterns for hook-set hook-auto-update
 
-- Next.js 14
-- TypeScript
-- Tailwind
-- Zustand
-- Server Actions
-- Supabase
-- `tailwind-merge`, `react-icons`, `lodash` when useful
+### hook-set
+
+```ts
+import { useCallback, useEffect, useState } from "react"
+
+import useToast from "@/store/useToast"
+import useAccountsStore from "@/store/useAccountsStore"
+import { EmailsSDK } from "@/classes/Emails/EmailsSDK"
+import { useEnvs } from "@/store/useEnvs"
+import { useMailboxes } from "../../../stores/useMailboxes"
+
+export const useSetMailboxes = () => {
+  const toast = useToast()
+  const { userId } = useAccountsStore()
+  const emailsSDK = new EmailsSDK()
+
+  const [isSkeleton, setIsSkeleton] = useState(false)
+
+  const { encryptedEnvsClient } = useEnvs()
+  const { setMailboxes } = useMailboxes()
+
+  const refetchMailboxes = useCallback(async () => {
+    try {
+      setIsSkeleton(true)
+      const response = await emailsSDK.getSESMailboxes(encryptedEnvsClient)
+      if (typeof response === "string") return toast.show("error", "", response)
+      setMailboxes(response)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      toast.show("error", "Failed to fetch mailboxes", errorMessage)
+    } finally {
+      setIsSkeleton(false)
+    }
+  }, [userId])
+
+  useEffect(() => {
+    refetchMailboxes()
+  }, []) // do it once - then only if user click "refetch" button
+
+  return { isSkeleton, refetchMailboxes }
+}
+```
+
+### hook-auto-update
+
+```ts
+"use client"
+
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useEnvs } from "@/store/useEnvs"
+import { useAIModels } from "@/components/Modals/AccountModal/AccountTabs/EmailSettingsTab/components/AIRules/hooks/useAIModels"
+import { TAIModel } from "@/widgets/AIModelsDropdown/TAIModel"
+import { AI_CONFIG } from "@/consts/aiModels"
+import { useAIPrettifySettingsModal } from "../../store/useAIPrettifySettingsModal"
+import { useDebounce } from "@/hooks/useDebounde"
+import { useLoading } from "@/store/useLoading"
+import { useAIPrettify } from "../../store/useAIPrettify"
+
+const DEFAULT_PROVIDER = Object.keys(AI_CONFIG)[0] as TAIModel
+
+export function useAIPrettifySettings() {
+  const { encryptedEnvsClient, isEECLengthValid } = useEnvs()
+
+  const {
+    isOpen,
+    updateStatus,
+    setUpdateStatus,
+    setError,
+    providerValue,
+    modelValue,
+    instructionsValue,
+    apiKeyValue,
+    setProviderValue,
+    setModelValue,
+    setInstructionsValue,
+    setApiKeyValue,
+  } = useAIPrettifySettingsModal()
+
+  const {
+    setSelectedModel,
+    setSelectedProvider,
+    setUserInstructions,
+    selectedModel,
+    selectedProvider,
+    userInstructions,
+    apiKeys,
+    setApiKeys,
+  } = useAIPrettify()
+
+  const { setIsLoading } = useLoading()
+
+  const activeProvider: TAIModel = providerValue || DEFAULT_PROVIDER
+  const { isSkeleton } = useAIModels(activeProvider)
+
+  const hasMountedRef = useRef(false)
+  const isSavingRef = useRef(false)
+
+  // 1. Single fetch (settings + ALL keys)
+  useEffect(() => {
+    if (!isOpen) {
+      hasMountedRef.current = false
+      setApiKeyValue("")
+      return
+    }
+
+    if (!isEECLengthValid()) return
+
+    const setSettingsFn = async () => {
+      try {
+        setIsLoading(true)
+
+        setProviderValue(selectedProvider)
+        setModelValue(selectedModel)
+        setInstructionsValue(userInstructions)
+
+        setApiKeyValue("")
+      } catch (error) {
+        setError(error instanceof Error ? error.message : String(error))
+      } finally {
+        setIsLoading(false)
+        hasMountedRef.current = true
+      }
+    }
+
+    setSettingsFn()
+  }, [isOpen, encryptedEnvsClient])
+
+  // 2. derived current key (NO fetch)
+  const fetchedApiKey = apiKeys[providerValue || DEFAULT_PROVIDER] ?? ""
+
+  // 3. dirty check
+  const isDirty =
+    providerValue !== selectedProvider ||
+    modelValue !== selectedModel ||
+    instructionsValue !== userInstructions ||
+    apiKeyValue.length > 0
+
+  const debouncedSnapshot = useDebounce(JSON.stringify({ providerValue, modelValue, instructionsValue, apiKeyValue }), 2000)
+
+  // 4. save
+  const saveFn = useCallback(async (): Promise<boolean> => {
+    if (!isEECLengthValid() || isSavingRef.current || !providerValue) return false
+
+    isSavingRef.current = true
+    setUpdateStatus("updating")
+
+    try {
+      const resp = await fetch("/api/ai-prettify/settings/upd", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          encryptedEnvsClient,
+          selectedProvider: providerValue,
+          selectedModel: modelValue || undefined,
+          userInstructions: instructionsValue,
+          rawAPIKey: apiKeyValue || undefined,
+        }),
+      })
+
+      const result: API.AIPrettifySettingsUpdResponse = await resp.json()
+      if ("error" in result) throw Error(result.error)
+
+      setSelectedProvider(providerValue)
+      if (modelValue) setSelectedModel(modelValue)
+      setUserInstructions(instructionsValue)
+
+      // ✅ update local cache (no refetch)
+      if (apiKeyValue) {
+        setApiKeys({ ...apiKeys, [providerValue]: apiKeyValue })
+        setApiKeyValue("")
+      }
+
+      setUpdateStatus("success")
+      setTimeout(() => setUpdateStatus("idle"), 2000)
+      return true
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error))
+      setUpdateStatus("idle")
+      return false
+    } finally {
+      isSavingRef.current = false
+    }
+  }, [encryptedEnvsClient, providerValue, modelValue, instructionsValue, apiKeyValue])
+
+  const saveFnRef = useRef(saveFn)
+
+  useEffect(() => {
+    saveFnRef.current = saveFn
+  }, [saveFn])
+
+  // 5. autosave
+  useEffect(() => {
+    if (!hasMountedRef.current || !isOpen || !isDirty) return
+    saveFnRef.current()
+  }, [debouncedSnapshot])
+
+  const handleProviderChange = useCallback(
+    (provider: TAIModel) => {
+      setProviderValue(provider)
+      setModelValue("")
+      setApiKeyValue("")
+    },
+    [setProviderValue, setModelValue],
+  )
+
+  return {
+    providerValue: activeProvider,
+    modelValue,
+    instructionsValue,
+    apiKeyValue,
+    fetchedApiKey, // ✅ derived
+    handleProviderChange,
+    setModelValue,
+    setInstructionsValue,
+    setApiKeyValue,
+    updateStatus,
+    isDirty,
+    isSkeleton,
+  }
+}
+```
 
 ## Code style rules
 
@@ -116,6 +332,14 @@ deleteDBProduct
 9. Use `useEffect` only when needed and keep side effects in hooks, not components.
 10. Keep UI minimalistic: small gaps, compact paddings, clean borders, soft blur, subtle shadows.
 11. For Zustand, do not use selector style like `useStore(state => state.value)`. Use `const { value, action } = useStore()` and derive values after destructuring.
+12. When subscribing to a Pusher channel, always reuse an existing channel instead of creating a
+    duplicate subscription. Use `pusherClient.channels?.find(channelName) ?? pusherClient.subscribe(channelName)`.
+13. Before binding a Pusher event handler, always call `pusherClient.unbind(eventName)` (no
+    handler argument) to hard-reset and guarantee no duplicate handlers accumulate across
+    re-renders or StrictMode double-invocations.
+14. Each distinct realtime concern (typing indicator, ticket updates, message updates, etc.) must
+    live in its own hook file. Do not merge multiple Pusher event groups into one hook or one
+    component `useEffect`.
 
 ## General architecture
 
