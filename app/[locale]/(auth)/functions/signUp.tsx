@@ -6,7 +6,7 @@ import { UseFormGetValues, UseFormSetFocus } from "react-hook-form"
 import { Timer } from "../AuthModal/components"
 import { Button } from "@/components/ui"
 import { resendVerificationEmail } from "./resendVerificationEmail"
-import { getPusherClient } from "@/libs/pusher"
+import { subscribePusherChannel } from "@/libs/pusher"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
 import { UnknownError } from "./UnknownError"
@@ -25,14 +25,12 @@ export async function signUp(
   locale: string,
 ) {
   try {
-    const pusherClient = getPusherClient()
-
     await accountSDK.signUp({ username, email, password })
 
     setIsEmailSent(true)
     if (getValues("email")) {
       // subscribe pusher to email channel to show message like 'auth completed'
-      pusherClient.subscribe(getValues("email"))
+      subscribePusherChannel(getValues("email"))
     }
     setResponseMessage(<p className="text-success">{t("auth.register.email_confirmation_required")}</p>)
     setTimeout(() => {

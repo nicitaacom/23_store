@@ -24,14 +24,14 @@ export function DesktopSidebarTicket({ ticket, unseenMessagesAmount, onClick }: 
   return (
     <Link
       className={twMerge(
-        "group relative flex items-start gap-3 rounded-xl border border-transparent bg-transparent px-3 py-3 transition-colors duration-150 hover:border-border-color/25 hover:bg-background/35",
-        ticketId === ticket.id && "border-border-color/40 bg-background/60",
+        "group relative flex items-start gap-2 rounded-md border border-transparent bg-background/20 px-2.5 py-2.5 transition-colors duration-150 hover:border-border-color/35 hover:bg-background/45",
+        ticketId === ticket.id && "border-border-color/45 bg-background/60",
       )}
       href={`/support/tickets/${ticket.id}`}
       key={ticket.id}
       onClick={onClick}>
       <Image
-        className="h-10 w-10 rounded-xl border border-border-color/35 object-cover"
+        className="h-10 w-10 rounded-md border border-border-color/35 object-cover"
         src={avatar_url}
         alt="Owner avatar"
         width={40}
@@ -40,17 +40,17 @@ export function DesktopSidebarTicket({ ticket, unseenMessagesAmount, onClick }: 
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-start gap-2">
-          <h3 className={twMerge("min-w-0 flex-1 truncate text-sm font-semibold text-title", unseenMessagesAmount === 0 && "text-title")}>
+          <h3 className="min-w-0 flex-1 truncate text-sm font-semibold text-title">
             {ticket.owner_username}
           </h3>
           {unseenMessagesAmount > 0 && (
-            <span className="rounded-full border border-info/20 bg-info/90 px-2 py-0.5 text-[11px] font-semibold leading-5 text-title-foreground">
+            <span className="rounded border border-info/20 bg-info/90 px-1.5 py-0.5 text-[11px] font-semibold leading-5 text-title-foreground">
               {unseenMessagesAmount > 99 ? "99+" : unseenMessagesAmount}
             </span>
           )}
         </div>
-        <p className="mt-1 truncate text-xs leading-5 text-subTitle">{ticket.last_message_body || "No messages yet"}</p>
-        <div className="mt-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-subTitle/75">
+        <p className="mt-1 truncate text-xs text-subTitle">{ticket.last_message_body || "No messages yet"}</p>
+        <div className="mt-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-subTitle/75">
           <span>Ticket</span>
           <span className="h-1 w-1 rounded-full bg-subTitle/40" />
           <span>#{ticket.id.slice(0, 8)}</span>

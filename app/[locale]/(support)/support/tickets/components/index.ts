@@ -1,3 +1,4 @@
+export { SupportTicketsSidebar } from "./SupportTicketsSidebar"
 export { DesktopSidebar } from "./DesktopSidebar"
 export { DesktopSidebarTicket } from "./DesktopSidebarTicket"
 

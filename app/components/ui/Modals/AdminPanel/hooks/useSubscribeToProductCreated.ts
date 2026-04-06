@@ -2,7 +2,7 @@
 
 import { MutableRefObject, useEffect, useRef } from "react"
 
-import { getPusherClient } from "@/libs/pusher"
+import { getPusherClient, subscribePusherChannel } from "@/libs/pusher"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { createRawProductTranslations } from "@/utils/product"
@@ -69,6 +69,7 @@ export function useSubscribeToProductCreated({
 
   useEffect(() => {
     const pusherClient = getPusherClient()
+    const channelName = "products"
 
     const productCreatedHandler = (payload: ProductCreatedEventPayload) => {
       if (!payload?.id || !payload?.price_id || !payload?.owner_id || !payload?.title) return
@@ -102,12 +103,13 @@ export function useSubscribeToProductCreated({
       decreasePendingTranslationsRef.current(true)
     }
 
-    pusherClient.subscribe("products")
+    subscribePusherChannel(channelName)
+    pusherClient.unbind("product:created")
     pusherClient.bind("product:created", productCreatedHandler)
 
     return () => {
-      pusherClient.unsubscribe("products")
       pusherClient.unbind("product:created", productCreatedHandler)
+      pusherClient.unsubscribe(channelName)
     }
   }, [pendingCreatedProductsRef])
 }

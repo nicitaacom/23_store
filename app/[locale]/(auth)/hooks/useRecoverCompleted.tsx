@@ -14,13 +14,16 @@ export const useRecoverCompleted = (
   // Show 'Recover completed' if user changed password in another window
   useEffect(() => {
     const pusherClient = getPusherClient()
-    function recoverCompletedHandler() {
+    const recoverCompletedHandler = () => {
       setIsRecoverCompleted(true)
       router.refresh()
     }
 
     if (isRecoverCompleted) router.push("?modal=AuthModal&variant=recoverCompleted")
-    else pusherClient.bind("recover:completed", recoverCompletedHandler)
+    else {
+      pusherClient.unbind("recover:completed")
+      pusherClient.bind("recover:completed", recoverCompletedHandler)
+    }
 
     return () => {
       if (getValues("email")) {

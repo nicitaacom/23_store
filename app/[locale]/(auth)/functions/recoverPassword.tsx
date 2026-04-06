@@ -5,7 +5,7 @@ import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { AuthFormData } from "../AuthModal/AuthModal"
 import { Button } from "@/components/ui"
-import { getPusherClient } from "@/libs/pusher"
+import { subscribePusherChannel } from "@/libs/pusher"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UnknownError } from "./UnknownError"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
@@ -18,8 +18,6 @@ export async function recoverPassword(
   locale: string,
 ) {
   try {
-    const pusherClient = getPusherClient()
-
     await accountSDK.recoverPassword(email)
 
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
@@ -29,7 +27,7 @@ export async function recoverPassword(
 
     // subscribe pusher to email channel to show message like 'password recovered - stay safe'
     if (getValues("email")) {
-      pusherClient.subscribe(getValues("email"))
+      subscribePusherChannel(getValues("email"))
     }
 
     // Save email in localstorage to trigger pusher for this channel (api/auth/recover) (expires in 5 min)

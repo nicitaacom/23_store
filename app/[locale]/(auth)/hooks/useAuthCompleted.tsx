@@ -10,11 +10,12 @@ export const useAuthCompleted = (
   getValues: UseFormGetValues<AuthFormData>,
 ) => {
   const router = useRouter()
-   const pusherClient = getPusherClient()
+  const pusherClient = getPusherClient()
 
   useEffect(() => {
-    function authCompletedHandler() {
+    const authCompletedHandler = () => {
       setIsAuthCompleted(true)
+
       setTimeout(() => {
         // this timeout required to set avatarUrl
         router.refresh()
@@ -22,7 +23,10 @@ export const useAuthCompleted = (
     }
 
     if (isAuthCompleted) router.push("?modal=AuthModal&variant=authCompleted")
-    else pusherClient.bind("auth:completed", authCompletedHandler)
+    else {
+      pusherClient.unbind("auth:completed")
+      pusherClient.bind("auth:completed", authCompletedHandler)
+    }
 
     return () => {
       if (getValues("email")) {

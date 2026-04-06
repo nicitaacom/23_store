@@ -17,3 +17,9 @@ export const getPusherClient = () => {
   }
   return pusherClientInstance
 }
+
+export const subscribePusherChannel = (channelName: string) => {
+  const pusherClient = getPusherClient()
+
+  return pusherClient.channels?.find(channelName) ?? pusherClient.subscribe(channelName)
+}
