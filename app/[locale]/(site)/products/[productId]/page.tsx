@@ -18,7 +18,7 @@ interface ProductPageProps {
 }
 
 const getProductById = cache(async (productId: string) => {
-  const productResponse = await supabaseServer().from("products").select("*").eq("id", productId).maybeSingle()
+  const productResponse = await supabaseServer().from("23_products").select("*").eq("id", productId).maybeSingle()
 
   if (productResponse.error) {
     throw productResponse.error

@@ -13,7 +13,9 @@ export async function GET(request: Request) {
   // get data about provider to save it in DB to throw error like
   // 'You already have signed in account with google - continue with google?'
   const provider = requestUrl.searchParams.get("provider")
-  const cookieNames = cookies().getAll().map(cookie => cookie.name)
+  const cookieNames = cookies()
+    .getAll()
+    .map(cookie => cookie.name)
 
   console.log("[auth:oauth][route] callback received", {
     pathname: requestUrl.pathname,
@@ -63,7 +65,7 @@ export async function GET(request: Request) {
       let avatarUrl = avatarUrlFromAuth
 
       // 3. Insert row if user doesn't exist
-      const { error: is_row_exist } = await supabaseAdmin.from("users").insert({
+      const { error: is_row_exist } = await supabaseAdmin.from("23_users").insert({
         id: user_id,
         username: username,
         email: email,
@@ -82,12 +84,12 @@ export async function GET(request: Request) {
       if (is_row_exist) {
         // 4. If provider_response !=== provider - add one more provider
         // For case when user signIn with google first and then with the same email with twitter
-        const { data: provider_response } = await supabaseAdmin.from("users").select("providers").eq("id", user_id).single()
+        const { data: provider_response } = await supabaseAdmin.from("23_users").select("providers").eq("id", user_id).single()
         // Check is provider exist (for case if user login 2 times with the same provider)
         const existingProvider = provider_response?.providers?.filter(providerLabel => providerLabel === provider)
         if (!existingProvider![0]) {
           const { error: update_provider_error } = await supabaseAdmin
-            .from("users")
+            .from("23_users")
             .update({ providers: [...provider_response?.providers!, provider!] })
             .eq("id", response.data.user.id)
           if (update_provider_error) throw update_provider_error
@@ -97,7 +99,7 @@ export async function GET(request: Request) {
         // For case if user have no avatar and signIn with oauth where user have avatar_url
         // TOTO - signIn with credentials - logout - login with oauth where !avatar_url
         const { data: avatar_url_reponse, error: select_avatar_url_error } = await supabaseAdmin
-          .from("users")
+          .from("23_users")
           .select("avatar_url")
           .eq("email", email)
           .single()
@@ -106,7 +108,7 @@ export async function GET(request: Request) {
         avatarUrl = getPreferredAvatarUrl(avatar_url_reponse?.avatar_url, response.data.user)
         if (!avatar_url_reponse?.avatar_url) {
           await supabaseAdmin
-            .from("users")
+            .from("23_users")
             .update({
               email_confirmed_at: response.data.user.updated_at,
               avatar_url: avatarUrlFromAuth || null,
@@ -115,7 +117,7 @@ export async function GET(request: Request) {
         }
       } else {
         // If row doesn't exist - this user login with OAuth first time so he haven't rows in other tables
-        await supabaseAdmin.from("users_cart").insert({ id: user_id })
+        await supabaseAdmin.from("23_users_cart").insert({ id: user_id })
       }
 
       const redirectTarget = getLocalizedAppUrl(requestUrl)

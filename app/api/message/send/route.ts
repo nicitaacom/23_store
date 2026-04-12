@@ -56,8 +56,8 @@ export async function POST(req: Request) {
   // supabaseAdmin because I don't want any user with ANON_KEY abuse way to send messages (smsBomber protecting)
   // see more (use subtitles if needed) - https://www.youtube.com/watch?v=voy5_XGETMc&ab_channel=overbafer1
 
-  // 1. Insert message in table 'messages'
-  const { error: messages_error } = await supabaseAdmin.from("messages").insert(newMessage)
+  // 1. Insert message in table '23_messages'
+  const { error: messages_error } = await supabaseAdmin.from("23_messages").insert(newMessage)
   if (messages_error) {
     console.log(44, "error inserting newMessage - ", messages_error.message)
     if (messages_error.message !== "TypeError: fetch failed") return
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
 
   // 2. Update ticket in DB - last_message_body and is_open
   const { error: tickets_error } = await supabaseAdmin
-    .from("tickets")
+    .from("23_tickets")
     .update({ last_message_body: messageBody })
     .eq("id", ticketId)
   if (tickets_error) {

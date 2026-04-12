@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data: product, error: selectProductError } = await supabase
-      .from("products")
+      .from("23_products")
       .select("id, owner_id, price_id, img_url")
       .eq("id", id)
       .limit(1)
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { error: deleteProductError } = await supabase.from("products").delete().eq("id", id)
+    const { error: deleteProductError } = await supabase.from("23_products").delete().eq("id", id)
     if (deleteProductError) {
       throw new Error(
         `Delete from 'products' table \n Path:/api/products/delete/route.ts \n Error message:\n ${deleteProductError.message}`,

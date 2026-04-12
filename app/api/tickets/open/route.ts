@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   const timestampString = now.toISOString().replace("T", " ").replace("Z", "+00")
 
   // 1. Insert new ticket in 'tickets' table
-  const { error } = await supabaseAdmin.from("tickets").insert({
+  const { error } = await supabaseAdmin.from("23_tickets").insert({
     id: ticketId,
     created_at: timestampString,
     owner_id: ownerId,

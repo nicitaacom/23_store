@@ -27,7 +27,7 @@ export async function generateMetadata({ searchParams: { query } }: SearchPagePr
 }
 
 export default async function SearchPage({ searchParams: { query } }: SearchPageProps) {
-  const products_response = await supabaseServer().from("products").select("*").order("price", { ascending: true })
+  const products_response = await supabaseServer().from("23_products").select("*").order("price", { ascending: true })
   if (products_response.error) throw products_response.error
   const products = filterProductsBySearchQuery(normalizeProducts(products_response.data), query)
 

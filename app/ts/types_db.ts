@@ -8,7 +8,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      messages: {
+      "23_messages": {
         Row: {
           body: string
           created_at: string
@@ -44,7 +44,7 @@ export type Database = {
         }
         Relationships: []
       }
-      products: {
+      "23_products": {
         Row: {
           id: string
           img_url: string[]
@@ -77,7 +77,7 @@ export type Database = {
         }
         Relationships: []
       }
-      tickets: {
+      "23_tickets": {
         Row: {
           created_at: string
           id: string
@@ -110,7 +110,7 @@ export type Database = {
         }
         Relationships: []
       }
-      users: {
+      "23_users": {
         Row: {
           avatar_url: string | null
           created_at: string
@@ -143,7 +143,7 @@ export type Database = {
         }
         Relationships: []
       }
-      users_cart: {
+      "23_users_cart": {
         Row: {
           cart_products: Json
           created_at: string

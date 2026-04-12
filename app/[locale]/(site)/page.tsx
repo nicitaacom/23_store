@@ -20,7 +20,7 @@ interface SearchProps {
 }
 
 const fetchProducts = cache(async () => {
-  const products = await supabaseServer().from("products").select("*").order("price", { ascending: true })
+  const products = await supabaseServer().from("23_products").select("*").order("price", { ascending: true })
   if (!products) notFound()
   return products
 })

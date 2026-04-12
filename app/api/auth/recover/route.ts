@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   try {
     // Check is user with this email doesn't exist
     const { data: email_response, error: emailSelectError } = await supabaseAdmin
-      .from("users")
+      .from("23_users")
       .select("email,email_confirmed_at")
       .eq("email", body.email)
       .single()

@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   const { userId } = (await req.json()) as TAPITicketGetTicketIdRequest
 
   const { data: ticket_id } = await supabaseAdmin
-    .from("tickets")
+    .from("23_tickets")
     .select("id")
     .eq("owner_username", userId) // TODO - what? WTF? - like owner_username it's owner username but it's defenitely NOT userId
     // how to even supposed to work with anonymousId and userId - you should have separated logic for that or separated "tickets" tables in DB

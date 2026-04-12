@@ -35,9 +35,9 @@ export async function POST(req: Request) {
   // 2. Array of unseen message ids (to update it in supabase)
   const unseenMessageIds = messages.filter(message => message.sender_id !== userId && !message.seen).map(message => message.id)
 
-  // 3. Update seen:true in 'messages' table
+  // 3. Update seen:true in '23_messages' table
   if (unseenMessageIds.length !== 0) {
-    const { error: messages_error } = await supabaseAdmin.from("messages").update({ seen: true }).in("id", unseenMessageIds)
+    const { error: messages_error } = await supabaseAdmin.from("23_messages").update({ seen: true }).in("id", unseenMessageIds)
     if (messages_error) {
       console.log(35, "error updating seen message - ", messages_error)
       return NextResponse.json({ error: `ERROR_UPDATING_MESSAGE \n ${messages_error}` })

@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   }
 
   const { error } = await supabaseAdmin
-    .from("users")
+    .from("23_users")
     .update({ avatar_url: avatarUrl || null })
     .eq("id", user.id)
 

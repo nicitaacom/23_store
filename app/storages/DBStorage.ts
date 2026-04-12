@@ -9,7 +9,7 @@ export class DBStorage extends Storage {
     const userId = getUserId()
 
     const { error } = await supabaseClient
-      .from("users_cart")
+      .from("23_users_cart")
       .update({ cart_products: cartProducts as unknown as Json })
       .eq("id", userId)
     if (error) {
@@ -19,7 +19,7 @@ export class DBStorage extends Storage {
   }
 
   async getProducts(): Promise<TRecordCartProduct> {
-    const cartDB_response = await supabaseClient.from("users_cart").select("cart_products").single()
+    const cartDB_response = await supabaseClient.from("23_users_cart").select("cart_products").single()
     const cartDB = cartDB_response.data?.cart_products as unknown as TRecordCartProduct
     return cartDB
   }

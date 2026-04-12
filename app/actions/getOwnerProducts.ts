@@ -10,7 +10,7 @@ const getOwnerProducts = async () => {
   }
 
   const { data } = await supabaseServer()
-    .from("products")
+    .from("23_products")
     .select("*")
     .eq("owner_id", user.id)
     .order("price", { ascending: true })

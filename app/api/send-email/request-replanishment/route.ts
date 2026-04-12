@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   const { owner_id, subject, html } = (await req.json()) as TAPISendEmailRequestReplanishment
 
   try {
-    const { data: owner_email_response } = await supabaseAdmin.from("users").select("email").eq("id", owner_id).single()
+    const { data: owner_email_response } = await supabaseAdmin.from("23_users").select("email").eq("id", owner_id).single()
 
     if (owner_email_response?.email) {
       await resend.emails.send({

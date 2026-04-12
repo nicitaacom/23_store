@@ -47,7 +47,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     const productsRecord = get().products
     const existingProductsRecord = await keepExistingProductsRecord(productsRecord)
     const ids = [...new Set(Object.values(existingProductsRecord).map(product => product.id).filter(Boolean))]
-    const cart_products_data_response = await supabaseClient.from("products").select().in("id", ids)
+    const cart_products_data_response = await supabaseClient.from("23_products").select().in("id", ids)
     const cart_products = normalizeProducts(cart_products_data_response.data ?? []) // get data from DB product with ids
     const productMap = new Map(cart_products.map(product => [product.id, product]))
 
@@ -172,7 +172,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     if (!products || Object.keys(products).length === 0) return {}
 
     const ids = [...new Set(Object.values(products).map(product => product.id).filter(Boolean))]
-    const { data: existing_ids_response } = await supabaseClient.from("products").select("id").in("id", ids)
+    const { data: existing_ids_response } = await supabaseClient.from("23_products").select("id").in("id", ids)
     const existing_ids = existing_ids_response ?? [] // array with existing objects id in DB [{id:'prod_id'}]
     const updatedIds = existing_ids.map(productData => productData.id) // string[] ['id']
 
@@ -189,7 +189,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     const { user } = useUserStore.getState()
     if (user?.id && isNotExistingProductFound) {
       const { error: update_cart_food_error } = await supabaseClient
-        .from("users_cart")
+        .from(\"23_users_cart\")
         .update({ cart_products: filtered_products as unknown as Json })
         .eq("id", user.id)
       if (update_cart_food_error) throw update_cart_food_error

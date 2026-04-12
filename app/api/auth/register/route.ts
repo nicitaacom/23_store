@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server"
 
-import { getURL } from "@/utils/helpers"
-
 import list from "disposable-email-domains"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
@@ -31,7 +29,7 @@ export async function POST(req: Request) {
 
     // 2. Check if user with this email already exists with verified email
     const { data: email_response } = await supabaseAdmin
-      .from("users")
+      .from("23_users")
       .select("email,email_confirmed_at")
       .eq("email", email)
       .single()
@@ -70,8 +68,8 @@ export async function POST(req: Request) {
     // from 'auth.users' if you not verify your email and login with oauth
     // (without 'encrypted_password' supabase don't let you login)
     if (user && user.user?.id) {
-      await supabaseAdmin.from("users").insert({ id: user.user.id, username: username, email: email })
-      await supabaseAdmin.from("users_cart").insert({ id: user.user.id })
+      await supabaseAdmin.from("23_users").insert({ id: user.user.id, username: username, email: email })
+      await supabaseAdmin.from("23_users_cart").insert({ id: user.user.id })
     } else {
       throw new Error("After signUp - user doesn't exist - try again")
     }

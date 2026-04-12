@@ -210,11 +210,56 @@ I haven't a lot of utils now so right now there is no folder structure for that 
 
 ## DB tables
 
+### utm_stats table (SHARED)
+
+This project shares the `utm_stats` table with projects: 14_portfolio, 28_notion-clone, and 29_ai-companion.
+
+```sql
+-- =================================== 📊 utm_stats table (SHARED across 14, 23, 28, 29) ===================================
+-- Unified UTM tracking across all portfolio projects
+
+CREATE TABLE IF NOT EXISTS public.utm_stats (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  user_id     TEXT NOT NULL,
+  source      TEXT,
+  medium      TEXT,
+  campaign    TEXT,
+  url         TEXT,
+  user_agent  TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_utm_stats_created_at ON public.utm_stats(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_utm_stats_user_id    ON public.utm_stats(user_id);
+CREATE INDEX IF NOT EXISTS idx_utm_stats_source     ON public.utm_stats(source);
+CREATE INDEX IF NOT EXISTS idx_utm_stats_campaign   ON public.utm_stats(campaign);
+
+-- 🔐 RLS Policies
+ALTER TABLE public.utm_stats ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'utm_stats' AND policyname = 'Allow select for everyone') THEN
+        CREATE POLICY "Allow select for everyone" ON public.utm_stats FOR SELECT USING (true);
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'utm_stats' AND policyname = 'Allow insert for everyone') THEN
+        CREATE POLICY "Allow insert for everyone" ON public.utm_stats FOR INSERT WITH CHECK (true);
+    END IF;
+END
+$$;
+
+ALTER TABLE public.utm_stats FORCE ROW LEVEL SECURITY;
+
+-- ⚠️ SHARED TABLE: Projects 14_portfolio, 23_store, 28_notion-clone, 29_ai-companion use this same utm_stats table
+-- All UTM tracking data is aggregated in a single shared Supabase table
+```
+
 <details> <summary><b>SQL query for all DB</b></summary>
 
 ```sql
 -- 👥 Users Table (created first for foreign key dependencies)
-CREATE TABLE IF NOT EXISTS public.users (
+CREATE TABLE IF NOT EXISTS public.23_users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   username TEXT NOT NULL,
@@ -226,11 +271,11 @@ CREATE TABLE IF NOT EXISTS public.users (
 );
 
 -- 🔐 RLS Policies for Users
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Self select" ON users FOR SELECT USING (id = auth.uid());
+ALTER TABLE 23_users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Self select" ON 23_users FOR SELECT USING (id = auth.uid());
 
 -- 🎫 Tickets Table
-CREATE TABLE IF NOT EXISTS public.tickets (
+CREATE TABLE IF NOT EXISTS public.23_tickets (
   id TEXT NOT NULL PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   is_open BOOLEAN NOT NULL DEFAULT true,
@@ -242,17 +287,17 @@ CREATE TABLE IF NOT EXISTS public.tickets (
 );
 
 -- 🔐 RLS Policies for Tickets
-ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "SUPPORT/ADMIN all access" ON tickets FOR ALL USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('SUPPORT', 'ADMIN'))
+ALTER TABLE 23_tickets ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "SUPPORT/ADMIN all access" ON 23_tickets FOR ALL USING (
+  EXISTS (SELECT 1 FROM 23_users WHERE id = auth.uid() AND role IN ('SUPPORT', 'ADMIN'))
 );
 
 -- 💬 Messages Table
-CREATE TABLE IF NOT EXISTS public.messages (
+CREATE TABLE IF NOT EXISTS public.23_messages (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  ticket_id TEXT NOT NULL REFERENCES tickets(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  sender_id UUID NOT NULL REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,  -- Changed to UUID
+  ticket_id TEXT NOT NULL REFERENCES 23_tickets(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  sender_id UUID NOT NULL REFERENCES 23_users(id) ON UPDATE CASCADE ON DELETE CASCADE,  -- Changed to UUID
   sender_username TEXT NOT NULL,
   body TEXT NOT NULL,
   images TEXT[] NULL,
@@ -261,13 +306,13 @@ CREATE TABLE IF NOT EXISTS public.messages (
 );
 
 -- 🔐 RLS Policies for Messages
-ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "SUPPORT/ADMIN select" ON messages FOR SELECT USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('SUPPORT', 'ADMIN'))
+ALTER TABLE 23_messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "SUPPORT/ADMIN select" ON 23_messages FOR SELECT USING (
+  EXISTS (SELECT 1 FROM 23_users WHERE id = auth.uid() AND role IN ('SUPPORT', 'ADMIN'))
 );
 
 -- 🛒 Products Table
-CREATE TABLE IF NOT EXISTS public.products (
+CREATE TABLE IF NOT EXISTS public.23_products (
   price_id VARCHAR NOT NULL,
   id VARCHAR NOT NULL,
   translations JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -281,23 +326,23 @@ CREATE TABLE IF NOT EXISTS public.products (
 );
 
 -- 🔐 RLS Policies for Products
-ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "All users select" ON products FOR SELECT USING (true);
-CREATE POLICY "Owner delete" ON products FOR DELETE USING (owner_id = auth.uid());
-CREATE POLICY "Auth insert" ON products FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Owner update" ON products FOR UPDATE USING (owner_id = auth.uid());
+ALTER TABLE 23_products ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "All users select" ON 23_products FOR SELECT USING (true);
+CREATE POLICY "Owner delete" ON 23_products FOR DELETE USING (owner_id = auth.uid());
+CREATE POLICY "Auth insert" ON 23_products FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Owner update" ON 23_products FOR UPDATE USING (owner_id = auth.uid());
 
 -- 🛍️ Users Cart Table
-CREATE TABLE IF NOT EXISTS public.users_cart (
+CREATE TABLE IF NOT EXISTS public.23_users_cart (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   cart_products JSONB NOT NULL DEFAULT '{}'::jsonb
 );
 
 -- 🔐 RLS Policies for Users Cart
-ALTER TABLE users_cart ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Self select" ON users_cart FOR SELECT USING (id = auth.uid());
-CREATE POLICY "Self update" ON users_cart FOR UPDATE USING (id = auth.uid());
+ALTER TABLE 23_users_cart ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Self select" ON 23_users_cart FOR SELECT USING (id = auth.uid());
+CREATE POLICY "Self update" ON 23_users_cart FOR UPDATE USING (id = auth.uid());
 -- 📊 UTM Stats Table (tracking marketing campaign performance)
 CREATE TABLE IF NOT EXISTS public.utm_stats (
   id UUID NOT NULL DEFAULT gen_random_uuid(),

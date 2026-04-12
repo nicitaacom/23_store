@@ -28,7 +28,7 @@ export async function fetchPopularProducts({
   const to = limit ? Math.max(0, limit - 1) : from + currentPerPage - 1
 
   const response = await supabaseServer()
-    .from("products")
+    .from("23_products")
     .select("*", { count: "exact" })
     .order("on_stock", { ascending: false, nullsFirst: false })
     .order("price", { ascending: true })

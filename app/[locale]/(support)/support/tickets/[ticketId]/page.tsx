@@ -22,7 +22,7 @@ export const revalidate = 5
 //I cache data to don't fetch data from DB twice
 const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
   const { data: messages_by_id_response, error: messages_by_id_error } = await supabaseAdmin
-    .from("messages")
+    .from("23_messages")
     .select("*")
     .order("created_at", { ascending: true })
     .eq("ticket_id", ticketId)
@@ -33,12 +33,12 @@ const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
 
 // cache ticket is_open state because by initial idea ticket can't be reopened
 const getIsTicketOpenCache = cache(async (ticketId: string) => {
-  const { data: is_ticket_open } = await supabaseAdmin.from("tickets").select("is_open").eq("id", ticketId).single()
+  const { data: is_ticket_open } = await supabaseAdmin.from("23_tickets").select("is_open").eq("id", ticketId).single()
   return is_ticket_open?.is_open
 })
 
 export async function generateStaticParams(): Promise<string[]> {
-  const { data, error } = await supabaseAdmin.from("tickets").select("id").eq("is_open", true)
+  const { data, error } = await supabaseAdmin.from("23_tickets").select("id").eq("is_open", true)
   if (error) {
     console.log(42, "error generating statuc params - ", error.message)
     return []

@@ -14,7 +14,7 @@ export default async function Navbar() {
     data: { user },
   } = await supabaseServer().auth.getUser()
 
-  const cart_products_response = await supabaseServer().from("users_cart").select("cart_products").single()
+  const cart_products_response = await supabaseServer().from("23_users_cart").select("cart_products").single()
   const cart_products = cart_products_response.data?.cart_products as unknown as TRecordCartProduct
 
   let cart_quantity = 0
@@ -29,7 +29,7 @@ export default async function Navbar() {
   let role = "USER"
   if (user && user.id) {
     const { data: role_response, error: role_error } = await supabaseServer()
-      .from("users")
+      .from("23_users")
       .select("role")
       .eq("id", user.id)
       .single()

@@ -44,7 +44,7 @@ export async function POST(req: Request) {
 
     async function getUpdatedProductResponse(updatedProductId: string) {
       const { data: updatedProduct, error: updatedProductError } = await supabase
-        .from("products")
+        .from("23_products")
         .select("*")
         .eq("id", updatedProductId)
         .single()
@@ -56,7 +56,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ product: normalizeProduct(updatedProduct) }, { status: 200 })
     }
 
-    const { data: existingProduct, error: existingProductError } = await supabase.from("products").select("*").eq("id", productId).single()
+    const { data: existingProduct, error: existingProductError } = await supabase
+      .from("23_products")
+      .select("*")
+      .eq("id", productId)
+      .single()
 
     if (existingProductError || !existingProduct) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 })
@@ -76,9 +80,14 @@ export async function POST(req: Request) {
       // Update image on Stripe https://stripe.com/docs/api/products/update
       const productResponse = await stripe.products.update(productId, { images: stripeImages })
 
-      const { error: updateImagesError } = await supabase.from("products").update({ img_url: normalizedImages }).eq("id", productId)
+      const { error: updateImagesError } = await supabase
+        .from("23_products")
+        .update({ img_url: normalizedImages })
+        .eq("id", productId)
       if (updateImagesError)
-        throw new Error(`update product images \n Path:/api/products/update/route.ts \n Error message:\n ${updateImagesError.message}`)
+        throw new Error(
+          `update product images \n Path:/api/products/update/route.ts \n Error message:\n ${updateImagesError.message}`,
+        )
 
       //Active product if it not active
       if (!productResponse.active) {
@@ -96,7 +105,10 @@ export async function POST(req: Request) {
       }
 
       if (fiTitle.length < MIN_PRODUCT_TITLE_LENGTH) {
-        return NextResponse.json({ error: `Title is too short - minimum ${MIN_PRODUCT_TITLE_LENGTH} characters` }, { status: 400 })
+        return NextResponse.json(
+          { error: `Title is too short - minimum ${MIN_PRODUCT_TITLE_LENGTH} characters` },
+          { status: 400 },
+        )
       }
 
       if (fiTitle.length > MAX_PRODUCT_TITLE_LENGTH) {
@@ -108,10 +120,7 @@ export async function POST(req: Request) {
         ...getStripeDescriptionPayload(translations.fi.description),
       })
 
-      const { error: updateTranslationsError } = await supabase
-        .from("products")
-        .update({ translations })
-        .eq("id", productId)
+      const { error: updateTranslationsError } = await supabase.from("23_products").update({ translations }).eq("id", productId)
       if (updateTranslationsError) {
         throw new Error(
           `update product translations \n Path:/api/products/update/route.ts \n Error message:\n ${updateTranslationsError.message}`,
@@ -128,20 +137,27 @@ export async function POST(req: Request) {
     /* UPDATE VARIANTS */
     if (variants !== undefined) {
       const normalizedVariants = normalizeProductVariants(variants, normalizedExistingProduct.price)
-      const { error: updateVariantsError } = await supabase.from("products").update({ variants: normalizedVariants }).eq("id", productId)
+      const { error: updateVariantsError } = await supabase
+        .from("23_products")
+        .update({ variants: normalizedVariants })
+        .eq("id", productId)
 
       if (updateVariantsError)
-        throw new Error(`update product variants \n Path:/api/products/update/route.ts \n Error message:\n ${updateVariantsError.message}`)
+        throw new Error(
+          `update product variants \n Path:/api/products/update/route.ts \n Error message:\n ${updateVariantsError.message}`,
+        )
 
       return getUpdatedProductResponse(productId)
     }
 
     /* UPDATE ON STOCK */
     if (typeof onStock === "number") {
-      const { error: updateOnStockError } = await supabase.from("products").update({ on_stock: onStock }).eq("id", productId)
+      const { error: updateOnStockError } = await supabase.from("23_products").update({ on_stock: onStock }).eq("id", productId)
 
       if (updateOnStockError)
-        throw new Error(`update product on_stock \n Path:/api/products/update/route.ts \n Error message:\n ${updateOnStockError.message}`)
+        throw new Error(
+          `update product on_stock \n Path:/api/products/update/route.ts \n Error message:\n ${updateOnStockError.message}`,
+        )
 
       return getUpdatedProductResponse(productId)
     }
@@ -191,7 +207,7 @@ export async function POST(req: Request) {
 
         // Update id and price_id in DB to associate new product on stripe with product in DB
         await supabase
-          .from("products")
+          .from("23_products")
           .update({ id: productResponse.id, price_id: priceResponse.id, price: price })
           .eq("id", productId)
 

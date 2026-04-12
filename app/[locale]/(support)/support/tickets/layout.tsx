@@ -10,7 +10,7 @@ import ClientOnly from "@/components/ClientOnly"
 export const dynamic = "force-dynamic"
 
 export default async function SupportChatLayout({ children }: { children: React.ReactNode }) {
-  const { data: role_response, error: anonymous_user } = await supabaseServer().from("users").select("role").single()
+  const { data: role_response, error: anonymous_user } = await supabaseServer().from("23_users").select("role").single()
   const initialTickets = await getInitialTickets()
   const unreadMessages = await getUnreadMessages()
 

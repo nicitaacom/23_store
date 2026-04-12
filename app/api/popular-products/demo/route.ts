@@ -10,31 +10,9 @@ import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 const PLACEHOLDER_IMAGE = "/placeholder.jpg"
 const FAKE_SHOP_API_URL = "http://fake-shop-api.ap-south-1.elasticbeanstalk.com/app/v1/products"
 
-const PRODUCT_PREFIXES = [
-  "Starter",
-  "Prime",
-  "Essential",
-  "Urban",
-  "Smart",
-  "Studio",
-  "Travel",
-  "Daily",
-  "Core",
-  "Select",
-]
+const PRODUCT_PREFIXES = ["Starter", "Prime", "Essential", "Urban", "Smart", "Studio", "Travel", "Daily", "Core", "Select"]
 
-const PRODUCT_NOUNS = [
-  "Bundle",
-  "Kit",
-  "Pack",
-  "Collection",
-  "Edition",
-  "Set",
-  "Drop",
-  "Series",
-  "Line",
-  "Combo",
-]
+const PRODUCT_NOUNS = ["Bundle", "Kit", "Pack", "Collection", "Edition", "Set", "Drop", "Series", "Line", "Combo"]
 
 type FakeShopProduct = {
   _id?: string
@@ -69,7 +47,8 @@ function formatFakeProductSeed(
     `Demo-ready showcase product ${itemNumber} built from FakeShopAPI sample data.`
   const rawPrice = Number(sourceProduct?.price)
   const price = Number((Number.isFinite(rawPrice) && rawPrice > 0 ? rawPrice : 14 + (index % 17) * 3.35 + index / 50).toFixed(2))
-  const stockValue = typeof sourceProduct?.stock === "number" && sourceProduct.stock > 0 ? sourceProduct.stock : 240 - (index % 80)
+  const stockValue =
+    typeof sourceProduct?.stock === "number" && sourceProduct.stock > 0 ? sourceProduct.stock : 240 - (index % 80)
   const imageCandidates = sourceProduct?.images?.filter(Boolean) || []
   const primaryImage = sourceProduct?.image || imageCandidates[0] || PLACEHOLDER_IMAGE
   const secondaryImages = imageCandidates.slice(0, 3)
@@ -99,8 +78,7 @@ async function fetchFakeShopProducts() {
 
   const data = await response.json()
 
-  const products: FakeShopProduct[] =
-    data?.Data || data?.data || data?.products || data?.result || []
+  const products: FakeShopProduct[] = data?.Data || data?.data || data?.products || data?.result || []
 
   return Array.isArray(products) ? products : []
 }
@@ -127,7 +105,7 @@ export async function GET() {
 
   const ownerFragment = ownerId.replace(/-/g, "").slice(0, 12)
   const response = await supabaseAdmin
-    .from("products")
+    .from("23_products")
     .select("id", { count: "exact", head: true })
     .eq("owner_id", ownerId)
     .like("id", `demo-popular-product-${ownerFragment}-%`)
@@ -159,7 +137,7 @@ export async function POST(req: Request) {
     return formatFakeProductSeed(sourceProduct, index, ownerId)
   })
 
-  const response = await supabaseAdmin.from("products").insert(products).select("id")
+  const response = await supabaseAdmin.from("23_products").insert(products).select("id")
 
   if (response.error) {
     return NextResponse.json({ error: response.error.message }, { status: 500 })

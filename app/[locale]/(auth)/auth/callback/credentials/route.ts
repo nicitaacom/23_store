@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     if (response.data.user && response.data.user.email) {
       const email = response.data.user.email
       const { data: userResponse } = await supabaseAdmin
-        .from("users")
+        .from("23_users")
         .select("avatar_url")
         .eq("id", response.data.user.id)
         .maybeSingle()
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
       const avatarUrlFromAuth = getUserAvatarUrl(response.data.user)
       const avatarUrl = getPreferredAvatarUrl(userResponse?.avatar_url, response.data.user)
       await supabaseAdmin
-        .from("users")
+        .from("23_users")
         .update({
           email_confirmed_at: response.data.user.updated_at,
           providers: ["credentials"],

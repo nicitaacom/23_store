@@ -2,7 +2,7 @@ import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { createRawProductTranslations } from "@/utils/product"
 
 export async function insertDBProduct(payload: API.ProductsTranslateAndInsertRequest): Promise<string | null> {
-  const { error: insertError } = await supabaseAdmin.from("products").insert({
+  const { error: insertError } = await supabaseAdmin.from("23_products").insert({
     id: payload.id,
     price_id: payload.price_id,
     owner_id: payload.owner_id,
@@ -18,7 +18,7 @@ export async function insertDBProduct(payload: API.ProductsTranslateAndInsertReq
 }
 
 export async function deleteDBProduct(productId: string): Promise<string | null> {
-  const { error: deleteError } = await supabaseAdmin.from("products").delete().eq("id", productId)
+  const { error: deleteError } = await supabaseAdmin.from("23_products").delete().eq("id", productId)
 
   if (deleteError) return deleteError.message
   return null

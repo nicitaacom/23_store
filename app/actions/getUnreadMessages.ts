@@ -13,7 +13,7 @@ const getUnreadMessages = async () => {
   const userId = user?.id ? user.id : getAnonymousId()
 
   const { data, error: get_unread_messages_error } = await supabaseAdmin
-    .from("messages")
+    .from("23_messages")
     .select("ticket_id,id,seen")
     .not("sender_id", "eq", userId)
     .eq("seen", false)

@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   if (userId) {
     const { data: ticketId } = await supabaseAdmin
-      .from("tickets")
+      .from("23_tickets")
       .select("id")
       .eq("owner_id", userId)
       .eq("is_open", true)
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   }
 
   const { data: messages_by_id_response, error: messages_by_id_error } = await supabaseAdmin
-    .from("messages")
+    .from("23_messages")
     .select("*")
     .eq("ticket_id", ticketIdResponse)
     .order("created_at", { ascending: true })
