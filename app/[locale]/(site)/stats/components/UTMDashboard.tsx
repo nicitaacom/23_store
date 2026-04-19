@@ -2,11 +2,20 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
+import { Area, AreaChart, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 import { IoChevronDown, IoCalendar, IoTrendingUp, IoGlobeOutline, IoLocationOutline } from "react-icons/io5"
 import { IUTMAggregatedStats, IUTMCountryStat, IUTMLocationStat } from "@/ts/interfaces/IUTMAggregatedStats"
 
 const CHART_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"]
+const DAILY_VISITS_RANGE_OPTIONS = [
+  { key: "today", label: "Today", days: 1 },
+  { key: "week", label: "Last Week", days: 7 },
+  { key: "month", label: "Last Month", days: 30 },
+  { key: "threeMonths", label: "Last 3 Months", days: 90 },
+  { key: "year", label: "Last Year", days: 365 },
+] as const
+
+type DailyVisitsRangeKey = (typeof DAILY_VISITS_RANGE_OPTIONS)[number]["key"]
 
 const getCountryFlag = (countryCode: string | null) => {
   if (!countryCode || countryCode.length !== 2) return "🌍"
@@ -17,7 +26,86 @@ const getCountryFlag = (countryCode: string | null) => {
     .join("")
 }
 
-// Managed by Grok 4
+function formatDateKey(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+function parseDateKey(value: string): Date {
+  const [year, month, day] = value.split("-").map(Number)
+  return new Date(year, month - 1, day)
+}
+
+function shiftDate(date: Date, days: number): Date {
+  const nextDate = new Date(date)
+  nextDate.setDate(nextDate.getDate() + days)
+  return nextDate
+}
+
+function formatChartAxisLabel(value: string, range: DailyVisitsRangeKey): string {
+  const date = parseDateKey(value)
+
+  if (range === "year") {
+    return date.toLocaleDateString("en-US", { month: "short", year: "2-digit" })
+  }
+
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+}
+
+function formatChartTooltipLabel(value: string): string {
+  return parseDateKey(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+}
+
+function formatChartDateRange(startDate: Date | null, endDate: Date | null): string {
+  if (!startDate || !endDate) return ""
+
+  const sameYear = startDate.getFullYear() === endDate.getFullYear()
+  const startFormat: Intl.DateTimeFormatOptions = sameYear
+    ? { month: "short", day: "numeric" }
+    : { month: "short", day: "numeric", year: "numeric" }
+
+  const startLabel = startDate.toLocaleDateString("en-US", startFormat)
+  const endLabel = endDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+
+  return formatDateKey(startDate) === formatDateKey(endDate) ? endLabel : `${startLabel} - ${endLabel}`
+}
+
+function getDailyVisitsRangeData(data: API.UTMStatsChartItem[], range: DailyVisitsRangeKey) {
+  if (!data.length) {
+    return {
+      points: [] as API.UTMStatsChartItem[],
+      startDate: null as Date | null,
+      endDate: null as Date | null,
+    }
+  }
+
+  const sortedData = [...data].sort((left, right) => left.date.localeCompare(right.date))
+  const rangeOption = DAILY_VISITS_RANGE_OPTIONS.find(option => option.key === range) || DAILY_VISITS_RANGE_OPTIONS[2]
+  const endDate = parseDateKey(sortedData[sortedData.length - 1].date)
+  const startDate = shiftDate(endDate, -(rangeOption.days - 1))
+  const visitsByDate = new Map<string, number>()
+
+  for (const item of sortedData) {
+    visitsByDate.set(item.date, (visitsByDate.get(item.date) || 0) + item.visits)
+  }
+
+  const points: API.UTMStatsChartItem[] = []
+  for (let cursor = new Date(startDate); cursor <= endDate; cursor = shiftDate(cursor, 1)) {
+    const dateKey = formatDateKey(cursor)
+    points.push({
+      date: dateKey,
+      visits: visitsByDate.get(dateKey) || 0,
+    })
+  }
+
+  return { points, startDate, endDate }
+}
 
 // Mock data generator based on selected period
 const getMockData = (year: number, month: number): IUTMAggregatedStats => {
@@ -103,20 +191,20 @@ const getMockData = (year: number, month: number): IUTMAggregatedStats => {
   // 7. Generate daily chart data for the selected period
   const chartData: { date: string; visits: number }[] = []
   if (month === 0) {
-    // Entire year - generate monthly data points
-    for (let m = 1; m <= 12; m++) {
-      const date = new Date(year, m - 1, 15).toISOString().split("T")[0]
-      const monthlyMultiplier = monthMultipliers[m] * yearMultiplier
+    // Entire year - generate daily data so range filters stay meaningful
+    for (let cursor = new Date(year, 0, 1); cursor <= new Date(year, 11, 31); cursor = shiftDate(cursor, 1)) {
+      const monthIndex = cursor.getMonth() + 1
+      const monthlyMultiplier = monthMultipliers[monthIndex] * yearMultiplier
       chartData.push({
-        date,
-        visits: Math.round(baseVisits * monthlyMultiplier * (0.8 + Math.random() * 0.4)),
+        date: formatDateKey(cursor),
+        visits: Math.round((baseVisits / 30) * monthlyMultiplier * (0.7 + Math.random() * 0.6)),
       })
     }
   } else {
     // Specific month - generate daily data points
     const daysInMonth = new Date(year, month, 0).getDate()
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month - 1, day).toISOString().split("T")[0]
+      const date = formatDateKey(new Date(year, month - 1, day))
       const dailyVariation = 0.7 + Math.random() * 0.6
       chartData.push({
         date,
@@ -132,7 +220,7 @@ const getMockData = (year: number, month: number): IUTMAggregatedStats => {
     utm_source: sources[Math.floor(Math.random() * sources.length)],
     utm_medium: mediums[Math.floor(Math.random() * mediums.length)],
     utm_campaign: campaigns[Math.floor(Math.random() * campaigns.length)] || "",
-    visited_at: chartData[Math.floor(Math.random() * chartData.length)]?.date || new Date().toISOString().split("T")[0],
+    visited_at: chartData[Math.floor(Math.random() * chartData.length)]?.date || formatDateKey(new Date()),
   }))
 
   return {
@@ -149,216 +237,109 @@ const getMockData = (year: number, month: number): IUTMAggregatedStats => {
   }
 }
 
-// Generate smooth curved path connecting all points
-const generateSmoothPath = (points: { x: number; y: number }[]): string => {
-  if (points.length === 0) return ""
-  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`
-
-  let path = `M ${points[0].x} ${points[0].y}`
-
-  // For 2 points, use a simple line
-  if (points.length === 2) {
-    return `${path} L ${points[1].x} ${points[1].y}`
-  }
-
-  // For 3+ points, use smooth curves
-  for (let i = 1; i < points.length; i++) {
-    const current = points[i]
-    const previous = points[i - 1]
-
-    if (i === 1) {
-      // First curve - use quadratic
-      const midX = (previous.x + current.x) / 2
-      const midY = (previous.y + current.y) / 2
-      path += ` Q ${midX} ${previous.y}, ${midX} ${midY}`
-      path += ` Q ${midX} ${current.y}, ${current.x} ${current.y}`
-    } else {
-      // Subsequent curves - use smooth cubic
-      const cp1x = previous.x + (current.x - previous.x) * 0.3
-      const cp1y = previous.y
-      const cp2x = current.x - (current.x - previous.x) * 0.3
-      const cp2y = current.y
-      path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${current.x} ${current.y}`
-    }
-  }
-
-  return path
-}
-
-// Generate Y-axis ticks
-const generateYTicks = (maxValue: number): number[] => {
-  if (maxValue === 0) return [0, 100, 200, 300, 400, 500]
-  const tickCount = 5
-  const step = Math.ceil(maxValue / tickCount)
-  const roundedStep = Math.pow(10, Math.floor(Math.log10(step))) * Math.ceil(step / Math.pow(10, Math.floor(Math.log10(step))))
-  const ticks = []
-  for (let i = 0; i <= Math.ceil(maxValue / roundedStep); i++) {
-    ticks.push(i * roundedStep)
-  }
-  return ticks
-}
-
 function DailyVisitsChart({ data }: { data: { date: string; visits: number }[] }) {
-  const [hoveredPoint, setHoveredPoint] = useState<{ x: number; y: number; visits: number; date: string } | null>(null)
+  const [selectedRange, setSelectedRange] = useState<DailyVisitsRangeKey>("month")
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-[300px] text-subTitle">
-        <IoTrendingUp className="w-12 h-12 mb-4 opacity-50" />
-        <p className="text-lg font-medium">No data available</p>
-        <p className="text-sm opacity-75">Chart data will appear here</p>
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg mobile:text-xl font-bold text-title">Daily Visits</h3>
+          <p className="text-sm text-subTitle">Traffic trend by date</p>
+        </div>
+        <div className="flex flex-col items-center justify-center h-[300px] text-subTitle rounded-lg border border-border-color/20 bg-background/40">
+          <IoTrendingUp className="w-12 h-12 mb-4 opacity-50" />
+          <p className="text-lg font-medium">No data available</p>
+          <p className="text-sm opacity-75">Chart data will appear here</p>
+        </div>
       </div>
     )
   }
 
-  const maxValue = Math.max(...data.map(d => d.visits))
-  const yTicks = generateYTicks(maxValue)
-  const maxYValue = Math.max(...yTicks)
-
-  const chartHeight = 260
-  const chartWidth = 760
-
-  // 1. Calculate points for the line chart
-  const points = data.map((day, index) => {
-    const x = index * (chartWidth / Math.max(data.length - 1, 1))
-    const y = chartHeight - (day.visits / maxYValue) * chartHeight
-    return { x, y, visits: day.visits, date: day.date }
-  })
-
-  const pathData = generateSmoothPath(points)
+  const { points, startDate, endDate } = getDailyVisitsRangeData(data, selectedRange)
+  const rangeSummary = formatChartDateRange(startDate, endDate)
+  const showDots = points.length <= 45
 
   return (
-    <div className="bg-background/40 backdrop-blur-sm rounded-lg border border-border-color/20 p-4 relative overflow-hidden">
-      <div className="h-80 flex relative">
-        {/* Y-Axis */}
-        <div className="flex flex-col justify-between pr-4 py-8 w-20">
-          {yTicks
-            .slice()
-            .reverse()
-            .map(tick => (
-              <div key={tick} className="text-sm text-title/60 font-medium text-right leading-none">
-                {tick.toLocaleString()}
-              </div>
-            ))}
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4 mobile:flex-row mobile:items-start mobile:justify-between">
+        <div>
+          <h3 className="text-lg mobile:text-xl font-bold text-title">Daily Visits</h3>
+          <p className="text-sm text-subTitle">{rangeSummary}</p>
         </div>
-
-        {/* Chart Content */}
-        <div className="flex-1 relative overflow-hidden">
-          <div className="h-full relative">
-            {/* Grid Lines */}
-            <div className="absolute inset-0">
-              {yTicks.map(tick => (
-                <div
-                  key={tick}
-                  className="absolute w-full border-t border-border-color/10"
-                  style={{ bottom: `${(tick / maxYValue) * 100}%` }}
-                />
-              ))}
-            </div>
-
-            {/* Chart SVG */}
-            <div className="h-full relative py-8">
-              <div className="absolute inset-0 w-full h-full">
-                <svg className="w-full h-full" viewBox={`0 0 ${chartWidth} 320`} preserveAspectRatio="none">
-                  <defs>
-                    <filter id="dotShadow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feDropShadow dx="0" dy="1" stdDeviation="1" floodOpacity="0.3" />
-                    </filter>
-                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="hsl(var(--brand))" stopOpacity="0.8" />
-                      <stop offset="50%" stopColor="hsl(var(--info))" stopOpacity="0.9" />
-                      <stop offset="100%" stopColor="hsl(var(--success))" stopOpacity="0.8" />
-                    </linearGradient>
-                  </defs>
-
-                  {/* Line */}
-                  <motion.path
-                    d={pathData}
-                    fill="none"
-                    stroke="url(#lineGradient)"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    animate={{ pathLength: 1, opacity: 0.9 }}
-                    transition={{
-                      duration: 1.2,
-                      delay: 0.3,
-                      ease: "easeInOut",
-                    }}
-                  />
-
-                  {/* Data Points */}
-                  {points.map((point, index) => (
-                    <motion.circle
-                      key={`point-${index}`}
-                      cx={point.x}
-                      cy={point.y}
-                      r="4"
-                      fill="hsl(var(--brand))"
-                      stroke="hsl(var(--background))"
-                      strokeWidth="1"
-                      filter="url(#dotShadow)"
-                      style={{ filter: "blur(0.5px) drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{
-                        duration: 0.4,
-                        delay: index * 0.08,
-                        ease: "easeOut",
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 25,
-                      }}
-                      onMouseEnter={() => setHoveredPoint(point)}
-                      onMouseLeave={() => setHoveredPoint(null)}
-                      className="cursor-pointer hover:r-6 transition-all"
-                    />
-                  ))}
-
-                  {/* Hover Tooltip */}
-                  {hoveredPoint && (
-                    <g>
-                      {/* Tooltip Background */}
-                      <motion.rect
-                        x={hoveredPoint.x - 60}
-                        y={hoveredPoint.y - 55}
-                        width="120"
-                        height="40"
-                        rx="6"
-                        fill="hsl(var(--foreground))"
-                        stroke="hsl(var(--border-color))"
-                        strokeWidth="1"
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.2 }}
-                      />
-                      {/* Tooltip Text - Visits */}
-                      <text
-                        x={hoveredPoint.x}
-                        y={hoveredPoint.y - 35}
-                        textAnchor="middle"
-                        fill="hsl(var(--title))"
-                        fontSize="12"
-                        fontWeight="bold">
-                        {hoveredPoint.visits.toLocaleString()}
-                      </text>
-                      {/* Tooltip Text - Date */}
-                      <text
-                        x={hoveredPoint.x}
-                        y={hoveredPoint.y - 20}
-                        textAnchor="middle"
-                        fill="hsl(var(--subTitle))"
-                        fontSize="10">
-                        {new Date(hoveredPoint.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </text>
-                    </g>
-                  )}
-                </svg>
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          {DAILY_VISITS_RANGE_OPTIONS.map(option => (
+            <button
+              key={option.key}
+              type="button"
+              onClick={() => setSelectedRange(option.key)}
+              className={`rounded-full px-3 py-1.5 text-xs mobile:text-sm font-medium transition-colors ${
+                selectedRange === option.key ? "bg-brand text-foreground" : "bg-background/60 text-subTitle hover:bg-active-color"
+              }`}>
+              {option.label}
+            </button>
+          ))}
         </div>
+      </div>
+
+      <div className="h-[340px] rounded-lg border border-border-color/20 bg-background/40 p-3 mobile:p-4">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={points} margin={{ top: 12, right: 12, left: 0, bottom: 8 }}>
+            <defs>
+              <linearGradient id="dailyVisitsStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#22C55E" />
+                <stop offset="50%" stopColor="#3B82F6" />
+                <stop offset="100%" stopColor="#10B981" />
+              </linearGradient>
+              <linearGradient id="dailyVisitsFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.22" />
+                <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.02" />
+              </linearGradient>
+            </defs>
+
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border-color) / 0.25)" vertical={false} />
+            <XAxis
+              dataKey="date"
+              stroke="hsl(var(--subTitle))"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              minTickGap={24}
+              interval="preserveStartEnd"
+              tickMargin={12}
+              tickFormatter={(value: string) => formatChartAxisLabel(value, selectedRange)}
+            />
+            <YAxis
+              stroke="hsl(var(--subTitle))"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              width={56}
+              allowDecimals={false}
+            />
+            <Tooltip
+              formatter={(value: number | string | undefined) => [`${Number(value || 0).toLocaleString()} visits`, "Traffic"]}
+              labelFormatter={label => (typeof label === "string" ? formatChartTooltipLabel(label) : label)}
+              contentStyle={{
+                backgroundColor: "hsl(var(--foreground))",
+                border: "1px solid hsl(var(--border-color))",
+                borderRadius: "12px",
+                color: "hsl(var(--title))",
+              }}
+              cursor={{ stroke: "hsl(var(--border-color))", strokeDasharray: "4 4" }}
+            />
+            <Area
+              type="monotone"
+              dataKey="visits"
+              stroke="url(#dailyVisitsStroke)"
+              fill="url(#dailyVisitsFill)"
+              strokeWidth={3}
+              animationDuration={450}
+              dot={showDots ? { r: 4, fill: "#22C55E", stroke: "#111827", strokeWidth: 2 } : false}
+              activeDot={{ r: 5, fill: "#22C55E", stroke: "#111827", strokeWidth: 2 }}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
   )
@@ -737,9 +718,6 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
         <motion.div
           variants={itemVariants}
           className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg mt-6 mobile:mt-8">
-          <h3 className="text-lg mobile:text-xl font-bold text-title mb-4">
-            {selectedMonth === 0 ? "Monthly Visits Trend" : "Daily Visits"}
-          </h3>
           <DailyVisitsChart data={stats.chartData || []} />
         </motion.div>
       </motion.div>

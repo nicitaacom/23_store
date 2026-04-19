@@ -1,7 +1,6 @@
 import { pusherServer } from "@/libs/pusher"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { getAuthErrorRedirectUrl, getLocalizedAppUrl } from "@/utils/authCallback"
-import { getPreferredAvatarUrl, getUserAvatarUrl } from "@/utils/user"
+import { syncPublicUserRecord } from "@/utils/publicUserSync"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
@@ -29,29 +28,14 @@ export async function GET(request: Request) {
     // Update row that user verified email
     if (response.data.user && response.data.user.email) {
       const email = response.data.user.email
-      const { data: userResponse } = await supabaseAdmin
-        .from("23_users")
-        .select("avatar_url")
-        .eq("id", response.data.user.id)
-        .maybeSingle()
-
-      const avatarUrlFromAuth = getUserAvatarUrl(response.data.user)
-      const avatarUrl = getPreferredAvatarUrl(userResponse?.avatar_url, response.data.user)
-      await supabaseAdmin
-        .from("23_users")
-        .update({
-          email_confirmed_at: response.data.user.updated_at,
-          providers: ["credentials"],
-          ...(!userResponse?.avatar_url && avatarUrlFromAuth ? { avatar_url: avatarUrlFromAuth } : {}),
-        })
-        .eq("id", response.data.user.id)
+      const syncedUser = await syncPublicUserRecord(response.data.user, { provider: "credentials" })
 
       // Trigger pusher to 'auth:completed' to show in another tab message like 'Authencication completed - thank you'
       await pusherServer.trigger(email, "auth:completed", null)
 
       const redirectResponse = NextResponse.redirect(getLocalizedAppUrl(requestUrl))
 
-      if (avatarUrl) redirectResponse.cookies.set("avatarUrl", avatarUrl, { path: "/" })
+      if (syncedUser.avatarUrl) redirectResponse.cookies.set("avatarUrl", syncedUser.avatarUrl, { path: "/" })
       else redirectResponse.cookies.delete("avatarUrl")
 
       return redirectResponse

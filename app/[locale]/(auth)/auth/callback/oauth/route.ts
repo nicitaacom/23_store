@@ -1,6 +1,6 @@
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { getAuthErrorRedirectUrl, getLocalizedAppUrl } from "@/utils/authCallback"
-import { getPreferredAvatarUrl, getUserAvatarUrl } from "@/utils/user"
+import { syncPublicUserRecord } from "@/utils/publicUserSync"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
@@ -58,67 +58,8 @@ export async function GET(request: Request) {
 
     if (response.data.user && response.data.user.email) {
       const user_id = response?.data.user.id
-      const username = response.data.user.user_metadata.name
       const email = response.data.user.email
-      const email_confirmed_at = response.data.user.email_confirmed_at
-      const avatarUrlFromAuth = getUserAvatarUrl(response.data.user)
-      let avatarUrl = avatarUrlFromAuth
-
-      // 3. Insert row if user doesn't exist
-      const { error: is_row_exist } = await supabaseAdmin.from("23_users").insert({
-        id: user_id,
-        username: username,
-        email: email,
-        email_confirmed_at: email_confirmed_at,
-        avatar_url: avatarUrlFromAuth || null,
-        providers: [provider!],
-      })
-
-      console.log("[auth:oauth][route] upserting public user row", {
-        userId: user_id,
-        email,
-        insertError: is_row_exist?.message ?? null,
-      })
-
-      // If row already exist - do 4 and 5
-      if (is_row_exist) {
-        // 4. If provider_response !=== provider - add one more provider
-        // For case when user signIn with google first and then with the same email with twitter
-        const { data: provider_response } = await supabaseAdmin.from("23_users").select("providers").eq("id", user_id).single()
-        // Check is provider exist (for case if user login 2 times with the same provider)
-        const existingProvider = provider_response?.providers?.filter(providerLabel => providerLabel === provider)
-        if (!existingProvider![0]) {
-          const { error: update_provider_error } = await supabaseAdmin
-            .from("23_users")
-            .update({ providers: [...provider_response?.providers!, provider!] })
-            .eq("id", response.data.user.id)
-          if (update_provider_error) throw update_provider_error
-        }
-
-        // 5. Replace avatar_url if !avatar_url
-        // For case if user have no avatar and signIn with oauth where user have avatar_url
-        // TOTO - signIn with credentials - logout - login with oauth where !avatar_url
-        const { data: avatar_url_reponse, error: select_avatar_url_error } = await supabaseAdmin
-          .from("23_users")
-          .select("avatar_url")
-          .eq("email", email)
-          .single()
-
-        if (select_avatar_url_error) throw select_avatar_url_error
-        avatarUrl = getPreferredAvatarUrl(avatar_url_reponse?.avatar_url, response.data.user)
-        if (!avatar_url_reponse?.avatar_url) {
-          await supabaseAdmin
-            .from("23_users")
-            .update({
-              email_confirmed_at: response.data.user.updated_at,
-              avatar_url: avatarUrlFromAuth || null,
-            })
-            .eq("id", user_id)
-        }
-      } else {
-        // If row doesn't exist - this user login with OAuth first time so he haven't rows in other tables
-        await supabaseAdmin.from("23_users_cart").insert({ id: user_id })
-      }
+      const syncedUser = await syncPublicUserRecord(response.data.user, { provider })
 
       const redirectTarget = getLocalizedAppUrl(requestUrl)
       console.log("[auth:oauth][route] authentication succeeded", {
@@ -126,12 +67,12 @@ export async function GET(request: Request) {
         email,
         provider,
         redirectTarget,
-        avatarUrlFound: Boolean(avatarUrl),
+        avatarUrlFound: Boolean(syncedUser.avatarUrl),
       })
 
       const redirectResponse = NextResponse.redirect(redirectTarget)
 
-      if (avatarUrl) redirectResponse.cookies.set("avatarUrl", avatarUrl, { path: "/" })
+      if (syncedUser.avatarUrl) redirectResponse.cookies.set("avatarUrl", syncedUser.avatarUrl, { path: "/" })
       else redirectResponse.cookies.delete("avatarUrl")
 
       return redirectResponse

@@ -4,12 +4,12 @@ import { AuthFormData } from "../AuthModal/AuthModal"
 
 export const useHideResponseMessage = (
   errors: FieldErrors<AuthFormData>,
-  displayResponseMessage: (message: ReactNode) => void,
+  displayResponseMessage: (message: ReactNode | null) => void,
 ) => {
   useEffect(() => {
     //hide response message to prevent overflow because too much errors
     if (errors.email || errors.password || errors.username) {
-      displayResponseMessage(<p></p>)
+      displayResponseMessage(null)
     }
   }, [errors.email, errors.password, errors.username])
 }

@@ -16,12 +16,9 @@ export async function insertDBUTMVisitAction(userId: string, utmParams: UTMParam
     // 1. Insert visit tracking data
     const { error } = await supabaseAdmin.from("utm_stats").insert({
       user_id: userId,
-      visited_at: new Date().toISOString(),
-      utm_source: utmParams.utm_source,
-      utm_medium: utmParams.utm_medium,
-      utm_campaign: utmParams.utm_campaign,
-      utm_term: utmParams.utm_term,
-      utm_content: utmParams.utm_content,
+      source: utmParams.utm_source,
+      medium: utmParams.utm_medium,
+      campaign: utmParams.utm_campaign,
       user_agent: serializeUTMVisitMetadata(metadata),
     })
     if (error) throw Error(error.message)

@@ -1,5 +1,6 @@
 import React from "react"
 import Image from "next/image"
+import { twMerge } from "tailwind-merge"
 
 import { Button } from "@/components/ui/Button"
 import supabaseClient from "@/libs/supabase/supabaseClient"
@@ -72,7 +73,12 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
 
   return (
     <form onSubmit={continueWith}>
-      <Button className={`min-h-[48px] ${className}`} href={href} target="_blank" type="submit" variant="continue-with">
+      <Button
+        className={twMerge("h-12 rounded-xl", className)}
+        href={href}
+        type="submit"
+        variant="continue-with"
+        fullWidth>
         {provider === "google" ? (
           <Image src="/google.png" alt={t("auth.continue_with_google")} width={24} height={24} priority />
         ) : provider === "faceit" ? (

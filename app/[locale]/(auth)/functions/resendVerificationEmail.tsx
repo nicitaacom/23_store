@@ -9,7 +9,7 @@ import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 
 export async function resendVerificationEmail(
   email: string,
-  displayResponseMessage: (message: React.ReactNode) => void,
+  displayResponseMessage: (message: React.ReactNode | null) => void,
   setIsEmailSent: Dispatch<SetStateAction<boolean>>,
   setFocus: UseFormSetFocus<AuthFormData>,
   t: TI18nFunction,

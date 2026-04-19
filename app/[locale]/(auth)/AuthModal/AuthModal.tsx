@@ -40,10 +40,10 @@ export function AuthModal() {
   const [isEmailSent, setIsEmailSent] = useState(false)
   const [isAuthCompleted, setIsAuthCompleted] = useState(false)
   const [isRecoverCompleted, setIsRecoverCompleted] = useState(false)
-  const [responseMessage, setResponseMessage] = useState<React.ReactNode>(<p></p>)
+  const [responseMessage, setResponseMessage] = useState<React.ReactNode | null>(null)
 
   //when user submit form and got response message from server
-  function displayResponseMessage(message: React.ReactNode) {
+  function displayResponseMessage(message: React.ReactNode | null) {
     setResponseMessage(message)
   }
 
@@ -94,15 +94,15 @@ export function AuthModal() {
 
   return (
     <ModalQueryContainer
-      className={twMerge(`w-[500px] rounded-[18px] transition-all duration-300`, modalHeightTailwind(queryParams, errors))}
-      closeButtonClassName="right-3 top-3 rounded-[10px] p-[3px]"
+      className={twMerge("w-[calc(100vw-1.5rem)] mobile:w-[500px] rounded-3xl transition-all duration-300", modalHeightTailwind(queryParams, errors))}
+      closeButtonClassName="right-4 top-4 rounded-xl p-1"
       modalQuery="AuthModal">
-      <div className="flex flex-col justify-center gap-y-3 w-[88%] mx-auto pt-5 pb-4">
+      <div className="mx-auto flex w-full flex-col justify-center gap-y-4 px-6 pb-6 pt-6 mobile:px-8">
         <div
           className={twMerge(
-            `flex flex-row gap-x-3 items-center w-full pr-12`,
+            "flex w-full flex-row items-center gap-x-4 pr-12",
             isAuthCompleted ? "justify-center" : "justify-start",
-            (queryParams === "login" || queryParams === "register") && "mb-5",
+            (queryParams === "login" || queryParams === "register") && "mb-4",
             (errors.email || errors.password) && "!mb-3",
           )}>
           <AuthLogo isAuthCompleted={isAuthCompleted} isRecoverCompleted={isRecoverCompleted} />

@@ -354,9 +354,37 @@ CREATE TABLE IF NOT EXISTS public.utm_stats (
 
 ALTER TABLE utm_stats ENABLE ROW LEVEL SECURITY;
 
--- 📦 Public Bucket Policy (Fixed syntax error)
-CREATE POLICY "Public access for select" ON storage.objects FOR SELECT USING (bucket_id = 'public');
-CREATE POLICY "Public access for insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'public');
+
+
+
+
+
+
+
+
+-- =================================== STORAGE BUCKETS ===================================
+
+-- Create 23_public-images bucket
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('23_public-images', '23_public-images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- Storage Policies for 23_public-images bucket
+CREATE POLICY "allow_insert_for_everyone_23_public_images" ON storage.objects
+FOR INSERT WITH CHECK (bucket_id = '23_public-images');
+
+CREATE POLICY "allow_select_for_everyone_23_public_images" ON storage.objects
+FOR SELECT USING (bucket_id = '23_public-images');
+
+-- Public bucket policies (for '23_public' bucket)
+DO $$
+BEGIN
+    -- Create '23_public' bucket if it doesn't exist
+    INSERT INTO storage.buckets (id, name, public)
+    VALUES ('23_public', '23_public', true)
+    ON CONFLICT (id) DO NOTHING;
+END $$;
+
 ```
 
 </details>
@@ -431,24 +459,6 @@ For other templates the same - jsut change text `Verify your email on joki` and 
 ### Providers
 
 `Google` `Twitter`
-
-### Buckets
-
-<details> <summary><b>public-images</b></summary>
-
-`public-images` (public)
-
-<b>Storage policies</b><br/>
-allow insert for everyone<br/>
-allow select for everyone<br/>
-
-</details>
-
-<b>Other policies under storage.objects</b><br/>
-Public access for insert<br/>
-Public access for select<br/>
-
-<br/>
 
 <details> <summary><b>URL configuration</b></summary>
 

@@ -33,7 +33,7 @@ function formatFakeProductSeed(
   sourceProduct: FakeShopProduct | undefined,
   index: number,
   ownerId: string,
-): TablesInsert<"products"> {
+): TablesInsert<"23_products"> {
   const prefix = PRODUCT_PREFIXES[index % PRODUCT_PREFIXES.length]
   const noun = PRODUCT_NOUNS[index % PRODUCT_NOUNS.length]
   const itemNumber = String(index + 1).padStart(3, "0")

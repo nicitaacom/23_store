@@ -1,4 +1,5 @@
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { normalizeAuthEmail } from "@/utils/publicUserSync"
 import { NextResponse } from "next/server"
 
 export type TAPIAuthRecover = {
@@ -7,16 +8,16 @@ export type TAPIAuthRecover = {
 
 export async function POST(req: Request) {
   const body: TAPIAuthRecover = await req.json()
-  const requestUrl = new URL(req.url)
+  const normalizedEmail = normalizeAuthEmail(body.email)
 
   try {
     // Check is user with this email doesn't exist
-    const { data: email_response, error: emailSelectError } = await supabaseAdmin
+    const { data: publicUsers, error: emailSelectError } = await supabaseAdmin
       .from("23_users")
       .select("email,email_confirmed_at")
-      .eq("email", body.email)
-      .single()
-    const email = email_response?.email
+      .eq("email", normalizedEmail)
+      .order("created_at", { ascending: true })
+    const email = publicUsers?.[0]?.email
 
     if (!email) {
       throw new Error("User with this email doesn't exist")

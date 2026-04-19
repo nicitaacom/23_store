@@ -27,7 +27,7 @@ export async function signInWithPassword(
     // Check is user with this email doesn't exist and return providers and username
     const existingUserData = await accountSDK.signInWithEmail(email)
     const { data: user, error: signInError } = await supabaseClient.auth.signInWithPassword({
-      email: email,
+      email: email.trim().toLowerCase(),
       password: password,
     })
 
@@ -48,6 +48,19 @@ export async function signInWithPassword(
     }
 
     if (user.user) {
+      const syncPublicUserResponse = await fetch("/api/auth/sync-public-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ provider: "credentials" }),
+      })
+
+      if (!syncPublicUserResponse.ok) {
+        const syncPublicUserPayload = (await syncPublicUserResponse.json().catch(() => null)) as { error?: string } | null
+        throw new Error(syncPublicUserPayload?.error || "Failed to sync public user")
+      }
+
       userStore.setUser(user.user)
       reset()
       router.refresh() //refresh to show avatarUrl in navbar

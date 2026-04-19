@@ -10,6 +10,22 @@ function normalizeString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null
 }
 
+function decodeURIComponentSafely(value: string): string {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
+function normalizeReadableString(value: unknown): string | null {
+  const normalizedValue = normalizeString(value)
+  if (!normalizedValue) return null
+
+  // Geo headers can arrive percent-encoded, e.g. "Santa%20Clara".
+  return decodeURIComponentSafely(normalizedValue)
+}
+
 export function getCountryNameFromCode(countryCode: string | null): string | null {
   if (!countryCode) return null
 
@@ -23,11 +39,11 @@ export function getCountryNameFromCode(countryCode: string | null): string | nul
 
 export function serializeUTMVisitMetadata(metadata: IUTMVisitMetadata): string {
   return JSON.stringify({
-    userAgent: metadata.userAgent,
-    countryCode: metadata.countryCode,
-    country: metadata.country,
-    region: metadata.region,
-    city: metadata.city,
+    userAgent: normalizeString(metadata.userAgent),
+    countryCode: normalizeString(metadata.countryCode)?.toUpperCase() || null,
+    country: normalizeReadableString(metadata.country),
+    region: normalizeReadableString(metadata.region),
+    city: normalizeReadableString(metadata.city),
   })
 }
 
@@ -49,9 +65,9 @@ export function parseUTMVisitMetadata(value: string | null): IUTMVisitMetadata {
     return {
       userAgent: normalizeString(parsed.userAgent),
       countryCode: parsedCountryCode,
-      country: normalizeString(parsed.country) || getCountryNameFromCode(parsedCountryCode),
-      region: normalizeString(parsed.region),
-      city: normalizeString(parsed.city),
+      country: normalizeReadableString(parsed.country) || getCountryNameFromCode(parsedCountryCode),
+      region: normalizeReadableString(parsed.region),
+      city: normalizeReadableString(parsed.city),
     }
   } catch {
     return {

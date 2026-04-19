@@ -19,8 +19,8 @@ export async function signUp(
 
   setIsEmailSent: Dispatch<SetStateAction<boolean>>,
   getValues: UseFormGetValues<AuthFormData>,
-  setResponseMessage: Dispatch<SetStateAction<ReactNode>>,
-  displayResponseMessage: (message: React.ReactNode) => void,
+  setResponseMessage: Dispatch<SetStateAction<ReactNode | null>>,
+  displayResponseMessage: (message: React.ReactNode | null) => void,
   setFocus: UseFormSetFocus<AuthFormData>,
   locale: string,
 ) {

@@ -13,15 +13,15 @@ interface AuthContinueWithProps {
 export function AuthContinueWith({ isSubmitting, isEmailSent, queryParams, pathname }: AuthContinueWithProps) {
   const t = useI18n()
   return (
-    <section className="flex flex-col gap-y-4 text-center">
-      <p>{t("auth.or.continue")}</p>
-      <div className={`grid grid-cols-3 gap-x-2 ${isSubmitting && "opacity-50 cursor-default pointer-events-none"}`}>
+    <section className="flex w-full flex-col gap-y-4 pt-3 text-center">
+      <p className="text-lg text-subTitle">{t("auth.or.continue")}</p>
+      <div className={`grid grid-cols-3 gap-2 mobile:gap-3 ${isSubmitting && "opacity-50 cursor-default pointer-events-none"}`}>
         <ContinueWithButton provider="google" />
         <ContinueWithButton provider="faceit" />
         <ContinueWithButton provider="twitter" />
       </div>
       <Button
-        className={twMerge(`pr-1`, isEmailSent && "opacity-50 pointer-events-none cursor-default")}
+        className={twMerge("justify-center text-base", isEmailSent && "opacity-50 pointer-events-none cursor-default")}
         href={`${pathname}?modal=AuthModal&variant=${queryParams === "login" ? "register" : "login"}`}
         variant="link"
         disabled={isEmailSent}>

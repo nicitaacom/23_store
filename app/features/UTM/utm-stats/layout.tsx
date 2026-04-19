@@ -1,8 +1,8 @@
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
 
-import supabaseServer from "@/libs/supabaseServer"
-import { Navbar } from "@/components/Navbar/Navbar"
+import supabaseServer from "@/libs/supabase/supabaseServer"
+import Navbar from "@/components/Navbar/Navbar"
 
 export const metadata: Metadata = {
   title: "Hot Delivery - utm stats",
@@ -10,11 +10,21 @@ export const metadata: Metadata = {
 }
 
 export default async function UTMLayout({ children }: { children: React.ReactNode }) {
-  // it is protected route and only ADMIN role has access to this route
-  const { data: role_response, error: anonymous_user } = await supabaseServer().from("23_users").select("roles").single()
+  const {
+    data: { user },
+  } = await supabaseServer().auth.getUser()
 
-  // Allow ADMIN to visit this page
-  if (!role_response?.roles.includes("ADMIN") || anonymous_user) {
+  if (!user?.id) {
+    redirect("/")
+  }
+
+  const { data: roleRows, error: roleError } = await supabaseServer()
+    .from("23_users")
+    .select("role")
+    .eq("id", user.id)
+    .order("created_at", { ascending: true })
+
+  if (roleError || roleRows?.[0]?.role !== "ADMIN") {
     redirect("/")
   }
 

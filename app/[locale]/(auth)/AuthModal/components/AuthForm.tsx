@@ -20,7 +20,7 @@ interface AuthFormProps {
   errors: FieldErrors<AuthFormData>
   isSubmitting: boolean
   isEmailSent: boolean
-  responseMessage: ReactNode
+  responseMessage: ReactNode | null
 }
 
 export function AuthForm({
@@ -40,10 +40,10 @@ export function AuthForm({
 
   return (
     <>
-      <form className="relative max-w-[450px] w-[75vw] flex flex-col gap-y-3 mb-3" onSubmit={handleSubmit(onSubmit)}>
+      <form className="relative mb-3 flex w-full max-w-full flex-col gap-y-4" onSubmit={handleSubmit(onSubmit)}>
         {queryParams !== "resetPassword" && (
           <FormInput
-            className="rounded-[10px]"
+            className="h-11 rounded-2xl"
             endIcon={<AiOutlineMail size={24} />}
             register={register}
             errors={errors}
@@ -60,7 +60,7 @@ export function AuthForm({
         )}
         {queryParams !== "recover" && (
           <FormInput
-            className="rounded-[10px]"
+            className="h-11 rounded-2xl"
             endIcon={<AiOutlineLock size={24} />}
             register={register}
             errors={errors}
@@ -82,7 +82,7 @@ export function AuthForm({
         )}
         {queryParams === "register" && (
           <FormInput
-            className="rounded-[10px]"
+            className="h-11 rounded-2xl"
             endIcon={<AiOutlineUser size={24} />}
             register={register}
             errors={errors}
@@ -99,11 +99,10 @@ export function AuthForm({
         )}
 
         {/* REMBMBER-ME / FORGOT-PASSWORD */}
-        <div className="flex justify-between mb-1">
-          <div className={twMerge(`invisible`, queryParams === "login" && "visible")}>
+        <div className="mb-1 flex items-center justify-between gap-3">
+          <div className={twMerge("invisible flex min-h-[20px] items-center", queryParams === "login" && "visible")}>
             {/* 'Remember me' now checkbox do nothing - expected !isChecked 1m jwt - isChecked 3m jwt */}
             <Checkbox
-              className="bg-background cursor-pointer"
               label={t("auth.remember.me")}
               onChange={() => setIsChecked(isChecked => !isChecked)}
               disabled={isSubmitting}
@@ -111,14 +110,24 @@ export function AuthForm({
             />
           </div>
           {queryParams !== "register" && (
-            <Button href={`${pathname}?modal=AuthModal&variant=${queryParams === "login" ? "recover" : "login"}`} variant="link">
+            <Button
+              className="text-sm mobile:text-base"
+              href={`${pathname}?modal=AuthModal&variant=${queryParams === "login" ? "recover" : "login"}`}
+              variant="link">
               {queryParams === "login" ? t("auth.forgot.password") : t("auth.sign.in")}
             </Button>
           )}
         </div>
 
         {/* LOGIN/REGISTER BUTTON */}
-        <Button variant="default-outline" disabled={isSubmitting || isEmailSent}>
+        <Button
+          type="submit"
+          variant="default-outline"
+          size="xl"
+          rounded="xl"
+          fullWidth
+          className="mt-1 border-border-color/45 bg-background/55"
+          disabled={isSubmitting || isEmailSent}>
           {queryParams === "login"
             ? t("auth.sign.in")
             : queryParams === "register"
@@ -127,7 +136,7 @@ export function AuthForm({
                 ? t("auth.recovery.button")
                 : "TODO - contact support - ask to translate it - попросите поддержку перевести этот текст"}
         </Button>
-        <div className="flex justify-center text-center">{responseMessage}</div>
+        {responseMessage ? <div className="flex justify-center text-center text-sm">{responseMessage}</div> : null}
       </form>
 
       {/* CONTINUE WITH (for login and register only) */}

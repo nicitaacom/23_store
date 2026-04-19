@@ -1,7 +1,7 @@
 import { Dispatch, ReactNode, SetStateAction, useEffect } from "react"
 
-export const useResetResponseMessage = (setResponseMessage: Dispatch<SetStateAction<ReactNode>>, queryParams: string | null) => {
+export const useResetResponseMessage = (setResponseMessage: Dispatch<SetStateAction<ReactNode | null>>, queryParams: string | null) => {
   useEffect(() => {
-    setResponseMessage(<p></p>)
+    setResponseMessage(null)
   }, [queryParams])
 }

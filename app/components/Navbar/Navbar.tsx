@@ -14,8 +14,10 @@ export default async function Navbar() {
     data: { user },
   } = await supabaseServer().auth.getUser()
 
-  const cart_products_response = await supabaseServer().from("23_users_cart").select("cart_products").single()
-  const cart_products = cart_products_response.data?.cart_products as unknown as TRecordCartProduct
+  const cart_products_response = user?.id
+    ? await supabaseServer().from("23_users_cart").select("cart_products").eq("id", user.id).maybeSingle()
+    : null
+  const cart_products = cart_products_response?.data?.cart_products as unknown as TRecordCartProduct
 
   let cart_quantity = 0
 
@@ -28,13 +30,13 @@ export default async function Navbar() {
 
   let role = "USER"
   if (user && user.id) {
-    const { data: role_response, error: role_error } = await supabaseServer()
+    const { data: role_rows, error: role_error } = await supabaseServer()
       .from("23_users")
       .select("role")
       .eq("id", user.id)
-      .single()
+      .order("created_at", { ascending: true })
     if (role_error) throw Error(role_error.message)
-    role = role_response.role
+    role = role_rows?.[0]?.role || "USER"
   }
 
   // need to get avatarUrl on server and then pass to client component (because I import cookies from next/headers)

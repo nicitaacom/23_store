@@ -163,37 +163,34 @@ export type Database = {
       }
       utm_stats: {
         Row: {
-          id: number
+          id: string
+          created_at: string
           user_agent: string | null
           user_id: string
-          utm_campaign: string | null
-          utm_content: string | null
-          utm_medium: string | null
-          utm_source: string | null
-          utm_term: string | null
-          visited_at: string
+          source: string | null
+          medium: string | null
+          campaign: string | null
+          url: string | null
         }
         Insert: {
-          id?: number
+          id?: string
+          created_at?: string
           user_agent?: string | null
           user_id: string
-          utm_campaign?: string | null
-          utm_content?: string | null
-          utm_medium?: string | null
-          utm_source?: string | null
-          utm_term?: string | null
-          visited_at: string
+          source?: string | null
+          medium?: string | null
+          campaign?: string | null
+          url?: string | null
         }
         Update: {
-          id?: number
+          id?: string
+          created_at?: string
           user_agent?: string | null
           user_id?: string
-          utm_campaign?: string | null
-          utm_content?: string | null
-          utm_medium?: string | null
-          utm_source?: string | null
-          utm_term?: string | null
-          visited_at?: string
+          source?: string | null
+          medium?: string | null
+          campaign?: string | null
+          url?: string | null
         }
         Relationships: []
       }

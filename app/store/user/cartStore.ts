@@ -46,12 +46,19 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     const keepExistingProductsRecord = get().keepExistingProductsRecord
     const productsRecord = get().products
     const existingProductsRecord = await keepExistingProductsRecord(productsRecord)
-    const ids = [...new Set(Object.values(existingProductsRecord).map(product => product.id).filter(Boolean))]
+    const ids = [
+      ...new Set(
+        Object.values(existingProductsRecord)
+          .map(product => product.id)
+          .filter(Boolean),
+      ),
+    ]
     const cart_products_data_response = await supabaseClient.from("23_products").select().in("id", ids)
     const cart_products = normalizeProducts(cart_products_data_response.data ?? []) // get data from DB product with ids
     const productMap = new Map(cart_products.map(product => [product.id, product]))
 
-    const cart_products_with_quantity = Object.entries(existingProductsRecord).reduce<TProductAfterDB[]>((accum, [cartKey, cartProduct]) => {
+    const cart_products_with_quantity = Object.entries(existingProductsRecord).reduce<TProductAfterDB[]>(
+      (accum, [cartKey, cartProduct]) => {
         const productData = productMap.get(cartProduct.id)
         if (!productData) return accum
 
@@ -69,7 +76,9 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
         })
 
         return accum
-      }, [])
+      },
+      [],
+    )
 
     set(() => ({
       products: existingProductsRecord,
@@ -171,7 +180,13 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
   async keepExistingProductsRecord(products: TRecordCartProduct) {
     if (!products || Object.keys(products).length === 0) return {}
 
-    const ids = [...new Set(Object.values(products).map(product => product.id).filter(Boolean))]
+    const ids = [
+      ...new Set(
+        Object.values(products)
+          .map(product => product.id)
+          .filter(Boolean),
+      ),
+    ]
     const { data: existing_ids_response } = await supabaseClient.from("23_products").select("id").in("id", ids)
     const existing_ids = existing_ids_response ?? [] // array with existing objects id in DB [{id:'prod_id'}]
     const updatedIds = existing_ids.map(productData => productData.id) // string[] ['id']
@@ -189,7 +204,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
     const { user } = useUserStore.getState()
     if (user?.id && isNotExistingProductFound) {
       const { error: update_cart_food_error } = await supabaseClient
-        .from(\"23_users_cart\")
+        .from("23_users_cart")
         .update({ cart_products: filtered_products as unknown as Json })
         .eq("id", user.id)
       if (update_cart_food_error) throw update_cart_food_error

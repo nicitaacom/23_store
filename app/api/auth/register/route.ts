@@ -4,6 +4,7 @@ import list from "disposable-email-domains"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
+import { normalizeAuthEmail, syncPublicUserRecord } from "@/utils/publicUserSync"
 
 export type TAPIAuthRegister = {
   username: string
@@ -15,6 +16,7 @@ export async function POST(req: Request) {
   const { username, email, password }: TAPIAuthRegister = await req.json()
   const supabase = createRouteHandlerClient({ cookies })
   const requestUrl = new URL(req.url)
+  const normalizedEmail = normalizeAuthEmail(email)
 
   // 1. Basic check for temp-emails (if temp-email - throw error)
   async function isDisposable(email: string) {
@@ -22,25 +24,29 @@ export async function POST(req: Request) {
   }
 
   try {
-    if (await isDisposable(email)) {
+    if (await isDisposable(normalizedEmail)) {
       throw new Error(`It seems like you use temp-mail - please use actuall email\n
     So you can recover your password and get access to support`)
     }
 
     // 2. Check if user with this email already exists with verified email
-    const { data: email_response } = await supabaseAdmin
+    const { data: existingUsers, error: selectUsersError } = await supabaseAdmin
       .from("23_users")
       .select("email,email_confirmed_at")
-      .eq("email", email)
-      .single()
-    if (email_response?.email === email && email_response.email_confirmed_at) {
+      .eq("email", normalizedEmail)
+      .order("created_at", { ascending: true })
+
+    if (selectUsersError) throw selectUsersError
+
+    const hasConfirmedUser = (existingUsers || []).some(user => user.email_confirmed_at)
+    if (hasConfirmedUser) {
       throw new Error("User with this email already exists")
     }
     // 3. Resend email if user try to register email that already exists but not confirmed
-    if (email_response?.email === email && !email_response.email_confirmed_at) {
+    if ((existingUsers || []).length > 0) {
       const { error: resendError } = await supabaseAdmin.auth.resend({
         type: "signup",
-        email: email,
+        email: normalizedEmail,
         options: {
           emailRedirectTo: `${requestUrl.origin}/auth/callback/credentials`,
         },
@@ -52,7 +58,7 @@ export async function POST(req: Request) {
     /* Insert row in 'users' table for a new user */
     // 4. Sign up to add row in 'auth.users' and get verification email
     const { data: user, error: signUpError } = await supabase.auth.signUp({
-      email: email,
+      email: normalizedEmail,
       password: password,
       options: {
         emailRedirectTo: `${requestUrl.origin}/auth/callback/credentials`,
@@ -68,8 +74,7 @@ export async function POST(req: Request) {
     // from 'auth.users' if you not verify your email and login with oauth
     // (without 'encrypted_password' supabase don't let you login)
     if (user && user.user?.id) {
-      await supabaseAdmin.from("23_users").insert({ id: user.user.id, username: username, email: email })
-      await supabaseAdmin.from("23_users_cart").insert({ id: user.user.id })
+      await syncPublicUserRecord(user.user)
     } else {
       throw new Error("After signUp - user doesn't exist - try again")
     }
