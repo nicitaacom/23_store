@@ -2,7 +2,6 @@ import { Metadata } from "next"
 import { redirect } from "next/navigation"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
-import Navbar from "@/components/Navbar/Navbar"
 
 export const metadata: Metadata = {
   title: "Hot Delivery - utm stats",
@@ -24,14 +23,9 @@ export default async function UTMLayout({ children }: { children: React.ReactNod
     .eq("id", user.id)
     .order("created_at", { ascending: true })
 
-  if (roleError || roleRows?.[0]?.role !== "ADMIN") {
+  if (roleError || roleRows?.[0]?.role !== "SUPPORT") {
     redirect("/")
   }
 
-  return (
-    <>
-      <Navbar />
-      {children}
-    </>
-  )
+  return <>{children}</>
 }

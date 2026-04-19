@@ -11,7 +11,12 @@ interface UTMParams {
   utm_content?: string
 }
 
-export async function insertDBUTMVisitAction(userId: string, utmParams: UTMParams, metadata: IUTMVisitMetadata) {
+export async function insertDBUTMVisitAction(
+  userId: string,
+  utmParams: UTMParams,
+  metadata: IUTMVisitMetadata,
+  pageUrl: string | null,
+) {
   try {
     // 1. Insert visit tracking data
     const { error } = await supabaseAdmin.from("utm_stats").insert({
@@ -19,6 +24,7 @@ export async function insertDBUTMVisitAction(userId: string, utmParams: UTMParam
       source: utmParams.utm_source,
       medium: utmParams.utm_medium,
       campaign: utmParams.utm_campaign,
+      url: pageUrl,
       user_agent: serializeUTMVisitMetadata(metadata),
     })
     if (error) throw Error(error.message)

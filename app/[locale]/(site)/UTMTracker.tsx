@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { trackVisitAction } from "../../actions/trackVisitAction"
+import { trackVisitAction } from "./stats/actions/trackVisitAction"
 
 export function UTMTracker({ userId }: { userId: string | undefined }) {
   useEffect(() => {

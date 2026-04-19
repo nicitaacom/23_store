@@ -44,7 +44,7 @@ export async function renderEmailFn(
       setCurrentStep(5)
     } catch (error) {
       if (error instanceof Error) {
-        console.log(27, t("payment.error.render_email_title"), error.message)
+        console.log(47, t("payment.error.render_email_title"), error.message)
       }
     }
   } else {
