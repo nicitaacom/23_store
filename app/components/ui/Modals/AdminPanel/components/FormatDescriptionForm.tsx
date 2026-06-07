@@ -24,8 +24,8 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   const locale = useCurrentLocale()
   const toast = useToast()
   const [isEditing, setIsEditing] = useState(false)
+  const isEditingRef = useRef(false)
   const { isLoading, setIsLoading } = useLoading()
-  const inputRef = useRef<HTMLDivElement>(null)
   const currentTranslation = translations[locale] ?? translations.fi
   const { replaceProduct, updateProduct } = useOwnerProductsStore()
 
@@ -41,6 +41,7 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
     const nextTranslations = { ...translations, [locale]: { ...currentTranslation, description } }
 
     updateProduct(id, p => ({ ...p, translations: nextTranslations }))
+    isEditingRef.current = false
     setIsEditing(false)
     setIsLoading(true)
 
@@ -67,40 +68,45 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
     updateDescription(data.subTitle)
   }
 
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
   const enableInput = () => {
+    isEditingRef.current = true
     setIsEditing(true)
+    requestAnimationFrame(() => containerRef.current?.querySelector("textarea")?.focus())
   }
 
   const disableInput = (event: KeyboardEvent) => {
-    if (event.shiftKey && event.key === "Enter") {
-      return
-    }
+    if (event.key === "Escape") console.log("[FormatDescription] keydown Escape, isEditingRef=", isEditingRef.current)
+    if (!isEditingRef.current) return
+    if (event.shiftKey && event.key === "Enter") return
     if (event.key === "Escape") {
-      event.stopPropagation()
+      event.stopImmediatePropagation()
+      isEditingRef.current = false
       setIsEditing(false)
     }
     if (event.key === "Enter") {
       const onSubmitForm = handleSubmit(onSubmit)
-      onSubmitForm() // Call the onSubmit function directly
+      onSubmitForm()
     }
   }
 
   useEffect(() => {
-    const ref = inputRef.current
-    // https://github.com/react-hook-form/react-hook-form/issues/11135
-    if (inputRef.current) {
-      inputRef.current.addEventListener("keydown", disableInput)
+    console.log("[FormatDescription] mount - registering listener")
+    document.addEventListener("keydown", disableInput, true)
+    return () => {
+      console.log("[FormatDescription] unmount - removing listener")
+      document.removeEventListener("keydown", disableInput, true)
     }
-    return () => ref?.removeEventListener("keydown", disableInput)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditing])
+  }, [])
 
   return (
-    <div className="rounded border border-border-color/30 bg-background/70 p-3 shadow-none">
+    <div ref={containerRef} className="rounded border border-border-color/30 bg-background/70 p-3 shadow-none">
       <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("description")}</p>
       {isEditing ? (
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
-          <div ref={inputRef}>
+          <div>
             <ProductInput
               className={twMerge(
                 "min-h-[92px] w-full border-border-color/50 bg-background/60 text-start",
@@ -110,12 +116,13 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
               register={register}
               errors={errors}
               placeholder={currentTranslation.description}
+              autoFocus
             />
           </div>
         </form>
       ) : (
-        <button className="flex items-start gap-2 text-left" type="button" onClick={enableInput}>
-          <h2 className="line-clamp-3 text-sm leading-6 text-subTitle">{currentTranslation.description}</h2>
+        <button className="flex w-full min-w-0 items-start gap-2 rounded p-1 text-left transition-colors duration-150 hover:bg-warning/20" type="button" onClick={enableInput}>
+          <h2 className="line-clamp-3 min-w-0 flex-1 break-words text-sm leading-6 text-subTitle">{currentTranslation.description}</h2>
           <CiEdit className="mt-1 shrink-0 text-subTitle" />
         </button>
       )}

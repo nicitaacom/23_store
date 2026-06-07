@@ -23,8 +23,8 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
   const t = useScopedI18n("product")
   const toast = useToast()
   const { isLoading, setIsLoading } = useLoading()
-  const inputRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
+  const isEditingRef = useRef(false)
   const { replaceProduct, updateProduct } = useOwnerProductsStore()
 
   useEffect(() => {
@@ -38,6 +38,7 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
     const snapshot = onStock
 
     updateProduct(id, p => ({ ...p, on_stock: nextOnStock }))
+    isEditingRef.current = false
     setIsEditing(false)
     setIsLoading(true)
 
@@ -64,58 +65,63 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
     updateOnStock(parseFormattedNumber(data.onStock))
   }
 
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
   const enableInput = () => {
+    isEditingRef.current = true
     setIsEditing(true)
+    requestAnimationFrame(() => containerRef.current?.querySelector("input")?.focus())
   }
 
   const disableInput = (event: KeyboardEvent) => {
+    if (!isEditingRef.current) return
     if (event.key === "Escape") {
-      event.stopPropagation()
+      event.stopImmediatePropagation()
+      isEditingRef.current = false
       setIsEditing(false)
     }
     if (event.key === "Enter") {
       const onSubmitForm = handleSubmit(onSubmit)
-      onSubmitForm() // Call the onSubmit function directly
+      onSubmitForm()
     }
   }
 
   useEffect(() => {
-    const ref = inputRef.current
-    // https://github.com/react-hook-form/react-hook-form/issues/11135
-    if (inputRef.current) {
-      inputRef.current.addEventListener("keydown", disableInput)
-    }
-    return () => ref?.removeEventListener("keydown", disableInput)
+    document.addEventListener("keydown", disableInput, true)
+    return () => document.removeEventListener("keydown", disableInput, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditing])
+  }, [])
 
   return (
-    <div className={twMerge("rounded border border-border-color/30 bg-background/70 px-3 py-2 shadow-none tablet:max-w-[220px]")}>
-      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("on_stock")}</p>
-      {isEditing ? (
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div ref={inputRef}>
-            <ProductInput
-              className={twMerge(
-                "w-full border-border-color/50 bg-background/60 text-start",
-                isLoading && "animate-pulse",
-              )}
-              id="onStock"
-              type="numeric"
-              numericFormat="grouped"
-              register={register}
-              errors={errors}
-              placeholder={formatNumber(onStock) || onStock.toString()}
-              required
-            />
-          </div>
-        </form>
-      ) : (
-        <button className="flex items-center gap-2" type="button" onClick={enableInput}>
-          <span className="text-sm font-medium text-title">{formatNumber(onStock) || onStock}</span>
-          <CiEdit className="text-subTitle" />
-        </button>
-      )}
+    <div ref={containerRef} className={twMerge("rounded border border-border-color/30 bg-background/70 px-3 py-2 shadow-none")}>
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle/70">{t("on_stock")}:</p>
+        {isEditing ? (
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div>
+              <ProductInput
+                className={twMerge(
+                  "w-full border-border-color/50 bg-background/60 text-start",
+                  isLoading && "animate-pulse",
+                )}
+                id="onStock"
+                type="numeric"
+                numericFormat="grouped"
+                register={register}
+                errors={errors}
+                placeholder={formatNumber(onStock) || onStock.toString()}
+                autoFocus
+                required
+              />
+            </div>
+          </form>
+        ) : (
+          <button className="flex items-center gap-1.5 rounded p-1 transition-colors duration-150 hover:bg-warning/20" type="button" onClick={enableInput}>
+            <span className="text-sm font-medium text-title">{formatNumber(onStock) || onStock}</span>
+            <CiEdit className="text-subTitle" />
+          </button>
+        )}
+      </div>
     </div>
   )
 }

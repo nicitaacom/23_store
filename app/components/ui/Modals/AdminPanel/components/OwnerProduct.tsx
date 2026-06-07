@@ -19,7 +19,7 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
         <div className="shrink-0 border-b border-border-color/35 bg-foreground/[0.02] tablet:border-b-0 tablet:border-r">
           <OwnerProductImageSlider images={ownerProduct.img_url} title={translation.title} />
         </div>
-        <div className="flex w-full flex-col justify-between px-3 py-3 tablet:px-4 tablet:py-4">
+        <div className="min-w-0 flex-1 px-3 py-3 tablet:px-4 tablet:py-4">
           <OwnerProductHeader
             id={ownerProduct.id}
             translations={ownerProduct.translations}

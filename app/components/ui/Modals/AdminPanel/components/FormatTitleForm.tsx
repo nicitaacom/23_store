@@ -24,8 +24,8 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const locale = useCurrentLocale()
   const toast = useToast()
   const [isEditing, setIsEditing] = useState(false)
+  const isEditingRef = useRef(false)
   const { isLoading, setIsLoading } = useLoading()
-  const inputRef = useRef<HTMLDivElement>(null)
   const currentTranslation = translations[locale] ?? translations.fi
   const { replaceProduct, updateProduct } = useOwnerProductsStore()
 
@@ -41,6 +41,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
     const nextTranslations = { ...translations, [locale]: { ...currentTranslation, title } }
 
     updateProduct(id, p => ({ ...p, translations: nextTranslations }))
+    isEditingRef.current = false
     setIsEditing(false)
     setIsLoading(true)
 
@@ -67,37 +68,38 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
     updateTitle(data.title)
   }
 
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
   const enableInput = () => {
+    isEditingRef.current = true
     setIsEditing(true)
+    requestAnimationFrame(() => containerRef.current?.querySelector("input")?.focus())
   }
 
   const disableInput = (event: KeyboardEvent) => {
+    if (!isEditingRef.current) return
     if (event.key === "Escape") {
-      event.stopPropagation()
+      event.stopImmediatePropagation()
+      isEditingRef.current = false
       setIsEditing(false)
     }
     if (event.key === "Enter") {
       const onSubmitForm = handleSubmit(onSubmit)
-      onSubmitForm() // Call the onSubmit function directly
+      onSubmitForm()
     }
   }
 
   useEffect(() => {
-    const ref = inputRef.current
-    // https://github.com/react-hook-form/react-hook-form/issues/11135
-    if (inputRef.current) {
-      inputRef.current.addEventListener("keydown", disableInput)
-    }
-    return () => ref?.removeEventListener("keydown", disableInput)
+    document.addEventListener("keydown", disableInput, true)
+    return () => document.removeEventListener("keydown", disableInput, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditing])
+  }, [])
 
   return (
-    <div className="min-w-0 flex-1">
-      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("title")}</p>
+    <div ref={containerRef} className="min-w-0 flex-1">
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div ref={inputRef}>
+          <div>
             <ProductInput
               className={twMerge(
                 "w-full border-border-color/50 bg-background/60 text-start",
@@ -107,13 +109,14 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
               register={register}
               errors={errors}
               placeholder={currentTranslation.title}
+              autoFocus
               required
             />
           </div>
         </form>
       ) : (
         <button
-          className="flex min-w-0 items-center gap-2 rounded px-1 py-1 text-left transition-colors duration-150 hover:bg-background/35"
+          className="flex w-full min-w-0 items-center gap-2 rounded px-1 py-1 text-left transition-colors duration-150 hover:bg-warning/20"
           type="button"
           onClick={enableInput}>
           <span className="truncate text-base font-semibold text-title">{currentTranslation.title}</span>

@@ -16,6 +16,7 @@ interface ModalQueryContainerProps {
   closeButtonClassName?: string
   hideCloseButton?: boolean
   disableDismiss?: boolean
+  ignoreInputs?: boolean
 }
 
 export function ModalQueryContainer({
@@ -25,6 +26,7 @@ export function ModalQueryContainer({
   closeButtonClassName,
   hideCloseButton = false,
   disableDismiss = false,
+  ignoreInputs = true,
 }: ModalQueryContainerProps) {
   const pathname = usePathname()
   const router = useRouter()
@@ -46,7 +48,7 @@ export function ModalQueryContainer({
 
   useOnEscOrClickOutside(modalRef, closeModal, {
     isHookEnabled: showModal && !shouldClose && !disableDismiss,
-    ignoreInputs: true,
+    ignoreInputs,
   })
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */

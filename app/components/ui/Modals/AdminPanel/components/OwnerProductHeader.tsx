@@ -14,8 +14,8 @@ interface OwnerProductHeaderProps {
 
 export function OwnerProductHeader({ id, translations, price, onStock }: OwnerProductHeaderProps) {
   return (
-    <section className="flex flex-col gap-y-3">
-      <div className="flex flex-col gap-3 tablet:flex-row tablet:items-start tablet:justify-between">
+    <section className="flex min-w-0 flex-col gap-y-3">
+      <div className="flex min-w-0 flex-col gap-2 tablet:flex-row tablet:items-center tablet:justify-between">
         <FormatTitleForm id={id} translations={translations} />
         <FormatPriceForm id={id} price={price} />
       </div>

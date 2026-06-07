@@ -26,24 +26,29 @@ export function ModalContainer({
 }: ModalContainerProps) {
   const { isLoading } = useLoading()
 
-  //correct way to add event listener to listen keydown
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading])
 
-  /* onClose - close modal - show scrollbar */
   function closeModal() {
     if (isLoading) return
     onClose()
   }
 
-  //Close modal on esc
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape" && !isLoading) {
-      closeModal()
+    if (event.key !== "Escape" || isLoading) return
+
+    const active = document.activeElement
+    const inputFocused = active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement
+
+    if (inputFocused) {
+      ;(active as HTMLElement).blur()
+      return
     }
+
+    closeModal()
   }
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */

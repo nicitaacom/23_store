@@ -63,6 +63,7 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
         // tablet+: floating, 16:10 ratio, generous width
         "tablet:h-auto tablet:w-[min(96vw,1400px)] tablet:aspect-[16/10] tablet:rounded-lg tablet:border",
       )}
+      ignoreInputs={false}
       modalQuery="AdminPanel">
       {({ closeModal }) => (
         <>
