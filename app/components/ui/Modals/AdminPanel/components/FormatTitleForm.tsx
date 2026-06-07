@@ -27,26 +27,30 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
   const currentTranslation = translations[locale] ?? translations.fi
-  const replaceProduct = useOwnerProductsStore(state => state.replaceProduct)
+  const { replaceProduct, updateProduct } = useOwnerProductsStore()
+
+  useEffect(() => {
+    if (!isLoading) return
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = "" }
+    window.addEventListener("beforeunload", handler)
+    return () => window.removeEventListener("beforeunload", handler)
+  }, [isLoading])
 
   async function updateTitle(title: string) {
-    setIsLoading(true)
-    try {
-      const response = await productsSDK.updateProduct({
-        productId: id,
-        translations: {
-          ...translations,
-          [locale]: {
-            ...currentTranslation,
-            title,
-          },
-        },
-      })
+    const snapshot = translations
+    const nextTranslations = { ...translations, [locale]: { ...currentTranslation, title } }
 
+    updateProduct(id, p => ({ ...p, translations: nextTranslations }))
+    setIsEditing(false)
+    setIsLoading(true)
+
+    try {
+      const response = await productsSDK.updateProduct({ productId: id, translations: nextTranslations })
+      if (typeof response === "string") throw new Error(response)
       replaceProduct(id, response.product)
-      setIsEditing(false)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
+      updateProduct(id, p => ({ ...p, translations: snapshot }))
       toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)

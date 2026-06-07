@@ -7,6 +7,7 @@ import { twMerge } from "tailwind-merge"
 
 import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { OwnerProductHeader } from "./OwnerProductHeader"
+import { FormatImagesForm } from "./FormatImagesForm"
 
 export function OwnerProduct({ ...ownerProduct }: TProductDB) {
   const locale = useCurrentLocale()
@@ -24,9 +25,11 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
             translations={ownerProduct.translations}
             price={ownerProduct.price}
             onStock={ownerProduct.on_stock}
-            imgUrl={ownerProduct.img_url}
           />
         </div>
+      </div>
+      <div className="border-t border-border-color/35 bg-foreground/[0.02] px-2 py-2 tablet:px-3 tablet:py-3">
+        <FormatImagesForm id={ownerProduct.id} imgUrl={ownerProduct.img_url} />
       </div>
     </article>
   )

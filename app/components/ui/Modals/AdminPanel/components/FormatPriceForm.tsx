@@ -25,20 +25,29 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   const [isEditing, setIsEditing] = useState(false)
   const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
-  const replaceProduct = useOwnerProductsStore(state => state.replaceProduct)
+  const { replaceProduct, updateProduct } = useOwnerProductsStore()
 
-  async function updatePrice(price: number) {
+  useEffect(() => {
+    if (!isLoading) return
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = "" }
+    window.addEventListener("beforeunload", handler)
+    return () => window.removeEventListener("beforeunload", handler)
+  }, [isLoading])
+
+  async function updatePrice(nextPrice: number) {
+    const snapshot = price
+
+    updateProduct(id, p => ({ ...p, price: nextPrice }))
+    setIsEditing(false)
     setIsLoading(true)
-    try {
-      const response = await productsSDK.updateProduct({
-        productId: id,
-        price,
-      })
 
+    try {
+      const response = await productsSDK.updateProduct({ productId: id, price: nextPrice })
+      if (typeof response === "string") throw new Error(response)
       replaceProduct(id, response.product)
-      setIsEditing(false)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
+      updateProduct(id, p => ({ ...p, price: snapshot }))
       toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)

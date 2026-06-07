@@ -25,19 +25,29 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
   const { isLoading, setIsLoading } = useLoading()
   const inputRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
-  const replaceProduct = useOwnerProductsStore(state => state.replaceProduct)
+  const { replaceProduct, updateProduct } = useOwnerProductsStore()
 
-  async function updateOnStock(onStock: number) {
+  useEffect(() => {
+    if (!isLoading) return
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = "" }
+    window.addEventListener("beforeunload", handler)
+    return () => window.removeEventListener("beforeunload", handler)
+  }, [isLoading])
+
+  async function updateOnStock(nextOnStock: number) {
+    const snapshot = onStock
+
+    updateProduct(id, p => ({ ...p, on_stock: nextOnStock }))
+    setIsEditing(false)
     setIsLoading(true)
+
     try {
-      const response = await productsSDK.updateProduct({
-        productId: id,
-        onStock,
-      })
+      const response = await productsSDK.updateProduct({ productId: id, onStock: nextOnStock })
+      if (typeof response === "string") throw new Error(response)
       replaceProduct(id, response.product)
-      setIsEditing(false)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
+      updateProduct(id, p => ({ ...p, on_stock: snapshot }))
       toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)
