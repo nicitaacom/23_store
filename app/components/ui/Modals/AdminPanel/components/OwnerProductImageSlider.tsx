@@ -1,0 +1,59 @@
+"use client"
+
+import { useState } from "react"
+import { AiFillCaretLeft, AiFillCaretRight } from "react-icons/ai"
+import { twMerge } from "tailwind-merge"
+
+import { OWNER_PRODUCT_MEDIA_WRAPPER_CLASSNAME, OwnerProductImage } from "./OwnerProductImage"
+
+interface OwnerProductImageSliderProps {
+  images: string[]
+  title: string
+  onClickSlide?: (e: React.MouseEvent) => void
+}
+
+export function OwnerProductImageSlider({ images, title, onClickSlide }: OwnerProductImageSliderProps) {
+  const [slideIndex, setSlideIndex] = useState(0)
+  const hasMultiple = images.length > 1
+  const safeIndex = Math.min(slideIndex, images.length - 1)
+
+  const prev = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSlideIndex(i => Math.max(0, i - 1))
+  }
+
+  const next = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSlideIndex(i => Math.min(images.length - 1, i + 1))
+  }
+
+  return (
+    <div
+      className={twMerge(OWNER_PRODUCT_MEDIA_WRAPPER_CLASSNAME, "relative max-w-none")}
+      onClick={onClickSlide}>
+      <OwnerProductImage
+        imgUrl={images[safeIndex]}
+        alt={hasMultiple ? `${title} ${safeIndex + 1}` : title}
+      />
+      {hasMultiple && (
+        <>
+          <button
+            onClick={prev}
+            disabled={safeIndex === 0}
+            className="absolute left-0 top-0 z-10 flex h-full w-9 items-center justify-center bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-20">
+            <AiFillCaretLeft size={18} />
+          </button>
+          <button
+            onClick={next}
+            disabled={safeIndex === images.length - 1}
+            className="absolute right-0 top-0 z-10 flex h-full w-9 items-center justify-center bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-20">
+            <AiFillCaretRight size={18} />
+          </button>
+          <span className="absolute bottom-1.5 right-2 z-10 rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-medium text-white/80 tabular-nums">
+            {safeIndex + 1}/{images.length}
+          </span>
+        </>
+      )}
+    </div>
+  )
+}
