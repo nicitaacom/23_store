@@ -40,7 +40,7 @@ function isMissingStripeResource(error: unknown) {
 
 export async function POST(request: NextRequest) {
   const { id }: TRequest = await request.json()
-  const supabase = supabaseServerAction()
+  const supabase = await supabaseServerAction()
 
   try {
     if (!id?.trim()) {

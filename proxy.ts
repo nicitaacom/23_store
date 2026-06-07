@@ -73,7 +73,7 @@ function encodeBase64Fn(value: string) {
 function getClientIp(request: NextRequest) {
   const forwardedFor = request.headers.get("x-forwarded-for")
   if (forwardedFor) return forwardedFor.split(",")[0]?.trim() || "127.0.0.1"
-  return request.ip || request.headers.get("x-real-ip") || "127.0.0.1"
+  return request.headers.get("x-real-ip") || "127.0.0.1"
 }
 
 function getLocalePrefix(pathname: string) {
@@ -137,7 +137,7 @@ async function enforceLocalePageRateLimit(request: NextRequest, hasVerifiedTurns
   })
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const turnstileEnabled = isTurnstileEnabled()
   const hasVerifiedTurnstile = request.cookies.get(TURNSTILE_COOKIE_NAME)?.value === TURNSTILE_COOKIE_VALUE

@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: false,
 
+  turbopack: {},
+
   webpack: (config, { dev }) => {
     if (dev) {
       config.cache = {

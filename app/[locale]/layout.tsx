@@ -1,7 +1,7 @@
 import "../globals.css"
 
 import type { Metadata } from "next"
-import { lazy, ReactElement } from "react"
+import React, { lazy } from "react"
 import { Layout } from "@/components"
 import { ModalsProvider, ModalsQueryProvider } from "@/providers"
 import { getCookie } from "@/utils/helpersSSR"
@@ -32,23 +32,26 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({
-  params: { locale },
+  params: paramsPromise,
   children,
 }: {
-  params: { locale: string }
-  children: ReactElement
+  params: Promise<{ locale: string }>
+  children: React.ReactNode
 }) {
+  const { locale } = await paramsPromise
   const ownerProducts = await getOwnerProducts()
   const ToastProvider = lazy(() => import("@/providers/ToastProvider"))
 
+  const supabase = await supabaseServer()
   const {
     data: { user },
-  } = await supabaseServer().auth.getUser()
+  } = await supabase.auth.getUser()
   const normalizedUser = normalizeUser(user)
-  const userId = normalizedUser?.id ?? getCookie("anonymousId")
+  const [anonymousId, darkMode] = await Promise.all([getCookie("anonymousId"), getCookie("darkMode")])
+  const userId = normalizedUser?.id ?? anonymousId
 
   return (
-    <html lang="en" className={getCookie("darkMode") ?? "dark"}>
+    <html lang="en" className={darkMode ?? "dark"}>
       <body>
         <I18nProviderClient locale={locale}>
           <Layout user={normalizedUser}>{children}</Layout>

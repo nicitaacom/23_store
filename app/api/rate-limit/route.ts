@@ -40,7 +40,8 @@ export async function POST(req: Request) {
 
   /* -------- Rate limit setup ---------- */
   // on VPS you need to fetch IP instead of using this
-  const ip = headers().get("x-real-ip") || headers().get("x-forwarded-for") || "127.0.0.1"
+  const reqHeaders = await headers()
+  const ip = reqHeaders.get("x-real-ip") || reqHeaders.get("x-forwarded-for") || "127.0.0.1"
   const fullKey = `${ip}-${limiterKey}`
 
   function formatReset(reset: number, timezone: string) {

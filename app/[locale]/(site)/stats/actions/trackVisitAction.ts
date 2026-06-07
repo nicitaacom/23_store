@@ -23,8 +23,8 @@ function extractUTMParams(searchParams: { [key: string]: string | undefined } = 
   }
 }
 
-function getVisitMetadata(): IUTMVisitMetadata {
-  const requestHeaders = headers()
+async function getVisitMetadata(): Promise<IUTMVisitMetadata> {
+  const requestHeaders = await headers()
   const countryCode = requestHeaders.get("x-vercel-ip-country") || requestHeaders.get("cf-ipcountry")
 
   return {
@@ -72,5 +72,5 @@ export async function trackVisitAction(
         utm_content: undefined,
       }
 
-  await insertDBUTMVisitAction(userId, finalParams, getVisitMetadata(), pageUrl || null)
+  await insertDBUTMVisitAction(userId, finalParams, await getVisitMetadata(), pageUrl || null)
 }

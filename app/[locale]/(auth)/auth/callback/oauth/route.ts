@@ -13,7 +13,8 @@ export async function GET(request: Request) {
   // get data about provider to save it in DB to throw error like
   // 'You already have signed in account with google - continue with google?'
   const provider = requestUrl.searchParams.get("provider")
-  const cookieNames = cookies()
+  const cookieStore = await cookies()
+  const cookieNames = cookieStore
     .getAll()
     .map(cookie => cookie.name)
 
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
 
   if (code) {
     // 2. Exchange cookies for session (to get session data)
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore as unknown as ReturnType<typeof cookies> })
     const response = await supabase.auth.exchangeCodeForSession(code)
     console.log("[auth:oauth][route] exchangeCodeForSession completed", {
       provider,

@@ -21,7 +21,7 @@ export type TUpdateProductRequest = {
 export async function POST(req: Request) {
   const body: TUpdateProductRequest = await req.json()
 
-  const supabase = supabaseServerAction()
+  const supabase = await supabaseServerAction()
   const productId = body.productId
   const images = body.images
   const translations = body.translations

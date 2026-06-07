@@ -15,22 +15,26 @@ import { Products } from "./components"
 import { CatalogSearchForm } from "./components/CatalogSearchForm"
 
 interface SearchProps {
-  params: { locale: string }
-  searchParams: { [key: string]: string | string[] | undefined }
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 const fetchProducts = cache(async () => {
-  const products = await supabaseServer().from("23_products").select("*").order("price", { ascending: true })
+  const supabase = await supabaseServer()
+  const products = await supabase.from("23_products").select("*").order("price", { ascending: true })
   if (!products) notFound()
   return products
 })
 
-export default async function Home({ params, searchParams }: SearchProps) {
+export default async function Home({ params: paramsPromise, searchParams: searchParamsPromise }: SearchProps) {
+  const params = await paramsPromise
+  const searchParams = await searchParamsPromise
   //Fetching all data from DB
   const t = await getScopedI18n("product")
+  const supabase = await supabaseServer()
   const {
     data: { user },
-  } = await supabaseServer().auth.getUser()
+  } = await supabase.auth.getUser()
   const products_response = await fetchProducts()
   if (products_response.error) throw products_response.error
   const products = normalizeProducts(products_response.data)

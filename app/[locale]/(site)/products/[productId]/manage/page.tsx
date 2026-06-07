@@ -11,14 +11,15 @@ import { normalizeProduct } from "@/utils/productVariants"
 import { ManageProductView } from "./ManageProductView"
 
 interface ManageProductPageProps {
-  params: {
+  params: Promise<{
     locale: string
     productId: string
-  }
+  }>
 }
 
 const getProductById = cache(async (productId: string) => {
-  const productResponse = await supabaseServer().from("23_products").select("*").eq("id", productId).maybeSingle()
+  const supabase = await supabaseServer()
+  const productResponse = await supabase.from("23_products").select("*").eq("id", productId).maybeSingle()
 
   if (productResponse.error) {
     throw productResponse.error
@@ -31,7 +32,8 @@ const getProductById = cache(async (productId: string) => {
   return normalizeProduct(productResponse.data)
 })
 
-export async function generateMetadata({ params }: ManageProductPageProps): Promise<Metadata> {
+export async function generateMetadata({ params: paramsPromise }: ManageProductPageProps): Promise<Metadata> {
+  const params = await paramsPromise
   const product = await getProductById(params.productId)
   const translation = product ? pt(product, toProductLocale(params.locale)) : null
 
@@ -41,13 +43,15 @@ export async function generateMetadata({ params }: ManageProductPageProps): Prom
   }
 }
 
-export default async function ManageProductPage({ params }: ManageProductPageProps) {
+export default async function ManageProductPage({ params: paramsPromise }: ManageProductPageProps) {
+  const params = await paramsPromise
   const t = await getScopedI18n("product")
   const product = await getProductById(params.productId)
   const translation = product ? pt(product, toProductLocale(params.locale)) : null
+  const supabase = await supabaseServer()
   const {
     data: { user },
-  } = await supabaseServer().auth.getUser()
+  } = await supabase.auth.getUser()
 
   if (!product || !user || user.id !== product.owner_id) {
     notFound()

@@ -9,7 +9,8 @@ export async function GET(request: Request) {
   const start = Math.max(0, Number(searchParams.get("start")) || 0)
   const endExclusive = Math.max(start + 1, Number(searchParams.get("end")) || start + 24)
 
-  const response = await supabaseServer()
+  const supabase = await supabaseServer()
+  const response = await supabase
     .from("23_products")
     .select("*")
     .order("on_stock", { ascending: false, nullsFirst: false })

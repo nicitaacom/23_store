@@ -4,10 +4,11 @@ import { fetchPopularProducts } from "@/libs/popularProducts"
 import { PopularProductsLazyFeed } from "./PopularProductsLazyFeed"
 
 interface PopularProductsPageProps {
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }
 
-export default async function PopularProductsPage({ params }: PopularProductsPageProps) {
+export default async function PopularProductsPage({ params: paramsPromise }: PopularProductsPageProps) {
+  const params = await paramsPromise
   const { products, totalItems } = await fetchPopularProducts({ limit: 24 })
 
   return (

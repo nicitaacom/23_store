@@ -9,9 +9,9 @@ import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import type { IMessageDB } from "@/ts/support/IMessageDB"
 
 interface ChatPageProps {
-  params: {
+  params: Promise<{
     ticketId: string
-  }
+  }>
 }
 
 // to fix issue when I'm not in present channel and I see no messages in MesagesBody - https://streamable.com/dze31q
@@ -37,17 +37,18 @@ const getIsTicketOpenCache = cache(async (ticketId: string) => {
   return is_ticket_open?.is_open
 })
 
-export async function generateStaticParams(): Promise<string[]> {
+export async function generateStaticParams(): Promise<{ ticketId: string }[]> {
   const { data, error } = await supabaseAdmin.from("23_tickets").select("id").eq("is_open", true)
   if (error) {
     console.log(42, "error generating statuc params - ", error.message)
     return []
   }
-  if (!data) return notFound()
-  return data.map(ticketId => ticketId.id) // from [{id:'129f-32id'}] to ['129f-32id']
+  if (!data) return []
+  return data.map(row => ({ ticketId: row.id }))
 }
 
-export async function generateMetadata({ params: { ticketId } }: ChatPageProps): Promise<Metadata> {
+export async function generateMetadata({ params: paramsPromise }: ChatPageProps): Promise<Metadata> {
+  const { ticketId } = await paramsPromise
   const initial_messages = await getInitialMessagesByTicketIdCache(ticketId)
   const firstMessage = initial_messages[0]
 
@@ -72,7 +73,8 @@ export async function generateMetadata({ params: { ticketId } }: ChatPageProps):
   }
 }
 
-export default async function ChatPage({ params: { ticketId } }: ChatPageProps) {
+export default async function ChatPage({ params: paramsPromise }: ChatPageProps) {
+  const { ticketId } = await paramsPromise
   const initial_messages = await getInitialMessagesByTicketIdCache(ticketId)
   const is_ticket_open = await getIsTicketOpenCache(ticketId)
   const firstMessage = initial_messages[0]

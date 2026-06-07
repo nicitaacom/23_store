@@ -10,12 +10,13 @@ import { getCookie } from "@/utils/helpersSSR"
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 
 export default async function Navbar() {
+  const supabase = await supabaseServer()
   const {
     data: { user },
-  } = await supabaseServer().auth.getUser()
+  } = await supabase.auth.getUser()
 
   const cart_products_response = user?.id
-    ? await supabaseServer().from("23_users_cart").select("cart_products").eq("id", user.id).maybeSingle()
+    ? await supabase.from("23_users_cart").select("cart_products").eq("id", user.id).maybeSingle()
     : null
   const cart_products = cart_products_response?.data?.cart_products as unknown as TRecordCartProduct
 
@@ -30,7 +31,7 @@ export default async function Navbar() {
 
   let role = "USER"
   if (user && user.id) {
-    const { data: role_rows, error: role_error } = await supabaseServer()
+    const { data: role_rows, error: role_error } = await supabase
       .from("23_users")
       .select("role")
       .eq("id", user.id)
@@ -40,7 +41,7 @@ export default async function Navbar() {
   }
 
   // need to get avatarUrl on server and then pass to client component (because I import cookies from next/headers)
-  const avatarUrl = getCookie("avatarUrl") || undefined
+  const avatarUrl = (await getCookie("avatarUrl")) || undefined
 
   return (
     <NavbarWrapper>

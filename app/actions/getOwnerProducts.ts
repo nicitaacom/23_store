@@ -9,7 +9,8 @@ const getOwnerProducts = async () => {
     return []
   }
 
-  const { data } = await supabaseServer()
+  const supabase = await supabaseServer()
+  const { data } = await supabase
     .from("23_products")
     .select("*")
     .eq("owner_id", user.id)

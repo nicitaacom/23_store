@@ -9,15 +9,16 @@ export const metadata: Metadata = {
 }
 
 export default async function UTMLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await supabaseServer()
   const {
     data: { user },
-  } = await supabaseServer().auth.getUser()
+  } = await supabase.auth.getUser()
 
   if (!user?.id) {
     redirect("/")
   }
 
-  const { data: roleRows, error: roleError } = await supabaseServer()
+  const { data: roleRows, error: roleError } = await supabase
     .from("23_users")
     .select("role")
     .eq("id", user.id)

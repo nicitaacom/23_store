@@ -9,10 +9,11 @@ import { Products } from "../components"
 import { getI18n } from "@/locales/server"
 
 interface SearchPageProps {
-  searchParams: { query: string }
+  searchParams: Promise<{ query: string }>
 }
 
-export async function generateMetadata({ searchParams: { query } }: SearchPageProps): Promise<Metadata> {
+export async function generateMetadata({ searchParams: searchParamsPromise }: SearchPageProps): Promise<Metadata> {
+  const { query } = await searchParamsPromise
   const t = await getI18n()
 
   if (query === undefined) {
@@ -26,8 +27,10 @@ export async function generateMetadata({ searchParams: { query } }: SearchPagePr
   }
 }
 
-export default async function SearchPage({ searchParams: { query } }: SearchPageProps) {
-  const products_response = await supabaseServer().from("23_products").select("*").order("price", { ascending: true })
+export default async function SearchPage({ searchParams: searchParamsPromise }: SearchPageProps) {
+  const { query } = await searchParamsPromise
+  const supabase = await supabaseServer()
+  const products_response = await supabase.from("23_products").select("*").order("price", { ascending: true })
   if (products_response.error) throw products_response.error
   const products = filterProductsBySearchQuery(normalizeProducts(products_response.data), query)
 

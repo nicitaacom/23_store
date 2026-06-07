@@ -1,6 +1,7 @@
 import Link from "next/link"
 
-export default function JompanionPage({ params: { locale } }: { params: { locale: string } }) {
+export default async function JompanionPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
   return (
     <section className="flex min-h-[calc(100vh-64px)] items-center justify-center px-6 py-16">
       <div className="w-full max-w-2xl rounded-[18px] border border-border-color bg-foreground px-6 py-8 text-title shadow-[0_24px_80px_rgba(0,0,0,0.18)]">

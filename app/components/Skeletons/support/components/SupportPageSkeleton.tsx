@@ -1,11 +1,10 @@
 import "react-loading-skeleton/dist/skeleton.css"
 import { MessagesBodySkeleton, MessagesFooterSkeleton, MessagesHeaderSkeleton } from "./components"
 import { DesktopSidebarSkeleton } from "./components/DesktopSidebarSkeleton"
-import { Params } from "next/dist/shared/lib/router/utils/route-matcher"
 import Skeleton from "react-loading-skeleton"
 import { MobileSidebarSkeleton } from "./components/MobileSidebarSkeleton"
 
-export function SupportPageSkeleton({ ticketId }: { ticketId: Params }) {
+export function SupportPageSkeleton({ ticketId }: { ticketId: string | Record<string, string | string[] | undefined> }) {
   return (
     <main
       className="w-full h-[calc(100vh-81px)] overflow-x-hidden overflow-y-auto hide-scrollbar

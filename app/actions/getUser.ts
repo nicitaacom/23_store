@@ -3,8 +3,9 @@ import { User } from "@supabase/supabase-js"
 import { cache } from "react"
 
 export const getUser = cache(async (): Promise<User | null> => {
+  const supabase = await supabaseServer()
   const {
     data: { user },
-  } = await supabaseServer().auth.getUser()
+  } = await supabase.auth.getUser()
   return user
 })

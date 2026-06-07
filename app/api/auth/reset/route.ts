@@ -11,7 +11,8 @@ export async function POST(req: Request) {
   const body: TAPIAuthReset = await req.json()
 
   try {
-    const { data, error } = await supabaseServer().auth.updateUser({ password: body.password })
+    const supabase = await supabaseServer()
+    const { data, error } = await supabase.auth.updateUser({ password: body.password })
 
     // 1. Change default supabase error.message to curstom error.message
     if (error) {
