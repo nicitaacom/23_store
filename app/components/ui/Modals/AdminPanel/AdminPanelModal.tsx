@@ -35,7 +35,7 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
   const { products: hydratedOwnerProducts, hydrate: hydrateOwnerProducts } = useOwnerProductsStore()
 
   const [productAction, setProductAction] = useState<ProductAction>(PRODUCT_ACTIONS.add)
-  const [pendingDeleteProduct, setPendingDeleteProduct] = useState<PendingDeleteProduct | null>(null)
+  const [pendingDeleteProduct, setPendingDeleteProduct] = useState<PendingDeleteProduct | PendingDeleteProduct[] | null>(null)
   const { isLoading } = useLoading()
 
   const { user } = useUserStore()
@@ -90,7 +90,7 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
               <div className="panel-scroll h-full overflow-y-auto pr-1">
                 <DeleteProductForm
                   ownerProducts={hydratedOwnerProducts}
-                  onRequestDelete={(id, title) => setPendingDeleteProduct({ id, title })}
+                  onRequestDelete={setPendingDeleteProduct}
                 />
               </div>
             )}
