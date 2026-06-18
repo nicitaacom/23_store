@@ -9,7 +9,7 @@ import { OWNER_PRODUCT_MEDIA_WRAPPER_CLASSNAME, OwnerProductImage } from "./Owne
 interface OwnerProductImageSliderProps {
   images: string[]
   title: string
-  onClickSlide?: (e: React.MouseEvent) => void
+  onClickSlide?: () => void
 }
 
 export function OwnerProductImageSlider({ images, title, onClickSlide }: OwnerProductImageSliderProps) {
@@ -32,8 +32,10 @@ export function OwnerProductImageSlider({ images, title, onClickSlide }: OwnerPr
       className={twMerge(OWNER_PRODUCT_MEDIA_WRAPPER_CLASSNAME, "relative max-w-none")}
       onClick={onClickSlide}>
       <OwnerProductImage
+        key={images[safeIndex]}
         imgUrl={images[safeIndex]}
         alt={hasMultiple ? `${title} ${safeIndex + 1}` : title}
+        onUploadClick={onClickSlide}
       />
       {hasMultiple && (
         <>

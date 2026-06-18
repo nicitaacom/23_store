@@ -349,6 +349,7 @@ export default {
   "product.description_too_short": "Описание слишком короткое - минимум 10 символов",
   "product.description_too_long": "Описание слишком длинное - максимум {max} символов",
   "product.description_printable_only": "Описание может содержать только печатаемые символы и переводы строк",
+  "product.no_image_found": "Изображение не найдено",
 
   // =================        =================
   //                   message

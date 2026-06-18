@@ -349,6 +349,7 @@ export default {
   "product.description_too_short": "Description is too short - minimum 10 characters",
   "product.description_too_long": "Description is too long - maximum {max} characters",
   "product.description_printable_only": "Description can contain printable characters and new lines only",
+  "product.no_image_found": "No image found",
 
   // =================        =================
   //                   message

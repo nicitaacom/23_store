@@ -1,12 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import ImageUploading, { ImageListType } from "react-images-uploading"
 import { BiPlus, BiTrash, BiStar, BiUpload } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
-
-import { useEffect } from "react"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -19,9 +17,10 @@ import { showToastWarningFn } from "../functions/showToastWarningFn"
 interface FormatImagesFormProps {
   id: string
   imgUrl: string[]
+  onUploadHandlerReady?: (fn: () => void) => void
 }
 
-export function FormatImagesForm({ id, imgUrl }: FormatImagesFormProps) {
+export function FormatImagesForm({ id, imgUrl, onUploadHandlerReady }: FormatImagesFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()
   const toast = useToast()
@@ -132,6 +131,8 @@ const [newImages, setNewImages] = useState<ImageListType>([])
           return
         }
         setNewImages(added)
+        const pendingUrls = added.map(img => img.data_url!)
+        void saveImages([...imgUrl, ...pendingUrls], added)
       }}
       maxNumber={MAX_PRODUCT_IMAGES}
       maxFileSize={MAX_IMAGE_FILE_SIZE_BYTES}
@@ -147,7 +148,9 @@ const [newImages, setNewImages] = useState<ImageListType>([])
           files,
         )
       }}>
-      {({ onImageUpload, dragProps, isDragging }) => (
+      {({ onImageUpload, dragProps, isDragging }) => {
+        onUploadHandlerReady?.(onImageUpload)
+        return (
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap gap-2">
             {allImages.map((url, index) => {
@@ -213,25 +216,9 @@ const [newImages, setNewImages] = useState<ImageListType>([])
             )}
           </div>
 
-          {/* Pending new images — save button */}
-          {newImages.length > 0 && (
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={() => {
-                const pendingUrls = newImages.map(img => img.data_url!)
-                void saveImages([...imgUrl, ...pendingUrls], newImages)
-              }}
-              className={twMerge(
-                "flex h-8 w-full items-center justify-center gap-1.5 rounded border border-brand/35 bg-brand/10 text-xs font-semibold text-brand transition-colors hover:bg-brand/15 disabled:opacity-50",
-                isLoading && "animate-pulse",
-              )}>
-              <BiUpload size={13} />
-              Save {newImages.length} new image{newImages.length > 1 ? "s" : ""}
-            </button>
-          )}
         </div>
-      )}
+        )
+      }}
     </ImageUploading>
   )
 }

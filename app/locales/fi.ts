@@ -349,6 +349,7 @@ export default {
   "product.description_too_short": "Kuvaus on liian lyhyt - vähintään 10 merkkiä",
   "product.description_too_long": "Kuvaus on liian pitkä - enintään {max} merkkiä",
   "product.description_printable_only": "Kuvaus saa sisältää vain tulostettavia merkkejä ja rivinvaihtoja",
+  "product.no_image_found": "Kuvaa ei löydy",
 
   // =================        =================
   //                   message

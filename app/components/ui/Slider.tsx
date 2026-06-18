@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import { twMerge } from "tailwind-merge"
 import { Carousel } from "react-responsive-carousel"
@@ -19,9 +20,32 @@ interface SliderProps {
   swipeable?: boolean
   containerClassName?: string
   className?: string
+  noImageLabel?: string
 }
 
-export function Slider({ images, width, height, emulateTouch, swipeable, className, containerClassName }: SliderProps) {
+function SliderImage({ image, width, height, className, noImageLabel }: { image: TImages[number]; width: number; height: number; className?: string; noImageLabel?: string }) {
+  const [isBroken, setIsBroken] = useState(false)
+  const showFallback = isBroken || !image.src
+  return (
+    <div className={twMerge("relative w-full h-full", showFallback && "flex flex-col items-center justify-center gap-2")}>
+      <Image
+        className={twMerge("object-contain", showFallback ? "w-auto h-4/5" : "w-full h-full", className)}
+        src={showFallback ? "/no-image-fallback.png" : image.src}
+        alt={image.alt}
+        width={width}
+        height={height}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        loading="lazy"
+        onError={() => setIsBroken(true)}
+      />
+      {showFallback && noImageLabel && (
+        <p className="text-center text-xs text-white/40">{noImageLabel}</p>
+      )}
+    </div>
+  )
+}
+
+export function Slider({ images, width, height, emulateTouch, swipeable, className, containerClassName, noImageLabel }: SliderProps) {
   return (
     <figure
       className={twMerge(
@@ -61,16 +85,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
           </button>
         )}>
         {images.map((image, index) => (
-          <Image
-            className={twMerge("w-full h-full object-contain", className)}
-            src={image.src}
-            alt={image.alt}
-            width={width}
-            height={height}
-            key={index}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            loading="lazy"
-          />
+          <SliderImage key={index} image={image} width={width} height={height} className={className} noImageLabel={noImageLabel} />
         ))}
       </Carousel>
     </figure>

@@ -28,6 +28,32 @@ interface ManageProductViewProps {
   product: TProductDB
 }
 
+function ImageWithFallback({ src, ...props }: React.ComponentProps<typeof Image>) {
+  const [isBroken, setIsBroken] = useState(false)
+  return <Image {...props} src={isBroken || !src ? "/no-image-fallback.png" : src} onError={() => setIsBroken(true)} />
+}
+
+function ActiveImage({ src, alt, noImageLabel }: { src: string; alt: string; noImageLabel: string }) {
+  const [isBroken, setIsBroken] = useState(false)
+  const showFallback = isBroken || !src
+  return (
+    <div className={twMerge("absolute inset-0", showFallback && "flex flex-col items-center justify-center gap-2")}>
+      <Image
+        src={showFallback ? "/no-image-fallback.png" : src}
+        alt={alt}
+        fill={!showFallback}
+        width={showFallback ? 200 : undefined}
+        height={showFallback ? 200 : undefined}
+        priority
+        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 70vw, 50vw"
+        className={showFallback ? "object-contain" : "object-contain p-6 mobile:p-10"}
+        onError={() => setIsBroken(true)}
+      />
+      {showFallback && <p className="text-center text-xs text-white/40">{noImageLabel}</p>}
+    </div>
+  )
+}
+
 const inputCn =
   "w-full rounded-2xl border border-white/8 !bg-[#0f1318] px-4 text-[15px] text-white placeholder:text-white/22 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors focus:border-success/30 focus:!bg-[#131922] disabled:opacity-50"
 
@@ -68,7 +94,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<IFormDataAddProduct>({
     defaultValues: {
       title: currentTranslation.title,
@@ -80,6 +106,10 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const titleValue = watch("title")
   const subTitleValue = watch("subTitle")
   const onStockValue = watch("onStock")
+
+  const isImagesDirty = stringifyValue(images.map(i => i.data_url)) !== stringifyValue(product.img_url)
+  const isVariantsDirty = stringifyValue(variants) !== stringifyValue(normalizeVariantsForDraft(product))
+  const hasChanges = isDirty || isImagesDirty || isVariantsDirty
 
   const previewTitle = titleValue?.trim() || currentTranslation.title
   const previewDescription = subTitleValue?.trim() || currentTranslation.description
@@ -459,7 +489,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                     ? "border-success/55 shadow-lg shadow-success/10"
                     : "border-white/8 hover:border-success/25 hover:bg-[#141a22]",
                 )}>
-                <Image src={image.data_url || "/placeholder.jpg"} alt={`${previewTitle}-${index + 1}`} fill className="object-cover" sizes="80px" />
+                <ImageWithFallback src={image.data_url} alt={`${previewTitle}-${index + 1}`} fill className="object-cover" sizes="80px" />
               </button>
             ))}
           </div>
@@ -489,17 +519,10 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           }}>
           {({ onImageUpload, dragProps }) => (
             <div className="order-1 tablet:order-2">
-              <div className="overflow-hidden rounded-[28px] border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(24,110,52,0.24),transparent_34%),linear-gradient(180deg,rgba(10,13,18,0.98),rgba(6,8,12,0.99))] shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
+              <div className="overflow-hidden rounded-2xl border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(24,110,52,0.24),transparent_34%),linear-gradient(180deg,rgba(10,13,18,0.98),rgba(6,8,12,0.99))] shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
                 <div className="relative aspect-[4/5] w-full">
                   {activeImage?.data_url ? (
-                    <Image
-                      src={activeImage.data_url}
-                      alt={previewTitle}
-                      fill
-                      priority
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 70vw, 50vw"
-                      className="object-contain p-6 mobile:p-10"
-                    />
+                    <ActiveImage src={activeImage.data_url} alt={previewTitle} noImageLabel={tGlobal("product.no_image_found")} />
                   ) : (
                     <button
                       type="button"
@@ -529,25 +552,27 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-[28px] border border-white/8 bg-[linear-gradient(145deg,rgba(12,16,21,0.98),rgba(8,10,14,0.99))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.34)]">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-subTitle">{t("manage_images")}</p>
-                    <h2 className="mt-1 text-2xl font-semibold text-title">{previewTitle}</h2>
-                    <p className="mt-2 text-sm leading-6 text-subTitle">{previewDescription}</p>
-                  </div>
+              <div className="mt-4 rounded-2xl border border-white/8 bg-[linear-gradient(145deg,rgba(12,16,21,0.98),rgba(8,10,14,0.99))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.34)]">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("manage_images")}</p>
+                <h2 className="mt-1.5 text-xl font-semibold leading-snug text-title">{previewTitle}</h2>
+                <p className="mt-1 line-clamp-2 text-sm leading-6 text-subTitle">{previewDescription}</p>
 
-                  <div className="rounded-2xl border border-success/18 bg-success/8 px-4 py-3">
-                    <p className="text-xs uppercase tracking-[0.2em] text-subTitle">{t("price")}</p>
-                    <p className="mt-1 text-2xl font-bold text-success">{previewPrice}</p>
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="flex-1 rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2">
+                    <p className="text-[10px] uppercase tracking-widest text-white/40">{t("on_stock")}</p>
+                    <p className="mt-0.5 text-base font-semibold text-title">{previewStock}</p>
+                  </div>
+                  <div className="flex-1 rounded-xl border border-success/18 bg-success/8 px-3 py-2">
+                    <p className="text-[10px] uppercase tracking-widest text-white/40">{t("price")}</p>
+                    <p className="mt-0.5 text-base font-bold text-success">{previewPrice}</p>
                   </div>
                 </div>
 
-                <div className="mt-5 grid gap-3 mobile:grid-cols-3">
+                <div className="mt-4 grid gap-2 mobile:grid-cols-3">
                   <button
                     type="button"
                     onClick={onImageUpload}
-                    className="rounded-2xl border border-success/18 bg-success/8 px-4 py-3 text-sm font-medium text-success transition-colors hover:bg-success/12"
+                    className="rounded-xl border border-success/18 bg-success/8 px-3 py-2.5 text-sm font-medium text-success transition-colors hover:bg-success/12"
                     {...dragProps}>
                     {t("click_or_drop_here")}
                   </button>
@@ -555,21 +580,16 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                     type="button"
                     onClick={() => makeImagePrimary(activeImageIndex)}
                     disabled={activeImageIndex === 0 || !images.length}
-                    className="rounded-2xl border border-white/8 bg-[#0f1318] px-4 py-3 text-sm font-medium text-title transition-colors hover:border-success/25 hover:bg-[#141a22] disabled:opacity-40">
+                    className="rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2.5 text-sm font-medium text-title transition-colors hover:border-success/25 hover:bg-[#141a22] disabled:opacity-40">
                     {t("primary_image")}
                   </button>
                   <button
                     type="button"
                     onClick={() => removeImageAt(activeImageIndex)}
                     disabled={!images.length || images.length === 1}
-                    className="rounded-2xl border border-danger/18 bg-danger/8 px-4 py-3 text-sm font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
+                    className="rounded-xl border border-danger/18 bg-danger/8 px-3 py-2.5 text-sm font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
                     {t("remove")}
                   </button>
-                </div>
-
-                <div className="mt-5 rounded-2xl border border-white/8 bg-[#0f1318] px-4 py-3">
-                  <p className="text-xs uppercase tracking-[0.2em] text-subTitle">{t("on_stock")}</p>
-                  <p className="mt-2 text-lg font-semibold text-title">{previewStock}</p>
                 </div>
               </div>
             </div>
@@ -578,7 +598,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       </section>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <section className="rounded-[28px] border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(20,90,44,0.22),transparent_28%),linear-gradient(155deg,rgba(11,14,19,0.99),rgba(8,10,14,1))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.42)]">
+        <section className="rounded-2xl border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(20,90,44,0.22),transparent_28%),linear-gradient(155deg,rgba(11,14,19,0.99),rgba(8,10,14,1))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.42)]">
           <div className="mb-4">
             <p className="text-xs uppercase tracking-[0.24em] text-subTitle">{t("manage_product")}</p>
             <h1 className="mt-2 text-3xl font-semibold text-title">{t("manage_product_title")}</h1>
@@ -611,7 +631,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               />
             </div>
 
-            <div className="grid gap-4 mobile:grid-cols-2">
+            <div className="grid items-end gap-4 mobile:grid-cols-2">
               <div className="grid gap-1.5">
                 <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("on_stock")}</label>
                 <ProductInput
@@ -627,21 +647,21 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 />
               </div>
 
-              <div className="rounded-2xl border border-success/18 bg-success/8 px-4 py-3">
+              <div className="h-12 flex items-center justify-between rounded-2xl border border-success/18 bg-success/8 px-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-subTitle">{t("price")}</p>
-                <p className="mt-2 text-lg font-semibold text-success">{previewPrice}</p>
+                <p className="text-lg font-semibold text-success">{previewPrice}</p>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
+        <section className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
           <div className="flex flex-col gap-3">
-            <div className="grid gap-3 mobile:grid-cols-[minmax(0,1fr)_180px_auto]">
-              <label className="grid min-w-0 flex-1 gap-1.5">
+            <div className="grid items-end gap-3 mobile:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+              <label className="grid gap-1.5">
                 <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_label")}</span>
                 <input
-                  className="h-12 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-[15px] text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/20"
+                  className={twMerge(inputCn, "h-12")}
                   value={variantLabel}
                   onChange={event => setVariantLabel(event.target.value)}
                   placeholder={t("variant_label")}
@@ -652,7 +672,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               <label className="grid gap-1.5">
                 <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_price")}</span>
                 <input
-                  className="h-12 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-[15px] text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/20"
+                  className={twMerge(inputCn, "h-12")}
                   value={variantPrice}
                   onChange={event => setVariantPrice(formatGroupedNumberInput(event.target.value))}
                   placeholder={t("placeholder.price")}
@@ -674,7 +694,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               </Button>
             </div>
 
-            <p className="text-sm text-subTitle">{t("manage_variant_help")}</p>
+            {!variants.length && <p className="text-sm text-subTitle">{t("manage_variant_help")}</p>}
           </div>
 
           <div className="mt-4 grid gap-3">
@@ -682,7 +702,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           </div>
         </section>
 
-        <section className="rounded-[28px] border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
+        <section className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
           <div className="flex flex-wrap gap-3">
             <Button
               className="font-medium"
@@ -700,7 +720,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             <Button
               className="font-medium mobile:ml-auto"
               type="submit"
-              disabled={isSaving}
+              disabled={isSaving || !hasChanges}
               variant="success"
               size="lg"
               rounded="lg"

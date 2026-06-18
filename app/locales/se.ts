@@ -349,6 +349,7 @@ export default {
   "product.description_too_short": "Beskrivningen är för kort - minst 10 tecken",
   "product.description_too_long": "Beskrivningen är för lång - max {max} tecken",
   "product.description_printable_only": "Beskrivningen får bara innehålla utskrivbara tecken och radbrytningar",
+  "product.no_image_found": "Ingen bild hittades",
 
   // =================        =================
   //                   message
