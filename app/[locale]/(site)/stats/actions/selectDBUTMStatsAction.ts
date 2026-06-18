@@ -40,15 +40,47 @@ function formatLocationName(country: string | null, region: string | null, city:
  * Returns an aggregated object with these computed values if successful, or a string error message on failure.
  * Note: The return type differs from the raw database type - it's a custom aggregated stats object for dashboard use.
  */
-export async function selectDBUTMStatsAction(): Promise<IUTMAggregatedStats | string> {
+/**
+ * Resolves a year + month selection into an inclusive-start / exclusive-end ISO range.
+ * month is 1-12 for a specific month, or 0 ("Entire Year") for the whole year.
+ * Returns null when no year is selected, meaning "all time" (no date filtering).
+ */
+function resolveDateRange(year?: number, month?: number): { start: string; end: string } | null {
+  if (!year) return null
+
+  if (!month) {
+    // Entire year
+    return {
+      start: new Date(Date.UTC(year, 0, 1)).toISOString(),
+      end: new Date(Date.UTC(year + 1, 0, 1)).toISOString(),
+    }
+  }
+
+  // Specific month (month is 1-based, Date months are 0-based)
+  return {
+    start: new Date(Date.UTC(year, month - 1, 1)).toISOString(),
+    end: new Date(Date.UTC(year, month, 1)).toISOString(),
+  }
+}
+
+export async function selectDBUTMStatsAction(
+  dateSelection?: { year: number; month: number },
+): Promise<IUTMAggregatedStats | string> {
   try {
     const urlFilters = PROJECT_URL_FRAGMENTS.map(urlFragment => `url.ilike.%${urlFragment}%`).join(",")
+    const dateRange = resolveDateRange(dateSelection?.year, dateSelection?.month)
 
-    const { data: stats, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("utm_stats")
       .select("id, user_id, created_at, source, medium, campaign, url, user_agent")
       .or(urlFilters)
       .order("created_at", { ascending: false })
+
+    if (dateRange) {
+      query = query.gte("created_at", dateRange.start).lt("created_at", dateRange.end)
+    }
+
+    const { data: stats, error } = await query
 
     if (error) return `Error fetching UTM stats: ${error.message}`
     if (!stats?.length) return EMPTY_STATS

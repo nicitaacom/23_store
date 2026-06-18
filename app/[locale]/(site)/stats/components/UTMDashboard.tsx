@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { selectDBUTMStatsAction } from "../actions/selectDBUTMStatsAction"
 import { Area, AreaChart, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 import { IoChevronDown, IoCalendar, IoTrendingUp, IoGlobeOutline, IoLocationOutline } from "react-icons/io5"
 import { IUTMAggregatedStats, IUTMCountryStat, IUTMLocationStat } from "@/ts/interfaces/IUTMAggregatedStats"
 
 const CHART_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"]
+const FIRST_YEAR = 2023 // year the store launched — don't offer years before this
 const DAILY_VISITS_RANGE_OPTIONS = [
   { key: "today", label: "Today", days: 1 },
   { key: "week", label: "Last Week", days: 7 },
@@ -283,7 +285,7 @@ function DailyVisitsChart({ data }: { data: { date: string; visits: number }[] }
       </div>
 
       <div className="h-[340px] rounded-lg border border-border-color/20 bg-background/40 p-3 mobile:p-4">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <AreaChart data={points} margin={{ top: 12, right: 12, left: 0, bottom: 8 }}>
             <defs>
               <linearGradient id="dailyVisitsStroke" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -347,18 +349,38 @@ function DailyVisitsChart({ data }: { data: { date: string; visits: number }[] }
 
 export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggregatedStats }) {
   // 1. State management for date selection
-  const [selectedYear, setSelectedYear] = useState(2025)
-  const [selectedMonth, setSelectedMonth] = useState(1) // Changed to 1 (January) instead of 0
+  const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
+  const [selectedMonth, setSelectedMonth] = useState(0) // 0 = "Entire Year"
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
-  const [currentData, setCurrentData] = useState<IUTMAggregatedStats | null>(null)
+  // Seed with the all-time prop so the dashboard renders immediately; the period effect then
+  // replaces it with data filtered to the selected month/year.
+  const [currentData, setCurrentData] = useState<IUTMAggregatedStats | null>(() =>
+    utmStatsResponse.totalVisits > 0 ? utmStatsResponse : null,
+  )
   const [forceRender, setForceRender] = useState(0) // Force re-render trigger
 
-  // 2. Initialize data on component mount
+  // 2. Whenever the selected period changes (incl. mount), fetch stats filtered to that period.
   useEffect(() => {
-    const initialData = utmStatsResponse.totalVisits > 0 ? utmStatsResponse : getMockData(selectedYear, selectedMonth)
-    setCurrentData(initialData)
-  }, [utmStatsResponse, selectedYear, selectedMonth])
+    let cancelled = false
+
+    async function loadStats() {
+      const response = await selectDBUTMStatsAction({ year: selectedYear, month: selectedMonth })
+      if (cancelled) return
+
+      // On a server error, fall back to whatever we already had (or the initial prop).
+      const resolved = typeof response === "string" ? null : response
+      const nextData = resolved ?? (utmStatsResponse.totalVisits > 0 ? null : getMockData(selectedYear, selectedMonth))
+      if (nextData) setCurrentData(nextData)
+      setIsAnimating(false)
+      setForceRender(prev => prev + 1)
+    }
+
+    loadStats()
+    return () => {
+      cancelled = true
+    }
+  }, [selectedYear, selectedMonth, utmStatsResponse])
 
   const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } }
   const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }
@@ -380,22 +402,15 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
     "December",
   ]
 
-  const years = Array.from({ length: 6 }, (_, i) => 2025 - i)
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: currentYear - FIRST_YEAR + 1 }, (_, i) => currentYear - i)
 
-  const handleDateChange = async (year: number, month: number) => {
+  const handleDateChange = (year: number, month: number) => {
     setIsAnimating(true)
     setSelectedYear(year)
     setSelectedMonth(month)
     setIsDatePickerOpen(false)
-
-    // 4. Simulate data fetch and force re-render
-    setTimeout(() => {
-      // Refresh data based on new date selection
-      const refreshedData = utmStatsResponse.totalVisits > 0 ? utmStatsResponse : getMockData(year, month)
-      setCurrentData(refreshedData)
-      setIsAnimating(false)
-      setForceRender(prev => prev + 1) // Force component re-render
-    }, 300)
+    // The period effect re-fetches filtered stats and clears isAnimating when it resolves.
   }
 
   // 5. Empty state component
