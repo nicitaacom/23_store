@@ -7,6 +7,8 @@ This project shares the `utm_stats` table with projects: 14_portfolio, 28_notion
 ```sql
 -- =================================== 📊 utm_stats table (SHARED across 14, 23, 28, 29) ===================================
 -- Unified UTM tracking across all portfolio projects
+-- ⚠️ SHARED TABLE: Projects 14_portfolio, 23_store, 28_notion-clone, 29_ai-companion use this same utm_stats table
+-- All UTM tracking data is aggregated in a single shared Supabase table
 
 CREATE TABLE IF NOT EXISTS public.utm_stats (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -41,15 +43,15 @@ $$;
 
 ALTER TABLE public.utm_stats FORCE ROW LEVEL SECURITY;
 
--- ⚠️ SHARED TABLE: Projects 14_portfolio, 23_store, 28_notion-clone, 29_ai-companion use this same utm_stats table
--- All UTM tracking data is aggregated in a single shared Supabase table
 ```
 
-<summary><b>SQL query for all DB</b></summary>
+### SQL query: `tables` + `RLS` + `indexes`
 
 ```sql
 -- 👥 Users Table (created first for foreign key dependencies)
-CREATE TABLE IF NOT EXISTS public.23_users (
+-- id/owner_id/cart.id are UUID (authed users, FK to auth.users); existing text DBs: migration 20260619_convert_23_ids_text_to_uuid.sql.
+-- id is UUID — only real authenticated users are inserted here (FK to auth.users). No anonymous rows.
+CREATE TABLE IF NOT EXISTS public."23_users" (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   username TEXT NOT NULL,
@@ -61,15 +63,24 @@ CREATE TABLE IF NOT EXISTS public.23_users (
 );
 
 -- 🔐 RLS Policies for Users
-ALTER TABLE 23_users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Self select" ON 23_users FOR SELECT USING (id = auth.uid());
+ALTER TABLE public."23_users" ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_users' AND policyname='Allow users to select their own row') THEN
+    CREATE POLICY "Allow users to select their own row" ON public."23_users" FOR SELECT USING (auth.uid() = id);
+  END IF;
+END $$;
 
 -- 🎫 Tickets Table
-CREATE TABLE IF NOT EXISTS public.23_tickets (
+CREATE TABLE IF NOT EXISTS public."23_tickets" (
   id TEXT NOT NULL PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   is_open BOOLEAN NOT NULL DEFAULT true,
   owner_username TEXT NOT NULL,
+  -- ⚠️ KEEP AS TEXT — do NOT change to UUID. Tickets can be opened by ANONYMOUS users
+  -- whose owner_id is NOT an auth.users(id), so it cannot be a UUID FK.
+  -- When comparing to auth.uid() (uuid) cast the uuid -> text: owner_id = auth.uid()::text
+  -- (never owner_id::uuid = auth.uid() — that throws 22P02 on non-uuid anonymous ids).
   owner_id text not null,
   last_message_body TEXT NOT NULL DEFAULT '',
   owner_avatar_url TEXT NULL,
@@ -77,17 +88,24 @@ CREATE TABLE IF NOT EXISTS public.23_tickets (
 );
 
 -- 🔐 RLS Policies for Tickets
-ALTER TABLE 23_tickets ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "SUPPORT/ADMIN all access" ON 23_tickets FOR ALL USING (
-  EXISTS (SELECT 1 FROM 23_users WHERE id = auth.uid() AND role IN ('SUPPORT', 'ADMIN'))
-);
+ALTER TABLE public."23_tickets" ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_tickets' AND policyname='SUPPORT/ADMIN all access') THEN
+    CREATE POLICY "SUPPORT/ADMIN all access" ON public."23_tickets" FOR ALL USING (
+      EXISTS (SELECT 1 FROM public."23_users" WHERE id = auth.uid() AND role IN ('SUPPORT', 'ADMIN'))
+    );
+  END IF;
+END $$;
 
 -- 💬 Messages Table
-CREATE TABLE IF NOT EXISTS public.23_messages (
+CREATE TABLE IF NOT EXISTS public."23_messages" (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  ticket_id TEXT NOT NULL REFERENCES 23_tickets(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  sender_id UUID NOT NULL REFERENCES 23_users(id) ON UPDATE CASCADE ON DELETE CASCADE,  -- Changed to UUID
+  ticket_id TEXT NOT NULL REFERENCES public."23_tickets"(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  -- ⚠️ sender_id is TEXT (no FK): an ANONYMOUS user can send a message, so it is NOT an auth.users(id).
+  -- Do NOT add a FK to 23_users(id) (uuid) — text cannot reference uuid.
+  sender_id TEXT NOT NULL,
   sender_username TEXT NOT NULL,
   body TEXT NOT NULL,
   images TEXT[] NULL,
@@ -96,13 +114,21 @@ CREATE TABLE IF NOT EXISTS public.23_messages (
 );
 
 -- 🔐 RLS Policies for Messages
-ALTER TABLE 23_messages ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "SUPPORT/ADMIN select" ON 23_messages FOR SELECT USING (
-  EXISTS (SELECT 1 FROM 23_users WHERE id = auth.uid() AND role IN ('SUPPORT', 'ADMIN'))
-);
+ALTER TABLE public."23_messages" ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_messages' AND policyname='Allow insert for everyone') THEN
+    CREATE POLICY "Allow insert for everyone" ON public."23_messages" FOR INSERT WITH CHECK (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_messages' AND policyname='SUPPORT/ADMIN select') THEN
+    CREATE POLICY "SUPPORT/ADMIN select" ON public."23_messages" FOR SELECT USING (
+      EXISTS (SELECT 1 FROM public."23_users" WHERE id = auth.uid() AND role IN ('SUPPORT', 'ADMIN'))
+    );
+  END IF;
+END $$;
 
 -- 🛒 Products Table
-CREATE TABLE IF NOT EXISTS public.23_products (
+CREATE TABLE IF NOT EXISTS public."23_products" (
   price_id VARCHAR NOT NULL,
   id VARCHAR NOT NULL,
   translations JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -116,23 +142,41 @@ CREATE TABLE IF NOT EXISTS public.23_products (
 );
 
 -- 🔐 RLS Policies for Products
-ALTER TABLE 23_products ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "All users select" ON 23_products FOR SELECT USING (true);
-CREATE POLICY "Owner delete" ON 23_products FOR DELETE USING (owner_id = auth.uid());
-CREATE POLICY "Auth insert" ON 23_products FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "Owner update" ON 23_products FOR UPDATE USING (owner_id = auth.uid());
+ALTER TABLE public."23_products" ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_products' AND policyname='All users select') THEN
+    CREATE POLICY "All users select" ON public."23_products" FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_products' AND policyname='Owner delete') THEN
+    CREATE POLICY "Owner delete" ON public."23_products" FOR DELETE USING (owner_id = auth.uid());
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_products' AND policyname='Auth insert') THEN
+    CREATE POLICY "Auth insert" ON public."23_products" FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_products' AND policyname='Owner update') THEN
+    CREATE POLICY "Owner update" ON public."23_products" FOR UPDATE USING (owner_id = auth.uid());
+  END IF;
+END $$;
 
 -- 🛍️ Users Cart Table
-CREATE TABLE IF NOT EXISTS public.23_users_cart (
+CREATE TABLE IF NOT EXISTS public."23_users_cart" (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   cart_products JSONB NOT NULL DEFAULT '{}'::jsonb
 );
 
 -- 🔐 RLS Policies for Users Cart
-ALTER TABLE 23_users_cart ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Self select" ON 23_users_cart FOR SELECT USING (id = auth.uid());
-CREATE POLICY "Self update" ON 23_users_cart FOR UPDATE USING (id = auth.uid());
+ALTER TABLE public."23_users_cart" ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_users_cart' AND policyname='Allow users to select their own cart') THEN
+    CREATE POLICY "Allow users to select their own cart" ON public."23_users_cart" FOR SELECT USING (auth.uid() = id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_users_cart' AND policyname='Allow users to update their own cart') THEN
+    CREATE POLICY "Allow users to update their own cart" ON public."23_users_cart" FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+  END IF;
+END $$;
 -- 📊 UTM Stats Table (tracking marketing campaign performance)
 CREATE TABLE IF NOT EXISTS public.utm_stats (
   id UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -143,15 +187,11 @@ CREATE TABLE IF NOT EXISTS public.utm_stats (
 ) TABLESPACE pg_default;
 
 ALTER TABLE utm_stats ENABLE ROW LEVEL SECURITY;
+```
 
+### SQL query for buckets + policies
 
-
-
-
-
-
-
-
+```sql
 -- =================================== STORAGE BUCKETS ===================================
 
 -- Create 23_public-images bucket
@@ -160,11 +200,18 @@ VALUES ('23_public-images', '23_public-images', true)
 ON CONFLICT (id) DO UPDATE SET public = true;
 
 -- Storage Policies for 23_public-images bucket
-CREATE POLICY "allow_insert_for_everyone_23_public_images" ON storage.objects
-FOR INSERT WITH CHECK (bucket_id = '23_public-images');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'allow_insert_for_everyone_23_public_images') THEN
+    CREATE POLICY "allow_insert_for_everyone_23_public_images" ON storage.objects
+    FOR INSERT WITH CHECK (bucket_id = '23_public-images');
+  END IF;
 
-CREATE POLICY "allow_select_for_everyone_23_public_images" ON storage.objects
-FOR SELECT USING (bucket_id = '23_public-images');
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'allow_select_for_everyone_23_public_images') THEN
+    CREATE POLICY "allow_select_for_everyone_23_public_images" ON storage.objects
+    FOR SELECT USING (bucket_id = '23_public-images');
+  END IF;
+END $$;
 
 -- Create 23_avatar-images bucket
 INSERT INTO storage.buckets (id, name, public)
@@ -172,11 +219,18 @@ VALUES ('23_avatar-images', '23_avatar-images', true)
 ON CONFLICT (id) DO UPDATE SET public = true;
 
 -- Storage Policies for 23_avatar-images bucket
-CREATE POLICY "allow_insert_for_everyone_23_avatar_images" ON storage.objects
-FOR INSERT WITH CHECK (bucket_id = '23_avatar-images');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'allow_insert_for_everyone_23_avatar_images') THEN
+    CREATE POLICY "allow_insert_for_everyone_23_avatar_images" ON storage.objects
+    FOR INSERT WITH CHECK (bucket_id = '23_avatar-images');
+  END IF;
 
-CREATE POLICY "allow_select_for_everyone_23_avatar_images" ON storage.objects
-FOR SELECT USING (bucket_id = '23_avatar-images');
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'allow_select_for_everyone_23_avatar_images') THEN
+    CREATE POLICY "allow_select_for_everyone_23_avatar_images" ON storage.objects
+    FOR SELECT USING (bucket_id = '23_avatar-images');
+  END IF;
+END $$;
 
 -- Public bucket policies (for '23_public' bucket)
 DO $$
@@ -188,6 +242,41 @@ BEGIN
 END $$;
 
 ```
+
+<br/>
+
+## SQL query for functions
+
+```sql
+-- =================================== 🗄️ DB BACKUP FUNCTION ===================================
+-- Returns a JSON snapshot of every 23_-prefixed table (one key per table).
+-- Called from the export route via supabaseAdmin.rpc('backup_23_tables').
+-- SECURITY DEFINER so it can read past RLS; the API route already enforces ADMIN before calling.
+
+CREATE OR REPLACE FUNCTION public.backup_23_tables()
+RETURNS jsonb
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT jsonb_build_object(
+    '23_users',      (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_users" t),
+    '23_users_cart', (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_users_cart" t),
+    '23_products',   (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_products" t),
+    '23_tickets',    (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_tickets" t),
+    '23_messages',   (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_messages" t)
+  );
+$$;
+
+-- Lock it down: only the service role (used by supabaseAdmin) may execute it.
+REVOKE ALL ON FUNCTION public.backup_23_tables() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.backup_23_tables() FROM anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.backup_23_tables() TO service_role;
+```
+
+> Import is done in JS (the import route upserts each table with `supabaseAdmin` in FK-safe order:
+> `23_users → 23_users_cart → 23_products → 23_tickets → 23_messages`), so no SQL function is
+> needed for restore.
 
 <br/>
 
