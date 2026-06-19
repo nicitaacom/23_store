@@ -22,7 +22,7 @@ After you fork this repository and created branch - set up .env using `README.md
 
 After you done with .env - read `Pull requests` and `Commit naming`
 
-## Keep in mind that I reject your PR if you will do all changes in 1 file
+## ⚠️ Keep in mind that I reject your PR if you will do all changes in 1 file
 
 That's why do commits as small as possible for this check [this video](https://www.youtube.com/watch?v=Dy5t_H2PRrk&ab_channel=EricMurphy)
 
