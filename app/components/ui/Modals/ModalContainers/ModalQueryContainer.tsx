@@ -104,7 +104,7 @@ export function ModalQueryContainer({
             {!hideCloseButton && (
               <IoMdClose
                 className={twMerge(
-                  "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
+                  "absolute right-3 top-3 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
                   closeButtonClassName,
                   (isLoading || disableDismiss) && "opacity-50 cursor-default pointer-events-none",
                 )}

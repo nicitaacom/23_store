@@ -3,12 +3,13 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 
 import { useRef, useState } from "react"
-import { BsWindow } from "react-icons/bs"
+import { BsWindow, BsDatabaseDown } from "react-icons/bs"
 import { BiImageAdd } from "react-icons/bi"
 import { IoChatboxEllipsesOutline } from "react-icons/io5"
 import { IoIosStats } from "react-icons/io"
 import { FaTelegramPlane } from "react-icons/fa"
 
+import { useScopedI18n } from "@/locales/client"
 import useUserStore from "@/store/user/userStore"
 import { useUpdateAvatarModal } from "@/store/ui/useUpdateAvatarModal"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
@@ -36,6 +37,7 @@ function getAnonymousAvatar(isDarkMode: boolean) {
 
 export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
   const router = useRouter()
+  const t = useScopedI18n("backup")
 
   const avatarDropdownRef = useRef<HTMLDivElement>(null)
   const [isShowDropdown, setIsShowDropdown] = useState(false)
@@ -57,6 +59,11 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
 
   function openAdminPanel() {
     router.push("?modal=AdminPanel")
+    closeDropdown()
+  }
+
+  function openDbBackup() {
+    router.push("?modal=DbBackup")
     closeDropdown()
   }
 
@@ -83,6 +90,7 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
       }>
       {role === "SUPPORT" && <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />}
       <DropdownItem label="Admin panel" icon={BsWindow} onClick={openAdminPanel} />
+      {role === "ADMIN" && <DropdownItem label={t("dropdown_item")} icon={BsDatabaseDown} onClick={openDbBackup} />}
       <DropdownItem label="Update avatar" icon={BiImageAdd} onClick={openUpdateAvatarModal} />
       <DropdownItem
         className="flex justify-center mobile:hidden"
@@ -91,7 +99,7 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
         href={process.env.NEXT_PUBLIC_TELEGRAM_URL}
         target="_blank"
       />
-      {role === "SUPPORT" && <DropdownItem label="Stats" icon={IoIosStats} href="/stats" />}
+      {role === "ADMIN" && <DropdownItem label="Stats" icon={IoIosStats} href="/stats" />}
       <DropdownItem className="min-[501px]:hidden" label="Dark mode" icon={SwitchDarkMode} onClick={toggleDarkMode} />
       <LogoutDropdownItem />
     </DropdownContainer>

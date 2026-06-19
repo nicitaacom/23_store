@@ -7,7 +7,7 @@ import { useI18n } from "@/locales/client"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { AdminPanelModalProps } from "@/components/ui/Modals/AdminPanel/AdminPanelModal"
 
-type ModalKey = "AdminPanel" | "AuthModal" | "CartModal"
+type ModalKey = "AdminPanel" | "AuthModal" | "CartModal" | "DbBackup"
 type ModalEntry = { Component: React.ComponentType<any>; props?: Record<string, unknown> }
 
 function AdminModalLoading() {
@@ -22,6 +22,12 @@ function CartModalLoading() {
   return <div>{t("modal.loading.cart")}</div>
 }
 
+function DbBackupModalLoading() {
+  const t = useI18n()
+
+  return <div>{t("modal.loading.backup")}</div>
+}
+
 const AdminPanelModal = dynamic<AdminPanelModalProps>(
   () => import("@/components/ui/Modals/AdminPanel/AdminPanelModal").then(m => m.AdminPanelModal),
   { loading: AdminModalLoading },
@@ -29,6 +35,10 @@ const AdminPanelModal = dynamic<AdminPanelModalProps>(
 
 const CartModal = dynamic(() => import("@/components/ui/Modals/CartModal/CartModal").then(m => m.CartModal), {
   loading: CartModalLoading,
+})
+
+const DbBackupModal = dynamic(() => import("@/components/ui/Modals/DbBackup/DbBackupModal").then(m => m.DbBackupModal), {
+  loading: DbBackupModalLoading,
 })
 
 export function ModalsQueryProvider({ ownerProducts }: { ownerProducts: TProductDB[] }) {
@@ -41,6 +51,7 @@ export function ModalsQueryProvider({ ownerProducts }: { ownerProducts: TProduct
     AdminPanel: { Component: AdminPanelModal, props: { ownerProducts } },
     AuthModal: { Component: AuthModal },
     CartModal: { Component: CartModal },
+    DbBackup: { Component: DbBackupModal },
   }
 
   return (
