@@ -53,7 +53,7 @@ export function PopularProductsPreviewList({
               key={product.id}
               className="group overflow-hidden rounded-[4px] border border-border-color/20 bg-background/80 shadow-lg shadow-success/5 transition-transform duration-300 hover:-translate-y-1 hover:border-success/30">
               <div className={`flex h-full flex-col ${compact ? "mobile:flex-row" : "mobile:flex-row"}`}>
-                <div className={`relative w-full overflow-hidden ${compact ? "h-44 mobile:h-auto mobile:w-40" : "h-56 mobile:h-auto mobile:w-56"}`}>
+                <div className={`relative shrink-0 overflow-hidden ${compact ? "h-32 w-full mobile:h-auto mobile:w-32" : "h-36 w-full mobile:h-auto mobile:w-36"}`}>
                   <ImageWithFallback
                     src={imageUrl}
                     alt={translation.title}
@@ -64,36 +64,28 @@ export function PopularProductsPreviewList({
                   />
                 </div>
 
-                <div className={`flex flex-1 flex-col ${compact ? "gap-[2px] px-1 py-0.5" : "gap-[2px] px-1 py-0.5"}`}>
-                  <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-1 flex-col gap-1.5 px-3 py-2.5">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     {isHotProduct && (
-                      <span className="rounded-[4px] bg-success/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-success">
-                        Hot now
+                      <span className="inline-flex items-center rounded border border-success/20 bg-success/10 px-2 py-0.5 text-[11px] font-medium uppercase tracking-[0.16em] text-success">
+                        Hot
                       </span>
                     )}
-                    <span
-                      className={`rounded-[4px] px-3 py-1 text-xs font-medium ${
-                        isInStock ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
-                      }`}>
+                    <span className={`inline-flex items-center rounded border px-2 py-0.5 text-[11px] font-medium uppercase tracking-[0.16em] ${isInStock ? "border-success/20 bg-success/10 text-success" : "border-warning/20 bg-warning/10 text-warning"}`}>
                       {isInStock ? `${formatNumber(product.on_stock)} in stock` : "Restocking"}
                     </span>
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    <h3 className={`${compact ? "text-xl" : "text-2xl"} font-semibold text-title`}>{translation.title}</h3>
-                    <p className={`text-sm leading-6 text-subTitle ${compact ? "line-clamp-2" : "line-clamp-3"}`}>{translation.description}</p>
-                  </div>
+                  <h3 className="text-sm font-semibold leading-snug text-title line-clamp-2">{translation.title}</h3>
+                  <p className="text-xs leading-5 text-subTitle line-clamp-2">{translation.description}</p>
 
-                  <div className="mt-auto flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.24em] text-subTitle">Preview price</p>
-                      <p className={`${compact ? "text-xl" : "text-2xl"} font-bold text-success`}>{formatCurrency(product.price)}</p>
-                    </div>
+                  <div className="mt-auto flex items-center justify-between gap-2 pt-1">
+                    <p className="text-base font-bold text-success">{formatCurrency(product.price)}</p>
 
                     {showPreviewLink && (
                       <Link
                         href={`/${locale}/popular-products`}
-                        className="rounded-[4px] border border-success/30 bg-success/10 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black">
+                        className="rounded border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-black">
                         Preview list
                       </Link>
                     )}
