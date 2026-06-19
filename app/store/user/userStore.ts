@@ -9,7 +9,9 @@ import { normalizeUser } from "@/utils/user"
 
 interface UserStore {
   user: User | null
+  clientAvatarUrl: string
   setUser: (user: User | null) => void
+  setClientAvatarUrl: (url: string) => void
   clearUser: () => void
   logoutUser: () => void
 }
@@ -18,6 +20,7 @@ type SetState = (fn: (prevState: UserStore) => UserStore) => void
 
 const userStore = (set: SetState): UserStore => ({
   user: null,
+  clientAvatarUrl: "",
   setUser(user: User | null) {
     const normalizedUser = normalizeUser(user)
     set((state: UserStore) => ({
@@ -25,10 +28,17 @@ const userStore = (set: SetState): UserStore => ({
       user: normalizedUser,
     }))
   },
+  setClientAvatarUrl(url: string) {
+    set((state: UserStore) => ({
+      ...state,
+      clientAvatarUrl: url,
+    }))
+  },
   clearUser() {
     set((state: UserStore) => ({
       ...state,
       user: null,
+      clientAvatarUrl: "",
     }))
   },
   logoutUser() {
@@ -36,6 +46,7 @@ const userStore = (set: SetState): UserStore => ({
     set((state: UserStore) => ({
       ...state,
       user: null,
+      clientAvatarUrl: "",
     }))
   },
 })

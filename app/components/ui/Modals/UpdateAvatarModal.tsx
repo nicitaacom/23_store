@@ -27,7 +27,7 @@ export function UpdateAvatarModal() {
   const router = useRouter()
   const t = useI18n()
   const toast = useToast()
-  const { user } = useUserStore()
+  const { user, setClientAvatarUrl } = useUserStore()
   const updateAvatarModal = useUpdateAvatarModal()
   const { isLoading, setIsLoading } = useLoading()
   const [avatarUrl, setAvatarUrl] = useState("")
@@ -86,8 +86,10 @@ export function UpdateAvatarModal() {
 
       const response = await accountSDK.updateAvatarUrl(nextAvatarUrl)
 
-      if (response.resolvedAvatarUrl) setCookie("avatarUrl", response.resolvedAvatarUrl)
+      const resolvedUrl = response.resolvedAvatarUrl ?? ""
+      if (resolvedUrl) setCookie("avatarUrl", resolvedUrl)
       else delCookie("avatarUrl")
+      setClientAvatarUrl(resolvedUrl)
 
       updateAvatarModal.closeModal()
       toast.show("success", "Avatar updated", "Your avatar was saved successfully.")

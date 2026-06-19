@@ -25,9 +25,8 @@ interface AvatarDropdownProps {
   avatarUrlServer: string | undefined
 }
 
-function getSafeAvatarUrl(avatarUrlClient: string, avatarUrlServer: string | undefined) {
-  const avatarUrlFromCookie = getCookie("avatarUrl")?.trim() || ""
-  const avatarUrl = avatarUrlFromCookie || avatarUrlServer?.trim() || avatarUrlClient || ""
+function getSafeAvatarUrl(clientAvatarUrl: string, avatarUrlClient: string, avatarUrlServer: string | undefined) {
+  const avatarUrl = clientAvatarUrl || getCookie("avatarUrl")?.trim() || avatarUrlServer?.trim() || avatarUrlClient || ""
   return avatarUrl || "/placeholder.jpg"
 }
 
@@ -51,11 +50,11 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
 
   useEscOrClickOutside(avatarDropdownRef, closeDropdown)
 
-  const { user } = useUserStore()
+  const { user, clientAvatarUrl } = useUserStore()
   const updateAvatarModal = useUpdateAvatarModal()
   const { isDarkMode, toggleDarkMode } = useDarkModeStore()
 
-  const avatarUrl = user ? getSafeAvatarUrl(getUserAvatarUrl(user), avatarUrlServer) : getAnonymousAvatar(isDarkMode)
+  const avatarUrl = user ? getSafeAvatarUrl(clientAvatarUrl, getUserAvatarUrl(user), avatarUrlServer) : getAnonymousAvatar(isDarkMode)
 
   function openAdminPanel() {
     router.push("?modal=AdminPanel")
