@@ -1,3 +1,5 @@
+Refer to `./docs` - there you find code patterns
+
 1. Follow DRY SOLID KISS best practices.
 2. Follow this code pattern
    Good:
