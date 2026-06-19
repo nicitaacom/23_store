@@ -230,6 +230,11 @@ BEGIN
     CREATE POLICY "allow_select_for_everyone_23_avatar_images" ON storage.objects
     FOR SELECT USING (bucket_id = '23_avatar-images');
   END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'allow_update_for_everyone_23_avatar_images') THEN
+    CREATE POLICY "allow_update_for_everyone_23_avatar_images" ON storage.objects
+    FOR UPDATE USING (bucket_id = '23_avatar-images');
+  END IF;
 END $$;
 
 -- Public bucket policies (for '23_public' bucket)
