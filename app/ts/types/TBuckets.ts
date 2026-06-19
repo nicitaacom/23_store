@@ -1,1 +1,1 @@
-export type TBuckets = "public-images" | "avatar-images"
+export type TBuckets = "23_public-images" | "23_avatar-images"
