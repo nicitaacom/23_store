@@ -41,17 +41,17 @@ component that reads once and hands an aggregated object to a client component.
 
 <details open> <summary><b>Vocab used in this doc</b></summary>
 
-| Term | Meaning |
-| --- | --- |
-| **visit** | one row in `utm_stats`. Deduped to max 1 per `user_id` per calendar day. |
-| **UTM params** | `utm_source`, `utm_medium`, `utm_campaign` read from the URL query string. |
-| **organic / direct** | fallback values when the URL has no UTM params (`source=organic`, `medium=direct`). |
-| **visit metadata** | geo + user-agent JSON: `{ userAgent, countryCode, country, region, city }`. |
+| Term                 | Meaning                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------- |
+| **visit**            | one row in `utm_stats`. Deduped to max 1 per `user_id` per calendar day.               |
+| **UTM params**       | `utm_source`, `utm_medium`, `utm_campaign` read from the URL query string.             |
+| **organic / direct** | fallback values when the URL has no UTM params (`source=organic`, `medium=direct`).    |
+| **visit metadata**   | geo + user-agent JSON: `{ userAgent, countryCode, country, region, city }`.            |
 | **aggregated stats** | `IUTMAggregatedStats` — the rolled-up object the dashboard renders (counts, not rows). |
-| **chartData** | `{ date, visits }[]` — visits grouped by `YYYY-MM-DD` for the Daily Visits chart. |
-| **period** | the year + month selected in the date picker (`month = 0` means "Entire Year"). |
-| `trackVisit` | capture a visit (client → server action → insert). |
-| `selectDB` | read from Supabase. `insertDB` | write to Supabase. (project-wide convention) |
+| **chartData**        | `{ date, visits }[]` — visits grouped by `YYYY-MM-DD` for the Daily Visits chart.      |
+| **period**           | the year + month selected in the date picker (`month = 0` means "Entire Year").        |
+| `trackVisit`         | capture a visit (client → server action → insert).                                     |
+| `selectDB`           | read from Supabase. `insertDB`                                                         | write to Supabase. (project-wide convention) |
 
 </details>
 
@@ -80,14 +80,14 @@ utm_stats
 
 ### Where each piece of code lives
 
-| Stage | File |
-| --- | --- |
-| Capture (client) | [UTMTracker.tsx](../UTMTracker.tsx) — mounted in [layout.tsx](../../layout.tsx) |
-| Capture (server) | [trackVisitAction.ts](actions/trackVisitAction.ts) |
-| Write to DB | [insertDBUTMVisitAction.ts](../../../../actions/insertDBUTMVisitAction.ts) |
-| Geo/UA serialize+parse | [utmVisitMetadata.ts](../../../../utils/utmVisitMetadata.ts) |
-| Read + aggregate (server) | [selectDBUTMStatsAction.ts](actions/selectDBUTMStatsAction.ts) |
-| Render (UI) | [UTMDashboard.tsx](components/UTMDashboard.tsx) via [page.tsx](page.tsx) |
+| Stage                     | File                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------ |
+| Capture (client)          | [UTMTracker.tsx](./UTMTracker.tsx) — mounted in [layout.tsx](../../layout.tsx) |
+| Capture (server)          | [trackVisitAction.ts](actions/trackVisitAction.ts)                             |
+| Write to DB               | [insertDBUTMVisitAction.ts](../../../../actions/insertDBUTMVisitAction.ts)     |
+| Geo/UA serialize+parse    | [utmVisitMetadata.ts](../../../../utils/utmVisitMetadata.ts)                   |
+| Read + aggregate (server) | [selectDBUTMStatsAction.ts](actions/selectDBUTMStatsAction.ts)                 |
+| Render (UI)               | [UTMDashboard.tsx](components/UTMDashboard.tsx) via [page.tsx](page.tsx)       |
 
 ### Where the data renders in the UI
 
@@ -111,7 +111,7 @@ utm_stats
 - **We need date-range queries.** "Show me March 2026" is a `created_at` range scan —
   Postgres does this natively (`gte`/`lt`), so the period filter lives in the DB, not in JS.
 - **No client state store (Zustand) needed.** The page is a server component; the only client
-  state is the *selected period*, which is plain `useState` in `UTMDashboard`. Persisting it
+  state is the _selected period_, which is plain `useState` in `UTMDashboard`. Persisting it
   globally would be over-engineering — it resets on navigation by design.
 
 <br/>
