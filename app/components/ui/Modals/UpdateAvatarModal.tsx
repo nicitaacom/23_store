@@ -63,7 +63,7 @@ export function UpdateAvatarModal() {
       const uploadedImage = await uploadImageFn({
         t,
         imageFile: avatarFile,
-        bucket: "avatar-images",
+        bucket: "23_avatar-images",
         folder: user.id,
         upsert: true,
       })

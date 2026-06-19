@@ -39,9 +39,13 @@ export type StripeProductDraft = {
   productId: string
 }
 
-export function getDefaultVariantPrice(variants: Pick<TProductVariant, "price">[] | Pick<TProductVariantDraft, "price">[] | undefined) {
+export function getDefaultVariantPrice(
+  variants: Pick<TProductVariant, "price">[] | Pick<TProductVariantDraft, "price">[] | undefined,
+) {
   const firstVariantPrice = variants?.[0]?.price
-  return typeof firstVariantPrice === "number" && Number.isFinite(firstVariantPrice) && firstVariantPrice > 0 ? firstVariantPrice : null
+  return typeof firstVariantPrice === "number" && Number.isFinite(firstVariantPrice) && firstVariantPrice > 0
+    ? firstVariantPrice
+    : null
 }
 
 export function getFileExtensionFromContentType(contentType: string, fallbackFileName: string) {
@@ -146,7 +150,7 @@ export async function uploadProductImages(imageFiles: File[], t: TI18nFunction) 
       const uploadResult = await uploadImageFn({
         t,
         imageFile,
-        bucket: "public-images",
+        bucket: "23_public-images",
         folder: uploadFolder,
         suffix: `${uploadBatchId}_${index + 1}`,
         upsert: true,

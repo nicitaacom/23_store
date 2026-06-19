@@ -1,7 +1,7 @@
-import Image from "next/image"
 import Link from "next/link"
 
 import { TProductDB } from "@/ts/product/TProductDB"
+import { ImageWithFallback } from "@/components/ui"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getProductPrimaryImageUrl, pt, toProductLocale } from "@/utils/product"
@@ -54,11 +54,12 @@ export function PopularProductsPreviewList({
               className="group overflow-hidden rounded-[4px] border border-border-color/20 bg-background/80 shadow-lg shadow-success/5 transition-transform duration-300 hover:-translate-y-1 hover:border-success/30">
               <div className={`flex h-full flex-col ${compact ? "mobile:flex-row" : "mobile:flex-row"}`}>
                 <div className={`relative w-full overflow-hidden ${compact ? "h-44 mobile:h-auto mobile:w-40" : "h-56 mobile:h-auto mobile:w-56"}`}>
-                  <Image
+                  <ImageWithFallback
                     src={imageUrl}
                     alt={translation.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    fallbackClassName="object-contain"
                     sizes={compact ? "(max-width: 768px) 100vw, 160px" : "(max-width: 768px) 100vw, 224px"}
                   />
                 </div>

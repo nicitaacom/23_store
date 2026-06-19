@@ -12,7 +12,12 @@ import { twMerge } from "tailwind-merge"
 import { Button } from "@/components/ui"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { showToastWarningFn } from "@/components/ui/Modals/AdminPanel/functions/showToastWarningFn"
-import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
+import {
+  MAX_IMAGE_FILE_SIZE_BYTES,
+  MAX_PRODUCT_IMAGES,
+  MAX_PRODUCT_VARIANTS,
+  MIN_IMAGE_RESOLUTION,
+} from "@/constants/uploadLimits"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useCurrentLocale, useI18n, useScopedI18n } from "@/locales/client"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
@@ -61,7 +66,10 @@ function normalizeVariantsForDraft(product: TProductDB): TProductVariantDraft[] 
   return (product.variants || []).map(variant => ({
     id: variant.id,
     label: variant.label,
-    imageIndex: Math.max(product.img_url.findIndex(image => image === variant.image_url), 0),
+    imageIndex: Math.max(
+      product.img_url.findIndex(image => image === variant.image_url),
+      0,
+    ),
     imageDataUrl: variant.image_url,
     price: variant.price > 0 ? variant.price : product.price,
   }))
@@ -268,7 +276,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         const uploadResult = await uploadImageFn({
           t: tGlobal,
           imageFile: image.file,
-          bucket: "public-images",
+          bucket: "23_public-images",
           folder: product.owner_id,
           suffix: `${product.id}-${index}-${Date.now()}`,
           upsert: true,
@@ -470,7 +478,17 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           </div>
         )
       }),
-    [assignCurrentImageToVariant, images, isSaving, navigateToImage, removeVariant, t, updateVariantLabel, updateVariantPrice, variants],
+    [
+      assignCurrentImageToVariant,
+      images,
+      isSaving,
+      navigateToImage,
+      removeVariant,
+      t,
+      updateVariantLabel,
+      updateVariantPrice,
+      variants,
+    ],
   )
 
   return (
@@ -489,7 +507,13 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                     ? "border-success/55 shadow-lg shadow-success/10"
                     : "border-white/8 hover:border-success/25 hover:bg-[#141a22]",
                 )}>
-                <ImageWithFallback src={image.data_url} alt={`${previewTitle}-${index + 1}`} fill className="object-cover" sizes="80px" />
+                <ImageWithFallback
+                  src={image.data_url}
+                  alt={`${previewTitle}-${index + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="80px"
+                />
               </button>
             ))}
           </div>
@@ -620,7 +644,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             </div>
 
             <div className="grid gap-1.5">
-              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("description")}</label>
+              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                {t("description")}
+              </label>
               <ProductInput
                 className={twMerge(inputCn, "min-h-[120px] resize-none py-3 leading-6")}
                 id="subTitle"
@@ -633,7 +659,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
             <div className="grid items-end gap-4 mobile:grid-cols-2">
               <div className="grid gap-1.5">
-                <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("on_stock")}</label>
+                <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                  {t("on_stock")}
+                </label>
                 <ProductInput
                   className={twMerge(inputCn, "h-12")}
                   id="onStock"
@@ -659,7 +687,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           <div className="flex flex-col gap-3">
             <div className="grid items-end gap-3 mobile:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
               <label className="grid gap-1.5">
-                <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_label")}</span>
+                <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                  {t("variant_label")}
+                </span>
                 <input
                   className={twMerge(inputCn, "h-12")}
                   value={variantLabel}
@@ -670,7 +700,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               </label>
 
               <label className="grid gap-1.5">
-                <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_price")}</span>
+                <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                  {t("variant_price")}
+                </span>
                 <input
                   className={twMerge(inputCn, "h-12")}
                   value={variantPrice}

@@ -2,6 +2,7 @@
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 
+import { useRef, useState } from "react"
 import { BsWindow } from "react-icons/bs"
 import { BiImageAdd } from "react-icons/bi"
 import { IoChatboxEllipsesOutline } from "react-icons/io5"
@@ -15,7 +16,6 @@ import { SwitchDarkMode } from "@/components"
 import { DropdownContainer, DropdownItem } from "@/components/ui"
 import { LogoutDropdownItem } from "./LogoutDropdownItem"
 import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
-import { useRef, useState } from "react"
 import { getCookie } from "@/utils/helpersCSR"
 import { getUserAvatarUrl, getUserName } from "@/utils/user"
 

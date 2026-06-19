@@ -7,7 +7,7 @@ import { ModalsProvider, ModalsQueryProvider } from "@/providers"
 import { getCookie } from "@/utils/helpersSSR"
 import { I18nProviderClient } from "@/locales/client"
 import getOwnerProducts from "@/actions/getOwnerProducts"
-import { UTMTracker } from "@/components/UTMTracker"
+import { UTMTracker } from "@/[locale]/(site)/stats/UTMTracker"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { normalizeUser } from "@/utils/user"
 

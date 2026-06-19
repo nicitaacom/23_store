@@ -17,10 +17,9 @@ import { showToastWarningFn } from "../functions/showToastWarningFn"
 interface FormatImagesFormProps {
   id: string
   imgUrl: string[]
-  onUploadHandlerReady?: (fn: () => void) => void
 }
 
-export function FormatImagesForm({ id, imgUrl, onUploadHandlerReady }: FormatImagesFormProps) {
+export function FormatImagesForm({ id, imgUrl }: FormatImagesFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()
   const toast = useToast()
@@ -148,9 +147,7 @@ const [newImages, setNewImages] = useState<ImageListType>([])
           files,
         )
       }}>
-      {({ onImageUpload, dragProps, isDragging }) => {
-        onUploadHandlerReady?.(onImageUpload)
-        return (
+      {({ onImageUpload, dragProps, isDragging }) => (
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap gap-2">
             {allImages.map((url, index) => {
@@ -217,8 +214,7 @@ const [newImages, setNewImages] = useState<ImageListType>([])
           </div>
 
         </div>
-        )
-      }}
+      )}
     </ImageUploading>
   )
 }
