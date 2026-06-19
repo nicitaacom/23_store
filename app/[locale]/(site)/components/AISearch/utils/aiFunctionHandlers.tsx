@@ -74,7 +74,7 @@ async function generateImageHandler(args: HandlerArgs): Promise<FunctionResult> 
       type: generatedImage.contentType,
     })
 
-    const uploadResult = await uploadImageFn({ t, imageFile, bucket: "public-images" })
+    const uploadResult = await uploadImageFn({ t, imageFile, bucket: "23_public-images" })
     if (!uploadResult || typeof uploadResult === "string") {
       return { success: false, message: `Image upload failed: ${uploadResult ?? "unknown"}` }
     }
