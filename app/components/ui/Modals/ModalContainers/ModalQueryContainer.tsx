@@ -1,7 +1,7 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { usePathname, useSearchParams } from "next/navigation"
 import { IoMdClose } from "react-icons/io"
 import { useSwipeable } from "react-swipeable"
 import { twMerge } from "tailwind-merge"
@@ -29,7 +29,6 @@ export function ModalQueryContainer({
   ignoreInputs = true,
 }: ModalQueryContainerProps) {
   const pathname = usePathname()
-  const router = useRouter()
   const queryParams = useSearchParams()
   const { isLoading } = useLoading()
   const modalRef = useRef<HTMLDivElement | null>(null)
@@ -37,14 +36,21 @@ export function ModalQueryContainer({
   const showModal = queryParams?.getAll("modal").includes(modalQuery)
   const [shouldClose, setShouldClose] = useState(false)
 
-  // Close modal and redirect on close
+  // Reset closing state whenever the modal is (re)opened via the URL
+  useEffect(() => {
+    if (showModal) setShouldClose(false)
+  }, [showModal])
+
+  // Close modal: animate out, then strip the ?modal param WITHOUT a server roundtrip.
+  // history.replaceState (instead of router.push) avoids re-running the server layout
+  // (getOwnerProducts / auth) and re-tracking utm params on every modal close.
   const closeModal = useCallback(() => {
     if (isLoading || disableDismiss) return
     setShouldClose(true)
     setTimeout(() => {
-      router.push(pathname ?? "/")
+      window.history.replaceState(null, "", pathname ?? "/")
     }, 260)
-  }, [disableDismiss, isLoading, router, pathname])
+  }, [disableDismiss, isLoading, pathname])
 
   useOnEscOrClickOutside(modalRef, closeModal, {
     isHookEnabled: showModal && !shouldClose && !disableDismiss,
@@ -68,7 +74,7 @@ export function ModalQueryContainer({
     trackMouse: true,
   })
 
-  if (!showModal && !shouldClose) {
+  if (!showModal) {
     return null
   }
 
@@ -76,7 +82,7 @@ export function ModalQueryContainer({
 
   return (
     <AnimatePresence>
-      {(showModal || shouldClose) && (
+      {showModal && (
         <motion.div
           className="fixed inset-0 z-[1601] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px]"
           initial={{ opacity: 0 }}
