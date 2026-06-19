@@ -23,7 +23,6 @@ export function OwnerDeleteProduct({ onRequestDelete, isBulkMode, isSelected, on
     <article
       className={twMerge(
         "group overflow-hidden rounded border border-border-color/35 bg-foreground/55 shadow-none transition-[border-color,background-color] duration-150",
-        !isBulkMode && "hover:border-border-color/50 hover:bg-background/35",
         isBulkMode && "cursor-pointer",
         isBulkMode && isSelected && "border-danger/35 bg-danger/[0.04]",
         isBulkMode && !isSelected && "hover:border-border-color/45 hover:bg-background/20",

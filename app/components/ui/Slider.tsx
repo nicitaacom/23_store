@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import Image from "next/image"
 import { twMerge } from "tailwind-merge"
 import { Carousel } from "react-responsive-carousel"
 import { AiFillCaretRight, AiFillCaretLeft } from "react-icons/ai"
 import "react-responsive-carousel/lib/styles/carousel.min.css"
+
+import { ImageWithFallback } from "./ImageWithFallback"
 
 export type TImages = {
   src: string
@@ -20,32 +20,26 @@ interface SliderProps {
   swipeable?: boolean
   containerClassName?: string
   className?: string
-  noImageLabel?: string
 }
 
-function SliderImage({ image, width, height, className, noImageLabel }: { image: TImages[number]; width: number; height: number; className?: string; noImageLabel?: string }) {
-  const [isBroken, setIsBroken] = useState(false)
-  const showFallback = isBroken || !image.src
+function SliderImage({ image, width, height, className }: { image: TImages[number]; width: number; height: number; className?: string }) {
   return (
-    <div className={twMerge("relative w-full h-full", showFallback && "flex flex-col items-center justify-center gap-2")}>
-      <Image
-        className={twMerge("object-contain", showFallback ? "w-auto h-4/5" : "w-full h-full", className)}
-        src={showFallback ? "/no-image-fallback.png" : image.src}
-        alt={image.alt}
-        width={width}
-        height={height}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        loading="lazy"
-        onError={() => setIsBroken(true)}
-      />
-      {showFallback && noImageLabel && (
-        <p className="text-center text-xs text-white/40">{noImageLabel}</p>
-      )}
-    </div>
+    <ImageWithFallback
+      className={twMerge("object-contain w-full h-full", className)}
+      fallbackWrapperClassName="relative w-full h-full flex flex-col items-center justify-center gap-2"
+      fallbackClassName="w-auto h-4/5"
+      showLabel
+      src={image.src}
+      alt={image.alt}
+      width={width}
+      height={height}
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      loading="lazy"
+    />
   )
 }
 
-export function Slider({ images, width, height, emulateTouch, swipeable, className, containerClassName, noImageLabel }: SliderProps) {
+export function Slider({ images, width, height, emulateTouch, swipeable, className, containerClassName }: SliderProps) {
   return (
     <figure
       className={twMerge(
@@ -85,7 +79,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
           </button>
         )}>
         {images.map((image, index) => (
-          <SliderImage key={index} image={image} width={width} height={height} className={className} noImageLabel={noImageLabel} />
+          <SliderImage key={index} image={image} width={width} height={height} className={className} />
         ))}
       </Carousel>
     </figure>

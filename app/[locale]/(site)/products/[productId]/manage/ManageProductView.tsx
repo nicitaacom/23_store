@@ -9,7 +9,7 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa"
 import { FiSave, FiTrash2 } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
-import { Button } from "@/components/ui"
+import { Button, ImageWithFallback } from "@/components/ui"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { showToastWarningFn } from "@/components/ui/Modals/AdminPanel/functions/showToastWarningFn"
 import {
@@ -33,29 +33,19 @@ interface ManageProductViewProps {
   product: TProductDB
 }
 
-function ImageWithFallback({ src, ...props }: React.ComponentProps<typeof Image>) {
-  const [isBroken, setIsBroken] = useState(false)
-  return <Image {...props} src={isBroken || !src ? "/no-image-fallback.png" : src} onError={() => setIsBroken(true)} />
-}
-
-function ActiveImage({ src, alt, noImageLabel }: { src: string; alt: string; noImageLabel: string }) {
-  const [isBroken, setIsBroken] = useState(false)
-  const showFallback = isBroken || !src
+function ActiveImage({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className={twMerge("absolute inset-0", showFallback && "flex flex-col items-center justify-center gap-2")}>
-      <Image
-        src={showFallback ? "/no-image-fallback.png" : src}
-        alt={alt}
-        fill={!showFallback}
-        width={showFallback ? 200 : undefined}
-        height={showFallback ? 200 : undefined}
-        priority
-        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 70vw, 50vw"
-        className={showFallback ? "object-contain" : "object-contain p-6 mobile:p-10"}
-        onError={() => setIsBroken(true)}
-      />
-      {showFallback && <p className="text-center text-xs text-white/40">{noImageLabel}</p>}
-    </div>
+    <ImageWithFallback
+      src={src}
+      alt={alt}
+      fill
+      showLabel
+      fallbackWrapperClassName="absolute inset-0 flex flex-col items-center justify-center gap-2"
+      priority
+      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 70vw, 50vw"
+      className="object-contain p-6 mobile:p-10"
+      fallbackClassName="object-contain p-0"
+    />
   )
 }
 
@@ -546,7 +536,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               <div className="overflow-hidden rounded-2xl border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(24,110,52,0.24),transparent_34%),linear-gradient(180deg,rgba(10,13,18,0.98),rgba(6,8,12,0.99))] shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
                 <div className="relative aspect-[4/5] w-full">
                   {activeImage?.data_url ? (
-                    <ActiveImage src={activeImage.data_url} alt={previewTitle} noImageLabel={tGlobal("product.no_image_found")} />
+                    <ActiveImage src={activeImage.data_url} alt={previewTitle} />
                   ) : (
                     <button
                       type="button"
