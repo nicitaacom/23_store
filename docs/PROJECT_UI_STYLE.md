@@ -10,3 +10,27 @@ UI in this project should be minimalistic, compact, and content-first.
 - Prefer token colors like `background`, `foreground`, `title`, `subTitle`, `border-color`, `brand`, `success`, `warning`, `danger`, and `info`.
 - Shadows should be subtle. Depth should mostly come from borders, contrast, and layered surfaces, not oversized blur.
 - Empty states, cards, dropdowns, and modals should feel like the same system: compact, readable, and low-noise.
+- Keep UI minimalistic: small gaps, compact paddings, clean borders, soft blur, subtle shadows.
+- Website use Flat vector illustration - so UI should be soft sofa rounded blurry notion style that perfectly adapts with vector illustrations
+
+## UI style
+
+The UI should usually feel compact and minimalistic.
+
+Common pattern:
+
+```tsx
+className={twMerge(
+  "bg-background/90 backdrop-blur-xl shadow-2xl border border-border-color rounded-2xl overflow-hidden",
+  className,
+)}
+```
+
+Favor:
+
+- small paddings
+- small gaps
+- subtle borders
+- compact button heights
+- clear loading states
+- readable truncation for long text

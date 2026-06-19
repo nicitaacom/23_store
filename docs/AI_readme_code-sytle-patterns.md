@@ -2,321 +2,18 @@
 
 Use this as the default style when generating code for this project.
 
-Stack check in `package.json`
+### Code patterns
 
-## 1. Code patterns for SDK - API rule
+[sdk-fetch-api](./code-patterns/sdk-fetch-api.md)
 
-When fetching internal app data, do not call `fetch("/api/...")` directly from feature code if it belongs to a real entity/domain.
+[hook-set](./code-patterns/hook-set.md)
+[hook-auto-update](./code-patterns/hook-auto-update.md)
+[hook-set](./code-patterns/hook-set.md)
 
-Always prefer this pattern:
+## Code style rules component related
 
-1. Create or reuse an SDK class for the entity.
-2. Put native `fetch` calls inside SDK methods only.
-3. SDK methods should call API routes.
-4. Request bodies should use `satisfies API.XRequest`.
-5. API request/response types should live in `app/ts/namespaces/api/<entity>/api.d.ts`.
-6. API routes should live in folders like `app/api/<entity>/<action>/route.ts` with helper files next to them.
-
-Example SDK pattern:
-
-```ts
-export class ProductsSDK {
-  async selectDBProducts(start: number, end: number) {
-    const response = await fetch(`/api/products/select?start=${start}&end=${end}`, {
-      method: "GET",
-      cache: "no-store",
-    })
-
-    const responseJson: API.ProductsSelectResponse = await response.json()
-    if ("error" in responseJson) return responseJson.error
-    else return responseJson
-  }
-
-  async addProduct(request: API.ProductsAddRequest) {
-    const response = await fetch("/api/products/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(request satisfies API.ProductsAddRequest),
-      cache: "no-store",
-    })
-
-    const responseJson: API.ProductsAddResponse = await response.json()
-    if ("error" in responseJson) return responseJson.error
-    else return responseJson
-  }
-}
-```
-
-Example API namespace structure:
-
-```ts
-app/ts/namespaces/api
-├── products
-│   └── api.d.ts
-├── support
-│   └── api.d.ts
-├── emails
-│   └── api.d.ts
-└── utm
-    └── api.d.ts
-```
-
-Example API route pattern:
-
-```ts
-import { NextResponse } from "next/server"
-import { selectDBProducts } from "./selectDBProducts"
-
-export async function POST(req: Request) {
-  const body = (await req.json()) as API.ProductsSelectRequest
-
-  if (!body.ownerId || typeof body.ownerId !== "string") {
-    return NextResponse.json({ error: `ownerId missing: ${body.ownerId}` } satisfies API.ProductsSelectResponse, {
-      status: 400,
-    })
-  }
-
-  const result = await selectDBProducts(body)
-  if (typeof result === "string") {
-    return NextResponse.json({ error: result } satisfies API.ProductsSelectResponse, { status: 500 })
-  }
-
-  return NextResponse.json(result satisfies API.ProductsSelectResponse, { status: 200 })
-}
-```
-
-Example helper naming:
-
-```ts
-selectDBProducts
-insertDBProduct
-updateDBProduct
-deleteDBProduct
-```
-
-## 2. Code patterns for hook-set hook-auto-update
-
-### hook-set
-
-```ts
-import { useCallback, useEffect, useState } from "react"
-
-import useToast from "@/store/useToast"
-import useAccountsStore from "@/store/useAccountsStore"
-import { EmailsSDK } from "@/classes/Emails/EmailsSDK"
-import { useEnvs } from "@/store/useEnvs"
-import { useMailboxes } from "../../../stores/useMailboxes"
-
-export const useSetMailboxes = () => {
-  const toast = useToast()
-  const { userId } = useAccountsStore()
-  const emailsSDK = new EmailsSDK()
-
-  const [isSkeleton, setIsSkeleton] = useState(false)
-
-  const { encryptedEnvsClient } = useEnvs()
-  const { setMailboxes } = useMailboxes()
-
-  const refetchMailboxes = useCallback(async () => {
-    try {
-      setIsSkeleton(true)
-      const response = await emailsSDK.getSESMailboxes(encryptedEnvsClient)
-      if (typeof response === "string") return toast.show("error", "", response)
-      setMailboxes(response)
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      toast.show("error", "Failed to fetch mailboxes", errorMessage)
-    } finally {
-      setIsSkeleton(false)
-    }
-  }, [userId])
-
-  useEffect(() => {
-    refetchMailboxes()
-  }, []) // do it once - then only if user click "refetch" button
-
-  return { isSkeleton, refetchMailboxes }
-}
-```
-
-### hook-auto-update
-
-```ts
-"use client"
-
-import { useCallback, useEffect, useRef, useState } from "react"
-import { useEnvs } from "@/store/useEnvs"
-import { useAIModels } from "@/components/Modals/AccountModal/AccountTabs/EmailSettingsTab/components/AIRules/hooks/useAIModels"
-import { TAIModel } from "@/widgets/AIModelsDropdown/TAIModel"
-import { AI_CONFIG } from "@/consts/aiModels"
-import { useAIPrettifySettingsModal } from "../../store/useAIPrettifySettingsModal"
-import { useDebounce } from "@/hooks/useDebounde"
-import { useLoading } from "@/store/useLoading"
-import { useAIPrettify } from "../../store/useAIPrettify"
-
-const DEFAULT_PROVIDER = Object.keys(AI_CONFIG)[0] as TAIModel
-
-export function useAIPrettifySettings() {
-  const { encryptedEnvsClient, isEECLengthValid } = useEnvs()
-
-  const {
-    isOpen,
-    updateStatus,
-    setUpdateStatus,
-    setError,
-    providerValue,
-    modelValue,
-    instructionsValue,
-    apiKeyValue,
-    setProviderValue,
-    setModelValue,
-    setInstructionsValue,
-    setApiKeyValue,
-  } = useAIPrettifySettingsModal()
-
-  const {
-    setSelectedModel,
-    setSelectedProvider,
-    setUserInstructions,
-    selectedModel,
-    selectedProvider,
-    userInstructions,
-    apiKeys,
-    setApiKeys,
-  } = useAIPrettify()
-
-  const { setIsLoading } = useLoading()
-
-  const activeProvider: TAIModel = providerValue || DEFAULT_PROVIDER
-  const { isSkeleton } = useAIModels(activeProvider)
-
-  const hasMountedRef = useRef(false)
-  const isSavingRef = useRef(false)
-
-  // 1. Single fetch (settings + ALL keys)
-  useEffect(() => {
-    if (!isOpen) {
-      hasMountedRef.current = false
-      setApiKeyValue("")
-      return
-    }
-
-    if (!isEECLengthValid()) return
-
-    const setSettingsFn = async () => {
-      try {
-        setIsLoading(true)
-
-        setProviderValue(selectedProvider)
-        setModelValue(selectedModel)
-        setInstructionsValue(userInstructions)
-
-        setApiKeyValue("")
-      } catch (error) {
-        setError(error instanceof Error ? error.message : String(error))
-      } finally {
-        setIsLoading(false)
-        hasMountedRef.current = true
-      }
-    }
-
-    setSettingsFn()
-  }, [isOpen, encryptedEnvsClient])
-
-  // 2. derived current key (NO fetch)
-  const fetchedApiKey = apiKeys[providerValue || DEFAULT_PROVIDER] ?? ""
-
-  // 3. dirty check
-  const isDirty =
-    providerValue !== selectedProvider ||
-    modelValue !== selectedModel ||
-    instructionsValue !== userInstructions ||
-    apiKeyValue.length > 0
-
-  const debouncedSnapshot = useDebounce(JSON.stringify({ providerValue, modelValue, instructionsValue, apiKeyValue }), 2000)
-
-  // 4. save
-  const saveFn = useCallback(async (): Promise<boolean> => {
-    if (!isEECLengthValid() || isSavingRef.current || !providerValue) return false
-
-    isSavingRef.current = true
-    setUpdateStatus("updating")
-
-    try {
-      const resp = await fetch("/api/ai-prettify/settings/upd", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          encryptedEnvsClient,
-          selectedProvider: providerValue,
-          selectedModel: modelValue || undefined,
-          userInstructions: instructionsValue,
-          rawAPIKey: apiKeyValue || undefined,
-        }),
-      })
-
-      const result: API.AIPrettifySettingsUpdResponse = await resp.json()
-      if ("error" in result) throw Error(result.error)
-
-      setSelectedProvider(providerValue)
-      if (modelValue) setSelectedModel(modelValue)
-      setUserInstructions(instructionsValue)
-
-      // ✅ update local cache (no refetch)
-      if (apiKeyValue) {
-        setApiKeys({ ...apiKeys, [providerValue]: apiKeyValue })
-        setApiKeyValue("")
-      }
-
-      setUpdateStatus("success")
-      setTimeout(() => setUpdateStatus("idle"), 2000)
-      return true
-    } catch (error) {
-      setError(error instanceof Error ? error.message : String(error))
-      setUpdateStatus("idle")
-      return false
-    } finally {
-      isSavingRef.current = false
-    }
-  }, [encryptedEnvsClient, providerValue, modelValue, instructionsValue, apiKeyValue])
-
-  const saveFnRef = useRef(saveFn)
-
-  useEffect(() => {
-    saveFnRef.current = saveFn
-  }, [saveFn])
-
-  // 5. autosave
-  useEffect(() => {
-    if (!hasMountedRef.current || !isOpen || !isDirty) return
-    saveFnRef.current()
-  }, [debouncedSnapshot])
-
-  const handleProviderChange = useCallback(
-    (provider: TAIModel) => {
-      setProviderValue(provider)
-      setModelValue("")
-      setApiKeyValue("")
-    },
-    [setProviderValue, setModelValue],
-  )
-
-  return {
-    providerValue: activeProvider,
-    modelValue,
-    instructionsValue,
-    apiKeyValue,
-    fetchedApiKey, // ✅ derived
-    handleProviderChange,
-    setModelValue,
-    setInstructionsValue,
-    setApiKeyValue,
-    updateStatus,
-    isDirty,
-    isSkeleton,
-  }
-}
-```
+[pusher-patterns](./code-patterns/component-related/pusher-patterns.md)
+[zustand-patterns](./code-patterns/component-related/pusher-patterns.md)
 
 ## Code style rules
 
@@ -326,107 +23,15 @@ export function useAIPrettifySettings() {
 4. Keep commented lines that already exist.
 5. If a function can return an error, return a string error instead of throwing unless the file
    already uses a different pattern.
-6. Put `className` first in TSX props.
-7. Avoid tiny abbreviations like `idx`, `ctx`, `e`, `err`, `v`, `val`.
-8. Use descriptive names like `index`, `context`, `error`, `value`, `item`, `store`.
-9. Use `useEffect` only when needed and keep side effects in hooks, not components.
-10. Keep UI minimalistic: small gaps, compact paddings, clean borders, soft blur, subtle shadows.
-11. For Zustand, do not use selector style like `useStore(state => state.value)`. Use `const { value, action } = useStore()` and derive values after destructuring.
-12. When subscribing to a Pusher channel, always reuse an existing channel instead of creating a
-    duplicate subscription. Use `pusherClient.channels?.find(channelName) ?? pusherClient.subscribe(channelName)`.
-13. Before binding a Pusher event handler, always call `pusherClient.unbind(eventName)` (no
-    handler argument) to hard-reset and guarantee no duplicate handlers accumulate across
-    re-renders or StrictMode double-invocations.
-14. Each distinct realtime concern (typing indicator, ticket updates, message updates, etc.) must
-    live in its own hook file. Do not merge multiple Pusher event groups into one hook or one
-    component `useEffect`.
+6. Put `style` first then `className` in HTML tag arguments.
+7. Avoid tiny abbreviations like `idx`, `ctx`, `e`, `err`, `v`, `val` use descriptive names like `index`, `context`, `error`, `value`, `item`, `store`.
+8. Use `useEffect` only when needed and keep side effects in hooks, not components.
+9. Each distinct realtime concern (typing indicator, ticket updates, message updates, etc.) must
+   live in its own hook file. Do not merge multiple Pusher event groups into one hook or one
+   component `useEffect`.
+10. NEVER export types from client or server components. They should be exported from a separated `typeName.ts` file.
 
 ## General architecture
-
-- Components should stay thin.
-- Hooks own side effects, fetches, optimistic updates, and store sync.
-- Zustand stores own state and mutations.
-- Server actions handle DB or server-side logic.
-- Types should live in dedicated `type.ts` or `types.ts` files.
-- One responsibility per file is preferred.
-
-## UI style
-
-The UI should usually feel compact and minimalistic.
-
-Common pattern:
-
-```tsx
-className={twMerge(
-  "bg-background/90 backdrop-blur-xl shadow-2xl border border-border-color rounded-2xl overflow-hidden",
-  className,
-)}
-```
-
-Favor:
-
-- small paddings
-- small gaps
-- subtle borders
-- compact button heights
-- clear loading states
-- readable truncation for long text
-
-## Naming conventions
-
-### Functions and callbacks
-
-| prefix / suffix  | use                                           |
-| ---------------- | --------------------------------------------- |
-| `handle`         | user interaction returned to a component      |
-| `Fn` suffix      | internal async logic inside hooks             |
-| `add` / `del`    | mutate array-like state or DB rows            |
-| `update` / `upd` | patch or update data                          |
-| `refetch`        | re-run fetch logic and return it to component |
-
-### Refs
-
-| name              | purpose                                          |
-| ----------------- | ------------------------------------------------ |
-| `hasFetchedRef`   | skip effects until first fetch completes         |
-| `serverUpdateRef` | skip debounced save when update came from server |
-| `lastSavedRef`    | snapshot for rollback                            |
-| `xxxRef`          | stable ref for latest closure                    |
-
-## Terminology
-
-Use these names consistently:
-
-- `entity` - outreach owner / main account owner / person who set up the tool
-- `user` - logged-in client inside the app
-- `EA` - email account
-- `RL` - request length
-- `GEA` - guest email account
-- `SE` - scheduled email
-- `SIE` - scheduled initial email
-- `SFUE` - scheduled follow-up email
-- `seChain` - `[SIE, SFUE, SFUE]`
-- `EB` - EventBridge
-- `cleanedDomain` - domain without subdomains
-- `EEC` - encrypted envs client
-- `SEG` - scheduled email group
-- `SGEG` - scheduled guest email group
-- `eprt` - encrypted provider_refresh_token
-- `ept` - encrypted provider_token
-
-Verb rules:
-
-- `set` - set in state, not DB
-- `get` - read from state, not DB
-- `upd` - update state, not DB
-- `create` - create form or object
-- `add` - add item to array or collection
-- `addEmpty` - add empty initial item
-- `push` - push into array state
-- `remove` - filter item from array
-- `increase` - add to numeric state
-- `decrease` - subtract from numeric state
-- `toggle` - flip boolean state
 
 DB verbs:
 
@@ -434,13 +39,6 @@ DB verbs:
 - `insertDB`
 - `updateDB`
 - `deleteDB`
-
-Redis verbs:
-
-- `getRedis`
-- `setRedis`
-- `updRedis`
-- `delRedis`
 
 ## Fundamental workflow
 
@@ -454,7 +52,7 @@ Redis verbs:
 ### In the middle
 
 1. Architecture planning
-2. Data flow
+2. Data flow (optimistic updates)
 3. State boundaries
 
 ### At the end
@@ -499,11 +97,11 @@ export function Something({ className, title }: SomethingProps) {
 ### Component rules
 
 - Keep component state local only when it is truly UI-only.
-- Do not put server data in component `useState`.
 - Avoid component `useEffect` when a hook can own the logic.
 - Keep loading state separated by scope:
   - `isSkeleton` for initial full-screen or full-card loading
   - `isLoading` for single action buttons
+  - `isLocalLoading` for single loading state (not block all UI)
   - global `isLoading` or `mountingStep` for app-level boot logic
 
 ## Hook pattern
