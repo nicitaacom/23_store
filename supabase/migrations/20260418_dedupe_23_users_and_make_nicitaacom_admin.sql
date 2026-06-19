@@ -37,9 +37,10 @@ BEGIN
       SET owner_id = canonical_row.id
       WHERE owner_id = duplicate_row.id;
 
+      -- 23_tickets.owner_id is TEXT (anonymous tickets), 23_users.id is UUID — cast uuid -> text
       UPDATE public."23_tickets"
-      SET owner_id = canonical_row.id
-      WHERE owner_id = duplicate_row.id;
+      SET owner_id = canonical_row.id::text
+      WHERE owner_id = duplicate_row.id::text;
 
       UPDATE public."23_messages"
       SET sender_id = canonical_row.id
