@@ -17,9 +17,12 @@ import { showToastWarningFn } from "../functions/showToastWarningFn"
 interface FormatImagesFormProps {
   id: string
   imgUrl: string[]
+  selectedIndex?: number
+  onSelect?: (index: number) => void
+  onHover?: (index: number) => void
 }
 
-export function FormatImagesForm({ id, imgUrl }: FormatImagesFormProps) {
+export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover }: FormatImagesFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()
   const toast = useToast()
@@ -153,14 +156,23 @@ const [newImages, setNewImages] = useState<ImageListType>([])
             {allImages.map((url, index) => {
               const isPending = url.startsWith("data:")
               const isPrimary = index === 0
+              const isSelected = selectedIndex === index
               return (
-                <div key={`${url}-${index}`} className="group relative h-16 w-16 shrink-0 overflow-hidden rounded border border-border-color/30 bg-foreground/[0.06]">
+                <div
+                  key={`${url}-${index}`}
+                  onClick={() => onSelect?.(index)}
+                  onMouseEnter={() => onHover?.(index)}
+                  onMouseLeave={() => onHover?.(selectedIndex ?? 0)}
+                  className={twMerge(
+                    "group relative h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded border bg-foreground/[0.06]",
+                    isSelected ? "border-brand/60 ring-1 ring-brand/40" : "border-border-color/30",
+                  )}>
                   <Image
+                    className="object-cover"
                     src={url}
                     alt={`product-${index + 1}`}
                     fill
                     sizes="64px"
-                    className="object-cover"
                   />
                   {isPending && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50">
