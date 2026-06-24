@@ -27,7 +27,8 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
   const [isBulkMode, setIsBulkMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
-  const filteredProducts = searchQuery.trim() ? filterProductsBySearchQuery(ownerProducts, searchQuery) : ownerProducts
+  const sortedProducts = [...ownerProducts].sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
+  const filteredProducts = searchQuery.trim() ? filterProductsBySearchQuery(sortedProducts, searchQuery) : sortedProducts
 
   function toggleSelect(id: string) {
     setSelectedIds(prev => {
