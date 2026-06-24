@@ -497,8 +497,14 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 </div>
               </button>
 
-              {/* 16:9 main preview — object-contain gives black bars for square images */}
-              <div className="relative w-full shrink-0 overflow-hidden rounded bg-black" style={{ aspectRatio: "16/9" }}>
+              {/* 16:9 main preview — black bars only behind a real image, panel surface when empty
+                  so clearing the form on submit doesn't flash a black slab */}
+              <div
+                className={twMerge(
+                  "relative w-full shrink-0 overflow-hidden rounded",
+                  activeImage ? "bg-black" : "bg-white/[0.02]",
+                )}
+                style={{ aspectRatio: "16/9" }}>
                 {activeImage ? (
                   <>
                     <AnimatePresence initial={false} custom={imageDirection} mode="popLayout">
@@ -831,7 +837,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           type="submit"
           disabled={isLoading || !images.length || variants.length === 0}
           className={twMerge(
-            "mt-auto min-h-[40px] w-full rounded border border-success-accent bg-success-accent px-4 py-2 text-[14px] font-semibold text-title-foreground transition-colors duration-150",
+            // ml-0.5 so the focus outline isn't clipped against the form's left edge
+            "ml-0.5 mt-auto min-h-[40px] w-[calc(100%-0.25rem)] rounded border border-success-accent bg-success-accent px-4 py-2 text-[14px] font-semibold text-title-foreground transition-colors duration-150",
             "hover:bg-success-accent/90 active:scale-[0.99]",
             (isLoading || !images.length || variants.length === 0) && "cursor-not-allowed opacity-50",
           )}>

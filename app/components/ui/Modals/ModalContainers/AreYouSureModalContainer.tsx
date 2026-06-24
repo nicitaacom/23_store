@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { IoMdClose } from "react-icons/io"
 import { IconType } from "react-icons"
 import { useSwipeable } from "react-swipeable"
@@ -89,6 +89,13 @@ export function AreYouSureModalContainer({
   secondaryButtonSize = "md",
 }: AreYouSureModalContainerProps) {
   const { isLoading } = useLoading()
+  const primaryButtonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+    const frame = requestAnimationFrame(() => primaryButtonRef.current?.focus())
+    return () => cancelAnimationFrame(frame)
+  }, [isOpen])
 
   //correct way to add event listener to listen keydown
   useEffect(() => {
@@ -182,6 +189,7 @@ export function AreYouSureModalContainer({
                   {secondaryButtonLabel} {SecondaryButtonIcon && <SecondaryButtonIcon />}
                 </Button>
                 <Button
+                  ref={primaryButtonRef}
                   className={twMerge("px-3", primaryButtonClassName)}
                   variant={primaryButtonVariant ? primaryButtonVariant : "info"}
                   size={primaryButtonSize}
