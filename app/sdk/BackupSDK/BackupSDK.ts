@@ -1,24 +1,110 @@
+import { splitRefsIntoChunks } from "@/api/backup/backupTables"
 import { BaseSDK } from "../BaseSDK"
 
+// How long (ms) a single export chunk should take at most on the server side.
+// Kept well under the Vercel 60s cap to leave headroom for table dump + gzip.
+const CHUNK_BUDGET_MS = 40_000
+
+// Assumed server-side download throughput from Supabase Storage (bytes/ms ≈ 8 MB/s).
+// Used to convert a speed-derived chunk target into server time: even if the client is slow,
+// the server always downloads at ~this rate, so we size chunks to fit within the server budget.
+const SERVER_THROUGHPUT_BYTES_PER_MS = 8 * 1024 // 8 MB/s
+
+// Maximum chunk size in bytes — caps chunk size regardless of connection speed (100 MB).
+const MAX_CHUNK_BYTES = 100 * 1024 * 1024
+
+// Speed probe: fetch a publicly accessible static asset to measure download throughput.
+// Using the Next.js favicon which is always present and small enough to be fast.
+const SPEED_PROBE_URL = "/favicon.ico"
+const SPEED_PROBE_DURATION_MS = 4000 // probe runs for up to 4 seconds
+
 export class BackupSDK extends BaseSDK {
-  // Pre-flight: file count, total size, estimated export time, and whether to split into halves
   async getManifest() {
     return this.getJson<API.BackupManifestResponse>("/api/backup/manifest")
   }
 
-  // Download the full .tar.gz snapshot (tables + all storage files) as a Blob, reporting LIVE progress.
-  async exportBackup(onProgress?: (fraction: number) => void) {
-    return this.streamExport("/api/backup/export", onProgress)
+  // Measure download speed in bytes/ms by fetching a known asset for a fixed duration.
+  // Falls back to a conservative 512 KB/s if the probe fails or returns 0 bytes.
+  async measureSpeedBytesPerMs(): Promise<number> {
+    const fallback = 512 // 512 bytes/ms = ~512 KB/s (conservative)
+    try {
+      const start = performance.now()
+      const response = await fetch(`${SPEED_PROBE_URL}?_=${Date.now()}`, { cache: "no-store" })
+      if (!response.ok || !response.body) return fallback
+
+      const reader = response.body.getReader()
+      let totalBytes = 0
+      const deadline = start + SPEED_PROBE_DURATION_MS
+
+      for (;;) {
+        if (performance.now() >= deadline) {
+          await reader.cancel()
+          break
+        }
+        const { done, value } = await reader.read()
+        if (done) break
+        totalBytes += value.byteLength
+      }
+
+      const elapsed = performance.now() - start
+      if (totalBytes === 0 || elapsed === 0) return fallback
+      return totalBytes / elapsed
+    } catch {
+      return fallback
+    }
   }
 
-  // Download one half of the backup when it's too big for a single sub-60s request, reporting LIVE progress.
-  // "front" = tables + first half of files, "back" = second half of files only.
-  async exportBackupHalf(half: "front" | "back", onProgress?: (fraction: number) => void) {
-    return this.streamExport(`/api/backup/export?half=${half}`, onProgress)
+  // Export the full backup, splitting into as many chunks as needed so each fits within the
+  // Vercel 60s budget at the user's measured connection speed. Chunks download sequentially
+  // so they don't compete for bandwidth on slow connections.
+  async exportBackup(onProgress?: (fraction: number) => void): Promise<{ blobs: Blob[]; fileNames: string[] }> {
+    const [manifest, speedBytesPerMs] = await Promise.all([this.getManifest(), this.measureSpeedBytesPerMs()])
+
+    // The bottleneck is the server fetching files from Storage, not the client download.
+    // Size chunks by how much the server can pull in CHUNK_BUDGET_MS at SERVER_THROUGHPUT.
+    const serverChunkBytes = Math.min(SERVER_THROUGHPUT_BYTES_PER_MS * CHUNK_BUDGET_MS, MAX_CHUNK_BYTES)
+
+    // Also consider what the client can receive within the budget: if the user's connection is
+    // slower than the server can produce, shrink chunks to what the client can absorb.
+    const clientChunkBytes = speedBytesPerMs * CHUNK_BUDGET_MS
+    const targetChunkBytes = Math.min(serverChunkBytes, clientChunkBytes, MAX_CHUNK_BYTES)
+
+    // Build synthetic BackupFileRef-like objects with just sizes for splitRefsIntoChunks.
+    const syntheticRefs = manifest.refSizes.map(size => ({
+      bucket: "",
+      path: "",
+      size,
+    }))
+    const chunks = splitRefsIntoChunks(syntheticRefs, targetChunkBytes)
+
+    // If everything fits in one chunk (or no storage files), do a single full export.
+    if (chunks.length <= 1) {
+      const blob = await this.streamExport("/api/backup/export", fraction => onProgress?.(fraction))
+      return { blobs: [blob], fileNames: [] }
+    }
+
+    const blobs: Blob[] = []
+    const fileNames: string[] = []
+
+    for (let i = 0; i < chunks.length; i++) {
+      const [from, to] = chunks[i]
+      const chunkFractionStart = i / chunks.length
+      const chunkFractionEnd = (i + 1) / chunks.length
+
+      const blob = await this.streamExport(
+        `/api/backup/export?from=${from}&to=${to}`,
+        fraction => onProgress?.(chunkFractionStart + fraction * (chunkFractionEnd - chunkFractionStart)),
+      )
+      blobs.push(blob)
+      const date = new Date().toISOString().slice(0, 10)
+      fileNames.push(`23_backup-${date}-part${i + 1}of${chunks.length}.tar.gz`)
+    }
+
+    onProgress?.(1)
+    return { blobs, fileNames }
   }
 
-  // Upload a .tar.gz backup (upsert rows + re-upload files, append & replace-on-conflict), reporting upload progress.
-  // Uses XMLHttpRequest because fetch cannot report upload progress.
+  // Upload a .tar.gz backup (upsert rows + re-upload files). Uses XMLHttpRequest for upload progress.
   importBackup(file: File, onProgress?: (fraction: number) => void) {
     return new Promise<API.BackupImportResponse>((resolve, reject) => {
       const formData = new FormData()
@@ -45,7 +131,6 @@ export class BackupSDK extends BaseSDK {
     })
   }
 
-  // Read the NDJSON export stream: update progress per file, then decode the final base64 archive to a Blob.
   private async streamExport(path: string, onProgress?: (fraction: number) => void) {
     const response = await this.request(path, { method: "GET" })
     if (!response.body) throw new Error("No response stream")
@@ -60,7 +145,6 @@ export class BackupSDK extends BaseSDK {
       if (done) break
       buffer += decoder.decode(value, { stream: true })
 
-      // Process complete NDJSON lines; keep any partial trailing line in the buffer.
       let newline: number
       while ((newline = buffer.indexOf("\n")) >= 0) {
         const line = buffer.slice(0, newline).trim()

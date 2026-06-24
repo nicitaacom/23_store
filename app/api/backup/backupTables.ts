@@ -211,29 +211,21 @@ export async function downloadFilesByRef(
   return files
 }
 
-// Rough export-time estimate. Downloads dominate: assume ~8 MB/s effective throughput on Vercel
-// plus ~40ms per-file round-trip overhead, then gzip. Returns milliseconds.
-const THROUGHPUT_BYTES_PER_MS = 8 * 1024 // ~8 MB/s
-const PER_FILE_OVERHEAD_MS = 40
-export function estimateExportMs(refs: BackupFileRef[]): number {
-  const totalBytes = refs.reduce((sum, r) => sum + r.size, 0)
-  return Math.round(totalBytes / THROUGHPUT_BYTES_PER_MS + refs.length * PER_FILE_OVERHEAD_MS)
-}
-
-// Split refs into two contiguous halves by cumulative size: "front" walks from the start,
-// "back" walks from the end, so two parallel requests each carry ~half the bytes.
-export function splitRefsByHalf(refs: BackupFileRef[], half: "front" | "back"): BackupFileRef[] {
-  const totalBytes = refs.reduce((sum, r) => sum + r.size, 0)
-  const midpoint = totalBytes / 2
-
-  let cumulative = 0
-  let splitIndex = refs.length
+// Split refs into contiguous index ranges so each chunk stays under targetBytes.
+// Returns array of [from, to] inclusive index pairs (may be a single chunk covering everything).
+export function splitRefsIntoChunks(refs: BackupFileRef[], targetBytes: number): Array<[number, number]> {
+  if (refs.length === 0) return []
+  const chunks: Array<[number, number]> = []
+  let chunkStart = 0
+  let chunkBytes = 0
   for (let i = 0; i < refs.length; i++) {
-    cumulative += refs[i].size
-    if (cumulative >= midpoint) {
-      splitIndex = i + 1
-      break
+    chunkBytes += refs[i].size
+    const isLast = i === refs.length - 1
+    if (chunkBytes >= targetBytes || isLast) {
+      chunks.push([chunkStart, i])
+      chunkStart = i + 1
+      chunkBytes = 0
     }
   }
-  return half === "front" ? refs.slice(0, splitIndex) : refs.slice(splitIndex)
+  return chunks
 }

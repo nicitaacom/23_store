@@ -3,12 +3,11 @@
 declare module API {
   // The export route returns a .tar.gz file (binary), so it has no JSON response type.
 
-  // Pre-flight manifest: how big the backup is + whether to split export into two halves.
+  // Pre-flight manifest: how big the backup is + per-file sizes for client-side chunk planning.
   type BackupManifestResponse = {
     fileCount: number
     totalBytes: number
-    estimatedMs: number
-    shouldSplit: boolean
+    refSizes: number[] // size of each storage file in order; used to compute chunk boundaries
   }
 
   // Result of importing one table from an uploaded backup

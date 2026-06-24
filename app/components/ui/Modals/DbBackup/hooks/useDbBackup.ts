@@ -32,29 +32,16 @@ export function useDbBackup() {
       setIsExporting(true)
       setExportProgress(0)
       const date = new Date().toISOString().slice(0, 10)
-      // Estimate first; if the backup is too big for one sub-60s request, fetch it as two halves.
-      const manifest = await backupSDK.getManifest()
 
-      if (manifest.shouldSplit) {
-        // Two parallel downloads — combine their fractions into one 0..1 bar.
-        let frontFraction = 0
-        let backFraction = 0
-        const update = () => setExportProgress((frontFraction + backFraction) / 2)
-        const [front, back] = await Promise.all([
-          backupSDK.exportBackupHalf("front", f => {
-            frontFraction = f
-            update()
-          }),
-          backupSDK.exportBackupHalf("back", f => {
-            backFraction = f
-            update()
-          }),
-        ])
-        downloadBlob(front, `23_backup-${date}-front.tar.gz`)
-        downloadBlob(back, `23_backup-${date}-back.tar.gz`)
-        toast.show("success", t("export_split"), "", 4000)
+      const { blobs, fileNames } = await backupSDK.exportBackup(setExportProgress)
+
+      if (blobs.length === 1) {
+        downloadBlob(blobs[0], `23_backup-${date}.tar.gz`)
       } else {
-        downloadBlob(await backupSDK.exportBackup(setExportProgress), `23_backup-${date}.tar.gz`)
+        for (let i = 0; i < blobs.length; i++) {
+          downloadBlob(blobs[i], fileNames[i] ?? `23_backup-${date}-part${i + 1}.tar.gz`)
+        }
+        toast.show("success", t("export_split"), "", 4000)
       }
     } catch (error) {
       toast.show("error", t("error"), error instanceof Error ? error.message : String(error))
@@ -70,12 +57,9 @@ export function useDbBackup() {
         setImportProgress(0)
         setResults([])
         setBuckets([])
-        // Import each part sequentially (front + back, or a single file). Each upserts rows and
-        // re-uploads files in append & replace-on-conflict mode, so order doesn't matter.
         const tableResults: API.BackupImportTableResult[] = []
         const bucketResults: API.BackupImportBucketResult[] = []
         for (let i = 0; i < files.length; i++) {
-          // Each file occupies an equal slice of the overall 0..1 bar.
           const response = await backupSDK.importBackup(files[i], fraction =>
             setImportProgress((i + fraction) / files.length),
           )
