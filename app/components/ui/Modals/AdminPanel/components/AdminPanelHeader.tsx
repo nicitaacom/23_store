@@ -43,6 +43,7 @@ export function AdminPanelHeader({
   onActionChange,
   onClose,
   disabled,
+  roles,
 }: AdminPanelHeaderProps) {
   return (
     <OrganicCanvasBackground
@@ -64,7 +65,7 @@ export function AdminPanelHeader({
         </div>
 
         <div className="ml-2 hidden min-w-0 flex-1 items-center gap-1 mobile:flex">
-          {(Object.keys(PANEL_ACTIONS) as PanelAction[]).map(action => {
+          {(Object.keys(PANEL_ACTIONS) as PanelAction[]).filter(action => action !== "categories" || roles.includes("ADMIN")).map(action => {
             const Icon = ACTION_ICONS[action]
             const isActive = action === activeAction
 

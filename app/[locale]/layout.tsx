@@ -47,6 +47,11 @@ export default async function RootLayout({
     data: { user },
   } = await supabase.auth.getUser()
   const normalizedUser = normalizeUser(user)
+  let roles: string[] = []
+  if (normalizedUser?.id) {
+    const { data } = await supabase.from("23_users").select("roles").eq("id", normalizedUser.id).single()
+    roles = data?.roles ?? []
+  }
   const [anonymousId, darkMode] = await Promise.all([getCookie("anonymousId"), getCookie("darkMode")])
   const userId = normalizedUser?.id ?? anonymousId
 
@@ -55,7 +60,7 @@ export default async function RootLayout({
       <body>
         <I18nProviderClient locale={locale}>
           <Layout user={normalizedUser}>{children}</Layout>
-          <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
+          <ModalsQueryProvider ownerProducts={ownerProducts ?? []} roles={roles} />
           <ModalsProvider />
           <ToastProvider />
           <OfflineBanner />

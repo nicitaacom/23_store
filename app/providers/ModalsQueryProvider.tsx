@@ -41,14 +41,14 @@ const DbBackupModal = dynamic(() => import("@/components/ui/Modals/DbBackup/DbBa
   loading: DbBackupModalLoading,
 })
 
-export function ModalsQueryProvider({ ownerProducts }: { ownerProducts: TProductDB[] }) {
+export function ModalsQueryProvider({ ownerProducts, roles }: { ownerProducts: TProductDB[]; roles: string[] }) {
   const searchParams = useSearchParams()
 
   const modalParams = searchParams?.getAll("modal")
   if (!modalParams?.length) return null
 
   const registry: Partial<Record<ModalKey, ModalEntry>> = {
-    AdminPanel: { Component: AdminPanelModal, props: { ownerProducts } },
+    AdminPanel: { Component: AdminPanelModal, props: { ownerProducts, roles } },
     AuthModal: { Component: AuthModal },
     CartModal: { Component: CartModal },
     DbBackup: { Component: DbBackupModal },

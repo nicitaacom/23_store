@@ -20,9 +20,10 @@ import { AdminPanelDeleteConfirmDialog, PendingDeleteProduct } from "./component
 
 export interface AdminPanelModalProps {
   ownerProducts: TProductDB[]
+  roles: string[]
 }
 
-export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
+export function AdminPanelModal({ ownerProducts, roles }: AdminPanelModalProps) {
   const t = useI18n()
   const router = useRouter()
   const { products: hydratedOwnerProducts, hydrate: hydrateOwnerProducts } = useOwnerProductsStore()
@@ -74,6 +75,7 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
             onActionChange={setPanelAction}
             onClose={closeModal}
             disabled={isLoading || !!pendingDeleteProduct}
+            roles={roles}
           />
 
           <div className="relative min-h-0 flex-1 overflow-hidden px-2 py-2 tablet:px-3 tablet:py-3">
@@ -95,7 +97,7 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
                 />
               </div>
             )}
-            {panelAction === PANEL_ACTIONS.categories && (
+            {panelAction === PANEL_ACTIONS.categories && roles.includes("ADMIN") && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
                 <CategoriesForm />
               </div>
