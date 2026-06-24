@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS public."23_products" (
   translations JSONB NOT NULL DEFAULT '{}'::jsonb,
   price NUMERIC NOT NULL, -- base price, used when no variant selected
   img_url VARCHAR[] NOT NULL,
-  on_stock INTEGER NOT NULL, -- product-level stock (used when product has no variants)
+  on_stock INTEGER NOT NULL, -- with variants = sum of variant quantities (auto); without variants = manual
   owner_id UUID NOT NULL REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
   variants JSONB NULL, -- [{id, label, image_url, price, quantity}]; quantity 0 = sold out
   likes_count INTEGER NOT NULL DEFAULT 0, -- popular = ORDER BY likes_count DESC
