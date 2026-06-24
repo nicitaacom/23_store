@@ -8,6 +8,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      "23_categories": {
+        Row: {
+          id: string
+          name: string
+          parent_id: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          parent_id?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          parent_id?: string | null
+        }
+        Relationships: []
+      }
+      "23_category_views": {
+        Row: {
+          id: string
+          created_at: string
+          user_id: string
+          category_id: string
+          view_count: number
+          last_viewed_at: string
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          user_id: string
+          category_id: string
+          view_count?: number
+          last_viewed_at?: string
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          user_id?: string
+          category_id?: string
+          view_count?: number
+          last_viewed_at?: string
+        }
+        Relationships: []
+      }
       "23_messages": {
         Row: {
           body: string
@@ -54,6 +99,7 @@ export type Database = {
           price_id: string
           translations: Json
           variants: Json | null
+          category_id: string | null
         }
         Insert: {
           id: string
@@ -64,6 +110,7 @@ export type Database = {
           price_id: string
           translations: Json
           variants?: Json | null
+          category_id?: string | null
         }
         Update: {
           id?: string
@@ -74,6 +121,7 @@ export type Database = {
           price_id?: string
           translations?: Json
           variants?: Json | null
+          category_id?: string | null
         }
         Relationships: []
       }
@@ -207,6 +255,10 @@ export type Database = {
       add_product_rating: {
         Args: { p_id: string; stars: number }
         Returns: unknown
+      }
+      increment_category_view: {
+        Args: { p_user_id: string; p_category_id: string }
+        Returns: undefined
       }
     }
     Enums: {
