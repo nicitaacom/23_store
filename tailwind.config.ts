@@ -7,15 +7,17 @@ const config: Config = {
       primary: ["Inter", "sans-serif"],
       secondary: ["Proxima Nova", "sans-serif"],
     },
+    // Radius scale is bumped +4px globally (every `rounded*` class softens slightly).
+    // `none` and `full` stay fixed. Single source of truth for corner roundness.
     borderRadius: {
       none: "0px",
-      sm: "2px",
-      DEFAULT: "4px",
-      md: "4px",
-      lg: "6px",
-      xl: "8px",
-      "2xl": "10px",
-      "3xl": "12px",
+      sm: "6px",
+      DEFAULT: "8px",
+      md: "8px",
+      lg: "10px",
+      xl: "12px",
+      "2xl": "14px",
+      "3xl": "16px",
       full: "9999px",
     },
     screens: {
@@ -41,6 +43,9 @@ const config: Config = {
         /* The same colors */
         "border-color": "hsl(var(--border-color) / 1)" /*subTitle*/,
         "icon-color": "hsl(var(--icon-color) / 1)" /* title */,
+
+        /* Indigo/violet-tinted surface shared by every modal shell */
+        "modal-surface": "hsl(var(--modal-surface) / 1)",
 
         /* Support colors */
         info: "hsl(var(--info) / 1)",
