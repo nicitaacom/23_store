@@ -58,3 +58,34 @@ that's why you need to store just id and quantity
 This file generated with `pnpm update-types` command from terminal
 This file required to get TypeScript intellisense when you so something with supabase
 e.g from('here you get autocomplete')
+
+**IMPORTANT — when you add a new Supabase table, you MUST manually add it here too.**
+Do NOT run `pnpm update-types` — the live DB contains tables from other projects (19_*, 28_*, etc.) and regenerating would pollute this file with unrelated types.
+Always edit `types_db.ts` by hand. If you skip this, `.from("your_table")` will throw a TypeScript build error:
+`Argument of type '"your_table"' is not assignable to parameter of type ...`
+
+Each table needs three shapes under `public.Tables`:
+```ts
+"23_your_table": {
+  Row: { id: string; ... }      // all columns, non-optional
+  Insert: { id?: string; ... }  // id + defaults optional
+  Update: { id?: string; ... }  // everything optional
+  Relationships: []
+}
+```
+
+Same rule applies to **SQL functions** used via `.rpc("fn_name", args)` — add them to the `Functions` block:
+```ts
+your_function_name: {
+  Args: { p_arg: string }
+  Returns: undefined
+}
+```
+
+Tables/columns added manually:
+- `23_categories` — id, name, parent_id
+- `23_category_views` — id, created_at, user_id, category_id, view_count, last_viewed_at
+- `category_id` added to `23_products` Row/Insert/Update
+
+Functions added manually:
+- `increment_category_view` — Args: { p_user_id, p_category_id }, Returns: undefined
