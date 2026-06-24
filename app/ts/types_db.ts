@@ -257,7 +257,7 @@ export type Database = {
         Returns: unknown
       }
       increment_category_view: {
-        Args: { p_user_id: string; p_category_id: string }
+        Args: { p_user_id: string; p_category_id: string; p_delta?: number }
         Returns: undefined
       }
     }
