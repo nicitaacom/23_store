@@ -3,6 +3,7 @@
 import { useCurrentLocale } from "@/locales/client"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { pt } from "@/utils/product"
+import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
 
 import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { OwnerProductHeader } from "./OwnerProductHeader"
@@ -12,8 +13,13 @@ import { VariantsForm } from "./VariantsForm"
 export function OwnerProduct({ ...ownerProduct }: TProductDB) {
   const locale = useCurrentLocale()
   const translation = pt(ownerProduct, locale)
+  const { ref, isVisible } = useLazyVisible()
 
   return (
+    <div ref={ref}>
+    {!isVisible ? (
+      <div className="h-48 rounded border border-border-color/35 bg-foreground/55" />
+    ) : (
     <article className="group overflow-hidden rounded border border-border-color/35 bg-foreground/55 shadow-none">
       <div className="flex flex-col tablet:flex-row">
         <div className="shrink-0 border-b border-border-color/35 bg-foreground/[0.02] tablet:border-b-0 tablet:border-r">
@@ -49,5 +55,7 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
         />
       </div>
     </article>
+    )}
+    </div>
   )
 }

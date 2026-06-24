@@ -59,7 +59,7 @@ export function useSubscribeToProductCreated({
   decreasePendingTranslations,
 }: {
   pendingCreatedProductsRef: MutableRefObject<PendingCreatedProduct[]>
-  decreasePendingTranslations: (showCompletedToast?: boolean) => void
+  decreasePendingTranslations: (showCompletedToast?: boolean, productId?: string) => void
 }) {
   const decreasePendingTranslationsRef = useRef(decreasePendingTranslations)
 
@@ -100,7 +100,7 @@ export function useSubscribeToProductCreated({
       }
 
       useOwnerProductsStore.getState().setError(null)
-      decreasePendingTranslationsRef.current(true)
+      decreasePendingTranslationsRef.current(true, payload.id)
     }
 
     subscribePusherChannel(channelName)

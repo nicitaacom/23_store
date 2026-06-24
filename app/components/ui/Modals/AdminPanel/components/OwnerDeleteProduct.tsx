@@ -7,6 +7,7 @@ import { twMerge } from "tailwind-merge"
 
 import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { DeleteProductHeader } from "./DeleteProductHeader"
+import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
 
 interface OwnerDeleteProductProps extends TProductDB {
   onRequestDelete: (id: string, title: string) => void
@@ -18,8 +19,13 @@ interface OwnerDeleteProductProps extends TProductDB {
 export function OwnerDeleteProduct({ onRequestDelete, isBulkMode, isSelected, onToggleSelect, ...ownerProduct }: OwnerDeleteProductProps) {
   const locale = useCurrentLocale()
   const translation = pt(ownerProduct, locale)
+  const { ref, isVisible } = useLazyVisible()
 
   return (
+    <div ref={ref}>
+    {!isVisible ? (
+      <div className="h-32 rounded border border-border-color/35 bg-foreground/55" />
+    ) : (
     <article
       className={twMerge(
         "group overflow-hidden rounded border border-border-color/35 bg-foreground/55 shadow-none transition-[border-color,background-color] duration-150",
@@ -50,5 +56,7 @@ export function OwnerDeleteProduct({ onRequestDelete, isBulkMode, isSelected, on
         </div>
       </div>
     </article>
+    )}
+    </div>
   )
 }

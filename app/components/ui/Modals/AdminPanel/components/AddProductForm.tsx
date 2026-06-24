@@ -21,7 +21,7 @@ import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFo
 import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils/product"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { createProductFn } from "@/functions/createProductFn"
-import { useI18n, useScopedI18n } from "@/locales/client"
+import { useCurrentLocale, useI18n, useScopedI18n } from "@/locales/client"
 import {
   MAX_IMAGE_FILE_SIZE_BYTES,
   MAX_PRODUCT_IMAGES,
@@ -71,6 +71,7 @@ const EMPTY_PRODUCT_FORM_VALUES: Partial<IFormDataAddProduct> = {
 export function AddProductForm({ onCreated }: AddProductFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()
+  const locale = useCurrentLocale()
   const { show: showToast, close: closeToast } = useToast()
   const { isDraggingg } = useDragging()
 
@@ -149,7 +150,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     updateBackgroundToast(nextPendingTranslationsAmount)
   }
 
-  const decreasePendingTranslations = (showCompletedToast = false) => {
+  const decreasePendingTranslations = (showCompletedToast = false, productId?: string) => {
     const nextPendingTranslationsAmount = Math.max(0, pendingTranslationsAmountRef.current - 1)
     pendingTranslationsAmountRef.current = nextPendingTranslationsAmount
     setPendingTranslationsAmount(nextPendingTranslationsAmount)
@@ -157,7 +158,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     if (nextPendingTranslationsAmount > 0) {
       updateBackgroundToast(nextPendingTranslationsAmount)
     } else if (showCompletedToast) {
-      showToast("success", "Product created", "AI translation completed.")
+      const subTitle = productId ? (
+        <a href={`/${locale}/products/${productId}`} className="underline underline-offset-2" target="_blank" rel="noreferrer">
+          View product
+        </a>
+      ) : "AI translation completed."
+      showToast("success", "Product created", subTitle)
     } else {
       closeToast()
     }
