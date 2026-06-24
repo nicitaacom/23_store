@@ -13,6 +13,7 @@ import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useToast from "@/store/ui/useToast"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { RichTextToolbar } from "./RichTextToolbar"
 
 interface FormatDescriptionFormProps {
   id: string
@@ -61,8 +62,11 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<IFormDataAddProduct>()
+
+  const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
 
   const onSubmit = (data: IFormDataAddProduct) => {
     updateDescription(data.subTitle)
@@ -106,19 +110,19 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
       <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("description")}</p>
       {isEditing ? (
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <ProductInput
-              className={twMerge(
-                "min-h-[92px] w-full border-border-color/50 bg-background/60 text-start",
-                isLoading && "animate-pulse",
-              )}
-              id="subTitle"
-              register={register}
-              errors={errors}
-              placeholder={currentTranslation.description}
-              autoFocus
-            />
-          </div>
+          <RichTextToolbar textareaRef={descriptionRef} onChange={v => setValue("subTitle", v, { shouldValidate: true })} />
+          <ProductInput
+            className={twMerge(
+              "min-h-[92px] w-full border-border-color/50 bg-background/60 text-start",
+              isLoading && "animate-pulse",
+            )}
+            id="subTitle"
+            register={register}
+            errors={errors}
+            placeholder={currentTranslation.description}
+            externalTextareaRef={descriptionRef}
+            autoFocus
+          />
         </form>
       ) : (
         <button className="flex w-full min-w-0 items-start gap-2 rounded p-1 text-left transition-colors duration-150 hover:bg-warning/20" type="button" onClick={enableInput}>

@@ -41,6 +41,7 @@ interface InputFormProps extends React.InputHTMLAttributes<HTMLInputElement> {
   errors: FieldErrors
   placeholder: string
   disabled?: boolean
+  externalTextareaRef?: React.MutableRefObject<HTMLTextAreaElement | null>
 }
 
 interface ValidationRules {
@@ -65,6 +66,7 @@ export function ProductInput({
   errors,
   placeholder,
   disabled,
+  externalTextareaRef,
   onInput,
   ...props
 }: InputFormProps) {
@@ -196,6 +198,7 @@ export function ProductInput({
             textArea(e)
             textareaRef.current = e // you can still assign to ref issue
             //https://github.com/orgs/react-hook-form/discussions/11137
+            if (externalTextareaRef) externalTextareaRef.current = e
           }}
         />
       ) : (

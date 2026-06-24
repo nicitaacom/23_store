@@ -33,6 +33,7 @@ import { PendingCreatedProduct, useSubscribeToProductCreated } from "../hooks/us
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
+import { RichTextToolbar } from "./RichTextToolbar"
 
 const previewImageVariants = {
   initial: (direction: "next" | "prev") => ({
@@ -90,6 +91,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [autoAssignedName, setAutoAssignedName] = useState<string | null>(null)
   const [isSuggestingCategory, setIsSuggestingCategory] = useState(false)
   const dragZone = useRef<HTMLButtonElement | null>(null)
+  const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
   const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { categories: allCategories, hydrate: hydrateCategories } = useCategoriesStore()
@@ -110,6 +112,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<IFormDataAddProduct>({
     defaultValues: EMPTY_PRODUCT_FORM_VALUES,
@@ -768,6 +771,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         {/* Description */}
         <div className="grid gap-1.5">
           <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("description")}</label>
+          <RichTextToolbar textareaRef={descriptionRef} onChange={v => setValue("subTitle", v, { shouldValidate: true })} />
           <ProductInput
             className={twMerge(inputCn, "min-h-[100px] resize-none py-3 leading-6")}
             id="subTitle"
@@ -775,6 +779,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             errors={errors}
             disabled={isLoading}
             placeholder={t("placeholder.description")}
+            externalTextareaRef={descriptionRef}
           />
         </div>
 
@@ -932,9 +937,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           type="submit"
           disabled={isLoading || !images.length || variants.length === 0}
           className={twMerge(
-            // ml-0.5 so the focus outline isn't clipped against the form's left edge
-            "ml-0.5 mt-auto min-h-[40px] w-[calc(100%-0.25rem)] rounded border border-success-accent bg-success-accent px-4 py-2 text-[14px] font-semibold text-title-foreground transition-colors duration-150",
-            "hover:bg-success-accent/90 active:scale-[0.99]",
+            "ml-0.5 mt-auto min-h-[40px] w-[calc(100%-0.25rem)] rounded border border-success-accent/30 bg-success-accent/10 px-4 py-2 text-[14px] font-semibold text-success-accent transition-colors duration-150",
+            "hover:bg-success-accent/15",
             (isLoading || !images.length || variants.length === 0) && "cursor-not-allowed opacity-50",
           )}>
           {t("create_product")}
