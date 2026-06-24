@@ -20,11 +20,12 @@ export default async function UTMLayout({ children }: { children: React.ReactNod
 
   const { data: roleRows, error: roleError } = await supabase
     .from("23_users")
-    .select("role")
+    .select("roles")
     .eq("id", user.id)
     .order("created_at", { ascending: true })
 
-  if (roleError || roleRows?.[0]?.role !== "SUPPORT") {
+  const roles: string[] = roleRows?.[0]?.roles ?? []
+  if (roleError || !roles.includes("ADMIN")) {
     redirect("/")
   }
 
