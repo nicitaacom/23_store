@@ -10,9 +10,10 @@ interface OwnerProductHeaderProps {
   translations: ProductTranslations
   price: number
   onStock: number
+  hasVariants: boolean
 }
 
-export function OwnerProductHeader({ id, translations, price, onStock }: OwnerProductHeaderProps) {
+export function OwnerProductHeader({ id, translations, price, onStock, hasVariants }: OwnerProductHeaderProps) {
   return (
     <section className="flex min-w-0 flex-col gap-y-3">
       <div className="flex min-w-0 flex-col gap-2 tablet:flex-row tablet:items-center tablet:justify-between">
@@ -20,7 +21,7 @@ export function OwnerProductHeader({ id, translations, price, onStock }: OwnerPr
         <FormatPriceForm id={id} price={price} />
       </div>
       <FormatDescriptionForm id={id} translations={translations} />
-      <FormatOnStockForm id={id} onStock={onStock} />
+      <FormatOnStockForm id={id} onStock={onStock} isDerivedFromVariants={hasVariants} />
     </section>
   )
 }

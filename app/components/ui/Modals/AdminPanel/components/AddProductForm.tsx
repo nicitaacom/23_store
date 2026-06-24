@@ -814,22 +814,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           )}
         </div>
 
-        <div className="grid gap-1.5">
-          <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("on_stock")}</label>
-          <ProductInput
-            className={twMerge(inputCn, "h-12")}
-            id="onStock"
-            type="numeric"
-            numericFormat="grouped"
-            register={register}
-            errors={errors}
-            disabled={isLoading}
-            required
-            placeholder={t("placeholder.on_stock")}
-          />
-        </div>
-
-        {/* Live preview row */}
+        {/* Live preview row — on_stock is the accumulated stock of all variants, not a manual field */}
         <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3 tablet:grid-cols-2">
           <div>
             <p className="text-[10px] font-medium uppercase tracking-widest text-white/30">{t("price")}</p>

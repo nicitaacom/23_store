@@ -214,7 +214,6 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         const resolvedVariants = buildResolvedVariants()
         const normalizedTitle = data.title.trim()
         const normalizedSubTitle = data.subTitle.trim()
-        const normalizedOnStock = parseFormattedNumber(String(data.onStock))
         const normalizedPrice = resolvedVariants[0]?.price
 
         if (!normalizedPrice || normalizedPrice <= 0) {
@@ -236,12 +235,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           await postProductUpdate({ productId: nextProductId, translations: nextTranslations })
         }
 
+        // Saving variants recomputes on_stock server-side (sum of variant quantities) — no separate stock update
         if (stringifyValue(resolvedVariants) !== stringifyValue(product.variants ?? null)) {
           await postProductUpdate({ productId: nextProductId, variants: resolvedVariants })
-        }
-
-        if (normalizedOnStock !== product.on_stock) {
-          await postProductUpdate({ productId: nextProductId, onStock: normalizedOnStock })
         }
 
         if (normalizedPrice !== product.price) {
@@ -454,21 +450,12 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             </div>
 
             <div className="grid items-end gap-4 mobile:grid-cols-2">
-              <div className="grid gap-1.5">
-                <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
-                  {t("on_stock")}
-                </label>
-                <ProductInput
-                  className={twMerge(inputCn, "h-12")}
-                  id="onStock"
-                  type="numeric"
-                  numericFormat="grouped"
-                  register={register}
-                  errors={errors}
-                  disabled={isSaving}
-                  required
-                  placeholder={String(product.on_stock ?? 0)}
-                />
+              {/* Stock is the accumulated stock of all variants (read-only) — edit it per variant above */}
+              <div className="h-12 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.04] px-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-subTitle">{t("on_stock")}</p>
+                <p className="text-lg font-semibold text-white/80">
+                  {formatGroupedNumberInput(String(variants.reduce((sum, variant) => sum + variant.quantity, 0)))}
+                </p>
               </div>
 
               <div className="h-12 flex items-center justify-between rounded-2xl border border-success/18 bg-success/8 px-4">

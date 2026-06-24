@@ -17,9 +17,12 @@ import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 interface FormatOnStockFormProps {
   id: string
   onStock: number
+  // When the product has variants, on_stock is the accumulated stock of those variants (server-maintained),
+  // so it is shown read-only here — edit the stock per variant below instead.
+  isDerivedFromVariants?: boolean
 }
 
-export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
+export function FormatOnStockForm({ id, onStock, isDerivedFromVariants = false }: FormatOnStockFormProps) {
   const t = useScopedI18n("product")
   const toast = useToast()
   const { isLoading, setIsLoading } = useLoading()
@@ -91,6 +94,19 @@ export function FormatOnStockForm({ id, onStock }: FormatOnStockFormProps) {
     return () => document.removeEventListener("keydown", disableInput, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Variants own the stock — show the accumulated total read-only (edit it per variant below)
+  if (isDerivedFromVariants) {
+    return (
+      <div className="rounded border border-border-color/30 bg-background/70 px-3 py-2 shadow-none">
+        <div className="flex items-center gap-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle/70">{t("on_stock")}:</p>
+          <span className="text-sm font-medium text-title">{formatNumber(onStock) || onStock}</span>
+          <span className="text-[11px] text-subTitle/70">({t("variant")})</span>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div ref={containerRef} className={twMerge("rounded border border-border-color/30 bg-background/70 px-3 py-2 shadow-none")}>
