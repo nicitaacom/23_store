@@ -20,6 +20,9 @@
     --border-color: 0deg 0% 40%; /*subTitle*/
     --icon-color: 0deg 0% 12%; /* title 1f1f1f */
 
+    /* Indigo/violet-tinted surface shared by every modal shell */
+    --modal-surface: 236deg 30% 97%;
+
     /* Support colors */
     --info: 219deg 65% 36%;
     --warning: 22deg 84% 27%;
@@ -41,6 +44,9 @@
     /* The same colors */
     --border-color: 0deg 0% 60%; /*subTitle*/
     --icon-color: 0deg 0% 88%; /* title e0e0e0 */
+
+    /* Indigo/violet-tinted surface shared by every modal shell (lighter than the 7% page bg) */
+    --modal-surface: 236deg 26% 14%;
 
     /* Support colors */
     --info: 219deg 83% 65%;
