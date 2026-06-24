@@ -27,6 +27,7 @@ export type CreateProductFnInput = {
   images?: ImageListType
   variants?: TProductVariantDraft[]
   manageLoading?: boolean
+  category_id?: string | null
 }
 
 export type ProductDraftAssets = {

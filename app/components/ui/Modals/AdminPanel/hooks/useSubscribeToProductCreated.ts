@@ -17,6 +17,7 @@ export type PendingCreatedProduct = {
   on_stock: number
   img_url: string[]
   variants: TProductDB["variants"]
+  category_id?: string | null
 }
 
 type ProductCreatedEventPayload = {

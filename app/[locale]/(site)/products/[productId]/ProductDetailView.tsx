@@ -17,6 +17,32 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { pt } from "@/utils/product"
 import { ManageProductButton } from "../../components/ManageProductButton"
+
+function MarkdownText({ text }: { text: string }) {
+  const lines = text.split("\n")
+  return (
+    <span className="space-y-1">
+      {lines.map((line, i) => {
+        const parts: React.ReactNode[] = []
+        let rest = line
+        let key = 0
+        while (rest.length) {
+          const bold = rest.match(/\*\*(.+?)\*\*/)
+          const italic = rest.match(/\*(.+?)\*/)
+          const first = [bold, italic]
+            .filter(Boolean)
+            .sort((a, b) => (a!.index ?? 0) - (b!.index ?? 0))[0]
+          if (!first) { parts.push(rest); break }
+          if (first.index! > 0) parts.push(rest.slice(0, first.index))
+          if (first === bold) parts.push(<strong key={key++} className="font-semibold text-title">{first[1]}</strong>)
+          else parts.push(<em key={key++} className="italic">{first[1]}</em>)
+          rest = rest.slice(first.index! + first[0].length)
+        }
+        return <span key={i} className="block">{parts}</span>
+      })}
+    </span>
+  )
+}
 import { RequestReplanishmentButton } from "../../components/Product/RequestReplanishmentButton"
 import { ProductLikeButton } from "../../components/ProductLikeButton"
 
@@ -77,17 +103,17 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   ]
 
   return (
-    <div className="grid gap-6 laptop:grid-cols-[minmax(0,1.15fr)_minmax(340px,420px)]">
-      <section className="grid gap-4 tablet:grid-cols-[88px_minmax(0,1fr)]">
+    <div className="grid gap-3 laptop:grid-cols-[minmax(0,1.15fr)_minmax(320px,400px)]">
+      <section className="grid gap-2 tablet:grid-cols-[72px_minmax(0,1fr)]">
         <div className="order-2 tablet:order-1">
-          <div className="flex gap-3 overflow-x-auto pb-1 tablet:max-h-[720px] tablet:flex-col tablet:overflow-y-auto tablet:pb-0">
+          <div className="flex gap-2 overflow-x-auto pb-1 tablet:max-h-[560px] tablet:flex-col tablet:overflow-y-auto tablet:pb-0">
             {galleryImages.map((image, index) => (
               <button
                 key={`${image}-${index}`}
                 type="button"
                 onClick={() => setActiveImage(image)}
                 className={twMerge(
-                  "group relative h-20 w-20 shrink-0 overflow-hidden rounded-[2px] border bg-background/70 transition-all duration-200",
+                  "group relative h-16 w-16 shrink-0 overflow-hidden rounded-[2px] border bg-background/70 transition-all duration-200",
                   activeImage === image
                     ? "border-success shadow-lg shadow-success/20"
                     : "border-border-color/20 hover:border-success/30 hover:bg-success/5",
@@ -100,14 +126,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
 
         <div className="order-1 tablet:order-2">
           <div className="overflow-hidden rounded-[2px] border border-success/20 bg-[radial-gradient(circle_at_top_left,rgba(34,197,94,0.16),transparent_42%),linear-gradient(180deg,rgba(9,17,12,0.96),rgba(8,8,8,0.98))] shadow-2xl shadow-success/10">
-            <div className="relative aspect-[4/5] w-full">
+            <div className="relative aspect-[4/4] w-full">
               <Image
                 src={activeImage}
                 alt={selectedVariant?.label || translation.title}
                 fill
                 priority
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 70vw, 50vw"
-                className="object-contain p-6 mobile:p-10"
+                className="object-contain p-4 mobile:p-6"
               />
             </div>
           </div>
@@ -121,9 +147,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
         </div>
       </section>
 
-      <aside className="flex flex-col gap-4">
-        <section className="rounded-[2px] border border-success/20 bg-gradient-to-br from-success/10 via-background to-background p-5 shadow-2xl shadow-success/10 mobile:p-6">
-          <div className="mb-4 flex flex-col gap-4">
+      <aside className="flex flex-col gap-2">
+        <section className="rounded-[2px] border border-success/20 bg-gradient-to-br from-success/10 via-background to-background p-3 shadow-2xl shadow-success/10">
+          <div className="mb-3 flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={twMerge(
@@ -153,12 +179,14 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             </div>
           </div>
 
-          <h1 className="max-w-[18ch] text-[28px] font-semibold leading-[1.02] tracking-[-0.03em] text-title mobile:text-[34px]">
+          <h1 className="max-w-[18ch] text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl">
             {translation.title}
           </h1>
-          <p className="mt-3 max-w-[64ch] text-sm leading-6 text-subTitle mobile:text-base">{translation.description}</p>
+          <p className="mt-2 max-w-[64ch] text-sm leading-6 text-subTitle">
+            <MarkdownText text={translation.description} />
+          </p>
 
-          <div className="mt-5 grid gap-3 mobile:grid-cols-2">
+          <div className="mt-3 grid gap-2 mobile:grid-cols-2">
             <div className="rounded-[2px] border border-success/20 bg-black/20 p-4">
               <p className="text-xs uppercase tracking-[0.24em] text-subTitle">{t("price")}</p>
               <p className="mt-2 text-2xl font-bold tracking-tight text-success">{formatCurrency(selectedPrice)}</p>
@@ -171,10 +199,10 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           </div>
 
           {variants.length > 0 && (
-            <div className="mt-5">
-              <p className="mb-3 text-sm font-medium uppercase tracking-[0.2em] text-subTitle">{t("variant")}</p>
+            <div className="mt-3">
+              <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-subTitle">{t("variant")}</p>
 
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2">
                 {variants.map(variant => {
                   const isActive = variant.id === selectedVariant?.id
 
@@ -208,7 +236,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           )}
         </section>
 
-        <section className="rounded-[2px] border border-success/25 bg-gradient-to-br from-success/12 via-background to-background p-5 shadow-2xl shadow-success/10 mobile:p-6">
+        <section className="rounded-[2px] border border-success/25 bg-gradient-to-br from-success/12 via-background to-background p-3 shadow-2xl shadow-success/10">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-subTitle">{t("selected_variant")}</p>
@@ -232,7 +260,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
             </div>
           )}
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-3 flex flex-wrap gap-2">
             {isOutOfStock ? (
               <div className="w-full">
                 <RequestReplanishmentButton product={product} />
@@ -249,14 +277,16 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           </div>
         </section>
 
-        <section className="rounded-[2px] border border-border-color/20 bg-background/70 p-5 mobile:p-6">
-          <h2 className="text-lg font-semibold text-title">{t("product_details")}</h2>
-          <p className="mt-3 text-base leading-7 text-subTitle">{translation.description}</p>
+        <section className="rounded-[2px] border border-border-color/20 bg-background/70 p-3">
+          <h2 className="text-sm font-semibold text-title">{t("product_details")}</h2>
+          <p className="mt-2 text-sm leading-6 text-subTitle">
+            <MarkdownText text={translation.description} />
+          </p>
 
-          <div className="mt-5 grid gap-3">
+          <div className="mt-3 grid gap-2">
             {highlights.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-3 rounded-[2px] border border-border-color/20 bg-black/10 px-4 py-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[2px] bg-success/10 text-success">
+              <div key={label} className="flex items-center gap-2 rounded-[2px] border border-border-color/20 bg-black/10 px-3 py-2">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] bg-success/10 text-success">
                   <Icon className="text-lg" />
                 </div>
                 <p className="text-sm font-medium text-title">{label}</p>

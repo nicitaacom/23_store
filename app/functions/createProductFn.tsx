@@ -31,7 +31,7 @@ import {
  */
 export async function createProductFn(t: TI18nFunction, input: CreateProductFnInput) {
   const { setIsLoading } = useLoading.getState()
-  const { title, description, price, onStock, images, variants, manageLoading = true } = input
+  const { title, description, price, onStock, images, variants, manageLoading = true, category_id } = input
 
   if (manageLoading) {
     setIsLoading(true)
@@ -61,6 +61,7 @@ export async function createProductFn(t: TI18nFunction, input: CreateProductFnIn
       on_stock: onStock ?? 0,
       img_url: uploadedImageUrls,
       variants: resolvedVariants,
+      category_id: category_id ?? null,
     })
 
     if (!createProductResponse.ok) {

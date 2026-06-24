@@ -16,6 +16,7 @@ export type TUpdateProductRequest = {
   price?: number
   onStock?: number
   variants?: TProductVariant[] | null
+  category_id?: string | null
 }
 
 export async function POST(req: Request) {
@@ -28,6 +29,7 @@ export async function POST(req: Request) {
   const price = body.price
   const onStock = body.onStock
   const variants = body.variants
+  const category_id = body.category_id
   const getStripeDescriptionPayload = (description: string | undefined) => {
     const trimmedDescription = description?.trim()
     return trimmedDescription ? { description: trimmedDescription } : {}
@@ -220,6 +222,19 @@ export async function POST(req: Request) {
       } else {
         throw new Error(`Update price\n Product with id ${productId} not found in DB\n`)
       }
+    }
+
+    /* UPDATE CATEGORY */
+    if ("category_id" in body) {
+      const { error: updateCategoryError } = await supabase
+        .from("23_products")
+        .update({ category_id: category_id ?? null })
+        .eq("id", productId)
+
+      if (updateCategoryError)
+        throw new Error(`update product category_id \n Path:/api/products/update/route.ts \n Error message:\n ${updateCategoryError.message}`)
+
+      return getUpdatedProductResponse(productId)
     }
 
     return NextResponse.json({ error: "No valid update payload provided" }, { status: 400 })

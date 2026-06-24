@@ -31,6 +31,7 @@ declare module API {
     on_stock: number
     img_url: string[]
     variants?: ProductsVariant[] | null
+    category_id?: string | null
   }
 
   type ProductsTranslateAndInsertResponse = {
@@ -67,6 +68,7 @@ declare module API {
     price?: number
     onStock?: number
     variants?: ProductsVariant[] | null
+    category_id?: string | null
   }
 
   type ProductsDeleteRequest = {

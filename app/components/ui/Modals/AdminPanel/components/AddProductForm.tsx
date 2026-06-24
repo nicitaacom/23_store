@@ -30,6 +30,9 @@ import {
 } from "@/constants/uploadLimits"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { PendingCreatedProduct, useSubscribeToProductCreated } from "../hooks/useSubscribeToProductCreated"
+import { aiSDK } from "@/sdk/AISDK/AISDK"
+import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
+import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
 
 const previewImageVariants = {
   initial: (direction: "next" | "prev") => ({
@@ -83,7 +86,13 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [pendingTranslationsAmount, setPendingTranslationsAmount] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [categoryId, setCategoryId] = useState<string | null>(null)
+  const [autoAssignedName, setAutoAssignedName] = useState<string | null>(null)
+  const [isSuggestingCategory, setIsSuggestingCategory] = useState(false)
   const dragZone = useRef<HTMLButtonElement | null>(null)
+  const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const { categories: allCategories, hydrate: hydrateCategories } = useCategoriesStore()
   const previousImageIndexRef = useRef(0)
   const pendingTranslationsAmountRef = useRef(0)
   const pendingCreatedProductsRef = useRef<PendingCreatedProduct[]>([])
@@ -176,6 +185,40 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setError(errorMessage)
   }
 
+  // Load categories once for the dropdown
+  useEffect(() => {
+    if (allCategories.length > 0) return
+    categoriesSDK.selectDBCategories().then(result => {
+      if ("categories" in result) hydrateCategories(result.categories)
+    })
+  }, [allCategories.length, hydrateCategories])
+
+  // Debounced AI auto-assign: fires 800ms after title stops changing, ≥10 chars
+  useEffect(() => {
+    if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current)
+    const trimmed = titleValue?.trim() ?? ""
+    if (trimmed.length < 10) return
+
+    suggestDebounceRef.current = setTimeout(async () => {
+      setIsSuggestingCategory(true)
+      try {
+        const result = await aiSDK.suggestCategory({ title: trimmed, description: descriptionValue?.trim() })
+        if ("category_id" in result && result.category_id) {
+          const found = allCategories.find(c => c.id === result.category_id)
+          if (found) {
+            setCategoryId(result.category_id)
+            setAutoAssignedName(found.name)
+          }
+        }
+      } catch {}
+      setIsSuggestingCategory(false)
+    }, 800)
+
+    return () => {
+      if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current)
+    }
+  }, [titleValue, descriptionValue, allCategories])
+
   const clearForm = () => {
     reset(EMPTY_PRODUCT_FORM_VALUES)
     setImages([])
@@ -185,6 +228,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariantLabel("")
     setVariantPrice("")
     setVariantQuantity("")
+    setCategoryId(null)
+    setAutoAssignedName(null)
   }
 
   const restoreFormSnapshot = (snapshot: PendingFormSnapshot) => {
@@ -217,6 +262,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     submitImages,
     resolvedVariants,
     snapshot,
+    submittedCategoryId,
   }: {
     optimisticProductId: string
     normalizedTitle: string
@@ -225,6 +271,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     submitImages: ImageListType
     resolvedVariants: TProductVariantDraft[]
     snapshot: PendingFormSnapshot
+    submittedCategoryId: string | null
   }) => {
     try {
       await createProductFn(t, {
@@ -234,6 +281,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         images: submitImages,
         variants: resolvedVariants,
         manageLoading: false,
+        category_id: submittedCategoryId,
       })
 
       useOwnerProductsStore.getState().setError(null)
@@ -297,6 +345,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         img_url: optimisticImages,
         variants: optimisticVariants.length ? optimisticVariants : null,
         on_stock: formattedOnStock,
+        category_id: categoryId,
       }
 
       useOwnerProductsStore.getState().setError(null)
@@ -310,6 +359,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         on_stock: formattedOnStock,
         img_url: optimisticProduct.img_url,
         variants: optimisticProduct.variants,
+        category_id: categoryId,
       })
 
       const snapshot: PendingFormSnapshot = {
@@ -336,6 +386,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         submitImages,
         resolvedVariants,
         snapshot,
+        submittedCategoryId: categoryId,
       })
     } finally {
       setIsSubmitting(false)
@@ -725,6 +776,44 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             disabled={isLoading}
             placeholder={t("placeholder.description")}
           />
+        </div>
+
+        {/* Category */}
+        <div className="grid gap-1.5">
+          <div className="flex items-center gap-2">
+            <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+              {tGlobal("category.edit_category")}
+            </label>
+            {isSuggestingCategory && (
+              <span className="text-[10px] text-white/40 animate-pulse">AI suggesting...</span>
+            )}
+            {!isSuggestingCategory && autoAssignedName && categoryId && (
+              <span className="flex items-center gap-1 rounded bg-success/10 px-1.5 py-0.5 text-[10px] text-success">
+                {tGlobal("category.auto_assigned")}: {autoAssignedName}
+                <button
+                  type="button"
+                  className="ml-0.5 text-success/60 hover:text-success"
+                  onClick={() => { setCategoryId(null); setAutoAssignedName(null) }}>
+                  ×
+                </button>
+              </span>
+            )}
+          </div>
+          <select
+            className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors focus:border-success-accent/35 focus:bg-white/[0.09] disabled:opacity-50"
+            value={categoryId ?? ""}
+            onChange={e => { setCategoryId(e.target.value || null); setAutoAssignedName(null) }}
+            disabled={isLoading}>
+            <option value="">{tGlobal("category.uncategorized")}</option>
+            {allCategories.filter(c => c.parent_id === null).map(parent => (
+              <optgroup key={parent.id} label={parent.name}>
+                <option value={parent.id}>{parent.name}</option>
+                {allCategories.filter(c => c.parent_id === parent.id).map(child => (
+                  <option key={child.id} value={child.id}>{child.name}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
         </div>
 
         {/* ── Variants (moved from left col) ── */}

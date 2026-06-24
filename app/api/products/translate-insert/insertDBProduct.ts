@@ -11,6 +11,7 @@ export async function insertDBProduct(payload: API.ProductsTranslateAndInsertReq
     img_url: payload.img_url,
     variants: payload.variants ?? null,
     translations: createRawProductTranslations(payload.title, payload.description),
+    category_id: payload.category_id ?? null,
   })
 
   if (insertError) return insertError.message

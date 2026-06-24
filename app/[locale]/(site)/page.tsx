@@ -14,17 +14,33 @@ import ProductsPerPage from "@/components/ProductsPerPage"
 import { AIInputSearch } from "./components/AISearch/AIInputSearch"
 import { Products } from "./components"
 import { CatalogSearchForm } from "./components/CatalogSearchForm"
+import { CategoryPillBar } from "./components/CategoryPillBar"
+import { TCategory } from "@/ts/categories/TCategory"
 
 interface SearchProps {
   params: Promise<{ locale: string }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-const fetchProducts = cache(async () => {
+const fetchProducts = cache(async (categoryIds?: string[]) => {
   const supabase = await supabaseServer()
-  const products = await supabase.from("23_products").select("*").order("price", { ascending: true })
+  let query = supabase.from("23_products").select("*").order("price", { ascending: true })
+  if (categoryIds && categoryIds.length > 0) {
+    query = query.in("category_id", categoryIds)
+  }
+  const products = await query
   if (!products) notFound()
   return products
+})
+
+const fetchCategories = cache(async (): Promise<TCategory[]> => {
+  const supabase = await supabaseServer()
+  const { data } = await supabase
+    .from("23_categories")
+    .select("id, name, parent_id")
+    .order("parent_id", { ascending: true, nullsFirst: true })
+    .order("name", { ascending: true })
+  return (data ?? []) as TCategory[]
 })
 
 export default async function Home({ params: paramsPromise, searchParams: searchParamsPromise }: SearchProps) {
@@ -36,7 +52,23 @@ export default async function Home({ params: paramsPromise, searchParams: search
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  const products_response = await fetchProducts()
+
+  // Fetch categories in parallel with products
+  const [categories] = await Promise.all([fetchCategories()])
+
+  // Resolve category filter
+  const categoryParamRaw = searchParams["category"]
+  const categoryParam = typeof categoryParamRaw === "string" ? categoryParamRaw : null
+  const knownIds = categories.map(c => c.id)
+  const validCategory = categoryParam && knownIds.includes(categoryParam) ? categoryParam : null
+
+  let categoryIds: string[] | undefined
+  if (validCategory) {
+    const childIds = categories.filter(c => c.parent_id === validCategory).map(c => c.id)
+    categoryIds = [validCategory, ...childIds]
+  }
+
+  const products_response = await fetchProducts(categoryIds)
   if (products_response.error) throw products_response.error
   const products = normalizeProducts(products_response.data)
   const searchQueryValue = searchParams["query"]
@@ -92,6 +124,11 @@ export default async function Home({ params: paramsPromise, searchParams: search
                     {t("catalog_title")}
                   </h1>
                   <p className="hidden max-w-3xl text-base leading-7 text-subTitle tablet:block">{t("catalog_subtitle")}</p>
+                  <CategoryPillBar
+                    categories={categories}
+                    isAuthenticated={!!user}
+                    locale={params.locale}
+                  />
                   <div className="flex flex-row items-center gap-[2px] pt-1">
                     <Link
                       href={addProductHref}

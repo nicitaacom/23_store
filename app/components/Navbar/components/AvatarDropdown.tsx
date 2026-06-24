@@ -88,7 +88,7 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
         <Image className="w-[32px] h-[32px] rounded-full object-cover" src={avatarUrl} alt="user logo" width={64} height={64} />
       }>
       {roles.includes("SUPPORT") && <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />}
-      <DropdownItem label="Admin panel" icon={BsWindow} onClick={openAdminPanel} />
+      <DropdownItem label="Manage products" icon={BsWindow} onClick={openAdminPanel} />
       {roles.includes("ADMIN") && <DropdownItem label={t("dropdown_item")} icon={BsDatabaseDown} onClick={openDbBackup} />}
       <DropdownItem label="Update avatar" icon={BiImageAdd} onClick={openUpdateAvatarModal} />
       <DropdownItem

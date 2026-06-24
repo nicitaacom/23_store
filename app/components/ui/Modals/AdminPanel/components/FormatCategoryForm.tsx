@@ -1,0 +1,109 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { CiEdit } from "react-icons/ci"
+import { twMerge } from "tailwind-merge"
+
+import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
+import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import useToast from "@/store/ui/useToast"
+import { useI18n } from "@/locales/client"
+
+interface FormatCategoryFormProps {
+  id: string
+  category_id: string | null | undefined
+}
+
+export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps) {
+  const t = useI18n()
+  const toast = useToast()
+  const { categories, hydrate } = useCategoriesStore()
+  const { replaceProduct, updateProduct } = useOwnerProductsStore()
+  const [isEditing, setIsEditing] = useState(false)
+  const [selectedId, setSelectedId] = useState<string | null>(category_id ?? null)
+  const [isSaving, setIsSaving] = useState(false)
+
+  useEffect(() => {
+    if (categories.length > 0) return
+    categoriesSDK.selectDBCategories().then(result => {
+      if ("categories" in result) hydrate(result.categories)
+    })
+  }, [categories.length, hydrate])
+
+  const currentName =
+    categories.find(c => c.id === category_id)?.name ?? t("category.uncategorized")
+
+  const parentCategories = categories.filter(c => c.parent_id === null)
+  const childrenOf = (parentId: string) => categories.filter(c => c.parent_id === parentId)
+
+  const handleSave = async () => {
+    const snapshot = category_id ?? null
+    updateProduct(id, p => ({ ...p, category_id: selectedId }))
+    setIsEditing(false)
+    setIsSaving(true)
+
+    try {
+      const response = await productsSDK.updateProduct({ productId: id, category_id: selectedId })
+      if (typeof response === "string") throw new Error(response)
+      replaceProduct(id, response.product)
+    } catch (error) {
+      updateProduct(id, p => ({ ...p, category_id: snapshot }))
+      toast.show("error", t("category.edit_category"), error instanceof Error ? error.message : String(error))
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  return (
+    <div className="rounded border border-border-color/30 bg-background/70 px-3 py-2 shadow-none">
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle/70">{t("category.edit_category")}:</p>
+        {isEditing ? (
+          <div className="flex flex-1 items-center gap-2">
+            <select
+              autoFocus
+              className="flex-1 rounded border border-border-color/50 bg-background/60 px-2 py-1 text-sm text-title focus:border-border-color focus:outline-none"
+              value={selectedId ?? ""}
+              onChange={e => setSelectedId(e.target.value || null)}>
+              <option value="">{t("category.uncategorized")}</option>
+              {parentCategories.map(parent => (
+                <optgroup key={parent.id} label={parent.name}>
+                  <option value={parent.id}>{parent.name}</option>
+                  {childrenOf(parent.id).map(child => (
+                    <option key={child.id} value={child.id}>{child.name}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <button
+              className={twMerge(
+                "rounded border border-success/40 bg-success/10 px-2 py-1 text-xs text-success transition-colors duration-150 hover:bg-success/20",
+                isSaving && "pointer-events-none opacity-60",
+              )}
+              type="button"
+              onClick={handleSave}
+              disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save"}
+            </button>
+            <button
+              className="rounded border border-border-color/30 px-2 py-1 text-xs text-subTitle transition-colors duration-150 hover:bg-foreground/10"
+              type="button"
+              onClick={() => { setIsEditing(false); setSelectedId(category_id ?? null) }}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            className="flex items-center gap-1.5 rounded p-1 transition-colors duration-150 hover:bg-warning/20"
+            type="button"
+            onClick={() => setIsEditing(true)}>
+            <span className="text-sm font-medium text-title">{currentName}</span>
+            <CiEdit className="text-subTitle" />
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}

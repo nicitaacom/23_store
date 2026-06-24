@@ -11,7 +11,8 @@ import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { EditProductForm } from "./components/EditProductForm"
 import { AddProductForm } from "./components/AddProductForm"
 import { DeleteProductForm } from "./components/DeleteProductForm"
-import { AdminPanelHeader } from "./components/AdminPanelHeader"
+import { AdminPanelHeader, PANEL_ACTIONS, PanelAction } from "./components/AdminPanelHeader"
+import { CategoriesForm } from "./components/CategoriesForm"
 import { useLoading } from "@/store/ui/useLoading"
 import { useI18n } from "@/locales/client"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -21,20 +22,12 @@ export interface AdminPanelModalProps {
   ownerProducts: TProductDB[]
 }
 
-const PRODUCT_ACTIONS = {
-  add: "add",
-  edit: "edit",
-  delete: "delete",
-} as const
-
-type ProductAction = (typeof PRODUCT_ACTIONS)[keyof typeof PRODUCT_ACTIONS]
-
 export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
   const t = useI18n()
   const router = useRouter()
   const { products: hydratedOwnerProducts, hydrate: hydrateOwnerProducts } = useOwnerProductsStore()
 
-  const [productAction, setProductAction] = useState<ProductAction>(PRODUCT_ACTIONS.add)
+  const [panelAction, setPanelAction] = useState<PanelAction>(PANEL_ACTIONS.add)
   const [pendingDeleteProduct, setPendingDeleteProduct] = useState<PendingDeleteProduct | PendingDeleteProduct[] | null>(null)
   const { isLoading } = useLoading()
 
@@ -71,30 +64,40 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
         <>
           <AdminPanelHeader
             title={t("modal.admin_panel.label")}
-            activeAction={productAction}
-            actionLabels={{ add: t("product.add"), edit: t("product.edit"), delete: t("product.delete") }}
-            onActionChange={setProductAction}
+            activeAction={panelAction}
+            actionLabels={{
+              add: t("product.add"),
+              edit: t("product.edit"),
+              delete: t("product.delete"),
+              categories: t("modal.admin_panel.categories"),
+            }}
+            onActionChange={setPanelAction}
             onClose={closeModal}
             disabled={isLoading || !!pendingDeleteProduct}
           />
 
           <div className="relative min-h-0 flex-1 overflow-hidden px-2 py-2 tablet:px-3 tablet:py-3">
-            {productAction === PRODUCT_ACTIONS.add && (
+            {panelAction === PANEL_ACTIONS.add && (
               <div className="h-full">
                 <AddProductForm />
               </div>
             )}
-            {productAction === PRODUCT_ACTIONS.edit && (
+            {panelAction === PANEL_ACTIONS.edit && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
                 <EditProductForm ownerProducts={hydratedOwnerProducts} />
               </div>
             )}
-            {productAction === PRODUCT_ACTIONS.delete && (
+            {panelAction === PANEL_ACTIONS.delete && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
                 <DeleteProductForm
                   ownerProducts={hydratedOwnerProducts}
                   onRequestDelete={setPendingDeleteProduct}
                 />
+              </div>
+            )}
+            {panelAction === PANEL_ACTIONS.categories && (
+              <div className="panel-scroll h-full overflow-y-auto pr-1">
+                <CategoriesForm />
               </div>
             )}
           </div>

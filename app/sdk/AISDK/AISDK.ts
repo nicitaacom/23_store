@@ -22,6 +22,13 @@ export class AISDK extends BaseSDK {
     )
   }
 
+  async suggestCategory(request: API.AISuggestCategoryRequest) {
+    return this.postJson<API.AISuggestCategoryRequest, API.AISuggestCategoryResponse>(
+      "/api/ai/suggest-category",
+      request satisfies API.AISuggestCategoryRequest,
+    )
+  }
+
   async generateImageBuffer(prompt: string) {
     const response = await this.request("/api/ai/generate-image", {
       method: "POST",

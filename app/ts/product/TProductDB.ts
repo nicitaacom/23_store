@@ -13,6 +13,7 @@ export type TProductDB = {
   variants?: TProductVariant[] | null
   on_stock: number
   created_at?: string
+  category_id?: string | null
   // Social signals — drive /popular-products (most likes first). avg rating = rating_sum / rating_count.
   likes_count?: number
   rating_sum?: number

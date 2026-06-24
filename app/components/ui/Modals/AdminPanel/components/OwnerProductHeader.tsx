@@ -4,6 +4,7 @@ import { FormatPriceForm } from "./FormatPriceForm"
 import { FormatTitleForm } from "./FormatTitleForm"
 import { FormatOnStockForm } from "./FormatOnStockForm"
 import { FormatDescriptionForm } from "./FormatDescriptionForm"
+import { FormatCategoryForm } from "./FormatCategoryForm"
 
 interface OwnerProductHeaderProps {
   id: string
@@ -11,9 +12,10 @@ interface OwnerProductHeaderProps {
   price: number
   onStock: number
   hasVariants: boolean
+  category_id?: string | null
 }
 
-export function OwnerProductHeader({ id, translations, price, onStock, hasVariants }: OwnerProductHeaderProps) {
+export function OwnerProductHeader({ id, translations, price, onStock, hasVariants, category_id }: OwnerProductHeaderProps) {
   return (
     <section className="flex min-w-0 flex-col gap-y-3">
       <div className="flex min-w-0 flex-col gap-2 tablet:flex-row tablet:items-center tablet:justify-between">
@@ -22,6 +24,7 @@ export function OwnerProductHeader({ id, translations, price, onStock, hasVarian
       </div>
       <FormatDescriptionForm id={id} translations={translations} />
       <FormatOnStockForm id={id} onStock={onStock} isDerivedFromVariants={hasVariants} />
+      <FormatCategoryForm id={id} category_id={category_id} />
     </section>
   )
 }

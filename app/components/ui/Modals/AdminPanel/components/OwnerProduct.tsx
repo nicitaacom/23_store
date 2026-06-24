@@ -35,6 +35,7 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
             price={ownerProduct.price}
             onStock={ownerProduct.on_stock}
             hasVariants={(ownerProduct.variants?.length ?? 0) > 0}
+            category_id={ownerProduct.category_id}
           />
         </div>
       </div>

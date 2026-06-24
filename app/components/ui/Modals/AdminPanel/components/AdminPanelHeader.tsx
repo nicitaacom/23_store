@@ -4,32 +4,34 @@ import { IoMdClose } from "react-icons/io"
 import { twMerge } from "tailwind-merge"
 import { FiPlus } from "react-icons/fi"
 import { CiEdit } from "react-icons/ci"
-import { MdOutlineDelete } from "react-icons/md"
+import { MdOutlineDelete, MdOutlineCategory } from "react-icons/md"
 
 import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 
-const PRODUCT_ACTIONS = {
+export const PANEL_ACTIONS = {
   add: "add",
   edit: "edit",
   delete: "delete",
+  categories: "categories",
 } as const
 
-type ProductAction = (typeof PRODUCT_ACTIONS)[keyof typeof PRODUCT_ACTIONS]
+export type PanelAction = (typeof PANEL_ACTIONS)[keyof typeof PANEL_ACTIONS]
 
 interface AdminPanelHeaderProps {
   className?: string
   title: string
-  activeAction: ProductAction
-  actionLabels: Record<ProductAction, string>
-  onActionChange: (action: ProductAction) => void
+  activeAction: PanelAction
+  actionLabels: Record<PanelAction, string>
+  onActionChange: (action: PanelAction) => void
   onClose: () => void
   disabled?: boolean
 }
 
-const ACTION_ICONS: Record<ProductAction, typeof FiPlus> = {
+const ACTION_ICONS: Record<PanelAction, typeof FiPlus> = {
   add: FiPlus,
   edit: CiEdit,
   delete: MdOutlineDelete,
+  categories: MdOutlineCategory,
 }
 
 export function AdminPanelHeader({
@@ -61,7 +63,7 @@ export function AdminPanelHeader({
         </div>
 
         <div className="ml-2 hidden min-w-0 flex-1 items-center gap-1 mobile:flex">
-          {(Object.keys(PRODUCT_ACTIONS) as ProductAction[]).map(action => {
+          {(Object.keys(PANEL_ACTIONS) as PanelAction[]).map(action => {
             const Icon = ACTION_ICONS[action]
             const isActive = action === activeAction
 
