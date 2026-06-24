@@ -88,6 +88,9 @@ Mobile/sidebar project links menu.
 - locks body scroll while open
 - closes on escape / outside click / swipe
 - renders external Jokik ecosystem links
+- holds the **`LanguageDropdown` at the bottom on mobile** (`mt-auto` + `tablet:hidden`, opens upward via
+  `isDropUp`). The navbar shows the dropdown inline only on tablet+ (`hidden tablet:flex` in `Navbar.tsx`),
+  so below tablet it lives here instead.
 
 If you want to add a new external project card, update `menuItems` here.
 
