@@ -10,31 +10,31 @@ import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import { useSupportPrefilledMessage } from "@/store/ui/useSupportPrefilledMessage"
 
+const ANON_VIEWS_KEY = "23_category_views_anon"
+
 interface CategoryPillBarProps {
   categories: TCategory[]
   isAuthenticated: boolean
   locale: string
+  serverViews: Record<string, number>
 }
 
-const ALL_ID = "__all__"
-
-export function CategoryPillBar({ categories, isAuthenticated, locale }: CategoryPillBarProps) {
+export function CategoryPillBar({ categories, isAuthenticated, locale, serverViews }: CategoryPillBarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const activeCategoryId = searchParams.get("category")
 
   const [mounted, setMounted] = useState(false)
-  const { views, recordView, getSortedCategories } = useCategoryPreferencesStore()
+  // sessionViews: optimistic local increments during this session (for immediate pill reorder feedback)
+  const [sessionViews, setSessionViews] = useState<Record<string, number>>({})
+  const { getSortedCategories } = useCategoryPreferencesStore()
   const { openDropdown } = useSupportDropdown()
   const { set: setPrefilledMessage } = useSupportPrefilledMessage()
 
   const activePillRef = useRef<HTMLButtonElement | null>(null)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  useEffect(() => { setMounted(true) }, [])
 
-  // Scroll active pill into view on mount and when category changes
   useEffect(() => {
     if (!mounted) return
     activePillRef.current?.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" })
@@ -45,9 +45,18 @@ export function CategoryPillBar({ categories, isAuthenticated, locale }: Categor
     [categories],
   )
 
+  // Merge serverViews with sessionViews for pill ordering
+  const mergedViews = useMemo(() => {
+    const merged = { ...serverViews }
+    for (const [id, count] of Object.entries(sessionViews)) {
+      merged[id] = (merged[id] ?? 0) + count
+    }
+    return merged
+  }, [serverViews, sessionViews])
+
   const sortedCategories = useMemo(
-    () => (mounted ? getSortedCategories(categories) : rootCategories),
-    [mounted, views, categories, rootCategories, getSortedCategories],
+    () => (mounted ? getSortedCategories(categories, mergedViews) : rootCategories),
+    [mounted, mergedViews, categories, rootCategories, getSortedCategories],
   )
 
   const handlePillClick = (categoryId: string | null) => {
@@ -60,11 +69,21 @@ export function CategoryPillBar({ categories, isAuthenticated, locale }: Categor
     params.set("page", "1")
     router.push(`/${locale}?${params.toString()}`)
 
-    if (categoryId) {
-      recordView(categoryId)
-      if (isAuthenticated) {
-        categoryViewsSDK.incrementDBCategoryView({ category_id: categoryId }).catch(() => {})
-      }
+    if (!categoryId) return
+
+    // Optimistic local increment for immediate pill reorder
+    setSessionViews(prev => ({ ...prev, [categoryId]: (prev[categoryId] ?? 0) + 1 }))
+
+    if (isAuthenticated) {
+      categoryViewsSDK.incrementDBCategoryView({ category_id: categoryId, delta: 1 }).catch(() => {})
+    } else {
+      // Write to anonymous localStorage
+      try {
+        const raw = localStorage.getItem(ANON_VIEWS_KEY)
+        const existing: Record<string, number> = raw ? JSON.parse(raw) : {}
+        existing[categoryId] = (existing[categoryId] ?? 0) + 1
+        localStorage.setItem(ANON_VIEWS_KEY, JSON.stringify(existing))
+      } catch { /* ignore */ }
     }
   }
 
@@ -78,7 +97,6 @@ export function CategoryPillBar({ categories, isAuthenticated, locale }: Categor
   return (
     <div className="flex items-center gap-2">
       <div className="flex flex-1 gap-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {/* All pill */}
         <button
           ref={isAllActive ? activePillRef : null}
           className={twMerge(
@@ -92,7 +110,6 @@ export function CategoryPillBar({ categories, isAuthenticated, locale }: Categor
           All
         </button>
 
-        {/* Category pills */}
         {sortedCategories.map(category => {
           const isActive = activeCategoryId === category.id
           return (
@@ -113,7 +130,6 @@ export function CategoryPillBar({ categories, isAuthenticated, locale }: Categor
         })}
       </div>
 
-      {/* Request new category */}
       <button
         className="h-8 shrink-0 rounded border border-border-color/35 bg-background/55 px-3 text-sm text-subTitle transition-colors duration-150 hover:bg-foreground/10 hover:text-title"
         type="button"

@@ -46,6 +46,8 @@ export async function generateMetadata({ params: paramsPromise }: ProductPagePro
 export default async function ProductPage({ params: paramsPromise }: ProductPageProps) {
   const params = await paramsPromise
   const t = await getScopedI18n("product")
+  const supabase = await supabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
   const product = await getProductById(params.productId)
   const translation = product ? pt(product, toProductLocale(params.locale)) : null
 
@@ -71,7 +73,7 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
           {t("back_to_catalog")}
         </Link>
 
-        <ProductDetailView product={product} />
+        <ProductDetailView product={product} isAuthenticated={!!user} />
       </section>
     </div>
   )

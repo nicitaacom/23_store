@@ -5,16 +5,22 @@ import { twMerge } from "tailwind-merge"
 
 import { useScopedI18n } from "@/locales/client"
 import useLikedProductsStore from "@/store/user/likedProductsStore"
+import useUserStore from "@/store/user/userStore"
 import supabaseClient from "@/libs/supabase/supabaseClient"
+import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
+
+const ANON_VIEWS_KEY = "23_category_views_anon"
 
 interface ProductLikeButtonProps {
   productId: string
+  categoryId?: string | null
   className?: string
 }
 
-export function ProductLikeButton({ productId, className }: ProductLikeButtonProps) {
+export function ProductLikeButton({ productId, categoryId, className }: ProductLikeButtonProps) {
   const t = useScopedI18n("product")
   const { likedProductIds, toggleProductLike } = useLikedProductsStore()
+  const { user } = useUserStore()
   const isLiked = likedProductIds.includes(productId)
 
   return (
@@ -25,11 +31,22 @@ export function ProductLikeButton({ productId, className }: ProductLikeButtonPro
       onClick={event => {
         event.preventDefault()
         event.stopPropagation()
-        // Local toggle is the source of truth for the heart; the RPC just moves the global counter
-        // (+1 like / -1 unlike) that drives /popular-products. Fire-and-forget — a failed bump is harmless.
         const delta = isLiked ? -1 : 1
         toggleProductLike(productId)
         void supabaseClient.rpc("increment_product_likes", { p_id: productId, delta })
+        // Record category preference on like (not unlike), delta 3
+        if (!isLiked && categoryId) {
+          if (user) {
+            categoryViewsSDK.incrementDBCategoryView({ category_id: categoryId, delta: 3 }).catch(() => {})
+          } else {
+            try {
+              const raw = localStorage.getItem(ANON_VIEWS_KEY)
+              const existing: Record<string, number> = raw ? JSON.parse(raw) : {}
+              existing[categoryId] = (existing[categoryId] ?? 0) + 3
+              localStorage.setItem(ANON_VIEWS_KEY, JSON.stringify(existing))
+            } catch { /* ignore */ }
+          }
+        }
       }}
       className={twMerge(
         "flex h-11 w-11 items-center justify-center rounded-full border border-border-color/20 bg-background/80 text-title shadow-lg shadow-black/15 backdrop-blur-sm transition-all duration-200 hover:border-success/35 hover:bg-success/10",

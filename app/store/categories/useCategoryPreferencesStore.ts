@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { devtools, persist } from "zustand/middleware"
+import { devtools } from "zustand/middleware"
 import { TCategory } from "@/ts/categories/TCategory"
 
 interface CategoryPreferencesStore {
@@ -7,7 +7,7 @@ interface CategoryPreferencesStore {
   recordView: (categoryId: string) => void
   clearViews: () => void
   hydrateFromDB: (dbViews: { category_id: string; view_count: number }[]) => void
-  getSortedCategories: (categories: TCategory[]) => TCategory[]
+  getSortedCategories: (categories: TCategory[], serverViews?: Record<string, number>) => TCategory[]
 }
 
 type SetState = (fn: (prev: CategoryPreferencesStore) => CategoryPreferencesStore) => void
@@ -32,8 +32,8 @@ const store = (set: SetState, get: () => CategoryPreferencesStore): CategoryPref
       return { ...state, views: merged }
     }),
 
-  getSortedCategories: (categories: TCategory[]) => {
-    const { views } = get()
+  getSortedCategories: (categories: TCategory[], serverViews?: Record<string, number>) => {
+    const views = serverViews ?? get().views
     const rootCategories = categories.filter(c => c.parent_id === null)
     const featured = rootCategories.find(c => c.name === "FEATURED")
     const rest = rootCategories.filter(c => c.name !== "FEATURED")
@@ -46,6 +46,4 @@ const store = (set: SetState, get: () => CategoryPreferencesStore): CategoryPref
   },
 })
 
-export const useCategoryPreferencesStore = create(
-  devtools(persist(store, { name: "23_category_views" })),
-)
+export const useCategoryPreferencesStore = create(devtools(store))

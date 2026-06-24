@@ -12,7 +12,7 @@ import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import PaginationControls from "@/components/PaginationControls"
 import ProductsPerPage from "@/components/ProductsPerPage"
 import { AIInputSearch } from "./components/AISearch/AIInputSearch"
-import { Products } from "./components"
+import { SortedProducts } from "./components/SortedProducts"
 import { CatalogSearchForm } from "./components/CatalogSearchForm"
 import { CategoryPillBar } from "./components/CategoryPillBar"
 import { TCategory } from "@/ts/categories/TCategory"
@@ -53,8 +53,15 @@ export default async function Home({ params: paramsPromise, searchParams: search
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Fetch categories in parallel with products
-  const [categories] = await Promise.all([fetchCategories()])
+  // Fetch categories + user category views in parallel
+  const viewsPromise = user
+    ? supabase.from("23_category_views").select("category_id, view_count").eq("user_id", user.id)
+    : Promise.resolve({ data: null })
+  const [categories, viewsResult] = await Promise.all([fetchCategories(), viewsPromise])
+  const serverViews: Record<string, number> = {}
+  if (viewsResult.data) {
+    for (const row of viewsResult.data) serverViews[row.category_id] = row.view_count
+  }
 
   // Resolve category filter
   const categoryParamRaw = searchParams["category"]
@@ -129,6 +136,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
                     categories={categories}
                     isAuthenticated={!!user}
                     locale={params.locale}
+                    serverViews={serverViews}
                   />
                   <div className="flex flex-row items-center gap-[2px] pt-1">
                     <Link
@@ -157,7 +165,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
                   {t("no_products_found")}
                 </div>
               ) : (
-                <Products products={entries} />
+                <SortedProducts products={entries} serverViews={serverViews} />
               )}
             </section>
 

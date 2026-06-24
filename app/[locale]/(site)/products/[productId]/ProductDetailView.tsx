@@ -18,15 +18,19 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { pt } from "@/utils/product"
 import { ManageProductButton } from "../../components/ManageProductButton"
+import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 
 import { RequestReplanishmentButton } from "../../components/Product/RequestReplanishmentButton"
 import { ProductLikeButton } from "../../components/ProductLikeButton"
 
+const ANON_VIEWS_KEY = "23_category_views_anon"
+
 interface ProductDetailViewProps {
   product: TProductDB
+  isAuthenticated: boolean
 }
 
-export function ProductDetailView({ product }: ProductDetailViewProps) {
+export function ProductDetailView({ product, isAuthenticated }: ProductDetailViewProps) {
   const t = useScopedI18n("product")
   const locale = useCurrentLocale()
   const translation = pt(product, locale)
@@ -53,6 +57,22 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   useEffect(() => {
     setActiveImage(currentImage => (galleryImages.includes(currentImage) ? currentImage : galleryImages[0]))
   }, [galleryImages])
+
+  // Record category view on product page visit (delta 1)
+  useEffect(() => {
+    if (!product.category_id) return
+    if (isAuthenticated) {
+      categoryViewsSDK.incrementDBCategoryView({ category_id: product.category_id, delta: 1 }).catch(() => {})
+    } else {
+      try {
+        const raw = localStorage.getItem(ANON_VIEWS_KEY)
+        const existing: Record<string, number> = raw ? JSON.parse(raw) : {}
+        existing[product.category_id] = (existing[product.category_id] ?? 0) + 1
+        localStorage.setItem(ANON_VIEWS_KEY, JSON.stringify(existing))
+      } catch { /* ignore */ }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const subtotal = formatCurrency(quantity * selectedPrice)
   const availabilityLabel = isOutOfStock
@@ -150,6 +170,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
               <ManageProductButton productId={product.id} ownerId={product.owner_id} size="sm" />
               <ProductLikeButton
                 productId={product.id}
+                categoryId={product.category_id}
                 className="h-8 w-8 rounded-[2px] border-white/8 bg-[#000000] shadow-sm shadow-black/10 hover:border-warning/25 hover:bg-[#111111]"
               />
             </div>
@@ -242,7 +263,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <RequestReplanishmentButton product={product} />
               </div>
             ) : quantity === 0 ? (
-              <AddToCartButton className="w-full justify-between px-5 mobile:w-full" productId={product.id} variantId={selectedVariant?.id} />
+              <AddToCartButton className="w-full justify-between px-5 mobile:w-full" productId={product.id} variantId={selectedVariant?.id} categoryId={product.category_id} />
             ) : (
               <>
                 <ProductQuantityButton action="decrease" productId={product.id} variantId={selectedVariant?.id} className="min-w-[56px]" />

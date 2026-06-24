@@ -14,9 +14,10 @@ interface ProductButtonsProps {
   ownerId: string
   showViewButton?: boolean
   variantId?: string | null
+  categoryId?: string | null
 }
 
-export function ProductButtons({ productId, ownerId, showViewButton = true, variantId }: ProductButtonsProps) {
+export function ProductButtons({ productId, ownerId, showViewButton = true, variantId, categoryId }: ProductButtonsProps) {
   const cartStore = useCartStore()
   const quantity = cartStore.products?.[createCartProductKey(productId, variantId)]?.quantity ?? 0
   const locale = useCurrentLocale()
@@ -28,7 +29,7 @@ export function ProductButtons({ productId, ownerId, showViewButton = true, vari
       <ManageProductButton className="rounded" productId={productId} ownerId={ownerId} />
 
       {quantity === 0 ? (
-        <AddToCartButton productId={productId} variantId={variantId} />
+        <AddToCartButton productId={productId} variantId={variantId} categoryId={categoryId} />
       ) : (
         <>
           {/* 2. Quantity stepper — segmented pair */}

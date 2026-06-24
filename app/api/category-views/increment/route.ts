@@ -44,9 +44,12 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     )
 
+  const delta = typeof body.delta === "number" && body.delta >= 1 && body.delta <= 5 ? Math.round(body.delta) : 1
+
   const { error } = await supabase.rpc("increment_category_view", {
     p_user_id: user.id,
     p_category_id: body.category_id,
+    p_delta: delta,
   })
 
   if (error)

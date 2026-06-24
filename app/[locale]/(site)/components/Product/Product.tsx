@@ -69,7 +69,7 @@ function Product({ ...product }: Props) {
       {/* 2. Media — full-width banner on mobile, fixed landscape that fills row height on tablet+ */}
       <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-foreground/10 tablet:aspect-auto tablet:w-[240px]">
         <ProductImage imgUrl={previewImages} productTitle={translation.title} />
-        <ProductLikeButton className="absolute right-2 top-2 z-[90]" productId={product.id} />
+        <ProductLikeButton className="absolute right-2 top-2 z-[90]" productId={product.id} categoryId={product.category_id} />
       </div>
 
       {/* 3. Content */}
@@ -161,6 +161,7 @@ function Product({ ...product }: Props) {
               productId={product.id}
               showViewButton={product.showViewButton}
               variantId={selectedVariant?.id}
+              categoryId={product.category_id}
             />
           )}
         </section>
