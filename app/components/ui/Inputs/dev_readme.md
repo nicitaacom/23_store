@@ -1,3 +1,18 @@
+### Shared look — `BaseInput.tsx`
+
+`Input`, `FormInput`, `SearchInput` and the variant inputs all compose [BaseInput.tsx](BaseInput.tsx) —
+one component that owns the shared text-input look (lighter "soft card" vibe: soft corners + border,
+soft GREEN/brand focus ring) and forwards `ref` + the rest of the props. Change the look there once and
+every shared input follows. We do NOT share styling through an exported className string — use the
+component.
+
+```tsx
+<BaseInput className="min-w-0 flex-1" value={value} onChange={onChange} />
+```
+
+`ProductInput` (Inputs/Validation) is intentionally NOT on `BaseInput` — it keeps its own hardcoded
+dark style for the AdminPanel forms. `MessageInput` is a chat-specific textarea, also separate.
+
 ### Usage for Input.tsx
 
 Use Inputs/Validation for inputs with validation
