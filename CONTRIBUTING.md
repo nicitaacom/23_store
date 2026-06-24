@@ -1,180 +1,165 @@
-# How to strat contributing to this project
+# Contributing
 
-### Fork repository
+> Contributors are welcome - DM me on linkedin if you have any questions
+> https://www.linkedin.com/in/nicitaacom/
 
-![fork repository](https://i.imgur.com/pjBCqGC.png)
+## 1. Setup
 
-## Clone forked repository
+### Clone
 
-![clone forked repository](https://i.imgur.com/2IsIuv0.png)
+```bash
+git clone https://github.com/nicitaacom/23_store
+cd 23_store
+pnpm i
+```
 
-## Pick up any task on your choise - https://github.com/users/nicitaacom/projects/5
+### Option A — Docker (recommended)
 
-![pick up any task on your choise](https://i.imgur.com/W2wxz9g.png)
+```bash
+docker build -t joki .
+docker run -dp 3000:3000 joki
+```
 
-## Create branch name as task name
+To stop: `docker stop <container_id_or_name>`
 
-![create branch name as task name](https://i.imgur.com/fcuUNur.png)
+Video guide for Docker install: https://www.youtube.com/watch?v=O2D6rPJI2oM
 
-## Read CONTRIBUTING.md file and README.md
+### Option B — Manual `.env`
 
-After you fork this repository and created branch - set up .env using `README.md`
+Configure each service in order:
 
-After you done with .env - read `Pull requests` and `Commit naming`
+| #         | Service              | Notes                                                                                                |
+| --------- | -------------------- | ---------------------------------------------------------------------------------------------------- |
+| 2.1       | Google Cloud Console | OAuth credentials — [video guide](https://streamable.com/blib2f)                                     |
+| 2.2–2.8   | Supabase             | Create project → copy `.env` → run SQL from [dev_readme-supbase-sql.md](./dev_readme-supbase-sql.md) |
+| 2.9–2.11  | Stripe               | Create product + price keys                                                                          |
+| 2.12–2.15 | Resend               | Add your domain, copy API key                                                                        |
+| 2.16      | Support email        | `NEXT_PUBLIC_SUPPORT_EMAIL='you@yourdomain.com'`                                                     |
+| 2.17–2.20 | PayPal               | Developer console → Create App → copy client ID + secret                                             |
+| 2.21–2.22 | MetaMask             | Copy your wallet address into `.env`                                                                 |
+| 2.23–2.24 | CoinMarketCap        | Developer portal → copy API key                                                                      |
 
-## ⚠️ Keep in mind that I reject your PR if you will do all changes in 1 file
+Then:
 
-That's why do commits as small as possible for this check [this video](https://www.youtube.com/watch?v=Dy5t_H2PRrk&ab_channel=EricMurphy)
-
-## Create PR
-
-If you done with your changes - jsut go ahead and crete PR
-
-![create PR](https://i.imgur.com/vqDYeJ8.png)
-
-<br/>
+```bash
+pnpm dev
+```
 
 ---
 
-<br/>
+## 2. Workflow
 
-## Pull requests
+### Fork + pick a task
 
-### Pull requests naming
+1. Fork the repository
 
-[PR#59]-imp-close_avatar_dropdown_on_item_click
-In case task related to this PR done you - in [] you write PR and number of this PR
+   ![fork repository](https://i.imgur.com/pjBCqGC.png)
 
-[PR#59-UPD]-imp-close_avatar_dropdown_on_item_click
-In case task not done every day when you finish coding you do this PR - in [] you write PR and number of this PR and -UPD
+2. Clone your fork
 
-### Pull requests description
+   ![clone forked repository](https://i.imgur.com/2IsIuv0.png)
 
-**Use descripion template below**
+3. Pick a task — https://github.com/users/nicitaacom/projects/5
 
-Please don't write in `1. Change title` `2. Chnage title` etc `chore` / `style`<br/>
-Write `fix` / `feat` / `docs` instead
+   ![pick up any task](https://i.imgur.com/W2wxz9g.png)
+
+4. Create a branch named after the task
+
+   ![create branch](https://i.imgur.com/fcuUNur.png)
+
+> ⚠️ PRs that put all changes in a single commit are rejected. Keep commits small — [why this matters](https://www.youtube.com/watch?v=Dy5t_H2PRrk&ab_channel=EricMurphy).
+
+---
+
+## 3. Naming conventions
+
+### Branches
+
+Name the branch the same as the task:
+
+```
+add-close_authModal_button
+imp-close_avatarDropdown_onClickOutside
+fix-sendEmailToUnauthorizedUser_afterPayment
+```
+
+- `add` — new feature
+- `imp` — improvement to existing feature
+- `fix` — bug fix
+
+### Commits
+
+```
+style: mb-8 instead of pb-8
+chore: AvatarDropdown.tsx encapsulated
+upd: store for avatarDropdown created
+feat: close avatarDropdown on DropdownItem click
+docs: commit naming added
+```
+
+- `chore` — internal change, no user-visible effect
+- `style` — styling only
+- `upd` — small change leading toward a feature
+- `feat` — complete feature
+- `docs` — documentation
+
+### Pull requests
+
+Done: `[PR#59]-imp-close_avatar_dropdown_on_item_click`
+
+In progress (daily update): `[PR#59-UPD]-imp-close_avatar_dropdown_on_item_click`
+
+**PR description template:**
 
 ```md
 # Changes
 
-### 1. Change
+### 1. Change title
 
 which problem was solved
-video/screenshot (preffered)
-
-<br/>
+video/screenshot (preferred)
 
 ---
-
-<br/>
 
 # Result (n days)
 
 video/screenshot
 
-<br/>
-
 ---
-
-<br/>
 
 **Github task** -
-This task done - delete this branch and move task to 'Done'
-This task not done and created to keep 'development' branch up to date - don't delete this branch
+This task is done — delete this branch and move task to 'Done'
+This task is not done — don't delete this branch
 ```
 
-<br/>
+Use `fix` / `feat` / `docs` prefixes — not `chore` / `style` — in PR section headings.
 
 ---
 
-<br/>
+## 4. Codebase orientation
 
-## Github projects
-
-### Task naming
-
-in case you need to create some task you name this task like below
-add-close_authModal_button
-imp-close_avatarDropdown_onClickOutside
-add-root-open_supportModal_button
-add-ProductTSX-requestReplanishment_button
-add-open_supporDropdown_button_UI+logic
-imp-auth
-fix-sendEmailToUnauthorizedUser_afterPayment
-More examples - https://github.com/users/nicitaacom/projects/5/views/1?sortedBy%5Bdirection%5D=desc&sortedBy%5BcolumnId%5D=59471618&pane=issue
-
-1. Start with **add** if you need to add smth and **imp** if you need to improve and **fix** if you need to fix smth
-2. Add 3-4 _snake_case_ worlds what do you want to add
-   Basicaly on:
-   firstWorld you write logic that object should do e.g close
-
-   secondWorld you write where it should be e.g authModal
-
-   thirdWorld you write object that do something e.g button
-
-   fourthWorld you write condition e.g onCloseOutside
-
-3. Just check more examples - to get understanding (because for example not always you should write)
-   in which file you need imp or fix smth because it may obvioulsy
-
-### Commit naming
-
-style: mb-8 instead of pb-8<br/>
-chore: AvatarDropdown.tsx incapsulated<br/>
-chore: ModalContainer renamed to ModalQueryContainer<br/>
-upd: store for avatarDropdown created<br/>
-feat: close avatarDropdown on DropdownItem click<br/>
-docs: commit naming add<br/>
-
-1. chore - for update that doesn't affect on user
-2. style - only styling changes
-3. upd - some minor changes that leads to feat
-4. feat - for some ready feature
-5. docs - for docs changes
-
-### Branch naming
-
-Just name your branch as task name e.g `imp-close_avatarDropdown_onClickOutside`
-
-### Updating from development
-
-I use github desktop so I write for this (if you prefer to use terminal do it through teminal)
-
-1. ctrl+shift+u
-2. click 'Push'
-3. click 'History'
-4. RMB on last commit
-5. Amend commit
-6. Edit commit message to 'Update from 'development'
-7. Click 'Force push origin'
-
-<br/>
-
----
-
-<br/>
-
-## Folder structure
-
-### Imports
+Each folder has a `dev_readme.md` explaining what lives there — read it only if the folder is relevant to your task. Imports follow the structure shown below:
 
 ![imports structure](https://i.imgur.com/1LEoZ8K.png)
 
-### How to undertand what's going on
+### Writing your own docs
 
-In each folder I have `dev_readme.md` file - so you can understnad what's going on in each folder of my project
-Note: You don't need to read all `dev_readme.md` files - do it if needed
-I mean if it not related to your task you may don't read about it
+Lead with the problem the code solves, then show how to use it. Example:
 
-## Write your own docs
+> This file is needed to format price from `199999.99` to `$1,999.99`.
 
-Wirte docs in style
-`What problem if solves`
-Your docs how to use something
+---
 
-For example:
-This file needed to format price from `199999.99` to this `$1,999,99.99`
-or
-I use this component to show how much products will be shown per page
-I added this component because some users may be annoyed with clicking '>' button
+## 5. Keeping your branch up to date (GitHub Desktop)
+
+1. `Ctrl+Shift+U`
+2. Click **Push**
+3. Click **History** → right-click the last commit → **Amend commit**
+4. Change message to `Update from 'development'`
+5. **Force push origin**
+
+---
+
+## 6. Feedback
+
+Found a bug? [Open an issue](https://github.com/nicitaacom/23_store/issues/new).
