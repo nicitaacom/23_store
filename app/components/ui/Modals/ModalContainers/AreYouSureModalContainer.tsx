@@ -93,8 +93,16 @@ export function AreYouSureModalContainer({
 
   useEffect(() => {
     if (!isOpen) return
-    const frame = requestAnimationFrame(() => primaryButtonRef.current?.focus())
-    return () => cancelAnimationFrame(frame)
+    let raf: number
+    const tryFocus = () => {
+      if (primaryButtonRef.current) {
+        primaryButtonRef.current.focus()
+      } else {
+        raf = requestAnimationFrame(tryFocus)
+      }
+    }
+    const timer = setTimeout(tryFocus, 200)
+    return () => { clearTimeout(timer); cancelAnimationFrame(raf) }
   }, [isOpen])
 
   //correct way to add event listener to listen keydown
