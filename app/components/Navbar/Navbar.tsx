@@ -29,15 +29,15 @@ export default async function Navbar() {
       return accum
     }, 0)
 
-  let role = "USER"
+  let roles: string[] = []
   if (user && user.id) {
     const { data: role_rows, error: role_error } = await supabase
       .from("23_users")
-      .select("role")
+      .select("roles")
       .eq("id", user.id)
       .order("created_at", { ascending: true })
     if (role_error) throw Error(role_error.message)
-    role = role_rows?.[0]?.role || "USER"
+    roles = role_rows?.[0]?.roles ?? []
   }
 
   // need to get avatarUrl on server and then pass to client component (because I import cookies from next/headers)
@@ -50,18 +50,14 @@ export default async function Navbar() {
         <HamburgerMenu />
         <Logo />
       </div>
-      {/* LANGUAGE */}
-      <div className="flex flex-row gap-x-2">
-        <LanguageDropdown className="hidden laptop:flex" />
-      </div>
-
       {/* ICONS HELP */}
       <div className="flex flex-row gap-x-2 items-center ">
+        <LanguageDropdown className="hidden laptop:flex" />
         <SwitchDarkMode className="max-[500px]:hidden" />
         <BiSearchAlt className="flex tablet:hidden" size={28} />
         <CartIcon userId={user?.id} cart_quantity={cart_quantity} />
         <ContactButton />
-        {user ? <AvatarDropdown role={role} avatarUrlServer={avatarUrl} /> : <OpenAuthModalButton />}
+        {user ? <AvatarDropdown roles={roles} avatarUrlServer={avatarUrl} /> : <OpenAuthModalButton />}
       </div>
     </NavbarWrapper>
   )
