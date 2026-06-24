@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { TbChevronDown, TbWorld } from "react-icons/tb"
+import { twMerge } from "tailwind-merge"
 
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 import { useCurrentLocale } from "@/locales/client"
@@ -30,7 +31,7 @@ function stripLocalePrefix(pathname: string, localeCodes: TLocaleTag[]) {
   return pathname.slice(matchedLocale.length + 1) || "/"
 }
 
-export function LanguageDropdown({ className }: { className?: string }) {
+export function LanguageDropdown({ className, isDropUp = false }: { className?: string; isDropUp?: boolean }) {
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownContainerRef = useRef<HTMLDivElement>(null)
 
@@ -59,7 +60,7 @@ export function LanguageDropdown({ className }: { className?: string }) {
   }
 
   return (
-    <div className={`inline-flex flex-col w-[130px] ${className}`} ref={dropdownContainerRef}>
+    <div className={twMerge("relative inline-flex w-[130px] flex-col", className)} ref={dropdownContainerRef}>
       {/* Trigger — w-full so it stretches to whatever width the container is */}
       <button
         className="flex w-full items-center gap-1.5 rounded border border-border-color/35 bg-background/55 px-2.5 py-1.5
@@ -85,11 +86,13 @@ export function LanguageDropdown({ className }: { className?: string }) {
         />
       </button>
 
-      <div className="relative h-0 z-50">
-        <div
-          className={`absolute right-0 top-1 w-[130px] overflow-hidden rounded border border-border-color/35 bg-background shadow-compact transition-all duration-150 ${
-            showDropdown ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0"
-          }`}>
+      {/* Panel opens below the trigger by default, or above it (dropUp) — e.g. when pinned to the bottom of the mobile aside */}
+      <div
+        className={twMerge(
+          "absolute right-0 z-50 w-[130px] overflow-hidden rounded border border-border-color/35 bg-background shadow-compact transition-all duration-150",
+          isDropUp ? "bottom-full mb-1" : "top-full mt-1",
+          showDropdown ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0",
+        )}>
           {locales.map(l => (
             <button
               key={l.code}
@@ -101,7 +104,6 @@ export function LanguageDropdown({ className }: { className?: string }) {
               {l.name}
             </button>
           ))}
-        </div>
       </div>
     </div>
   )

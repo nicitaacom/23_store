@@ -12,6 +12,7 @@ import { IoMdClose } from "react-icons/io"
 
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import { useSidebar } from "@/store/ui"
+import { LanguageDropdown } from "@/components/LanguageDropdown"
 
 const menuItems = [
   {
@@ -137,6 +138,12 @@ export function HamburgerMenu() {
                     </Link>
                   ))}
                 </nav>
+
+                {/* Language picker lives here on mobile (the navbar hides it below tablet) */}
+                <div className="mt-auto border-t border-border-color/40 pt-4 tablet:hidden">
+                  <p className="mb-2 text-xs uppercase tracking-[0.2em] text-subTitle">Language</p>
+                  <LanguageDropdown className="w-full" isDropUp />
+                </div>
               </div>
             </motion.aside>
           </motion.div>

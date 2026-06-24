@@ -52,7 +52,8 @@ export default async function Navbar() {
       </div>
       {/* ICONS HELP */}
       <div className="flex flex-row gap-x-2 items-center ">
-        <LanguageDropdown className="hidden laptop:flex" />
+        {/* Tablet+ shows it inline; on mobile it lives at the bottom of the hamburger aside */}
+        <LanguageDropdown className="hidden tablet:flex" />
         <SwitchDarkMode className="max-[500px]:hidden" />
         <BiSearchAlt className="flex tablet:hidden" size={28} />
         <CartIcon userId={user?.id} cart_quantity={cart_quantity} />
