@@ -11,14 +11,9 @@ These files exist on disk but have no `src` reference in `.tsx` / `.ts` files. S
 | File | Notes |
 |---|---|
 | `bitcoin.png` | Crypto payment icon — payment feature removed/shelved |
-| `DE.png` | German flag — locale not implemented |
-| `EN.jpg` | English flag — replaced by inline text in LanguageDropdown |
 | `logo-dark-telegram.jpg` | Telegram logo variant — replaced by icon from react-icons |
 | `metamask.png` | MetaMask logo — MetaMask payment removed |
-| `PL.png` | Polish flag — locale not implemented |
-| `RU.png` | Russian flag — replaced by inline text in LanguageDropdown |
 | `solana.png` | Crypto payment icon — payment feature removed/shelved |
-| `UA.png` | Ukrainian flag — locale not implemented |
 | `23_store-preview.mp4` | Demo video — not embedded in any page |
 
 ---
@@ -67,6 +62,17 @@ These files exist on disk but have no `src` reference in `.tsx` / `.ts` files. S
 
 ---
 
+## Used images — languages/
+
+| File | Used by |
+|---|---|
+| `languages/EN.jpg` | `LanguageDropdown` — English locale flag |
+| `languages/FI.svg` | `LanguageDropdown` — Finnish locale flag |
+| `languages/RU.png` | `LanguageDropdown` — Russian locale flag |
+| `languages/SE.png` | `LanguageDropdown` — Swedish locale flag |
+
+---
+
 ## Used images — subfolders
 
 | File | Used by |
@@ -94,8 +100,10 @@ These files exist on disk but have no `src` reference in `.tsx` / `.ts` files. S
 | `docs/AdminPanel/DeleteProduct.png` | dev_readme for admin panel delete tab |
 | `docs/AdminPanel/EditProduct.png` | dev_readme for admin panel edit tab |
 | `docs/auth/db-23_users.png` | dev_readme for auth — DB screenshot |
+| `docs/cart/CartModal.png` | dev_readme for CartModal — UI screenshot |
 | `docs/cart/db-23_users_cart.png` | dev_readme for cart — DB screenshot |
-| `docs/products/db-23_products.png` | dev_readme for products — DB screenshot |
+| `docs/products/Products.png` | dev_readme for create-product — products UI screenshot |
+| `docs/products/db-23_products.png` | dev_readme for create-product — DB screenshot |
 | `docs/support/db-23_messages.png` | dev_readme for support — DB messages screenshot |
 | `docs/support/db-23_tickets.png` | dev_readme for support — DB tickets screenshot |
 | `docs/customer/how-to-install-metamask/step-1.png` | MetaMask install guide step 1 |
