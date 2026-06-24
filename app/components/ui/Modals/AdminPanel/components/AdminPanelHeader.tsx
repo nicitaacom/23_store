@@ -25,6 +25,7 @@ interface AdminPanelHeaderProps {
   onActionChange: (action: PanelAction) => void
   onClose: () => void
   disabled?: boolean
+  roles: string[]
 }
 
 const ACTION_ICONS: Record<PanelAction, typeof FiPlus> = {

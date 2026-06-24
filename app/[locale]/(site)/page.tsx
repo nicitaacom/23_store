@@ -62,15 +62,6 @@ export default async function Home({ params: paramsPromise, searchParams: search
   const knownIds = categories.map(c => c.id)
   const validCategory = categoryParam && knownIds.includes(categoryParam) ? categoryParam : null
 
-  let categoryIds: string[] | undefined
-  if (validCategory) {
-    const childIds = categories.filter(c => c.parent_id === validCategory).map(c => c.id)
-    categoryIds = [validCategory, ...childIds]
-  }
-
-  const products_response = await fetchProducts(categoryIds)
-  if (products_response.error) throw products_response.error
-  const products = normalizeProducts(products_response.data)
   const searchQueryValue = searchParams["query"]
   const searchQuery =
     typeof searchQueryValue === "string"
@@ -78,6 +69,16 @@ export default async function Home({ params: paramsPromise, searchParams: search
       : Array.isArray(searchQueryValue)
         ? (searchQueryValue[0]?.trim() ?? "")
         : ""
+
+  let categoryIds: string[] | undefined
+  if (validCategory && !searchQuery) {
+    const childIds = categories.filter(c => c.parent_id === validCategory).map(c => c.id)
+    categoryIds = [validCategory, ...childIds]
+  }
+
+  const products_response = await fetchProducts(categoryIds)
+  if (products_response.error) throw products_response.error
+  const products = normalizeProducts(products_response.data)
   const filteredProducts = searchQuery ? filterProductsBySearchQuery(products, searchQuery) : products
   const addProductHref = user ? `/${params.locale}?modal=AdminPanel` : `/${params.locale}?modal=AuthModal&variant=login`
 
