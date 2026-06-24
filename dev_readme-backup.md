@@ -61,15 +61,17 @@ The heavy work (downloading every file + gzipping) happens **server-side**, so a
 reflect it. Instead the export route **streams NDJSON** and reports progress per file as it packs them.
 
 ```
-client: getManifest()  ->  { fileCount, totalBytes, estimatedMs, shouldSplit }
+client: measureSpeedBytesPerMs()   # 4s probe download to measure connection speed
+        getManifest()              -> { fileCount, totalBytes, refSizes[] }
+        splitRefsIntoChunks()      -> [[0,49], [50,99], ...]  (sequential, not parallel)
         |
-        |  shouldSplit === false (estimate <= 50s)
-        └─ GET /api/backup/export            (NDJSON stream)
-              {"type":"progress","done":0,"total":340}
-              {"type":"progress","done":1,"total":340}
-              ...
-              {"type":"done","fileName":"...","archive":"<base64 .tar.gz>"}
-           -> client decodes base64 -> downloads one 23_backup-<date>.tar.gz
+        └─ for each chunk:
+             GET /api/backup/export?from=0&to=49   (NDJSON stream)
+               {"type":"progress","done":0,"total":50}
+               ...
+               {"type":"done","fileName":"...","archive":"<base64 .tar.gz>"}
+             -> client decodes base64 -> downloads 23_backup-<date>.tar.gz (1 file)
+                                      OR 23_backup-<date>-part1of3.tar.gz  (multi-chunk)
 ```
 
 `onProgress(done/total)` drives the `ProgressBar` so the user sees real per-file progress (not 0→100).
@@ -79,21 +81,25 @@ client: getManifest()  ->  { fileCount, totalBytes, estimatedMs, shouldSplit }
 
 <br/>
 
-## Vercel 60s timeout → split into halves
+## Vercel 60s timeout → speed-aware chunking
 
-Vercel Hobby caps a request at 60s (`export const maxDuration = 60`). If the manifest estimates the export
-would exceed ~50s (`SPLIT_THRESHOLD_MS`), the client downloads the backup as **two halves in parallel**,
-each bounded to ~half the bytes so both stay under the cap:
+Vercel Hobby caps a request at 60s (`export const maxDuration = 60`). The client measures the user's
+download speed first (4s probe), then computes how many bytes the server can pack within the 40s budget
+(`CHUNK_BUDGET_MS`) at the assumed server-side Storage throughput (~8 MB/s). The client connection speed
+is also factored in — if it's slower than the server can produce, chunks shrink further.
+
+Chunks are capped at 100 MB (`MAX_CHUNK_BYTES`) regardless.
 
 ```
-GET /api/backup/export?half=front   # tables + first ~half of files (by cumulative size)
-GET /api/backup/export?half=back    # second ~half of files only (no tables — front carries them)
--> user gets 23_backup-<date>-front.tar.gz AND 23_backup-<date>-back.tar.gz  (keep BOTH)
+GET /api/backup/export              # no params → full backup (tables + all files), single chunk
+GET /api/backup/export?from=0&to=49 # tables + files 0..49
+GET /api/backup/export?from=50&to=99 # files 50..99 only (first chunk carries tables)
+-> user gets 23_backup-<date>-part1of2.tar.gz + 23_backup-<date>-part2of2.tar.gz (keep ALL)
 ```
 
-`splitRefsByHalf()` splits the file list at the cumulative-size midpoint; `estimateExportMs()` assumes
-~8 MB/s throughput + 40ms/file overhead. Tune `THROUGHPUT_BYTES_PER_MS` / `SPLIT_THRESHOLD_MS` in
-`backupTables.ts` once real timings are known.
+Chunks download **sequentially** (not in parallel) so they don't compete for bandwidth on slow connections.
+`splitRefsIntoChunks()` in `backupTables.ts` handles the byte-boundary split. Tune `CHUNK_BUDGET_MS`,
+`SERVER_THROUGHPUT_BYTES_PER_MS`, and `MAX_CHUNK_BYTES` in `BackupSDK.ts` once real timings are known.
 
 <br/>
 
