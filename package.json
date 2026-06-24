@@ -8,7 +8,7 @@
     "start": "NODE_OPTIONS=\"${NODE_OPTIONS:+$NODE_OPTIONS }--disable-warning=DEP0040\" next start -p 3023",
     "lint": "next lint",
     "type-check": "tsc -p tsconfig.json --noEmit",
-    "update-types": "pnpx supabase gen types typescript --project-id zvpzoumubcidrtkgxwqx > app/TS/types_db.ts"
+    "update-types": "echo 'STALE — do not run. The live DB is shared with other projects (19_*, 28_*, etc.), so pnpx supabase gen would overwrite app/ts/types_db.ts with unrelated tables. Edit types_db.ts manually instead. See app/ts/dev_readme.md.'"
   },
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.1024.0",
