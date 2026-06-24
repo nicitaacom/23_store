@@ -93,6 +93,55 @@ How it flows end to end:
 5. **Cart guard** ([cartStore.ts](../../../../store/user/cartStore.ts)) — `increaseProductQuantity`
    refuses a sold-out variant; `getProductsPrice` excludes sold-out lines.
 
+## 3a. `on_stock` = SUM of variant quantities (auto-computed)
+
+### The rule
+
+For a product **with variants**, `on_stock` is **not typed by a human**. It is the **sum of every
+variant's `quantity`**. A separate product-level total would just contradict the per-variant counts
+("variant says 25, product says 1000"), so there is no on_stock input anymore when variants exist.
+
+```
+variants = [ { label: "Blueberry", quantity: 25 },
+             { label: "Cherry",    quantity: 10 },
+             { label: "Lime",      quantity:  0 } ]    ← sold out
+
+on_stock = 25 + 10 + 0 = 35     (computed, never typed)
+```
+
+A product **without** variants still uses its own manually-entered `on_stock`.
+
+### What keeps it updated — the functions
+
+`on_stock` is recomputed every time the variants are saved. You never write `on_stock` by hand when there
+are variants; these functions do it for you:
+
+| When | Function that recomputes `on_stock` | What it does |
+|---|---|---|
+| Owner saves variants (Edit tab / Manage page) | **`POST /api/products/update`** variants branch — [route.ts](../../../../api/products/update/route.ts) | `on_stock = normalizedVariants.reduce((sum, v) => sum + v.quantity, 0)` and writes it to the row. **This is the source of truth.** |
+| Owner creates a product | **`onSubmit`** in [AddProductForm.tsx](components/AddProductForm.tsx) | `on_stock = optimisticVariants.reduce((sum, v) => sum + v.quantity, 0)` before insert |
+| Live preview while editing | the `totalStock` sum in [AddProductForm.tsx](components/AddProductForm.tsx) / [ManageProductView.tsx](../../../../[locale]/(site)/products/[productId]/manage/ManageProductView.tsx) | shows the running sum so the owner sees it update as they type each variant's stock |
+
+So: edit any variant's `quantity` → save → the **update route** re-sums and stores the new `on_stock`.
+Nothing else touches it. (No DB trigger today — the recompute lives in the API route. If you ever write
+variants from another path, recompute there too, or move this into a Postgres trigger on `23_products`.)
+
+### Where the input is hidden / read-only
+
+- **Add** ([AddProductForm.tsx](components/AddProductForm.tsx)) — no on_stock input at all; preview shows the sum.
+- **Edit tab** ([FormatOnStockForm.tsx](components/FormatOnStockForm.tsx)) — read-only total when the product
+  has variants (`isDerivedFromVariants`, passed from [OwnerProduct](components/OwnerProduct.tsx)); editable only
+  for variantless products.
+- **Manage page** ([ManageProductView.tsx](../../../../[locale]/(site)/products/[productId]/manage/ManageProductView.tsx))
+  — read-only live total; the separate on_stock update call was removed (saving variants recomputes it).
+
+## 3b. Header: why `data-click-outside-ignore`
+
+[AdminPanelHeader.tsx](components/AdminPanelHeader.tsx) carries `data-click-outside-ignore` so clicking dead
+space between the underline tabs doesn't trip the modal's click-outside handler and close it. The header is
+[OrganicCanvasBackground](../../../OrganicCanvasBackground.tsx), which now forwards DOM props so the attribute
+reaches its root div. Tabs are flat underline-style with a unified brand accent + `FiPlus` on Add.
+
 ## 4. TODO / decided against
 
 - **AGAINST: auto-decrement variant stock on purchase.** Chosen manual-only to keep the checkout path
