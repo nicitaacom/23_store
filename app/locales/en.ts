@@ -203,7 +203,7 @@ export default {
   "modal.do_you_want_receive_check.title": "Do you want recieve check?",
   "modal.do_you_want_receive_check.email_placeholder": "Email",
   "modal.admin_panel.label": "Product workspace",
-  "modal.cart.label": "Email",
+  "modal.cart.label": "Your Cart",
 
   // =================        =================
   //                   TOAST

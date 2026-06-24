@@ -203,7 +203,7 @@ export default {
   "modal.do_you_want_receive_check.title": "Haluatko vastaanottaa kuitin?",
   "modal.do_you_want_receive_check.email_placeholder": "Sähköposti",
   "modal.admin_panel.label": "Tuotehallinta",
-  "modal.cart.label": "Sähköposti",
+  "modal.cart.label": "Ostoskori",
 
   // =================        =================
   //                   TOAST

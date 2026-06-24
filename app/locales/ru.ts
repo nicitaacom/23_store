@@ -203,7 +203,7 @@ export default {
   "modal.do_you_want_receive_check.title": "Хотите получить чек?",
   "modal.do_you_want_receive_check.email_placeholder": "Email",
   "modal.admin_panel.label": "Панель товаров",
-  "modal.cart.label": "Email",
+  "modal.cart.label": "Корзина",
 
   // =================        =================
   //                   TOAST

@@ -203,7 +203,7 @@ export default {
   "modal.do_you_want_receive_check.title": "Vill du ta emot kvitto?",
   "modal.do_you_want_receive_check.email_placeholder": "E-post",
   "modal.admin_panel.label": "Produktpanel",
-  "modal.cart.label": "E-post",
+  "modal.cart.label": "Varukorg",
 
   // =================        =================
   //                   TOAST
