@@ -72,6 +72,8 @@ When you get a screenshot or a question, find the matching feature here first in
 | Auth | [app/[locale]/(auth)/auth/dev_readme.md](app/[locale]/(auth)/auth/dev_readme.md) | Auth callback folder usage |
 | i18n | [app/locales/dev_readme_i18n.md](app/locales/dev_readme_i18n.md) | i18n setup + locale-line rule |
 | Product/site components | [app/[locale]/(site)/components/dev_readme.md](app/[locale]/(site)/components/dev_readme.md) | Why Product.tsx isn't split; product row + variants |
+| Categories | [app/[locale]/(site)/components/CategoryPillBar/dev_readme-categories.md](app/[locale]/(site)/components/CategoryPillBar/dev_readme-categories.md) | Category system: pill bar, admin CRUD, AI auto-assign, backfill |
+| Category recommendations | [app/[locale]/(site)/components/CategoryPillBar/dev_readme-category-recommendations.md](app/[locale]/(site)/components/CategoryPillBar/dev_readme-category-recommendations.md) | Pill bar personalization by click count (anon localStorage + DB sync) |
 | Site / cart UX | [app/[locale]/(site)/dev_readme.md](app/[locale]/(site)/dev_readme.md) | User cart functionality |
 | UTM stats | [app/[locale]/(site)/stats/dev_readme-utm.md](app/[locale]/(site)/stats/dev_readme-utm.md) | UTM stats |
 | Popular products | [app/[locale]/(site)/popular-products/dev_readme.md](app/[locale]/(site)/popular-products/dev_readme.md) | Likes/ratings, popular = most likes, PopularProductCard |
