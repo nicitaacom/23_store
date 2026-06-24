@@ -138,11 +138,10 @@ CREATE TABLE IF NOT EXISTS public."23_products" (
   img_url VARCHAR[] NOT NULL,
   on_stock INTEGER NOT NULL, -- product-level stock (used when product has no variants)
   owner_id UUID NOT NULL REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  -- variants stored as JSONB array: [{id, label, image_url, price, quantity}]
-  --   price    NUMERIC  variant-specific price override
-  --   quantity INTEGER  per-variant stock; 0 = sold out. Manual only — never auto-decremented on purchase.
-  --   Legacy rows predate `quantity`; the normalizer (app/utils/productVariants.ts) backfills it from on_stock so old variants are not shown sold out.
-  variants JSONB NULL,
+  variants JSONB NULL, -- [{id, label, image_url, price, quantity}]; quantity 0 = sold out
+  likes_count INTEGER NOT NULL DEFAULT 0, -- popular = ORDER BY likes_count DESC
+  rating_sum INTEGER NOT NULL DEFAULT 0,
+  rating_count INTEGER NOT NULL DEFAULT 0, -- avg = rating_sum / rating_count
   PRIMARY KEY (price_id, owner_id, id)
 );
 
@@ -287,6 +286,38 @@ GRANT EXECUTE ON FUNCTION public.backup_23_tables() TO service_role;
 > Import is done in JS (the import route upserts each table with `supabaseAdmin` in FK-safe order:
 > `23_users → 23_users_cart → 23_products → 23_tickets → 23_messages`), so no SQL function is
 > needed for restore.
+
+```sql
+-- =================================== ❤️ PRODUCT LIKES / ⭐ RATINGS ===================================
+-- Atomic counter bumps so concurrent likes/ratings don't lose updates. Per-user dedup is client-side
+-- (localStorage), so these just move the counters. Anyone may call them (likes/ratings are public).
+
+-- like (delta = +1) / unlike (delta = -1); likes_count never goes below 0
+CREATE OR REPLACE FUNCTION public.increment_product_likes(p_id VARCHAR, delta INTEGER)
+RETURNS INTEGER
+LANGUAGE sql
+AS $$
+  UPDATE public."23_products"
+  SET likes_count = GREATEST(0, likes_count + delta)
+  WHERE id = p_id
+  RETURNING likes_count;
+$$;
+
+-- add one rating (stars 1-5): bumps the sum and the count
+CREATE OR REPLACE FUNCTION public.add_product_rating(p_id VARCHAR, stars INTEGER)
+RETURNS public."23_products"
+LANGUAGE sql
+AS $$
+  UPDATE public."23_products"
+  SET rating_sum = rating_sum + LEAST(5, GREATEST(1, stars)),
+      rating_count = rating_count + 1
+  WHERE id = p_id
+  RETURNING *;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.increment_product_likes(VARCHAR, INTEGER) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.add_product_rating(VARCHAR, INTEGER) TO anon, authenticated;
+```
 
 <br/>
 
