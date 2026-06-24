@@ -23,3 +23,24 @@ Because its 3 different components
 ## Summary
 
 Leave it as is without separated components for Product.tsx (exept edit product)
+
+## Per-variant stock (sold out) in Product.tsx
+
+Each variant has its own `quantity` (`{ id, label, image_url, price, quantity }`). `quantity === 0`
+means THAT variant is sold out — not the whole product.
+
+What Product.tsx does with it:
+
+1. The stock badge + the add/replenish actions follow the **selected** variant, not the product. I get the
+   number from one helper so the UI and the cart agree on "sold out":
+   `getAvailableStock(product, selectedVariantId)` in [cartProducts.ts](../../../utils/cartProducts.ts)
+   → variant `quantity`, or product `on_stock` when the product has no variants.
+2. In the variant selector a sold-out variant is dimmed (`opacity-55`) and its price is replaced by the
+   `product.out_of_stock_label` text. It stays clickable on purpose (soft sold-out) so the user can select
+   it and see "request replenishment".
+3. When the selected variant is sold out, `isOutOfStock` is true → the row swaps the add buttons for
+   `RequestReplanishmentButton`, same as a product-level out-of-stock.
+
+The cart side is guarded too — `cartStore.increaseProductQuantity` won't add a sold-out variant and
+`getProductsPrice` skips sold-out lines. Full data flow + the "manual only, no auto-decrement" decision
+live in [AdminPanel/dev_readme-adminPanel.md](../../../components/ui/Modals/AdminPanel/dev_readme-adminPanel.md).
