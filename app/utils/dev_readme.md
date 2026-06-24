@@ -15,7 +15,7 @@ Used by: [app/components/ui/Inputs/Validation/ProductInput.tsx](../components/ui
 
 | Field | Allowed set |
 |---|---|
-| Title | `A-Za-z0-9 # % $ ( ) _ + & / , . ' -` (must start with alphanumeric, must contain a letter) |
+| Title | `A-Za-z0-9 # % $ ( ) _ + & / , . ' ' - = \| –` (must start with alphanumeric, must contain a letter) |
 | Description | `A-Za-z0-9 - : . , ( ) # @ & % / " ' \` ~ [ ] > < = + ! ? * _ ; \n` |
 
 ### 3. How to extend (add a new allowed character to the title)
@@ -25,13 +25,7 @@ Two places must stay in sync in `productValidation.ts`:
 1. `PRODUCT_TITLE_INVALID_CHARACTER_REGEX` — add the char to the negated character class `[^…]`
 2. `PRODUCT_TITLE_PATTERN` — add the same char to the repeated character class `[A-Za-z0-9…]{…}`
 
-Example — `&` was added this way:
-```
-// before
-/[^A-Za-z0-9#%$()_+ /,.'-]/
-// after
-/[^A-Za-z0-9#%$()_+&/,.'-]/
-```
+Example — `&`, `=`, and curly apostrophe `'` were added the same way: add to both regexes.
 
 ---
 
