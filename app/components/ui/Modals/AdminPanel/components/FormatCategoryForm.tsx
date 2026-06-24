@@ -10,6 +10,7 @@ import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import useToast from "@/store/ui/useToast"
 import { useI18n } from "@/locales/client"
+import { CategoryDropdown } from "./CategoryDropdown"
 
 interface FormatCategoryFormProps {
   id: string
@@ -61,38 +62,31 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
       <div className="flex items-center gap-2">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle/70">{t("category.edit_category")}:</p>
         {isEditing ? (
-          <div className="flex flex-1 items-center gap-2">
-            <select
-              autoFocus
-              className="flex-1 rounded border border-border-color/50 bg-background/60 px-2 py-1 text-sm text-title focus:border-border-color focus:outline-none"
-              value={selectedId ?? ""}
-              onChange={e => setSelectedId(e.target.value || null)}>
-              <option value="">{t("category.uncategorized")}</option>
-              {parentCategories.map(parent => (
-                <optgroup key={parent.id} label={parent.name}>
-                  <option value={parent.id}>{parent.name}</option>
-                  {childrenOf(parent.id).map(child => (
-                    <option key={child.id} value={child.id}>{child.name}</option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-            <button
-              className={twMerge(
-                "rounded border border-success/40 bg-success/10 px-2 py-1 text-xs text-success transition-colors duration-150 hover:bg-success/20",
-                isSaving && "pointer-events-none opacity-60",
-              )}
-              type="button"
-              onClick={handleSave}
-              disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save"}
-            </button>
-            <button
-              className="rounded border border-border-color/30 px-2 py-1 text-xs text-subTitle transition-colors duration-150 hover:bg-foreground/10"
-              type="button"
-              onClick={() => { setIsEditing(false); setSelectedId(category_id ?? null) }}>
-              Cancel
-            </button>
+          <div className="flex flex-1 flex-col gap-2">
+            <CategoryDropdown
+              categories={categories}
+              value={selectedId}
+              onChange={setSelectedId}
+              uncategorizedLabel={t("category.uncategorized")}
+            />
+            <div className="flex gap-2">
+              <button
+                className={twMerge(
+                  "rounded border border-success/40 bg-success/10 px-2 py-1 text-xs text-success transition-colors duration-150 hover:bg-success/20",
+                  isSaving && "pointer-events-none opacity-60",
+                )}
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+              <button
+                className="rounded border border-border-color/30 px-2 py-1 text-xs text-subTitle transition-colors duration-150 hover:bg-foreground/10"
+                type="button"
+                onClick={() => { setIsEditing(false); setSelectedId(category_id ?? null) }}>
+                Cancel
+              </button>
+            </div>
           </div>
         ) : (
           <button
