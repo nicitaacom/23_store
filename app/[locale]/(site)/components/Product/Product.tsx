@@ -3,12 +3,12 @@
 import { memo, useEffect, useMemo, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { useCurrentLocale } from "@/locales/client"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getProductGalleryImages, pt } from "@/utils/product"
-import { getProductPriceForVariant } from "@/utils/cartProducts"
+import { getAvailableStock, getProductPriceForVariant } from "@/utils/cartProducts"
 import { ProductQuantity } from "../ProductQuantity"
 import { ProductButtons } from "../ProductButtons"
 import { ProductImage } from "../ProductImage"
@@ -35,8 +35,8 @@ type Props = TProductDB & {
 
 function Product({ ...product }: Props) {
   const locale = useCurrentLocale()
+  const t = useScopedI18n("product")
   const translation = pt(product, locale)
-  const isOutOfStock = product.on_stock === 0
   const variants = useMemo(
     () => product.variants?.filter(variant => variant.label && variant.image_url) || [],
     [product.variants],
@@ -46,6 +46,10 @@ function Product({ ...product }: Props) {
   const previewImages = useMemo(() => getProductGalleryImages(product), [product.img_url])
   const selectedPrice = getProductPriceForVariant(product, selectedVariant?.id)
   const isVariantSelectionLocked = Boolean(product.cartKey)
+  // Effective stock for the line in view: the chosen variant's quantity, or product on_stock when variantless.
+  // 0 = sold out, so a single sold-out variant disables only that variant — not the whole product.
+  const availableStock = getAvailableStock(product, selectedVariant?.id)
+  const isOutOfStock = availableStock === 0
 
   useEffect(() => {
     setSelectedVariantId(product.variantId || variants[0]?.id || "")
@@ -96,7 +100,7 @@ function Product({ ...product }: Props) {
               isOutOfStock ? "border-warning/30 bg-warning/10 text-warning" : "border-success/25 bg-success/10 text-success",
             )}>
             <span className={twMerge("h-1.5 w-1.5 rounded-full shrink-0", isOutOfStock ? "bg-warning" : "bg-success")} />
-            {isOutOfStock ? "Out of stock" : `${formatNumber(product.on_stock)} units`}
+            {isOutOfStock ? "Out of stock" : `${formatNumber(availableStock)} units`}
           </span>
 
           {/* Locked variant chip (in cart context) */}
@@ -113,6 +117,7 @@ function Product({ ...product }: Props) {
           <div className="flex flex-row gap-2 overflow-x-auto pb-1">
             {variants.map(variant => {
               const isActive = variant.id === selectedVariant?.id
+              const isVariantSoldOut = variant.quantity === 0
               return (
                 <button
                   key={variant.id}
@@ -123,11 +128,16 @@ function Product({ ...product }: Props) {
                     isActive
                       ? "border-success/40 bg-success/10 text-title"
                       : "border-border-color/20 bg-background/40 text-subTitle hover:border-success/25 hover:bg-success/5",
+                    isVariantSoldOut && "opacity-55",
                   )}>
                   <VariantImage src={variant.image_url} alt={variant.label} />
                   <div className="min-w-0">
                     <span className="block max-w-[120px] truncate text-sm font-medium leading-4">{variant.label}</span>
-                    <span className="text-xs text-success">{formatCurrency(variant.price)}</span>
+                    {isVariantSoldOut ? (
+                      <span className="text-xs font-medium text-warning">{t("out_of_stock_label")}</span>
+                    ) : (
+                      <span className="text-xs text-success">{formatCurrency(variant.price)}</span>
+                    )}
                   </div>
                 </button>
               )

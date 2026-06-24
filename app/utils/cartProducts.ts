@@ -13,3 +13,11 @@ export function getProductVariantById(product: Pick<TProductDB, "variants">, var
 export function getProductPriceForVariant(product: Pick<TProductDB, "price" | "variants">, variantId?: string | null) {
   return getProductVariantById(product, variantId)?.price ?? product.price
 }
+
+// Available stock for the chosen line: a variant uses its own quantity (0 = sold out),
+// a variantless product falls back to product-level on_stock. Single source of truth so
+// the customer UI and the cart guard agree on what "sold out" means.
+export function getAvailableStock(product: Pick<TProductDB, "on_stock" | "variants">, variantId?: string | null) {
+  const variant = getProductVariantById(product, variantId)
+  return variant ? variant.quantity : product.on_stock
+}

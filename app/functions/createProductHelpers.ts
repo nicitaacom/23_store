@@ -246,6 +246,7 @@ export function resolveUploadedProductVariants(variants: TProductVariantDraft[] 
         label: variant.label.trim(),
         image_url: imageUrls[variant.imageIndex],
         price: variant.price,
+        quantity: variant.quantity,
       }),
     )
 }

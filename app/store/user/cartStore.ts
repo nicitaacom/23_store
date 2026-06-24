@@ -98,6 +98,12 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
   increaseProductQuantity(id: string, variantId?: string | null) {
     const updatedProducts = { ...get().products }
     const cartKey = createCartProductKey(id, variantId)
+
+    // Block adding a sold-out variant (quantity 0). Only enforced when we already hold the
+    // line's product data — a fresh add from the product page is guarded by the UI instead.
+    const lineData = get().productsData.find(productData => productData.cartKey === cartKey)
+    if (lineData?.selectedVariant && lineData.selectedVariant.quantity === 0) return
+
     const updatedProductsData = get().productsData.map(productData =>
       productData.cartKey === cartKey ? { ...productData, quantity: productData.quantity + 1 } : productData,
     )
@@ -165,7 +171,9 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
   },
   getProductsPrice() {
     return get().productsData.reduce((totalPrice, product) => {
-      return product.on_stock === 0 ? totalPrice : totalPrice + product.price * product.quantity
+      // A sold-out line (variant quantity 0, else product on_stock 0) is excluded from the total
+      const lineStock = product.selectedVariant ? product.selectedVariant.quantity : product.on_stock
+      return lineStock === 0 ? totalPrice : totalPrice + product.price * product.quantity
     }, 0)
   },
   clearCart() {

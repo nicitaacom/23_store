@@ -39,6 +39,7 @@ function normalizeVariantsForDraft(product: TProductDB): TProductVariantDraft[] 
     ),
     imageDataUrl: variant.image_url,
     price: variant.price > 0 ? variant.price : product.price,
+    quantity: variant.quantity,
   }))
 }
 
@@ -116,6 +117,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         imageIndex: 0,
         imageDataUrl: firstImageUrl,
         price: normalizedPrice,
+        quantity: 0, // new variants start sold out; owner sets stock per row below
       },
     ])
     setVariantLabel("")
@@ -138,6 +140,18 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               ...variant,
               price: Number.isFinite(normalizedPrice) && normalizedPrice > 0 ? normalizedPrice : 0,
             }
+          : variant,
+      ),
+    )
+  }, [])
+
+  const updateVariantQuantity = useCallback((variantId: string, nextQuantity: string) => {
+    const normalizedQuantity = parseFormattedNumber(nextQuantity)
+
+    setVariants(currentVariants =>
+      currentVariants.map(variant =>
+        variant.id === variantId
+          ? { ...variant, quantity: Number.isFinite(normalizedQuantity) && normalizedQuantity > 0 ? Math.floor(normalizedQuantity) : 0 }
           : variant,
       ),
     )
@@ -178,6 +192,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           label: variant.label.trim(),
           image_url: imageUrl,
           price: variant.price > 0 ? variant.price : product.price,
+          quantity: variant.quantity > 0 ? Math.floor(variant.quantity) : 0,
         } satisfies TProductVariant
       })
       .filter((variant): variant is TProductVariant => Boolean(variant))
@@ -311,14 +326,27 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   disabled={isSaving}
                 />
 
-                <input
-                  value={variant.price > 0 ? formatGroupedNumberInput(String(variant.price)) : ""}
-                  onChange={event => updateVariantPrice(variant.id, event.target.value)}
-                  className="w-full rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
-                  placeholder={t("placeholder.price")}
-                  disabled={isSaving}
-                  inputMode="decimal"
-                />
+                <div className="flex gap-2">
+                  <input
+                    value={variant.price > 0 ? formatGroupedNumberInput(String(variant.price)) : ""}
+                    onChange={event => updateVariantPrice(variant.id, event.target.value)}
+                    className="w-full min-w-0 flex-1 rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
+                    placeholder={t("placeholder.price")}
+                    disabled={isSaving}
+                    inputMode="decimal"
+                  />
+                  <input
+                    value={variant.quantity > 0 ? formatGroupedNumberInput(String(variant.quantity)) : ""}
+                    onChange={event => updateVariantQuantity(variant.id, event.target.value)}
+                    className={twMerge(
+                      "w-full min-w-0 flex-1 rounded-xl border bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30",
+                      variant.quantity > 0 ? "border-white/8" : "border-warning/40",
+                    )}
+                    placeholder={t("variant_quantity")}
+                    disabled={isSaving}
+                    inputMode="numeric"
+                  />
+                </div>
 
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -339,7 +367,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           </div>
         )
       }),
-    [assignFirstImageToVariant, isSaving, product.img_url, removeVariant, t, updateVariantLabel, updateVariantPrice, variants],
+    [assignFirstImageToVariant, isSaving, product.img_url, removeVariant, t, updateVariantLabel, updateVariantPrice, updateVariantQuantity, variants],
   )
 
   return (

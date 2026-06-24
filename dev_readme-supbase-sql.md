@@ -136,9 +136,12 @@ CREATE TABLE IF NOT EXISTS public."23_products" (
   translations JSONB NOT NULL DEFAULT '{}'::jsonb,
   price NUMERIC NOT NULL, -- base price, used when no variant selected
   img_url VARCHAR[] NOT NULL,
-  on_stock INTEGER NOT NULL,
+  on_stock INTEGER NOT NULL, -- product-level stock (used when product has no variants)
   owner_id UUID NOT NULL REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  -- variants stored as JSONB array: [{id, label, image_url, price}]
+  -- variants stored as JSONB array: [{id, label, image_url, price, quantity}]
+  --   price    NUMERIC  variant-specific price override
+  --   quantity INTEGER  per-variant stock; 0 = sold out. Manual only — never auto-decremented on purchase.
+  --   Legacy rows predate `quantity`; the normalizer (app/utils/productVariants.ts) backfills it from on_stock so old variants are not shown sold out.
   variants JSONB NULL,
   PRIMARY KEY (price_id, owner_id, id)
 );

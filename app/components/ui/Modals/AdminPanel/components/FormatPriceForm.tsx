@@ -93,7 +93,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   }, [])
 
   return (
-    <div ref={containerRef} className={twMerge("shrink-0 rounded border border-border-color/30 bg-background/70 px-3 py-2 shadow-none")}>
+    <div ref={containerRef} className="shrink-0 rounded border border-border-color/30 bg-background/70 px-2 py-1 shadow-none">
       <div className="flex items-center gap-2">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle/70">{t("price")}:</p>
         {isEditing ? (

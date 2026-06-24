@@ -57,11 +57,13 @@ export function AdminPanelModal({ ownerProducts }: AdminPanelModalProps) {
       hideCloseButton
       disableDismiss={!!pendingDeleteProduct}
       className={twMerge(
-        "flex flex-col overflow-hidden border-border-color/35 bg-background shadow-compact-lg transition-all duration-300",
+        "flex flex-col overflow-hidden border-border-color/35 bg-modal-surface shadow-compact-lg transition-all duration-300",
         // mobile: true full-screen, no border/radius
         "h-[100dvh] w-screen rounded-none border-0",
-        // tablet+: floating, 16:10 ratio, generous width
-        "tablet:h-auto tablet:w-[min(96vw,1400px)] tablet:aspect-[16/10] tablet:rounded-lg tablet:border",
+        // tablet+: floating dialog, height bounded to the viewport so it never overflows on short screens
+        "tablet:h-[88vh] tablet:max-h-[900px] tablet:w-[92vw] tablet:rounded-lg tablet:border",
+        // laptop / desktop: cap width so the dialog stays readable on wide screens
+        "laptop:w-[min(92vw,1100px)] desktop:w-[min(90vw,1400px)]",
       )}
       ignoreInputs={false}
       modalQuery="AdminPanel">

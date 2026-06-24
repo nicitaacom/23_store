@@ -7,6 +7,7 @@ import { pt } from "@/utils/product"
 import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { OwnerProductHeader } from "./OwnerProductHeader"
 import { FormatImagesForm } from "./FormatImagesForm"
+import { VariantsForm } from "./VariantsForm"
 
 export function OwnerProduct({ ...ownerProduct }: TProductDB) {
   const locale = useCurrentLocale()
@@ -34,6 +35,16 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
         <FormatImagesForm
           id={ownerProduct.id}
           imgUrl={ownerProduct.img_url}
+        />
+      </div>
+      <div className="border-t border-border-color/35 bg-foreground/[0.02] px-2 py-2 tablet:px-3 tablet:py-3">
+        {/* key re-syncs the local draft when the gallery or variant set changes (e.g. after an image remap) */}
+        <VariantsForm
+          key={`${ownerProduct.img_url.join("|")}::${(ownerProduct.variants ?? []).map(variant => variant.id).join(",")}`}
+          id={ownerProduct.id}
+          imgUrl={ownerProduct.img_url}
+          variants={ownerProduct.variants ?? null}
+          price={ownerProduct.price}
         />
       </div>
     </article>

@@ -92,7 +92,7 @@ export function ModalQueryContainer({
           {...modalBgHandler}>
           <motion.div
             className={twMerge(
-              "relative z-[1600] overflow-hidden rounded-lg border border-border-color/35 bg-foreground shadow-compact",
+              "relative z-[1600] overflow-hidden rounded-lg border border-border-color/35 bg-modal-surface shadow-compact",
               className,
             )}
             initial={{ y: 16, opacity: 0 }}

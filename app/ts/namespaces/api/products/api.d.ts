@@ -18,6 +18,7 @@ declare module API {
     label: string
     image_url: string
     price: number
+    quantity: number // per-variant stock; 0 = sold out
   }
 
   type ProductsTranslateAndInsertRequest = {

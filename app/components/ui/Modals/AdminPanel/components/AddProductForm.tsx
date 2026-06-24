@@ -59,6 +59,7 @@ type PendingFormSnapshot = {
   activeImageIndex: number
   variantLabel: string
   variantPrice: string
+  variantQuantity: string
 }
 
 const EMPTY_PRODUCT_FORM_VALUES: Partial<IFormDataAddProduct> = {
@@ -76,6 +77,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [images, setImages] = useState<ImageListType>([])
   const [variantLabel, setVariantLabel] = useState("")
   const [variantPrice, setVariantPrice] = useState("")
+  const [variantQuantity, setVariantQuantity] = useState("")
   const [variants, setVariants] = useState<TProductVariantDraft[]>([])
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [pendingTranslationsAmount, setPendingTranslationsAmount] = useState(0)
@@ -181,6 +183,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     previousImageIndexRef.current = 0
     setVariantLabel("")
     setVariantPrice("")
+    setVariantQuantity("")
   }
 
   const restoreFormSnapshot = (snapshot: PendingFormSnapshot) => {
@@ -191,6 +194,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     previousImageIndexRef.current = snapshot.activeImageIndex
     setVariantLabel(snapshot.variantLabel)
     setVariantPrice(snapshot.variantPrice)
+    setVariantQuantity(snapshot.variantQuantity)
   }
 
   const removePendingCreatedProduct = (optimisticProductId: string) => {
@@ -275,6 +279,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           label: variant.label.trim(),
           image_url: images[variant.imageIndex]?.data_url || "",
           price: variant.price,
+          quantity: variant.quantity,
         }))
         .filter(variant => variant.label && variant.image_url)
       const defaultVariantPrice = optimisticVariants[0]?.price
@@ -317,6 +322,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         activeImageIndex,
         variantLabel,
         variantPrice,
+        variantQuantity,
       }
       const submitImages = [...images]
 
@@ -366,6 +372,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const addVariant = () => {
     const normalizedLabel = variantLabel.trim()
     const normalizedPrice = parseFormattedNumber(variantPrice)
+    // Stock is optional — empty/invalid means 0 = sold out. Owner can restock later via the Edit tab.
+    const parsedQuantity = parseFormattedNumber(variantQuantity)
+    const normalizedQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
 
     if (!images.length) {
       return showToast("warning", "Upload image first", "Select or upload an image before creating a variant")
@@ -395,10 +404,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         imageIndex: activeImageIndex,
         imageDataUrl: images[activeImageIndex]?.data_url || "",
         price: normalizedPrice,
+        quantity: normalizedQuantity,
       },
     ])
     setVariantLabel("")
     setVariantPrice("")
+    setVariantQuantity("")
   }
 
   const removeVariant = (variantId: string) => {
@@ -715,7 +726,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
         {/* ── Variants (moved from left col) ── */}
         <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3">
-          <div className="grid gap-2 tablet:grid-cols-[minmax(0,1fr)_180px_auto]">
+          <div className="grid gap-2 tablet:grid-cols-[minmax(0,1fr)_130px_120px_auto]">
             <label className="grid flex-1 gap-1.5">
               <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
                 {t("variant_label")}
@@ -739,6 +750,19 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 placeholder={t("placeholder.price")}
                 disabled={isLoading}
                 inputMode="decimal"
+              />
+            </label>
+            <label className="grid gap-1.5">
+              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                {t("variant_quantity")}
+              </span>
+              <input
+                className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
+                value={variantQuantity}
+                onChange={event => setVariantQuantity(formatGroupedNumberInput(event.target.value))}
+                placeholder="0"
+                disabled={isLoading}
+                inputMode="numeric"
               />
             </label>
             <button
@@ -777,6 +801,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     <div className="min-w-0 flex-1">
                       <p className="line-clamp-2 text-sm font-medium text-white">{variant.label}</p>
                       <p className="mt-0.5 text-[11px] text-success">{formatCurrency(variant.price)}</p>
+                      <p className={twMerge("mt-0.5 text-[11px]", variant.quantity > 0 ? "text-white/50" : "text-warning")}>
+                        {variant.quantity > 0 ? `${variant.quantity} ${t("on_stock")}` : t("out_of_stock_label")}
+                      </p>
                     </div>
                     <button
                       type="button"
