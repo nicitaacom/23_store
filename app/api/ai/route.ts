@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     const { prompt } = (await req.json()) as API.AIRequest
 
     const openaiResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5.4-nano",
       messages: [{ role: "user", content: prompt }],
       function_call: "auto",
       max_tokens: 20000,
