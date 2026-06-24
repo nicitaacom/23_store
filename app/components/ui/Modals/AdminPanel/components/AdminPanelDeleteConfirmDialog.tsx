@@ -1,6 +1,5 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { BiTrash, BiCheck, BiErrorCircle, BiLoaderAlt } from "react-icons/bi"
 
 import useCartStore from "@/store/user/cartStore"
@@ -66,7 +65,6 @@ interface AdminPanelDeleteConfirmDialogProps {
 }
 
 export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDeleteConfirmDialogProps) {
-  const router = useRouter()
   const tModal = useScopedI18n("modal")
   const tProduct = useScopedI18n("product")
   const toast = useToast()
@@ -108,7 +106,6 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
       }
 
       await cartStore.fetchProductsData()
-      router.refresh()
 
       const doneCount = items.filter(i => i.status === "done").length
       if (hasError) {
@@ -122,7 +119,6 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
       try {
         await productsSDK.deleteProduct({ id: products[0].id })
         await cartStore.fetchProductsData()
-        router.refresh()
         toast.show("success", tProduct("product_deleted"), tProduct("product_deleted_subtitle"), 3500)
       } catch (error) {
         if (snapshot) useOwnerProductsStore.getState().addProduct(snapshot)
