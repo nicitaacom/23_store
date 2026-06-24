@@ -9,9 +9,9 @@ export async function requireAdmin(): Promise<string | null> {
   } = await supabase.auth.getUser()
   if (!user) return "Unauthorized"
 
-  const { data: userRow, error } = await supabase.from("23_users").select("role").eq("id", user.id).maybeSingle()
+  const { data: userRow, error } = await supabase.from("23_users").select("roles").eq("id", user.id).maybeSingle()
   if (error) return error.message
-  if (userRow?.role !== "ADMIN") return "Forbidden: admin only"
+  if (!userRow?.roles?.includes("ADMIN")) return "Forbidden: admin only"
 
   return null
 }
