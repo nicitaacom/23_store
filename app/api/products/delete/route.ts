@@ -21,7 +21,7 @@ function resolveStoragePaths(imageUrls: unknown) {
 
       try {
         const pathname = new URL(url).pathname.replace(/^\/+/, "")
-        const publicBucketPrefix = "storage/v1/object/public/public-images/"
+        const publicBucketPrefix = "storage/v1/object/public/23_public-images/"
         const bucketIndex = pathname.indexOf(publicBucketPrefix)
 
         if (bucketIndex >= 0) {
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     const storagePaths = resolveStoragePaths(product.img_url)
     if (storagePaths.length > 0) {
-      const { error: deleteFromBucketError } = await supabase.storage.from("public-images").remove(storagePaths)
+      const { error: deleteFromBucketError } = await supabase.storage.from("23_public-images").remove(storagePaths)
 
       if (deleteFromBucketError) {
         console.warn("DELETE_PRODUCT_BUCKET_WARNING", deleteFromBucketError.message)

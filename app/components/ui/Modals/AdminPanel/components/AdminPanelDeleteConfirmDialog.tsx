@@ -94,11 +94,13 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
       for (let i = 0; i < products.length; i++) {
         items[i] = { ...items[i], status: "deleting" }
         update([...items])
+        const snapshot = useOwnerProductsStore.getState().products.find(p => p.id === products[i].id)
+        useOwnerProductsStore.getState().removeProduct(products[i].id)
         try {
           await productsSDK.deleteProduct({ id: products[i].id })
-          useOwnerProductsStore.getState().removeProduct(products[i].id)
           items[i] = { ...items[i], status: "done" }
-        } catch {
+        } catch (error) {
+          if (snapshot) useOwnerProductsStore.getState().addProduct(snapshot)
           items[i] = { ...items[i], status: "error" }
           hasError = true
         }
@@ -115,13 +117,15 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
         toast.show("success", tProduct("product_deleted"), tProduct("product_deleted_subtitle"), 3500)
       }
     } else {
+      const snapshot = useOwnerProductsStore.getState().products.find(p => p.id === products[0].id)
+      useOwnerProductsStore.getState().removeProduct(products[0].id)
       try {
         await productsSDK.deleteProduct({ id: products[0].id })
-        useOwnerProductsStore.getState().removeProduct(products[0].id)
         await cartStore.fetchProductsData()
         router.refresh()
         toast.show("success", tProduct("product_deleted"), tProduct("product_deleted_subtitle"), 3500)
       } catch (error) {
+        if (snapshot) useOwnerProductsStore.getState().addProduct(snapshot)
         toast.show("error", tProduct("delete_product_error"), error instanceof Error ? error.message : String(error))
       }
     }
