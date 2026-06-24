@@ -25,19 +25,17 @@ if (!items.length) return <EmptyState image={...} label="No items yet" />
 return <ul>{renderedItems}</ul>
 ```
 
-Docs structure:
+### Docs structure:
 
 0. why this exists (problem it solves, in plain words)
 
-1. define where data lives e.g redis DB or EB or zustand store
+1. how does it look like?
 
-- types
-- show directories for UI where data rendered
-- use images to show how data looks in each store (redis screenshot, supabase screenshot, EB screenshot)
-- use images to show where data renders in UI (scheduled tab, outreached page, etc.) - include file directories
-- add terminology table right below (so AI reading this section has the vocab before reading the ASCII)
-- for each store: explain WHY it exists there (not just what it holds)
+   1.1 image of UI + file pathname for component
+   1.2 types + file pathname
+   1.3 ASCII tree - directory (file pathname) where data lives e.g redis DB or EB or zustand store tree to component UI
+   1.4 use images to show how data looks in each store (redis screenshot, supabase screenshot, EB screenshot)
 
-2. TODO and decisions made AGAINST
-3. define termininology - explain with ASCII examples how it should work
-4. reproduction steps - examples with ASCII of how it work
+2. define termininology
+3. explain with ASCII examples how it should work
+4. TODO with reproduction steps and decisions made AGAINST
