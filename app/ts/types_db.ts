@@ -199,7 +199,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      // product likes/ratings counter RPCs (see dev_readme-supbase-sql.md)
+      increment_product_likes: {
+        Args: { p_id: string; delta: number }
+        Returns: number
+      }
+      add_product_rating: {
+        Args: { p_id: string; stars: number }
+        Returns: unknown
+      }
     }
     Enums: {
       [_ in never]: never
