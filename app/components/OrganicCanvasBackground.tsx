@@ -199,7 +199,7 @@ class Particle {
   }
 }
 
-interface OrganicCanvasBackgroundProps {
+interface OrganicCanvasBackgroundProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
   className?: string
   parentClassName?: string
@@ -215,6 +215,7 @@ export function OrganicCanvasBackground({
   particleCount = 8,
   brandHsl = "210, 100%, 50%",
   verticalOverflow = 0,
+  ...rest
 }: OrganicCanvasBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -322,7 +323,8 @@ export function OrganicCanvasBackground({
     <div
       ref={containerRef}
       className={twMerge("relative w-full h-full overflow-hidden", className)}
-      style={{ position: "relative" }}>
+      style={{ position: "relative" }}
+      {...rest}>
       <canvas
         ref={canvasRef}
         className="pointer-events-none absolute left-0 right-0 w-full opacity-80"

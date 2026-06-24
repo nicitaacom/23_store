@@ -1,6 +1,8 @@
 import { FieldErrors, UseFormRegister } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
+import { BaseInput } from "../BaseInput"
+
 interface FormData {
   username: string
   email: string
@@ -94,9 +96,8 @@ export function FormInput({
           <div className="relative">
             {startIcon && <div className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-icon-color">{startIcon}</div>}
             {endIcon && <div className="absolute right-2 top-1/2 -translate-y-1/2 text-icon-color">{endIcon}</div>}
-            <input
+            <BaseInput
               className={twMerge(
-                "h-8 w-full rounded border border-border-color/35 bg-background/70 px-3 text-sm text-title outline-none transition-colors duration-150 placeholder:text-subTitle/55 focus:border-brand/35 focus:bg-background",
                 startIcon && "pl-8",
                 endIcon && "pr-8",
                 errors[id] && "focus:ring-rose-500 focus-visible:outline-rose-600",

@@ -4,16 +4,16 @@ Use this as the default style when generating code for this project.
 
 ## All docs
 
-| Doc | What it covers |
-|---|---|
-| [sdk-fetch-api](./code-patterns/sdk-fetch-api.md) | SDK class pattern, API route pattern, DB verb naming |
-| [hook-set](./code-patterns/hook-set.md) | Fetch-on-mount hook with skeleton + toast |
-| [hook-auto-update](./code-patterns/hook-auto-update.md) | Debounced autosave hook with dirty check + stale closure fix |
-| [pusher-patterns](./code-patterns/component-related/pusher-patterns.md) | Pusher channel reuse + unbind-before-bind rule |
-| [zustand-patterns](./code-patterns/component-related/zustand-patterns.md) | Zustand store shape, selector rule, persist pattern |
-| [AI_UI_skill](./AI_UI_skill.md) | Tailwind-only UI rules, tokens, breakpoints, spacing, typography |
-| [PROJECT_UI_STYLE](./PROJECT_UI_STYLE.md) | UI philosophy — compact, content-first, flat-vector feel |
-| [public-assets](./public-assets.md) | All public/ images inventory — used vs unused |
+| Doc                                                                       | What it covers                                                   |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [sdk-fetch-api](./code-patterns/sdk-fetch-api.md)                         | SDK class pattern, API route pattern, DB verb naming             |
+| [hook-set](./code-patterns/hook-set.md)                                   | Fetch-on-mount hook with skeleton + toast                        |
+| [hook-auto-update](./code-patterns/hook-auto-update.md)                   | Debounced autosave hook with dirty check + stale closure fix     |
+| [pusher-patterns](./code-patterns/component-related/pusher-patterns.md)   | Pusher channel reuse + unbind-before-bind rule                   |
+| [zustand-patterns](./code-patterns/component-related/zustand-patterns.md) | Zustand store shape, selector rule, persist pattern              |
+| [AI_UI_skill](./AI_UI_skill.md)                                           | Tailwind-only UI rules, tokens, breakpoints, spacing, typography |
+| [PROJECT_UI_STYLE](./PROJECT_UI_STYLE.md)                                 | UI philosophy — compact, content-first, flat-vector feel         |
+| [public-assets](./public-assets.md)                                       | All public/ images inventory — used vs unused                    |
 
 ### Code patterns
 
@@ -42,6 +42,7 @@ Use this as the default style when generating code for this project.
    live in its own hook file. Do not merge multiple Pusher event groups into one hook or one
    component `useEffect`.
 10. NEVER export types from client or server components. They should be exported from a separated `typeName.ts` file.
+11. NEVER export const with classNames
 
 ## General architecture
 

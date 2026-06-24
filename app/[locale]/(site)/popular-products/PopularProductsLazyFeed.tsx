@@ -5,7 +5,7 @@ import { useCallback, useState } from "react"
 import { useLazyLoading } from "@/hooks/useLazyLoading"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { TProductDB } from "@/ts/product/TProductDB"
-import { PopularProductsPreviewList } from "../components/PopularProductsPreviewList"
+import { PopularProductCard } from "./components/PopularProductCard"
 
 interface PopularProductsLazyFeedProps {
   initialProducts: TProductDB[]
@@ -64,7 +64,11 @@ export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }:
 
       <div ref={topRef} className="h-px" />
 
-      <PopularProductsPreviewList products={visibleProducts} locale={locale} showHeader={false} showPreviewLink={false} />
+      <div className="grid grid-cols-1 gap-4 mobile:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4">
+        {visibleProducts.map(product => (
+          <PopularProductCard key={product.id} product={product} locale={locale} />
+        ))}
+      </div>
 
       {!hasNoMoreDataToFetch && <div ref={bottomRef} className="h-20" />}
 

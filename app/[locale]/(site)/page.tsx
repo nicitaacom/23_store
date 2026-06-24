@@ -2,6 +2,7 @@ import { cache } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { BiPlus, BiWindowOpen } from "react-icons/bi"
+import { FaPlus } from "react-icons/fa"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getScopedI18n } from "@/locales/server"
@@ -95,8 +96,9 @@ export default async function Home({ params: paramsPromise, searchParams: search
                     <Link
                       href={addProductHref}
                       aria-label={t("add")}
-                      className="inline-flex h-10 w-fit items-center justify-center whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black mobile:text-base max-[480px]:flex-1 max-[480px]:px-0 max-[480px]:py-0">
+                      className="inline-flex h-10 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black mobile:text-base max-[480px]:flex-1 max-[480px]:gap-0 max-[480px]:px-0 max-[480px]:py-0">
                       <BiPlus className="hidden text-xl max-[480px]:block" />
+                      <FaPlus className="hidden text-sm min-[481px]:block" />
                       <span className="max-[480px]:hidden">{t("add")}</span>
                     </Link>
                     <Link

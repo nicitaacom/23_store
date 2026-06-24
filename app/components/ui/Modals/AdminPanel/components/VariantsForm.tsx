@@ -14,6 +14,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { TProductVariant } from "@/ts/product/TProductVariant"
+import { BaseInput } from "../../../Inputs/BaseInput"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
 
 interface VariantsFormProps {
@@ -160,12 +161,12 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                 <div className="flex flex-col gap-2 tablet:flex-row">
                   <div className="flex min-w-0 flex-1 flex-col gap-2">
                     <div className="flex items-center gap-2">
-                      <input
+                      <BaseInput
+                        className="min-w-0 flex-1"
                         value={draft.label}
                         onChange={event => updateDraft(draft.id, { label: event.target.value })}
                         disabled={isLoading}
                         placeholder={t("variant_label")}
-                        className="h-8 min-w-0 flex-1 rounded border border-border-color/35 bg-background/70 px-3 text-sm text-title outline-none transition-colors duration-150 placeholder:text-subTitle/55 focus:border-brand/35 focus:bg-background"
                       />
                       {isSoldOut && (
                         <span className="shrink-0 rounded border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-warning">
@@ -174,21 +175,21 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <input
+                      <BaseInput
+                        className="min-w-0 flex-1"
                         value={draft.priceInput}
                         onChange={event => updateDraft(draft.id, { priceInput: formatGroupedNumberInput(event.target.value) })}
                         disabled={isLoading}
                         inputMode="decimal"
                         placeholder={t("variant_price")}
-                        className="h-8 min-w-0 flex-1 rounded border border-border-color/35 bg-background/70 px-3 text-sm text-title outline-none transition-colors duration-150 placeholder:text-subTitle/55 focus:border-brand/35 focus:bg-background"
                       />
-                      <input
+                      <BaseInput
+                        className="min-w-0 flex-1"
                         value={draft.quantityInput}
                         onChange={event => updateDraft(draft.id, { quantityInput: formatGroupedNumberInput(event.target.value) })}
                         disabled={isLoading}
                         inputMode="numeric"
                         placeholder={t("variant_quantity")}
-                        className="h-8 min-w-0 flex-1 rounded border border-border-color/35 bg-background/70 px-3 text-sm text-title outline-none transition-colors duration-150 placeholder:text-subTitle/55 focus:border-brand/35 focus:bg-background"
                       />
                     </div>
                   </div>

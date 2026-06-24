@@ -2,7 +2,7 @@
 
 import { IoMdClose } from "react-icons/io"
 import { twMerge } from "tailwind-merge"
-import { AiOutlinePlus } from "react-icons/ai"
+import { FiPlus } from "react-icons/fi"
 import { CiEdit } from "react-icons/ci"
 import { MdOutlineDelete } from "react-icons/md"
 
@@ -26,16 +26,10 @@ interface AdminPanelHeaderProps {
   disabled?: boolean
 }
 
-const ACTION_ICONS: Record<ProductAction, typeof AiOutlinePlus> = {
-  add: AiOutlinePlus,
+const ACTION_ICONS: Record<ProductAction, typeof FiPlus> = {
+  add: FiPlus,
   edit: CiEdit,
   delete: MdOutlineDelete,
-}
-
-const ACTION_ICON_COLORS: Record<ProductAction, string> = {
-  add: "text-success-accent",
-  edit: "text-warning",
-  delete: "text-danger",
 }
 
 export function AdminPanelHeader({
@@ -49,6 +43,9 @@ export function AdminPanelHeader({
 }: AdminPanelHeaderProps) {
   return (
     <OrganicCanvasBackground
+      // mark the whole header as a non-dismiss zone so clicking dead space (gaps/padding)
+      // between the tabs doesn't trip the modal's click-outside handler and close it
+      data-click-outside-ignore
       className={twMerge(
         "h-[52px] overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.12),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))] tablet:h-[56px] tablet:rounded-t-lg",
         className,
@@ -63,7 +60,7 @@ export function AdminPanelHeader({
           <h1 className="mt-px truncate text-[18px] font-semibold leading-none text-white tablet:text-[20px]">{title}</h1>
         </div>
 
-        <div className="ml-2 hidden min-w-0 flex-1 items-center gap-[2px] mobile:flex">
+        <div className="ml-2 hidden min-w-0 flex-1 items-center gap-1 mobile:flex">
           {(Object.keys(PRODUCT_ACTIONS) as ProductAction[]).map(action => {
             const Icon = ACTION_ICONS[action]
             const isActive = action === activeAction
@@ -72,20 +69,16 @@ export function AdminPanelHeader({
               <button
                 key={action}
                 className={twMerge(
-                  "flex h-8 min-w-0 items-center gap-1 rounded border px-2.5 text-xs transition-colors duration-150",
-                  isActive
-                    ? action === PRODUCT_ACTIONS.add
-                      ? "border-success/50 bg-success/20 text-success-accent"
-                      : action === PRODUCT_ACTIONS.edit
-                        ? "border-warning/50 bg-warning/20 text-warning"
-                        : "border-danger/50 bg-danger/20 text-danger"
-                    : "border-white/8 bg-white/[0.03] text-white/72 hover:bg-white/[0.05] hover:text-white",
+                  // underline tab — flat, unified brand accent (active shows a brand underline bar)
+                  "relative flex h-8 min-w-0 items-center gap-1.5 px-2 text-xs transition-colors duration-150",
+                  isActive ? "text-brand" : "text-white/60 hover:text-white",
                   disabled && "pointer-events-none opacity-50",
                 )}
                 type="button"
                 onClick={() => onActionChange(action)}>
+                <Icon className="shrink-0" />
                 <span className="truncate">{actionLabels[action]}</span>
-                <Icon className={twMerge("shrink-0", ACTION_ICON_COLORS[action])} />
+                {isActive && <span className="absolute inset-x-1 bottom-0 h-0.5 rounded-full bg-brand" />}
               </button>
             )
           })}

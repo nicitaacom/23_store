@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
-import { sortProductsByLocale } from "@/utils/product"
 import { normalizeProducts } from "@/utils/productVariants"
 
 export async function GET(request: Request) {
@@ -10,11 +9,12 @@ export async function GET(request: Request) {
   const endExclusive = Math.max(start + 1, Number(searchParams.get("end")) || start + 24)
 
   const supabase = await supabaseServer()
+  // Popular = most likes first. on_stock is a stable tiebreaker so paging stays deterministic.
   const response = await supabase
     .from("23_products")
     .select("*")
+    .order("likes_count", { ascending: false, nullsFirst: false })
     .order("on_stock", { ascending: false, nullsFirst: false })
-    .order("price", { ascending: true })
     .range(start, endExclusive - 1)
 
   if (response.error) {
@@ -22,6 +22,6 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({
-    products: sortProductsByLocale(normalizeProducts(response.data ?? []), "fi"),
+    products: normalizeProducts(response.data ?? []),
   })
 }

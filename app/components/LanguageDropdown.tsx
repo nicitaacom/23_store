@@ -48,7 +48,10 @@ export function LanguageDropdown({ className }: { className?: string }) {
       return
     }
     document.cookie = `${LOCALE_COOKIE_NAME}=${code}; path=/; samesite=strict`
-    const nextPathname = stripLocalePrefix(pathname || "/", locales.map(l => l.code))
+    const nextPathname = stripLocalePrefix(
+      pathname || "/",
+      locales.map(l => l.code),
+    )
     const nextSearch = searchParams?.toString() || ""
     router.replace(`${nextPathname}${nextSearch ? `?${nextSearch}` : ""}`)
     router.refresh()
@@ -59,7 +62,8 @@ export function LanguageDropdown({ className }: { className?: string }) {
     <div className={`inline-flex flex-col w-[130px] ${className}`} ref={dropdownContainerRef}>
       {/* Trigger — w-full so it stretches to whatever width the container is */}
       <button
-        className="flex w-full items-center gap-1.5 rounded border border-border-color/35 bg-background/55 px-2.5 py-1.5 text-sm text-title transition-colors duration-150 hover:bg-foreground/10"
+        className="flex w-full items-center gap-1.5 rounded border border-border-color/35 bg-background/55 px-2.5 py-1.5
+        text-sm text-title transition-colors duration-150 hover:bg-foreground/10"
         onClick={() => setShowDropdown(!showDropdown)}
         aria-expanded={showDropdown}>
         {currentLocale ? (

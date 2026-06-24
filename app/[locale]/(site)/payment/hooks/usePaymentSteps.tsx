@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation"
 
 import useCartStore from "@/store/user/cartStore"
 import useUserStore from "@/store/user/userStore"
+import usePurchasedProductsStore from "@/store/user/purchasedProductsStore"
 import { formatDeliveryDate } from "@/utils/formatDeliveryDate"
 import { substractOnStockFromQuantityFn } from "../functions/substractOnStockFromQuantityFn"
 import { sendEmailFn } from "../functions/sendEmailFn"
@@ -19,6 +20,7 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
   const router = useRouter()
   const cartStore = useCartStore()
   const { user } = useUserStore()
+  const { addPurchasedProducts } = usePurchasedProductsStore()
   const { hasCartStoreInitialized } = useLoading()
   const [isValidSessionId, setIsValidSessionId] = useState(false)
   const [html, setHtml] = useState("")
@@ -67,6 +69,8 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
         sendEmailFn(emailData, setCurrentStep, t)
         break
       case 7:
+        // Record what was bought (client-side) so the user can rate these products afterwards
+        addPurchasedProducts([...new Set(Object.values(cartStore.products).map(product => product.id))])
         substractOnStockFromQuantityFn(cartStore.products, cartStore.clearCart, router, t)
         break
       default:
