@@ -6,7 +6,7 @@ export const PRODUCT_TITLE_HAS_LETTER_REGEX = /[A-Za-z]/
 export const PRODUCT_TITLE_MUST_START_REGEX = /^[A-Za-z0-9]/
 
 export const PRODUCT_TITLE_PATTERN = new RegExp(
-  `^(?=.*[A-Za-z])[A-Za-z0-9][A-Za-z0-9#%$()_+&/,.'-]{${MIN_PRODUCT_TITLE_LENGTH - 1},${MAX_PRODUCT_TITLE_LENGTH - 1}}$`,
+  `^(?=.*[A-Za-z])[A-Za-z0-9][A-Za-z0-9 #%$()_+&/,.'-]{${MIN_PRODUCT_TITLE_LENGTH - 1},${MAX_PRODUCT_TITLE_LENGTH - 1}}$`,
 )
 
 export const PRODUCT_DESCRIPTION_PATTERN = new RegExp(
