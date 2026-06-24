@@ -25,44 +25,33 @@ export function ProductQuantityButton({ className, productId, action, variantId 
     action === "clear" && clearProductQuantity(productId, variantId)
   }, [action, productId, variantId, increaseProductQuantity, decreaseProductQuantity, clearProductQuantity])
 
-  // 2. Get button config based on action
-  const config = {
-    increase: {
-      variant: "success-outline" as const,
-      content: "+",
-      icon: null,
-      size: "icon-md" as const,
-    },
-    decrease: {
-      variant: "danger-outline" as const,
-      content: "-",
-      icon: null,
-      size: "icon-md" as const,
-    },
-    clear: {
-      variant: "danger-outline" as const,
-      content: "Clear",
-      icon: <MdOutlineDeleteOutline />,
-      size: "md" as const,
-    },
-  }[action]
+  // 2. Stepper buttons (+/−) share icon-button primitive with no outer border (parent provides the border)
+  if (action === "increase" || action === "decrease") {
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        className={twMerge(
+          "inline-flex h-8 w-8 items-center justify-center bg-background/55 text-sm font-semibold text-icon-color transition-colors duration-150 hover:bg-foreground/50",
+          action === "increase" ? "text-success" : "text-danger",
+          className,
+        )}>
+        {action === "increase" ? "+" : "−"}
+      </button>
+    )
+  }
 
+  // 3. Clear — danger icon button
   return (
     <Button
-      className={twMerge(
-        "rounded font-medium transition-all",
-        action === "clear"
-          ? "w-full mobile:w-fit"
-          : "min-w-10 text-lg",
-        className,
-      )}
-      variant={config.variant}
-      size={config.size}
+      className={twMerge("rounded font-medium w-full mobile:w-fit", className)}
+      variant="danger-outline"
+      size="md"
       rounded="lg"
       shadow="sm"
-      rightIcon={config.icon}
+      rightIcon={<MdOutlineDeleteOutline className="text-danger" />}
       onClick={handleClick}>
-      {config.content}
+      Clear
     </Button>
   )
 }

@@ -30,6 +30,7 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
   const { replaceProduct, updateProduct } = useOwnerProductsStore()
 const [newImages, setNewImages] = useState<ImageListType>([])
   const [pendingCount, setPendingCount] = useState(0)
+  const [deletingIndices, setDeletingIndices] = useState<Set<number>>(new Set())
 
   // Warn on navigation while a save is in flight
   useEffect(() => {
@@ -40,6 +41,9 @@ const [newImages, setNewImages] = useState<ImageListType>([])
   }, [pendingCount])
 
   async function removeExistingImage(index: number) {
+    if (deletingIndices.has(index)) return
+    setDeletingIndices(prev => new Set(prev).add(index))
+
     const snapshot = [...imgUrl]
     const nextUrls = imgUrl.filter((_, i) => i !== index)
 
@@ -58,6 +62,7 @@ const [newImages, setNewImages] = useState<ImageListType>([])
       updateProduct(id, p => ({ ...p, img_url: snapshot }))
     } finally {
       setPendingCount(c => c - 1)
+      setDeletingIndices(prev => { const next = new Set(prev); next.delete(index); return next })
     }
   }
 
@@ -88,6 +93,19 @@ const [newImages, setNewImages] = useState<ImageListType>([])
       const response = await productsSDK.updateProduct({ productId: id, images: finalUrls })
       if (typeof response === "string") throw new Error(response)
       replaceProduct(id, response.product)
+
+      // Remap variant image_url fields to new uploaded URLs (positional: old imgUrl[i] → finalUrls[i])
+      const updatedProduct = response.product
+      if (updatedProduct.variants?.length) {
+        const urlMap = new Map(imgUrl.map((old, i) => [old, finalUrls[i] ?? old]))
+        const remappedVariants = updatedProduct.variants.map(v => ({
+          ...v,
+          image_url: urlMap.get(v.image_url) ?? v.image_url,
+        }))
+        const variantsResponse = await productsSDK.updateProduct({ productId: id, variants: remappedVariants })
+        if (typeof variantsResponse !== "string") replaceProduct(id, variantsResponse.product)
+      }
+
       setNewImages([])
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
@@ -189,17 +207,17 @@ const [newImages, setNewImages] = useState<ImageListType>([])
                       <button
                         type="button"
                         disabled={isLoading}
-                        onClick={() => makePrimary(index)}
-                        className="rounded bg-white/10 p-1 text-white hover:bg-white/20 disabled:opacity-40"
+                        onClick={e => { e.stopPropagation(); makePrimary(index) }}
+                        className="rounded bg-white/10 p-1 text-white hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
                         title="Set as primary">
                         <BiStar size={12} />
                       </button>
                     )}
                     <button
                       type="button"
-                      disabled={isLoading}
-                      onClick={() => removeImage(index)}
-                      className="rounded bg-danger/70 p-1 text-white hover:bg-danger disabled:opacity-40"
+                      disabled={isLoading || deletingIndices.has(index)}
+                      onClick={e => { e.stopPropagation(); removeImage(index) }}
+                      className="rounded bg-danger/70 p-1 text-white hover:bg-danger disabled:cursor-not-allowed disabled:opacity-40"
                       title="Remove">
                       <BiTrash size={12} />
                     </button>
@@ -209,7 +227,7 @@ const [newImages, setNewImages] = useState<ImageListType>([])
             })}
 
             {/* Add button */}
-            {allImages.length < MAX_PRODUCT_IMAGES && (
+            {imgUrl.length < MAX_PRODUCT_IMAGES && (
               <button
                 type="button"
                 onClick={onImageUpload}

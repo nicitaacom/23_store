@@ -60,7 +60,7 @@ export const useMessagesStore = create<MessagesStore>()((set, get) => ({
     }
 
     const messages = await supportSDK.getMessages({ userId })
-    const unseenAmount = messages.filter(message => !message.seen).length
+    const unseenAmount = messages.filter(message => !message.seen && message.sender_id !== userId).length
 
     let ticketIdLet: string | null = null
     if (!state.ticketId) {

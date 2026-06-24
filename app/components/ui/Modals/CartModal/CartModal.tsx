@@ -16,7 +16,6 @@ export function CartModal() {
   const cartStore = useCartStore()
   const [isSkeleton, setIsSkeleton] = useState(false)
 
-  // fetch products data to render UI from data with ICartRecord type
   useEffect(() => {
     setIsSkeleton(true)
     async function fetchProductsData() {
@@ -30,9 +29,6 @@ export function CartModal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // prefetch success and failed routes for better performance
-  // https://nextjs.org/docs/pages/api-reference/functions/use-router#routerprefetch
-  // in my case I have payment instad of login
   useEffect(() => {
     router.prefetch("/payment")
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,14 +36,14 @@ export function CartModal() {
 
   return (
     <ModalQueryContainer
-      className="w-full laptop:max-w-[1100px] desktop:max-w-[80vw] h-[80vh] laptop:max-h-[700px] desktop:max-h-[75vh] pt-6 pb-6 overflow-hidden"
+      className="h-[80vh] w-full overflow-hidden laptop:max-h-[700px] laptop:max-w-[1100px] desktop:max-h-[75vh] desktop:max-w-[80vw]"
       modalQuery="CartModal">
-      <div className="relative w-full h-full flex flex-col gap-y-4 overflow-hidden">
-        <h1 className="text-3xl laptop:text-4xl font-bold text-center bg-gradient-to-r from-success via-success-accent to-success bg-clip-text text-transparent shrink-0">
+      <div className="relative flex h-full w-full flex-col gap-2 overflow-hidden p-3 laptop:p-4">
+        <h1 className="shrink-0 text-center text-xl font-semibold text-title">
           {t("modal.cart.label")}
         </h1>
-
-        <section className="flex-1 w-[95%] mx-auto overflow-hidden">
+        <div className="h-px w-full bg-border-color/20" />
+        <section className="min-h-0 flex-1 overflow-hidden">
           {isSkeleton ? <ProductsSkeleton /> : cartStore.productsData.length > 0 ? <ProductsInCart /> : <EmptyCart />}
         </section>
       </div>

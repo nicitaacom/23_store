@@ -30,52 +30,64 @@ export function ProductsInCart() {
   }
 
   return (
-    <div className="flex flex-col laptop:flex-row gap-6 h-full overflow-hidden">
-      <section className="flex-1 flex flex-col gap-y-4 overflow-y-auto pr-2 hide-scrollbar">
-        {cartStore.productsData.map(productData => (
-          <Product {...productData} containerClassName="border border-border-color/30 shrink-0" key={productData.cartKey} />
-        ))}
+    <div className="flex h-full flex-col gap-3 overflow-hidden laptop:flex-row">
+
+      {/* Products list */}
+      <section className="min-h-0 flex-1 overflow-y-auto pr-1 hide-scrollbar">
+        <div className="flex flex-col gap-2">
+          {cartStore.productsData.map(productData => (
+            <Product
+              {...productData}
+              containerClassName="border border-border-color/20 shrink-0"
+              key={productData.cartKey}
+            />
+          ))}
+        </div>
       </section>
 
-      <aside className="laptop:w-[380px] desktop:w-[420px] shrink-0 flex flex-col gap-y-4 laptop:border-l laptop:border-border-color/30 laptop:pl-6">
-        <div className="bg-gradient-to-br from-success/5 to-success/10 border border-success/20 rounded-xl p-5">
-          <h2 className="text-sm font-medium text-subTitle uppercase tracking-wide mb-3">{t("product.order_summary")}</h2>
+      {/* 1. Order summary sidebar — flex-col with actions pinned to bottom */}
+      <aside className="flex shrink-0 flex-col gap-3 laptop:w-[300px] laptop:border-l laptop:border-border-color/20 laptop:pl-4 desktop:w-[340px]">
 
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-base text-subTitle">{t("product.subtotal")}</span>
-            <span className="text-lg text-title font-semibold">{formatCurrency(cartStore.getProductsPrice())}</span>
+        {/* 2. Summary panel — soft accent gradient, emphasized total */}
+        <div className="rounded-md border border-border-color/20 bg-gradient-to-br from-foreground/10 to-transparent p-3">
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.16em] text-subTitle">
+            {t("product.order_summary")}
+          </p>
+
+          <div className="flex items-center justify-between py-1.5">
+            <span className="text-sm text-subTitle">{t("product.subtotal")}</span>
+            <span className="text-sm font-medium text-title">{formatCurrency(cartStore.getProductsPrice())}</span>
           </div>
 
-          <div className="h-px bg-border-color/30 mb-4" />
+          <div className="my-2 h-px bg-border-color/20" />
 
-          <div className="flex justify-between items-center">
-            <span className="text-lg font-semibold text-title">{t("product.total")}</span>
-            <span className="text-2xl font-bold text-success">{formatCurrency(cartStore.getProductsPrice())}</span>
+          {/* 3. Total emphasized */}
+          <div className="flex items-end justify-between py-1">
+            <span className="text-sm font-semibold text-title">{t("product.total")}</span>
+            <span className="text-2xl font-bold tracking-tight text-success">{formatCurrency(cartStore.getProductsPrice())}</span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-success/5 to-success/10 border border-success/20 rounded-xl p-5">
+        {/* 4. Actions — primary first, destructive as ghost */}
+        <div className="flex flex-col gap-2 laptop:mt-auto">
           <Button
-            className="w-full bg-gradient-to-r from-success to-success-accent hover:from-success-accent
-            hover:to-success text-black font-semibold shadow-lg shadow-success/30 hover:shadow-xl hover:shadow-success/40 transition-all border-0"
-            size="lg"
-            rounded="lg"
+            className="w-full border-success/40 bg-success/10 text-success hover:bg-success/20"
+            variant="default-outline"
+            size="md"
             disabled={isLoading}
             onClick={handleRequestBetterPrices}>
             {t("product.request_better_prices")}
           </Button>
-          {/* <PaymentButtons/> */}
+
+          <Button
+            className="w-full"
+            variant="danger-outline"
+            size="md"
+            onClick={areYouSureClearCartModal.openModal}>
+            {t("product.clear_cart")}
+          </Button>
         </div>
 
-        <Button
-          className="w-full hover:shadow-lg transition-all"
-          variant="danger-outline"
-          size="lg"
-          rounded="lg"
-          shadow="sm"
-          onClick={areYouSureClearCartModal.openModal}>
-          {t("product.clear_cart")}
-        </Button>
       </aside>
     </div>
   )

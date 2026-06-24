@@ -21,7 +21,7 @@ import { getCookie } from "@/utils/helpersCSR"
 import { getUserAvatarUrl, getUserName } from "@/utils/user"
 
 interface AvatarDropdownProps {
-  role: string
+  roles: string[]
   avatarUrlServer: string | undefined
 }
 
@@ -34,7 +34,7 @@ function getAnonymousAvatar(isDarkMode: boolean) {
   return isDarkMode ? "/BiUserCircle-dark.svg" : "/BiUserCircle-light.svg"
 }
 
-export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
+export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) {
   const router = useRouter()
   const t = useScopedI18n("backup")
 
@@ -87,9 +87,9 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
       icon={
         <Image className="w-[32px] h-[32px] rounded-full object-cover" src={avatarUrl} alt="user logo" width={64} height={64} />
       }>
-      {role === "SUPPORT" && <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />}
+      {roles.includes("SUPPORT") && <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />}
       <DropdownItem label="Admin panel" icon={BsWindow} onClick={openAdminPanel} />
-      {role === "ADMIN" && <DropdownItem label={t("dropdown_item")} icon={BsDatabaseDown} onClick={openDbBackup} />}
+      {roles.includes("ADMIN") && <DropdownItem label={t("dropdown_item")} icon={BsDatabaseDown} onClick={openDbBackup} />}
       <DropdownItem label="Update avatar" icon={BiImageAdd} onClick={openUpdateAvatarModal} />
       <DropdownItem
         className="flex justify-center mobile:hidden"
@@ -98,7 +98,7 @@ export function AvatarDropdown({ role, avatarUrlServer }: AvatarDropdownProps) {
         href={process.env.NEXT_PUBLIC_TELEGRAM_URL}
         target="_blank"
       />
-      {role === "ADMIN" && <DropdownItem label="Stats" icon={IoIosStats} href="/stats" />}
+      {roles.includes("ADMIN") && <DropdownItem label="Stats" icon={IoIosStats} href="/stats" />}
       <DropdownItem className="min-[501px]:hidden" label="Dark mode" icon={SwitchDarkMode} onClick={toggleDarkMode} />
       <LogoutDropdownItem />
     </DropdownContainer>

@@ -21,14 +21,17 @@ export function ProductQuantity({ productId, productPrice, variantId }: ProductQ
     return formatCurrency(quantity * productPrice)
   }, [productPrice, quantity])
 
+  if (quantity === 0) return null
+
   return (
-    <div className={`flex flex-col justify-center ${quantity === 0 ? "hidden" : "flex"}`}>
-      <h5 className={`text-xl tablet:text-base laptop:text-lg text-center laptop:text-start`}>
-        {t("quantity")}: <span>{quantity}</span>
-      </h5>
-      <h5 className="text-xl tablet:text-base laptop:text-lg text-center laptop:text-start flex flex-row justify-center laptop:justify-start">
-        {t("subtotal")}:&nbsp;<p>{subTotal}</p>
-      </h5>
+    // 1. Dense metadata block — quantity and subtotal stacked tight
+    <div className="flex flex-col gap-0.5">
+      <p className="whitespace-nowrap text-xs text-subTitle">
+        {t("quantity")}: <span className="font-medium text-title">{quantity}</span>
+      </p>
+      <p className="whitespace-nowrap text-xs text-subTitle">
+        {t("subtotal")}: <span className="font-medium text-title">{subTotal}</span>
+      </p>
     </div>
   )
 }

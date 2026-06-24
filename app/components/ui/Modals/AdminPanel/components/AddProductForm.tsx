@@ -22,7 +22,12 @@ import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { createProductFn } from "@/functions/createProductFn"
 import { useI18n, useScopedI18n } from "@/locales/client"
-import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
+import {
+  MAX_IMAGE_FILE_SIZE_BYTES,
+  MAX_PRODUCT_IMAGES,
+  MAX_PRODUCT_VARIANTS,
+  MIN_IMAGE_RESOLUTION,
+} from "@/constants/uploadLimits"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { PendingCreatedProduct, useSubscribeToProductCreated } from "../hooks/useSubscribeToProductCreated"
 
@@ -127,7 +132,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       return
     }
 
-    const pendingProductsLabel = nextPendingTranslationsAmount === 1 ? "1 product is processing." : `${nextPendingTranslationsAmount} products are processing.`
+    const pendingProductsLabel =
+      nextPendingTranslationsAmount === 1
+        ? "1 product is processing."
+        : `${nextPendingTranslationsAmount} products are processing.`
+    // TODO - translate this
     showToast(
       "success",
       "Creating product, translating...",
@@ -185,7 +194,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   }
 
   const removePendingCreatedProduct = (optimisticProductId: string) => {
-    pendingCreatedProductsRef.current = pendingCreatedProductsRef.current.filter(product => product.optimisticProductId !== optimisticProductId)
+    pendingCreatedProductsRef.current = pendingCreatedProductsRef.current.filter(
+      product => product.optimisticProductId !== optimisticProductId,
+    )
   }
 
   useSubscribeToProductCreated({
@@ -706,7 +717,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3">
           <div className="grid gap-2 tablet:grid-cols-[minmax(0,1fr)_180px_auto]">
             <label className="grid flex-1 gap-1.5">
-              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_label")}</span>
+              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                {t("variant_label")}
+              </span>
               <input
                 className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
                 value={variantLabel}
@@ -716,7 +729,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               />
             </label>
             <label className="grid gap-1.5">
-              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("variant_price")}</span>
+              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                {t("variant_price")}
+              </span>
               <input
                 className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
                 value={variantPrice}
