@@ -2,7 +2,7 @@ import "../globals.css"
 
 import type { Metadata } from "next"
 import React, { lazy } from "react"
-import { Layout } from "@/components"
+import { Layout, OfflineBanner } from "@/components"
 import { ModalsProvider, ModalsQueryProvider } from "@/providers"
 import { getCookie } from "@/utils/helpersSSR"
 import { I18nProviderClient } from "@/locales/client"
@@ -58,6 +58,7 @@ export default async function RootLayout({
           <ModalsQueryProvider ownerProducts={ownerProducts ?? []} />
           <ModalsProvider />
           <ToastProvider />
+          <OfflineBanner />
           <UTMTracker userId={userId} />
         </I18nProviderClient>
       </body>

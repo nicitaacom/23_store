@@ -1,3 +1,4 @@
 import Layout from "./Layout/Layout"
 import { SwitchDarkMode } from "./SwitchDarkMode"
-export { Layout, SwitchDarkMode }
+import { OfflineBanner } from "./OfflineBanner"
+export { Layout, SwitchDarkMode, OfflineBanner }
