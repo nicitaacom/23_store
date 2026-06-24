@@ -129,6 +129,81 @@ BEGIN
   END IF;
 END $$;
 
+-- 🏷️ Categories Table
+-- parent_id = NULL means root/parent category; subcategories reference their parent
+CREATE TABLE IF NOT EXISTS public."23_categories" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE,
+  parent_id UUID NULL REFERENCES public."23_categories"(id) ON DELETE SET NULL
+);
+
+ALTER TABLE public."23_categories" ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_categories' AND policyname='All users select') THEN
+    CREATE POLICY "All users select" ON public."23_categories" FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_categories' AND policyname='Admin insert') THEN
+    CREATE POLICY "Admin insert" ON public."23_categories" FOR INSERT WITH CHECK (
+      EXISTS (SELECT 1 FROM public."23_users" WHERE id = auth.uid() AND roles && ARRAY['ADMIN'])
+    );
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_categories' AND policyname='Admin update') THEN
+    CREATE POLICY "Admin update" ON public."23_categories" FOR UPDATE USING (
+      EXISTS (SELECT 1 FROM public."23_users" WHERE id = auth.uid() AND roles && ARRAY['ADMIN'])
+    );
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_categories' AND policyname='Admin delete') THEN
+    CREATE POLICY "Admin delete" ON public."23_categories" FOR DELETE USING (
+      EXISTS (SELECT 1 FROM public."23_users" WHERE id = auth.uid() AND roles && ARRAY['ADMIN'])
+    );
+  END IF;
+END $$;
+
+-- 👁️ Category Views Table — per-user click counts for pill bar personalization
+-- user_id TEXT (not UUID FK) — same pattern as 23_tickets, supports anonymous IDs
+CREATE TABLE IF NOT EXISTS public."23_category_views" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  user_id TEXT NOT NULL,
+  category_id UUID NOT NULL REFERENCES public."23_categories"(id) ON DELETE CASCADE,
+  view_count INTEGER NOT NULL DEFAULT 1,
+  last_viewed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id, category_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_23_category_views_user_id ON public."23_category_views"(user_id);
+CREATE INDEX IF NOT EXISTS idx_23_category_views_category_id ON public."23_category_views"(category_id);
+
+ALTER TABLE public."23_category_views" ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_category_views' AND policyname='User select own') THEN
+    CREATE POLICY "User select own" ON public."23_category_views"
+      FOR SELECT USING (user_id = auth.uid()::text);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_category_views' AND policyname='Allow insert for everyone') THEN
+    CREATE POLICY "Allow insert for everyone" ON public."23_category_views"
+      FOR INSERT WITH CHECK (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_category_views' AND policyname='User update own') THEN
+    CREATE POLICY "User update own" ON public."23_category_views"
+      FOR UPDATE USING (user_id = auth.uid()::text);
+  END IF;
+END $$;
+
+-- Atomic category view increment — avoids race conditions (same pattern as increment_product_likes)
+CREATE OR REPLACE FUNCTION public.increment_category_view(p_user_id TEXT, p_category_id UUID)
+RETURNS void LANGUAGE sql AS $$
+  INSERT INTO public."23_category_views" (user_id, category_id, view_count, last_viewed_at)
+  VALUES (p_user_id, p_category_id, 1, NOW())
+  ON CONFLICT (user_id, category_id)
+  DO UPDATE SET
+    view_count = "23_category_views".view_count + 1,
+    last_viewed_at = NOW();
+$$;
+GRANT EXECUTE ON FUNCTION public.increment_category_view(TEXT, UUID) TO anon, authenticated;
+
 -- 🛒 Products Table
 CREATE TABLE IF NOT EXISTS public."23_products" (
   price_id VARCHAR NOT NULL,
@@ -142,6 +217,7 @@ CREATE TABLE IF NOT EXISTS public."23_products" (
   likes_count INTEGER NOT NULL DEFAULT 0, -- popular = ORDER BY likes_count DESC
   rating_sum INTEGER NOT NULL DEFAULT 0,
   rating_count INTEGER NOT NULL DEFAULT 0, -- avg = rating_sum / rating_count
+  category_id UUID NULL REFERENCES public."23_categories"(id) ON DELETE SET NULL,
   PRIMARY KEY (price_id, owner_id, id)
 );
 
@@ -269,11 +345,13 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
   SELECT jsonb_build_object(
-    '23_users',      (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_users" t),
-    '23_users_cart', (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_users_cart" t),
-    '23_products',   (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_products" t),
-    '23_tickets',    (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_tickets" t),
-    '23_messages',   (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_messages" t)
+    '23_users',           (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_users" t),
+    '23_users_cart',      (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_users_cart" t),
+    '23_categories',      (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_categories" t),
+    '23_category_views',  (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_category_views" t),
+    '23_products',        (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_products" t),
+    '23_tickets',         (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_tickets" t),
+    '23_messages',        (SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM public."23_messages" t)
   );
 $$;
 
@@ -284,7 +362,7 @@ GRANT EXECUTE ON FUNCTION public.backup_23_tables() TO service_role;
 ```
 
 > Import is done in JS (the import route upserts each table with `supabaseAdmin` in FK-safe order:
-> `23_users → 23_users_cart → 23_products → 23_tickets → 23_messages`), so no SQL function is
+> `23_users → 23_users_cart → 23_categories → 23_category_views → 23_products → 23_tickets → 23_messages`), so no SQL function is
 > needed for restore.
 
 ```sql
