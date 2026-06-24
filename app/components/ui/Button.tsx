@@ -29,7 +29,7 @@ const buttonVariants = cva(
         warning: "border-warning/25 bg-warning/12 text-warning hover:border-warning/35 hover:bg-warning/18",
         "warning-outline": "border-warning/30 bg-transparent text-warning hover:bg-warning/10",
 
-        danger: "border-danger/25 bg-danger/14 text-danger hover:border-danger/35 hover:bg-danger/20",
+        danger: "border-danger/25 bg-danger/14 text-danger hover:border-danger/35 hover:bg-danger/20 focus-visible:ring-2 focus-visible:ring-danger/50 focus:ring-2 focus:ring-danger/50",
         "danger-outline": "border-danger/30 bg-transparent text-danger hover:bg-danger/10",
 
         success: "border-success/25 bg-success/12 text-success hover:border-success/35 hover:bg-success/18",
