@@ -15,6 +15,7 @@ import { ProductImage } from "../ProductImage"
 import { ProductLikeButton } from "../ProductLikeButton"
 import { RequestReplanishmentButton } from "./RequestReplanishmentButton"
 import Image from "next/image"
+import Link from "next/link"
 
 function VariantImage({ src, alt }: { src: string; alt: string }) {
   const [errored, setErrored] = useState(false)
@@ -76,9 +77,9 @@ function Product({ ...product }: Props) {
 
         {/* 4. Title + colored price pill */}
         <div className="flex flex-col gap-2 tablet:flex-row tablet:items-start tablet:justify-between">
-          <h2 className="line-clamp-2 min-w-0 text-lg font-semibold leading-snug text-title transition-colors duration-300 group-hover:text-success mobile:text-xl">
+          <Link href={`/${locale}/products/${product.id}`} className="line-clamp-2 min-w-0 text-lg font-semibold leading-snug text-title transition-colors duration-300 hover:text-success mobile:text-xl">
             {translation.title}
-          </h2>
+          </Link>
           <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded border border-success/20 bg-success/10 px-2.5 py-1">
             <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-subTitle">Price</span>
             <span className="text-lg font-bold tracking-tight text-success whitespace-nowrap mobile:text-xl">

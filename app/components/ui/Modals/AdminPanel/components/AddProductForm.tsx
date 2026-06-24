@@ -34,6 +34,8 @@ import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
 import { RichTextToolbar } from "./RichTextToolbar"
+import { CategoryDropdown } from "./CategoryDropdown"
+import { MarkdownText } from "@/components/ui/MarkdownText"
 
 const previewImageVariants = {
   initial: (direction: "next" | "prev") => ({
@@ -654,7 +656,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               {/* Preview caption */}
               <div className="shrink-0 px-0.5">
                 <p className="truncate text-sm font-semibold text-white">{previewTitle}</p>
-                <p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-white/45">{previewDescription}</p>
+                <p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-white/45"><MarkdownText text={previewDescription} /></p>
               </div>
 
               {/* Thumbnail strip */}
@@ -804,21 +806,13 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               </span>
             )}
           </div>
-          <select
-            className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors focus:border-success-accent/35 focus:bg-white/[0.09] disabled:opacity-50"
-            value={categoryId ?? ""}
-            onChange={e => { setCategoryId(e.target.value || null); setAutoAssignedName(null) }}
-            disabled={isLoading}>
-            <option value="">{tGlobal("category.uncategorized")}</option>
-            {allCategories.filter(c => c.parent_id === null).map(parent => (
-              <optgroup key={parent.id} label={parent.name}>
-                <option value={parent.id}>{parent.name}</option>
-                {allCategories.filter(c => c.parent_id === parent.id).map(child => (
-                  <option key={child.id} value={child.id}>{child.name}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+          <CategoryDropdown
+            categories={allCategories}
+            value={categoryId}
+            onChange={id => { setCategoryId(id); setAutoAssignedName(null) }}
+            disabled={isLoading}
+            uncategorizedLabel={tGlobal("category.uncategorized")}
+          />
         </div>
 
         {/* ── Variants (moved from left col) ── */}
