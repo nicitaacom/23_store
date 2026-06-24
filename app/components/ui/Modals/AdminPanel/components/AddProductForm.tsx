@@ -107,21 +107,16 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   const titleValue = watch("title")
   const descriptionValue = watch("subTitle")
-  const onStockValue = watch("onStock")
 
   const previewTitle = titleValue?.trim() || t("placeholder.title")
   const previewDescription = descriptionValue?.trim() || t("placeholder.description")
   const defaultVariant = variants[0]
   const previewPrice = defaultVariant?.price ? formatCurrency(defaultVariant.price) : "--"
 
-  const onStockInputValue =
-    typeof onStockValue === "string" ? onStockValue : typeof onStockValue === "number" ? String(onStockValue) : ""
-  const numericOnStock = parseFormattedNumber(onStockInputValue)
-  const previewStock = onStockInputValue.trim()
-    ? formatGroupedNumberInput(onStockInputValue)
-    : Number.isFinite(numericOnStock) && numericOnStock >= 0
-      ? formatGroupedNumberInput(String(numericOnStock))
-      : "--"
+  // Product stock = sum of every variant's stock. There is no separate on_stock input —
+  // a product here always has variants, so a manual total would just contradict the per-variant counts.
+  const totalStock = variants.reduce((sum, variant) => sum + variant.quantity, 0)
+  const previewStock = variants.length ? formatGroupedNumberInput(String(totalStock)) : "--"
 
   // Shared className applied to every ProductInput — guarantees identical backgrounds
   const inputCn =
@@ -255,12 +250,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     try {
       const normalizedTitle = data.title.trim()
       const normalizedDescription = data.subTitle.trim()
-      const formattedOnStock = parseFormattedNumber(data.onStock)
-
-      if (!Number.isFinite(formattedOnStock) || formattedOnStock < 0) {
-        showToast("warning", "Stock required", t("on_stock_required"))
-        return
-      }
 
       if (!images.length) {
         showToast("warning", "Image required", "Please upload at least 1 product image")
@@ -283,6 +272,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         }))
         .filter(variant => variant.label && variant.image_url)
       const defaultVariantPrice = optimisticVariants[0]?.price
+      // Product stock is the accumulated stock of its variants (no separate manual field)
+      const formattedOnStock = optimisticVariants.reduce((sum, variant) => sum + variant.quantity, 0)
       const optimisticImages = normalizeProductImageUrls(images.map(image => image.data_url || ""))
       const optimisticProductId = `optimistic-${crypto.randomUUID()}`
 
@@ -726,9 +717,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
         {/* ── Variants (moved from left col) ── */}
         <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3">
-          <div className="grid gap-2 tablet:grid-cols-[minmax(0,1fr)_130px_120px_auto]">
+          <div className="grid gap-2 tablet:grid-cols-[minmax(0,1fr)_130px_140px_auto]">
             <label className="grid flex-1 gap-1.5">
-              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+              <span className="whitespace-nowrap px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
                 {t("variant_label")}
               </span>
               <input
@@ -740,7 +731,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               />
             </label>
             <label className="grid gap-1.5">
-              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+              <span className="whitespace-nowrap px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
                 {t("variant_price")}
               </span>
               <input
@@ -753,7 +744,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               />
             </label>
             <label className="grid gap-1.5">
-              <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+              <span className="whitespace-nowrap px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
                 {t("variant_quantity")}
               </span>
               <input
