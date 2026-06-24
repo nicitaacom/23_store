@@ -193,16 +193,17 @@ BEGIN
 END $$;
 
 -- Atomic category view increment — avoids race conditions (same pattern as increment_product_likes)
-CREATE OR REPLACE FUNCTION public.increment_category_view(p_user_id TEXT, p_category_id UUID)
+-- p_delta: weight of the action (1 = page visit / pill click, 3 = like / add-to-cart)
+CREATE OR REPLACE FUNCTION public.increment_category_view(p_user_id TEXT, p_category_id UUID, p_delta INTEGER DEFAULT 1)
 RETURNS void LANGUAGE sql AS $$
   INSERT INTO public."23_category_views" (user_id, category_id, view_count, last_viewed_at)
-  VALUES (p_user_id, p_category_id, 1, NOW())
+  VALUES (p_user_id, p_category_id, p_delta, NOW())
   ON CONFLICT (user_id, category_id)
   DO UPDATE SET
-    view_count = "23_category_views".view_count + 1,
+    view_count = "23_category_views".view_count + p_delta,
     last_viewed_at = NOW();
 $$;
-GRANT EXECUTE ON FUNCTION public.increment_category_view(TEXT, UUID) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.increment_category_view(TEXT, UUID, INTEGER) TO anon, authenticated;
 
 -- 🛒 Products Table
 CREATE TABLE IF NOT EXISTS public."23_products" (
