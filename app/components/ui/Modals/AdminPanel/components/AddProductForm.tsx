@@ -657,7 +657,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     type="button"
                     onClick={() => onImageRemove(safeActiveImageIndex)}
                     disabled={isLoading}
-                    className="h-9 rounded border border-danger/20 bg-danger/8 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
+                    className="h-9 rounded border border-danger/50 bg-danger/8 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
                     {t("remove")}
                   </button>
                   {imageList.length > 1 && (
@@ -668,7 +668,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                         setActiveImageIndex(0)
                       }}
                       disabled={isLoading}
-                      className="h-9 rounded border border-danger/20 bg-danger/8 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
+                      className="h-9 rounded border border-danger/50 bg-danger/8 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
                       {t("remove_all_images")}
                     </button>
                   )}
@@ -800,7 +800,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                       type="button"
                       tabIndex={-1}
                       onClick={() => removeVariant(variant.id)}
-                      className="rounded border border-danger/20 bg-danger/8 px-3 py-2 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12">
+                      className="rounded border border-danger/50 bg-danger/8 px-3 py-2 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12">
                       {t("remove")}
                     </button>
                   </div>
