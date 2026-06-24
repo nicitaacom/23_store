@@ -118,7 +118,7 @@ export type Database = {
           email_confirmed_at: string | null
           id: string
           providers: string[] | null
-          role: string
+          roles: string[]
           username: string
         }
         Insert: {
@@ -128,7 +128,7 @@ export type Database = {
           email_confirmed_at?: string | null
           id: string
           providers?: string[] | null
-          role?: string
+          roles?: string[]
           username: string
         }
         Update: {
@@ -138,7 +138,7 @@ export type Database = {
           email_confirmed_at?: string | null
           id?: string
           providers?: string[] | null
-          role?: string
+          roles?: string[]
           username?: string
         }
         Relationships: []

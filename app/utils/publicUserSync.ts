@@ -11,30 +11,16 @@ interface SyncPublicUserOptions {
 interface SyncPublicUserResult {
   avatarUrl: string | null
   publicUserId: string
-  role: string
+  roles: string[]
   username: string
-}
-
-const ROLE_PRIORITY: Record<string, number> = {
-  USER: 0,
-  SUPPORT: 1,
-  ADMIN: 2,
 }
 
 export function normalizeAuthEmail(email: string | null | undefined): string {
   return typeof email === "string" ? email.trim().toLowerCase() : ""
 }
 
-function getRolePriority(role: string | null | undefined): number {
-  return ROLE_PRIORITY[role || "USER"] ?? 0
-}
-
-function getHighestRole(roles: Array<string | null | undefined>): string {
-  return roles.reduce<string>(
-    (highestRole, currentRole) =>
-      getRolePriority(currentRole) > getRolePriority(highestRole) ? currentRole || "USER" : highestRole,
-    "USER",
-  )
+function mergeRoles(roleLists: Array<string[] | null | undefined>): string[] {
+  return Array.from(new Set(roleLists.flatMap(list => list ?? []).filter(Boolean)))
 }
 
 function getFirstNonEmptyString(values: Array<string | null | undefined>): string {
@@ -169,7 +155,7 @@ export async function syncPublicUserRecord(user: User, options: SyncPublicUserOp
   const survivorRow = currentRow || rows[0] || null
 
   const mergedProviders = mergeProviders(...rows.map(row => row.providers), provider ? [provider] : null)
-  const mergedRole = getHighestRole(rows.map(row => row.role))
+  const mergedRoles = mergeRoles(rows.map(row => row.roles))
   const mergedUsername = getFirstNonEmptyString([...rows.map(row => row.username), fallbackUsername]) || fallbackUsername
   const mergedEmailConfirmedAt = getFirstNonEmptyString([user.email_confirmed_at, ...rows.map(row => row.email_confirmed_at)]) || null
   const mergedAvatarUrl =
@@ -183,7 +169,7 @@ export async function syncPublicUserRecord(user: User, options: SyncPublicUserOp
       avatar_url: mergedAvatarUrl,
       email_confirmed_at: mergedEmailConfirmedAt,
       providers: mergedProviders,
-      role: "USER",
+      roles: ["USER"],
     })
 
     if (insertUserError) throw insertUserError
@@ -193,7 +179,7 @@ export async function syncPublicUserRecord(user: User, options: SyncPublicUserOp
     return {
       avatarUrl: mergedAvatarUrl,
       publicUserId: authUserId,
-      role: "USER",
+      roles: ["USER"],
       username: mergedUsername,
     }
   }
@@ -218,7 +204,7 @@ export async function syncPublicUserRecord(user: User, options: SyncPublicUserOp
         avatar_url: mergedAvatarUrl,
         email_confirmed_at: mergedEmailConfirmedAt,
         providers: mergedProviders,
-        role: mergedRole,
+        roles: mergedRoles,
       })
       .eq("id", survivorRow.id)
 
@@ -234,7 +220,7 @@ export async function syncPublicUserRecord(user: User, options: SyncPublicUserOp
         avatar_url: mergedAvatarUrl,
         email_confirmed_at: mergedEmailConfirmedAt,
         providers: mergedProviders,
-        role: mergedRole,
+        roles: mergedRoles,
       })
       .eq("id", authUserId)
 
@@ -256,7 +242,7 @@ export async function syncPublicUserRecord(user: User, options: SyncPublicUserOp
   return {
     avatarUrl: mergedAvatarUrl,
     publicUserId: authUserId,
-    role: mergedRole,
+    roles: mergedRoles,
     username: mergedUsername,
   }
 }

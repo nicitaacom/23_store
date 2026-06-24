@@ -57,7 +57,8 @@ CREATE TABLE IF NOT EXISTS public."23_users" (
   username TEXT NOT NULL,
   email TEXT NOT NULL,
   avatar_url TEXT NULL,
-  role TEXT NOT NULL DEFAULT 'USER',
+  -- roles is TEXT[] so a user can hold multiple roles simultaneously e.g. ["ADMIN","SUPPORT"]
+  roles TEXT[] NOT NULL DEFAULT '{"USER"}',
   email_confirmed_at TIMESTAMPTZ NULL,
   providers TEXT[] NULL DEFAULT '{}'
 );
@@ -70,6 +71,7 @@ BEGIN
     CREATE POLICY "Allow users to select their own row" ON public."23_users" FOR SELECT USING (auth.uid() = id);
   END IF;
 END $$;
+
 
 -- 🎫 Tickets Table
 CREATE TABLE IF NOT EXISTS public."23_tickets" (
@@ -93,7 +95,7 @@ DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_tickets' AND policyname='SUPPORT/ADMIN all access') THEN
     CREATE POLICY "SUPPORT/ADMIN all access" ON public."23_tickets" FOR ALL USING (
-      EXISTS (SELECT 1 FROM public."23_users" WHERE id = auth.uid() AND role IN ('SUPPORT', 'ADMIN'))
+      EXISTS (SELECT 1 FROM public."23_users" WHERE id = auth.uid() AND roles && ARRAY['SUPPORT', 'ADMIN'])
     );
   END IF;
 END $$;
@@ -122,7 +124,7 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_messages' AND policyname='SUPPORT/ADMIN select') THEN
     CREATE POLICY "SUPPORT/ADMIN select" ON public."23_messages" FOR SELECT USING (
-      EXISTS (SELECT 1 FROM public."23_users" WHERE id = auth.uid() AND role IN ('SUPPORT', 'ADMIN'))
+      EXISTS (SELECT 1 FROM public."23_users" WHERE id = auth.uid() AND roles && ARRAY['SUPPORT', 'ADMIN'])
     );
   END IF;
 END $$;
