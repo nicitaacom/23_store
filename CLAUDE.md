@@ -74,6 +74,7 @@ When you get a screenshot or a question, find the matching feature here first in
 | Product/site components | [app/[locale]/(site)/components/dev_readme.md](app/[locale]/(site)/components/dev_readme.md) | Why Product.tsx isn't split; product row + variants |
 | Site / cart UX | [app/[locale]/(site)/dev_readme.md](app/[locale]/(site)/dev_readme.md) | User cart functionality |
 | UTM stats | [app/[locale]/(site)/stats/dev_readme-utm.md](app/[locale]/(site)/stats/dev_readme-utm.md) | UTM stats |
+| Popular products | [app/[locale]/(site)/popular-products/dev_readme.md](app/[locale]/(site)/popular-products/dev_readme.md) | Likes/ratings, popular = most likes, PopularProductCard |
 | Support | [app/[locale]/(support)/support/dev_readme.md](app/[locale]/(support)/support/dev_readme.md) | Support area |
 | Support tickets | [app/[locale]/(support)/support/tickets/components/dev_readme.md](app/[locale]/(support)/support/tickets/components/dev_readme.md) | Ticket sidebar/components |
 | providers | [app/providers/dev_readme.md](app/providers/dev_readme.md) | Providers usage |
