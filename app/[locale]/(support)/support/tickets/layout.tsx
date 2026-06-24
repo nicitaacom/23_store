@@ -11,11 +11,12 @@ export const dynamic = "force-dynamic"
 
 export default async function SupportChatLayout({ children }: { children: React.ReactNode }) {
   const supabase = await supabaseServer()
-  const { data: role_response, error: anonymous_user } = await supabase.from("23_users").select("role").single()
+  const { data: role_response, error: anonymous_user } = await supabase.from("23_users").select("roles").single()
   const initialTickets = await getInitialTickets()
   const unreadMessages = await getUnreadMessages()
 
-  if (role_response?.role === "USER" || anonymous_user) {
+  const roles: string[] = role_response?.roles ?? []
+  if (!roles.includes("SUPPORT") || anonymous_user) {
     // boilerplate if you have more roles without access to /support/chat
     // Allow roles in array to visit this page
     // if (!["ADMIN", "SUPPORT"].includes(role_response?.role!)) {
