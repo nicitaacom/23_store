@@ -321,7 +321,7 @@ export default {
   "product.title_required": "Enter a product title - a-z - numbers, and #()%_ are optional",
   "product.title_invalid_character": 'Character "{character}" is not allowed near "{context}"',
   "product.description_invalid_character": 'Character "{character}" is not allowed near "{context}"',
-  "product.subtitle_required": "No !$^*_=\\ allowed",
+  "product.subtitle_required": "Description contains an unsupported character",
   "product.price_required": "Enter price from 0.01 to 999,999 with 2 decimal places",
   "product.on_stock_required": "Enter stock as a positive number with optional decimals",
   "product.drop_files_here": "Drop files here",

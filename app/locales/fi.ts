@@ -321,7 +321,7 @@ export default {
   "product.title_required": "Anna tuotteen otsikko – a–z, numerot ja #()%_ sallittu",
   "product.title_invalid_character": 'Merkki "{character}" ei ole sallittu kohdan "{context}" lähellä',
   "product.description_invalid_character": 'Merkki "{character}" ei ole sallittu kohdan "{context}" lähellä',
-  "product.subtitle_required": "Merkit !$^*_=\\ eivät ole sallittuja",
+  "product.subtitle_required": "Kuvaus sisältää ei-tuetun merkin",
   "product.price_required": "Anna hinta väliltä 0,01–999 999 kahdella desimaalilla",
   "product.on_stock_required": "Anna varastosaldo positiivisena numerona, desimaalit sallittu",
   "product.drop_files_here": "Pudota tiedostot tähän",

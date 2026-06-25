@@ -144,14 +144,14 @@ export function ProductInput({
           }
         : id === "subTitle"
           ? (value: string | number) => {
-              const str = String(value ?? "")
+              const str = String(value ?? "").replace(/\r/g, "")
               if (!str.trim()) return required ? t("this_field_is_required") : true
               if (str.trim().length < MIN_PRODUCT_DESCRIPTION_LENGTH) return t("description_too_short")
               if (str.length > MAX_PRODUCT_DESCRIPTION_LENGTH)
                 return t("description_too_long", { max: MAX_PRODUCT_DESCRIPTION_LENGTH })
               if (patternValue?.test(str)) return true
               const invalidCharacterMessage = getInvalidCharacterMessage(id, str)
-              if (invalidCharacterMessage) return invalidCharacterMessage
+if (invalidCharacterMessage) return invalidCharacterMessage
               return patternMessage
             }
           : undefined,
