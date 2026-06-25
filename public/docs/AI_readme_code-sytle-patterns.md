@@ -5,12 +5,12 @@ Use this as the default style when generating code for this project.
 ## All docs
 
 | Doc                                                                       | What it covers                                                   |
-| ------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------- | --- |
 | [sdk-fetch-api](./code-patterns/sdk-fetch-api.md)                         | SDK class pattern, API route pattern, DB verb naming             |
 | [hook-set](./code-patterns/hook-set.md)                                   | Fetch-on-mount hook with skeleton + toast                        |
 | [hook-auto-update](./code-patterns/hook-auto-update.md)                   | Debounced autosave hook with dirty check + stale closure fix     |
 | [pusher-patterns](./code-patterns/component-related/pusher-patterns.md)   | Pusher channel reuse + unbind-before-bind rule                   |
-| [zustand-patterns](./code-patterns/component-related/zustand-patterns.md) | Zustand store shape, selector rule, persist pattern              |
+| [zustand-patterns](./code-patterns/component-related/zustand-patterns.md) | Zustand store shape, selector rule, persist pattern              |     |
 | [AI_UI_skill](./AI_UI_skill.md)                                           | Tailwind-only UI rules, tokens, breakpoints, spacing, typography |
 | [PROJECT_UI_STYLE](./PROJECT_UI_STYLE.md)                                 | UI philosophy — compact, content-first, flat-vector feel         |
 | [public-assets](./public-assets.md)                                       | All public/ images inventory — used vs unused                    |
@@ -26,6 +26,7 @@ Use this as the default style when generating code for this project.
 
 [pusher-patterns](./code-patterns/component-related/pusher-patterns.md)
 [zustand-patterns](./code-patterns/component-related/zustand-patterns.md)
+[component-rendering-only](./code-patterns/component-related/tsx-component-patterns)
 
 ## Code style rules
 
@@ -43,6 +44,7 @@ Use this as the default style when generating code for this project.
    component `useEffect`.
 10. NEVER export types from client or server components. They should be exported from a separated `typeName.ts` file.
 11. NEVER export const with classNames
+12. NEVVER use `localstorage.setItem` or `localstorage.getItem` - use zustand store persist instead
 
 ## General architecture
 
@@ -74,39 +76,6 @@ DB verbs:
 2. Ask AI to validate after each major step
 3. Create docs for what was built
 
-## Component pattern
-
-Components should do rendering only.
-
-```tsx
-"use client"
-
-import { useRef } from "react"
-import { twMerge } from "tailwind-merge"
-import { FiClock } from "react-icons/fi"
-
-import { useSetSomething } from "./hooks/useSetSomething"
-
-interface SomethingProps {
-  className?: string
-  title: string
-}
-
-export function Something({ className, title }: SomethingProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { isLoading, handleToggle, refetch } = useSetSomething()
-
-  return (
-    <div className={twMerge("relative space-y-2", className)} ref={containerRef}>
-      <button className="flex items-center gap-2" onClick={handleToggle}>
-        <FiClock size={14} />
-        <span>{title}</span>
-      </button>
-    </div>
-  )
-}
-```
-
 ### Component rules
 
 - Keep component state local only when it is truly UI-only.
@@ -116,43 +85,6 @@ export function Something({ className, title }: SomethingProps) {
   - `isLoading` for single action buttons
   - `isLocalLoading` for single loading state (not block all UI)
   - global `isLoading` or `mountingStep` for app-level boot logic
-
-## Hook pattern
-
-Use hooks for orchestration.
-
-```ts
-"use client"
-
-import { useCallback, useEffect, useMemo, useState } from "react"
-
-export const useSetSomething = () => {
-  const [isSkeleton, setIsSkeleton] = useState(false)
-  const [errorMessage, setErrorMessage] = useState("")
-
-  const fetchFn = useCallback(async () => {
-    setErrorMessage("")
-    try {
-      setIsSkeleton(true)
-      // fetch here
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : String(error))
-    } finally {
-      setIsSkeleton(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchFn()
-  }, [fetchFn])
-
-  return {
-    isSkeleton,
-    errorMessage,
-    refetch: fetchFn,
-  }
-}
-```
 
 ### Hook rules
 
