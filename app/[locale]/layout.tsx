@@ -1,7 +1,7 @@
 import "../globals.css"
 
 import type { Metadata } from "next"
-import React, { lazy } from "react"
+import React, { lazy, Suspense } from "react"
 import { Layout, OfflineBanner } from "@/components"
 import { ModalsProvider, ModalsQueryProvider } from "@/providers"
 import { getCookie } from "@/utils/helpersSSR"
@@ -60,7 +60,9 @@ export default async function RootLayout({
       <body>
         <I18nProviderClient locale={locale}>
           <Layout user={normalizedUser}>{children}</Layout>
-          <ModalsQueryProvider ownerProducts={ownerProducts ?? []} roles={roles} />
+          <Suspense>
+            <ModalsQueryProvider ownerProducts={ownerProducts ?? []} roles={roles} />
+          </Suspense>
           <ModalsProvider />
           <ToastProvider />
           <OfflineBanner />
