@@ -1,11 +1,5 @@
 import { User } from "@supabase/supabase-js"
 
-export function normalizeUser(user: User | null | undefined) {
-  if (!user) return null
-
-  return JSON.parse(JSON.stringify(user)) as User
-}
-
 export function sanitizeAvatarUrl(avatarUrl: string | null | undefined) {
   return typeof avatarUrl === "string" ? avatarUrl.trim() : ""
 }

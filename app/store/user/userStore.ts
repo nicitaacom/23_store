@@ -5,7 +5,6 @@ import useCartStore from "./cartStore"
 import { useLoading } from "../ui/useLoading"
 import { delCookie } from "@/utils/helpersCSR"
 import { useMessagesStore } from "../ui/useMessagesStore"
-import { normalizeUser } from "@/utils/user"
 
 interface UserStore {
   user: User | null
@@ -22,10 +21,9 @@ const userStore = (set: SetState): UserStore => ({
   user: null,
   clientAvatarUrl: "",
   setUser(user: User | null) {
-    const normalizedUser = normalizeUser(user)
     set((state: UserStore) => ({
       ...state,
-      user: normalizedUser,
+      user: user ?? null,
     }))
   },
   setClientAvatarUrl(url: string) {

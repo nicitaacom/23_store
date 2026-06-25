@@ -9,7 +9,6 @@ import { I18nProviderClient } from "@/locales/client"
 import getOwnerProducts from "@/actions/getOwnerProducts"
 import { UTMTracker } from "@/[locale]/(site)/stats/UTMTracker"
 import supabaseServer from "@/libs/supabase/supabaseServer"
-import { normalizeUser } from "@/utils/user"
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_PRODUCTION_URL : "http://localhost:3023"),
@@ -46,7 +45,7 @@ export default async function RootLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  const normalizedUser = normalizeUser(user)
+  const normalizedUser = user ?? null
   let roles: string[] = []
   if (normalizedUser?.id) {
     const { data } = await supabase.from("23_users").select("roles").eq("id", normalizedUser.id).single()

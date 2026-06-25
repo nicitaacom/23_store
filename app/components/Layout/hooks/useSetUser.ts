@@ -4,7 +4,6 @@ import { User } from "@supabase/supabase-js"
 
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import useUserStore from "@/store/user/userStore"
-import { normalizeUser } from "@/utils/user"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 
@@ -22,7 +21,7 @@ export function useSetUser(user: User | null) {
   const userStore = useUserStore()
   const { setUser, clearUser, logoutUser } = userStore
   const didRecoverUserRef = useRef(false)
-  const currentUserRef = useRef<User | null>(normalizeUser(user))
+  const currentUserRef = useRef<User | null>(user ?? null)
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
@@ -32,12 +31,11 @@ export function useSetUser(user: User | null) {
   }, [])
 
   useEffect(() => {
-    const normalizedUser = normalizeUser(user)
-    currentUserRef.current = normalizedUser
+    currentUserRef.current = user ?? null
 
-    if (!normalizedUser) return
+    if (!user) return
 
-    setUser(normalizedUser)
+    setUser(user)
     didRecoverUserRef.current = false
   }, [setUser, user])
 
@@ -51,11 +49,9 @@ export function useSetUser(user: User | null) {
 
       if (!isMounted) return
 
-      const normalizedClientUser = normalizeUser(clientUser)
-
-      if (normalizedClientUser) {
-        currentUserRef.current = normalizedClientUser
-        setUser(normalizedClientUser)
+      if (clientUser) {
+        currentUserRef.current = clientUser
+        setUser(clientUser)
 
         if (!didRecoverUserRef.current) {
           didRecoverUserRef.current = true
@@ -77,8 +73,8 @@ export function useSetUser(user: User | null) {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange((event, session) => {
       const previousUser = currentUserRef.current
-      const nextUser = normalizeUser(session?.user)
-      const previousUserSignature = JSON.stringify(normalizeUser(previousUser))
+      const nextUser = session?.user ?? null
+      const previousUserSignature = JSON.stringify(previousUser)
       const nextUserSignature = JSON.stringify(nextUser)
 
       if (event === "SIGNED_OUT") {
@@ -104,7 +100,6 @@ export function useSetUser(user: User | null) {
         (event === "SIGNED_IN" && previousUser?.id !== nextUser.id) ||
         (event === "USER_UPDATED" && previousUserSignature !== nextUserSignature)
 
-      // Sync anonymous localStorage views to DB when a new user signs in
       if (event === "SIGNED_IN" && previousUser?.id !== nextUser.id) {
         syncAnonCategoryViews()
       }
