@@ -14,7 +14,7 @@ import useRatedProductsStore from "@/store/user/ratedProductsStore"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
-import { getProductPrimaryImageUrl, pt, toProductLocale } from "@/utils/product"
+import { getProductPrimaryImageUrl, toProductLocale } from "@/utils/product"
 
 interface PopularProductCardProps {
   product: TProductDB
@@ -25,7 +25,7 @@ interface PopularProductCardProps {
 // Heart (like) shows for users who have NOT bought it; stars (rate) show for users who HAVE bought it.
 export function PopularProductCard({ product, locale }: PopularProductCardProps) {
   const t = useScopedI18n("product")
-  const translation = pt(product, toProductLocale(locale))
+  const translation = product.translations[toProductLocale(locale)] ?? product.translations.fi
   const imageUrl = getProductPrimaryImageUrl(product)
 
   const { purchasedProductIds } = usePurchasedProductsStore()

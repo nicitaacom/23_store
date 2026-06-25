@@ -79,9 +79,6 @@ export function normalizeProductTranslations(value: unknown): ProductTranslation
   }
 }
 
-export const pt = (product: TProductDB, locale: ProductLocale) =>
-  product.translations[locale] ?? product.translations.fi
-
 export function getProductGalleryImages(product: Pick<TProductDB, "img_url">) {
   const images = normalizeProductImageUrls(product.img_url)
   return images.length ? images : ["/placeholder.jpg"]

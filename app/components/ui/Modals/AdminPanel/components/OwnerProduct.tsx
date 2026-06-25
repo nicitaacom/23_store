@@ -2,7 +2,6 @@
 
 import { useCurrentLocale } from "@/locales/client"
 import { TProductDB } from "@/ts/product/TProductDB"
-import { pt } from "@/utils/product"
 import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
 
 import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
@@ -12,7 +11,7 @@ import { VariantsForm } from "./VariantsForm"
 
 export function OwnerProduct({ ...ownerProduct }: TProductDB) {
   const locale = useCurrentLocale()
-  const translation = pt(ownerProduct, locale)
+  const translation = ownerProduct.translations[locale] ?? ownerProduct.translations.fi
   const { ref, isVisible } = useLazyVisible()
 
   return (

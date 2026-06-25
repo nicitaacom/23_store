@@ -6,7 +6,7 @@ import { BiArrowBack, BiChevronRight } from "react-icons/bi"
 
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getScopedI18n } from "@/locales/server"
-import { pt, toProductLocale } from "@/utils/product"
+import { toProductLocale } from "@/utils/product"
 import { normalizeProduct } from "@/utils/productVariants"
 import { ManageProductView } from "./ManageProductView"
 
@@ -35,7 +35,7 @@ const getProductById = cache(async (productId: string) => {
 export async function generateMetadata({ params: paramsPromise }: ManageProductPageProps): Promise<Metadata> {
   const params = await paramsPromise
   const product = await getProductById(params.productId)
-  const translation = product ? pt(product, toProductLocale(params.locale)) : null
+  const translation = product ? product.translations[toProductLocale(params.locale)] ?? product.translations.fi : null
 
   return {
     title: translation ? `Manage ${translation.title} - Joki` : "Manage product - Joki",
@@ -47,7 +47,7 @@ export default async function ManageProductPage({ params: paramsPromise }: Manag
   const params = await paramsPromise
   const t = await getScopedI18n("product")
   const product = await getProductById(params.productId)
-  const translation = product ? pt(product, toProductLocale(params.locale)) : null
+  const translation = product ? product.translations[toProductLocale(params.locale)] ?? product.translations.fi : null
   const supabase = await supabaseServer()
   const {
     data: { user },

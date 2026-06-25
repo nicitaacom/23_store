@@ -16,7 +16,6 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { createCartProductKey, getProductPriceForVariant } from "@/utils/cartProducts"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
-import { pt } from "@/utils/product"
 import { ManageProductButton } from "../../components/ManageProductButton"
 import { RequestReplanishmentButton } from "../../components/Product/RequestReplanishmentButton"
 import { ProductLikeButton } from "../../components/ProductLikeButton"
@@ -47,7 +46,7 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
 
   const { handleSelectVariant, handleSelectImage } = useProductDetailViewHandlers({ product, isAuthenticated, variants, galleryImages })
 
-  const translation = pt(product, locale)
+  const translation = product.translations[locale] ?? product.translations.fi
   const isOutOfStock = (product.on_stock ?? 0) <= 0
   const isLowStock = (product.on_stock ?? 0) < 50 && !isOutOfStock
   const selectedPrice = getProductPriceForVariant(product, selectedVariant?.id)

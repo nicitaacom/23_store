@@ -15,7 +15,7 @@ import { TProductAfterDB } from "../ts/product/TProductAfterDB"
 import { getURL } from "@/utils/helpers"
 import { twMerge } from "tailwind-merge"
 import { Fragment } from "react"
-import { pt, toProductLocale } from "@/utils/product"
+import { toProductLocale } from "@/utils/product"
 
 interface CheckEmailProps {
   products: TProductAfterDB[]
@@ -100,7 +100,7 @@ export const CheckEmail = ({
                 marginBottom: "16px",
               }}>
               {products?.map((product, index) => {
-                const translation = pt(product, productLocale)
+                const translation = product.translations[productLocale] ?? product.translations.fi
 
                 return (
                   <Section

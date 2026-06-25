@@ -14,7 +14,6 @@ import { Tailwind } from "@react-email/tailwind"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "../utils/currencyFormatter"
 import { getURL } from "@/utils/helpers"
-import { pt } from "@/utils/product"
 
 interface RequestReplanishmentEmailProps {
   product: TProductDB
@@ -26,7 +25,7 @@ interface RequestReplanishmentEmailProps {
  */
 export const RequestReplanishmentEmail = ({ product }: RequestReplanishmentEmailProps) => {
   const previewText = `User requested replanishment`
-  const translation = pt(product, "en")
+  const translation = product.translations.en ?? product.translations.fi
   return (
     <Tailwind
       config={{

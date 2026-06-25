@@ -19,7 +19,6 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
-import { pt } from "@/utils/product"
 import { Button } from "@/components/ui"
 
 interface ManageProductViewProps {
@@ -56,7 +55,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const locale = useCurrentLocale()
   const router = useRouter()
   const toast = useToast()
-  const currentTranslation = pt(product, locale)
+  const currentTranslation = product.translations[locale] ?? product.translations.fi
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [previewImageIndex, setPreviewImageIndex] = useState(0)

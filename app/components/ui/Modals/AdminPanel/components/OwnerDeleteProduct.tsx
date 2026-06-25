@@ -2,7 +2,6 @@
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { useCurrentLocale } from "@/locales/client"
-import { pt } from "@/utils/product"
 import { twMerge } from "tailwind-merge"
 
 import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
@@ -18,7 +17,7 @@ interface OwnerDeleteProductProps extends TProductDB {
 
 export function OwnerDeleteProduct({ onRequestDelete, isBulkMode, isSelected, onToggleSelect, ...ownerProduct }: OwnerDeleteProductProps) {
   const locale = useCurrentLocale()
-  const translation = pt(ownerProduct, locale)
+  const translation = ownerProduct.translations[locale] ?? ownerProduct.translations.fi
   const { ref, isVisible } = useLazyVisible()
 
   return (

@@ -4,7 +4,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { ImageWithFallback } from "@/components/ui"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
-import { getProductPrimaryImageUrl, pt, toProductLocale } from "@/utils/product"
+import { getProductPrimaryImageUrl, toProductLocale } from "@/utils/product"
 
 interface PopularProductsPreviewListProps {
   products: TProductDB[]
@@ -44,7 +44,7 @@ export function PopularProductsPreviewList({
       <div
         className={`grid grid-cols-2 gap-3 tablet:grid-cols-3 laptop:grid-cols-4 ${compact ? "desktop:grid-cols-4" : "desktop:grid-cols-5"}`}>
         {products.map(product => {
-          const translation = pt(product, productLocale)
+          const translation = product.translations[productLocale] ?? product.translations.fi
           const imageUrl = getProductPrimaryImageUrl(product)
           const isInStock = (product.on_stock || 0) > 0
           const isHotProduct = hotProductIds.includes(product.id)

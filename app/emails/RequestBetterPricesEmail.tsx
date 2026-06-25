@@ -8,7 +8,6 @@ import { Text } from "@react-email/text"
 import { Hr } from "@react-email/hr"
 import { Img } from "@react-email/img"
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
-import { pt } from "@/utils/product"
 
 interface RequestBetterPricesEmailProps {
   products: TProductAfterDB[]
@@ -32,7 +31,7 @@ export function RequestBetterPricesEmail({ products, totalPrice, userEmail }: Re
           <Section style={productsSection}>
             <Heading style={h2}>Products:</Heading>
             {products.map((product, index) => {
-              const translation = pt(product, "en")
+              const translation = product.translations.en ?? product.translations.fi
 
               return (
                 <div key={product.id} style={productCard}>

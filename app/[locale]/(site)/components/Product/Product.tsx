@@ -7,7 +7,7 @@ import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
-import { getProductGalleryImages, pt } from "@/utils/product"
+import { getProductGalleryImages } from "@/utils/product"
 import { getAvailableStock, getProductPriceForVariant } from "@/utils/cartProducts"
 import { ProductQuantity } from "../ProductQuantity"
 import { ProductButtons } from "../ProductButtons"
@@ -37,7 +37,7 @@ type Props = TProductDB & {
 function Product({ ...product }: Props) {
   const locale = useCurrentLocale()
   const t = useScopedI18n("product")
-  const translation = pt(product, locale)
+  const translation = product.translations[locale] ?? product.translations.fi
   const variants = useMemo(
     () => product.variants?.filter(variant => variant.label && variant.image_url) || [],
     [product.variants],
