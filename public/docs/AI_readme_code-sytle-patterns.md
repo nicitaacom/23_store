@@ -1,6 +1,8 @@
 # AI Code Style Guide
 
 Use this as the default style when generating code for this project.
+Your (AI) biggest issue right now is not following this - so read this in full and follow code patterns.
+DO NOT SKIP. DO NOT RUSH through this.
 
 ## All docs
 

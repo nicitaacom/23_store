@@ -1,11 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 
 import { TProductDB } from "@/ts/product/TProductDB"
+import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import Products from "./Products"
-
-const ANON_VIEWS_KEY = "23_category_views_anon"
 
 function sortByViews(products: TProductDB[], views: Record<string, number>) {
   const topIds = Object.entries(views)
@@ -30,17 +29,10 @@ interface SortedProductsProps {
 }
 
 export function SortedProducts({ products, serverViews }: SortedProductsProps) {
-  const [anonViews, setAnonViews] = useState<Record<string, number>>({})
   const [mounted, setMounted] = useState(false)
+  const { views: anonViews } = useAnonCategoryViewsStore()
 
-  useEffect(() => {
-    if (Object.keys(serverViews).length > 0) return // auth path — serverViews already populated
-    try {
-      const raw = localStorage.getItem(ANON_VIEWS_KEY)
-      if (raw) setAnonViews(JSON.parse(raw))
-    } catch { /* ignore */ }
-    setMounted(true)
-  }, [serverViews])
+  useEffect(() => { setMounted(true) }, [])
 
   const sorted = useMemo(() => {
     if (Object.keys(serverViews).length > 0) return sortByViews(products, serverViews)

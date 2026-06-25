@@ -8,8 +8,7 @@ import { Button } from ".."
 import { useScopedI18n } from "@/locales/client"
 import { twMerge } from "tailwind-merge"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
-
-const ANON_VIEWS_KEY = "23_category_views_anon"
+import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 
 interface AddToCartButtonProps {
   productId: string
@@ -25,21 +24,13 @@ export function AddToCartButton({ productId, categoryId, className, variantId }:
   const t = useScopedI18n("product")
   const cartStore = useCartStore()
   const { user } = useUserStore()
+  const { addView } = useAnonCategoryViewsStore()
 
   const handleAddToCart = useCallback(() => {
     cartStore.increaseProductQuantity(productId, variantId ?? null)
-    // Record category preference on first add (delta 3)
     if (!categoryId) return
-    if (user) {
-      categoryViewsSDK.incrementDBCategoryView({ category_id: categoryId, delta: 3 }).catch(() => {})
-    } else {
-      try {
-        const raw = localStorage.getItem(ANON_VIEWS_KEY)
-        const existing: Record<string, number> = raw ? JSON.parse(raw) : {}
-        existing[categoryId] = (existing[categoryId] ?? 0) + 3
-        localStorage.setItem(ANON_VIEWS_KEY, JSON.stringify(existing))
-      } catch { /* ignore */ }
-    }
+    if (user) categoryViewsSDK.incrementDBCategoryView({ category_id: categoryId, delta: 3 }).catch(() => {})
+    else addView(categoryId, 3)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId, variantId, categoryId, user])
 

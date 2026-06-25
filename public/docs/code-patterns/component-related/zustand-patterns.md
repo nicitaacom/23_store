@@ -18,6 +18,7 @@ export const useState = create<State>()(set => ({
 }))
 ```
 
+s
 Example of zustand store (persist)
 
 ```ts

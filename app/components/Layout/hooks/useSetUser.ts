@@ -6,17 +6,14 @@ import supabaseClient from "@/libs/supabase/supabaseClient"
 import useUserStore from "@/store/user/userStore"
 import { normalizeUser } from "@/utils/user"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
-
-const ANON_VIEWS_KEY = "23_category_views_anon"
+import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 
 async function syncAnonCategoryViews() {
   try {
-    const raw = localStorage.getItem(ANON_VIEWS_KEY)
-    if (!raw) return
-    const views: Record<string, number> = JSON.parse(raw)
+    const { views, clearViews } = useAnonCategoryViewsStore.getState()
     if (Object.keys(views).length === 0) return
     await categoryViewsSDK.syncDBCategoryViews({ views })
-    localStorage.removeItem(ANON_VIEWS_KEY)
+    clearViews()
   } catch { /* ignore — non-critical */ }
 }
 

@@ -6,11 +6,10 @@ import { twMerge } from "tailwind-merge"
 
 import { TCategory } from "@/ts/categories/TCategory"
 import { useCategoryPreferencesStore } from "@/store/categories/useCategoryPreferencesStore"
+import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import { useSupportPrefilledMessage } from "@/store/ui/useSupportPrefilledMessage"
-
-const ANON_VIEWS_KEY = "23_category_views_anon"
 
 interface CategoryPillBarProps {
   categories: TCategory[]
@@ -28,22 +27,23 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
   // sessionViews: optimistic local increments during this session (for immediate pill reorder feedback)
   const [sessionViews, setSessionViews] = useState<Record<string, number>>({})
   const { getSortedCategories } = useCategoryPreferencesStore()
+  const { addView } = useAnonCategoryViewsStore()
+
   const { openDropdown } = useSupportDropdown()
   const { set: setPrefilledMessage } = useSupportPrefilledMessage()
 
   const activePillRef = useRef<HTMLButtonElement | null>(null)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (!mounted) return
     activePillRef.current?.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" })
   }, [mounted, activeCategoryId])
 
-  const rootCategories = useMemo(
-    () => categories.filter(c => c.parent_id === null),
-    [categories],
-  )
+  const rootCategories = useMemo(() => categories.filter(c => c.parent_id === null), [categories])
 
   // Merge serverViews with sessionViews for pill ordering
   const mergedViews = useMemo(() => {
@@ -71,20 +71,9 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
 
     if (!categoryId) return
 
-    // Optimistic local increment for immediate pill reorder
     setSessionViews(prev => ({ ...prev, [categoryId]: (prev[categoryId] ?? 0) + 1 }))
-
-    if (isAuthenticated) {
-      categoryViewsSDK.incrementDBCategoryView({ category_id: categoryId, delta: 1 }).catch(() => {})
-    } else {
-      // Write to anonymous localStorage
-      try {
-        const raw = localStorage.getItem(ANON_VIEWS_KEY)
-        const existing: Record<string, number> = raw ? JSON.parse(raw) : {}
-        existing[categoryId] = (existing[categoryId] ?? 0) + 1
-        localStorage.setItem(ANON_VIEWS_KEY, JSON.stringify(existing))
-      } catch { /* ignore */ }
-    }
+    if (isAuthenticated) categoryViewsSDK.incrementDBCategoryView({ category_id: categoryId, delta: 1 }).catch(() => {})
+    else addView(categoryId, 1)
   }
 
   const handleRequestCategory = () => {
