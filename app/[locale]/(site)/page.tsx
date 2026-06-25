@@ -165,7 +165,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
                   {t("no_products_found")}
                 </div>
               ) : (
-                <SortedProducts products={entries} serverViews={serverViews} />
+                <SortedProducts products={entries} serverViews={serverViews} searchQuery={searchQuery} />
               )}
             </section>
 

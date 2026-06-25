@@ -26,19 +26,21 @@ function sortByViews(products: TProductDB[], views: Record<string, number>) {
 interface SortedProductsProps {
   products: TProductDB[]
   serverViews: Record<string, number>
+  searchQuery?: string
 }
 
-export function SortedProducts({ products, serverViews }: SortedProductsProps) {
+export function SortedProducts({ products, serverViews, searchQuery }: SortedProductsProps) {
   const [mounted, setMounted] = useState(false)
   const { views: anonViews } = useAnonCategoryViewsStore()
 
   useEffect(() => { setMounted(true) }, [])
 
   const sorted = useMemo(() => {
+    if (searchQuery) return products
     if (Object.keys(serverViews).length > 0) return sortByViews(products, serverViews)
     if (!mounted) return products
     return sortByViews(products, anonViews)
-  }, [products, serverViews, anonViews, mounted])
+  }, [products, serverViews, anonViews, mounted, searchQuery])
 
   return <Products products={sorted} />
 }
