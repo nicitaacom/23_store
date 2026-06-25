@@ -195,6 +195,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                   </div>
                   <button
                     type="button"
+                    tabIndex={-1}
                     onClick={() => removeDraft(draft.id)}
                     disabled={isLoading}
                     title={t("remove")}
@@ -215,6 +216,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                         <button
                           key={`${url}-${index}`}
                           type="button"
+                          tabIndex={-1}
                           onClick={() => updateDraft(draft.id, { image_url: url })}
                           disabled={isLoading}
                           className={twMerge(
