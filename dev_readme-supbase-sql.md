@@ -192,19 +192,6 @@ BEGIN
   END IF;
 END $$;
 
--- Atomic category view increment — avoids race conditions (same pattern as increment_product_likes)
--- p_delta: weight of the action (1 = page visit / pill click, 3 = like / add-to-cart)
-CREATE OR REPLACE FUNCTION public.increment_category_view(p_user_id TEXT, p_category_id UUID, p_delta INTEGER DEFAULT 1)
-RETURNS void LANGUAGE sql AS $$
-  INSERT INTO public."23_category_views" (user_id, category_id, view_count, last_viewed_at)
-  VALUES (p_user_id, p_category_id, p_delta, NOW())
-  ON CONFLICT (user_id, category_id)
-  DO UPDATE SET
-    view_count = "23_category_views".view_count + p_delta,
-    last_viewed_at = NOW();
-$$;
-GRANT EXECUTE ON FUNCTION public.increment_category_view(TEXT, UUID, INTEGER) TO anon, authenticated;
-
 -- 🛒 Products Table
 CREATE TABLE IF NOT EXISTS public."23_products" (
   price_id VARCHAR NOT NULL,
@@ -333,11 +320,10 @@ END $$;
 
 ## SQL query for functions
 
+> Import restore order: `23_users → 23_users_cart → 23_categories → 23_category_views → 23_products → 23_tickets → 23_messages`
+
 ```sql
--- =================================== 🗄️ DB BACKUP FUNCTION ===================================
--- Returns a JSON snapshot of every 23_-prefixed table (one key per table).
--- Called from the export route via supabaseAdmin.rpc('backup_23_tables').
--- SECURITY DEFINER so it can read past RLS; the API route already enforces ADMIN before calling.
+-- =================================== 🗄️ DB BACKUP ===================================
 
 CREATE OR REPLACE FUNCTION public.backup_23_tables()
 RETURNS jsonb
@@ -356,22 +342,12 @@ AS $$
   );
 $$;
 
--- Lock it down: only the service role (used by supabaseAdmin) may execute it.
 REVOKE ALL ON FUNCTION public.backup_23_tables() FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.backup_23_tables() FROM anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.backup_23_tables() TO service_role;
-```
 
-> Import is done in JS (the import route upserts each table with `supabaseAdmin` in FK-safe order:
-> `23_users → 23_users_cart → 23_categories → 23_category_views → 23_products → 23_tickets → 23_messages`), so no SQL function is
-> needed for restore.
-
-```sql
 -- =================================== ❤️ PRODUCT LIKES / ⭐ RATINGS ===================================
--- Atomic counter bumps so concurrent likes/ratings don't lose updates. Per-user dedup is client-side
--- (localStorage), so these just move the counters. Anyone may call them (likes/ratings are public).
 
--- like (delta = +1) / unlike (delta = -1); likes_count never goes below 0
 CREATE OR REPLACE FUNCTION public.increment_product_likes(p_id VARCHAR, delta INTEGER)
 RETURNS INTEGER
 LANGUAGE sql
@@ -382,7 +358,6 @@ AS $$
   RETURNING likes_count;
 $$;
 
--- add one rating (stars 1-5): bumps the sum and the count
 CREATE OR REPLACE FUNCTION public.add_product_rating(p_id VARCHAR, stars INTEGER)
 RETURNS public."23_products"
 LANGUAGE sql
@@ -396,6 +371,22 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.increment_product_likes(VARCHAR, INTEGER) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.add_product_rating(VARCHAR, INTEGER) TO anon, authenticated;
+
+-- =================================== 👁️ CATEGORY VIEWS ===================================
+
+CREATE OR REPLACE FUNCTION public.increment_category_view(p_user_id TEXT, p_category_id UUID, p_delta INTEGER DEFAULT 1)
+RETURNS void
+LANGUAGE sql
+AS $$
+  INSERT INTO public."23_category_views" (user_id, category_id, view_count, last_viewed_at)
+  VALUES (p_user_id, p_category_id, p_delta, NOW())
+  ON CONFLICT (user_id, category_id)
+  DO UPDATE SET
+    view_count = "23_category_views".view_count + p_delta,
+    last_viewed_at = NOW();
+$$;
+
+GRANT EXECUTE ON FUNCTION public.increment_category_view(TEXT, UUID, INTEGER) TO anon, authenticated;
 ```
 
 <br/>
