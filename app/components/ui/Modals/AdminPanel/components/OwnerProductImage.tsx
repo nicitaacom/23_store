@@ -11,14 +11,14 @@ interface OwnerProductImageProps {
 }
 
 export const OWNER_PRODUCT_MEDIA_WRAPPER_CLASSNAME =
-  "mx-auto aspect-[4/3] w-full max-w-[480px] overflow-hidden rounded bg-foreground/[0.06] tablet:mx-0 tablet:max-w-none tablet:w-[233px] laptop:w-[267px] desktop:w-[333px]"
+  "mx-auto w-full max-w-[480px] overflow-hidden rounded bg-foreground/[0.06] tablet:mx-0 tablet:max-w-none tablet:w-[233px] laptop:w-[267px] desktop:w-[333px]"
 
 export function OwnerProductImage({ imgUrl, className, alt }: OwnerProductImageProps) {
   return (
-    <figure className={twMerge("relative h-full w-full overflow-hidden bg-foreground/[0.06]", className)}>
+    <figure className={twMerge("relative w-full overflow-hidden bg-foreground/[0.06]", className)}>
       <ImageWithFallback
         key={imgUrl}
-        className="h-full w-full max-w-full object-contain"
+        className="h-auto w-full max-w-full object-contain"
         showLabel
         fallbackWrapperClassName="absolute inset-0 flex flex-col items-center justify-center gap-1.5"
         fallbackClassName="h-4/5 w-auto"

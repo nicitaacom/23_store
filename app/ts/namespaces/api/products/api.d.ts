@@ -92,6 +92,14 @@ declare module API {
     id: string
   }
 
+  type ProductsTranslateDescriptionRequest = {
+    productId: string
+    description: string
+    translations: ProductsTranslations
+  }
+
+  type ProductsTranslateDescriptionResponse = { product: ProductsUpdateResponse["product"] } | { error: string }
+
   type ProductsPopularRequest = {
     start: number
     end: number

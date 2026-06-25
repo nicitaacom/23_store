@@ -56,6 +56,13 @@ export class ProductsSDK extends BaseSDK {
     )
   }
 
+  async translateDescription(request: API.ProductsTranslateDescriptionRequest) {
+    return this.postJson<API.ProductsTranslateDescriptionRequest, API.ProductsTranslateDescriptionResponse>(
+      "/api/products/translate-description",
+      request,
+    )
+  }
+
   async deleteProduct(request: API.ProductsDeleteRequest) {
     return this.postJson<API.ProductsDeleteRequest, API.ProductsDeleteResponse>(
       "/api/products/delete",
