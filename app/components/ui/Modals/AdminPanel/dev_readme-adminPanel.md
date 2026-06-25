@@ -142,6 +142,46 @@ space between the underline tabs doesn't trip the modal's click-outside handler 
 [OrganicCanvasBackground](../../../OrganicCanvasBackground.tsx), which now forwards DOM props so the attribute
 reaches its root div. Tabs are flat underline-style with a unified brand accent + `FiPlus` on Add.
 
+## 3b. FormatTitleForm — inline edit pattern
+
+[components/FormatTitleForm.tsx](components/FormatTitleForm.tsx)
+
+- Click pencil/row → shows input with **Save / Cancel** buttons
+- **Enter** → native form submit (no document keydown handler needed — input is inside `<form>`)
+- **Escape** → cancel via document `keydown` listener (capture phase, `isEditingRef` guards it)
+- **Click outside** → `handleInputBlur` with 150ms delay checks `containerRef.contains(activeElement)` — cancels if focus left
+- **Save** → calls `productsSDK.translateField({ field: "title", ... })` — translates to all 4 locales
+- **AGAINST onBlur auto-save**: RHF `register()` always calls its own `onBlur` which triggers field validation regardless of form `mode`. Showed "required" error just from clicking the input. Fixed by Cancel-on-blur instead of save-on-blur.
+
+## 3c. FormatDescriptionForm — inline edit pattern
+
+[components/FormatDescriptionForm.tsx](components/FormatDescriptionForm.tsx)
+
+- Click row → shows `MarkdownEditor` + `RichTextToolbar` + **Save / Cancel** buttons
+- **Save** → `productsSDK.translateField({ field: "description", ... })` — translates all 4 locales
+- **Cancel** → resets value to `currentTranslation.description`, closes edit mode
+- **AGAINST onBlur auto-save**: Tiptap's paste handling briefly blurs the editor → old `onBlur={handleSave}` closed edit mode mid-paste. Removed entirely.
+- **AGAINST Enter-to-save for description**: multiline text editor — Enter inserts a new line. Save button is the only save trigger (works on tablets too).
+- `valueRef.current = value` pattern used so `handleSave` always reads latest value (avoids stale closure from async handlers).
+
+## 3d. OwnerProduct — group hover scope
+
+[components/OwnerProduct.tsx](components/OwnerProduct.tsx)
+
+`group` class is on the **image container div** only, not the `<article>`. This ensures `group-hover:opacity-100` on the image nav arrows only fires when hovering over the image — not when hovering over the description editor or variants section below.
+
+```
+<article>                          ← NO group here
+  <div className="group ...">      ← group scoped to image column only
+    <OwnerProductImageSlider />    ← nav arrows use group-hover:opacity-100
+  </div>
+  <div>                            ← hover here does NOT trigger image arrows
+    <FormatDescriptionForm />
+    ...
+  </div>
+</article>
+```
+
 ## 4. TODO / decided against
 
 - **AGAINST: auto-decrement variant stock on purchase.** Chosen manual-only to keep the checkout path
