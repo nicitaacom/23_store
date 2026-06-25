@@ -12,7 +12,6 @@ import {
   PRODUCT_TITLE_INVALID_CHARACTER_REGEX,
   PRODUCT_TITLE_HAS_LETTER_REGEX,
   PRODUCT_TITLE_MUST_START_REGEX,
-  PRODUCT_TITLE_PATTERN,
   getInvalidCharacterDetails,
 } from "@/utils/productValidation"
 import { formatGroupedNumberInput } from "@/utils/numberFormatter"
@@ -86,10 +85,6 @@ export function ProductInput({
   const validationRules: ValidationRules = {
     title: {
       requiredMessage: t("this_field_is_required"),
-      pattern: {
-        value: PRODUCT_TITLE_PATTERN,
-        message: t("title_required"),
-      },
     },
     subTitle: {
       requiredMessage: t("this_field_is_required"),
