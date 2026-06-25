@@ -87,6 +87,10 @@ span {
   color: hsl(var(--subTitle));
 }
 
+.ProseMirror p {
+  color: inherit;
+}
+
 body {
   list-style: none;
   min-height: -webkit-fill-available;
