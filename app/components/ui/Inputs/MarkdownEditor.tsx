@@ -81,7 +81,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
     return (
       <div
         className={twMerge(
-          "relative rounded border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white transition-colors duration-150 focus-within:border-white/20 focus-within:bg-white/[0.06]",
+          "relative overflow-hidden rounded border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white transition-colors duration-150 focus-within:border-white/20 focus-within:bg-white/[0.06]",
           disabled && "opacity-50 pointer-events-none",
         )}>
         {isEmpty && placeholder && (
