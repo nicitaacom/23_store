@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import ImageUploading, { ImageListType } from "react-images-uploading"
 import { BiPlus, BiTrash, BiStar, BiUpload } from "react-icons/bi"
@@ -28,9 +28,15 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
   const toast = useToast()
   const { isLoading, setIsLoading } = useLoading()
   const { replaceProduct, updateProduct } = useOwnerProductsStore()
-const [newImages, setNewImages] = useState<ImageListType>([])
+  const [newImages, setNewImages] = useState<ImageListType>([])
   const [pendingCount, setPendingCount] = useState(0)
-  const [deletingIndices, setDeletingIndices] = useState<Set<number>>(new Set())
+  const [deletingUrls, setDeletingUrls] = useState<Set<string>>(new Set())
+
+  // Single source of truth for pending delete state — avoids race conditions
+  // when multiple images are deleted rapidly before any API call resolves.
+  const pendingUrlsRef = useRef<string[] | null>(null)
+  const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const snapshotRef = useRef<string[]>([])
 
   // Warn on navigation while a save is in flight
   useEffect(() => {
@@ -40,30 +46,45 @@ const [newImages, setNewImages] = useState<ImageListType>([])
     return () => window.removeEventListener("beforeunload", handler)
   }, [pendingCount])
 
-  async function removeExistingImage(index: number) {
-    if (deletingIndices.has(index)) return
-    setDeletingIndices(prev => new Set(prev).add(index))
+  function removeExistingImage(url: string) {
+    if (deletingUrls.has(url)) return
 
-    const snapshot = [...imgUrl]
-    const nextUrls = imgUrl.filter((_, i) => i !== index)
-
-    // Optimistic update
-    updateProduct(id, p => ({ ...p, img_url: nextUrls }))
-
-    setPendingCount(c => c + 1)
-
-    try {
-      const response = await productsSDK.updateProduct({ productId: id, images: nextUrls })
-      if (typeof response === "string") throw new Error(response)
-      replaceProduct(id, response.product)
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      toast.show("error", "Error deleting product image", errorMessage)
-      updateProduct(id, p => ({ ...p, img_url: snapshot }))
-    } finally {
-      setPendingCount(c => c - 1)
-      setDeletingIndices(prev => { const next = new Set(prev); next.delete(index); return next })
+    // First delete in a batch — capture snapshot of current server state
+    if (pendingUrlsRef.current === null) {
+      snapshotRef.current = [...imgUrl]
+      pendingUrlsRef.current = [...imgUrl]
     }
+
+    // Remove from the accumulated pending list
+    pendingUrlsRef.current = pendingUrlsRef.current.filter(u => u !== url)
+    setDeletingUrls(prev => new Set(prev).add(url))
+
+    // Optimistically show the removal immediately
+    updateProduct(id, p => ({ ...p, img_url: pendingUrlsRef.current! }))
+
+    // Debounce: wait for rapid consecutive deletes before sending API call
+    if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current)
+    deleteTimerRef.current = setTimeout(async () => {
+      const nextUrls = pendingUrlsRef.current!
+      const snapshot = snapshotRef.current
+      pendingUrlsRef.current = null
+      deleteTimerRef.current = null
+
+      setPendingCount(c => c + 1)
+      try {
+        const response = await productsSDK.updateProduct({ productId: id, images: nextUrls })
+        if (typeof response === "string") throw new Error(response)
+        replaceProduct(id, response.product)
+        setDeletingUrls(new Set())
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        toast.show("error", "Error deleting product image", errorMessage)
+        updateProduct(id, p => ({ ...p, img_url: snapshot }))
+        setDeletingUrls(new Set())
+      } finally {
+        setPendingCount(c => c - 1)
+      }
+    }, 400)
   }
 
   async function saveImages(nextUrls: string[], filesToUpload: ImageListType) {
@@ -121,9 +142,9 @@ const [newImages, setNewImages] = useState<ImageListType>([])
     ...newImages.map(img => img.data_url!),
   ]
 
-  function removeImage(index: number) {
-    if (index < imgUrl.length) {
-      void removeExistingImage(index)
+  function removeImage(url: string, index: number) {
+    if (!url.startsWith("data:")) {
+      void removeExistingImage(url)
     } else {
       const newIndex = index - imgUrl.length
       setNewImages(prev => prev.filter((_, i) => i !== newIndex))
@@ -215,8 +236,8 @@ const [newImages, setNewImages] = useState<ImageListType>([])
                     )}
                     <button
                       type="button"
-                      disabled={deletingIndices.has(index)}
-                      onClick={e => { e.stopPropagation(); removeImage(index) }}
+                      disabled={deletingUrls.has(url)}
+                      onClick={e => { e.stopPropagation(); removeImage(url, index) }}
                       className="rounded bg-danger/70 p-1 text-white hover:bg-danger disabled:cursor-not-allowed disabled:opacity-40"
                       title="Remove">
                       <BiTrash size={12} />

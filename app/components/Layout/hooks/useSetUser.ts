@@ -13,7 +13,9 @@ async function syncAnonCategoryViews() {
     if (Object.keys(views).length === 0) return
     await categoryViewsSDK.syncDBCategoryViews({ views })
     clearViews()
-  } catch { /* ignore — non-critical */ }
+  } catch {
+    /* ignore — non-critical */
+  }
 }
 
 export function useSetUser(user: User | null) {
@@ -66,7 +68,7 @@ export function useSetUser(user: User | null) {
     }
 
     syncUserFromClient()
-  }, [clearUser, isMounted, router, setUser, user])
+  }, [isMounted, router, user])
 
   useEffect(() => {
     const {
