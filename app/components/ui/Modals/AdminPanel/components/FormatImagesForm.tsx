@@ -215,7 +215,7 @@ const [newImages, setNewImages] = useState<ImageListType>([])
                     )}
                     <button
                       type="button"
-                      disabled={isLoading || deletingIndices.has(index)}
+                      disabled={deletingIndices.has(index)}
                       onClick={e => { e.stopPropagation(); removeImage(index) }}
                       className="rounded bg-danger/70 p-1 text-white hover:bg-danger disabled:cursor-not-allowed disabled:opacity-40"
                       title="Remove">
