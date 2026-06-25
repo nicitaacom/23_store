@@ -55,7 +55,7 @@ If no category fits at all, respond with the word null.
 Categories (id → name):
 ${JSON.stringify(categoryList)}`
 
-  const userPrompt = `Product title: "${trimmedTitle}"${body.description ? `\nProduct description: "${body.description.slice(0, 500)}"` : ""}`
+  const userPrompt = `Product title: "${trimmedTitle}"`
 
   try {
     const completion = await openai.chat.completions.create({

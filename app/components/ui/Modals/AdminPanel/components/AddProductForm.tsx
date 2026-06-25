@@ -95,6 +95,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const dragZone = useRef<HTMLButtonElement | null>(null)
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
   const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastSuggestedKeyRef = useRef<string | null>(null)
 
   const { categories: allCategories, hydrate: hydrateCategories } = useCategoriesStore()
   const previousImageIndexRef = useRef(0)
@@ -205,10 +206,14 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     if (trimmed.length < 10) return
     if (!allCategories.length) return
 
+    // Skip if we already fired for this exact title (e.g. allCategories loaded late)
+    if (lastSuggestedKeyRef.current === trimmed) return
+
     suggestDebounceRef.current = setTimeout(async () => {
+      lastSuggestedKeyRef.current = trimmed
       setIsSuggestingCategory(true)
       try {
-        const result = await aiSDK.suggestCategory({ title: trimmed, description: descriptionValue?.trim() })
+        const result = await aiSDK.suggestCategory({ title: trimmed })
         if ("category_id" in result && result.category_id) {
           const found = allCategories.find(c => c.id === result.category_id)
           if (found) {
@@ -223,7 +228,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     return () => {
       if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current)
     }
-  }, [titleValue, descriptionValue, allCategories])
+  }, [titleValue, allCategories])
 
   const clearForm = () => {
     reset(EMPTY_PRODUCT_FORM_VALUES)
@@ -231,6 +236,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariants([])
     setActiveImageIndex(0)
     previousImageIndexRef.current = 0
+    lastSuggestedKeyRef.current = null
     setVariantLabel("")
     setVariantPrice("")
     setVariantQuantity("")

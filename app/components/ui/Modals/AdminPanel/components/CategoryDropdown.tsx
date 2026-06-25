@@ -48,6 +48,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
     <div ref={containerRef} className="relative">
       <button
         type="button"
+        tabIndex={-1}
         disabled={disabled}
         onClick={() => setOpen(v => !v)}
         className={twMerge(

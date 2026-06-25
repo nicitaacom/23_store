@@ -9,6 +9,6 @@ declare module API {
   type CategoryViewsSyncRequest = { views: Record<string, number> }
   type CategoryViewsSyncResponse = { ok: boolean } | { error: string }
 
-  type AISuggestCategoryRequest = { title: string; description?: string }
+  type AISuggestCategoryRequest = { title: string }
   type AISuggestCategoryResponse = { category_id: string | null } | { error: string }
 }
