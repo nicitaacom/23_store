@@ -95,7 +95,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [autoAssignedName, setAutoAssignedName] = useState<string | null>(null)
   const [isSuggestingCategory, setIsSuggestingCategory] = useState(false)
   const dragZone = useRef<HTMLButtonElement | null>(null)
-  const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
+  const descriptionRef = useRef<HTMLDivElement | null>(null)
   const wrapRef = useRef<((marker: string) => void) | null>(null)
   const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSuggestedKeyRef = useRef<string | null>(null)
