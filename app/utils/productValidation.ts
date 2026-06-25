@@ -1,16 +1,18 @@
 import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 
-export const PRODUCT_TITLE_INVALID_CHARACTER_REGEX = /[^A-Za-z0-9#%$()_+&/,.''\-= |–:]/
-export const PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX = /[^-:.,()#@&%\/"'`~\[\]|><=+!?*_;a-zA-Z0-9\n °]/
-export const PRODUCT_TITLE_HAS_LETTER_REGEX = /[A-Za-z]/
-export const PRODUCT_TITLE_MUST_START_REGEX = /^[A-Za-z0-9]/
+export const PRODUCT_TITLE_INVALID_CHARACTER_REGEX = /[^\p{L}\p{N}#%$()_+&/,.''\-= |–:]/u
+export const PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX = /[^-:.,()#@&%\/"'`~\[\]|><=+!?*_;\p{L}\p{N}\n °]/u
+export const PRODUCT_TITLE_HAS_LETTER_REGEX = /\p{L}/u
+export const PRODUCT_TITLE_MUST_START_REGEX = /^[\p{L}\p{N}]/u
 
 export const PRODUCT_TITLE_PATTERN = new RegExp(
-  `^(?=.*[A-Za-z])[A-Za-z0-9][A-Za-z0-9 |–#%$()_+&/,.''\-=:]{${MIN_PRODUCT_TITLE_LENGTH - 1},${MAX_PRODUCT_TITLE_LENGTH - 1}}$`,
+  `^(?=.*\\p{L})[\\p{L}\\p{N}][\\p{L}\\p{N} |–#%$()_+&/,.''\-=:]{${MIN_PRODUCT_TITLE_LENGTH - 1},${MAX_PRODUCT_TITLE_LENGTH - 1}}$`,
+  "u",
 )
 
 export const PRODUCT_DESCRIPTION_PATTERN = new RegExp(
-  "^[-:.,()#@&%\\/\"'`~\\[\\]|><=+!?*_;a-zA-Z0-9\\n °]{1," + MAX_PRODUCT_DESCRIPTION_LENGTH + "}$",
+  "^[-:.,()#@&%\\/\"'`~\\[\\]|><=+!?*_;\\p{L}\\p{N}\\n °]{1," + MAX_PRODUCT_DESCRIPTION_LENGTH + "}$",
+  "u",
 )
 
 export function getInvalidCharacterContext(value: string, invalidCharacterIndex: number) {
