@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
-import useUserStore from "@/store/user/userStore"
 import { TProductDB } from "@/ts/product/TProductDB"
 
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
@@ -21,9 +20,10 @@ import { AdminPanelDeleteConfirmDialog, PendingDeleteProduct } from "./component
 export interface AdminPanelModalProps {
   ownerProducts: TProductDB[]
   roles: string[]
+  isAuthenticated: boolean
 }
 
-export function AdminPanelModal({ ownerProducts, roles }: AdminPanelModalProps) {
+export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: AdminPanelModalProps) {
   const t = useI18n()
   const router = useRouter()
   const { products: hydratedOwnerProducts, hydrate: hydrateOwnerProducts } = useOwnerProductsStore()
@@ -32,7 +32,6 @@ export function AdminPanelModal({ ownerProducts, roles }: AdminPanelModalProps) 
   const [pendingDeleteProduct, setPendingDeleteProduct] = useState<PendingDeleteProduct | PendingDeleteProduct[] | null>(null)
   const { isLoading } = useLoading()
 
-  const { user } = useUserStore()
   useEffect(() => {
     if (hydratedOwnerProducts.length === 0) {
       hydrateOwnerProducts(ownerProducts)
@@ -40,7 +39,7 @@ export function AdminPanelModal({ ownerProducts, roles }: AdminPanelModalProps) 
   }, [hydrateOwnerProducts, hydratedOwnerProducts.length, ownerProducts])
 
   useEffect(() => {
-    if (!user) {
+    if (!isAuthenticated) {
       router.push("/?modal=AuthModal&variant=login")
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

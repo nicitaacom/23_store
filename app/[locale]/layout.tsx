@@ -61,7 +61,7 @@ export default async function RootLayout({
         <I18nProviderClient locale={locale}>
           <Layout user={normalizedUser}>{children}</Layout>
           <Suspense>
-            <ModalsQueryProvider ownerProducts={ownerProducts ?? []} roles={roles} />
+            <ModalsQueryProvider ownerProducts={ownerProducts ?? []} roles={roles} isAuthenticated={!!normalizedUser} />
           </Suspense>
           <ModalsProvider />
           <ToastProvider />

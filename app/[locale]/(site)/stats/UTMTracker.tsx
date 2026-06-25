@@ -14,7 +14,12 @@ export function UTMTracker({ userId }: { userId: string | undefined }) {
 
     async function trackVisit() {
       await trackVisitAction(trackingUserId, params, currentUrl)
-      const url = window.location.origin + window.location.pathname
+      const remainingParams = new URLSearchParams(window.location.search)
+      for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"]) {
+        remainingParams.delete(key)
+      }
+      const search = remainingParams.toString()
+      const url = window.location.origin + window.location.pathname + (search ? `?${search}` : "")
       window.history.replaceState({}, "", url)
     }
 
