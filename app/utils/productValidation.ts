@@ -14,16 +14,7 @@ export const PRODUCT_DESCRIPTION_PATTERN = new RegExp(
 )
 
 export function getInvalidCharacterContext(value: string, invalidCharacterIndex: number) {
-  const wordsBeforeInvalidCharacter = value
-    .slice(0, invalidCharacterIndex)
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(-2)
-    .join(" ")
-
-  if (wordsBeforeInvalidCharacter) return wordsBeforeInvalidCharacter
-
+  const invalidChar = value[invalidCharacterIndex]
   const wordsAfterInvalidCharacter = value
     .slice(invalidCharacterIndex + 1)
     .trim()
@@ -32,7 +23,17 @@ export function getInvalidCharacterContext(value: string, invalidCharacterIndex:
     .slice(0, 2)
     .join(" ")
 
-  if (wordsAfterInvalidCharacter) return wordsAfterInvalidCharacter
+  if (wordsAfterInvalidCharacter) return `${invalidChar} ${wordsAfterInvalidCharacter}`
+
+  const wordsBeforeInvalidCharacter = value
+    .slice(0, invalidCharacterIndex)
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(-2)
+    .join(" ")
+
+  if (wordsBeforeInvalidCharacter) return `${wordsBeforeInvalidCharacter} ${invalidChar}`
 
   return value.slice(Math.max(0, invalidCharacterIndex - 6), Math.min(value.length, invalidCharacterIndex + 7)).trim()
 }

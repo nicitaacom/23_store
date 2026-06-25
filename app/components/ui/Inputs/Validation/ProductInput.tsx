@@ -66,6 +66,7 @@ export function ProductInput({
   disabled,
   externalTextareaRef,
   onInput,
+  onBlur: onBlurProp,
   ...props
 }: InputFormProps) {
   const t = useScopedI18n("product")
@@ -190,6 +191,7 @@ export function ProductInput({
       ) : (
         <input
           {...rest}
+          onBlur={e => { rest.onBlur?.(e); onBlurProp?.(e) }}
           className={twMerge(
             "w-full rounded border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none transition-colors duration-150 placeholder:text-white/32 focus:border-white/20 focus:bg-white/[0.06]",
             startIcon && "pl-8",
