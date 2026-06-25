@@ -69,46 +69,33 @@ function useEscOrClickOutside(
 
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return
-      console.log("[hook] handleEsc fired, ignoreInputs=", ignoreInputs, "ref.current=", !!ref.current, "activeElement=", document.activeElement?.tagName)
       if (!ref.current) return
 
       const active = document.activeElement
       const isInputFocused = active && ["INPUT", "TEXTAREA", "SELECT"].includes((active.tagName || "").toUpperCase())
-      console.log("[hook] isInputFocused=", isInputFocused, "contains=", ref.current.contains(active))
 
-      // If ignoreInputs → treat inputs like any other element
       if (ignoreInputs && isInputFocused) {
-        console.log("[hook] ignoreInputs path → closing")
         onClose()
         e.stopPropagation()
         return
       }
 
-      // When ignoreInputs is false and an input inside this container is focused,
-      // don't close — let the child's own Esc handler discard the edit.
-      // document capture fires before descendant capture, so we must yield explicitly.
       if (!ignoreInputs && isInputFocused && ref.current.contains(active)) {
-        console.log("[hook] input inside container → yielding to child")
         e.stopPropagation()
         return
       }
 
-      // Normal flow – first Esc blurs the input
       if (ref.current.contains(active)) {
-        console.log("[hook] non-input focused inside → blurring")
         ;(active as HTMLElement)?.blur?.()
         e.stopPropagation()
         return
       }
 
-      // Nothing focused inside → safe to close
-      console.log("[hook] nothing focused inside → closing")
       onClose()
       e.stopPropagation()
     }
 
     // Capture phase → we run BEFORE any parent listener
-    console.log("[hook] mount - registering listener")
     document.addEventListener("keydown", handleEsc, true)
     document.addEventListener("mousedown", handleClick, true)
     document.addEventListener("contextmenu", handleClick, true)
