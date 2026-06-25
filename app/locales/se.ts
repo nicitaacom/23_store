@@ -312,6 +312,7 @@ export default {
   "product.selected_variant": "Vald variant",
   "product.out_of_stock_label": "Slut i lager",
   "product.units_available": "{count} enheter tillgängliga",
+  "product.low_stock_hurry": "Bara {count} kvar - ta den!",
   "product.product_details": "Produktdetaljer",
   "product.fast_delivery": "Snabb leverans från vårt lager",
   "product.secure_checkout": "Säker checkout och trygga betalningar",

@@ -56,7 +56,7 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
   }
 
   return (
-    <div className="mx-auto min-h-[calc(100vh-64px)] w-full max-w-[1500px] px-4 py-6 text-title">
+    <div className="min-h-[calc(100vh-64px)] w-full px-4 py-6 text-title">
       <section className="flex flex-col gap-5">
         <nav className="flex flex-wrap items-center gap-2 text-sm text-subTitle">
           <Link href={`/${params.locale}`} className="transition-colors duration-200 hover:text-success">

@@ -4,11 +4,12 @@ import { HiOutlineRefresh } from "react-icons/hi"
 
 import useToast from "@/store/ui/useToast"
 import { useEffect, useState } from "react"
+import { twMerge } from "tailwind-merge"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { Button } from "@/components/ui"
 import { emailsSDK } from "@/sdk/EmailsSDK/EmailsSDK"
 
-export function RequestReplanishmentButton({ product }: { product: TProductDB }) {
+export function RequestReplanishmentButton({ product, className }: { product: TProductDB; className?: string }) {
   const toast = useToast()
   const [html, setHtml] = useState("")
 
@@ -50,11 +51,11 @@ export function RequestReplanishmentButton({ product }: { product: TProductDB })
 
   return (
     <Button
-      className="text-base font-medium hover:shadow-info/30 transition-shadow"
+      className={twMerge("text-base font-medium", className)}
       variant="info-outline"
       size="lg"
-      rounded="lg"
-      shadow="sm"
+      rounded="sm"
+      shadow="none"
       rightIcon={<HiOutlineRefresh className="text-lg" />}
       onClick={requestReplanishment}>
       Request replenishment

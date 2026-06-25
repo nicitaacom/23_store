@@ -26,7 +26,7 @@ Use this as the default style when generating code for this project.
 
 [pusher-patterns](./code-patterns/component-related/pusher-patterns.md)
 [zustand-patterns](./code-patterns/component-related/zustand-patterns.md)
-[component-rendering-only](./code-patterns/component-related/tsx-component-patterns)
+[component-rendering-useMemo-isSkeleton-hook-patterns](./code-patterns/component-related/tsx-component-patterns)
 
 ## Code style rules
 

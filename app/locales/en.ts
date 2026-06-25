@@ -312,6 +312,7 @@ export default {
   "product.selected_variant": "Selected variant",
   "product.out_of_stock_label": "Out of stock",
   "product.units_available": "{count} units available",
+  "product.low_stock_hurry": "Only {count} left - grab it!",
   "product.product_details": "Product details",
   "product.fast_delivery": "Fast delivery from our warehouse",
   "product.secure_checkout": "Secure checkout and trusted payments",

@@ -312,6 +312,7 @@ export default {
   "product.selected_variant": "Выбранный вариант",
   "product.out_of_stock_label": "Нет в наличии",
   "product.units_available": "Доступно {count} шт.",
+  "product.low_stock_hurry": "Осталось только {count} - успей!",
   "product.product_details": "Информация о товаре",
   "product.fast_delivery": "Быстрая доставка со склада",
   "product.secure_checkout": "Безопасная оплата и защищенный заказ",

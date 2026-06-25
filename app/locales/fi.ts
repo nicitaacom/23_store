@@ -312,6 +312,7 @@ export default {
   "product.selected_variant": "Valittu variantti",
   "product.out_of_stock_label": "Loppu varastosta",
   "product.units_available": "{count} kpl saatavilla",
+  "product.low_stock_hurry": "Vain {count} jäljellä - ota se!",
   "product.product_details": "Tuotetiedot",
   "product.fast_delivery": "Nopea toimitus varastoltamme",
   "product.secure_checkout": "Turvallinen kassaprosessi ja maksut",
