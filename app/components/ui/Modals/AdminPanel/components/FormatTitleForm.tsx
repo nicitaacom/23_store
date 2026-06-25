@@ -69,6 +69,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   }
 
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const enableInput = () => {
     isEditingRef.current = true
@@ -76,16 +77,28 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
     requestAnimationFrame(() => containerRef.current?.querySelector("input")?.focus())
   }
 
+  const cancelInput = () => {
+    isEditingRef.current = false
+    setIsEditing(false)
+  }
+
+  const handleInputBlur = () => {
+    if (blurTimerRef.current) clearTimeout(blurTimerRef.current)
+    blurTimerRef.current = setTimeout(() => {
+      // If focus stayed inside the container (e.g. error message clicked), keep editing
+      if (containerRef.current?.contains(document.activeElement)) return
+      cancelInput()
+    }, 150)
+  }
+
   const disableInput = (event: KeyboardEvent) => {
     if (!isEditingRef.current) return
     if (event.key === "Escape") {
       event.stopImmediatePropagation()
-      isEditingRef.current = false
-      setIsEditing(false)
+      cancelInput()
     }
     if (event.key === "Enter") {
-      const onSubmitForm = handleSubmit(onSubmit)
-      onSubmitForm()
+      handleSubmit(onSubmit)()
     }
   }
 
@@ -99,19 +112,28 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
     <div ref={containerRef} className="min-w-0 flex-1">
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <ProductInput
-              className={twMerge(
-                "w-full border-border-color/50 bg-background/60 text-start",
-                isLoading && "animate-pulse",
-              )}
-              id="title"
-              register={register}
-              errors={errors}
-              placeholder={currentTranslation.title}
-              autoFocus
-              required
-            />
+          <ProductInput
+            className={twMerge(
+              "w-full border-border-color/50 bg-background/60 text-start",
+              isLoading && "animate-pulse",
+            )}
+            id="title"
+            register={register}
+            errors={errors}
+            placeholder={currentTranslation.title}
+            autoFocus
+            required
+            onBlur={handleInputBlur}
+          />
+          <div className="mt-1 flex justify-end gap-1">
+            <button type="button" onClick={cancelInput}
+              className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80">
+              Cancel
+            </button>
+            <button type="submit" disabled={isLoading}
+              className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50">
+              Save
+            </button>
           </div>
         </form>
       ) : (
