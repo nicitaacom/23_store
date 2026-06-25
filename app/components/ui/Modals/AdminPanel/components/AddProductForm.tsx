@@ -806,6 +806,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 {tGlobal("category.auto_assigned")}: {autoAssignedName}
                 <button
                   type="button"
+                  tabIndex={-1}
                   className="ml-0.5 text-success/60 hover:text-success"
                   onClick={() => { setCategoryId(null); setAutoAssignedName(null) }}>
                   ×
