@@ -87,21 +87,15 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
     }, 400)
   }
 
-  async function saveImages(nextUrls: string[], filesToUpload: ImageListType) {
+  async function saveImages(nextUrls: string[], filesToUpload: ImageListType, existingImgUrl = imgUrl) {
     setIsLoading(true)
     setPendingCount(c => c + 1)
     try {
       let uploadedUrls: string[] = []
       if (filesToUpload.length > 0) {
-        const files = filesToUpload.map(img => {
-          const base64 = img.data_url!
-          const mime = base64.match(/data:([^;]+);/)?.[1] ?? "image/jpeg"
-          const byteString = atob(base64.split(",")[1])
-          const ab = new ArrayBuffer(byteString.length)
-          const ia = new Uint8Array(ab)
-          for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i)
-          return new File([ab], `upload-${Date.now()}-${Math.random()}.jpg`, { type: mime })
-        })
+        const files = filesToUpload
+          .map(img => img.file)
+          .filter((f): f is File => f instanceof File)
         uploadedUrls = await uploadProductImages(files, tGlobal)
       }
 
@@ -118,7 +112,7 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
       // Remap variant image_url fields to new uploaded URLs (positional: old imgUrl[i] → finalUrls[i])
       const updatedProduct = response.product
       if (updatedProduct.variants?.length) {
-        const urlMap = new Map(imgUrl.map((old, i) => [old, finalUrls[i] ?? old]))
+        const urlMap = new Map(existingImgUrl.map((old, i) => [old, finalUrls[i] ?? old]))
         const remappedVariants = updatedProduct.variants.map(v => ({
           ...v,
           image_url: urlMap.get(v.image_url) ?? v.image_url,
@@ -153,12 +147,13 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
 
   function makePrimary(index: number) {
     if (index === 0) return
+    const snapshot = [...imgUrl]
     const next = [...allImages]
     const [item] = next.splice(index, 1)
     next.unshift(item)
     const existingNext = next.filter(u => !u.startsWith("data:"))
     const newNext = newImages.filter(img => next.includes(img.data_url!))
-    void saveImages(existingNext, newNext)
+    void saveImages(existingNext, newNext, snapshot)
   }
 
   return (
@@ -172,8 +167,9 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
           return
         }
         setNewImages(added)
+        const snapshotImgUrl = [...imgUrl] // capture before any async state changes
         const pendingUrls = added.map(img => img.data_url!)
-        void saveImages([...imgUrl, ...pendingUrls], added)
+        void saveImages([...snapshotImgUrl, ...pendingUrls], added, snapshotImgUrl)
       }}
       maxNumber={MAX_PRODUCT_IMAGES}
       maxFileSize={MAX_IMAGE_FILE_SIZE_BYTES}

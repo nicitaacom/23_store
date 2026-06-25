@@ -56,9 +56,9 @@ export class ProductsSDK extends BaseSDK {
     )
   }
 
-  async translateDescription(request: API.ProductsTranslateDescriptionRequest) {
-    return this.postJson<API.ProductsTranslateDescriptionRequest, API.ProductsTranslateDescriptionResponse>(
-      "/api/products/translate-description",
+  async translateField(request: API.ProductsTranslateFieldRequest) {
+    return this.postJson<API.ProductsTranslateFieldRequest, API.ProductsTranslateFieldResponse>(
+      "/api/products/translate-field",
       request,
     )
   }

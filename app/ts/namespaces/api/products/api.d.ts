@@ -92,13 +92,14 @@ declare module API {
     id: string
   }
 
-  type ProductsTranslateDescriptionRequest = {
+  type ProductsTranslateFieldRequest = {
     productId: string
-    description: string
+    field: "title" | "description"
+    value: string
     translations: ProductsTranslations
   }
 
-  type ProductsTranslateDescriptionResponse = { product: ProductsUpdateResponse["product"] } | { error: string }
+  type ProductsTranslateFieldResponse = { product: ProductsUpdateResponse["product"] } | { error: string }
 
   type ProductsPopularRequest = {
     start: number

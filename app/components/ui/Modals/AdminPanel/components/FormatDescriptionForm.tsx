@@ -70,7 +70,7 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
     setIsLoading(true)
 
     try {
-      const response = await productsSDK.translateDescription({ productId: id, description: trimmed, translations })
+      const response = await productsSDK.translateField({ productId: id, field: "description", value: trimmed, translations })
       if ("error" in response) throw new Error(response.error)
       replaceProduct(id, response.product)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)

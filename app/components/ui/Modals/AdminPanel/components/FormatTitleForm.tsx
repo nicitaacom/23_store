@@ -38,21 +38,19 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
 
   async function updateTitle(title: string) {
     const snapshot = translations
-    const nextTranslations = { ...translations, [locale]: { ...currentTranslation, title } }
-
-    updateProduct(id, p => ({ ...p, translations: nextTranslations }))
+    updateProduct(id, p => ({ ...p, translations: { ...translations, [locale]: { ...currentTranslation, title } } }))
     isEditingRef.current = false
     setIsEditing(false)
     setIsLoading(true)
 
     try {
-      const response = await productsSDK.updateProduct({ productId: id, translations: nextTranslations })
-      if (typeof response === "string") throw new Error(response)
+      const response = await productsSDK.translateField({ productId: id, field: "title", value: title, translations })
+      if ("error" in response) throw new Error(response.error)
       replaceProduct(id, response.product)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
       updateProduct(id, p => ({ ...p, translations: snapshot }))
-      toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
+      toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error), 10000)
     } finally {
       setIsLoading(false)
     }
@@ -96,9 +94,6 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
     if (event.key === "Escape") {
       event.stopImmediatePropagation()
       cancelInput()
-    }
-    if (event.key === "Enter") {
-      handleSubmit(onSubmit)()
     }
   }
 
