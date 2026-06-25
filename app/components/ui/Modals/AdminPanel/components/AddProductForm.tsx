@@ -36,6 +36,7 @@ import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
 import { RichTextToolbar } from "./RichTextToolbar"
 import { CategoryDropdown } from "./CategoryDropdown"
 import { MarkdownText } from "@/components/ui/MarkdownText"
+import { MarkdownEditor } from "@/components/ui/Inputs/MarkdownEditor"
 
 const previewImageVariants = {
   initial: (direction: "next" | "prev") => ({
@@ -124,6 +125,17 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   const titleValue = watch("title")
   const descriptionValue = watch("subTitle")
+
+  // Register subTitle manually since it's no longer backed by a ProductInput/textarea
+  register("subTitle", {
+    validate: (value) => {
+      const str = String(value ?? "").replace(/\r/g, "").trim()
+      if (!str) return true
+      const match = str.match(/[^-:.,()#@&%\/"'`~[\]|><=+!?*_;a-zA-Z0-9\n °]/)
+      if (match) return `Character "${match[0]}" is not allowed`
+      return true
+    },
+  })
 
   const previewTitle = titleValue?.trim() || t("placeholder.title")
   const previewDescription = descriptionValue?.trim() || t("placeholder.description")
@@ -792,15 +804,18 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         <div className="grid gap-1.5">
           <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("description")}</label>
           <RichTextToolbar textareaRef={descriptionRef} onChange={v => setValue("subTitle", v, { shouldValidate: true })} />
-          <ProductInput
-            className={twMerge(inputCn, "min-h-[100px] resize-none py-3 leading-6")}
-            id="subTitle"
-            register={register}
-            errors={errors}
+          <MarkdownEditor
+            ref={descriptionRef}
+            value={descriptionValue ?? ""}
+            onChange={v => setValue("subTitle", v, { shouldValidate: false })}
+            onBlur={() => { setValue("subTitle", descriptionValue ?? "", { shouldValidate: true }) }}
             disabled={isLoading}
             placeholder={t("placeholder.description")}
-            externalTextareaRef={descriptionRef}
+            className={twMerge(inputCn, "min-h-[100px]")}
           />
+          {errors.subTitle?.message && (
+            <p className="font-secondary text-danger text-xs">{errors.subTitle.message as string}</p>
+          )}
         </div>
 
         {/* Category */}

@@ -9,7 +9,6 @@ import {
 import { useScopedI18n } from "@/locales/client"
 import {
   PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX,
-  PRODUCT_DESCRIPTION_PATTERN,
   PRODUCT_TITLE_INVALID_CHARACTER_REGEX,
   PRODUCT_TITLE_HAS_LETTER_REGEX,
   PRODUCT_TITLE_MUST_START_REGEX,
@@ -94,10 +93,6 @@ export function ProductInput({
     },
     subTitle: {
       requiredMessage: t("this_field_is_required"),
-      pattern: {
-        value: PRODUCT_DESCRIPTION_PATTERN,
-        message: t("subtitle_required"),
-      },
     },
     price: {
       requiredMessage: t("this_field_is_required"),
@@ -149,10 +144,9 @@ export function ProductInput({
               if (str.trim().length < MIN_PRODUCT_DESCRIPTION_LENGTH) return t("description_too_short")
               if (str.length > MAX_PRODUCT_DESCRIPTION_LENGTH)
                 return t("description_too_long", { max: MAX_PRODUCT_DESCRIPTION_LENGTH })
-              if (patternValue?.test(str)) return true
               const invalidCharacterMessage = getInvalidCharacterMessage(id, str)
-if (invalidCharacterMessage) return invalidCharacterMessage
-              return patternMessage
+              if (invalidCharacterMessage) return invalidCharacterMessage
+              return true
             }
           : undefined,
   }
@@ -194,8 +188,7 @@ if (invalidCharacterMessage) return invalidCharacterMessage
           rows={6}
           ref={e => {
             textArea(e)
-            textareaRef.current = e // you can still assign to ref issue
-            //https://github.com/orgs/react-hook-form/discussions/11137
+            textareaRef.current = e
             if (externalTextareaRef) externalTextareaRef.current = e
           }}
         />

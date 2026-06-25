@@ -14,7 +14,11 @@ export function MarkdownText({ text }: { text: string }) {
           const underline = rest.match(/_(.+?)_/)
           const first = [bold, italic, underline]
             .filter(Boolean)
-            .sort((a, b) => (a!.index ?? 0) - (b!.index ?? 0))[0]
+            .sort((a, b) => {
+              const idxDiff = (a!.index ?? 0) - (b!.index ?? 0)
+              if (idxDiff !== 0) return idxDiff
+              return b![0].length - a![0].length // longer match wins on tie (** beats *)
+            })[0]
           if (!first) { parts.push(rest); break }
           if (first.index! > 0) parts.push(rest.slice(0, first.index))
           if (first === bold) parts.push(<strong key={key++} className="font-semibold text-title">{first[1]}</strong>)
