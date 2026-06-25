@@ -96,6 +96,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [isSuggestingCategory, setIsSuggestingCategory] = useState(false)
   const dragZone = useRef<HTMLButtonElement | null>(null)
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
+  const wrapRef = useRef<((marker: string) => void) | null>(null)
   const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSuggestedKeyRef = useRef<string | null>(null)
 
@@ -679,12 +680,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 )}
               </div>
 
-              {/* Preview caption */}
-              <div className="shrink-0 px-0.5">
-                <p className="truncate text-sm font-semibold text-white">{previewTitle}</p>
-                <p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-white/45"><MarkdownText text={previewDescription} /></p>
-              </div>
-
               {/* Thumbnail strip */}
               {imageList.length > 1 && (
                 <div className="flex shrink-0 gap-1.5">
@@ -800,9 +795,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         {/* Description */}
         <div className="grid gap-1.5">
           <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("description")}</label>
-          <RichTextToolbar textareaRef={descriptionRef} onChange={v => setValue("subTitle", v, { shouldValidate: false })} />
+          <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
           <MarkdownEditor
             ref={descriptionRef}
+            onWrapRef={wrapRef}
             value={descriptionValue ?? ""}
             onChange={v => setValue("subTitle", v, { shouldValidate: false })}
             onBlur={() => void trigger("subTitle")}

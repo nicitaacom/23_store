@@ -52,13 +52,15 @@ The response must be exactly this shape:
       max_completion_tokens: 4000,
     })
 
-    const raw = completion.choices[0]?.message?.content?.trim() ?? ""
+    const raw = (completion.choices[0]?.message?.content ?? "").trim()
+    // Strip markdown code fences GPT sometimes wraps output in
+    const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim()
 
     let parsed: unknown
     try {
-      parsed = JSON.parse(raw)
+      parsed = JSON.parse(cleaned)
     } catch {
-      return NextResponse.json({ error: "AI returned invalid JSON" }, { status: 500 })
+      return NextResponse.json({ error: `AI returned invalid JSON: ${cleaned.slice(0, 200)}` }, { status: 500 })
     }
 
     if (!isValidAIOutput(parsed)) return NextResponse.json({ error: "AI returned invalid translation shape" }, { status: 500 })

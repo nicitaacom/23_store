@@ -31,30 +31,40 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   const [isEditing, setIsEditing] = useState(false)
   const [value, setValue] = useState(currentTranslation.description ?? "")
   const [error, setError] = useState<string | null>(null)
-  const descriptionRef = useRef<HTMLTextAreaElement | null>(null)
+  const descriptionRef = useRef<HTMLDivElement | null>(null)
+  const wrapRef = useRef<((marker: string) => void) | null>(null)
+  const editorContainerRef = useRef<HTMLDivElement | null>(null)
+  const valueRef = useRef(value)
+  valueRef.current = value
 
   const enableInput = () => {
-    setValue(currentTranslation.description ?? "")  // re-sync in case translations updated since last open
+    setValue(currentTranslation.description ?? "")
     setError(null)
     setIsEditing(true)
     requestAnimationFrame(() => descriptionRef.current?.focus())
   }
 
+  const handleCancel = () => {
+    setValue(currentTranslation.description ?? "")
+    setError(null)
+    setIsEditing(false)
+  }
+
   const handleSave = async () => {
-    const validation = validateDescription(value)
+    const current = valueRef.current
+    const validation = validateDescription(current)
     if (validation !== true) {
       setError(validation)
       return
     }
 
-    const trimmed = value.trim()
+    const trimmed = current.trim()
     if (trimmed === (currentTranslation.description ?? "").trim()) {
       setIsEditing(false)
       return
     }
 
     const snapshot = translations
-    // Optimistic: update current locale immediately so UI feels instant
     updateProduct(id, p => ({ ...p, translations: { ...translations, [locale]: { ...currentTranslation, description: trimmed } } }))
     setIsEditing(false)
     setIsLoading(true)
@@ -66,7 +76,7 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
       updateProduct(id, p => ({ ...p, translations: snapshot }))
-      toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
+      toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error), 10000)
     } finally {
       setIsLoading(false)
     }
@@ -76,13 +86,25 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
     <div className="rounded border border-border-color/30 bg-background/70 p-3 shadow-none">
       <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("description")}</p>
       {isEditing ? (
-        <div className="flex flex-col gap-1">
-          <RichTextToolbar textareaRef={descriptionRef} onChange={v => setValue(v)} />
+        <div ref={editorContainerRef} className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
+            <div className="flex gap-1">
+              <button type="button" onClick={handleCancel}
+                className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80">
+                Cancel
+              </button>
+              <button type="button" onClick={handleSave} disabled={isLoading}
+                className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50">
+                Save
+              </button>
+            </div>
+          </div>
           <MarkdownEditor
             ref={descriptionRef}
+            onWrapRef={wrapRef}
             value={value}
             onChange={v => { setValue(v); setError(null) }}
-            onBlur={handleSave}
             disabled={isLoading}
             placeholder={t("placeholder.description")}
             className={twMerge(isLoading && "animate-pulse")}
