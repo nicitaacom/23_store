@@ -1,12 +1,12 @@
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
+import { useCartPersistedStore } from "@/store/user/useCartPersistedStore"
 import { Storage } from "./Storage"
 
 export class LocalStorage extends Storage {
   saveProducts(cartProducts: TRecordCartProduct): void {
-    localStorage.setItem("cart", JSON.stringify(cartProducts))
+    useCartPersistedStore.getState().setProducts(cartProducts)
   }
   getProducts(): Promise<TRecordCartProduct> {
-    const cart = localStorage.getItem("cart") ?? "{}"
-    return JSON.parse(cart)
+    return Promise.resolve(useCartPersistedStore.getState().products)
   }
 }

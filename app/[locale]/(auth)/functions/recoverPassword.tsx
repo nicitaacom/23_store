@@ -9,6 +9,7 @@ import { subscribePusherChannel } from "@/libs/pusher"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { UnknownError } from "./UnknownError"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
+import { useResetEmailStore } from "@/store/user/useResetEmailStore"
 
 export async function recoverPassword(
   email: string,
@@ -30,8 +31,7 @@ export async function recoverPassword(
       subscribePusherChannel(getValues("email"))
     }
 
-    // Save email in localstorage to trigger pusher for this channel (api/auth/recover) (expires in 5 min)
-    localStorage.setItem("email", JSON.stringify({ value: email, expires: new Date().getTime() + 5 * 60 * 1000 }))
+    useResetEmailStore.getState().setEmail({ value: email, expires: new Date().getTime() + 5 * 60 * 1000 })
 
     displayResponseMessage(<p className="text-success">{t("auth.database.reset_email_sent")}</p>)
   } catch (error) {

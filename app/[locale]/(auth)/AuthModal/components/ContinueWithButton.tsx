@@ -7,6 +7,7 @@ import supabaseClient from "@/libs/supabase/supabaseClient"
 import useToast from "@/store/ui/useToast"
 import { useCurrentLocale, useI18n } from "@/locales/client"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
+import { useOAuthDebugStore } from "@/store/ui/useOAuthDebugStore"
 
 interface ContinueWithButtonProps {
   provider: "google" | "faceit" | "twitter"
@@ -18,6 +19,7 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
   const toast = useToast()
   const t = useI18n()
   const locale = useCurrentLocale()
+  const { setLastAttempt } = useOAuthDebugStore()
 
   async function continueWith(e: React.FormEvent) {
     e.preventDefault()
@@ -33,9 +35,7 @@ export function ContinueWithButton({ href, provider, className }: ContinueWithBu
         startedAt: new Date().toISOString(),
       }
 
-      if (typeof window !== "undefined") {
-        localStorage.setItem("oauth:lastAttempt", JSON.stringify(oauthDebugPayload))
-      }
+      setLastAttempt(JSON.stringify(oauthDebugPayload))
 
       console.log("[auth:oauth][client] starting OAuth flow", {
         ...oauthDebugPayload,

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 
+import { useOAuthDebugStore } from "@/store/ui/useOAuthDebugStore"
 import { EmailLinkInvalidOrExpired } from "./EmailLinkInvalidOrExpired"
 import { ExchangeCookiesError } from "./ExchangeCookiesError"
 import { AuthNotCompleted } from "./AuthNotCompleted"
@@ -28,7 +29,11 @@ type TPersistedAuthError = {
 
 export default function Error() {
   const searchParams = useSearchParams()
-  const [lastOAuthAttempt, setLastOAuthAttempt] = useState<TOAuthAttempt | null>(null)
+  const { lastAttempt } = useOAuthDebugStore()
+  const lastOAuthAttempt = useMemo<TOAuthAttempt | null>(() => {
+    if (!lastAttempt) return null
+    try { return JSON.parse(lastAttempt) as TOAuthAttempt } catch { return null }
+  }, [lastAttempt])
   const [persistedErrorDescription, setPersistedErrorDescription] = useState<string | null>(null)
 
   const error_description = useMemo(() => {
@@ -47,19 +52,6 @@ export default function Error() {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, "")
 
     return supabaseUrl ? `${supabaseUrl}/auth/v1/callback` : null
-  }, [])
-
-  useEffect(() => {
-    if (typeof window === "undefined") return
-
-    const rawPayload = localStorage.getItem("oauth:lastAttempt")
-    if (!rawPayload) return
-
-    try {
-      setLastOAuthAttempt(JSON.parse(rawPayload) as TOAuthAttempt)
-    } catch (error) {
-      console.error("[auth:oauth][error-page] failed to parse oauth:lastAttempt", error)
-    }
   }, [])
 
   useEffect(() => {

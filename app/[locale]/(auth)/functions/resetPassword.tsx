@@ -2,6 +2,7 @@ import { ReactNode } from "react"
 
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import useUserStore from "@/store/user/userStore"
+import { useResetEmailStore } from "@/store/user/useResetEmailStore"
 import { Timer } from "../AuthModal/components"
 import { Button } from "@/components/ui"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
@@ -12,18 +13,12 @@ export async function resetPassword(password: string, displayResponseMessage: (m
 
   try {
     // IMP - check in open and closed databases for this password (enterprice)
-    const email = localStorage.getItem("email")
-    const parsedEmail = JSON.parse(email ?? "")
+    const { email, clearEmail } = useResetEmailStore.getState()
 
-    if (parsedEmail.expires > new Date().getTime()) {
-      const data = await accountSDK.resetPassword({
-        email: parsedEmail.value,
-        password,
-      })
-
+    if (email && email.expires > new Date().getTime()) {
+      const data = await accountSDK.resetPassword({ email: email.value, password })
       userStore.setUser((data.user as Parameters<typeof userStore.setUser>[0]) ?? null)
-
-      localStorage.removeItem("email") // Remove email from localstorage
+      clearEmail()
       displayResponseMessage(
         <div className="text-success flex flex-col justify-center items-center gap-1">
           {t("auth.recovery.passowrd_changed")}
@@ -31,7 +26,7 @@ export async function resetPassword(password: string, displayResponseMessage: (m
         </div>,
       )
     } else {
-      localStorage.removeItem("email") // Remove expired data
+      clearEmail()
       throw new Error(t("auth.recovery.session_expired"))
     }
   } catch (error) {
