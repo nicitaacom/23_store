@@ -43,6 +43,14 @@ export function getReadableCharacter(character: string) {
   return character
 }
 
+export function validateDescription(value: unknown): string | true {
+  const str = String(value ?? "").replace(/\r/g, "")
+  if (!str.trim()) return true
+  const details = getInvalidCharacterDetails(str, PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX)
+  if (details) return `Character "${details.character}" is not allowed near "${details.context}"`
+  return true
+}
+
 export function getInvalidCharacterDetails(value: string, invalidCharacterRegex: RegExp) {
   const invalidCharacterMatch = value.match(invalidCharacterRegex)
   if (!invalidCharacterMatch || invalidCharacterMatch.index === undefined) return null

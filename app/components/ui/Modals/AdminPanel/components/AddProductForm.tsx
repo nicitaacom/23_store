@@ -37,6 +37,7 @@ import { RichTextToolbar } from "./RichTextToolbar"
 import { CategoryDropdown } from "./CategoryDropdown"
 import { MarkdownText } from "@/components/ui/MarkdownText"
 import { MarkdownEditor } from "@/components/ui/Inputs/MarkdownEditor"
+import { validateDescription } from "@/utils/productValidation"
 
 const previewImageVariants = {
   initial: (direction: "next" | "prev") => ({
@@ -117,6 +118,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     reset,
     watch,
     setValue,
+    trigger,
     formState: { errors },
   } = useForm<IFormDataAddProduct>({
     defaultValues: EMPTY_PRODUCT_FORM_VALUES,
@@ -127,15 +129,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const descriptionValue = watch("subTitle")
 
   // Register subTitle manually since it's no longer backed by a ProductInput/textarea
-  register("subTitle", {
-    validate: (value) => {
-      const str = String(value ?? "").replace(/\r/g, "").trim()
-      if (!str) return true
-      const match = str.match(/[^-:.,()#@&%\/"'`~[\]|><=+!?*_;a-zA-Z0-9\n °]/)
-      if (match) return `Character "${match[0]}" is not allowed`
-      return true
-    },
-  })
+  useEffect(() => {
+    register("subTitle", { validate: validateDescription })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const previewTitle = titleValue?.trim() || t("placeholder.title")
   const previewDescription = descriptionValue?.trim() || t("placeholder.description")
@@ -803,12 +800,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         {/* Description */}
         <div className="grid gap-1.5">
           <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("description")}</label>
-          <RichTextToolbar textareaRef={descriptionRef} onChange={v => setValue("subTitle", v, { shouldValidate: true })} />
+          <RichTextToolbar textareaRef={descriptionRef} onChange={v => setValue("subTitle", v, { shouldValidate: false })} />
           <MarkdownEditor
             ref={descriptionRef}
             value={descriptionValue ?? ""}
             onChange={v => setValue("subTitle", v, { shouldValidate: false })}
-            onBlur={() => { setValue("subTitle", descriptionValue ?? "", { shouldValidate: true }) }}
+            onBlur={() => void trigger("subTitle")}
             disabled={isLoading}
             placeholder={t("placeholder.description")}
             className={twMerge(inputCn, "min-h-[100px]")}
