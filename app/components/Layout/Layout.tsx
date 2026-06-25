@@ -28,7 +28,7 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
 
   return (
     <main
-      className="flex min-h-screen w-full flex-col overflow-x-hidden
+      className="flex min-h-screen w-full flex-col overflow-x-clip
       bg-background text-title
       transition-colors duration-300">
       {children}

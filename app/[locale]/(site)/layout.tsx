@@ -12,7 +12,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const SupportButton = lazy(() => import("@/components/SupportButton/SupportButton"))
 
   return (
-    <div>
+    <div className="pt-16">
       <Navbar />
       {children}
       <SupportButton />
