@@ -91,15 +91,15 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
           type="button"
           onClick={() => handleSelectVariant(variant.id)}
           className={twMerge(
-            "flex h-11 items-center gap-2 rounded-[2px] border px-2 text-left transition-colors duration-150",
+            "flex h-20 items-center gap-3 rounded-[2px] border px-3 text-left transition-colors duration-150",
             variant.id === selectedVariant?.id
               ? "border-success bg-success/10"
               : "border-border-color/20 bg-background/40 hover:border-success/30 hover:bg-success/5",
           )}>
-          <Image src={variant.image_url} alt={variant.label} width={28} height={28} className="h-7 w-7 rounded-[2px] object-cover" />
+          <Image src={variant.image_url} alt={variant.label} width={64} height={64} className="h-14 w-14 rounded-[2px] object-cover" />
           <div className="min-w-0">
-            <span className="block text-xs font-medium text-title">{variant.label}</span>
-            <span className="text-[11px] text-success">{formatCurrency(variant.price)}</span>
+            <span className="block text-base font-medium text-title">{variant.label}</span>
+            <span className="text-sm text-success">{formatCurrency(variant.price)}</span>
           </div>
         </button>
       )),
@@ -143,21 +143,9 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
             </div>
           </div>
 
-          {/* Buy controls: variant selector + cart action share one row — every control h-11, rounded-[2px], no shadow */}
-          <div className="flex flex-wrap items-stretch gap-2">
-            {variants.length > 0 && <div className="flex flex-wrap items-stretch gap-2">{renderedVariants}</div>}
-            {isOutOfStock ? (
-              <RequestReplanishmentButton product={product} className="h-11 flex-1 rounded-[2px] shadow-none" />
-            ) : quantity === 0 ? (
-              <AddToCartButton className="h-11 flex-1 justify-between rounded-[2px] px-5 shadow-none" productId={product.id} variantId={selectedVariant?.id} categoryId={product.category_id} />
-            ) : (
-              <>
-                <ProductQuantityButton action="decrease" productId={product.id} variantId={selectedVariant?.id} className="h-11 w-11 rounded-[2px] border border-border-color/20" />
-                <ProductQuantityButton action="increase" productId={product.id} variantId={selectedVariant?.id} className="h-11 w-11 rounded-[2px] border border-border-color/20" />
-                <ProductQuantityButton action="clear" productId={product.id} variantId={selectedVariant?.id} className="h-11 flex-1 rounded-[2px] px-5 shadow-none" />
-              </>
-            )}
-          </div>
+          {variants.length > 0 && (
+            <div className="flex flex-wrap items-stretch gap-2">{renderedVariants}</div>
+          )}
 
           {isLowStock && (
             <div className="w-full overflow-hidden rounded-[2px] border border-warning/30 bg-warning/5">
@@ -204,10 +192,25 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
             />
           </div>
 
-          {/* Title */}
-          <h1 className="text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl">
-            {translation.title}
-          </h1>
+          {/* Title + buy control */}
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl">
+              {translation.title}
+            </h1>
+            <div className="flex shrink-0 items-center gap-1">
+              {isOutOfStock ? (
+                <RequestReplanishmentButton product={product} className="h-11 rounded-[2px] shadow-none" />
+              ) : quantity === 0 ? (
+                <AddToCartButton className="h-11 justify-between rounded-[2px] px-5 shadow-none" productId={product.id} variantId={selectedVariant?.id} categoryId={product.category_id} />
+              ) : (
+                <>
+                  <ProductQuantityButton action="decrease" productId={product.id} variantId={selectedVariant?.id} className="h-11 w-11 rounded-[2px] border border-border-color/20" />
+                  <ProductQuantityButton action="increase" productId={product.id} variantId={selectedVariant?.id} className="h-11 w-11 rounded-[2px] border border-border-color/20" />
+                  <ProductQuantityButton action="clear" productId={product.id} variantId={selectedVariant?.id} className="h-11 rounded-[2px] px-4 shadow-none" />
+                </>
+              )}
+            </div>
+          </div>
 
           {/* Subtotal (only when items in cart) */}
           {!isOutOfStock && quantity > 0 && (
