@@ -166,9 +166,7 @@ export function ProductInput({
 
   const inputRef = useRef<HTMLInputElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
-  const currentFieldValue = id === "subTitle" ? textareaRef.current?.value || "" : inputRef.current?.value || ""
-  const fallbackErrorMessage = ["title", "subTitle"].includes(id) ? getInvalidCharacterMessage(id, currentFieldValue) : null
-  const errorMessage = fallbackErrorMessage || (errors[id]?.message as React.ReactNode)
+  const errorMessage = errors[id]?.message as React.ReactNode
 
   return (
     <div className="relative">

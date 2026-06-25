@@ -119,6 +119,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     formState: { errors },
   } = useForm<IFormDataAddProduct>({
     defaultValues: EMPTY_PRODUCT_FORM_VALUES,
+    mode: "onBlur",
   })
 
   const titleValue = watch("title")
