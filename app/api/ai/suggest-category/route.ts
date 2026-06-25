@@ -64,11 +64,10 @@ ${JSON.stringify(categoryList)}`
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      temperature: 0,
-      max_tokens: 40,
+      max_completion_tokens: 4000,
     })
 
-    const raw = completion.choices[0]?.message?.content?.trim() ?? "null"
+    const raw = completion.choices[0]?.message?.content?.trim() || "null"
     const isKnownId = isValidUUID(raw) && categoryList.some(c => c.id === raw)
     const category_id = isKnownId ? raw : null
 

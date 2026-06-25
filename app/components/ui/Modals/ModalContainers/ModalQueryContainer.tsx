@@ -32,6 +32,7 @@ export function ModalQueryContainer({
   const queryParams = useSearchParams()
   const { isLoading } = useLoading()
   const modalRef = useRef<HTMLDivElement | null>(null)
+  const backdropRef = useRef<HTMLDivElement | null>(null)
 
   const showModal = queryParams?.getAll("modal").includes(modalQuery)
   const [shouldClose, setShouldClose] = useState(false)
@@ -57,10 +58,13 @@ export function ModalQueryContainer({
     ignoreInputs,
   })
 
-  /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */
+  /* Close only when the interaction starts on the backdrop itself, not when
+     a touch/drag begins inside the modal and the pointer ends up outside.
+     Checking e.event.target === backdropRef.current prevents bubbled events
+     from modal content triggering close on tablets. */
   const modalBgHandler = useSwipeable({
-    onTouchStartOrOnMouseDown: () => {
-      if (!disableDismiss) {
+    onTouchStartOrOnMouseDown: e => {
+      if (!disableDismiss && e.event.target === backdropRef.current) {
         closeModal()
       }
     },
@@ -89,7 +93,11 @@ export function ModalQueryContainer({
           animate={shouldClose ? { opacity: 0 } : { opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18, ease: "easeOut" }}
-          {...modalBgHandler}>
+          {...modalBgHandler}
+          ref={node => {
+            backdropRef.current = node
+            modalBgHandler.ref(node)
+          }}>
           <motion.div
             className={twMerge(
               "relative z-[1600] overflow-hidden rounded-lg border border-border-color/35 bg-modal-surface shadow-compact",

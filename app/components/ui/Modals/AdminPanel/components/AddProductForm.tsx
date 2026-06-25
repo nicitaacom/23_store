@@ -203,6 +203,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current)
     const trimmed = titleValue?.trim() ?? ""
     if (trimmed.length < 10) return
+    if (!allCategories.length) return
 
     suggestDebounceRef.current = setTimeout(async () => {
       setIsSuggestingCategory(true)

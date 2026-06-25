@@ -37,6 +37,7 @@ export function RichTextToolbar({ textareaRef, onChange }: RichTextToolbarProps)
           key={label}
           type="button"
           title={title}
+          tabIndex={-1}
           onMouseDown={e => { e.preventDefault(); handler() }}
           className="flex h-7 w-7 items-center justify-center rounded border border-white/10 bg-white/[0.04] text-xs text-white/60 transition-colors duration-150 hover:border-white/20 hover:bg-white/[0.08] hover:text-white/90">
           <span className={className}>{label}</span>
