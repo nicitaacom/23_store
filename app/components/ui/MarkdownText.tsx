@@ -5,8 +5,9 @@ export function MarkdownText({ text }: { text: string }) {
   return (
     <span className="space-y-1">
       {lines.map((line, i) => {
+        const isBullet = line.startsWith("* ")
         const parts: React.ReactNode[] = []
-        let rest = line
+        let rest = isBullet ? line.slice(2) : line
         let key = 0
         while (rest.length) {
           const bold = rest.match(/\*\*(.+?)\*\*/)
@@ -26,7 +27,7 @@ export function MarkdownText({ text }: { text: string }) {
           else parts.push(<u key={key++}>{first[1]}</u>)
           rest = rest.slice(first.index! + first[0].length)
         }
-        return <span key={i} className="block">{parts}</span>
+        return <span key={i} className="block">{isBullet ? <>• {parts}</> : parts}</span>
       })}
     </span>
   )
