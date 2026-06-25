@@ -199,36 +199,45 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     })
   }, [allCategories.length, hydrateCategories])
 
-  // Debounced AI auto-assign: fires 800ms after title stops changing, ≥10 chars
+  const runSuggestCategory = async (trimmed: string) => {
+    if (trimmed.length < 10) return
+    if (!allCategories.length) return
+    if (lastSuggestedKeyRef.current === trimmed) return
+    lastSuggestedKeyRef.current = trimmed
+    setIsSuggestingCategory(true)
+    try {
+      const result = await aiSDK.suggestCategory({ title: trimmed })
+      if ("category_id" in result && result.category_id) {
+        const found = allCategories.find(c => c.id === result.category_id)
+        if (found) {
+          setCategoryId(result.category_id)
+          setAutoAssignedName(found.name)
+        }
+      }
+    } catch {}
+    setIsSuggestingCategory(false)
+  }
+
+  // Debounced AI auto-assign: fires 800ms after title stops changing, only when no category assigned yet
   useEffect(() => {
     if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current)
+    if (categoryId) return
     const trimmed = titleValue?.trim() ?? ""
     if (trimmed.length < 10) return
     if (!allCategories.length) return
-
-    // Skip if we already fired for this exact title (e.g. allCategories loaded late)
     if (lastSuggestedKeyRef.current === trimmed) return
 
-    suggestDebounceRef.current = setTimeout(async () => {
-      lastSuggestedKeyRef.current = trimmed
-      setIsSuggestingCategory(true)
-      try {
-        const result = await aiSDK.suggestCategory({ title: trimmed })
-        if ("category_id" in result && result.category_id) {
-          const found = allCategories.find(c => c.id === result.category_id)
-          if (found) {
-            setCategoryId(result.category_id)
-            setAutoAssignedName(found.name)
-          }
-        }
-      } catch {}
-      setIsSuggestingCategory(false)
-    }, 800)
+    suggestDebounceRef.current = setTimeout(() => { void runSuggestCategory(trimmed) }, 800)
 
     return () => {
       if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current)
     }
-  }, [titleValue, allCategories])
+  }, [titleValue, allCategories, categoryId])
+
+  const handleTitleBlur = () => {
+    if (!categoryId) return
+    void runSuggestCategory(titleValue?.trim() ?? "")
+  }
 
   const clearForm = () => {
     reset(EMPTY_PRODUCT_FORM_VALUES)
@@ -774,6 +783,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             disabled={isLoading}
             required
             placeholder={t("placeholder.title")}
+            onBlur={handleTitleBlur}
           />
         </div>
 
