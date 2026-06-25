@@ -16,6 +16,7 @@ import { ProductLikeButton } from "../ProductLikeButton"
 import { RequestReplanishmentButton } from "./RequestReplanishmentButton"
 import Image from "next/image"
 import Link from "next/link"
+import { MarkdownText } from "@/components/ui/MarkdownText"
 
 function VariantImage({ src, alt }: { src: string; alt: string }) {
   const [errored, setErrored] = useState(false)
@@ -89,8 +90,8 @@ function Product({ ...product }: Props) {
         </div>
 
         {/* 5. Description */}
-        <p className="line-clamp-2 text-sm leading-relaxed text-subTitle">
-          {translation.description}
+        <p className="line-clamp-2 overflow-hidden text-sm leading-relaxed text-subTitle [&_span]:contents">
+          <MarkdownText text={translation.description ?? ""} />
         </p>
 
         {/* 6. Stock + locked-variant badges */}
