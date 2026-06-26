@@ -53,9 +53,9 @@ export async function POST(req: NextRequest) {
 Your only job is to pick the single most fitting category ID from the list below.
 
 Rules:
-- Pick the MOST SPECIFIC category that matches the product's primary purpose.
-- Do NOT pick a broad or loosely related category — only pick one where the product clearly belongs.
-- Example: "Aloe Vera Gel" belongs to "Facial Care" or "Skin Care", NOT "Makeup".
+- Pick the MOST SPECIFIC, NARROWEST category that matches the product's primary purpose.
+- If both a broad and a narrow category fit, ALWAYS pick the narrow one. Never pick a parent/general category when a more specific child exists.
+- Example: "Aloe Vera Gel" belongs to "Facial Care", NOT "Skin Care" or "Makeup" — always prefer the narrowest match.
 - Example: "Insulated Noodle Bowl" belongs to "Food Service Equipment" or "Kitchen", NOT "Home & Garden".
 - Respond with ONLY the UUID of the chosen category — no explanation, no punctuation, nothing else.
 - If no category is a clear match, respond with the word null.
