@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
   const categoryList = categoriesResult.map(c => ({ id: c.id, name: c.name }))
 
-  const categoryLines = categoryList.map((c, index) => `${index + 1}. ${c.name} → ${c.id}`).join("\n")
+  const categoryLines = categoryList.map((c, index) => `${index + 1}. "${c.name}" = ${c.id}`).join("\n")
 
   const systemPrompt = `You are a product categorization assistant for an e-commerce store.
 Your only job is to pick the single most fitting category ID from the list below.
@@ -72,7 +72,7 @@ ${categoryLines}`
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      max_completion_tokens: 500,
+      max_completion_tokens: 2000,
     })
 
     const raw = completion.choices[0]?.message?.content?.trim() || "null"
