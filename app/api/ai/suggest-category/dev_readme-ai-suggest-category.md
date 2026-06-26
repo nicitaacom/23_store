@@ -36,7 +36,7 @@ aiSDK.suggestCategory()          ← app/sdk/AISDK/AISDK.ts
 POST /api/ai/suggest-category    ← app/api/ai/suggest-category/route.ts
   │  rate-limit: 10 req/min per IP (Upstash Redis)
   │  fetches all categories from DB
-  │  calls gpt-5-nano with system prompt listing id→name
+  │  calls gpt-5-nano with system prompt listing name=id (max_completion_tokens: 2000 — lower values cause "null" responses)
   │  title only — description deliberately excluded (token waste; title is sufficient)
   │  returns { category_id: UUID | null }
   │
