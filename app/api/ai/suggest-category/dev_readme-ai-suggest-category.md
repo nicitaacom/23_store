@@ -12,7 +12,7 @@ When an admin creates a product they'd have to manually pick a category from a d
 
 - Label "AI suggesting…" (animated pulse) appears next to the Category label while loading
 - Green badge "Auto-assigned: <CategoryName> ×" appears when assigned — the × lets the admin clear it
-- Component: `app/components/ui/Modals/AdminPanel/components/AddProductForm.tsx` (lines ~790-817)
+- Component: `app/components/ui/Modals/AdminPanel/components/AddProductForm.tsx` (lines ~821-840)
 
 ### 1.2 Types
 
@@ -27,7 +27,7 @@ type AISuggestCategoryResponse = { category_id: string | null } | { error: strin
 ```
 AddProductForm (client)
   │  titleValue / descriptionValue change
-  │  useEffect — debounce 800ms, skip if same key as last call
+  │  useEffect — debounce 800ms, skip if same trimmed title as lastSuggestedKeyRef or categoryId already set
   │
   ▼
 aiSDK.suggestCategory()          ← app/sdk/AISDK/AISDK.ts
@@ -52,7 +52,7 @@ AddProductForm
 
 | Term | Meaning |
 |---|---|
-| `suggestKey` | `"${trimmedTitle}::${trimmedDescription}"` — deduplication key stored in `lastSuggestedKeyRef` |
+| `suggestKey` | trimmed title string — deduplication key stored in `lastSuggestedKeyRef`; description is excluded |
 | auto-assigned | Category set by AI, shown with green badge; user can override via dropdown or clear with × |
 | rate limit | 10 calls/min per IP via Upstash fixed window — key: `ai:suggest-category:<ip>` |
 
@@ -61,10 +61,10 @@ AddProductForm
 ## 3. How it works
 
 ```
-User types title (≥10 chars)
+User types title (≥10 chars) AND no categoryId already set
       │
-      ▼ 800ms debounce
-   same suggestKey as last call?
+      ▼ 800ms debounce (suggestDebounceRef clears on re-render)
+   same trimmed title as lastSuggestedKeyRef?
       │ yes → skip (prevents double-fire when allCategories loads after title)
       │ no  → call API
       ▼
@@ -83,8 +83,8 @@ The `lastSuggestedKeyRef` is reset to `null` in `clearForm()` so the next produc
 
 **Fix** (`AddProductForm.tsx`):
 - Added `lastSuggestedKeyRef = useRef<string | null>(null)`
-- Before scheduling the timeout, compute `key = "${trimmed}::${description}"` and early-return if `lastSuggestedKeyRef.current === key`
-- Set `lastSuggestedKeyRef.current = key` at the start of the timeout callback
+- Before scheduling the timeout, early-return if `lastSuggestedKeyRef.current === trimmed`
+- Set `lastSuggestedKeyRef.current = trimmed` at the start of `runSuggestCategory`
 - Reset to `null` in `clearForm()`
 
 ---
