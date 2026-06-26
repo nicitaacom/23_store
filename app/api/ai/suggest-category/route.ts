@@ -47,13 +47,21 @@ export async function POST(req: NextRequest) {
 
   const categoryList = categoriesResult.map(c => ({ id: c.id, name: c.name }))
 
+  const categoryLines = categoryList.map((c, index) => `${index + 1}. ${c.name} → ${c.id}`).join("\n")
+
   const systemPrompt = `You are a product categorization assistant for an e-commerce store.
 Your only job is to pick the single most fitting category ID from the list below.
-Respond with ONLY the UUID — no explanation, no punctuation, nothing else.
-If no category fits at all, respond with the word null.
 
-Categories (id → name):
-${JSON.stringify(categoryList)}`
+Rules:
+- Pick the MOST SPECIFIC category that matches the product's primary purpose.
+- Do NOT pick a broad or loosely related category — only pick one where the product clearly belongs.
+- Example: "Aloe Vera Gel" belongs to "Facial Care" or "Skin Care", NOT "Makeup".
+- Example: "Insulated Noodle Bowl" belongs to "Food Service Equipment" or "Kitchen", NOT "Home & Garden".
+- Respond with ONLY the UUID of the chosen category — no explanation, no punctuation, nothing else.
+- If no category is a clear match, respond with the word null.
+
+Available categories:
+${categoryLines}`
 
   const userPrompt = `Product title: "${trimmedTitle}"`
 
@@ -64,7 +72,7 @@ ${JSON.stringify(categoryList)}`
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      max_completion_tokens: 4000,
+      max_completion_tokens: 500,
     })
 
     const raw = completion.choices[0]?.message?.content?.trim() || "null"
