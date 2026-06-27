@@ -16,8 +16,8 @@ interface SomethingProps {
 
 export function Something({ className, title }: SomethingProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { isSkeleton, handleToggle, refetch } = useSetSomething()
 
+  const { isSkeleton, refetch } = useSetSomething()
   const { handleRename, handleDelete } = useSomethingHandlers()
 
   const rateLimitSDK = new RateLimitSDK()

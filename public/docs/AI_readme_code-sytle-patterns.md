@@ -28,7 +28,7 @@ DO NOT SKIP. DO NOT RUSH through this.
 
 [pusher-patterns](./code-patterns/component-related/pusher-patterns.md)
 [zustand-patterns](./code-patterns/component-related/zustand-patterns.md)
-[component-rendering-useMemo-isSkeleton-hook-patterns](./code-patterns/component-related/tsx-component-patterns)
+[component-rendering-useMemo-isSkeleton-hook-patterns](./code-patterns/component-related/component-rendering-useMemo-isSkeleton-hook-patterns.md)<br/>
 
 ## Code style rules
 
@@ -47,6 +47,7 @@ DO NOT SKIP. DO NOT RUSH through this.
 10. NEVER export types from client or server components. They should be exported from a separated `typeName.ts` file.
 11. NEVER export const with classNames
 12. NEVVER use `localstorage.setItem` or `localstorage.getItem` - use zustand store persist instead
+13. Prefer `null` over empty strings where the absence of a value matters.
 
 ## General architecture
 
@@ -118,32 +119,6 @@ Component
 | `isSkeleton`   | initial load      | shimmer for list or card                     |
 | `isLoading`    | one button/action | disable a single button                      |
 | `currentState` | status badge      | `"fetching"` / `"updating"` / `"up to date"` |
-
-## Zustand store pattern
-
-Use Zustand for UI and app state.
-
-```ts
-import { create } from "zustand"
-
-type Store = {
-  value: string
-  setValue: (value: string) => void
-}
-
-export const useStore = create<Store>(set => ({
-  value: "",
-  setValue: value => set({ value }),
-}))
-```
-
-### Store rules
-
-- Keep action names full and clear.
-- Destructure store functions in hooks and components.
-- Prefer direct state updates.
-- Avoid callback-style setters that behave like `useState`.
-- Keep server sync logic outside the store unless the store is specifically for UI state.
 
 ### Store action style
 
@@ -346,138 +321,3 @@ export async function aiPrettifyMessage(
 - Build prompts from small clear parts.
 - Return only the final result object or error string.
 - Avoid extra explanation in the returned AI output.
-
-## Lists, maps, and derived data
-
-Use `useMemo` for derived structures like maps, lookup tables, and booleans computed from arrays.
-
-```ts
-const isAllDayMap = useMemo(
-  () =>
-    Object.fromEntries(
-      schedules.map(schedule => [
-        schedule.id,
-        DAYS.every(day => {
-          const slots = schedule.schedule[day]
-          return slots?.length === 1 && slots[0][0] === 0 && slots[0][1] === 24
-        }),
-      ]),
-    ),
-  [schedules],
-)
-```
-
-### Rules
-
-- Use memoization for derived data that depends only on existing state.
-- Keep derived data out of Zustand unless it must be stored.
-- Use readable names like `isAllDayMap`, `dropdownStates`, `newTimeSlots`.
-
-## Time slot and schedule rules
-
-- Prefer `null` over empty strings where the absence of a value matters.
-- Guard invalid state before mutation.
-- Merge overlapping time slots when needed.
-- Handle overnight ranges explicitly.
-- Reset temporary UI inputs after successful add.
-
-Example:
-
-```ts
-if (!temp.from || !temp.to) return schedule
-const from = Number(temp.from)
-const to = Number(temp.to)
-if (isNaN(from) || isNaN(to)) return schedule
-```
-
-## Error handling rules
-
-- Check returned strings from server actions and SDK helpers.
-- Convert unknown errors into readable strings.
-- Set error state once and keep it visible in the UI.
-- Do not hide failures silently.
-
-Pattern:
-
-```ts
-catch (error) {
-  setErrorMessage(error instanceof Error ? error.message : String(error))
-}
-```
-
-## Preferred file structure
-
-```txt
-components/
-hooks/
-store/
-actions/
-types/
-consts/
-utils/
-classes/
-```
-
-## When generating new code
-
-AI should follow these steps:
-
-1. Match the existing naming style.
-2. Keep functions small and focused.
-3. Use the same state pattern already used in the app.
-4. Use TS types everywhere.
-5. Keep UI compact.
-6. Return string errors from server-side helpers.
-7. Keep side effects in hooks.
-8. Use `twMerge` for conditional Tailwind classes.
-9. Put `className` first in TSX props.
-10. Prefer the smallest possible change that fits the pattern.
-
-## Example checklist for AI-generated code
-
-Before returning code, verify that it:
-
-- uses concise structure
-- keeps `className` first
-- uses descriptive variable names
-- returns string errors where needed
-- keeps hooks in charge of side effects
-- keeps components thin
-- uses `useMemo` and `useCallback` where appropriate
-- follows the store/action separation
-- matches the project’s minimal UI style
-
-## Notes
-
-- This guide is optimized for code that should look like your current codebase.
-- If a pattern is already established in the surrounding file, keep it.
-- Prefer consistency over novelty.
-- Avoid introducing new abstractions unless they reduce complexity.
-- Use <Image/> component from "next/image" for better prformance - pass props `alt` `src` `width` `height` `sizes`
-- follow this order of props - style is ALWAYS comes first - then className - then rest
-
-## Example: compact helper style
-
-```ts
-const scrollToFocusedItem = (
-  hour: number,
-  activeDropdown: { day: string; type: string } | null,
-  refs: React.RefObject<Record<string, HTMLDivElement | null>>,
-) => {
-  if (!activeDropdown) return
-  const container = refs.current[`${activeDropdown.day}-${activeDropdown.type}`]
-  ;(container?.children[hour] as HTMLElement)?.scrollIntoView({ block: "nearest" })
-}
-```
-
-## Example: compact action style
-
-```ts
-export const setFocusedIndex = (index: number) => set({ focusedIndex: index })
-```
-
-## Example: compact TSX props style
-
-```tsx
-<input className="flex-1 px-2 py-1.5 text-sm rounded-md" value={value} onChange={onChange} />
-```
