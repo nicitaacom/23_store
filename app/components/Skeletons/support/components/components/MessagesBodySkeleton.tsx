@@ -1,5 +1,14 @@
-import "react-loading-skeleton/dist/skeleton.css"
-
 export function MessagesBodySkeleton() {
-  return <div style={{ backgroundColor: "hsl(0deg 0% 19%)", width: "100%", height: "100%" }} />
+  return (
+    <div className="min-h-0 flex-1 bg-background/35 px-3 py-3 laptop:px-4">
+      <div className="flex animate-pulse flex-col gap-3">
+        {[false, true, false, true].map((isOwn, index) => (
+          <div key={index} className={`flex w-full items-end gap-2 ${isOwn ? "justify-end" : ""}`}>
+            {!isOwn && <div className="h-8 w-8 shrink-0 rounded bg-foreground/60" />}
+            <div className={`h-12 rounded bg-foreground/40 ${isOwn ? "w-[45%]" : "w-[60%]"}`} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }

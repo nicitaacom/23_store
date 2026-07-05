@@ -1,18 +1,9 @@
-import Skeleton from "react-loading-skeleton"
-import "react-loading-skeleton/dist/skeleton.css"
-
 export function MessagesFooterSkeleton() {
   return (
-    <div className="relative w-full bg-background z-[101]">
-      <div className="w-full h-[49px] bg-foreground p-3 flex items-center">
-        <Skeleton
-          duration={2}
-          containerClassName="absolute top-0 left-0 flex w-full h-[1px]"
-          style={{ display: "flex", width: "100%", height: "1px" }}
-          baseColor="hsl(0deg 0% 56%)"
-          highlightColor="hsl(0deg 0% 100%)"
-        />
-        <p style={{ color: "hsla(0, 0%, 100%, 0.6)" }}>Enter message...</p>
+    <div className="w-full border-t border-border-color/35 bg-background/55 px-3 py-3">
+      <div className="flex animate-pulse items-end gap-2 rounded border border-border-color/25 bg-background/60 px-3 py-2">
+        <div className="h-6 flex-1 rounded bg-foreground/40" />
+        <div className="h-8 w-8 shrink-0 rounded bg-foreground/60" />
       </div>
     </div>
   )

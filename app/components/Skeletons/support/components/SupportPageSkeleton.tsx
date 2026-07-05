@@ -1,46 +1,31 @@
-import "react-loading-skeleton/dist/skeleton.css"
 import { MessagesBodySkeleton, MessagesFooterSkeleton, MessagesHeaderSkeleton } from "./components"
 import { DesktopSidebarSkeleton } from "./components/DesktopSidebarSkeleton"
-import Skeleton from "react-loading-skeleton"
 import { MobileSidebarSkeleton } from "./components/MobileSidebarSkeleton"
 
 export function SupportPageSkeleton({ ticketId }: { ticketId: string | Record<string, string | string[] | undefined> }) {
-  return (
-    <main
-      className="w-full h-[calc(100vh-81px)] overflow-x-hidden overflow-y-auto hide-scrollbar
-      flex flex-row">
-      {/* max-width:1024px */}
+  const hasTicket = typeof ticketId === "object" && Object.keys(ticketId).length !== 0
 
+  return (
+    <div className="flex h-[calc(100vh-64px)] min-h-0 bg-background px-2 pb-2 pt-2 laptop:gap-4 laptop:px-4 laptop:pb-4">
       <DesktopSidebarSkeleton />
-      {typeof ticketId === "object" && Object.keys(ticketId).length !== 0 ? (
-        <>
-          <div className="w-full laptop:w-[calc(100%-16rem)] flex flex-col">
-            <MessagesHeaderSkeleton />
-            <MessagesBodySkeleton />
-            <MessagesFooterSkeleton />
-          </div>
-        </>
+      {hasTicket ? (
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border-color/35 bg-foreground/35">
+          <MessagesHeaderSkeleton />
+          <MessagesBodySkeleton />
+          <MessagesFooterSkeleton />
+        </div>
       ) : (
         <>
-          <main
-            className="relative w-full h-full laptop:w-[calc(100%-16rem)] hidden laptop:flex
-            justify-center items-center
-            shadow-[inset_0px_8px_6px_rgba(0,0,0,0.4)] z-[100]"
-            style={{ color: "hsl(0deg 0% 82%)", backgroundColor: "hsl(0deg 0% 19%)" }}>
-            Select ticket
-            <Skeleton
-              duration={2}
-              containerClassName="absolute bottom-0 flex w-full h-[1px]"
-              style={{ display: "flex", width: "100%", height: "1px" }}
-              baseColor="hsl(0deg 0% 56%)"
-              highlightColor="hsl(0deg 0% 100%)"
-            />
-          </main>
+          <div className="hidden min-w-0 flex-1 items-center justify-center rounded-lg border border-border-color/35 bg-foreground/35 p-6 laptop:flex">
+            <div className="w-full max-w-lg animate-pulse text-center">
+              <div className="mx-auto h-8 w-48 rounded bg-foreground/60" />
+              <div className="mx-auto mt-3 h-3 w-72 rounded bg-foreground/40" />
+              <div className="mx-auto mt-2 h-3 w-56 rounded bg-foreground/40" />
+            </div>
+          </div>
           <MobileSidebarSkeleton />
         </>
       )}
-
-      {/* min-width:1024px */}
-    </main>
+    </div>
   )
 }
