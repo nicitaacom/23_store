@@ -3,6 +3,7 @@ import moment from "moment-timezone"
 import { IMessageDB } from "@/ts/support/IMessageDB"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import { getUserId } from "@/utils/getUserId"
+import { getDisplayUsername } from "@/utils/getDisplayUsername"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
@@ -16,6 +17,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
 
   const isFirstMessage = messages.length === 0
   const ticketId = ticketIdState || getUserId()
+  const senderUsername = getDisplayUsername(sender_id)
 
   const message: IMessageDB = {
     id: crypto.randomUUID(), // to don't wait response from DB about generated id
@@ -25,7 +27,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
     images: imageUrl ? [imageUrl] : null,
     sender_id: sender_id,
     sender_avatar_url: null,
-    sender_username: sender_id,
+    sender_username: senderUsername,
     ticket_id: ticketId,
   }
 
@@ -47,7 +49,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
       await supportSDK.openTicket({
         ticketId: message.ticket_id,
         ownerId: sender_id,
-        ownerUsername: sender_id,
+        ownerUsername: senderUsername,
         messageBody: messageBody || t("message.image_sent"),
         ownerAvatarUrl: null,
       })
@@ -66,7 +68,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
         id: message.id,
         ticketId: message.ticket_id,
         senderId: message.sender_id,
-        senderUsername: message.sender_id,
+        senderUsername: senderUsername,
         senderAvatarUrl: null,
         messageBody: message.body,
         images: imageUrl ? [imageUrl] : undefined,
