@@ -118,7 +118,7 @@ utm_stats
 
 ---
 
-## 2. TODO + decisions made AGAINST
+## 2. decisions made AGAINST/FOR
 
 ### Decisions made against (and why)
 

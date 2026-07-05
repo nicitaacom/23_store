@@ -3,6 +3,7 @@
 ## 0. Why this exists
 
 `/popular-products` is the storefront feed. "Popular" = **most-liked products first**. Users can:
+
 - **Like** a product (heart) — only if they have NOT bought it.
 - **Rate** a product 1–5 stars — only if they HAVE bought it (one rating per user).
 
@@ -31,6 +32,7 @@ likes. The DB only holds global counters. Full SQL + RPCs: [dev_readme-supbase-s
 ```
 
 RPCs (atomic so concurrent bumps don't clobber):
+
 - `increment_product_likes(p_id, delta)` — +1 like / -1 unlike (clamped ≥ 0)
 - `add_product_rating(p_id, stars)` — `rating_sum += stars`, `rating_count += 1`
 
@@ -47,6 +49,7 @@ ProductLikeButton                          PopularProductCard stars
 ```
 
 Stores (all `app/store/user/`, localStorage-persisted):
+
 - `likedProductsStore` — which products I liked (heart state)
 - `ratedProductsStore` — my star rating per product (one per product)
 - `purchasedProductsStore` — products I bought (gates like vs rate)
@@ -58,7 +61,7 @@ Both the initial fetch ([popularProducts.ts](../../../libs/popularProducts.ts)) 
 change one, change the other or paging will skip/repeat rows. (The old alphabetical
 `sortProductsByLocale` re-sort was removed here — it would override the likes order per page.)
 
-## 5. TODO / decided against
+## 5. Decisions AGAINST/FOR
 
 - **AGAINST: server-side per-user dedup / an orders table.** No orders table exists; purchases are tracked
   client-side to match the app's existing likes/cart altitude. Trade-off: counters can be gamed by clearing
