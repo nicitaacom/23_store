@@ -4,6 +4,7 @@ import { Fragment, useRef } from "react"
 import { BiSupport } from "react-icons/bi"
 
 import { DragAndDropArea } from "./DragAndDropArea/DragAndDropArea"
+import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 import useUserStore from "@/store/user/userStore"
 import { MessageBox } from "../components/MessageBox"
 import { MessageInput } from "../../ui/Inputs/MessageInput"
@@ -41,26 +42,30 @@ export default function SupportButtonDropdown() {
   })
 
   return (
-    <section className="relative flex h-[440px] w-[min(92vw,390px)] flex-col overflow-hidden rounded-md border border-border-color/35 bg-foreground/95 mobile:h-[540px]">
-      <div className="border-b border-border-color/35 bg-background/55 px-3 py-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-brand/20 bg-brand/10 text-brand">
-              <BiSupport size={18} />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-base font-semibold text-title mobile:text-lg">Support chat</h1>
-              <p className="mt-0.5 text-xs text-subTitle">{t("response_time", { number: 15 })}</p>
-            </div>
+    <section className="relative flex h-[440px] w-[min(92vw,390px)] flex-col overflow-hidden rounded-lg border border-border-color/35 bg-modal-surface shadow-compact-lg mobile:h-[540px]">
+      <OrganicCanvasBackground
+        className="overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.12),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))]"
+        parentClassName="relative flex items-start justify-between gap-2 px-3 py-3"
+        particleCount={2}
+        brandHsl="137, 82%, 52%"
+        verticalOverflow={12}>
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/16 bg-white/8 text-success-accent">
+            <BiSupport size={18} />
           </div>
-          <MarkTicketAsCompletedUser
-            isClosedBySupport={isClosedBySupport}
-            key={ticketId || "empty-ticket"}
-            messagesLength={messages.length}
-            ticketId={ticketId}
-          />
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-success/85">Support</p>
+            <h1 className="text-[16px] font-semibold text-white mobile:text-[18px]">{t("ready_title")}</h1>
+            <p className="mt-0.5 text-[11px] text-white/55">{t("response_time", { number: 15 })}</p>
+          </div>
         </div>
-      </div>
+        <MarkTicketAsCompletedUser
+          isClosedBySupport={isClosedBySupport}
+          key={ticketId || "empty-ticket"}
+          messagesLength={messages.length}
+          ticketId={ticketId}
+        />
+      </OrganicCanvasBackground>
 
       {isLoading ? (
         <div className="flex flex-1 items-center justify-center px-4">
@@ -88,7 +93,7 @@ export default function SupportButtonDropdown() {
           ) : (
             <div className="flex flex-1 items-center justify-center px-4 py-5">
               <div className="max-w-[260px] rounded border border-border-color/35 bg-background/35 px-4 py-5 text-center">
-                <p className="text-base font-semibold text-title">Support is ready</p>
+                <p className="text-base font-semibold text-title">{t("ready_title")}</p>
                 <p className="mt-2 text-sm text-subTitle">{t("no_messages_yet")}.</p>
               </div>
             </div>

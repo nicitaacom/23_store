@@ -1,15 +1,14 @@
 "use client"
 
-import Image from "next/image"
 import { useState } from "react"
 import { CiStar } from "react-icons/ci"
 import { FaStar } from "react-icons/fa"
+import { FiCheckCircle } from "react-icons/fi"
 import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
 import { Button } from "@/components/ui"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
-import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 
 interface MarkTicketAsCompletedUserProps {
@@ -20,7 +19,6 @@ interface MarkTicketAsCompletedUserProps {
 
 export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, messagesLength }: MarkTicketAsCompletedUserProps) {
   const router = useRouter()
-  const { isDarkMode } = useDarkModeStore()
   const { closeDropdown } = useSupportDropdown()
 
   const [rating, setRating] = useState<number | null>(null)
@@ -79,22 +77,17 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
     <>
       <button
         className={twMerge(
-          "flex h-8 w-8 items-center justify-center rounded border border-border-color/60 bg-background/45 transition-colors duration-150 hover:border-success/35 hover:bg-success/10",
+          "flex h-8 w-8 items-center justify-center rounded border border-white/16 bg-white/8 text-white/85 transition-colors duration-150 hover:border-success-accent/40 hover:bg-success-accent/15 hover:text-success-accent",
           messagesLength === 0 && "cursor-not-allowed opacity-55",
         )}
         onClick={() => messagesLength !== 0 && setShowMarkTicketAsCompleted(true)}
         title={messagesLength === 0 ? "I don't let you close empty ticket" : "Close ticket"}
         type="button">
-        <Image
-          src={isDarkMode ? "/mark-ticket-as-completed-dark.png" : "/mark-ticket-as-completed-light.png"}
-          alt="Close ticket"
-          width={26}
-          height={26}
-        />
+        <FiCheckCircle size={16} />
       </button>
 
       <div className={overlayClass(showMarkTicketAsCompleted && !isClosedBySupport, "z-30")}>
-        <div className="w-full max-w-[270px] rounded-md border border-border-color/60 bg-foreground/95 p-4 text-center">
+        <div className="w-full max-w-[270px] rounded-lg border border-border-color/35 bg-foreground/95 p-4 text-center shadow-compact-lg">
           <h1 className="text-base font-semibold text-title">Close this ticket?</h1>
           <p className="mt-2 text-sm text-subTitle">You can rate the conversation right after closing it.</p>
           <div className="mt-3 flex justify-center gap-2">
@@ -109,7 +102,7 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
       </div>
 
       <div className={overlayClass(showRateThisTicket || isClosedBySupport, "z-40")}>
-        <div className="w-full max-w-[290px] rounded-md border border-border-color/60 bg-foreground/95 p-4 text-center">
+        <div className="w-full max-w-[290px] rounded-lg border border-border-color/35 bg-foreground/95 p-4 text-center shadow-compact-lg">
           <h1 className="text-base font-semibold text-title">Please rate this ticket</h1>
           <div className="mt-3 flex justify-center gap-1.5">{stars}</div>
           <Button className="mt-3" variant="default-outline" size="sm" onClick={() => rateTicket(null)}>
@@ -119,7 +112,7 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
       </div>
 
       <div className={overlayClass(showThankYou, "z-50")}>
-        <div className="w-full max-w-[220px] rounded-md border border-border-color/60 bg-foreground/95 p-5 text-center">
+        <div className="w-full max-w-[220px] rounded-lg border border-border-color/35 bg-foreground/95 p-4 text-center shadow-compact-lg">
           <h1 className="text-lg font-semibold text-title">Thank you</h1>
         </div>
       </div>
