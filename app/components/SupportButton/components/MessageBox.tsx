@@ -1,12 +1,12 @@
 "use client"
 
-import Image from "next/image"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { BsCheck2 } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
 
 import useSender from "@/hooks/ui/useSender"
+import useToast from "@/store/ui/useToast"
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
 import { useScopedI18n } from "@/locales/client"
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
@@ -21,10 +21,12 @@ interface MessageBoxProps {
 }
 
 export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxProps) {
+  const toast = useToast()
   const { isOwn, avatar_url } = useSender(message.sender_avatar_url || "", message.sender_id)
   const t = useScopedI18n("support")
   const { setImage } = useGlobalImagePreview()
   const [isOpeningImage, setIsOpeningImage] = useState(false)
+  const [isImageBroken, setIsImageBroken] = useState(false)
 
   if (!message || !message.sender_id) {
     return null
@@ -37,17 +39,25 @@ export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxPr
   const incomingLabel = message.sender_username || "Support"
 
   async function handleOpenImage(imageUrl: string) {
+    // The image can be deleted from storage after the message was sent — fetch then 404s or fails outright.
+    if (isImageBroken) return toast.show("warning", t("image_no_longer_available"))
     try {
       setIsOpeningImage(true)
 
       const response = await fetch(imageUrl)
-      if (!response.ok) return
+      if (!response.ok) {
+        setIsImageBroken(true)
+        return toast.show("warning", t("image_no_longer_available"))
+      }
 
-      const blob = await response.blob()
+      const imageBlob = await response.blob()
       const fileName = imageUrl.split("/").pop()?.split("?")[0] || "chat-image"
-      const imageFile = new File([blob], fileName, { type: blob.type || "image/jpeg" })
+      const imageFile = new File([imageBlob], fileName, { type: imageBlob.type || "image/jpeg" })
 
       setImage(imageFile, isOwn ? "user" : "support", true)
+    } catch {
+      setIsImageBroken(true)
+      toast.show("warning", t("image_no_longer_available"))
     } finally {
       setIsOpeningImage(false)
     }
@@ -77,7 +87,7 @@ export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxPr
             className={twMerge("relative w-full max-w-[240px] overflow-hidden rounded border", isOwn ? ownBubbleClass : foreignBubbleClass)}
             onClick={() => handleOpenImage(message.images![0])}
             type="button">
-            <Image
+            <ImageWithFallback
               className={twMerge("max-h-[220px] w-full object-cover transition-transform duration-300 hover:scale-[1.02]", isOpeningImage && "opacity-70")}
               src={message.images[0]}
               alt="Message attachment"
@@ -86,7 +96,9 @@ export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxPr
               sizes="240px"
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent px-3 py-2 text-left">
-              <p className="text-[11px] font-medium text-white">{isOpeningImage ? "Opening preview..." : "Open image"}</p>
+              <p className="text-[11px] font-medium text-white">
+                {isImageBroken ? t("image_no_longer_available") : isOpeningImage ? "Opening preview..." : "Open image"}
+              </p>
             </div>
           </button>
         )}

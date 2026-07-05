@@ -482,6 +482,7 @@ export default {
   "support.how_you_got_this_error": "Пожалуйста, опишите, как возникла эта ошибка",
   "support.images_attached": "{number} прикреплённых изображений",
   "support.image_attached_click_to_preview": "Изображение прикреплено - нажмите для просмотра",
+  "support.image_no_longer_available": "Это изображение больше недоступно",
   "support.remove_image": "Удалить изображение",
   "support.response_time": "Время ответа ~{number}s",
   "support.loading_messages": "Загрузка сообщений",

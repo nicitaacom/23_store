@@ -482,6 +482,7 @@ export default {
   "support.how_you_got_this_error": "Please let me know how you got this error",
   "support.images_attached": "{number} images attached",
   "support.image_attached_click_to_preview": "Image attached - Click to preview",
+  "support.image_no_longer_available": "This image is no longer available",
   "support.remove_image": "Remove image",
   "support.response_time": "Response ~{number}s",
   "support.loading_messages": "Loading messages",

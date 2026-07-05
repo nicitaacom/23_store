@@ -482,6 +482,7 @@ export default {
   "support.how_you_got_this_error": "Kerrothan miten sait tämän virheen",
   "support.images_attached": "{number} kuvaa liitetty",
   "support.image_attached_click_to_preview": "Kuva liitetty – klikkaa esikatsellaksesi",
+  "support.image_no_longer_available": "Tämä kuva ei ole enää saatavilla",
   "support.remove_image": "Poista kuva",
   "support.response_time": "Vastausaika ~{number}s",
   "support.loading_messages": "Ladataan viestejä",

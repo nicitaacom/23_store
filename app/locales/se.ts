@@ -482,6 +482,7 @@ export default {
   "support.how_you_got_this_error": "Berätta hur du fick detta fel",
   "support.images_attached": "{number} bifogade bilder",
   "support.image_attached_click_to_preview": "Bild bifogad - klicka för förhandsgranskning",
+  "support.image_no_longer_available": "Den här bilden är inte längre tillgänglig",
   "support.remove_image": "Ta bort bild",
   "support.response_time": "Svarstid ~{number}s",
   "support.loading_messages": "Laddar meddelanden",
