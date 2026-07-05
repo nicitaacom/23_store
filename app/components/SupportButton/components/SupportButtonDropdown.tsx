@@ -101,7 +101,7 @@ export default function SupportButtonDropdown() {
               </div>
             </div>
           )}
-          <MessageInput />
+          <MessageInput placeholder={t("message_placeholder")} />
         </div>
       )}
 
