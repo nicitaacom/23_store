@@ -19,7 +19,6 @@ export function ThisTicketIsCompleted({ ticketId }: { ticketId: string }) {
           priority
         />
         <div className="flex flex-col gap-y-2 px-2">
-          <p className="font-primary text-[11px] font-semibold uppercase tracking-[0.28em] text-success/85">Support workspace</p>
           <h1 className="mt-2 font-secondary text-2xl font-bold tracking-tight text-title laptop:text-4xl">Ticket closed</h1>
           <p className="text-sm leading-6 text-subTitle">
             Ticket {ticketId} is already closed, so this conversation now lives in the archived support workspace.
