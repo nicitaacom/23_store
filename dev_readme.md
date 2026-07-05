@@ -12,12 +12,10 @@
 
 Problem that this site solve
 
-<b>Problem: </b>Buy and sell something<br/>
-<b>Solution: </b>Create this site that better other ones where everybody can buy or sell something<br/>
+<b>Problem: </b>Buy and sell something but we have amazon but it has bad UI and prices can be lower<br/>
+<b>Solution: </b>Create this site that better other ones where everybody can buy or sell something with low prices and better variety of products<br/>
 Site created with focus on performance for better SEO<br/>
 Obviously it's no ads for this so not everyone even will know about this project
-
-// TODO - not done yet
 
 </details>
 
