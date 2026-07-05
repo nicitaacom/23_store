@@ -4,6 +4,7 @@ import { Fragment, useRef } from "react"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
 import { MessageBox } from "@/components/SupportButton/components/MessageBox"
+import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 import { useScopedI18n } from "@/locales/client"
 import { getSupportMessageDayLabel, isSupportMessageSameDay } from "@/utils/support/getSupportMessageDayLabel"
 import { useMessagesBody } from "../../hooks/useMessagesBody"
@@ -36,7 +37,12 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
   }
 
   return (
-    <div className="min-h-0 flex-1 bg-background/35 px-3 py-3 laptop:px-4">
+    <OrganicCanvasBackground
+      className="min-h-0 flex-1 bg-background/35"
+      parentClassName="flex flex-col px-3 py-3 laptop:px-4"
+      particleCount={4}
+      brandHsl="137, 82%, 52%"
+      canvasOpacity={0.22}>
       <ul className="panel-scroll flex h-full w-full flex-col gap-3 overflow-y-auto pr-1" ref={bottomRef}>
         {messages.map((message, index) => (
           <Fragment key={message.id}>
@@ -51,6 +57,6 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
           </Fragment>
         ))}
       </ul>
-    </div>
+    </OrganicCanvasBackground>
   )
 }
