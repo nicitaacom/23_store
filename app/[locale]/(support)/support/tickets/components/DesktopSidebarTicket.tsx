@@ -24,7 +24,7 @@ export function DesktopSidebarTicket({ ticket, unseenMessagesAmount, onClick }: 
   return (
     <Link
       className={twMerge(
-        "group relative flex items-start gap-2 rounded-md border border-transparent bg-background/20 px-2.5 py-2.5 transition-colors duration-150 hover:border-border-color/35 hover:bg-background/45",
+        "group relative flex items-start gap-2 rounded-md border border-transparent bg-background/20 px-2.5 py-2.5 transition-colors duration-150 hover:border-border-color/35 hover:bg-foreground",
         ticketId === ticket.id && "border-border-color/45 bg-background/60",
       )}
       href={`/support/tickets/${ticket.id}`}

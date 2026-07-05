@@ -25,7 +25,7 @@ export function MobileSidebarTicket({ ticket, unseenMessagesAmount, onClick }: M
   return (
     <li key={ticket.id}>
       <button
-        className="flex w-full items-start gap-2 rounded-md border border-transparent bg-background/20 px-2.5 py-2.5 text-left transition-colors duration-150 hover:border-border-color/35 hover:bg-background/45"
+        className="flex w-full items-start gap-2 rounded-md border border-transparent bg-background/20 px-2.5 py-2.5 text-left transition-colors duration-150 hover:border-border-color/35 hover:bg-foreground"
         onClick={openTicket}
         type="button">
         <Image
