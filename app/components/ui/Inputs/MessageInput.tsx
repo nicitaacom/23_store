@@ -12,9 +12,12 @@ import { useI18n } from "@/locales/client"
 
 interface MessageInputProps {
   className?: string
+  placeholder?: string
+  /** When set, the composer clears itself and calls this instead of the customer send flow (support reply path). */
+  onSend?: (messageBody: string, image: File | null) => Promise<void>
 }
 
-export function MessageInput({ className }: MessageInputProps) {
+export function MessageInput({ className, placeholder, onSend }: MessageInputProps) {
   const t = useI18n()
   const { messageBodyValue, setMessageBodyValue, image } = useMessagesStore()
   const [height, setHeight] = useState(52)
@@ -30,6 +33,14 @@ export function MessageInput({ className }: MessageInputProps) {
 
   async function submitMessage() {
     if (!messageBodyValue.trim().length && !image) return
+
+    if (onSend) {
+      const messageBody = messageBodyValue.trim()
+      setMessageBodyValue("")
+      setHeight(36)
+      await onSend(messageBody, image)
+      return
+    }
 
     setMessageBodyValue("")
     setHeight(36)
@@ -80,16 +91,16 @@ export function MessageInput({ className }: MessageInputProps) {
   }
 
   return (
-    <div className="w-full border-t border-white/8 bg-[#171922] px-3 py-3">
+    <div className="w-full border-t border-border-color/35 bg-background/55 px-3 py-3">
       <PastedImagePreview />
-      <div className="flex items-end gap-2 rounded border border-white/8 bg-[#20232d] px-3 py-2 shadow-compact">
+      <div className="flex items-end gap-2 rounded border border-border-color/25 bg-background/60 px-3 py-2 shadow-compact transition-colors duration-150 focus-within:border-brand/40 focus-within:bg-background">
         <textarea
           ref={textareaRef}
           className={twMerge(
-            "hide-scrollbar min-h-[24px] w-full resize-none bg-transparent py-1 text-sm leading-6 text-slate-100 outline-none placeholder:text-slate-500",
+            "hide-scrollbar min-h-[24px] w-full resize-none bg-transparent py-1 text-sm leading-6 text-title outline-none placeholder:text-subTitle/55",
             className,
           )}
-          placeholder="Type a new message..."
+          placeholder={placeholder ?? "Type a new message..."}
           autoFocus
           value={messageBodyValue}
           onChange={handleChange}
@@ -99,7 +110,7 @@ export function MessageInput({ className }: MessageInputProps) {
             height: `${height}px`,
           }}></textarea>
         <button
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-violet-500/35 bg-violet-600 text-white shadow-compact transition-colors duration-150 hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-45"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-success-accent/30 bg-success-accent/10 text-success-accent transition-colors duration-150 hover:bg-success-accent/15 disabled:cursor-not-allowed disabled:opacity-45"
           disabled={!messageBodyValue.trim().length && !image}
           onClick={submitMessage}
           type="button">

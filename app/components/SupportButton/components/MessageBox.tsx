@@ -6,6 +6,7 @@ import { BsCheck2 } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
 
 import useSender from "@/hooks/ui/useSender"
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
 import { useScopedI18n } from "@/locales/client"
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
 import { IMessageDB } from "@/ts/support/IMessageDB"
@@ -13,10 +14,12 @@ import { formatTime } from "@/utils/formatTime"
 
 interface MessageBoxProps {
   message: IMessageDB
-  inverseColors?: boolean
+  /** Show the timezone suffix in the meta time (thread view); off in the compact chat window. */
+  showTimezone?: boolean
+  animateEntry?: boolean
 }
 
-export function MessageBox({ message, inverseColors }: MessageBoxProps) {
+export function MessageBox({ message, showTimezone }: MessageBoxProps) {
   const { isOwn, avatar_url } = useSender(message.sender_avatar_url || "", message.sender_id)
   const t = useScopedI18n("support")
   const { setImage } = useGlobalImagePreview()
@@ -26,12 +29,10 @@ export function MessageBox({ message, inverseColors }: MessageBoxProps) {
     return null
   }
 
-  const ownBubbleClass =
-    "rounded-br border-violet-400/35 bg-violet-600 text-white shadow-compact"
-  const foreignBubbleClass =
-    "rounded-bl border-white/8 bg-[#21232b] text-slate-100 shadow-compact"
+  const ownBubbleClass = "rounded-br border-success-accent/30 bg-success-accent/12 text-title shadow-compact"
+  const foreignBubbleClass = "rounded-bl border-border-color/30 bg-background/70 text-title shadow-compact"
   const bubbleBaseClass = "w-fit max-w-full break-words rounded border px-3 py-2 text-[13px] leading-[1.5]"
-  const metaTime = formatTime(message.created_at, !inverseColors)
+  const metaTime = formatTime(message.created_at, !showTimezone)
   const incomingLabel = message.sender_username || "Support"
 
   async function handleOpenImage(imageUrl: string) {
@@ -54,8 +55,8 @@ export function MessageBox({ message, inverseColors }: MessageBoxProps) {
   return (
     <li className={twMerge("flex w-full items-end gap-2", isOwn && "justify-end")}>
       {!isOwn && (
-        <Image
-          className="h-8 w-8 shrink-0 rounded border border-white/10 bg-[#23252d] object-cover shadow-compact"
+        <ImageWithFallback
+          className="h-8 w-8 shrink-0 rounded border border-border-color/30 bg-background/70 object-cover shadow-compact"
           src={avatar_url}
           alt="Sender avatar"
           width={32}
@@ -104,14 +105,14 @@ export function MessageBox({ message, inverseColors }: MessageBoxProps) {
 
         <div
           className={twMerge(
-            "flex items-center gap-1.5 px-1 text-[10px] text-slate-500",
+            "flex items-center gap-1.5 px-1 text-[10px] text-subTitle",
             isOwn && "justify-end",
           )}>
-          {!isOwn && <span className="font-medium text-slate-400">{incomingLabel}</span>}
-          {!isOwn && <span className="h-1 w-1 rounded-full bg-slate-600" />}
+          {!isOwn && <span className="font-medium text-subTitle">{incomingLabel}</span>}
+          {!isOwn && <span className="h-1 w-1 rounded-full bg-subTitle/40" />}
           <span>{metaTime}</span>
           {isOwn && (
-            <span className="relative ml-1 flex items-center pr-2 text-violet-300">
+            <span className="relative ml-1 flex items-center pr-2 text-success-accent">
               <BsCheck2 size={14} />
               {message.seen && <BsCheck2 className="absolute left-[5px]" size={14} />}
             </span>

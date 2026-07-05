@@ -6,4 +6,5 @@ export interface ITicketDB {
   owner_id: string
   last_message_body: string
   owner_avatar_url: string | undefined
+  last_message_at?: string
 }

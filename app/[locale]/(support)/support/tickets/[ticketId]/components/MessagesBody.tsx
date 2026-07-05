@@ -44,7 +44,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
                 </span>
               </li>
             )}
-            <MessageBox inverseColors={true} message={message} />
+            <MessageBox showTimezone={true} message={message} />
           </Fragment>
         ))}
       </ul>

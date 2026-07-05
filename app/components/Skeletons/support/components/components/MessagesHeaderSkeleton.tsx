@@ -29,14 +29,7 @@ export function MessagesHeaderSkeleton() {
         </div>
       </div>
       <div className="p-2">
-        {/* TODO - create custom component with highlight color */}
-        <Image
-          className="w-[32px] h-[32px]"
-          src="/mark-ticket-as-completed-dark.png"
-          alt="close ticket"
-          width={32}
-          height={32}
-        />
+        <Image className="w-[32px] h-[32px]" src="/mark-ticket-as-completed-dark.png" alt="close ticket" width={32} height={32} />
       </div>
     </div>
   )
