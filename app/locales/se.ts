@@ -489,6 +489,19 @@ export default {
   "support.error.filename_must_contain_dot": "Filnamn måste innehålla en punkt innan filändelsen (t.ex. 'file.jpg')",
   "support.error.file_extension_is_required": "Filändelse krävs för att sätta in i DB-bucket",
   "support.error.uploading_image": "Fel vid uppladdning av bild",
+  "support.search_placeholder": "Sök ärenden",
+  "support.no_search_results": "Inga ärenden matchar din sökning",
+  "support.status_open": "Öppet",
+  "support.status_closed": "Stängt",
+  "support.opened_on": "Öppnat {date}",
+  "support.ready_title": "Supporten är redo",
+  "support.message_placeholder": "Skriv ett nytt meddelande...",
+  "support.reply_placeholder": "Skriv ditt svar...",
+  "support.title": "Support",
+  "support.subtitle": "Välj den kanal som passar dig bäst — vi svarar oftast inom några minuter.",
+  "support.email_us": "Mejla oss",
+  "support.open_live_chat": "Öppna livechatt",
+  "support.open_telegram": "Öppna Telegram",
 
   // =================           =================
   //                   trackorder

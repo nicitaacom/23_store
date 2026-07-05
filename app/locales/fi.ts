@@ -489,6 +489,19 @@ export default {
   "support.error.filename_must_contain_dot": "Tiedostonimessä täytyy olla yksi piste ennen päätettä (esim. 'tiedosto.jpg')",
   "support.error.file_extension_is_required": "Tiedostopääte vaaditaan tietokantaan lisäämiseksi",
   "support.error.uploading_image": "Virhe kuvan latauksessa",
+  "support.search_placeholder": "Hae tikettejä",
+  "support.no_search_results": "Hakuasi vastaavia tikettejä ei löytynyt",
+  "support.status_open": "Avoin",
+  "support.status_closed": "Suljettu",
+  "support.opened_on": "Avattu {date}",
+  "support.ready_title": "Tuki on valmiina",
+  "support.message_placeholder": "Kirjoita uusi viesti...",
+  "support.reply_placeholder": "Kirjoita vastauksesi...",
+  "support.title": "Tuki",
+  "support.subtitle": "Valitse sinulle sopivin kanava — vastaamme yleensä muutamassa minuutissa.",
+  "support.email_us": "Lähetä sähköpostia",
+  "support.open_live_chat": "Avaa chat",
+  "support.open_telegram": "Avaa Telegram",
 
   // =================           =================
   //                   trackorder

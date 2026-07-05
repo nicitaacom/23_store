@@ -489,6 +489,19 @@ export default {
   "support.error.filename_must_contain_dot": "Filename must contain one dot before file extension (e.g. 'file.jpg')",
   "support.error.file_extension_is_required": "File extension is required to insert in DB bucket",
   "support.error.uploading_image": "Error uploading image",
+  "support.search_placeholder": "Search tickets",
+  "support.no_search_results": "No tickets match your search",
+  "support.status_open": "Open",
+  "support.status_closed": "Closed",
+  "support.opened_on": "Opened {date}",
+  "support.ready_title": "Support is ready",
+  "support.message_placeholder": "Type a new message...",
+  "support.reply_placeholder": "Type your reply...",
+  "support.title": "Support",
+  "support.subtitle": "Pick the channel that suits you best — we usually reply within minutes.",
+  "support.email_us": "Email us",
+  "support.open_live_chat": "Open live chat",
+  "support.open_telegram": "Open Telegram",
 
   // =================           =================
   //                   trackorder

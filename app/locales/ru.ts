@@ -489,6 +489,19 @@ export default {
   "support.error.filename_must_contain_dot": "Имя файла должно содержать одну точку перед расширением (например 'file.jpg')",
   "support.error.file_extension_is_required": "Требуется расширение файла для загрузки в bucket БД",
   "support.error.uploading_image": "Ошибка загрузки изображения",
+  "support.search_placeholder": "Поиск тикетов",
+  "support.no_search_results": "Нет тикетов по вашему запросу",
+  "support.status_open": "Открыт",
+  "support.status_closed": "Закрыт",
+  "support.opened_on": "Открыт {date}",
+  "support.ready_title": "Поддержка на связи",
+  "support.message_placeholder": "Введите новое сообщение...",
+  "support.reply_placeholder": "Введите ваш ответ...",
+  "support.title": "Поддержка",
+  "support.subtitle": "Выберите удобный для вас канал — обычно мы отвечаем в течение нескольких минут.",
+  "support.email_us": "Написать на почту",
+  "support.open_live_chat": "Открыть чат",
+  "support.open_telegram": "Открыть Telegram",
 
   // =================           =================
   //                   trackorder

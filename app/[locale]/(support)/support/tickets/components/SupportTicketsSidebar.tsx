@@ -12,7 +12,7 @@ interface SupportTicketsSidebarProps {
 }
 
 export function SupportTicketsSidebar({ initialTickets, unseenMessages }: SupportTicketsSidebarProps) {
-  const { handleOpenTicket, sortedTickets, ticketsAmount, unreadMessages } = useSupportTicketsSidebar({
+  const { handleOpenTicket, filteredTickets, searchQuery, setSearchQuery, ticketsAmount, unreadMessages } = useSupportTicketsSidebar({
     initialTickets,
     unseenMessages,
   })
@@ -21,13 +21,17 @@ export function SupportTicketsSidebar({ initialTickets, unseenMessages }: Suppor
     <>
       <DesktopSidebar
         onOpenTicket={handleOpenTicket}
-        tickets={sortedTickets}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        tickets={filteredTickets}
         ticketsAmount={ticketsAmount}
         unreadMessages={unreadMessages}
       />
       <MobileSidebar
         onOpenTicket={handleOpenTicket}
-        tickets={sortedTickets}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        tickets={filteredTickets}
         ticketsAmount={ticketsAmount}
         unreadMessages={unreadMessages}
       />

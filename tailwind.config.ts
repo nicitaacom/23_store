@@ -5,7 +5,7 @@ const config: Config = {
   theme: {
     fontFamily: {
       primary: ["Inter", "sans-serif"],
-      secondary: ["Proxima Nova", "sans-serif"],
+      secondary: ["Sora", "sans-serif"],
     },
     // Radius scale is bumped +4px globally (every `rounded*` class softens slightly).
     // `none` and `full` stay fixed. Single source of truth for corner roundness.
