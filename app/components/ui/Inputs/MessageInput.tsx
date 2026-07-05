@@ -91,9 +91,9 @@ export function MessageInput({ className, placeholder, onSend }: MessageInputPro
   }
 
   return (
-    <div className="w-full border-t border-border-color/35 bg-background/55 px-3 py-3">
+    <div className="w-full border-t border-border-color/35 bg-modal-surface px-3 py-3">
       <PastedImagePreview />
-      <div className="flex items-end gap-2 rounded border border-border-color/25 bg-background/60 px-3 py-2 shadow-compact transition-colors duration-150 focus-within:border-brand/40 focus-within:bg-background">
+      <div className="flex items-end gap-2 rounded-xl border border-border-color/25 bg-foreground/30 px-4 py-2.5 shadow-compact transition-colors duration-150 focus-within:border-brand/40 focus-within:bg-foreground/45">
         <textarea
           ref={textareaRef}
           className={twMerge(
@@ -110,7 +110,7 @@ export function MessageInput({ className, placeholder, onSend }: MessageInputPro
             height: `${height}px`,
           }}></textarea>
         <button
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-success-accent/30 bg-success-accent/10 text-success-accent transition-colors duration-150 hover:bg-success-accent/15 disabled:cursor-not-allowed disabled:opacity-45"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-success-accent/30 bg-success-accent/15 text-success-accent transition-colors duration-150 hover:bg-success-accent/25 disabled:cursor-not-allowed disabled:opacity-45"
           disabled={!messageBodyValue.trim().length && !image}
           onClick={submitMessage}
           type="button">
