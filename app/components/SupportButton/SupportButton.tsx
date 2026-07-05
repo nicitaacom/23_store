@@ -1,8 +1,8 @@
 "use client"
 
 import { useRef } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import { BiSupport } from "react-icons/bi"
-import { twMerge } from "tailwind-merge"
 
 import { Button } from "../ui"
 import SupportButtonDropdown from "@/components/SupportButton/components/SupportButtonDropdown"
@@ -20,15 +20,18 @@ export default function SupportButton() {
 
   return (
     <div className="fixed bottom-4 right-4 z-[120] mobile:bottom-5 mobile:right-5" ref={dropdownRef}>
-      <div
-        className={twMerge(
-          "pointer-events-none absolute bottom-[calc(100%+14px)] right-0 origin-bottom-right transition-all duration-200",
-          isDropdown ? "visible translate-y-0 opacity-100" : "invisible translate-y-3 opacity-0",
-        )}>
-        <div className="pointer-events-auto">
-          <SupportButtonDropdown />
-        </div>
-      </div>
+      <AnimatePresence>
+        {isDropdown && (
+          <motion.div
+            className="pointer-events-auto absolute bottom-[calc(100%+14px)] right-0 origin-bottom-right"
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 380, damping: 32 }}>
+            <SupportButtonDropdown />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Button
         className="relative h-12 w-12 border border-success/30 bg-background/95 px-0 shadow-compact backdrop-blur-xl transition-colors duration-150 hover:border-success/45 hover:bg-foreground/80 desktop:h-14 desktop:w-14"
