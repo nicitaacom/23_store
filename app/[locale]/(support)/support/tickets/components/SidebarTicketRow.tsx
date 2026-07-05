@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 
 import useTicket from "@/hooks/support/useTicket"
@@ -23,7 +24,13 @@ export function SidebarTicketRow({ ticket, unseenMessagesAmount, onClick }: Side
   const hasUnread = unseenMessagesAmount > 0
 
   return (
-    <li className="relative">
+    <motion.li
+      className="relative"
+      layout="position"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ layout: { type: "spring", stiffness: 420, damping: 34 }, opacity: { duration: 0.12 } }}>
       <Link
         className={twMerge(
           "group flex items-start gap-2 rounded-md border border-transparent bg-background/20 px-2.5 py-2.5 transition-colors duration-150 hover:border-border-color/35 hover:bg-foreground",
@@ -63,6 +70,6 @@ export function SidebarTicketRow({ ticket, unseenMessagesAmount, onClick }: Side
         </div>
         {hasUnread && <span className="absolute inset-y-3 left-0 w-0.5 rounded-full bg-success-accent" />}
       </Link>
-    </li>
+    </motion.li>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment } from "react"
+import { Fragment, useRef } from "react"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
 import { MessageBox } from "@/components/SupportButton/components/MessageBox"
@@ -18,6 +18,9 @@ export const dynamic = "force-dynamic"
 export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) {
   const t = useScopedI18n("support")
   const { bottomRef, messages } = useMessagesBody({ initialMessages, ticketId: ticket_id })
+
+  // messages present on first render are the initial load and must not animate; only later arrivals pop in
+  const initialIdsRef = useRef(new Set(messages.map(message => message.id)))
 
   if (messages.length === 0) {
     return (
@@ -44,7 +47,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
                 </span>
               </li>
             )}
-            <MessageBox showTimezone={true} message={message} />
+            <MessageBox animateEntry={!initialIdsRef.current.has(message.id)} showTimezone={true} message={message} />
           </Fragment>
         ))}
       </ul>

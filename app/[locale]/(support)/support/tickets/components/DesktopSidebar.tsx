@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence } from "framer-motion"
 import { FiSearch } from "react-icons/fi"
 
 import { SearchInput } from "@/components/ui/Inputs/SearchInput"
@@ -58,14 +59,16 @@ export function DesktopSidebar({ onOpenTicket, tickets, ticketsAmount, unreadMes
         ) : (
           <nav className="panel-scroll min-h-0 flex-1 overflow-y-auto p-2">
             <ul className="flex flex-col gap-1.5">
-              {tickets.map(ticket => (
-                <SidebarTicketRow
-                  key={ticket.id}
-                  onClick={() => onOpenTicket(ticket.id)}
-                  ticket={ticket}
-                  unseenMessagesAmount={unreadMessages[ticket.id] || 0}
-                />
-              ))}
+              <AnimatePresence initial={false} mode="popLayout">
+                {tickets.map(ticket => (
+                  <SidebarTicketRow
+                    key={ticket.id}
+                    onClick={() => onOpenTicket(ticket.id)}
+                    ticket={ticket}
+                    unseenMessagesAmount={unreadMessages[ticket.id] || 0}
+                  />
+                ))}
+              </AnimatePresence>
             </ul>
           </nav>
         )}

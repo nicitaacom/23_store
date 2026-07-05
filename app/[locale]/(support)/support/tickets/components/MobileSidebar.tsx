@@ -1,5 +1,6 @@
 "use client"
 
+import { AnimatePresence } from "framer-motion"
 import { FiSearch } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
@@ -61,14 +62,16 @@ export function MobileSidebar({ onOpenTicket, tickets, ticketsAmount, unreadMess
         ) : (
           <nav className="panel-scroll min-h-0 flex-1 overflow-y-auto p-2">
             <ul className="flex flex-col gap-1.5">
-              {tickets.map(ticket => (
-                <SidebarTicketRow
-                  key={ticket.id}
-                  onClick={() => onOpenTicket(ticket.id)}
-                  ticket={ticket}
-                  unseenMessagesAmount={unreadMessages[ticket.id] || 0}
-                />
-              ))}
+              <AnimatePresence initial={false} mode="popLayout">
+                {tickets.map(ticket => (
+                  <SidebarTicketRow
+                    key={ticket.id}
+                    onClick={() => onOpenTicket(ticket.id)}
+                    ticket={ticket}
+                    unseenMessagesAmount={unreadMessages[ticket.id] || 0}
+                  />
+                ))}
+              </AnimatePresence>
             </ul>
           </nav>
         )}

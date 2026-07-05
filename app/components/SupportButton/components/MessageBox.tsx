@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { useState } from "react"
+import { motion } from "framer-motion"
 import { BsCheck2 } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
 
@@ -19,7 +20,7 @@ interface MessageBoxProps {
   animateEntry?: boolean
 }
 
-export function MessageBox({ message, showTimezone }: MessageBoxProps) {
+export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxProps) {
   const { isOwn, avatar_url } = useSender(message.sender_avatar_url || "", message.sender_id)
   const t = useScopedI18n("support")
   const { setImage } = useGlobalImagePreview()
@@ -53,7 +54,11 @@ export function MessageBox({ message, showTimezone }: MessageBoxProps) {
   }
 
   return (
-    <li className={twMerge("flex w-full items-end gap-2", isOwn && "justify-end")}>
+    <motion.li
+      className={twMerge("flex w-full items-end gap-2", isOwn && "justify-end")}
+      initial={animateEntry ? { opacity: 0, y: 6 } : false}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.12, ease: "easeOut" }}>
       {!isOwn && (
         <ImageWithFallback
           className="h-8 w-8 shrink-0 rounded border border-border-color/30 bg-background/70 object-cover shadow-compact"
@@ -119,6 +124,6 @@ export function MessageBox({ message, showTimezone }: MessageBoxProps) {
           )}
         </div>
       </article>
-    </li>
+    </motion.li>
   )
 }
