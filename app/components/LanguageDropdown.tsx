@@ -75,7 +75,7 @@ export function LanguageDropdown({ className, isDropUp = false }: { className?: 
             <button
               key={l.code}
               className={`flex w-full items-center gap-2 whitespace-nowrap px-3 py-2 text-left text-sm transition-colors duration-100 ${
-                locale === l.code ? "bg-brand/15 text-brand" : "text-title hover:bg-foreground/10"
+                locale === l.code ? "bg-brand/15 text-brand hover:bg-brand/25" : "text-title hover:bg-foreground-accent"
               }`}
               onClick={() => handleLocaleChange(l.code)}>
               <Image src={l.flag} alt={l.name} width={18} height={13} sizes="18px" className="rounded-sm object-cover" />
