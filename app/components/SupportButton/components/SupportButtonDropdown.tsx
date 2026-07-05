@@ -47,10 +47,11 @@ export default function SupportButtonDropdown() {
   return (
     <section className="relative flex h-[440px] w-[min(92vw,390px)] flex-col overflow-hidden rounded-lg border border-border-color/35 bg-modal-surface shadow-compact-lg mobile:h-[540px]">
       <OrganicCanvasBackground
-        className="overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.12),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))]"
+        className="h-auto shrink-0 overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.06),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))]"
         parentClassName="relative flex items-start justify-between gap-2 px-3 py-3"
         particleCount={2}
         brandHsl="137, 82%, 52%"
+        canvasOpacity={0.4}
         verticalOverflow={12}>
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/16 bg-white/8 text-success-accent">

@@ -24,10 +24,11 @@ export function MessagesHeader({ owner_username, owner_avatar_url, owner_id, tic
 
   return (
     <OrganicCanvasBackground
-      className="overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.12),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))]"
+      className="h-auto shrink-0 overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.06),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))]"
       parentClassName="relative flex items-center justify-between gap-3 px-3 py-3 tablet:px-4"
       particleCount={3}
       brandHsl="137, 82%, 52%"
+      canvasOpacity={0.4}
       verticalOverflow={18}>
       <div className="flex min-w-0 items-center gap-3">
         <ImageWithFallback
@@ -44,20 +45,20 @@ export function MessagesHeader({ owner_username, owner_avatar_url, owner_id, tic
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-3">
-        <div className="hidden flex-col items-end gap-1 mobile:flex">
+      <div className="flex shrink-0 flex-col items-end gap-1">
+        <div className="flex items-center gap-2">
           <span
             className={twMerge(
-              "rounded border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em]",
+              "hidden h-7 items-center rounded border px-2 text-[10px] font-semibold uppercase tracking-[0.18em] mobile:inline-flex",
               is_open
                 ? "border-success-accent/30 bg-success-accent/12 text-success-accent"
                 : "border-danger/30 bg-danger/12 text-danger",
             )}>
             {is_open ? t("status_open") : t("status_closed")}
           </span>
-          <span className="text-[11px] text-white/50">{t("opened_on", { date: getSupportMessageDayLabel(ticket_created_at) })}</span>
+          <MarkTicketAsCompletedSupport className="border-success-accent/30 bg-success-accent/10 text-success-accent hover:bg-success-accent/15" />
         </div>
-        <MarkTicketAsCompletedSupport className="border-success-accent/30 bg-success-accent/10 text-success-accent hover:bg-success-accent/15" />
+        <span className="hidden text-[11px] text-white/50 mobile:inline">{t("opened_on", { date: getSupportMessageDayLabel(ticket_created_at) })}</span>
       </div>
     </OrganicCanvasBackground>
   )

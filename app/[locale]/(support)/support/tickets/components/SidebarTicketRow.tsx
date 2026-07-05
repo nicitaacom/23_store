@@ -40,7 +40,7 @@ export function SidebarTicketRow({ ticket, unseenMessagesAmount, onClick }: Side
         href={`/support/tickets/${ticket.id}`}
         onClick={onClick}>
         <ImageWithFallback
-          className="h-10 w-10 rounded-md border border-border-color/35 object-cover"
+          className="h-10 w-10 rounded-md object-cover"
           src={avatar_url}
           alt="Owner avatar"
           width={40}

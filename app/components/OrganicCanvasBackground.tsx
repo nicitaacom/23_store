@@ -206,6 +206,8 @@ interface OrganicCanvasBackgroundProps extends React.HTMLAttributes<HTMLDivEleme
   particleCount?: number
   brandHsl?: string
   verticalOverflow?: number
+  /** Particle-layer opacity (0-1). Lower it to dim the effect on a busy surface. Default 0.8. */
+  canvasOpacity?: number
 }
 
 export function OrganicCanvasBackground({
@@ -215,6 +217,7 @@ export function OrganicCanvasBackground({
   particleCount = 8,
   brandHsl = "210, 100%, 50%",
   verticalOverflow = 0,
+  canvasOpacity = 0.8,
   ...rest
 }: OrganicCanvasBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -327,8 +330,9 @@ export function OrganicCanvasBackground({
       {...rest}>
       <canvas
         ref={canvasRef}
-        className="pointer-events-none absolute left-0 right-0 w-full opacity-80"
+        className="pointer-events-none absolute left-0 right-0 w-full"
         style={{
+          opacity: canvasOpacity,
           mixBlendMode: "screen",
           position: "absolute",
           top: `${-verticalOverflow}px`,

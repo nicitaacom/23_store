@@ -28,15 +28,13 @@ export function MobileSidebar({ onOpenTicket, tickets, ticketsAmount, unreadMess
       <div className="flex h-full flex-col overflow-hidden rounded-lg border border-border-color/35 bg-foreground/5">
         <div className="border-b border-border-color/35 px-3 py-3">
           <p className="font-primary text-[10px] font-semibold uppercase tracking-[0.18em] text-success">Support inbox</p>
-          <div className="mt-2 flex items-end justify-between gap-2">
-            <div>
-              <h2 className="font-secondary text-xl font-bold tracking-tight text-title">Open tickets</h2>
-              <p className="mt-1 text-xs text-subTitle">Tap a ticket to open the conversation.</p>
-            </div>
-            <span className="rounded border border-success/20 bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <h2 className="min-w-0 truncate font-secondary text-xl font-bold tracking-tight text-title">Open tickets</h2>
+            <span className="shrink-0 rounded border border-success/20 bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">
               {ticketsAmount}
             </span>
           </div>
+          <p className="mt-1 text-xs text-subTitle">Tap a ticket to open the conversation.</p>
           <SearchInput
             className="mt-3 h-9"
             autoFocus={false}
