@@ -17,21 +17,21 @@ import { LanguageDropdown } from "@/components/LanguageDropdown"
 const menuItems = [
   {
     label: "Jokik Music",
-    href: "https://music.jokik.fi",
+    href: "https://music.jokik.fi?utm_source=23_store&utm_medium=hamburger_menu&utm_campaign=ecosystem",
     description: "Music platform",
     iconSrc: "/projects/spotify.png",
     iconAlt: "Jokik Music icon",
   },
   {
     label: "Jotion",
-    href: "https://jotion.jokik.fi",
+    href: "https://jotion.jokik.fi?utm_source=23_store&utm_medium=hamburger_menu&utm_campaign=ecosystem",
     description: "Notes and docs",
     iconSrc: "/projects/J.png",
     iconAlt: "Jotion icon",
   },
   {
     label: "Jompanion",
-    href: "https://jompanion.jokik.fi",
+    href: "https://jompanion.jokik.fi?utm_source=23_store&utm_medium=hamburger_menu&utm_campaign=ecosystem",
     description: "AI companion",
     iconSrc: "/projects/AI.png",
     iconAlt: "Jompanion icon",
