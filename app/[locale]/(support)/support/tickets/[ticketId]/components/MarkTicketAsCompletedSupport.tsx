@@ -11,11 +11,11 @@ export function MarkTicketAsCompletedSupport({ className }: { className?: string
 
   return (
     <Button
-      className={twMerge("rounded-full border-success/25 bg-success/10 px-3 text-success hover:bg-success/15", className)}
+      className={twMerge("border-success/25 bg-success/10 px-3 text-success hover:bg-success/15", className)}
       leftIcon={<FiCheckCircle size={15} />}
       variant="success-outline"
       size="sm"
-      rounded="full"
+      rounded="md"
       onClick={areYouSureMarkTicketAsCompletedSupportModal.openModal}
       type="button">
       Close
