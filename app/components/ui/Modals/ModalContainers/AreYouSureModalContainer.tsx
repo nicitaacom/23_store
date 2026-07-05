@@ -189,7 +189,11 @@ export function AreYouSureModalContainer({
               </div>
               <div className={twMerge("flex flex-col-reverse gap-3 tablet:flex-row tablet:justify-end", actionsClassName)}>
                 <Button
-                  className={twMerge("px-3", secondaryButtonClassName)}
+                  className={twMerge(
+                    // strong ring on :focus (not only :focus-visible) so the button the modal auto-focuses is obviously highlighted before Enter acts on it
+                    "px-3 ring-offset-2 ring-offset-foreground focus:scale-[1.02] focus:ring-2 focus:ring-current focus-visible:scale-[1.02] focus-visible:ring-2 focus-visible:ring-current",
+                    secondaryButtonClassName,
+                  )}
                   variant={secondaryButtonVariant ? secondaryButtonVariant : "default-outline"}
                   size={secondaryButtonSize}
                   onClick={secondaryButtonAction}
@@ -198,7 +202,10 @@ export function AreYouSureModalContainer({
                 </Button>
                 <Button
                   ref={primaryButtonRef}
-                  className={twMerge("px-3", primaryButtonClassName)}
+                  className={twMerge(
+                    "px-3 ring-offset-2 ring-offset-foreground focus:scale-[1.02] focus:ring-2 focus:ring-current focus-visible:scale-[1.02] focus-visible:ring-2 focus-visible:ring-current",
+                    primaryButtonClassName,
+                  )}
                   variant={primaryButtonVariant ? primaryButtonVariant : "info"}
                   size={primaryButtonSize}
                   onClick={primaryButtonAction}
