@@ -21,7 +21,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 03 | [plan-03-ecosystem-links-icon-utm.md](plan-03-ecosystem-links-icon-utm.md) | P2 | Sonnet · low | waiting | Nikita: transparent J.png |
 | 04 | [plan-04-replenishment-button.md](plan-04-replenishment-button.md) | P2 | Sonnet · medium | waiting | — |
 | 05 | [plan-05-ai-suggest-retrigger.md](plan-05-ai-suggest-retrigger.md) | P2 | Sonnet · medium | waiting | — |
-| 06 | [plan-06-support-ui-overhaul.md](plan-06-support-ui-overhaul.md) | P1 | Opus · high | waiting | — |
+| 06 | [plan-06-support-ui-overhaul.md](plan-06-support-ui-overhaul.md) | P1 | Opus · high | done | — |
 | 07 | [plan-07-support-prefilled-message.md](plan-07-support-prefilled-message.md) | P2 | Sonnet · low | waiting | plan-06 |
 | 08 | [plan-08-i18n-sweep.md](plan-08-i18n-sweep.md) | P2 | Sonnet · medium | waiting | plan-06 (touches same files) |
 | 09 | [plan-09-utm-stats-hardening.md](plan-09-utm-stats-hardening.md) | P3 | Opus · medium | waiting | — |

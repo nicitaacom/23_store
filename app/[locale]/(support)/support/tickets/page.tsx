@@ -1,4 +1,11 @@
-export default function SupportChatPage() {
+import getInitialTickets from "@/actions/getInitialTickets"
+import { EmptyState } from "./components/EmptyState"
+
+export default async function SupportChatPage() {
+  const tickets = await getInitialTickets()
+
+  if (tickets.length === 0) return <EmptyState />
+
   return (
     <main className="hidden h-full min-w-0 flex-1 laptop:flex">
       <div className="flex h-full w-full items-center justify-center rounded-lg border border-border-color/35 bg-foreground/35 p-6">

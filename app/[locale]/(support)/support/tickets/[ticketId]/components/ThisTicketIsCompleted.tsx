@@ -12,7 +12,7 @@ export function ThisTicketIsCompleted({ ticketId }: { ticketId: string }) {
       <div className="flex max-w-xl flex-col items-center gap-6 px-6 py-8 text-center">
         <Image
           className="hidden h-[180px] w-[360px] mobile:block laptop:h-[220px] laptop:w-[440px]"
-          src={isDarkMode ? "/ticket-completed-dark.png" : "/ticket-completed-light.png"}
+          src={isDarkMode ? "/support/ticket-completed-dark.png" : "/support/ticket-completed-light.png"}
           alt="No ticket id found"
           width={480}
           height={240}
