@@ -18,7 +18,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | --- | --- | --- | --- | --- | --- |
 | 01 | [plan-01-language-switcher.md](plan-01-language-switcher.md) | P1 | Sonnet · medium | done | — |
 | 02 | [plan-02-db-anonymous-tickets.md](plan-02-db-anonymous-tickets.md) | P1 | Sonnet · medium | waiting | — |
-| 03 | [plan-03-ecosystem-links-icon-utm.md](plan-03-ecosystem-links-icon-utm.md) | P2 | Sonnet · low | waiting | Nikita: transparent J.png |
+| 03 | [plan-03-ecosystem-links-icon-utm.md](plan-03-ecosystem-links-icon-utm.md) | P2 | Sonnet · low | done | — |
 | 04 | [plan-04-replenishment-button.md](plan-04-replenishment-button.md) | P2 | Sonnet · medium | waiting | — |
 | 05 | [plan-05-ai-suggest-retrigger.md](plan-05-ai-suggest-retrigger.md) | P2 | Sonnet · medium | waiting | — |
 | 06 | [plan-06-support-ui-overhaul.md](plan-06-support-ui-overhaul.md) | P1 | Opus · high | done | — |
@@ -35,14 +35,14 @@ Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screensh
 | --- | --- |
 | `04.07.2026 at 16-36.png` (support UI broken, no image fallback) | plan-06. Note: navbar overlap, sidebar hover, UUID titles and the refresh race were already fixed in the session of 05.07.2026 — the fallback + overall look remain. |
 | `04.07.2026 at 16-47.png` (changing languages does nothing) | plan-01 |
-| `07.04.2026 at 18-41.jpg` (white icon box + add UTM) | plan-03 |
+| `07.04.2026 at 18-41.jpg` (white icon box + add UTM) | plan-03 — code+docs done; delete this screenshot once you confirm the transparent icon on the page. |
 | `07.06.2026 at 21-54.png` (save button should be disabled without changes) | **Nikita-owned**: code already has `disabled={isSaving \|\| !hasChanges}` at `app/[locale]/(site)/products/[productId]/manage/ManageProductView.tsx:537` — verify on the page, then delete the screenshot. |
 | `make-it-so-I-can-change-db.jpg` (import blocked by sender_id constraint) | plan-02 |
 
 ## Nikita-owned tasks (no plan file — test-only / assets / decisions)
 
 - [ ] Verify the manage-page save button stays disabled until a change is made, then delete `TODO/07.06.2026 at 21-54.png`.
-- [ ] Drop a transparent `J.png` into `public/projects/` (unblocks plan-03 task 1).
+- [ ] Verify the transparent Jotion icon + UTM links on the hamburger menu, then delete `TODO/07.04.2026 at 18-41.jpg`.
 - [ ] Screenshots promised in docs: categories dev_readme §1.1/§1.4, category-views rows, UTM `./img/` placeholders.
 - [ ] After each implemented plan: run the app and check the affected pages (styles compile per page request — reload the page once after a dev-server restart before judging).
 

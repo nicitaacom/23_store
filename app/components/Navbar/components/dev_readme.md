@@ -87,12 +87,15 @@ Mobile/sidebar project links menu.
 - closes on route change
 - locks body scroll while open
 - closes on escape / outside click / swipe
-- renders external Jokik ecosystem links
+- renders external Jokik ecosystem links (`menuItems` array) — every href carries
+  `?utm_source=23_store&utm_medium=hamburger_menu&utm_campaign=ecosystem` so the receiving project can
+  attribute the visit; icons are transparent PNGs in `public/projects/`
 - holds the **`LanguageDropdown` at the bottom on mobile** (`mt-auto` + `tablet:hidden`, opens upward via
   `isDropUp`). The navbar shows the dropdown inline only on tablet+ (`hidden tablet:flex` in `Navbar.tsx`),
   so below tablet it lives here instead.
 
-If you want to add a new external project card, update `menuItems` here.
+If you want to add a new external project card, update `menuItems` here — keep the same UTM params and use
+a transparent PNG for the icon.
 
 ### `CtrlKBadge.tsx`
 
