@@ -1,7 +1,6 @@
-import { twMerge } from "tailwind-merge"
-
 import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
 import { ThisTicketIsCompleted } from "./components/ThisTicketIsCompleted"
+import { DragAndDropArea } from "@/components/SupportButton/components/DragAndDropArea/DragAndDropArea"
 import { cache } from "react"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
@@ -31,10 +30,10 @@ const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
   return messages_by_id_response as IMessageDB[]
 })
 
-// cache ticket is_open state because by initial idea ticket can't be reopened
-const getIsTicketOpenCache = cache(async (ticketId: string) => {
-  const { data: is_ticket_open } = await supabaseAdmin.from("23_tickets").select("is_open").eq("id", ticketId).single()
-  return is_ticket_open?.is_open
+// cache ticket meta (is_open + created_at) because by initial idea ticket can't be reopened
+const getTicketMetaCache = cache(async (ticketId: string) => {
+  const { data: ticket_meta } = await supabaseAdmin.from("23_tickets").select("is_open, created_at").eq("id", ticketId).single()
+  return ticket_meta
 })
 
 export async function generateStaticParams(): Promise<{ ticketId: string }[]> {
@@ -76,26 +75,25 @@ export async function generateMetadata({ params: paramsPromise }: ChatPageProps)
 export default async function ChatPage({ params: paramsPromise }: ChatPageProps) {
   const { ticketId } = await paramsPromise
   const initial_messages = await getInitialMessagesByTicketIdCache(ticketId)
-  const is_ticket_open = await getIsTicketOpenCache(ticketId)
+  const ticketMeta = await getTicketMetaCache(ticketId)
   const firstMessage = initial_messages[0]
 
-  if (!initial_messages || !is_ticket_open) {
+  if (!initial_messages || !ticketMeta?.is_open) {
     return <ThisTicketIsCompleted ticketId={ticketId} />
   } else if (initial_messages.length > 0 && firstMessage?.ticket_id && firstMessage.sender_username) {
     return (
-      <main
-        className={twMerge(
-          "flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-color/35 bg-foreground/35",
-          ticketId && "flex",
-        )}>
+      <main className="relative flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border-color/35 bg-foreground/35">
         <MessagesHeader
+          is_open={ticketMeta.is_open}
           owner_avatar_url={firstMessage.sender_avatar_url || ""}
           owner_id={firstMessage.sender_id}
           owner_username={firstMessage.sender_username}
+          ticket_created_at={ticketMeta.created_at}
           ticket_id={firstMessage.ticket_id}
         />
         <MessagesBody ticket_id={firstMessage.ticket_id} initialMessages={initial_messages ?? []} />
         <MessagesFooter ticket_id={firstMessage.ticket_id} />
+        <DragAndDropArea />
       </main>
     )
   } else {

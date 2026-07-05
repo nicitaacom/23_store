@@ -1,7 +1,7 @@
 export default function SupportChatPage() {
   return (
     <main className="hidden h-full min-w-0 flex-1 laptop:flex">
-      <div className="flex h-full w-full items-center justify-center rounded-2xl border border-border-color/35 bg-foreground/35 p-6">
+      <div className="flex h-full w-full items-center justify-center rounded-lg border border-border-color/35 bg-foreground/35 p-6">
         <div className="max-w-lg text-center">
           <p className="font-primary text-[11px] font-semibold uppercase tracking-[0.28em] text-success">Support workspace</p>
           <h1 className="mt-4 font-secondary text-4xl font-bold tracking-tight text-title">Select a conversation</h1>
