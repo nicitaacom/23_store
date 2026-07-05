@@ -16,7 +16,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 
 | # | Plan | Priority | Model · thinking | Status | Depends on |
 | --- | --- | --- | --- | --- | --- |
-| 01 | [plan-01-language-switcher.md](plan-01-language-switcher.md) | P1 | Sonnet · medium | waiting | — |
+| 01 | [plan-01-language-switcher.md](plan-01-language-switcher.md) | P1 | Sonnet · medium | done | — |
 | 02 | [plan-02-db-anonymous-tickets.md](plan-02-db-anonymous-tickets.md) | P1 | Sonnet · medium | waiting | — |
 | 03 | [plan-03-ecosystem-links-icon-utm.md](plan-03-ecosystem-links-icon-utm.md) | P2 | Sonnet · low | waiting | Nikita: transparent J.png |
 | 04 | [plan-04-replenishment-button.md](plan-04-replenishment-button.md) | P2 | Sonnet · medium | waiting | — |
