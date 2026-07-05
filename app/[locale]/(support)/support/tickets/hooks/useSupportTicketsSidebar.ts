@@ -93,12 +93,8 @@ export const useSupportTicketsSidebar = ({ initialTickets, unseenMessages }: Use
   const handleOpenTicket = useCallback(
     (ticketId: string) => {
       resetUnreadMessages(ticketId)
-
-      setTimeout(() => {
-        router.refresh()
-      }, 250)
     },
-    [resetUnreadMessages, router],
+    [resetUnreadMessages],
   )
 
   return {
