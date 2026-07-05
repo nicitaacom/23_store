@@ -95,7 +95,7 @@ export async function POST(req: Request) {
     await pusherServer.trigger("tickets", "tickets:update", {
       id: ticketId, // to set messages body and unread for ticket.owner_id
       last_message_body: messageBody, // to show last_message_body
-      images: images, // TODO - to show sent an image
+      images: images,
       sender_avatar_url: senderAvatarUrl,
       seen: false, // to show message as unread on support side
     })
