@@ -13,6 +13,23 @@ component.
 `ProductInput` (Inputs/Validation) is intentionally NOT on `BaseInput` — it keeps its own hardcoded
 dark style for the AdminPanel forms. `MessageInput` is a chat-specific textarea, also separate.
 
+### MessageInput.tsx
+
+The shared chat composer for BOTH the customer chat window and the support reply footer. Value + image
+live in `useMessagesStore`. Props:
+
+- `placeholder?` — textarea placeholder (defaults to "Type a new message...").
+- `onSend?(messageBody, image)` — when set, the composer clears its value, resets height, and calls
+  this (the support reply path). **Omitting `onSend` runs the customer flow unchanged** —
+  `uploadImagesAndSendMessage` with the same arguments as before.
+
+```tsx
+// customer chat window
+<MessageInput placeholder={t("message_placeholder")} />
+// support reply
+<MessageInput onSend={handleSend} placeholder={t("reply_placeholder")} />
+```
+
 ### Usage for Input.tsx
 
 Use Inputs/Validation for inputs with validation

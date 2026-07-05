@@ -17,6 +17,11 @@ But I even don't use supabase in `MessagesFooter.tsx`<br/>
 So I use `/api/message/seen` to mark message as 'seen'<br/>
 and `/api/message/send` to send message
 
+Both the customer chat window and the support reply footer send through the SAME shared composer
+`MessageInput`. The support side passes an `onSend` prop → `MessageInput` clears its value and calls
+`onSend` (upload optional image, then `supportSDK.sendMessage({ messageSender: "support" })`). Omitting
+`onSend` keeps the customer path unchanged. See `dev_readme-ui-support.md` for the shared look.
+
 Also in some `MessagesBody.tsx` or in place where I recieve messages e.g `SupportButton.tsx`
 I use useEffect and I subscribe pusher to some chnnel in this useEffect to listen to actions in this channel
 And if 'messages:new' event and I insert new message that I got from data I pass in `pusherServer.tirgger`
