@@ -1,13 +1,12 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { TbChevronDown, TbWorld } from "react-icons/tb"
 import { twMerge } from "tailwind-merge"
 
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
-import { useCurrentLocale } from "@/locales/client"
+import { useChangeLocale, useCurrentLocale } from "@/locales/client"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
 type Locale = {
@@ -23,39 +22,18 @@ const locales: Locale[] = [
   { code: "se", name: "Svenska", flag: "/languages/SE.png" },
 ]
 
-const LOCALE_COOKIE_NAME = "Next-Locale"
-
-function stripLocalePrefix(pathname: string, localeCodes: TLocaleTag[]) {
-  const matchedLocale = localeCodes.find(locale => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`))
-  if (!matchedLocale) return pathname || "/"
-  return pathname.slice(matchedLocale.length + 1) || "/"
-}
-
 export function LanguageDropdown({ className, isDropUp = false }: { className?: string; isDropUp?: boolean }) {
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownContainerRef = useRef<HTMLDivElement>(null)
 
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
   const locale = useCurrentLocale()
+  const changeLocale = useChangeLocale({ preserveSearchParams: true })
   const currentLocale = locales.find(l => l.code === locale)
 
   useOnEscOrClickOutside(dropdownContainerRef, () => setShowDropdown(false), { isHookEnabled: showDropdown })
 
   const handleLocaleChange = (code: TLocaleTag) => {
-    if (code === locale) {
-      setShowDropdown(false)
-      return
-    }
-    document.cookie = `${LOCALE_COOKIE_NAME}=${code}; path=/; samesite=strict`
-    const nextPathname = stripLocalePrefix(
-      pathname || "/",
-      locales.map(l => l.code),
-    )
-    const nextSearch = searchParams?.toString() || ""
-    router.replace(`${nextPathname}${nextSearch ? `?${nextSearch}` : ""}`)
-    router.refresh()
+    changeLocale(code)
     setShowDropdown(false)
   }
 
