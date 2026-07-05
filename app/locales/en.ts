@@ -478,6 +478,7 @@ export default {
   "support.option_2_subtitle": "Just click in bottom right corner",
   "support.option_3": "Get support in telegram",
   "support.back_to_tickets": "Back to tickets",
+  "support.remove_from_list": "Remove from list",
   "support.no_messages_in_this_ticket": "No messages in this ticket",
   "support.how_you_got_this_error": "Please let me know how you got this error",
   "support.images_attached": "{number} images attached",

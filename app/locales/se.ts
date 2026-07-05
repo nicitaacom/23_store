@@ -478,6 +478,7 @@ export default {
   "support.option_2_subtitle": "Klicka i nedre högra hörnet",
   "support.option_3": "Få support i Telegram",
   "support.back_to_tickets": "Tillbaka till ärenden",
+  "support.remove_from_list": "Ta bort från listan",
   "support.no_messages_in_this_ticket": "Inga meddelanden i detta ärende",
   "support.how_you_got_this_error": "Berätta hur du fick detta fel",
   "support.images_attached": "{number} bifogade bilder",

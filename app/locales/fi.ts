@@ -478,6 +478,7 @@ export default {
   "support.option_2_subtitle": "Klikkaa oikeasta alakulmasta",
   "support.option_3": "Ota yhteyttä Telegramissa",
   "support.back_to_tickets": "Takaisin тикetteihin",
+  "support.remove_from_list": "Poista listalta",
   "support.no_messages_in_this_ticket": "Tässä tikettissä ei ole viestejä",
   "support.how_you_got_this_error": "Kerrothan miten sait tämän virheen",
   "support.images_attached": "{number} kuvaa liitetty",

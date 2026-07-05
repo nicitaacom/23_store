@@ -478,6 +478,7 @@ export default {
   "support.option_2_subtitle": "Просто нажмите в правом нижнем углу",
   "support.option_3": "Получить поддержку в Telegram",
   "support.back_to_tickets": "Назад к тикетам",
+  "support.remove_from_list": "Убрать из списка",
   "support.no_messages_in_this_ticket": "В этом тикете нет сообщений",
   "support.how_you_got_this_error": "Пожалуйста, опишите, как возникла эта ошибка",
   "support.images_attached": "{number} прикреплённых изображений",
