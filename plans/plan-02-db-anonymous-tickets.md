@@ -55,23 +55,31 @@ anonymous ticket idle forever                 pg_cron daily: anonymous-owned tic
 
 > ONE TASK AT A TIME. Do task N, then STOP — show Nikita the diff and wait for his review. Do not start task N+1 until he approves.
 
-1. **List the live drift.** Give Nikita a read-only query to run in the SQL editor and report back the output:
+1. **DONE.** Nikita ran the read-only query; live constraints on `23_messages`/`23_tickets` are only `23_tickets_pkey`, `23_messages_pkey`, `23_messages_ticket_id_fkey` (CASCADE) — no `23_messages_sender_id_fkey`, no FK on `23_tickets.owner_id`. Zero drift from the documented schema right now.
+2. **DONE — no-op.** No drifted constraint exists to drop (see task 1). The FK from the original error screenshot is not present on the live table today; nothing to run.
+3. **DONE.** Cleanup job (pg_cron) written below. Column names verified against `dev_readme-supbase-sql.md:77-116` (`23_tickets.id`/`owner_id`, `23_messages.ticket_id`/`sender_id`/`created_at`) — no changes needed from the draft.
+
+   **Test first, by hand — SELECT only, deletes nothing:**
    ```sql
-   SELECT conname, conrelid::regclass AS table_name, pg_get_constraintdef(oid) AS definition
-   FROM pg_constraint
-   WHERE conrelid IN ('public."23_messages"'::regclass, 'public."23_tickets"'::regclass);
+   SELECT ticket.id, ticket.owner_id, ticket.owner_username, ticket.created_at
+   FROM public."23_tickets" ticket
+   WHERE ticket.owner_id LIKE 'anonymousId_%'
+     AND NOT EXISTS (
+       SELECT 1 FROM public."23_messages" message
+       WHERE message.ticket_id = ticket.id
+         AND message.sender_id = ticket.owner_id -- only the anonymous user's own messages count as activity
+         AND message.created_at > NOW() - INTERVAL '1 month'
+     );
    ```
-   Compare against the documented schema and report every constraint that differs (expected finding: `23_messages_sender_id_fkey`; check `23_tickets.owner_id` for a sibling). STOP — show Nikita the findings and wait for his review.
-2. **Drop the drifted constraint(s).** Provide the exact statements for Nikita to run, e.g.:
-   ```sql
-   ALTER TABLE public."23_messages" DROP CONSTRAINT IF EXISTS "23_messages_sender_id_fkey";
-   ```
-   (plus siblings from task 1, if any). STOP — Nikita runs it, confirms the dashboard import works, then review.
-3. **Cleanup job (pg_cron).** Write the full, idempotent, copy-paste SQL block: enable the extension, unschedule an existing job with the same name if present, schedule daily. Job body — activity counts ONLY messages written by the anonymous owner (`sender_id = ticket.owner_id`); support replies alone keep nothing alive. Deleting the ticket removes all three: the ticket row, the anonymous user's messages AND support's messages (the existing `ticket_id` CASCADE):
+   Run this first and check the rows returned are actually the tickets you'd expect to delete (anonymous, inactive for 1+ month) before scheduling the job below.
+
+   **Schedule the daily job — idempotent, copy-paste safe:**
    ```sql
    CREATE EXTENSION IF NOT EXISTS pg_cron;
+
    SELECT cron.unschedule('cleanup_anonymous_tickets')
    WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'cleanup_anonymous_tickets');
+
    SELECT cron.schedule('cleanup_anonymous_tickets', '0 3 * * *', $$
      DELETE FROM public."23_tickets" ticket
      WHERE ticket.owner_id LIKE 'anonymousId_%'
@@ -83,7 +91,9 @@ anonymous ticket idle forever                 pg_cron daily: anonymous-owned tic
        );
    $$);
    ```
-   Verify column names against the schema doc before finalizing; include a "run once by hand to test" SELECT variant that only counts what would be deleted. STOP — show Nikita the SQL and wait for his review before he schedules it.
+   Deleting the ticket cascades to `23_messages` via `23_messages_ticket_id_fkey` (`ON DELETE CASCADE`, confirmed live in task 1) — both the anonymous owner's messages and any support replies on that ticket are removed with it. Tickets owned by signed-in users (`owner_id` not `LIKE 'anonymousId_%'`) are never touched.
+
+   STOP — show Nikita the SQL and wait for his review before he schedules it.
 4. **Docs.** In `dev_readme-supbase-sql.md`: add a "ANONYMOUS TICKETS CLEANUP" section holding the complete SQL from tasks 2-3 so a fresh Supabase project works from copy-paste alone (decision #2 below). In `dev_readme-backup.md`: correct line 137 (the FK existed and blocked restore until dropped — state what is true now), and note the `BACKUP_TABLES` (5 tables) vs restore-order (7 tables, `dev_readme-supbase-sql.md:323`) mismatch — align the two docs; whether `backupTables.ts` should also back up the categories tables is Nikita's call, flag it as a question in the diff. STOP — show Nikita the diff and wait for his review.
 
 ## Decisions made (do not re-open)
