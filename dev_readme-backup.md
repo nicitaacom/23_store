@@ -134,4 +134,25 @@ Upload progress uses `XMLHttpRequest` (`xhr.upload.onprogress`) because `fetch` 
 `23_users.id`, `23_users_cart.id`, `23_products.owner_id` are UUID with FK to `auth.users`. Importing a
 backup into a **different/fresh** Supabase project whose `auth.users` is empty will fail those rows on the FK
 (reported per-table, not crashing). For same-project restore it works fine. `23_tickets.owner_id` and
-`23_messages.sender_id` are TEXT (anonymous) with no auth FK, so they always restore.
+`23_messages.sender_id` are TEXT with no auth FK — confirmed live (`plan-02`, 2026-07-05): no
+`23_messages_sender_id_fkey` or FK on `23_tickets.owner_id` exists on the current DB, so these rows always
+restore. See **ANONYMOUS TICKETS CLEANUP** in `dev_readme-supbase-sql.md` for the copy-paste SQL a fresh
+project needs (both tables are created without the FK from the start, so a fresh project never hits this).
+
+<br/>
+
+## `BACKUP_TABLES` vs restore-order mismatch — fixed
+
+`BACKUP_TABLES` used to list only 5 tables while `backup_23_tables()` and the restore-order comment in
+`dev_readme-supbase-sql.md` already returned 7 — `23_categories` and `23_category_views` were fetched by
+the RPC but never actually read back out into the archive. Fixed: `BACKUP_TABLES`
+(`app/api/backup/backupTables.ts:12`) now lists all 7 tables, in the same FK-safe order as the restore
+comment. `23_category_views` upserts on `user_id,category_id` (its real `UNIQUE` constraint, matching how
+`increment_category_view()` dedupes), not `id` — an `id`-only match would miss an existing row whose `id`
+doesn't happen to match the backup's and insert a duplicate, violating that constraint.
+
+`backupTables.ts` also derives its table list from `types_db.ts` (`AllTables = keyof
+Database["public"]["Tables"]`) with an explicit `EXCLUDED_FROM_BACKUP` list (currently just `utm_stats`,
+shared across projects 14/23/28/29) and a compile-time exhaustiveness check — if a table is ever added to
+`types_db.ts` and isn't placed in either list, the project fails to typecheck. This mismatch cannot silently
+recur.
