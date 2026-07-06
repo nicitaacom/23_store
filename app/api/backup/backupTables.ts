@@ -1,9 +1,28 @@
 import { gzipSync, gunzipSync } from "node:zlib"
 import { extract, pack } from "tar-stream"
+import { Database } from "@/ts/types_db"
+
+type AllTables = keyof Database["public"]["Tables"]
+
+// Tables intentionally left out of the backup archive. Any table added to types_db.ts that is
+// neither here nor in BACKUP_TABLES fails the exhaustiveness check below at compile time.
+const EXCLUDED_FROM_BACKUP = ["utm_stats"] as const satisfies readonly AllTables[]
 
 // FK-safe order for restore: parents before children.
-// utm_stats is intentionally excluded — it is shared across projects 14/23/28/29.
-export const BACKUP_TABLES = ["23_users", "23_users_cart", "23_products", "23_tickets", "23_messages"] as const
+export const BACKUP_TABLES = [
+  "23_users",
+  "23_users_cart",
+  "23_categories",
+  "23_category_views",
+  "23_products",
+  "23_tickets",
+  "23_messages",
+] as const satisfies readonly Exclude<AllTables, (typeof EXCLUDED_FROM_BACKUP)[number]>[]
+
+// Compile-time exhaustiveness check: fails if types_db.ts gains/loses a table that isn't
+// reflected in BACKUP_TABLES or EXCLUDED_FROM_BACKUP.
+type MissingFromBackup = Exclude<AllTables, (typeof BACKUP_TABLES)[number] | (typeof EXCLUDED_FROM_BACKUP)[number]>
+const _assertAllTablesCovered: MissingFromBackup extends never ? true : never = true
 
 export type BackupTable = (typeof BACKUP_TABLES)[number]
 
@@ -20,6 +39,8 @@ export type BackupFile = { bucket: string; path: string; contentType?: string; b
 export const BACKUP_CONFLICT_COLUMNS: Record<BackupTable, string> = {
   "23_users": "id",
   "23_users_cart": "id",
+  "23_categories": "id",
+  "23_category_views": "user_id,category_id",
   "23_products": "price_id,owner_id,id",
   "23_tickets": "id",
   "23_messages": "id",
@@ -30,6 +51,8 @@ export const BACKUP_CONFLICT_COLUMNS: Record<BackupTable, string> = {
 export const BACKUP_UUID_COLUMNS: Record<BackupTable, readonly string[]> = {
   "23_users": ["id"],
   "23_users_cart": ["id"],
+  "23_categories": ["id"],
+  "23_category_views": ["id", "category_id"],
   "23_products": ["owner_id"],
   "23_tickets": [],
   "23_messages": ["id"],
