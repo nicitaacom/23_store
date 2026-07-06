@@ -391,6 +391,54 @@ GRANT EXECUTE ON FUNCTION public.increment_category_view(TEXT, UUID, INTEGER) TO
 
 <br/>
 
+## ANONYMOUS TICKETS CLEANUP
+
+Anonymous visitors open tickets with `owner_id = anonymousId_<uuid>` (see `app/utils/setAnonymousId.ts`) —
+these ids have no row in `23_users` by design, so `23_tickets.owner_id` and `23_messages.sender_id` are
+TEXT with no FK (see the column comments above). A daily `pg_cron` job deletes an anonymous ticket once its
+owner has been inactive for 1 month. Only messages **written by the anonymous owner**
+(`message.sender_id = ticket.owner_id`) count as activity — a support reply alone does not keep the ticket
+alive. Deleting the ticket cascades to `23_messages` via `23_messages_ticket_id_fkey` (`ON DELETE CASCADE`),
+so the anonymous owner's messages and any support replies on that ticket are removed with it. Tickets owned
+by signed-in users (`owner_id` not `LIKE 'anonymousId_%'`) are never touched.
+
+Run this on a fresh Supabase project (or to test what would be deleted right now — SELECT only, deletes
+nothing):
+
+```sql
+-- =================================== 🧹 ANONYMOUS TICKETS CLEANUP ===================================
+
+-- Test first, by hand: which anonymous tickets would be deleted right now?
+SELECT ticket.id, ticket.owner_id, ticket.owner_username, ticket.created_at
+FROM public."23_tickets" ticket
+WHERE ticket.owner_id LIKE 'anonymousId_%'
+  AND NOT EXISTS (
+    SELECT 1 FROM public."23_messages" message
+    WHERE message.ticket_id = ticket.id
+      AND message.sender_id = ticket.owner_id -- only the anonymous user's own messages count as activity
+      AND message.created_at > NOW() - INTERVAL '1 month'
+  );
+
+-- Schedule the daily cleanup job (idempotent — safe to re-run)
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+SELECT cron.unschedule('cleanup_anonymous_tickets')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'cleanup_anonymous_tickets');
+
+SELECT cron.schedule('cleanup_anonymous_tickets', '0 3 * * *', $$
+  DELETE FROM public."23_tickets" ticket
+  WHERE ticket.owner_id LIKE 'anonymousId_%'
+    AND NOT EXISTS (
+      SELECT 1 FROM public."23_messages" message
+      WHERE message.ticket_id = ticket.id
+        AND message.sender_id = ticket.owner_id -- only the anonymous user's own messages count as activity
+        AND message.created_at > NOW() - INTERVAL '1 month'
+    );
+$$);
+```
+
+<br/>
+
 ## Email templates
 
 <details> <summary><b>Verify your email</b></summary>
