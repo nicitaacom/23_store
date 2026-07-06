@@ -112,6 +112,9 @@ AdminPanel → Categories tab → CategoriesForm
   Delete: GET /api/categories/count (show warning: "N products affected")
           DELETE /api/categories/delete → useCategoriesStore.removeCategory()
           DB ON DELETE SET NULL cascades to 23_products.category_id
+          DB ON DELETE CASCADE also wipes every 23_category_views row for this category
+          (every user's view-count history for it) — permanent, not shown in the "N products
+          affected" warning, no way to recover it after the fact
 ```
 
 ### Backfill (one-time)
