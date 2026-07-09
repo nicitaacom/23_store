@@ -1,12 +1,12 @@
 "use client"
 
+import { RefObject, useEffect } from "react"
 import { twMerge } from "tailwind-merge"
+import { IoMdClose, IoMdImage } from "react-icons/io"
 
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
 import { useLoading } from "@/store/ui/useLoading"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
-import { RefObject, useEffect } from "react"
-import { IoMdClose, IoMdImage } from "react-icons/io"
 import { useScopedI18n } from "@/locales/client"
 
 export function PastedImagePreview({ containerRef }: { containerRef?: RefObject<HTMLDivElement> }) {

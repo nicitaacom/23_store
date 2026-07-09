@@ -4,16 +4,16 @@ import { useRef, useState } from "react"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 
-import { useLoading } from "@/store/ui/useLoading"
 import { ProductTranslations } from "@/ts/product/TProductDB"
-import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import useToast from "@/store/ui/useToast"
-import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
-import { validateDescription } from "@/utils/productValidation"
 import { RichTextToolbar } from "./RichTextToolbar"
 import { MarkdownEditor } from "@/components/ui/Inputs/MarkdownEditor"
 import { MarkdownText } from "@/components/ui/MarkdownText"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useLoading } from "@/store/ui/useLoading"
+import useToast from "@/store/ui/useToast"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
+import { validateDescription } from "@/utils/productValidation"
 
 interface FormatDescriptionFormProps {
   id: string

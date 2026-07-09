@@ -2,6 +2,7 @@
 
 import { lazy } from "react"
 import { AnimatePresence } from "framer-motion"
+
 import useToast from "@/store/ui/useToast"
 
 const LazyToast = lazy(() => import("@/components/ui/Toast"))

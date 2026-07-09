@@ -1,13 +1,12 @@
 "use client"
 
-import { useCurrentLocale } from "@/locales/client"
 import { TProductDB } from "@/ts/product/TProductDB"
-import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
-
+import { FormatImagesForm } from "./FormatImagesForm"
 import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { OwnerProductHeader } from "./OwnerProductHeader"
-import { FormatImagesForm } from "./FormatImagesForm"
 import { VariantsForm } from "./VariantsForm"
+import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
+import { useCurrentLocale } from "@/locales/client"
 
 export function OwnerProduct({ ...ownerProduct }: TProductDB) {
   const locale = useCurrentLocale()

@@ -1,13 +1,14 @@
 "use client"
 
+import { FiExternalLink } from "react-icons/fi"
+
+import { ManageProductButton } from "./ManageProductButton"
 import { AddToCartButton } from "@/components/ui/Buttons/AddToCartButton"
-import { Button } from "@/components/ui"
-import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
 import useCartStore from "@/store/user/cartStore"
+import { Button } from "@/components/ui"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { createCartProductKey } from "@/utils/cartProducts"
-import { FiExternalLink } from "react-icons/fi"
-import { ManageProductButton } from "./ManageProductButton"
 
 interface ProductButtonsProps {
   productId: string

@@ -1,9 +1,10 @@
+import { cookies } from "next/headers"
+import { NextResponse } from "next/server"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { getAuthErrorRedirectUrl, getLocalizedAppUrl } from "@/utils/authCallback"
 import { syncPublicUserRecord } from "@/utils/publicUserSync"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
   // get data about code to exchange this code to cookies session

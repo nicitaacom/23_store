@@ -1,9 +1,10 @@
-import { stripe } from "@/libs/stripe"
-import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
-import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
-import { normalizeProductImageUrls } from "@/utils/product"
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
+
+import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
+import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
+import { stripe } from "@/libs/stripe"
+import { normalizeProductImageUrls } from "@/utils/product"
 
 export async function POST(req: Request) {
   const body = await req.json()

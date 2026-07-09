@@ -1,5 +1,10 @@
 "use client"
 
+import React, { useRef } from "react"
+import { motion } from "framer-motion"
+import { FieldErrors, UseFormRegister } from "react-hook-form"
+import { twMerge } from "tailwind-merge"
+
 import {
   MAX_PRODUCT_DESCRIPTION_LENGTH,
   MAX_PRODUCT_TITLE_LENGTH,
@@ -7,6 +12,7 @@ import {
   MIN_PRODUCT_TITLE_LENGTH,
 } from "@/constants/productLimits"
 import { useScopedI18n } from "@/locales/client"
+import { formatGroupedNumberInput } from "@/utils/numberFormatter"
 import {
   PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX,
   PRODUCT_TITLE_INVALID_CHARACTER_REGEX,
@@ -14,11 +20,6 @@ import {
   PRODUCT_TITLE_MUST_START_REGEX,
   getInvalidCharacterDetails,
 } from "@/utils/productValidation"
-import { formatGroupedNumberInput } from "@/utils/numberFormatter"
-import { motion } from "framer-motion"
-import React, { useRef } from "react"
-import { FieldErrors, UseFormRegister } from "react-hook-form"
-import { twMerge } from "tailwind-merge"
 
 interface FormData {
   title: string

@@ -5,17 +5,16 @@ import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
-
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
-import { EditProductForm } from "./components/EditProductForm"
+import { AdminPanelDeleteConfirmDialog, PendingDeleteProduct } from "./components/AdminPanelDeleteConfirmDialog"
 import { AddProductForm } from "./components/AddProductForm"
-import { DeleteProductForm } from "./components/DeleteProductForm"
 import { AdminPanelHeader, PANEL_ACTIONS, PanelAction } from "./components/AdminPanelHeader"
 import { CategoriesForm } from "./components/CategoriesForm"
+import { DeleteProductForm } from "./components/DeleteProductForm"
+import { EditProductForm } from "./components/EditProductForm"
 import { useLoading } from "@/store/ui/useLoading"
-import { useI18n } from "@/locales/client"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
-import { AdminPanelDeleteConfirmDialog, PendingDeleteProduct } from "./components/AdminPanelDeleteConfirmDialog"
+import { useI18n } from "@/locales/client"
 
 export interface AdminPanelModalProps {
   ownerProducts: TProductDB[]

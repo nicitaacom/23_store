@@ -4,15 +4,15 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import detectEthereumProvider from "@metamask/detect-provider"
 
-import { formatBalance } from "@/utils/formatMetamaskBalance"
+import { sendMoneyWithMetamask } from "../functions/sendMoneyWithMetamask"
 import { Button } from "@/components/ui/Button"
-import useToast from "@/store/ui/useToast"
-import { useLoading } from "@/store/ui/useLoading"
 import { useDoYouWantRecieveCheckModal } from "@/store/ui/useDoYouWantRecieveCheckModal"
+import { useLoading } from "@/store/ui/useLoading"
+import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
 import useUserStore from "@/store/user/userStore"
-import { sendMoneyWithMetamask } from "../functions/sendMoneyWithMetamask"
 import { useI18n, useScopedI18n } from "@/locales/client"
+import { formatBalance } from "@/utils/formatMetamaskBalance"
 
 // Only EVM-compatible chains work with MetaMask
 const WALLET_ADDRESSES = {

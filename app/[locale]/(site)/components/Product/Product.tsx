@@ -1,22 +1,22 @@
 "use client"
 
 import { memo, useEffect, useMemo, useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
 import { twMerge } from "tailwind-merge"
 
-import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { TProductDB } from "@/ts/product/TProductDB"
-import { formatCurrency } from "@/utils/currencyFormatter"
-import { formatNumber } from "@/utils/numberFormatter"
-import { getProductGalleryImages } from "@/utils/product"
-import { getAvailableStock, getProductPriceForVariant } from "@/utils/cartProducts"
-import { ProductQuantity } from "../ProductQuantity"
 import { ProductButtons } from "../ProductButtons"
 import { ProductImage } from "../ProductImage"
 import { ProductLikeButton } from "../ProductLikeButton"
+import { ProductQuantity } from "../ProductQuantity"
 import { RequestReplanishmentButton } from "./RequestReplanishmentButton"
-import Image from "next/image"
-import Link from "next/link"
 import { MarkdownText } from "@/components/ui/MarkdownText"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
+import { getAvailableStock, getProductPriceForVariant } from "@/utils/cartProducts"
+import { formatCurrency } from "@/utils/currencyFormatter"
+import { formatNumber } from "@/utils/numberFormatter"
+import { getProductGalleryImages } from "@/utils/product"
 
 function VariantImage({ src, alt }: { src: string; alt: string }) {
   const [errored, setErrored] = useState(false)

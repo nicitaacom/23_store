@@ -1,6 +1,6 @@
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
-import { useCartPersistedStore } from "@/store/user/useCartPersistedStore"
 import { Storage } from "./Storage"
+import { useCartPersistedStore } from "@/store/user/useCartPersistedStore"
 
 export class LocalStorage extends Storage {
   saveProducts(cartProducts: TRecordCartProduct): void {

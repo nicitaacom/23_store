@@ -1,6 +1,7 @@
-import { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import { create } from "zustand"
 import { persist, subscribeWithSelector } from "zustand/middleware"
+
+import { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 
 type AIChat = {
   promptValue: string

@@ -1,7 +1,7 @@
 import Image from "next/image"
 
-import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { BackToMainButton } from "./components/BackToMainButton"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
 export function ExchangeCookiesError({ message }: { message?: string }) {
   const { isDarkMode } = useDarkModeStore()

@@ -5,14 +5,15 @@ import Image from "next/image"
 import ImageUploading, { ImageListType } from "react-images-uploading"
 import { BiPlus, BiTrash, BiStar, BiUpload } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
+
+import { showToastWarningFn } from "../functions/showToastWarningFn"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
-import { useScopedI18n, useI18n } from "@/locales/client"
-import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import { uploadProductImages } from "@/functions/createProductHelpers"
 import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
-import { showToastWarningFn } from "../functions/showToastWarningFn"
+import { uploadProductImages } from "@/functions/createProductHelpers"
+import { useScopedI18n, useI18n } from "@/locales/client"
 
 interface FormatImagesFormProps {
   id: string

@@ -3,11 +3,12 @@
 import { FormEvent, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { BiSearchAlt } from "react-icons/bi"
+
 import { SearchInput } from "../Inputs/SearchInput"
 import { ModalContainer } from "./ModalContainers/"
 import { useCtrlKModal } from "@/store/ui/useCtrlKModal"
-import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { useDebounce } from "@/hooks/useDebounce"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 
 export function CtrlKModal() {
   const t = useScopedI18n("modal")

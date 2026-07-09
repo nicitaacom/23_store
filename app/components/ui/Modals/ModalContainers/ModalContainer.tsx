@@ -5,6 +5,7 @@ import { IoMdClose } from "react-icons/io"
 import { useSwipeable } from "react-swipeable"
 import { AnimatePresence, motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
+
 import { useLoading } from "@/store/ui/useLoading"
 
 interface ModalContainerProps {

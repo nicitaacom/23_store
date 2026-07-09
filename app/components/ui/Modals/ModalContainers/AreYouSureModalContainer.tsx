@@ -7,8 +7,8 @@ import { useSwipeable } from "react-swipeable"
 import { AnimatePresence, motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 
-import { Button } from "../.."
 import type { ButtonProps } from "../../Button"
+import { Button } from "../.."
 import { useLoading } from "@/store/ui/useLoading"
 
 interface AreYouSureModalContainerProps {

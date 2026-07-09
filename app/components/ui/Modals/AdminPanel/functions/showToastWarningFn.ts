@@ -1,6 +1,7 @@
-import useToast from "@/store/ui/useToast"
-import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { ErrorsType, ImageListType } from "react-images-uploading"
+
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import useToast from "@/store/ui/useToast"
 import { formatUploadFileSize, formatUploadResolution, MAX_IMAGE_FILE_SIZE_BYTES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
 import { getInvalidUploadedImageResolution } from "@/utils/getUploadedImageResolution"
 

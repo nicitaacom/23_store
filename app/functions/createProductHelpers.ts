@@ -1,8 +1,15 @@
 import { ImageListType } from "react-images-uploading"
 
-import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
-import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { getAnonymousId } from "./getAnonymousId"
+import { uploadImageFn } from "./uploadImageFn"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import useUserStore from "@/store/user/userStore"
+import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
+import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
+import { getUserId } from "@/utils/getUserId"
 import {
   PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX,
   PRODUCT_DESCRIPTION_PATTERN,
@@ -11,13 +18,6 @@ import {
   PRODUCT_TITLE_MUST_START_REGEX,
   getInvalidCharacterDetails,
 } from "@/utils/productValidation"
-import { uploadImageFn } from "./uploadImageFn"
-import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
-import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
-import { getAnonymousId } from "./getAnonymousId"
-import { getUserId } from "@/utils/getUserId"
-import useUserStore from "@/store/user/userStore"
 
 export type CreateProductFnInput = {
   title: string

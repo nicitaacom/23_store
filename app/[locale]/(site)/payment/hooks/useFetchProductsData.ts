@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction, useEffect } from "react"
 
+import { fetchProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
 import { useLoading } from "@/store/ui/useLoading"
 import useCartStore from "@/store/user/cartStore"
-import { fetchProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
 import { useI18n } from "@/locales/client"
 
 export const useFetchProductsData = (currentStep: number, setCurrentStep: Dispatch<SetStateAction<number>>) => {

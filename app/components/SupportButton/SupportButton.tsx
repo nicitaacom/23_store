@@ -6,9 +6,9 @@ import { BiSupport } from "react-icons/bi"
 
 import { Button } from "../ui"
 import SupportButtonDropdown from "@/components/SupportButton/components/SupportButtonDropdown"
-import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
+import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
 // export feault in order to lazy import this
 export default function SupportButton() {

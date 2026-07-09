@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 
+import { IMessageDB } from "@/ts/support/IMessageDB"
+import { useUnseenMessages } from "@/[locale]/(support)/store/useUnseenMessages"
 import { useSubscribeToTicketMessages } from "@/hooks/support/useSubscribeToTicketMessages"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import useUserStore from "@/store/user/userStore"
-import { IMessageDB } from "@/ts/support/IMessageDB"
-import { useUnseenMessages } from "@/[locale]/(support)/store/useUnseenMessages"
 
 interface UseMessagesBodyProps {
   initialMessages: IMessageDB[]

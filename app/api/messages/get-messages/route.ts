@@ -1,5 +1,6 @@
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { NextResponse } from "next/server"
+
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 /**
  * If userId set - route returns messages from open ticket for userId

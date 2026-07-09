@@ -1,16 +1,15 @@
 "use client"
 
+import { useCallback } from "react"
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai"
 import { twMerge } from "tailwind-merge"
 
-import { useCallback } from "react"
-
-import { useScopedI18n } from "@/locales/client"
-import useLikedProductsStore from "@/store/user/likedProductsStore"
-import useUserStore from "@/store/user/userStore"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
+import useLikedProductsStore from "@/store/user/likedProductsStore"
+import useUserStore from "@/store/user/userStore"
+import { useScopedI18n } from "@/locales/client"
 
 interface ProductLikeButtonProps {
   productId: string

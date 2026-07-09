@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { CiStar } from "react-icons/ci"
 import { FaStar } from "react-icons/fa"
 import { FiCheckCircle } from "react-icons/fi"
-import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
-import { Button } from "@/components/ui"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
+import { Button } from "@/components/ui"
 
 interface MarkTicketAsCompletedUserProps {
   isClosedBySupport: boolean

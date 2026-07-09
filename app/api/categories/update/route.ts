@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server"
+
+import { updateDBCategory } from "./updateDBCategory"
 import { requireAdmin } from "@/api/backup/requireAdmin"
 import { isValidCategoryName } from "@/utils/categoryValidation"
 import { isValidUUID } from "@/utils/isValidUUID"
-import { updateDBCategory } from "./updateDBCategory"
 
 export async function PATCH(req: Request) {
   const body = (await req.json()) as API.CategoriesUpdateRequest

@@ -1,12 +1,11 @@
 import { Metadata } from "next"
 
-import supabaseServer from "@/libs/supabase/supabaseServer"
-import { normalizeProducts } from "@/utils/productVariants"
-import { filterProductsBySearchQuery } from "@/utils/productSearch"
-
-import { NoProductsFound } from "./NoProductsFound"
 import { Products } from "../components"
+import { NoProductsFound } from "./NoProductsFound"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getI18n } from "@/locales/server"
+import { filterProductsBySearchQuery } from "@/utils/productSearch"
+import { normalizeProducts } from "@/utils/productVariants"
 
 interface SearchPageProps {
   searchParams: Promise<{ query: string }>

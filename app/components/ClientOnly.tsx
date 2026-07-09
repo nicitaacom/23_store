@@ -1,10 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { InitialPageLoadingSkeleton } from "./Skeletons/InitialPageLoadingSkeleton"
-import { useLoading } from "@/store/ui/useLoading"
 import { useParams, usePathname } from "next/navigation"
+
+import { InitialPageLoadingSkeleton } from "./Skeletons/InitialPageLoadingSkeleton"
 import { SupportPageLoadingSkeleton } from "./Skeletons/support/SupportPageLoadingSkeleton"
+import { useLoading } from "@/store/ui/useLoading"
 
 interface ClientOnlyProps {
   children: React.ReactNode

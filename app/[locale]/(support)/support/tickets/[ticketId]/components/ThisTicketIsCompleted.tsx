@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+
 import { BackToTickets } from "./BackToTickets"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 

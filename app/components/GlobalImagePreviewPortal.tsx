@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
 import Image from "next/image"
+import { AnimatePresence, motion } from "framer-motion"
 import { IoClose } from "react-icons/io5"
 
 import { OrganicCanvasBackground } from "./OrganicCanvasBackground"

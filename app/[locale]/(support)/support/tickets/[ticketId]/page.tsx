@@ -1,11 +1,12 @@
-import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
-import { ThisTicketIsCompleted } from "./components/ThisTicketIsCompleted"
-import { DragAndDropArea } from "@/components/SupportButton/components/DragAndDropArea/DragAndDropArea"
 import { cache } from "react"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+
 import type { IMessageDB } from "@/ts/support/IMessageDB"
+import { ThisTicketIsCompleted } from "./components/ThisTicketIsCompleted"
+import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
+import { DragAndDropArea } from "@/components/SupportButton/components/DragAndDropArea/DragAndDropArea"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 interface ChatPageProps {
   params: Promise<{

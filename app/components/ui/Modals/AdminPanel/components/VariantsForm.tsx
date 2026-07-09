@@ -1,20 +1,20 @@
 "use client"
 
-import Image from "next/image"
 import { useCallback, useMemo, useState } from "react"
+import Image from "next/image"
 import { BiPlus, BiTrash } from "react-icons/bi"
 import { FiSave } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
-import { Button } from "@/components/ui"
-import { MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
-import { useScopedI18n } from "@/locales/client"
+import { TProductVariant } from "@/ts/product/TProductVariant"
+import { BaseInput } from "../../../Inputs/BaseInput"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
-import { TProductVariant } from "@/ts/product/TProductVariant"
-import { BaseInput } from "../../../Inputs/BaseInput"
+import { Button } from "@/components/ui"
+import { MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
+import { useScopedI18n } from "@/locales/client"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
 
 interface VariantsFormProps {

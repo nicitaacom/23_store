@@ -1,11 +1,11 @@
 import { renderAsync } from "@react-email/render"
 
-import { RequestBetterPricesEmail } from "@/emails/RequestBetterPricesEmail"
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { useToast } from "@/store/ui"
-import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { emailsSDK } from "@/sdk/EmailsSDK/EmailsSDK"
+import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
+import { RequestBetterPricesEmail } from "@/emails/RequestBetterPricesEmail"
+import { useToast } from "@/store/ui"
 
 export async function requestBetterPrices(
   t: TI18nFunction,

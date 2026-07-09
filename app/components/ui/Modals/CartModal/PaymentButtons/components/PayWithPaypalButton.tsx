@@ -1,15 +1,16 @@
 "use client"
 
-import { Button } from "@/components/ui"
-import { useScopedI18n } from "@/locales/client"
+import { useRouter } from "next/navigation"
+import { FaPaypal } from "react-icons/fa"
+import { twMerge } from "tailwind-merge"
+
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
 import useUserStore from "@/store/user/userStore"
-import { useRouter } from "next/navigation"
-import { FaPaypal } from "react-icons/fa"
-import { twMerge } from "tailwind-merge"
+import { Button } from "@/components/ui"
+import { useScopedI18n } from "@/locales/client"
 
 export function PayWithPaypalButton() {
   const t = useScopedI18n("payment")

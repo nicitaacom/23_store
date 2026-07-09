@@ -6,11 +6,11 @@ import { CiEdit } from "react-icons/ci"
 import { MdOutlineDelete } from "react-icons/md"
 import { twMerge } from "tailwind-merge"
 
+import { TCategory } from "@/ts/categories/TCategory"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
-import { TCategory } from "@/ts/categories/TCategory"
-import { useI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
+import { useI18n } from "@/locales/client"
 import { isValidCategoryName } from "@/utils/categoryValidation"
 
 export function CategoriesForm() {

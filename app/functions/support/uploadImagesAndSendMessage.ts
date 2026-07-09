@@ -1,10 +1,10 @@
 import { Dispatch, RefObject, SetStateAction } from "react"
 
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { uploadImageFn } from "../uploadImageFn"
+import { sendMessageFn } from "@/[locale]/(site)/functions/sendMessageFn"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import useToast from "@/store/ui/useToast"
-import { sendMessageFn } from "@/[locale]/(site)/functions/sendMessageFn"
-import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 
 export async function uploadImagesAndSendMessage(
   t: TI18nFunction,

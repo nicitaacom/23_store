@@ -1,9 +1,8 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-
-import { BiUserCircle } from "react-icons/bi"
 import Link from "next/link"
+import { BiUserCircle } from "react-icons/bi"
 
 export function OpenAuthModalButton() {
   const pathname = usePathname()

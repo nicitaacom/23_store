@@ -1,6 +1,7 @@
+import { NextResponse } from "next/server"
+
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { normalizeAuthEmail } from "@/utils/publicUserSync"
-import { NextResponse } from "next/server"
 
 export type TAPIAuthRecover = {
   email: string

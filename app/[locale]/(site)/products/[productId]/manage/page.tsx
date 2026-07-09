@@ -1,14 +1,14 @@
+import { cache } from "react"
 import type { Metadata } from "next"
 import Link from "next/link"
-import { cache } from "react"
 import { notFound } from "next/navigation"
 import { BiArrowBack, BiChevronRight } from "react-icons/bi"
 
+import { ManageProductView } from "./ManageProductView"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getScopedI18n } from "@/locales/server"
 import { toProductLocale } from "@/utils/product"
 import { normalizeProduct } from "@/utils/productVariants"
-import { ManageProductView } from "./ManageProductView"
 
 interface ManageProductPageProps {
   params: Promise<{

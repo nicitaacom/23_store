@@ -1,5 +1,6 @@
-import { useScopedI18n } from "@/locales/client"
 import Image from "next/image"
+
+import { useScopedI18n } from "@/locales/client"
 
 export default function EmptyCart() {
   const t = useScopedI18n("product")

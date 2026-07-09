@@ -1,16 +1,15 @@
 "use client"
 
 import { BiTrash, BiCheck, BiErrorCircle, BiLoaderAlt } from "react-icons/bi"
-
-import useCartStore from "@/store/user/cartStore"
-import { useLoading } from "@/store/ui/useLoading"
-import useToast from "@/store/ui/useToast"
-import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
-import { useScopedI18n } from "@/locales/client"
-import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { twMerge } from "tailwind-merge"
 
 import { AreYouSureModalContainer } from "../../ModalContainers/AreYouSureModalContainer"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useLoading } from "@/store/ui/useLoading"
+import useToast from "@/store/ui/useToast"
+import useCartStore from "@/store/user/cartStore"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { useScopedI18n } from "@/locales/client"
 
 type DeleteStatus = "pending" | "deleting" | "done" | "error"
 

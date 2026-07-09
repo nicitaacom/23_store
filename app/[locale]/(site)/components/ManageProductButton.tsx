@@ -3,9 +3,9 @@
 import { FiEdit3 } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
+import useUserStore from "@/store/user/userStore"
 import { Button } from "@/components/ui"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import useUserStore from "@/store/user/userStore"
 
 type ManageProductButtonProps = {
   productId: string

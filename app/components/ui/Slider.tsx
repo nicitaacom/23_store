@@ -1,9 +1,9 @@
 "use client"
 
+import "react-responsive-carousel/lib/styles/carousel.min.css"
 import { twMerge } from "tailwind-merge"
 import { Carousel } from "react-responsive-carousel"
 import { AiFillCaretRight, AiFillCaretLeft } from "react-icons/ai"
-import "react-responsive-carousel/lib/styles/carousel.min.css"
 
 import { ImageWithFallback } from "./ImageWithFallback"
 

@@ -1,13 +1,14 @@
-import { stripe } from "@/libs/stripe"
-import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
-import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
-import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
-import { ProductTranslations } from "@/ts/product/TProductDB"
-import { TProductVariant } from "@/ts/product/TProductVariant"
-import { normalizeProductImageUrls } from "@/utils/product"
-import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
+
+import { ProductTranslations } from "@/ts/product/TProductDB"
+import { TProductVariant } from "@/ts/product/TProductVariant"
+import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
+import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
+import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
+import { stripe } from "@/libs/stripe"
+import { normalizeProductImageUrls } from "@/utils/product"
+import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 
 export type TUpdateProductRequest = {
   productId: string

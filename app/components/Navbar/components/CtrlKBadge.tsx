@@ -1,8 +1,9 @@
 "use client"
 
-import { useCtrlKModal } from "@/store/ui/useCtrlKModal"
-import { useSearchParams } from "next/navigation"
 import { useEffect } from "react"
+import { useSearchParams } from "next/navigation"
+
+import { useCtrlKModal } from "@/store/ui/useCtrlKModal"
 
 export function CtrlKBadge() {
   const ctrlKModal = useCtrlKModal()

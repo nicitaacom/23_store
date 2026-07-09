@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react"
 
-import { logFn } from "@/utils/logFn"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { logFn } from "@/utils/logFn"
 
 export async function fetchProductsDataFromDBFn(
   hasCartStoreInitialized: boolean,

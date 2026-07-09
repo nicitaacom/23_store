@@ -1,15 +1,15 @@
 import { ReactNode } from "react"
 import { UseFormGetValues } from "react-hook-form"
 
-import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
-import supabaseClient from "@/libs/supabase/supabaseClient"
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { AuthFormData } from "../AuthModal/AuthModal"
+import { UnknownError } from "./UnknownError"
+import supabaseClient from "@/libs/supabase/supabaseClient"
+import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
+import { useResetEmailStore } from "@/store/user/useResetEmailStore"
 import { Button } from "@/components/ui"
 import { subscribePusherChannel } from "@/libs/pusher"
-import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { UnknownError } from "./UnknownError"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
-import { useResetEmailStore } from "@/store/user/useResetEmailStore"
 
 export async function recoverPassword(
   email: string,

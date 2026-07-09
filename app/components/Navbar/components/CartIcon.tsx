@@ -1,11 +1,11 @@
 "use client"
 
-import useCartStore from "@/store/user/cartStore"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
-
 import { LuShoppingCart } from "react-icons/lu"
+
+import useCartStore from "@/store/user/cartStore"
 
 interface CartIconProps {
   cart_quantity: number | undefined

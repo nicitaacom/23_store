@@ -2,8 +2,8 @@
 
 import { RefObject, useEffect, useRef } from "react"
 
-import { getPusherClient, subscribePusherChannel } from "@/libs/pusher"
 import { IMessageDB } from "@/ts/support/IMessageDB"
+import { getPusherClient, subscribePusherChannel } from "@/libs/pusher"
 
 interface UseSubscribeToTicketMessagesProps {
   bottomRef: RefObject<HTMLUListElement>

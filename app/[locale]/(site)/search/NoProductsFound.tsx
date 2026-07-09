@@ -1,8 +1,9 @@
 "use client"
 
-import { useScopedI18n } from "@/locales/client"
-import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import Image from "next/image"
+
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import { useScopedI18n } from "@/locales/client"
 
 export function NoProductsFound() {
   const { isDarkMode } = useDarkModeStore()

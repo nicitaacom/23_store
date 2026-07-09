@@ -2,24 +2,24 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { BiImageAdd, BiLinkExternal, BiRefresh, BiUpload } from "react-icons/bi"
 import ImageUploading, { ImageListType } from "react-images-uploading"
 import { twMerge } from "tailwind-merge"
 
-import { ModalContainer } from "./ModalContainers"
+import { showToastWarningFn } from "./AdminPanel/functions/showToastWarningFn"
 import { Button } from "../Button"
 import { Input } from "../Inputs"
-import useUserStore from "@/store/user/userStore"
-import { useUpdateAvatarModal } from "@/store/ui/useUpdateAvatarModal"
+import { ModalContainer } from "./ModalContainers"
+import { AccountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
-import { AccountSDK } from "@/sdk/AccountSDK/AccountSDK"
-import { delCookie, setCookie } from "@/utils/helpersCSR"
-import { showToastWarningFn } from "./AdminPanel/functions/showToastWarningFn"
+import { useUpdateAvatarModal } from "@/store/ui/useUpdateAvatarModal"
+import useUserStore from "@/store/user/userStore"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useI18n } from "@/locales/client"
+import { delCookie, setCookie } from "@/utils/helpersCSR"
 import { getUserAvatarUrl, sanitizeAvatarUrl } from "@/utils/user"
-import Image from "next/image"
 
 const accountSDK = new AccountSDK()
 

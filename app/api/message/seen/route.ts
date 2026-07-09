@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
-import { pusherServer } from "@/libs/pusher"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { pusherServer } from "@/libs/pusher"
 
 export type TAPIMessageSeen = {
   messages: IMessageDB[]

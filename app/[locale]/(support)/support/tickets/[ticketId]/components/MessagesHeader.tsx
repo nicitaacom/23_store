@@ -3,11 +3,11 @@
 import { twMerge } from "tailwind-merge"
 
 import { MarkTicketAsCompletedSupport } from "./MarkTicketAsCompletedSupport"
-import useSender from "@/hooks/ui/useSender"
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
+import useSender from "@/hooks/ui/useSender"
+import { getSupportMessageDayLabel } from "@/utils/support/getSupportMessageDayLabel"
 import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 import { useScopedI18n } from "@/locales/client"
-import { getSupportMessageDayLabel } from "@/utils/support/getSupportMessageDayLabel"
 
 interface MessagesHeaderProps {
   owner_username: string

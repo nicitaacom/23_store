@@ -1,8 +1,8 @@
 "use client"
 
+import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import { Button } from "@/components/ui"
 import { useScopedI18n } from "@/locales/client"
-import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 
 export function OpenSupportChatButton() {
   const t = useScopedI18n("support")

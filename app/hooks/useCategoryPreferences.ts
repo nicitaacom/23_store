@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
-import { useCategoryPreferencesStore } from "@/store/categories/useCategoryPreferencesStore"
+
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
+import { useCategoryPreferencesStore } from "@/store/categories/useCategoryPreferencesStore"
 
 export const useCategoryPreferences = (isAuthenticated: boolean) => {
   const [isSkeleton, setIsSkeleton] = useState(isAuthenticated)

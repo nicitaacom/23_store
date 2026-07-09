@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { Button } from "@/components/ui"
 
 export function UnknownError({ t }: { t: TI18nFunction }) {
   return (

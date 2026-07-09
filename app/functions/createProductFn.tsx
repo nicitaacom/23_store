@@ -1,9 +1,5 @@
-import { useLoading } from "@/store/ui/useLoading"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { getUserId } from "@/utils/getUserId"
-import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils/product"
-import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import {
   CreateProductFnInput,
   createStripeProduct,
@@ -13,6 +9,10 @@ import {
   tinifyProductImages,
   uploadProductImages,
 } from "./createProductHelpers"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useLoading } from "@/store/ui/useLoading"
+import { getUserId } from "@/utils/getUserId"
+import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils/product"
 
 /**
  * Creates a product through the full creation pipeline.

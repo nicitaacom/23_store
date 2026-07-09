@@ -1,5 +1,7 @@
 //This helpers may be used on server side only
+//This helpers may be used on server side only
 import { cookies } from "next/headers"
+
 import { TCookieName } from "../ts/types/TCookieName"
 
 type SetCookieOptions = Parameters<Awaited<ReturnType<typeof cookies>>["set"]>[2]

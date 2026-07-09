@@ -1,5 +1,6 @@
-import { useScopedI18n } from "@/locales/client"
 import { BsStars } from "react-icons/bs"
+
+import { useScopedI18n } from "@/locales/client"
 
 export function ChatHeader() {
   const t = useScopedI18n("aichat")

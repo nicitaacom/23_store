@@ -1,5 +1,5 @@
-import Skeleton from "react-loading-skeleton"
 import "react-loading-skeleton/dist/skeleton.css"
+import Skeleton from "react-loading-skeleton"
 import { v4 as uuidv4 } from "uuid"
 
 export function ProductsSkeleton() {

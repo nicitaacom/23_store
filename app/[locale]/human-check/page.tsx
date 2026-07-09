@@ -1,6 +1,7 @@
 import Script from "next/script"
-import { getSafeNextPath } from "@/utils/turnstile"
+
 import { TurnstileChallenge } from "./TurnstileChallenge"
+import { getSafeNextPath } from "@/utils/turnstile"
 
 export default async function HumanCheckPage({
   params,

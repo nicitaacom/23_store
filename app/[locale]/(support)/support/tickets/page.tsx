@@ -1,5 +1,5 @@
-import getInitialTickets from "@/actions/getInitialTickets"
 import { EmptyState } from "./components/EmptyState"
+import getInitialTickets from "@/actions/getInitialTickets"
 
 export default async function SupportChatPage() {
   const tickets = await getInitialTickets()

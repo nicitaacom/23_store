@@ -5,14 +5,14 @@ import { CiEdit } from "react-icons/ci"
 import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
-import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
-import { useLoading } from "@/store/ui/useLoading"
-import { useScopedI18n } from "@/locales/client"
-import { formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
+import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { useScopedI18n } from "@/locales/client"
+import { formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
 
 interface FormatOnStockFormProps {
   id: string

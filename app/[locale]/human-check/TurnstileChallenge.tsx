@@ -1,9 +1,10 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+
+import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { Button } from "@/components/ui"
 import { getSafeNextPath } from "@/utils/turnstile"
-import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 
 type TurnstileChallengeProps = {
   locale: string

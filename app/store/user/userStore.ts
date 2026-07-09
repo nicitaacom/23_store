@@ -1,10 +1,11 @@
 import { create } from "zustand"
 import { devtools, subscribeWithSelector } from "zustand/middleware"
 import { User } from "@supabase/supabase-js"
-import useCartStore from "./cartStore"
+
 import { useLoading } from "../ui/useLoading"
-import { delCookie } from "@/utils/helpersCSR"
 import { useMessagesStore } from "../ui/useMessagesStore"
+import useCartStore from "./cartStore"
+import { delCookie } from "@/utils/helpersCSR"
 
 interface UserStore {
   user: User | null

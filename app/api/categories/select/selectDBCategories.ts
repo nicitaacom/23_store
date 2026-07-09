@@ -1,5 +1,5 @@
-import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 import { TCategory } from "@/ts/categories/TCategory"
+import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 
 export async function selectDBCategories(): Promise<TCategory[] | string> {
   const supabase = await supabaseServerAction()

@@ -1,5 +1,6 @@
-import useToast from "@/store/ui/useToast"
 import { ErrorsType, ImageListType } from "react-images-uploading"
+
+import useToast from "@/store/ui/useToast"
 import { formatUploadFileSize, formatUploadResolution, MAX_IMAGE_FILE_SIZE_BYTES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
 import { getInvalidUploadedImageResolution } from "@/utils/getUploadedImageResolution"
 

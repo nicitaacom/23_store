@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Image, { ImageProps } from "next/image"
 import { twMerge } from "tailwind-merge"
+
 import { useI18n } from "@/locales/client"
 
 const DEFAULT_FALLBACK_SRC = "/no-image-fallback.png"

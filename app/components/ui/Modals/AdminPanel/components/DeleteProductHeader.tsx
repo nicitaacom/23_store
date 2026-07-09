@@ -3,9 +3,9 @@
 import { BiTrash } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
 
-import { formatCurrency } from "@/utils/currencyFormatter"
 import { Button } from "@/components/ui"
 import { useScopedI18n } from "@/locales/client"
+import { formatCurrency } from "@/utils/currencyFormatter"
 
 interface DeleteProductHeaderProps {
   id: string

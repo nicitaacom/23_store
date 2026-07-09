@@ -1,5 +1,6 @@
-import { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import Image from "next/image"
+
+import { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 
 export function MessageBoxAI({ role, text, imageUrl }: TAIChatMessage) {
   return (

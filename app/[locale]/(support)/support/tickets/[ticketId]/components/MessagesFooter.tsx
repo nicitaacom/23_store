@@ -2,15 +2,15 @@
 
 import { useEffect } from "react"
 
+import { useSupportReplyDrafts } from "@/[locale]/(support)/store/useSupportReplyDrafts"
+import { MessageInput } from "@/components/ui/Inputs/MessageInput"
+import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
+import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import useToast from "@/store/ui/useToast"
 import useUserStore from "@/store/user/userStore"
-import { MessageInput } from "@/components/ui/Inputs/MessageInput"
-import { getUserAvatarUrl, getUserName } from "@/utils/user"
-import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useI18n } from "@/locales/client"
-import { useMessagesStore } from "@/store/ui/useMessagesStore"
-import { useSupportReplyDrafts } from "@/[locale]/(support)/store/useSupportReplyDrafts"
+import { getUserAvatarUrl, getUserName } from "@/utils/user"
 
 export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   const toast = useToast()

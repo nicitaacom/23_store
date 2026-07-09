@@ -4,10 +4,10 @@ import { twMerge } from "tailwind-merge"
 
 import { Button } from "@/components/ui/Button"
 import supabaseClient from "@/libs/supabase/supabaseClient"
+import { useOAuthDebugStore } from "@/store/ui/useOAuthDebugStore"
 import useToast from "@/store/ui/useToast"
 import { useCurrentLocale, useI18n } from "@/locales/client"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
-import { useOAuthDebugStore } from "@/store/ui/useOAuthDebugStore"
 
 interface ContinueWithButtonProps {
   provider: "google" | "faceit" | "twitter"

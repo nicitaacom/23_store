@@ -7,12 +7,12 @@ import { twMerge } from "tailwind-merge"
 
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
-import { formatCurrency } from "@/utils/currencyFormatter"
-import { useLoading } from "@/store/ui/useLoading"
-import { useScopedI18n } from "@/locales/client"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { useScopedI18n } from "@/locales/client"
+import { formatCurrency } from "@/utils/currencyFormatter"
 
 interface FormatPriceFormProps {
   id: string

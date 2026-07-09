@@ -1,5 +1,5 @@
-import { NavbarSkeleton } from "../NavbarSkeleton"
 import { SupportPageSkeleton } from "./components/SupportPageSkeleton"
+import { NavbarSkeleton } from "../NavbarSkeleton"
 
 export function SupportPageLoadingSkeleton({ ticketId }: { ticketId: string | Record<string, string | string[] | undefined> }) {
   return (

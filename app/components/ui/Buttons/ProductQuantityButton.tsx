@@ -1,10 +1,11 @@
 "use client"
 
+import { useCallback } from "react"
 import { MdOutlineDeleteOutline } from "react-icons/md"
+import { twMerge } from "tailwind-merge"
+
 import { Button } from ".."
 import useCartStore from "@/store/user/cartStore"
-import { useCallback } from "react"
-import { twMerge } from "tailwind-merge"
 
 type ProductQuantityAction = "increase" | "decrease" | "clear"
 

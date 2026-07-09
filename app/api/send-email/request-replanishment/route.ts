@@ -1,6 +1,7 @@
-import { resend } from "@/libs/resend"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { NextResponse } from "next/server"
+
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { resend } from "@/libs/resend"
 
 export type TAPISendEmailRequestReplanishment = {
   owner_id: string

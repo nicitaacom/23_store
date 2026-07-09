@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
+
 import { requireAdmin } from "@/api/backup/requireAdmin"
-import { isValidUUID } from "@/utils/isValidUUID"
 import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
+import { isValidUUID } from "@/utils/isValidUUID"
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)

@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 
-import { useOAuthDebugStore } from "@/store/ui/useOAuthDebugStore"
+import { BackToMainButton } from "./components/BackToMainButton"
+import { AuthNotCompleted } from "./AuthNotCompleted"
 import { EmailLinkInvalidOrExpired } from "./EmailLinkInvalidOrExpired"
 import { ExchangeCookiesError } from "./ExchangeCookiesError"
-import { AuthNotCompleted } from "./AuthNotCompleted"
-import { BackToMainButton } from "./components/BackToMainButton"
 import { NoCodeFoundError } from "./NoCodeFoundError"
+import { useOAuthDebugStore } from "@/store/ui/useOAuthDebugStore"
 
 const AUTH_ERROR_STORAGE_KEY = "auth:lastErrorDescription"
 const AUTH_ERROR_TTL_MS = 5 * 60 * 1000

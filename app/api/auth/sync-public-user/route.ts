@@ -1,7 +1,8 @@
-import { syncPublicUserRecord } from "@/utils/publicUserSync"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+
+import { syncPublicUserRecord } from "@/utils/publicUserSync"
 
 type TAPIAuthSyncPublicUser = {
   provider?: string | null

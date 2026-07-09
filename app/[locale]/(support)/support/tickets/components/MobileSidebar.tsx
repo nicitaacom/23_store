@@ -4,11 +4,11 @@ import { AnimatePresence } from "framer-motion"
 import { FiSearch } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
-import { SearchInput } from "@/components/ui/Inputs/SearchInput"
-import { useScopedI18n } from "@/locales/client"
 import { ITicketDB } from "@/ts/support/ITicketDB"
-import useTicket from "@/hooks/support/useTicket"
 import { SidebarTicketRow } from "./SidebarTicketRow"
+import { SearchInput } from "@/components/ui/Inputs/SearchInput"
+import useTicket from "@/hooks/support/useTicket"
+import { useScopedI18n } from "@/locales/client"
 
 interface MobileSidebarProps {
   onOpenTicket: (ticketId: string) => void

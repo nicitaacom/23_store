@@ -1,10 +1,9 @@
 import { ProductTranslations } from "@/ts/product/TProductDB"
-
+import { FormatCategoryForm } from "./FormatCategoryForm"
+import { FormatDescriptionForm } from "./FormatDescriptionForm"
+import { FormatOnStockForm } from "./FormatOnStockForm"
 import { FormatPriceForm } from "./FormatPriceForm"
 import { FormatTitleForm } from "./FormatTitleForm"
-import { FormatOnStockForm } from "./FormatOnStockForm"
-import { FormatDescriptionForm } from "./FormatDescriptionForm"
-import { FormatCategoryForm } from "./FormatCategoryForm"
 
 interface OwnerProductHeaderProps {
   id: string

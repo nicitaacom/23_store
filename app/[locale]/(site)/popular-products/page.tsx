@@ -1,6 +1,6 @@
-import { fetchPopularProducts } from "@/libs/popularProducts"
 import { BannersSlider } from "./BannersSlider"
 import { PopularProductsLazyFeed } from "./PopularProductsLazyFeed"
+import { fetchPopularProducts } from "@/libs/popularProducts"
 
 interface PopularProductsPageProps {
   params: Promise<{ locale: string }>

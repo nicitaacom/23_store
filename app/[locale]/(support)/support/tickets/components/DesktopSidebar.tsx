@@ -3,10 +3,10 @@
 import { AnimatePresence } from "framer-motion"
 import { FiSearch } from "react-icons/fi"
 
-import { SearchInput } from "@/components/ui/Inputs/SearchInput"
-import { useScopedI18n } from "@/locales/client"
 import { ITicketDB } from "@/ts/support/ITicketDB"
 import { SidebarTicketRow } from "./SidebarTicketRow"
+import { SearchInput } from "@/components/ui/Inputs/SearchInput"
+import { useScopedI18n } from "@/locales/client"
 
 interface DesktopSidebarProps {
   onOpenTicket: (ticketId: string) => void

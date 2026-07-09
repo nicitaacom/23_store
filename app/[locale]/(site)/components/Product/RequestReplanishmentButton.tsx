@@ -1,13 +1,13 @@
 "use client"
 
-import { HiOutlineRefresh } from "react-icons/hi"
-
-import useToast from "@/store/ui/useToast"
 import { useEffect, useState } from "react"
+import { HiOutlineRefresh } from "react-icons/hi"
 import { twMerge } from "tailwind-merge"
+
 import { TProductDB } from "@/ts/product/TProductDB"
-import { Button } from "@/components/ui"
 import { emailsSDK } from "@/sdk/EmailsSDK/EmailsSDK"
+import useToast from "@/store/ui/useToast"
+import { Button } from "@/components/ui"
 
 export function RequestReplanishmentButton({ product, className }: { product: TProductDB; className?: string }) {
   const toast = useToast()

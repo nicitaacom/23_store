@@ -2,10 +2,10 @@
 
 import { useCallback, useState } from "react"
 
-import { useLazyLoading } from "@/hooks/useLazyLoading"
-import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { PopularProductCard } from "./components/PopularProductCard"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useLazyLoading } from "@/hooks/useLazyLoading"
 
 interface PopularProductsLazyFeedProps {
   initialProducts: TProductDB[]

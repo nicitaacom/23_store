@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from "react"
 import { FiSend } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
-import { getUserId } from "@/utils/getUserId"
 import { PastedImagePreview } from "@/components/SupportButton/components/PastedImagePreview"
 import { uploadImagesAndSendMessage } from "@/functions/support/uploadImagesAndSendMessage"
 import { useMessagesStore } from "@/store/ui/useMessagesStore"
 import { useI18n } from "@/locales/client"
+import { getUserId } from "@/utils/getUserId"
 
 interface MessageInputProps {
   className?: string

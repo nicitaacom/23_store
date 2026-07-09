@@ -1,5 +1,6 @@
 import { ReactNode, useEffect } from "react"
 import { FieldErrors } from "react-hook-form"
+
 import { AuthFormData } from "../AuthModal/AuthModal"
 
 export const useHideResponseMessage = (

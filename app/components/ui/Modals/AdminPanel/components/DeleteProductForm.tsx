@@ -4,16 +4,16 @@ import { useState } from "react"
 import Image from "next/image"
 import { BiTrash } from "react-icons/bi"
 import { MdChecklist, MdClose } from "react-icons/md"
+import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
+import { PendingDeleteProduct } from "./AdminPanelDeleteConfirmDialog"
+import { AdminPanelProductSearch } from "./AdminPanelProductSearch"
 import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import { Button } from "@/components/ui"
 import { useScopedI18n } from "@/locales/client"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
-import { AdminPanelProductSearch } from "./AdminPanelProductSearch"
-import { Button } from "@/components/ui"
-import { twMerge } from "tailwind-merge"
-import { PendingDeleteProduct } from "./AdminPanelDeleteConfirmDialog"
 
 interface DeleteProductForm {
   ownerProducts: TProductDB[]

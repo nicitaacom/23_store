@@ -1,7 +1,7 @@
 import Image from "next/image"
 
-import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { BackToMainButton } from "./components/BackToMainButton"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
 export function EmailLinkInvalidOrExpired() {
   const { isDarkMode } = useDarkModeStore()

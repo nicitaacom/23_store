@@ -1,9 +1,9 @@
 import { Dispatch, SetStateAction } from "react"
 
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useToast from "@/store/ui/useToast"
 import { logFn } from "@/utils/logFn"
-import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 
 export async function getCustomerEmailFn(
   t: TI18nFunction,

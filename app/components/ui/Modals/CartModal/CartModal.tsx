@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-import useCartStore from "@/store/user/cartStore"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import EmptyCart from "./EmptyCart"
 import { ProductsInCart } from "./ProductsInCart"
 import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
+import useCartStore from "@/store/user/cartStore"
 import { useI18n } from "@/locales/client"
 
 export function CartModal() {

@@ -3,9 +3,9 @@ import { useRouter } from "next/navigation"
 import { User } from "@supabase/supabase-js"
 
 import supabaseClient from "@/libs/supabase/supabaseClient"
-import useUserStore from "@/store/user/userStore"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
+import useUserStore from "@/store/user/userStore"
 
 async function syncAnonCategoryViews() {
   try {

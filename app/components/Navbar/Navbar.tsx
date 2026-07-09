@@ -1,13 +1,13 @@
 import { BiSearchAlt } from "react-icons/bi"
 
-import supabaseServer from "@/libs/supabase/supabaseServer"
-import { LanguageDropdown } from "../LanguageDropdown"
-import { SwitchDarkMode } from ".."
-import { NavbarWrapper } from "./components/NavbarWrapper"
-import { AvatarDropdown, HamburgerMenu, Logo, OpenAuthModalButton, CartIcon } from "./components"
-import { ContactButton } from "./components/ContactButton"
-import { getCookie } from "@/utils/helpersSSR"
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
+import { ContactButton } from "./components/ContactButton"
+import { NavbarWrapper } from "./components/NavbarWrapper"
+import { LanguageDropdown } from "../LanguageDropdown"
+import { AvatarDropdown, HamburgerMenu, Logo, OpenAuthModalButton, CartIcon } from "./components"
+import { SwitchDarkMode } from ".."
+import supabaseServer from "@/libs/supabase/supabaseServer"
+import { getCookie } from "@/utils/helpersSSR"
 
 export default async function Navbar() {
   const supabase = await supabaseServer()

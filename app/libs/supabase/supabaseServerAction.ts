@@ -1,5 +1,6 @@
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
+
 import { Database } from "@/ts/types_db"
 
 // don't use supabase/ssr because it's buggy

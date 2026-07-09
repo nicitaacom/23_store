@@ -1,15 +1,15 @@
 "use client"
 
-import { usePathname } from "next/navigation"
 import { ReactNode, useState } from "react"
+import { usePathname } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 import { FieldErrors, UseFormHandleSubmit, UseFormRegister } from "react-hook-form"
-
-import { FormInput } from "@/components/ui/Inputs/Validation"
 import { AiOutlineLock, AiOutlineMail, AiOutlineUser } from "react-icons/ai"
+
 import { AuthFormData } from "../AuthModal"
-import { Button, Checkbox } from "@/components/ui"
 import { AuthContinueWith } from "./AuthContinueWith"
+import { FormInput } from "@/components/ui/Inputs/Validation"
+import { Button, Checkbox } from "@/components/ui"
 import { useI18n } from "@/locales/client"
 
 interface AuthFormProps {

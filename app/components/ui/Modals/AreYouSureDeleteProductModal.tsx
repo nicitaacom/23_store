@@ -3,12 +3,12 @@
 import { useRouter } from "next/navigation"
 import { BiTrash } from "react-icons/bi"
 
-import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
 import { AreYouSureModalContainer } from "./ModalContainers/AreYouSureModalContainer"
-import useCartStore from "@/store/user/cartStore"
-import { useLoading } from "@/store/ui/useLoading"
-import { useScopedI18n } from "@/locales/client"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
+import { useLoading } from "@/store/ui/useLoading"
+import useCartStore from "@/store/user/cartStore"
+import { useScopedI18n } from "@/locales/client"
 
 export function AreYouSureDeleteProductModal() {
   const t = useScopedI18n("modal")

@@ -1,15 +1,15 @@
 import { Dispatch, ReactNode, SetStateAction } from "react"
-
-import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
-import { AuthFormData } from "../AuthModal/AuthModal"
 import { UseFormGetValues, UseFormSetFocus } from "react-hook-form"
-import { Timer } from "../AuthModal/components"
-import { Button } from "@/components/ui"
-import { resendVerificationEmail } from "./resendVerificationEmail"
-import { subscribePusherChannel } from "@/libs/pusher"
+
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
+import { AuthFormData } from "../AuthModal/AuthModal"
+import { Timer } from "../AuthModal/components"
 import { UnknownError } from "./UnknownError"
+import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
+import { resendVerificationEmail } from "./resendVerificationEmail"
+import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
+import { Button } from "@/components/ui"
+import { subscribePusherChannel } from "@/libs/pusher"
 
 export async function signUp(
   t: TI18nFunction,

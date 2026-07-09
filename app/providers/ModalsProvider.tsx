@@ -1,6 +1,5 @@
 import React from "react"
 
-import { GlobalImagePreviewPortal } from "@/components/GlobalImagePreviewPortal"
 import {
   AreYouSureClearCartModal,
   AreYouSureDeleteProductModal,
@@ -9,6 +8,7 @@ import {
   DoYouWantReceiveCheckModal,
   UpdateAvatarModal,
 } from "@/components/ui/Modals"
+import { GlobalImagePreviewPortal } from "@/components/GlobalImagePreviewPortal"
 
 export function ModalsProvider() {
   return (

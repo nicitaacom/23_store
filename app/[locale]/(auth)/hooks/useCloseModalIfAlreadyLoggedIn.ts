@@ -1,7 +1,8 @@
 import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import useUserStore from "@/store/user/userStore"
+
 import useToast from "@/store/ui/useToast"
+import useUserStore from "@/store/user/userStore"
 import { useI18n } from "@/locales/client"
 
 export const useCloseModalIfAlreadyLoggedIn = (queryParams: "login" | "recover" | "resetPassword" | null) => {

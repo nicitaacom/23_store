@@ -1,14 +1,15 @@
 "use client"
 
-import { BsCart3 } from "react-icons/bs"
-import useCartStore from "@/store/user/cartStore"
-import useUserStore from "@/store/user/userStore"
 import { useCallback } from "react"
-import { Button } from ".."
-import { useScopedI18n } from "@/locales/client"
+import { BsCart3 } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
+
+import { Button } from ".."
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
+import useCartStore from "@/store/user/cartStore"
+import useUserStore from "@/store/user/userStore"
+import { useScopedI18n } from "@/locales/client"
 
 interface AddToCartButtonProps {
   productId: string

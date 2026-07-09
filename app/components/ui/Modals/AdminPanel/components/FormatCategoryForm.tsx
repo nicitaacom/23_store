@@ -4,13 +4,13 @@ import { useEffect, useState } from "react"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 
-import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
+import { CategoryDropdown } from "./CategoryDropdown"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
 import useToast from "@/store/ui/useToast"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useI18n } from "@/locales/client"
-import { CategoryDropdown } from "./CategoryDropdown"
 
 interface FormatCategoryFormProps {
   id: string

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
+
+import { deleteDBCategory } from "./deleteDBCategory"
 import { requireAdmin } from "@/api/backup/requireAdmin"
 import { isValidUUID } from "@/utils/isValidUUID"
-import { deleteDBCategory } from "./deleteDBCategory"
 
 export async function DELETE(req: Request) {
   const body = (await req.json()) as API.CategoriesDeleteRequest

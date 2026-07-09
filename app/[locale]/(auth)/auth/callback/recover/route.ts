@@ -1,8 +1,9 @@
-import { getAuthErrorRedirectUrl, getLocalizedAppUrl } from "@/utils/authCallback"
-import { syncPublicUserRecord } from "@/utils/publicUserSync"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+
+import { getAuthErrorRedirectUrl, getLocalizedAppUrl } from "@/utils/authCallback"
+import { syncPublicUserRecord } from "@/utils/publicUserSync"
 
 export async function GET(request: Request) {
   // Get code to exchange this code to cookies session in the future

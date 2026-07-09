@@ -1,8 +1,9 @@
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { User } from "@supabase/supabase-js"
+
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { Json } from "@/ts/types_db"
 import { getPreferredAvatarUrl, getUserAvatarUrl, getUserName, sanitizeAvatarUrl } from "@/utils/user"
-import { User } from "@supabase/supabase-js"
 
 interface SyncPublicUserOptions {
   provider?: string | null

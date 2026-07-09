@@ -1,24 +1,23 @@
 "use client"
+import { useRef, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-
-import { useRef, useState } from "react"
 import { BsWindow, BsDatabaseDown } from "react-icons/bs"
 import { BiImageAdd } from "react-icons/bi"
 import { IoChatboxEllipsesOutline } from "react-icons/io5"
 import { IoIosStats } from "react-icons/io"
 import { FaTelegramPlane } from "react-icons/fa"
 
-import { useScopedI18n } from "@/locales/client"
-import useUserStore from "@/store/user/userStore"
-import { useUpdateAvatarModal } from "@/store/ui/useUpdateAvatarModal"
-import useDarkModeStore from "@/store/ui/useDarkModeStore"
-import { SwitchDarkMode } from "@/components"
-import { DropdownContainer, DropdownItem } from "@/components/ui"
 import { LogoutDropdownItem } from "./LogoutDropdownItem"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import { useUpdateAvatarModal } from "@/store/ui/useUpdateAvatarModal"
+import useUserStore from "@/store/user/userStore"
+import { DropdownContainer, DropdownItem } from "@/components/ui"
 import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
+import { useScopedI18n } from "@/locales/client"
 import { getCookie } from "@/utils/helpersCSR"
 import { getUserAvatarUrl, getUserName } from "@/utils/user"
+import { SwitchDarkMode } from "@/components"
 
 interface AvatarDropdownProps {
   roles: string[]

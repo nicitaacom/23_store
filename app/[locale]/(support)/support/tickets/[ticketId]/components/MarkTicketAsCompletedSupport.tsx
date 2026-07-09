@@ -3,8 +3,8 @@
 import { FiCheckCircle } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
-import { Button } from "@/components/ui"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
+import { Button } from "@/components/ui"
 
 export function MarkTicketAsCompletedSupport({ className }: { className?: string }) {
   const areYouSureMarkTicketAsCompletedSupportModal = useAreYouSureMarkTicketAsCompletedSupportModal()

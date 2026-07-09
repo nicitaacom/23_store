@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { FiTrash2 } from "react-icons/fi"
 import { useRouter } from "next/navigation"
+import { FiTrash2 } from "react-icons/fi"
 
-import { Button } from "@/components/ui"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
+import { Button } from "@/components/ui"
 import { useScopedI18n } from "@/locales/client"
 
 // Closes an empty/orphaned ticket (row is open but has no valid messages) so it stops showing in the

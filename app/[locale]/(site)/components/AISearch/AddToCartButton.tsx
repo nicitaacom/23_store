@@ -2,9 +2,9 @@
 
 import { BsCart3 } from "react-icons/bs"
 
-import { useScopedI18n } from "@/locales/client"
 import useCartStore from "@/store/user/cartStore"
 import { Button } from "@/components/ui"
+import { useScopedI18n } from "@/locales/client"
 
 interface AddToCartButtonProps {
   productId: string

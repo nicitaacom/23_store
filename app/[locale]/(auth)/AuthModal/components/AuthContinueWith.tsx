@@ -1,6 +1,7 @@
-import { Button } from "@/components/ui"
-import { ContinueWithButton } from "./ContinueWithButton"
 import { twMerge } from "tailwind-merge"
+
+import { ContinueWithButton } from "./ContinueWithButton"
+import { Button } from "@/components/ui"
 import { useI18n } from "@/locales/client"
 
 interface AuthContinueWithProps {

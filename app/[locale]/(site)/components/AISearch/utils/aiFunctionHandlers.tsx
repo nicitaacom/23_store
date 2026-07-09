@@ -1,9 +1,10 @@
 // src/utils/aiFunctionHandlers.ts
-import { createProductFn } from "@/functions/createProductFn"
+import type { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import useCartStore from "@/store/user/cartStore"
-import type { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+// src/utils/aiFunctionHandlers.ts
+import { createProductFn } from "@/functions/createProductFn"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 
 type FunctionResult = {

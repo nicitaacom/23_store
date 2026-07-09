@@ -3,10 +3,10 @@
 import { SiKlarna } from "react-icons/si"
 import { twMerge } from "tailwind-merge"
 
-import useCartStore from "@/store/user/cartStore"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import useToast from "@/store/ui/useToast"
 import { useLoading } from "@/store/ui/useLoading"
+import useToast from "@/store/ui/useToast"
+import useCartStore from "@/store/user/cartStore"
 import { Button } from "@/components/ui"
 
 export function PayWithKlarnaButton() {

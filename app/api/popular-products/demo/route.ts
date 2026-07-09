@@ -1,11 +1,11 @@
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { TablesInsert } from "@/ts/types_db"
-import { createRawProductTranslations } from "@/utils/product"
 import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
+import { createRawProductTranslations } from "@/utils/product"
 
 const PLACEHOLDER_IMAGE = "/placeholder.jpg"
 const FAKE_SHOP_API_URL = "http://fake-shop-api.ap-south-1.elasticbeanstalk.com/app/v1/products"

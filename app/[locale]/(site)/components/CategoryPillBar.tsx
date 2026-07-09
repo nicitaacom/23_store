@@ -5,9 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
 import { TCategory } from "@/ts/categories/TCategory"
-import { useCategoryPreferencesStore } from "@/store/categories/useCategoryPreferencesStore"
-import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
+import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
+import { useCategoryPreferencesStore } from "@/store/categories/useCategoryPreferencesStore"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import { useSupportPrefilledMessage } from "@/store/ui/useSupportPrefilledMessage"
 

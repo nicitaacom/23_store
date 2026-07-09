@@ -3,8 +3,8 @@
 import { useMemo, useState, useEffect } from "react"
 
 import { TProductDB } from "@/ts/product/TProductDB"
-import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import Products from "./Products"
+import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 
 function sortByViews(products: TProductDB[], views: Record<string, number>) {
   const topIds = Object.entries(views)

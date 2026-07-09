@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
-import { pusherServer } from "@/libs/pusher"
 
 import { ITicketDB } from "@/ts/support/ITicketDB"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { pusherServer } from "@/libs/pusher"
 
 export type TAPITicketsClose = {
   ticketId: string

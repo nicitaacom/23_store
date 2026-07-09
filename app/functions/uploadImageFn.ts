@@ -1,7 +1,7 @@
-import { formatFileNameForBucket } from "./support/image/formatFileNameForBucket"
 import { TBuckets } from "@/ts/types/TBuckets"
-import supabaseClient from "@/libs/supabase/supabaseClient"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { formatFileNameForBucket } from "./support/image/formatFileNameForBucket"
+import supabaseClient from "@/libs/supabase/supabaseClient"
 
 interface UploadImageParams {
   t: TI18nFunction

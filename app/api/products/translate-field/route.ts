@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
-import openai from "@/libs/openai"
+
 import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
+import openai from "@/libs/openai"
 import { normalizeProduct } from "@/utils/productVariants"
 
 const LOCALES = ["en", "fi", "ru", "se"] as const

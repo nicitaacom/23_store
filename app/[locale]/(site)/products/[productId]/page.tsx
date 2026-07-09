@@ -4,11 +4,11 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { BiArrowBack, BiChevronRight } from "react-icons/bi"
 
+import { ProductDetailView } from "./ProductDetailView"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getScopedI18n } from "@/locales/server"
 import { toProductLocale } from "@/utils/product"
 import { normalizeProduct } from "@/utils/productVariants"
-import { ProductDetailView } from "./ProductDetailView"
 
 interface ProductPageProps {
   params: Promise<{

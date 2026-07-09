@@ -4,10 +4,10 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 
+import { ITicketDB } from "@/ts/support/ITicketDB"
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
 import useTicket from "@/hooks/support/useTicket"
 import useSender from "@/hooks/ui/useSender"
-import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
-import { ITicketDB } from "@/ts/support/ITicketDB"
 import { getTicketRowTimeLabel } from "@/utils/support/getTicketRowTimeLabel"
 
 interface SidebarTicketRowProps {

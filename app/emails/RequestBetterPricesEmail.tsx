@@ -7,6 +7,7 @@ import { Heading } from "@react-email/heading"
 import { Text } from "@react-email/text"
 import { Hr } from "@react-email/hr"
 import { Img } from "@react-email/img"
+
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
 
 interface RequestBetterPricesEmailProps {

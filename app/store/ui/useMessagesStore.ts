@@ -1,9 +1,9 @@
 import { create } from "zustand"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
-import { getUserId } from "@/utils/getUserId"
-import fetchTicketId from "@/actions/fetchTicketId"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
+import fetchTicketId from "@/actions/fetchTicketId"
+import { getUserId } from "@/utils/getUserId"
 
 type MessagesStore = {
   messages: IMessageDB[]

@@ -5,12 +5,12 @@ import { motion } from "framer-motion"
 import { BsCheck2 } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
 
-import useSender from "@/hooks/ui/useSender"
-import useToast from "@/store/ui/useToast"
-import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
-import { useScopedI18n } from "@/locales/client"
-import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
 import { IMessageDB } from "@/ts/support/IMessageDB"
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
+import useSender from "@/hooks/ui/useSender"
+import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
+import useToast from "@/store/ui/useToast"
+import { useScopedI18n } from "@/locales/client"
 import { formatTime } from "@/utils/formatTime"
 
 interface MessageBoxProps {

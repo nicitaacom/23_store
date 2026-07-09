@@ -5,14 +5,14 @@ import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 import { useForm } from "react-hook-form"
 
-import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
-import { useLoading } from "@/store/ui/useLoading"
 import { ProductTranslations } from "@/ts/product/TProductDB"
-import { useCurrentLocale, useScopedI18n } from "@/locales/client"
+import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 
 interface FormatTitleFormProps {
   id: string

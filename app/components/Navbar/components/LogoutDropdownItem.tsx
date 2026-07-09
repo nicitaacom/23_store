@@ -1,11 +1,10 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-
-import supabaseClient from "@/libs/supabase/supabaseClient"
 import { BiLogOut } from "react-icons/bi"
 
 import { DropdownItem } from "@/components/ui/DropdownItem"
+import supabaseClient from "@/libs/supabase/supabaseClient"
 import useUserStore from "@/store/user/userStore"
 
 export function LogoutDropdownItem() {

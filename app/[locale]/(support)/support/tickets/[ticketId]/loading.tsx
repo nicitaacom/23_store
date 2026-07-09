@@ -1,6 +1,6 @@
-import { MessagesHeaderSkeleton } from "@/components/Skeletons/support/components/components/MessagesHeaderSkeleton"
 import { MessagesBodySkeleton } from "@/components/Skeletons/support/components/components/MessagesBodySkeleton"
 import { MessagesFooterSkeleton } from "@/components/Skeletons/support/components/components/MessagesFooterSkeleton"
+import { MessagesHeaderSkeleton } from "@/components/Skeletons/support/components/components/MessagesHeaderSkeleton"
 
 // Shown while the clicked ticket's messages load so the previous ticket's thread does not linger on screen.
 export default function TicketLoading() {

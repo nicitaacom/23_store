@@ -1,10 +1,10 @@
 "use client"
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-
-import { BiUpArrow } from "react-icons/bi"
-import { perPage } from "@/constant/perPage"
 import { usePathname, useSearchParams } from "next/navigation"
+import { BiUpArrow } from "react-icons/bi"
+
+import { perPage } from "@/constant/perPage"
 import { useScopedI18n } from "@/locales/client"
 
 export default function ProductsPerPage({ className }: { className?: string }) {

@@ -1,7 +1,7 @@
 import Image from "next/image"
+import Link from "next/link"
 
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
-import Link from "next/link"
 
 export function Logo() {
   const darkMode = useDarkModeStore.getState().isDarkMode

@@ -1,25 +1,25 @@
 "use client"
 
+import { useCallback, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useCallback, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { FiSave, FiTrash2 } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 import { AnimatePresence, motion } from "framer-motion"
 
-import { ProductInput } from "@/components/ui/Inputs/Validation"
-import { FormatImagesForm } from "@/components/ui/Modals/AdminPanel/components/FormatImagesForm"
-import { MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
-import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import useToast from "@/store/ui/useToast"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
+import { FormatImagesForm } from "@/components/ui/Modals/AdminPanel/components/FormatImagesForm"
+import { ProductInput } from "@/components/ui/Inputs/Validation"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import useToast from "@/store/ui/useToast"
+import { Button } from "@/components/ui"
+import { MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
-import { Button } from "@/components/ui"
 
 interface ManageProductViewProps {
   product: TProductDB

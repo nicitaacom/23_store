@@ -1,7 +1,7 @@
 "use client"
 
-import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 import { AreYouSureModalContainer } from "./ModalContainers/AreYouSureModalContainer"
+import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 import useCartStore from "@/store/user/cartStore"
 import { useScopedI18n } from "@/locales/client"
 

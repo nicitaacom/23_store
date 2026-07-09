@@ -1,13 +1,13 @@
 import moment from "moment-timezone"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
-import { useMessagesStore } from "@/store/ui/useMessagesStore"
-import { getUserId } from "@/utils/getUserId"
-import { getDisplayUsername } from "@/utils/getDisplayUsername"
-import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { emailsSDK } from "@/sdk/EmailsSDK/EmailsSDK"
+import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
+import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
+import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { getDisplayUsername } from "@/utils/getDisplayUsername"
+import { getUserId } from "@/utils/getUserId"
 
 export async function sendMessageFn(t: TI18nFunction, messageBody: string, sender_id: string, imageUrl: string | null) {
   // Don't allow to send empty message (just with spaces and/or newlines)

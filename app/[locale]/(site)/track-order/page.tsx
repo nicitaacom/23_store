@@ -1,9 +1,10 @@
 "use client"
 
-import { Button } from "@/components/ui"
-import { useScopedI18n } from "@/locales/client"
 import { useState } from "react"
 import { twMerge } from "tailwind-merge"
+
+import { Button } from "@/components/ui"
+import { useScopedI18n } from "@/locales/client"
 
 export default function TrackOrderPage() {
   const [orderNumber, setOrderNumber] = useState("")

@@ -1,5 +1,6 @@
 import { FieldErrors } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
+
 import { AuthFormData } from "./AuthModal/AuthModal"
 
 export const modalHeightTailwind = (queryParams: string | null, errors: FieldErrors<AuthFormData>) => {

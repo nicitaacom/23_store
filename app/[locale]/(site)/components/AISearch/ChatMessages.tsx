@@ -2,8 +2,9 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { BsStars } from "react-icons/bs"
-import { MessageBoxAI } from "./MessageBoxAI"
+
 import { TAIChatMessage } from "@/ts/types/TAIChatMessage"
+import { MessageBoxAI } from "./MessageBoxAI"
 import { useScopedI18n } from "@/locales/client"
 
 type Props = { conversation: TAIChatMessage[]; isLoading: boolean; chatEndRef: React.RefObject<HTMLDivElement> }

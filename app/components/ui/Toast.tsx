@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { AiOutlineCheckCircle, AiOutlineWarning } from "react-icons/ai"
 import { BiErrorCircle } from "react-icons/bi"
+
 import { Button } from "."
 import useToast, { ToastVariant } from "@/store/ui/useToast"
 import { useI18n } from "@/locales/client"

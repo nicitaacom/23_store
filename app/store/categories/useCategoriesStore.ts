@@ -1,4 +1,5 @@
 import { create } from "zustand"
+
 import { TCategory } from "@/ts/categories/TCategory"
 
 interface CategoriesStore {

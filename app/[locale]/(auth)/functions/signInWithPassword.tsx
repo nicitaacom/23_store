@@ -1,15 +1,15 @@
-import { UseFormReset } from "react-hook-form"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import supabaseClient from "@/libs/supabase/supabaseClient"
+import { UseFormReset } from "react-hook-form"
 
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { AuthFormData } from "../AuthModal/AuthModal"
+import { Timer } from "../AuthModal/components"
+import { UnknownError } from "./UnknownError"
+import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
+import supabaseClient from "@/libs/supabase/supabaseClient"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import useUserStore from "@/store/user/userStore"
 import { Button } from "@/components/ui"
-import { Timer } from "../AuthModal/components"
-import { AuthFormData } from "../AuthModal/AuthModal"
-import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { UnknownError } from "./UnknownError"
-import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 
 export async function signInWithPassword(

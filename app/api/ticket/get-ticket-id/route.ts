@@ -1,5 +1,6 @@
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { NextResponse } from "next/server"
+
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export type TAPITicketGetTicketIdRequest = {
   userId: string

@@ -2,10 +2,10 @@
 
 import { useEffect } from "react"
 
+import { TProductDB } from "@/ts/product/TProductDB"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import { useProductDetailStore } from "@/store/ui/useProductDetailStore"
-import { TProductDB } from "@/ts/product/TProductDB"
 
 interface UseProductDetailViewHandlersParams {
   product: TProductDB

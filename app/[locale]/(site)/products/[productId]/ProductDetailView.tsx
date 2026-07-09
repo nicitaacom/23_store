@@ -1,25 +1,25 @@
 "use client"
 
-import Image from "next/image"
 import { useMemo } from "react"
+import Image from "next/image"
 import { BsShieldCheck, BsStars } from "react-icons/bs"
 import { FiCheckCircle, FiTruck } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
-import { MarkdownText } from "@/components/ui/MarkdownText"
+import { TProductDB } from "@/ts/product/TProductDB"
+import { RequestReplanishmentButton } from "../../components/Product/RequestReplanishmentButton"
+import { ManageProductButton } from "../../components/ManageProductButton"
+import { ProductLikeButton } from "../../components/ProductLikeButton"
+import { useProductDetailViewHandlers } from "./hooks/useProductDetailViewHandlers"
 import { AddToCartButton } from "@/components/ui/Buttons/AddToCartButton"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
-import { useCurrentLocale, useScopedI18n } from "@/locales/client"
+import { MarkdownText } from "@/components/ui/MarkdownText"
 import { useProductDetailStore } from "@/store/ui/useProductDetailStore"
 import useCartStore from "@/store/user/cartStore"
-import { TProductDB } from "@/ts/product/TProductDB"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { createCartProductKey, getProductPriceForVariant } from "@/utils/cartProducts"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
-import { ManageProductButton } from "../../components/ManageProductButton"
-import { RequestReplanishmentButton } from "../../components/Product/RequestReplanishmentButton"
-import { ProductLikeButton } from "../../components/ProductLikeButton"
-import { useProductDetailViewHandlers } from "./hooks/useProductDetailViewHandlers"
 
 interface ProductDetailViewProps {
   product: TProductDB

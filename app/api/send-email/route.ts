@@ -1,6 +1,7 @@
-import { resend } from "@/libs/resend"
 import { NextResponse } from "next/server"
 import { ErrorResponse } from "resend"
+
+import { resend } from "@/libs/resend"
 
 export type TAPISendEmail = {
   from: string

@@ -1,16 +1,16 @@
 import { useRef, useEffect } from "react"
+import { usePathname, useRouter } from "next/navigation"
 
-import { useAIChatStore } from "@/components/Navbar/stores/useAIChat"
-import { useLoading } from "@/store/ui/useLoading"
-import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
-import { aiSDK } from "@/sdk/AISDK/AISDK"
+import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
+import { useAIChatStore } from "@/components/Navbar/stores/useAIChat"
+import { aiSDK } from "@/sdk/AISDK/AISDK"
+import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
+import { useLoading } from "@/store/ui/useLoading"
+import useUserStore from "@/store/user/userStore"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useI18n } from "@/locales/client"
 import { useToast } from "@/store/ui"
-import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
-import useUserStore from "@/store/user/userStore"
-import { usePathname, useRouter } from "next/navigation"
 
 export function useAIChat() {
   const router = useRouter()

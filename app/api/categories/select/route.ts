@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+
 import { selectDBCategories } from "./selectDBCategories"
 
 export async function GET() {
