@@ -2,10 +2,10 @@
 
 import { BiDownload, BiUpload } from "react-icons/bi"
 
-import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { useDbBackup } from "./hooks/useDbBackup"
-import { Button, ProgressBar } from "@/components/ui"
+import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { useScopedI18n } from "@/locales/client"
+import { Button, ProgressBar } from "@/components/ui"
 
 export function DbBackupModal() {
   const t = useScopedI18n("backup")

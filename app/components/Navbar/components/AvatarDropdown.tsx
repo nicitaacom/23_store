@@ -9,14 +9,14 @@ import { IoIosStats } from "react-icons/io"
 import { FaTelegramPlane } from "react-icons/fa"
 
 import { LogoutDropdownItem } from "./LogoutDropdownItem"
+import { getCookie } from "@/utils/helpersCSR"
+import { getUserAvatarUrl, getUserName } from "@/utils/user"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
+import { useScopedI18n } from "@/locales/client"
 import { useUpdateAvatarModal } from "@/store/ui/useUpdateAvatarModal"
 import useUserStore from "@/store/user/userStore"
 import { DropdownContainer, DropdownItem } from "@/components/ui"
-import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
-import { useScopedI18n } from "@/locales/client"
-import { getCookie } from "@/utils/helpersCSR"
-import { getUserAvatarUrl, getUserName } from "@/utils/user"
 import { SwitchDarkMode } from "@/components"
 
 interface AvatarDropdownProps {

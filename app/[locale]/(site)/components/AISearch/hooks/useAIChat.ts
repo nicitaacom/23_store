@@ -3,14 +3,14 @@ import { usePathname, useRouter } from "next/navigation"
 
 import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
-import { useAIChatStore } from "@/components/Navbar/stores/useAIChat"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
-import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
-import { useLoading } from "@/store/ui/useLoading"
-import useUserStore from "@/store/user/userStore"
 import { uploadImageFn } from "@/functions/uploadImageFn"
+import { useAIChatStore } from "@/components/Navbar/stores/useAIChat"
 import { useI18n } from "@/locales/client"
+import { useLoading } from "@/store/ui/useLoading"
 import { useToast } from "@/store/ui"
+import useUserStore from "@/store/user/userStore"
+import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 
 export function useAIChat() {
   const router = useRouter()

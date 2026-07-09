@@ -2,10 +2,10 @@
 
 import { useMemo } from "react"
 
-import useCartStore from "@/store/user/cartStore"
-import { useI18n, useScopedI18n } from "@/locales/client"
 import { createCartProductKey } from "@/utils/cartProducts"
 import { formatCurrency } from "@/utils/currencyFormatter"
+import useCartStore from "@/store/user/cartStore"
+import { useI18n, useScopedI18n } from "@/locales/client"
 
 interface ProductQuantityProps {
   productId: string

@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation"
 
 import { useNoProductsRedirect } from "./hooks/useNoProductsRedirect"
 import { usePaymentSteps } from "./hooks/usePaymentSteps"
-import { Timer } from "@/[locale]/(auth)/AuthModal/components"
 import { useScopedI18n } from "@/locales/client"
+import { Timer } from "@/[locale]/(auth)/AuthModal/components"
 
 export default function Payment() {
   const router = useRouter()

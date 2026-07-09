@@ -1,10 +1,10 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
-import { useLoading } from "@/store/ui/useLoading"
-import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
+import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
+import useToast from "@/store/ui/useToast"
 
 export const useNoProductsRedirect = () => {
   const router = useRouter()

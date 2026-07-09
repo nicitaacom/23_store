@@ -1,8 +1,8 @@
 import { useEffect } from "react"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
-import { useIsActiveTab } from "@/hooks/ui/supportButton/useActiveTab" // Adjust this path to where you place the hook
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
+import { useIsActiveTab } from "@/hooks/ui/supportButton/useActiveTab"
 
 export const useMarkMessagesAsSeen = (
   isDropdown: boolean,

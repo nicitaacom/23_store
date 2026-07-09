@@ -1,5 +1,5 @@
-import { TProductDB } from "./TProductDB"
 import { TProductVariant } from "./TProductVariant"
+import { TProductDB } from "./TProductDB"
 
 export type TProductAfterDB = TProductDB & {
   basePrice: number

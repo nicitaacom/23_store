@@ -1,6 +1,6 @@
 import { getUser } from "./getUser"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { getAnonymousId } from "@/functions/getAnonymousId"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export interface UnseenMessages {
   ticket_id: string

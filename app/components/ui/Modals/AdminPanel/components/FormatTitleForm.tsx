@@ -7,12 +7,12 @@ import { useForm } from "react-hook-form"
 
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { ProductTranslations } from "@/ts/product/TProductDB"
-import { ProductInput } from "@/components/ui/Inputs/Validation"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import { useLoading } from "@/store/ui/useLoading"
-import useToast from "@/store/ui/useToast"
-import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
+import { useLoading } from "@/store/ui/useLoading"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import useToast from "@/store/ui/useToast"
+import { ProductInput } from "@/components/ui/Inputs/Validation"
 
 interface FormatTitleFormProps {
   id: string

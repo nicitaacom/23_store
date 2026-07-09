@@ -2,13 +2,13 @@ import "../globals.css"
 import React, { lazy, Suspense } from "react"
 import type { Metadata } from "next"
 
-import { UTMTracker } from "@/[locale]/(site)/stats/UTMTracker"
-import supabaseServer from "@/libs/supabase/supabaseServer"
-import getOwnerProducts from "@/actions/getOwnerProducts"
-import { I18nProviderClient } from "@/locales/client"
 import { getCookie } from "@/utils/helpersSSR"
+import getOwnerProducts from "@/actions/getOwnerProducts"
+import supabaseServer from "@/libs/supabase/supabaseServer"
+import { I18nProviderClient } from "@/locales/client"
 import { Layout, OfflineBanner } from "@/components"
 import { ModalsProvider, ModalsQueryProvider } from "@/providers"
+import { UTMTracker } from "@/[locale]/(site)/stats/UTMTracker"
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_PRODUCTION_URL : "http://localhost:3023"),

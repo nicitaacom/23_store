@@ -8,8 +8,8 @@ import { Button } from ".."
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import useCartStore from "@/store/user/cartStore"
-import useUserStore from "@/store/user/userStore"
 import { useScopedI18n } from "@/locales/client"
+import useUserStore from "@/store/user/userStore"
 
 interface AddToCartButtonProps {
   productId: string

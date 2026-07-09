@@ -8,8 +8,8 @@ import { UnknownError } from "./UnknownError"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
 import { resendVerificationEmail } from "./resendVerificationEmail"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
-import { Button } from "@/components/ui"
 import { subscribePusherChannel } from "@/libs/pusher"
+import { Button } from "@/components/ui"
 
 export async function signUp(
   t: TI18nFunction,

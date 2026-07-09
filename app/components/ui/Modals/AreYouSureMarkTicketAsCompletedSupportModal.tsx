@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation"
 import { FaCheck } from "react-icons/fa"
 
 import { AreYouSureModalContainer } from "./ModalContainers"
-import useTicket from "@/hooks/support/useTicket"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
 import { useScopedI18n } from "@/locales/client"
+import useTicket from "@/hooks/support/useTicket"
 
 export function AreYouSureMarkTicketAsCompletedSupportModal() {
   const t = useScopedI18n("modal")

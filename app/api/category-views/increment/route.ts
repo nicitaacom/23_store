@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 import { isValidUUID } from "@/utils/isValidUUID"
+import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 
 export async function POST(req: NextRequest) {
   const supabase = await supabaseServerAction()

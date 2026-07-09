@@ -1,5 +1,5 @@
-import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { getUserId } from "@/utils/getUserId"
+import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 
 // simple in-memory cache (browser + server safe)
 let ticketIdPromiseCache: Promise<string | undefined> | null = null

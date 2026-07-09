@@ -1,10 +1,10 @@
 import Link from "next/link"
 
 import { TProductDB } from "@/ts/product/TProductDB"
-import { ImageWithFallback } from "@/components/ui"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getProductPrimaryImageUrl, toProductLocale } from "@/utils/product"
+import { ImageWithFallback } from "@/components/ui"
 
 interface PopularProductsPreviewListProps {
   products: TProductDB[]

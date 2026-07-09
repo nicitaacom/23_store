@@ -6,8 +6,8 @@ import { TbChevronDown, TbWorld } from "react-icons/tb"
 import { twMerge } from "tailwind-merge"
 
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
-import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import { useChangeLocale, useCurrentLocale } from "@/locales/client"
+import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
 type Locale = {
   code: TLocaleTag

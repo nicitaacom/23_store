@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
-import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 import { isValidUUID } from "@/utils/isValidUUID"
+import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 
 const MAX_VIEWS_PER_CATEGORY = 1_000_000
 

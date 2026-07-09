@@ -9,13 +9,13 @@ import { AIInputSearch } from "./components/AISearch/AIInputSearch"
 import { CatalogSearchForm } from "./components/CatalogSearchForm"
 import { CategoryPillBar } from "./components/CategoryPillBar"
 import { SortedProducts } from "./components/SortedProducts"
+import { filterProductsBySearchQuery } from "@/utils/productSearch"
+import { getScopedI18n } from "@/locales/server"
+import { normalizeProducts } from "@/utils/productVariants"
+import { perPage as perPageOptions } from "@/constant/perPage"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import PaginationControls from "@/components/PaginationControls"
 import ProductsPerPage from "@/components/ProductsPerPage"
-import { perPage as perPageOptions } from "@/constant/perPage"
-import { getScopedI18n } from "@/locales/server"
-import { filterProductsBySearchQuery } from "@/utils/productSearch"
-import { normalizeProducts } from "@/utils/productVariants"
 
 interface SearchProps {
   params: Promise<{ locale: string }>

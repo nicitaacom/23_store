@@ -1,8 +1,8 @@
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 import { Storage } from "./Storage"
+import { getUserId } from "@/utils/getUserId"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { Json } from "@/ts/types_db"
-import { getUserId } from "@/utils/getUserId"
 
 export class DBStorage extends Storage {
   async saveProducts(cartProducts: TRecordCartProduct): Promise<void> {

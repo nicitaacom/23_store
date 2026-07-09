@@ -8,14 +8,14 @@ import { twMerge } from "tailwind-merge"
 
 import { TProductVariant } from "@/ts/product/TProductVariant"
 import { BaseInput } from "../../../Inputs/BaseInput"
+import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLoading } from "@/store/ui/useLoading"
-import useToast from "@/store/ui/useToast"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { useScopedI18n } from "@/locales/client"
+import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui"
 import { MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
-import { useScopedI18n } from "@/locales/client"
-import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
 
 interface VariantsFormProps {
   id: string

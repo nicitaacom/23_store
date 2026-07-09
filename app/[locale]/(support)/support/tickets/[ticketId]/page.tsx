@@ -3,10 +3,10 @@ import { notFound } from "next/navigation"
 import { Metadata } from "next"
 
 import type { IMessageDB } from "@/ts/support/IMessageDB"
-import { ThisTicketIsCompleted } from "./components/ThisTicketIsCompleted"
 import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
-import { DragAndDropArea } from "@/components/SupportButton/components/DragAndDropArea/DragAndDropArea"
+import { ThisTicketIsCompleted } from "./components/ThisTicketIsCompleted"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { DragAndDropArea } from "@/components/SupportButton/components/DragAndDropArea/DragAndDropArea"
 
 interface ChatPageProps {
   params: Promise<{

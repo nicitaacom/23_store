@@ -2,12 +2,12 @@ import React from "react"
 import Image from "next/image"
 import { twMerge } from "tailwind-merge"
 
-import { Button } from "@/components/ui/Button"
+import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 import supabaseClient from "@/libs/supabase/supabaseClient"
+import { useCurrentLocale, useI18n } from "@/locales/client"
 import { useOAuthDebugStore } from "@/store/ui/useOAuthDebugStore"
 import useToast from "@/store/ui/useToast"
-import { useCurrentLocale, useI18n } from "@/locales/client"
-import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
+import { Button } from "@/components/ui/Button"
 
 interface ContinueWithButtonProps {
   provider: "google" | "faceit" | "twitter"

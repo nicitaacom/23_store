@@ -6,9 +6,9 @@ import { twMerge } from "tailwind-merge"
 
 import { ITicketDB } from "@/ts/support/ITicketDB"
 import { SidebarTicketRow } from "./SidebarTicketRow"
-import { SearchInput } from "@/components/ui/Inputs/SearchInput"
-import useTicket from "@/hooks/support/useTicket"
 import { useScopedI18n } from "@/locales/client"
+import useTicket from "@/hooks/support/useTicket"
+import { SearchInput } from "@/components/ui/Inputs/SearchInput"
 
 interface MobileSidebarProps {
   onOpenTicket: (ticketId: string) => void

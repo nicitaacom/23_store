@@ -5,12 +5,12 @@ import { FaPaypal } from "react-icons/fa"
 import { twMerge } from "tailwind-merge"
 
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import { useLoading } from "@/store/ui/useLoading"
-import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
+import { useLoading } from "@/store/ui/useLoading"
+import { useScopedI18n } from "@/locales/client"
+import useToast from "@/store/ui/useToast"
 import useUserStore from "@/store/user/userStore"
 import { Button } from "@/components/ui"
-import { useScopedI18n } from "@/locales/client"
 
 export function PayWithPaypalButton() {
   const t = useScopedI18n("payment")

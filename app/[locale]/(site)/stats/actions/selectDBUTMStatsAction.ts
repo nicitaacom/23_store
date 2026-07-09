@@ -1,8 +1,8 @@
 "use server"
 
 import { IUTMAggregatedStats } from "@/ts/interfaces/IUTMAggregatedStats"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { parseUTMVisitMetadata } from "@/utils/utmVisitMetadata"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 const PROJECT_URL_FRAGMENTS = ["://localhost:3023/", "://23-store.vercel.app/", "://jokik.fi/", "://www.jokik.fi/"]
 

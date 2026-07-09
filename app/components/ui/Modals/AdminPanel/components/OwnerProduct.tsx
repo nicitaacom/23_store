@@ -5,8 +5,8 @@ import { FormatImagesForm } from "./FormatImagesForm"
 import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { OwnerProductHeader } from "./OwnerProductHeader"
 import { VariantsForm } from "./VariantsForm"
-import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
 import { useCurrentLocale } from "@/locales/client"
+import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
 
 export function OwnerProduct({ ...ownerProduct }: TProductDB) {
   const locale = useCurrentLocale()

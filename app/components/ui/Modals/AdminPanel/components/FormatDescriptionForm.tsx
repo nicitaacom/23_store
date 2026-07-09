@@ -6,14 +6,14 @@ import { twMerge } from "tailwind-merge"
 
 import { ProductTranslations } from "@/ts/product/TProductDB"
 import { RichTextToolbar } from "./RichTextToolbar"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
+import { useLoading } from "@/store/ui/useLoading"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import useToast from "@/store/ui/useToast"
+import { validateDescription } from "@/utils/productValidation"
 import { MarkdownEditor } from "@/components/ui/Inputs/MarkdownEditor"
 import { MarkdownText } from "@/components/ui/MarkdownText"
-import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import { useLoading } from "@/store/ui/useLoading"
-import useToast from "@/store/ui/useToast"
-import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
-import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import { validateDescription } from "@/utils/productValidation"
 
 interface FormatDescriptionFormProps {
   id: string

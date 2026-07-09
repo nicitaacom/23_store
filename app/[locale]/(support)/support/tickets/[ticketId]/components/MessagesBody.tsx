@@ -4,10 +4,10 @@ import { Fragment, useRef } from "react"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
 import { useMessagesBody } from "../../hooks/useMessagesBody"
-import { MessageBox } from "@/components/SupportButton/components/MessageBox"
 import { getSupportMessageDayLabel, isSupportMessageSameDay } from "@/utils/support/getSupportMessageDayLabel"
-import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 import { useScopedI18n } from "@/locales/client"
+import { MessageBox } from "@/components/SupportButton/components/MessageBox"
+import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 
 interface MessagesBodyProps {
   initialMessages: IMessageDB[]

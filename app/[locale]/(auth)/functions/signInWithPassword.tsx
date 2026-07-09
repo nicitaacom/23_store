@@ -6,11 +6,11 @@ import { AuthFormData } from "../AuthModal/AuthModal"
 import { Timer } from "../AuthModal/components"
 import { UnknownError } from "./UnknownError"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
-import supabaseClient from "@/libs/supabase/supabaseClient"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
+import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
+import supabaseClient from "@/libs/supabase/supabaseClient"
 import useUserStore from "@/store/user/userStore"
 import { Button } from "@/components/ui"
-import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 
 export async function signInWithPassword(
   email: string,

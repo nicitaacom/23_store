@@ -4,8 +4,8 @@ import { AiOutlineSearch, AiOutlineSend } from "react-icons/ai"
 import { HiOutlineSparkles } from "react-icons/hi2"
 import { BsCart3 } from "react-icons/bs"
 
-import { Button } from "@/components/ui/Button"
 import { useScopedI18n } from "@/locales/client"
+import { Button } from "@/components/ui/Button"
 
 type Props = {
   promptValue: string

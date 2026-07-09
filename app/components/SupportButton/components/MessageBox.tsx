@@ -6,12 +6,12 @@ import { BsCheck2 } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
-import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
-import useSender from "@/hooks/ui/useSender"
-import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
-import useToast from "@/store/ui/useToast"
-import { useScopedI18n } from "@/locales/client"
 import { formatTime } from "@/utils/formatTime"
+import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
+import { useScopedI18n } from "@/locales/client"
+import useSender from "@/hooks/ui/useSender"
+import useToast from "@/store/ui/useToast"
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
 
 interface MessageBoxProps {
   message: IMessageDB

@@ -8,10 +8,10 @@ import { twMerge } from "tailwind-merge"
 
 import { TCategory } from "@/ts/categories/TCategory"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
-import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
-import useToast from "@/store/ui/useToast"
-import { useI18n } from "@/locales/client"
 import { isValidCategoryName } from "@/utils/categoryValidation"
+import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
+import { useI18n } from "@/locales/client"
+import useToast from "@/store/ui/useToast"
 
 export function CategoriesForm() {
   const t = useI18n()

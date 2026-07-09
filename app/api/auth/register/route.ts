@@ -3,8 +3,8 @@ import { cookies } from "next/headers"
 import list from "disposable-email-domains"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { normalizeAuthEmail, syncPublicUserRecord } from "@/utils/publicUserSync"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export type TAPIAuthRegister = {
   username: string

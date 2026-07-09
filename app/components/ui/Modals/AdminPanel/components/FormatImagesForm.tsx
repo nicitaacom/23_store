@@ -8,12 +8,12 @@ import { twMerge } from "tailwind-merge"
 
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import { useLoading } from "@/store/ui/useLoading"
-import useToast from "@/store/ui/useToast"
-import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
-import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
 import { uploadProductImages } from "@/functions/createProductHelpers"
+import { useLoading } from "@/store/ui/useLoading"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useScopedI18n, useI18n } from "@/locales/client"
+import useToast from "@/store/ui/useToast"
+import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
 
 interface FormatImagesFormProps {
   id: string

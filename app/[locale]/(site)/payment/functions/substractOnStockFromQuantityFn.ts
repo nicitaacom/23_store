@@ -2,9 +2,9 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { logFn } from "@/utils/logFn"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useToast from "@/store/ui/useToast"
-import { logFn } from "@/utils/logFn"
 
 export async function substractOnStockFromQuantityFn(
   products: TRecordCartProduct,

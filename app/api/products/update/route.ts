@@ -3,12 +3,12 @@ import Stripe from "stripe"
 
 import { ProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
+import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
+import { normalizeProductImageUrls } from "@/utils/product"
+import { stripe } from "@/libs/stripe"
 import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
 import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
-import { stripe } from "@/libs/stripe"
-import { normalizeProductImageUrls } from "@/utils/product"
-import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 
 export type TUpdateProductRequest = {
   productId: string

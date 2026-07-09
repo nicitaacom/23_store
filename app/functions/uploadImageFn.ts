@@ -1,5 +1,5 @@
-import { TBuckets } from "@/ts/types/TBuckets"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { TBuckets } from "@/ts/types/TBuckets"
 import { formatFileNameForBucket } from "./support/image/formatFileNameForBucket"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 

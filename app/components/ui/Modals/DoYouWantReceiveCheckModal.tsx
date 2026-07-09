@@ -4,13 +4,13 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 
 import { sendMoneyWithMetamask } from "./CartModal/PaymentButtons/functions/sendMoneyWithMetamask"
+import { Button } from ".."
 import { FormInput } from "../Inputs/Validation"
 import { ModalContainer } from "./ModalContainers"
-import { Button } from ".."
-import { useDoYouWantRecieveCheckModal } from "@/store/ui/useDoYouWantRecieveCheckModal"
-import useToast from "@/store/ui/useToast"
 import useCartStore from "@/store/user/cartStore"
+import { useDoYouWantRecieveCheckModal } from "@/store/ui/useDoYouWantRecieveCheckModal"
 import { useI18n } from "@/locales/client"
+import useToast from "@/store/ui/useToast"
 
 interface FormData {
   username: string

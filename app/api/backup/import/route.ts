@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { requireAdmin } from "../requireAdmin"
 import {
   BACKUP_CONFLICT_COLUMNS,
   BACKUP_TABLES,
@@ -7,7 +8,6 @@ import {
   filterRowsByUuidColumns,
   parseBackupArchive,
 } from "../backupTables"
-import { requireAdmin } from "../requireAdmin"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export const runtime = "nodejs"

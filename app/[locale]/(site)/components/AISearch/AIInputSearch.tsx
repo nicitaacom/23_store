@@ -7,10 +7,10 @@ import { useSwipeable } from "react-swipeable"
 import { twMerge } from "tailwind-merge"
 
 import { useAIChat } from "./hooks/useAIChat"
-import { MemoryDebug } from "../MemoryDebug"
 import { ChatHeader } from "./ChatHeader"
 import { ChatInput } from "./ChatInput"
 import { ChatMessages } from "./ChatMessages"
+import { MemoryDebug } from "../MemoryDebug"
 import { useScopedI18n } from "@/locales/client"
 
 export function AIInputSearch() {

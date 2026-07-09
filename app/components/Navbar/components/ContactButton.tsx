@@ -4,8 +4,8 @@ import { useRef, useState } from "react"
 import Link from "next/link"
 import { FiPhoneCall } from "react-icons/fi"
 
-import { DropdownContainer } from "@/components/ui"
 import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
+import { DropdownContainer } from "@/components/ui"
 
 export function ContactButton() {
   const dropDownRef = useRef<HTMLDivElement>(null)

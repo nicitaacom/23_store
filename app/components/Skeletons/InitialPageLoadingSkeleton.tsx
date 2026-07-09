@@ -1,7 +1,7 @@
 import "react-loading-skeleton/dist/skeleton.css"
 
-import { ProductsSkeleton } from "./InitialPageLoading/ProductsSkeleton"
 import { NavbarSkeleton } from "./NavbarSkeleton"
+import { ProductsSkeleton } from "./InitialPageLoading/ProductsSkeleton"
 
 export function InitialPageLoadingSkeleton() {
   return (

@@ -3,10 +3,10 @@ import { headers } from "next/headers"
 import { Redis } from "@upstash/redis"
 import { Ratelimit } from "@upstash/ratelimit"
 
+import { isValidUUID } from "@/utils/isValidUUID"
+import openai from "@/libs/openai"
 import { selectDBCategories } from "@/api/categories/select/selectDBCategories"
 import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
-import openai from "@/libs/openai"
-import { isValidUUID } from "@/utils/isValidUUID"
 
 const redis = Redis.fromEnv()
 const limiter = new Ratelimit({

@@ -2,14 +2,14 @@
 
 import { requestBetterPrices } from "./functions/requestBetterPrices"
 import { Button } from "../.."
-import { Product } from "@/[locale]/(site)/components"
+import { formatCurrency } from "@/utils/currencyFormatter"
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
+import useCartStore from "@/store/user/cartStore"
+import { useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
-import useCartStore from "@/store/user/cartStore"
 import useUserStore from "@/store/user/userStore"
-import { useI18n } from "@/locales/client"
-import { formatCurrency } from "@/utils/currencyFormatter"
+import { Product } from "@/[locale]/(site)/components"
 
 export function ProductsInCart() {
   const t = useI18n()

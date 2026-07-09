@@ -5,14 +5,14 @@ import { motion } from "framer-motion"
 import { FieldErrors, UseFormRegister } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
+import { formatGroupedNumberInput } from "@/utils/numberFormatter"
+import { useScopedI18n } from "@/locales/client"
 import {
   MAX_PRODUCT_DESCRIPTION_LENGTH,
   MAX_PRODUCT_TITLE_LENGTH,
   MIN_PRODUCT_DESCRIPTION_LENGTH,
   MIN_PRODUCT_TITLE_LENGTH,
 } from "@/constants/productLimits"
-import { useScopedI18n } from "@/locales/client"
-import { formatGroupedNumberInput } from "@/utils/numberFormatter"
 import {
   PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX,
   PRODUCT_TITLE_INVALID_CHARACTER_REGEX,

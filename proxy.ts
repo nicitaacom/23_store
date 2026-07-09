@@ -4,11 +4,11 @@ import { Ratelimit } from "@upstash/ratelimit"
 import { Redis } from "@upstash/redis"
 import { createI18nMiddleware } from "next-international/middleware"
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
-// import { getI18n } from "@/locales/server"
 
+import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
+// import { getI18n } from "@/locales/server"
 // import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
-import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 import { TURNSTILE_COOKIE_NAME, TURNSTILE_COOKIE_VALUE, TURNSTILE_PATH_SEGMENT, getSafeNextPath } from "@/utils/turnstile"
 
 /**

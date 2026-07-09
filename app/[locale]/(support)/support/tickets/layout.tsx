@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation"
 
 import { SupportTicketsSidebar } from "./components"
-import Navbar from "@/components/Navbar/Navbar"
-import supabaseServer from "@/libs/supabase/supabaseServer"
 import getInitialTickets from "@/actions/getInitialTickets"
 import getUnreadMessages from "@/actions/getUnreadMessages"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 import ClientOnly from "@/components/ClientOnly"
+import Navbar from "@/components/Navbar/Navbar"
 
 export const dynamic = "force-dynamic"
 

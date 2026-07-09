@@ -4,9 +4,9 @@ import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 
 import { TProductDB } from "@/ts/product/TProductDB"
+import { useI18n } from "@/locales/client"
 import { AdminPanelModalProps } from "@/components/ui/Modals/AdminPanel/AdminPanelModal"
 import { AuthModal } from "@/[locale]/(auth)/AuthModal/AuthModal"
-import { useI18n } from "@/locales/client"
 
 type ModalKey = "AdminPanel" | "AuthModal" | "CartModal" | "DbBackup"
 type ModalEntry = { Component: React.ComponentType<any>; props?: Record<string, unknown> }

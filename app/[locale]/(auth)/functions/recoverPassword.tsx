@@ -4,12 +4,12 @@ import { UseFormGetValues } from "react-hook-form"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { AuthFormData } from "../AuthModal/AuthModal"
 import { UnknownError } from "./UnknownError"
-import supabaseClient from "@/libs/supabase/supabaseClient"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
+import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
+import { subscribePusherChannel } from "@/libs/pusher"
+import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useResetEmailStore } from "@/store/user/useResetEmailStore"
 import { Button } from "@/components/ui"
-import { subscribePusherChannel } from "@/libs/pusher"
-import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 
 export async function recoverPassword(
   email: string,

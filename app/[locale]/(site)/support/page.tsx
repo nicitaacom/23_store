@@ -3,8 +3,8 @@ import { FaTelegramPlane } from "react-icons/fa"
 import { MdOutlineEmail } from "react-icons/md"
 
 import { OpenSupportChatButton } from "./components/OpenSupportChatButton"
-import { Button } from "@/components/ui"
 import { getI18n } from "@/locales/server"
+import { Button } from "@/components/ui"
 
 export default async function SupportPage() {
   const t = await getI18n()

@@ -7,9 +7,9 @@ import { twMerge } from "tailwind-merge"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { AdminPanelProductSearch } from "./AdminPanelProductSearch"
 import { OwnerProduct } from "./OwnerProduct"
+import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { useScopedI18n } from "@/locales/client"
-import { filterProductsBySearchQuery } from "@/utils/productSearch"
 
 interface EditProductForm {
   ownerProducts: TProductDB[]

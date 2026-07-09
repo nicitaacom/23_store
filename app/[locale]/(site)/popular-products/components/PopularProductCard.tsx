@@ -7,14 +7,14 @@ import { FaStar } from "react-icons/fa"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { ProductLikeButton } from "../../components/ProductLikeButton"
-import supabaseClient from "@/libs/supabase/supabaseClient"
-import usePurchasedProductsStore from "@/store/user/purchasedProductsStore"
-import useRatedProductsStore from "@/store/user/ratedProductsStore"
-import { ImageWithFallback } from "@/components/ui"
-import { useScopedI18n } from "@/locales/client"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getProductPrimaryImageUrl, toProductLocale } from "@/utils/product"
+import supabaseClient from "@/libs/supabase/supabaseClient"
+import usePurchasedProductsStore from "@/store/user/purchasedProductsStore"
+import useRatedProductsStore from "@/store/user/ratedProductsStore"
+import { useScopedI18n } from "@/locales/client"
+import { ImageWithFallback } from "@/components/ui"
 
 interface PopularProductCardProps {
   product: TProductDB

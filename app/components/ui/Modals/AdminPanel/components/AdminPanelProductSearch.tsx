@@ -2,8 +2,8 @@
 
 import { BiSearchAlt } from "react-icons/bi"
 
-import { SearchInput } from "@/components/ui/Inputs/SearchInput"
 import { useScopedI18n } from "@/locales/client"
+import { SearchInput } from "@/components/ui/Inputs/SearchInput"
 
 interface AdminPanelProductSearchProps {
   query: string

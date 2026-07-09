@@ -5,10 +5,10 @@ import { notFound } from "next/navigation"
 import { BiArrowBack, BiChevronRight } from "react-icons/bi"
 
 import { ProductDetailView } from "./ProductDetailView"
-import supabaseServer from "@/libs/supabase/supabaseServer"
 import { getScopedI18n } from "@/locales/server"
-import { toProductLocale } from "@/utils/product"
 import { normalizeProduct } from "@/utils/productVariants"
+import supabaseServer from "@/libs/supabase/supabaseServer"
+import { toProductLocale } from "@/utils/product"
 
 interface ProductPageProps {
   params: Promise<{

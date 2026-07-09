@@ -3,12 +3,12 @@
 import { FiExternalLink } from "react-icons/fi"
 
 import { ManageProductButton } from "./ManageProductButton"
-import { AddToCartButton } from "@/components/ui/Buttons/AddToCartButton"
-import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
-import useCartStore from "@/store/user/cartStore"
-import { Button } from "@/components/ui"
-import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { createCartProductKey } from "@/utils/cartProducts"
+import useCartStore from "@/store/user/cartStore"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
+import { AddToCartButton } from "@/components/ui/Buttons/AddToCartButton"
+import { Button } from "@/components/ui"
+import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
 
 interface ProductButtonsProps {
   productId: string

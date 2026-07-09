@@ -2,8 +2,8 @@ import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 
-import { pusherServer } from "@/libs/pusher"
 import { getAuthErrorRedirectUrl, getLocalizedAppUrl } from "@/utils/authCallback"
+import { pusherServer } from "@/libs/pusher"
 import { syncPublicUserRecord } from "@/utils/publicUserSync"
 
 export async function GET(request: Request) {

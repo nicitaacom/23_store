@@ -2,8 +2,8 @@ import { startTransition, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { User } from "@supabase/supabase-js"
 
-import supabaseClient from "@/libs/supabase/supabaseClient"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
+import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import useUserStore from "@/store/user/userStore"
 

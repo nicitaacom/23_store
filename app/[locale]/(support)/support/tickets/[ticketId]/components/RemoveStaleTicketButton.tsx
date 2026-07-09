@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation"
 import { FiTrash2 } from "react-icons/fi"
 
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
-import { Button } from "@/components/ui"
 import { useScopedI18n } from "@/locales/client"
+import { Button } from "@/components/ui"
 
 // Closes an empty/orphaned ticket (row is open but has no valid messages) so it stops showing in the
 // sidebar. closeTicket fires tickets:closeBySupport, which the sidebar already listens to and removes the row.

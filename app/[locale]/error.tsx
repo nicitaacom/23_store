@@ -3,9 +3,9 @@
 import { useEffect } from "react"
 import { FiRefreshCw } from "react-icons/fi"
 
-import { Button } from "@/components/ui"
 import { useIsOnline } from "@/hooks/useIsOnline"
 import { useScopedI18n } from "@/locales/client"
+import { Button } from "@/components/ui"
 
 type ErrorBoundaryProps = {
   error: Error & { digest?: string }

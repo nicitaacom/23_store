@@ -1,6 +1,6 @@
 import { getUser } from "./getUser"
-import supabaseServer from "@/libs/supabase/supabaseServer"
 import { normalizeProducts } from "@/utils/productVariants"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 
 const getOwnerProducts = async () => {
   const user = await getUser()

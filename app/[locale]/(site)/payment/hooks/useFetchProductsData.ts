@@ -1,9 +1,9 @@
 import { Dispatch, SetStateAction, useEffect } from "react"
 
 import { fetchProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
-import { useLoading } from "@/store/ui/useLoading"
 import useCartStore from "@/store/user/cartStore"
 import { useI18n } from "@/locales/client"
+import { useLoading } from "@/store/ui/useLoading"
 
 export const useFetchProductsData = (currentStep: number, setCurrentStep: Dispatch<SetStateAction<number>>) => {
   const { hasCartStoreInitialized } = useLoading()

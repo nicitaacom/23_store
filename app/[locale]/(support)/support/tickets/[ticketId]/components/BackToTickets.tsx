@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation"
 import { IoMdArrowRoundBack } from "react-icons/io"
 
-import { Button } from "@/components/ui"
 import { useScopedI18n } from "@/locales/client"
+import { Button } from "@/components/ui"
 
 export function BackToTickets() {
   const router = useRouter()

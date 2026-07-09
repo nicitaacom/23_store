@@ -10,9 +10,9 @@ import {
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import { TWallet } from "@/store/ui/useDoYouWantRecieveCheckModal"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
+import { TWallet } from "@/store/ui/useDoYouWantRecieveCheckModal"
 
 export const sendMoneyWithMetamask = async (
   productsPrice: number,

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
-import supabaseServer from "@/libs/supabase/supabaseServer"
 import { normalizeProducts } from "@/utils/productVariants"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)

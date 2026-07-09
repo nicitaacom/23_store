@@ -6,11 +6,11 @@ import { twMerge } from "tailwind-merge"
 import { FieldErrors, UseFormHandleSubmit, UseFormRegister } from "react-hook-form"
 import { AiOutlineLock, AiOutlineMail, AiOutlineUser } from "react-icons/ai"
 
-import { AuthFormData } from "../AuthModal"
 import { AuthContinueWith } from "./AuthContinueWith"
-import { FormInput } from "@/components/ui/Inputs/Validation"
-import { Button, Checkbox } from "@/components/ui"
+import { AuthFormData } from "../AuthModal"
 import { useI18n } from "@/locales/client"
+import { Button, Checkbox } from "@/components/ui"
+import { FormInput } from "@/components/ui/Inputs/Validation"
 
 interface AuthFormProps {
   handleSubmit: UseFormHandleSubmit<AuthFormData, undefined>

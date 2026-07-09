@@ -1,8 +1,8 @@
 import { twMerge } from "tailwind-merge"
 
 import { ContinueWithButton } from "./ContinueWithButton"
-import { Button } from "@/components/ui"
 import { useI18n } from "@/locales/client"
+import { Button } from "@/components/ui"
 
 interface AuthContinueWithProps {
   isSubmitting: boolean

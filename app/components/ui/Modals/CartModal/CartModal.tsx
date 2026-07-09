@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import EmptyCart from "./EmptyCart"
+import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { ProductsInCart } from "./ProductsInCart"
-import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
 import useCartStore from "@/store/user/cartStore"
 import { useI18n } from "@/locales/client"
+import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
 
 export function CartModal() {
   const t = useI18n()

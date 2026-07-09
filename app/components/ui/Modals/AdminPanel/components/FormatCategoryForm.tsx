@@ -8,9 +8,9 @@ import { CategoryDropdown } from "./CategoryDropdown"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
-import useToast from "@/store/ui/useToast"
-import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useI18n } from "@/locales/client"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import useToast from "@/store/ui/useToast"
 
 interface FormatCategoryFormProps {
   id: string

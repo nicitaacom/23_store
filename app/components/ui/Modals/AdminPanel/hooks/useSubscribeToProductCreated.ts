@@ -3,10 +3,10 @@
 import { MutableRefObject, useEffect, useRef } from "react"
 
 import { TProductDB } from "@/ts/product/TProductDB"
-import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { createRawProductTranslations } from "@/utils/product"
 import { getPusherClient, subscribePusherChannel } from "@/libs/pusher"
 import { getUserId } from "@/utils/getUserId"
-import { createRawProductTranslations } from "@/utils/product"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 
 export type PendingCreatedProduct = {
   optimisticProductId: string

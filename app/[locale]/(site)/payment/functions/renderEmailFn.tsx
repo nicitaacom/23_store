@@ -3,9 +3,9 @@ import { renderAsync } from "@react-email/render"
 
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { logFn } from "@/utils/logFn"
 import useToast from "@/store/ui/useToast"
 import CheckEmail from "@/emails/CheckEmail"
-import { logFn } from "@/utils/logFn"
 
 export async function renderEmailFn(
   productsData: TProductAfterDB[],

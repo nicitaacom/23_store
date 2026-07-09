@@ -7,13 +7,13 @@ import { MdChecklist, MdClose } from "react-icons/md"
 import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
-import { PendingDeleteProduct } from "./AdminPanelDeleteConfirmDialog"
 import { AdminPanelProductSearch } from "./AdminPanelProductSearch"
+import { PendingDeleteProduct } from "./AdminPanelDeleteConfirmDialog"
 import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
-import useDarkModeStore from "@/store/ui/useDarkModeStore"
-import { Button } from "@/components/ui"
-import { useScopedI18n } from "@/locales/client"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
+import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import { useScopedI18n } from "@/locales/client"
+import { Button } from "@/components/ui"
 
 interface DeleteProductForm {
   ownerProducts: TProductDB[]

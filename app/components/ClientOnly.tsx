@@ -22,7 +22,7 @@ const ClientOnly: React.FC<ClientOnlyProps> = ({ children }) => {
 
   useEffect(() => {
     setHasMountedState(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [])
 
   if (isLoading && path.includes("support/tickets")) {

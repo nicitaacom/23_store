@@ -5,8 +5,8 @@ import { AiOutlineCheckCircle, AiOutlineWarning } from "react-icons/ai"
 import { BiErrorCircle } from "react-icons/bi"
 
 import { Button } from "."
-import useToast, { ToastVariant } from "@/store/ui/useToast"
 import { useI18n } from "@/locales/client"
+import useToast, { ToastVariant } from "@/store/ui/useToast"
 
 export default function Toast() {
   const { variant, title, subTitle } = useToast()

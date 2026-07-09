@@ -1,5 +1,5 @@
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { createRawProductTranslations } from "@/utils/product"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export async function insertDBProduct(payload: API.ProductsTranslateAndInsertRequest): Promise<string | null> {
   const { error: insertError } = await supabaseAdmin.from("23_products").insert({

@@ -5,11 +5,11 @@ import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { getAnonymousId } from "./getAnonymousId"
 import { uploadImageFn } from "./uploadImageFn"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
+import { getUserId } from "@/utils/getUserId"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useUserStore from "@/store/user/userStore"
 import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
-import { getUserId } from "@/utils/getUserId"
 import {
   PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX,
   PRODUCT_DESCRIPTION_PATTERN,

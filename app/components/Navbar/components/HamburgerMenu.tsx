@@ -10,9 +10,9 @@ import { AiOutlineMenu } from "react-icons/ai"
 import { FiExternalLink } from "react-icons/fi"
 import { IoMdClose } from "react-icons/io"
 
-import { LanguageDropdown } from "@/components/LanguageDropdown"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import { useSidebar } from "@/store/ui"
+import { LanguageDropdown } from "@/components/LanguageDropdown"
 
 const menuItems = [
   {

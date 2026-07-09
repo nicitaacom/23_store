@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
-import { BACKUP_BUCKETS, BackupFileRef, listBucketObjects } from "../backupTables"
 import { requireAdmin } from "../requireAdmin"
+import { BACKUP_BUCKETS, BackupFileRef, listBucketObjects } from "../backupTables"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export const runtime = "nodejs"

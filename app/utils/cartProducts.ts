@@ -1,5 +1,5 @@
-import { TProductDB } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
+import { TProductDB } from "@/ts/product/TProductDB"
 
 export function createCartProductKey(productId: string, variantId?: string | null) {
   return variantId ? `${productId}::${variantId}` : productId

@@ -11,12 +11,12 @@ import { ProductImage } from "../ProductImage"
 import { ProductLikeButton } from "../ProductLikeButton"
 import { ProductQuantity } from "../ProductQuantity"
 import { RequestReplanishmentButton } from "./RequestReplanishmentButton"
-import { MarkdownText } from "@/components/ui/MarkdownText"
-import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import { getAvailableStock, getProductPriceForVariant } from "@/utils/cartProducts"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
+import { getAvailableStock, getProductPriceForVariant } from "@/utils/cartProducts"
 import { getProductGalleryImages } from "@/utils/product"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
+import { MarkdownText } from "@/components/ui/MarkdownText"
 
 function VariantImage({ src, alt }: { src: string; alt: string }) {
   const [errored, setErrored] = useState(false)

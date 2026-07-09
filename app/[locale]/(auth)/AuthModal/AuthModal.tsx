@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
+import { modalHeightTailwind } from "../modalHeightTailwind"
 import { recoverPassword } from "../functions/recoverPassword"
 import { resetPassword } from "../functions/resetPassword"
 import { signInWithPassword } from "../functions/signInWithPassword"
@@ -18,9 +19,8 @@ import { useResetResponseMessage } from "../hooks/useResetResponseMessage"
 import { AuthForm } from "./components/AuthForm"
 import { AuthLogo } from "./components/AuthLogo"
 import { AuthText } from "./components/AuthText"
-import { modalHeightTailwind } from "../modalHeightTailwind"
-import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
 import { useCurrentLocale, useI18n } from "@/locales/client"
+import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
 
 export interface AuthFormData {
   username: string

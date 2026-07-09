@@ -3,8 +3,8 @@
 import { useCallback, useRef, useState } from "react"
 
 import { backupSDK } from "@/sdk/BackupSDK/BackupSDK"
-import useToast from "@/store/ui/useToast"
 import { useScopedI18n } from "@/locales/client"
+import useToast from "@/store/ui/useToast"
 
 export function useDbBackup() {
   const t = useScopedI18n("backup")

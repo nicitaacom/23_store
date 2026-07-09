@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { requireAdmin } from "../requireAdmin"
 import {
   BACKUP_BUCKETS,
   BackupFile,
@@ -9,7 +10,6 @@ import {
   downloadFilesByRef,
   listBucketObjects,
 } from "../backupTables"
-import { requireAdmin } from "../requireAdmin"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export const runtime = "nodejs"

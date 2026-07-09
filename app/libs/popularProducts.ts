@@ -1,6 +1,6 @@
 import { TProductDB } from "@/ts/product/TProductDB"
-import supabaseServer from "@/libs/supabase/supabaseServer"
 import { normalizeProducts } from "@/utils/productVariants"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 
 interface FetchPopularProductsOptions {
   page?: number

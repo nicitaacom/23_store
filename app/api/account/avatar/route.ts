@@ -2,8 +2,8 @@ import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { getUserAvatarUrl, sanitizeAvatarUrl } from "@/utils/user"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 function isValidAvatarUrl(avatarUrl: string) {
   try {

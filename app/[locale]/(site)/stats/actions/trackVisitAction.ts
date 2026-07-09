@@ -2,9 +2,9 @@
 
 import { headers } from "next/headers"
 
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
-import { insertDBUTMVisitAction } from "@/actions/insertDBUTMVisitAction"
 import { getCountryNameFromCode, IUTMVisitMetadata } from "@/utils/utmVisitMetadata"
+import { insertDBUTMVisitAction } from "@/actions/insertDBUTMVisitAction"
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 interface UTMParams {
   utm_source?: string

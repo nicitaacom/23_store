@@ -5,10 +5,10 @@ import { motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 
 import { ITicketDB } from "@/ts/support/ITicketDB"
-import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
-import useTicket from "@/hooks/support/useTicket"
-import useSender from "@/hooks/ui/useSender"
 import { getTicketRowTimeLabel } from "@/utils/support/getTicketRowTimeLabel"
+import useSender from "@/hooks/ui/useSender"
+import useTicket from "@/hooks/support/useTicket"
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
 
 interface SidebarTicketRowProps {
   ticket: ITicketDB

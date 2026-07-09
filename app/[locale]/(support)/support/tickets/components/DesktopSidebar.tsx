@@ -5,8 +5,8 @@ import { FiSearch } from "react-icons/fi"
 
 import { ITicketDB } from "@/ts/support/ITicketDB"
 import { SidebarTicketRow } from "./SidebarTicketRow"
-import { SearchInput } from "@/components/ui/Inputs/SearchInput"
 import { useScopedI18n } from "@/locales/client"
+import { SearchInput } from "@/components/ui/Inputs/SearchInput"
 
 interface DesktopSidebarProps {
   onOpenTicket: (ticketId: string) => void

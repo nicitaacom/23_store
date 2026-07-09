@@ -6,8 +6,8 @@ import { BiTrash } from "react-icons/bi"
 import { AreYouSureModalContainer } from "./ModalContainers/AreYouSureModalContainer"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
-import { useLoading } from "@/store/ui/useLoading"
 import useCartStore from "@/store/user/cartStore"
+import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
 
 export function AreYouSureDeleteProductModal() {

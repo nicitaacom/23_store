@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server"
 
 import { insertDBCategory } from "./insertDBCategory"
-import { requireAdmin } from "@/api/backup/requireAdmin"
 import { isValidCategoryName } from "@/utils/categoryValidation"
 import { isValidUUID } from "@/utils/isValidUUID"
+import { requireAdmin } from "@/api/backup/requireAdmin"
 
 export async function POST(req: Request) {
   const body = (await req.json()) as API.CategoriesInsertRequest
