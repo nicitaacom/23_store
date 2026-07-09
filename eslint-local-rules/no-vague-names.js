@@ -19,6 +19,36 @@ function isEventHandlerParam(node) {
   return false
 }
 
+function isI18nTranslatorIdentifier(node) {
+  if (node.name !== "t") return false
+
+  const parent = node.parent
+  if (!parent) return false
+
+  if (parent.type === "VariableDeclarator" && parent.id === node) {
+    let init = parent.init
+    if (!init) return false
+    if (init.type === "AwaitExpression") init = init.argument
+    if (init.type !== "CallExpression") return false
+    if (init.callee.type !== "Identifier") return false
+
+    return new Set(["useI18n", "useScopedI18n", "getI18n", "getScopedI18n"]).has(init.callee.name)
+  }
+
+  if (
+    (parent.type === "ArrowFunctionExpression" ||
+      parent.type === "FunctionExpression" ||
+      parent.type === "FunctionDeclaration") &&
+    parent.params.includes(node)
+  ) {
+    return node.typeAnnotation?.typeAnnotation?.type === "TSTypeReference" &&
+      node.typeAnnotation.typeAnnotation.typeName?.type === "Identifier" &&
+      node.typeAnnotation.typeAnnotation.typeName.name === "TI18nFunction"
+  }
+
+  return false
+}
+
 // True when node is an Identifier binding reached by walking into a destructuring pattern
 // (ArrayPattern elements, ObjectPattern property values/shorthand, nested combinations) whose
 // outermost pattern is a declarator id, a function param, or a catch clause param - so
@@ -77,6 +107,7 @@ module.exports = {
           if (!isBindingIdentifier(node)) return
 
           if (isEventParamName(node) && isEventHandlerParam(node)) return
+          if (isI18nTranslatorIdentifier(node)) return
           // `_` is the standard intentional-discard placeholder (e.g. `(_, index) => ...`), not a
           // vague name someone forgot to write out - only flag it as a param when it's re-read
           if (node.name === "_") return
