@@ -24,7 +24,7 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
   const { replaceProduct, updateProduct } = useOwnerProductsStore()
   const [isEditing, setIsEditing] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(category_id ?? null)
-  const [isSaving, setIsSaving] = useState(false)
+  const [isUpdatingCategory, setIsUpdatingCategory] = useState(false)
 
   useEffect(() => {
     if (categories.length > 0) return
@@ -43,7 +43,7 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
     const snapshot = category_id ?? null
     updateProduct(id, p => ({ ...p, category_id: selectedId }))
     setIsEditing(false)
-    setIsSaving(true)
+    setIsUpdatingCategory(true)
 
     try {
       const response = await productsSDK.updateProduct({ productId: id, category_id: selectedId })
@@ -53,7 +53,7 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
       updateProduct(id, p => ({ ...p, category_id: snapshot }))
       toast.show("error", t("category.edit_category"), error instanceof Error ? error.message : String(error))
     } finally {
-      setIsSaving(false)
+      setIsUpdatingCategory(false)
     }
   }
 
@@ -73,12 +73,12 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
               <button
                 className={twMerge(
                   "rounded border border-success/40 bg-success/10 px-2 py-1 text-xs text-success transition-colors duration-150 hover:bg-success/20",
-                  isSaving && "pointer-events-none opacity-60",
+                  isUpdatingCategory && "pointer-events-none opacity-60",
                 )}
                 type="button"
                 onClick={handleSave}
-                disabled={isSaving}>
-                {isSaving ? "Saving..." : "Save"}
+                disabled={isUpdatingCategory}>
+                {isUpdatingCategory ? "Updating..." : "Save"}
               </button>
               <button
                 className="rounded border border-border-color/30 px-2 py-1 text-xs text-subTitle transition-colors duration-150 hover:bg-foreground/10"

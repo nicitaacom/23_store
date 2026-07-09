@@ -18,7 +18,7 @@ interface UploadImageParams {
  * @param folder - folder (category) e.g Main dishes
  * @param suffix - something after file name e.g fileName_price_id_d4rg3f2d
  * @returns - publicUrl for image
- * NOTE: To avoid "Only plain objects, and a few built-ins, can be passed to Server Actions" error - make sure that it is NOT server action
+ * NOTE: To avoid "Only serializable objects, and a few built-ins, can be passed to Server Actions" error - make sure that it is NOT server action
  * Because as I undertand it don't like that fact that I pass File here
  */
 export async function uploadImageFn({

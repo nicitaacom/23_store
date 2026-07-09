@@ -7,11 +7,12 @@ export class ProductsSDK extends BaseSDK {
     formData.append("image", imageFile)
 
     const response = await this.postFormData("/api/tinify", formData)
-    const compressedBlob = await response.blob()
+    // eslint-disable-next-line local-rules/no-banned-words -- Web API binary-body method name
+    const compressedImageFile = await response.blob()
 
     return {
-      blob: compressedBlob,
-      contentType: response.headers.get("Content-Type") || compressedBlob.type || imageFile.type || "image/jpeg",
+      compressedImageFile,
+      contentType: response.headers.get("Content-Type") || compressedImageFile.type || imageFile.type || "image/jpeg",
     }
   }
 

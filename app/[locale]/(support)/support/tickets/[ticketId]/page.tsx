@@ -31,7 +31,7 @@ const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
   return messages_by_id_response as IMessageDB[]
 })
 
-// cache ticket meta (is_open + created_at) because by initial idea ticket can't be reopened
+// cache ticket meta (is_open + created_at) because the current product rule keeps closed tickets closed
 const getTicketMetaCache = cache(async (ticketId: string) => {
   const { data: ticket_meta } = await supabaseAdmin.from("23_tickets").select("is_open, created_at").eq("id", ticketId).single()
   return ticket_meta

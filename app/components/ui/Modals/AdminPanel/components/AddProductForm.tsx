@@ -203,7 +203,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setError(errorMessage)
   }
 
-  // Load categories once for the dropdown
+  // Fetch categories once for the dropdown
   useEffect(() => {
     if (allCategories.length > 0) return
     categoriesSDK.selectDBCategories().then(result => {

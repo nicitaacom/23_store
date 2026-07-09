@@ -29,7 +29,7 @@ export default function SupportButtonDropdown() {
   const { isDropdown } = useSupportDropdown()
   const { messages, ticketId, setMessages } = useMessagesStore()
 
-  // messages present on first render are the initial load and must not animate; only later arrivals pop in
+  // messages present on first render come from the initial fetch and must not animate; only later arrivals pop in
   const initialIdsRef = useRef(new Set(messages.map(message => message.id)))
 
   useMarkMessagesAsSeen(isDropdown, ticketId, messages, userId, isLoading)

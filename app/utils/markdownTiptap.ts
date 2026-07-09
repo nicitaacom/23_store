@@ -4,10 +4,10 @@ type TiptapNode = { type: string; text?: string; marks?: TiptapMark[]; content?:
 function parseLine(text: string): TiptapNode[] {
   const nodes: TiptapNode[] = []
   let i = 0
-  let plain = ""
+  let textBuffer = ""
 
   const flush = () => {
-    if (plain) { nodes.push({ type: "text", text: plain }); plain = "" }
+    if (textBuffer) { nodes.push({ type: "text", text: textBuffer }); textBuffer = "" }
   }
 
   while (i < text.length) {
@@ -38,7 +38,7 @@ function parseLine(text: string): TiptapNode[] {
         continue
       }
     }
-    plain += text[i++]
+    textBuffer += text[i++]
   }
   flush()
   return nodes

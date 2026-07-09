@@ -62,7 +62,7 @@ export const BACKUP_UUID_COLUMNS: Record<BackupTable, readonly string[]> = {
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 // Drop rows whose uuid column holds an empty/invalid value so a single bad row
-// can't fail the whole table's upsert with a 22P02 type error. Returns kept rows + skipped count.
+// will not fail the whole table's upsert with a 22P02 type error. Returns kept rows + skipped count.
 export function filterRowsByUuidColumns(table: BackupTable, rows: unknown[]) {
   const uuidColumns = BACKUP_UUID_COLUMNS[table]
   if (uuidColumns.length === 0) return { rows, skipped: 0 }
@@ -176,9 +176,9 @@ export async function downloadBucketFiles(
   const files: BackupFile[] = []
 
   for (const ref of await listBucketObjects(storage, bucket)) {
-    const { data: blob, error } = await storage.from(bucket).download(ref.path)
-    if (error || !blob) continue
-    files.push({ bucket, path: ref.path, contentType: ref.contentType, body: Buffer.from(await blob.arrayBuffer()) })
+    const { data: downloadedFile, error } = await storage.from(bucket).download(ref.path)
+    if (error || !downloadedFile) continue
+    files.push({ bucket, path: ref.path, contentType: ref.contentType, body: Buffer.from(await downloadedFile.arrayBuffer()) })
   }
   return files
 }
@@ -226,9 +226,9 @@ export async function downloadFilesByRef(
   const files: BackupFile[] = []
   for (let i = 0; i < refs.length; i++) {
     const ref = refs[i]
-    const { data: blob, error } = await storage.from(ref.bucket).download(ref.path)
-    if (!error && blob) {
-      files.push({ bucket: ref.bucket, path: ref.path, contentType: ref.contentType, body: Buffer.from(await blob.arrayBuffer()) })
+    const { data: downloadedFile, error } = await storage.from(ref.bucket).download(ref.path)
+    if (!error && downloadedFile) {
+      files.push({ bucket: ref.bucket, path: ref.path, contentType: ref.contentType, body: Buffer.from(await downloadedFile.arrayBuffer()) })
     }
     await onProgress?.(i + 1, refs.length)
   }

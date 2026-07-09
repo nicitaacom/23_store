@@ -64,7 +64,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const [variantLabel, setVariantLabel] = useState("")
   const [variantPrice, setVariantPrice] = useState("")
   const [variants, setVariants] = useState<TProductVariantDraft[]>(() => normalizeVariantsForDraft(product))
-  const [isSaving, setIsSaving] = useState(false)
+  const [isUpdatingProduct, setIsUpdatingProduct] = useState(false)
 
   const {
     register,
@@ -207,7 +207,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         return toast.show("warning", t("variant"), t("manage_variant_empty"))
       }
 
-      setIsSaving(true)
+      setIsUpdatingProduct(true)
 
       try {
         const resolvedVariants = buildResolvedVariants()
@@ -234,7 +234,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           await postProductUpdate({ productId: nextProductId, translations: nextTranslations })
         }
 
-        // Saving variants recomputes on_stock server-side (sum of variant quantities) — no separate stock update
+        // Updating variants recomputes on_stock server-side (sum of variant quantities) — no separate stock update
         if (stringifyValue(resolvedVariants) !== stringifyValue(product.variants ?? null)) {
           await postProductUpdate({ productId: nextProductId, variants: resolvedVariants })
         }
@@ -257,7 +257,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         toast.show("error", t("manage_product_error"), errorMessage)
       } finally {
-        setIsSaving(false)
+        setIsUpdatingProduct(false)
       }
     },
     [
@@ -318,7 +318,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   onChange={event => updateVariantLabel(variant.id, event.target.value)}
                   className="w-full rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
                   placeholder={t("variant_label")}
-                  disabled={isSaving}
+                  disabled={isUpdatingProduct}
                 />
 
                 <div className="flex gap-2">
@@ -327,7 +327,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                     onChange={event => updateVariantPrice(variant.id, event.target.value)}
                     className="w-full min-w-0 flex-1 rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
                     placeholder={t("placeholder.price")}
-                    disabled={isSaving}
+                    disabled={isUpdatingProduct}
                     inputMode="decimal"
                   />
                   <input
@@ -338,7 +338,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                       variant.quantity > 0 ? "border-white/8" : "border-warning/40",
                     )}
                     placeholder={t("variant_quantity")}
-                    disabled={isSaving}
+                    disabled={isUpdatingProduct}
                     inputMode="numeric"
                   />
                 </div>
@@ -362,7 +362,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           </div>
         )
       }),
-    [assignFirstImageToVariant, isSaving, product.img_url, removeVariant, t, updateVariantLabel, updateVariantPrice, updateVariantQuantity, variants],
+    [assignFirstImageToVariant, isUpdatingProduct, product.img_url, removeVariant, t, updateVariantLabel, updateVariantPrice, updateVariantQuantity, variants],
   )
 
   return (
@@ -428,7 +428,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 id="title"
                 register={register}
                 errors={errors}
-                disabled={isSaving}
+                disabled={isUpdatingProduct}
                 required
                 placeholder={t("placeholder.title")}
               />
@@ -443,7 +443,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 id="subTitle"
                 register={register}
                 errors={errors}
-                disabled={isSaving}
+                disabled={isUpdatingProduct}
                 placeholder={t("placeholder.description")}
               />
             </div>
@@ -477,7 +477,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   value={variantLabel}
                   onChange={event => setVariantLabel(event.target.value)}
                   placeholder={t("variant_label")}
-                  disabled={isSaving}
+                  disabled={isUpdatingProduct}
                 />
               </label>
 
@@ -490,7 +490,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   value={variantPrice}
                   onChange={event => setVariantPrice(formatGroupedNumberInput(event.target.value))}
                   placeholder={t("placeholder.price")}
-                  disabled={isSaving}
+                  disabled={isUpdatingProduct}
                   inputMode="decimal"
                 />
               </label>
@@ -499,7 +499,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 className="font-medium"
                 type="button"
                 onClick={addVariant}
-                disabled={isSaving}
+                disabled={isUpdatingProduct}
                 variant="success-outline"
                 size="lg"
                 rounded="lg"
@@ -522,7 +522,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               className="font-medium"
               type="button"
               onClick={deleteProduct}
-              disabled={isSaving}
+              disabled={isUpdatingProduct}
               variant="danger-outline"
               size="lg"
               rounded="lg"
@@ -534,13 +534,13 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             <Button
               className="font-medium mobile:ml-auto"
               type="submit"
-              disabled={isSaving || !hasChanges}
+              disabled={isUpdatingProduct || !hasChanges}
               variant="success"
               size="lg"
               rounded="lg"
               shadow="sm"
               rightIcon={<FiSave className="text-base" />}>
-              {isSaving ? t("saving_changes") : t("save_changes")}
+              {isUpdatingProduct ? t("saving_changes") : t("save_changes")}
             </Button>
           </div>
         </section>

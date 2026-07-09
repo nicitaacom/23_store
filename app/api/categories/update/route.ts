@@ -21,7 +21,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "parent_id must be a valid UUID" } satisfies API.CategoriesUpdateResponse, { status: 400 })
 
   if (body.parent_id === body.id)
-    return NextResponse.json({ error: "category cannot be its own parent" } satisfies API.CategoriesUpdateResponse, { status: 400 })
+    return NextResponse.json({ error: "category must use a different parent" } satisfies API.CategoriesUpdateResponse, { status: 400 })
 
   const adminError = await requireAdmin()
   if (adminError)

@@ -61,11 +61,11 @@ export function getFileExtensionFromContentType(contentType: string, fallbackFil
 }
 
 export async function compressImageWithTinify(imageFile: File) {
-  const { blob: compressedBlob, contentType } = await productsSDK.compressImage(imageFile)
+  const { compressedImageFile, contentType } = await productsSDK.compressImage(imageFile)
   const baseName = imageFile.name.replace(/\.[^/.]+$/, "")
   const fileExtension = getFileExtensionFromContentType(contentType, imageFile.name)
 
-  return new File([compressedBlob], `${baseName}.${fileExtension}`, { type: contentType })
+  return new File([compressedImageFile], `${baseName}.${fileExtension}`, { type: contentType })
 }
 
 export async function resolveProductPrice(

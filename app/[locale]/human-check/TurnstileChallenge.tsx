@@ -52,7 +52,7 @@ export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps
         },
         "error-callback": () => {
           setStatus("error")
-          setErrorMessage("Cloudflare Turnstile could not load correctly. Please try again.")
+          setErrorMessage("Cloudflare Turnstile did not initialize correctly. Please try again.")
         },
         "expired-callback": () => {
           setStatus("idle")

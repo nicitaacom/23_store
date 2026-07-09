@@ -4,7 +4,7 @@ import Image from "next/image"
 
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
-// Shown in the main pane when there are no open tickets at all (the narrow sidebar rail is too small for the illustration).
+// Shown in the main pane when there are no open tickets at all (the compact sidebar rail is too small for the illustration).
 export function EmptyState() {
   const { isDarkMode } = useDarkModeStore()
 

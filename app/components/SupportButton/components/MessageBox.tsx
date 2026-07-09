@@ -50,9 +50,10 @@ export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxPr
         return toast.show("warning", t("image_no_longer_available"))
       }
 
-      const imageBlob = await response.blob()
+      // eslint-disable-next-line local-rules/no-banned-words -- Web API binary-body method name
+      const imageFileData = await response.blob()
       const fileName = imageUrl.split("/").pop()?.split("?")[0] || "chat-image"
-      const imageFile = new File([imageBlob], fileName, { type: imageBlob.type || "image/jpeg" })
+      const imageFile = new File([imageFileData], fileName, { type: imageFileData.type || "image/jpeg" })
 
       setImage(imageFile, isOwn ? "user" : "support", true)
     } catch {

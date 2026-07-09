@@ -21,7 +21,7 @@ interface ImageWithFallbackProps extends Omit<ImageProps, "src" | "onError"> {
 
 /**
  * next/image wrapper that swaps to a fallback image when the source is missing or
- * fails to load. Single source of truth for product image fallback across the app.
+ * fails to fetch correctly. Single source of truth for product image fallback across the app.
  */
 export function ImageWithFallback({
   src,
@@ -37,7 +37,7 @@ export function ImageWithFallback({
   const [isBroken, setIsBroken] = useState(false)
   const showFallback = isBroken || !src
 
-  // Reset broken state when the source changes so a new url gets a fresh load attempt
+  // Reset broken state when the source changes so a new url gets a fresh fetch attempt
   useEffect(() => {
     setIsBroken(false)
   }, [src])

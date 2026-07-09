@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   const results: API.BackupImportTableResult[] = []
   for (const table of BACKUP_TABLES) {
     const rawRows = snapshot[table] ?? []
-    // Drop rows with empty/invalid uuid values so they can't fail the whole table with a 22P02 type error
+    // Drop rows with empty/invalid uuid values so they do not fail the whole table with a 22P02 type error
     const { rows, skipped } = filterRowsByUuidColumns(table, rawRows)
     if (rows.length === 0) {
       results.push({ table, imported: 0, skipped: skipped || undefined })

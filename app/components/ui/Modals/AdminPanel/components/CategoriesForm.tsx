@@ -26,7 +26,7 @@ export function CategoriesForm() {
   const [editName, setEditName] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deleteCount, setDeleteCount] = useState<number | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
+  const [isSubmittingCategoryChange, setIsSubmittingCategoryChange] = useState(false)
   const addInputRef = useRef<HTMLInputElement>(null)
 
   const parentCategories = categories.filter(c => c.parent_id === null)
@@ -73,9 +73,9 @@ export function CategoriesForm() {
       toast.show("error", t("category.edit_category"), "Name must be 2–255 valid characters.")
       return
     }
-    setIsSaving(true)
+    setIsSubmittingCategoryChange(true)
     const result = await categoriesSDK.updateDBCategory({ id, name: editName.trim() })
-    setIsSaving(false)
+    setIsSubmittingCategoryChange(false)
     if ("error" in result) {
       toast.show("error", t("category.edit_category"), result.error)
       return
@@ -93,9 +93,9 @@ export function CategoriesForm() {
   }
 
   const confirmDelete = async (id: string) => {
-    setIsSaving(true)
+    setIsSubmittingCategoryChange(true)
     const result = await categoriesSDK.deleteDBCategory({ id })
-    setIsSaving(false)
+    setIsSubmittingCategoryChange(false)
     if ("error" in result) {
       toast.show("error", "", result.error)
       return
@@ -157,7 +157,7 @@ export function CategoriesForm() {
               editName={editName}
               isDeleting={deletingId === parent.id}
               deleteCount={deletingId === parent.id ? deleteCount : null}
-              isSaving={isSaving}
+              isSubmittingCategoryChange={isSubmittingCategoryChange}
               onEdit={() => startEdit(parent)}
               onEditNameChange={setEditName}
               onSave={() => saveEdit(parent.id)}
@@ -175,7 +175,7 @@ export function CategoriesForm() {
                   editName={editName}
                   isDeleting={deletingId === child.id}
                   deleteCount={deletingId === child.id ? deleteCount : null}
-                  isSaving={isSaving}
+                  isSubmittingCategoryChange={isSubmittingCategoryChange}
                   onEdit={() => startEdit(child)}
                   onEditNameChange={setEditName}
                   onSave={() => saveEdit(child.id)}
@@ -199,7 +199,7 @@ interface CategoryRowProps {
   editName: string
   isDeleting: boolean
   deleteCount: number | null
-  isSaving: boolean
+  isSubmittingCategoryChange: boolean
   onEdit: () => void
   onEditNameChange: (name: string) => void
   onSave: () => void
@@ -216,7 +216,7 @@ function CategoryRow({
   editName,
   isDeleting,
   deleteCount,
-  isSaving,
+  isSubmittingCategoryChange,
   onEdit,
   onEditNameChange,
   onSave,
@@ -252,12 +252,12 @@ function CategoryRow({
             <button
               className={twMerge(
                 "rounded border border-success/40 bg-success/10 px-2 py-1 text-xs text-success transition-colors duration-150 hover:bg-success/20",
-                isSaving && "pointer-events-none opacity-60",
+                isSubmittingCategoryChange && "pointer-events-none opacity-60",
               )}
               type="button"
               onClick={onSave}
-              disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save"}
+              disabled={isSubmittingCategoryChange}>
+              {isSubmittingCategoryChange ? "Updating..." : "Save"}
             </button>
             <button
               className="rounded border border-border-color/30 px-2 py-1 text-xs text-subTitle transition-colors duration-150 hover:bg-foreground/10"
@@ -301,12 +301,12 @@ function CategoryRow({
             <button
               className={twMerge(
                 "rounded border border-danger/40 bg-danger/10 px-2 py-1 text-xs text-danger transition-colors duration-150 hover:bg-danger/20",
-                isSaving && "pointer-events-none opacity-60",
+                isSubmittingCategoryChange && "pointer-events-none opacity-60",
               )}
               type="button"
               onClick={onConfirmDelete}
-              disabled={isSaving || deleteCount === null}>
-              {isSaving ? "Deleting..." : "Confirm delete"}
+              disabled={isSubmittingCategoryChange || deleteCount === null}>
+              {isSubmittingCategoryChange ? "Deleting..." : "Confirm delete"}
             </button>
             <button
               className="rounded border border-border-color/30 px-2 py-1 text-xs text-subTitle transition-colors duration-150 hover:bg-foreground/10"

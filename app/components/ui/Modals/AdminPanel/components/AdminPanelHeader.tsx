@@ -47,7 +47,7 @@ export function AdminPanelHeader({
 }: AdminPanelHeaderProps) {
   return (
     <OrganicCanvasBackground
-      // mark the whole header as a non-dismiss zone so clicking dead space (gaps/padding)
+      // mark the whole header as a non-dismiss zone so clicking empty space (gaps/padding)
       // between the tabs doesn't trip the modal's click-outside handler and close it
       data-click-outside-ignore
       className={twMerge(

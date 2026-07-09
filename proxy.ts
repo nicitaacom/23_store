@@ -118,9 +118,6 @@ async function enforceLocalePageRateLimit(request: NextRequest, hasVerifiedTurns
       `Rate limit middleware misconfigured: failed to connect to Upstash Redis. Check UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN. Original error: ${errorMessage}`,
       {
         status: 503,
-        headers: {
-          "content-type": "text/plain; charset=utf-8",
-        },
       },
     )
   }

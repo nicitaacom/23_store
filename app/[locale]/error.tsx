@@ -14,7 +14,7 @@ type ErrorBoundaryProps = {
 
 // Recoverable boundary for the locale segment. Replaces Next.js's bare
 // "Application error" page so a transient failure (e.g. a request made while
-// the connection dropped) shows a branded message + retry instead of a dead end.
+// the connection dropped) shows a branded message + retry instead of an empty stop.
 export default function LocaleError({ error, reset }: ErrorBoundaryProps) {
   const t = useScopedI18n("common")
   const isOnline = useIsOnline()

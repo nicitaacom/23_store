@@ -18,8 +18,8 @@ export function useDbBackup() {
   const [results, setResults] = useState<API.BackupImportTableResult[]>([])
   const [buckets, setBuckets] = useState<API.BackupImportBucketResult[]>([])
 
-  const downloadBlob = useCallback((blob: Blob, name: string) => {
-    const url = URL.createObjectURL(blob)
+  const downloadArchiveFile = useCallback((archiveFile: Blob, name: string) => {
+    const url = URL.createObjectURL(archiveFile)
     const anchor = document.createElement("a")
     anchor.href = url
     anchor.download = name
@@ -33,13 +33,13 @@ export function useDbBackup() {
       setExportProgress(0)
       const date = new Date().toISOString().slice(0, 10)
 
-      const { blobs, fileNames } = await backupSDK.exportBackup(setExportProgress)
+      const { archiveFiles, fileNames } = await backupSDK.exportBackup(setExportProgress)
 
-      if (blobs.length === 1) {
-        downloadBlob(blobs[0], `23_backup-${date}.tar.gz`)
+      if (archiveFiles.length === 1) {
+        downloadArchiveFile(archiveFiles[0], `23_backup-${date}.tar.gz`)
       } else {
-        for (let i = 0; i < blobs.length; i++) {
-          downloadBlob(blobs[i], fileNames[i] ?? `23_backup-${date}-part${i + 1}.tar.gz`)
+        for (let i = 0; i < archiveFiles.length; i++) {
+          downloadArchiveFile(archiveFiles[i], fileNames[i] ?? `23_backup-${date}-part${i + 1}.tar.gz`)
         }
         toast.show("success", t("export_split"), "", 4000)
       }
@@ -48,7 +48,7 @@ export function useDbBackup() {
     } finally {
       setIsExporting(false)
     }
-  }, [downloadBlob, t, toast])
+  }, [downloadArchiveFile, t, toast])
 
   const importFn = useCallback(
     async (files: File[]) => {

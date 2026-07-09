@@ -57,7 +57,7 @@ export class BackupSDK extends BaseSDK {
   // Export the full backup, splitting into as many chunks as needed so each fits within the
   // Vercel 60s budget at the user's measured connection speed. Chunks download sequentially
   // so they don't compete for bandwidth on slow connections.
-  async exportBackup(onProgress?: (fraction: number) => void): Promise<{ blobs: Blob[]; fileNames: string[] }> {
+  async exportBackup(onProgress?: (fraction: number) => void): Promise<{ archiveFiles: Blob[]; fileNames: string[] }> {
     const [manifest, speedBytesPerMs] = await Promise.all([this.getManifest(), this.measureSpeedBytesPerMs()])
 
     // The bottleneck is the server fetching files from Storage, not the client download.
@@ -79,11 +79,11 @@ export class BackupSDK extends BaseSDK {
 
     // If everything fits in one chunk (or no storage files), do a single full export.
     if (chunks.length <= 1) {
-      const blob = await this.streamExport("/api/backup/export", fraction => onProgress?.(fraction))
-      return { blobs: [blob], fileNames: [] }
+      const archiveFile = await this.streamExport("/api/backup/export", fraction => onProgress?.(fraction))
+      return { archiveFiles: [archiveFile], fileNames: [] }
     }
 
-    const blobs: Blob[] = []
+    const archiveFiles: Blob[] = []
     const fileNames: string[] = []
 
     for (let i = 0; i < chunks.length; i++) {
@@ -91,17 +91,17 @@ export class BackupSDK extends BaseSDK {
       const chunkFractionStart = i / chunks.length
       const chunkFractionEnd = (i + 1) / chunks.length
 
-      const blob = await this.streamExport(
+      const archiveFile = await this.streamExport(
         `/api/backup/export?from=${from}&to=${to}`,
         fraction => onProgress?.(chunkFractionStart + fraction * (chunkFractionEnd - chunkFractionStart)),
       )
-      blobs.push(blob)
+      archiveFiles.push(archiveFile)
       const date = new Date().toISOString().slice(0, 10)
       fileNames.push(`23_backup-${date}-part${i + 1}of${chunks.length}.tar.gz`)
     }
 
     onProgress?.(1)
-    return { blobs, fileNames }
+    return { archiveFiles, fileNames }
   }
 
   // Upload a .tar.gz backup (upsert rows + re-upload files). Uses XMLHttpRequest for upload progress.

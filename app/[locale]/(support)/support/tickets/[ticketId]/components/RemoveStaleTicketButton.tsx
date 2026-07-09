@@ -8,7 +8,7 @@ import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { useScopedI18n } from "@/locales/client"
 import { Button } from "@/components/ui"
 
-// Closes an empty/orphaned ticket (row is open but has no valid messages) so it stops showing in the
+// Closes an empty/unlinked ticket (row is open but has no valid messages) so it stops showing in the
 // sidebar. closeTicket fires tickets:closeBySupport, which the sidebar already listens to and removes the row.
 export function RemoveStaleTicketButton({ ticketId }: { ticketId: string }) {
   const router = useRouter()
