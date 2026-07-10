@@ -49,7 +49,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
 
   const selectedName = categories.find(category => category.id === value)?.name ?? uncategorizedLabel
 
-  const handleSelect = (id: string | null) => {
+  const handleOptionSelect = (id: string | null) => {
     onChange(id)
     setOpen(false)
   }
@@ -92,7 +92,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
         <div className="max-h-[260px] overflow-y-auto">
           <button
             type="button"
-            onClick={() => handleSelect(null)}
+            onClick={() => handleOptionSelect(null)}
             className={twMerge(
               "w-full px-3 py-2 text-left text-sm transition-colors duration-100",
               !value ? "bg-success/10 text-success" : "text-white/50 hover:bg-white/[0.06] hover:text-white",
@@ -108,7 +108,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
               <div key={parent.id}>
                 <button
                   type="button"
-                  onClick={() => handleSelect(parent.id)}
+                  onClick={() => handleOptionSelect(parent.id)}
                   className={twMerge(
                     "w-full px-3 py-2 text-left text-sm font-medium transition-colors duration-100",
                     value === parent.id ? "bg-success/10 text-success" : "text-white hover:bg-white/[0.06]",
@@ -119,7 +119,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
                   <button
                     key={child.id}
                     type="button"
-                    onClick={() => handleSelect(child.id)}
+                    onClick={() => handleOptionSelect(child.id)}
                     className={twMerge(
                       "w-full py-1.5 pl-6 pr-3 text-left text-sm transition-colors duration-100",
                       value === child.id ? "bg-success/10 text-success" : "text-white/70 hover:bg-white/[0.06] hover:text-white",

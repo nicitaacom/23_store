@@ -62,7 +62,7 @@ export const useSupportTicketsSidebar = ({ initialTickets, unseenMessages }: Use
 
     // The send route only fires tickets:update for user -> support messages (support replies fire messages:new on the
     // ticket channel instead), so every update here is an incoming user message that must bump the support unread badge.
-    const handleUpdate = (ticket: ITicketDB) => {
+    const handleTicketUpdate = (ticket: ITicketDB) => {
       setTickets(currentTickets => updateTicket(currentTickets, ticket))
       setUnreadArrivedAt(current => ({ ...current, [ticket.id]: Date.now() }))
       increaseUnreadMessages(ticket.id)
@@ -82,7 +82,7 @@ export const useSupportTicketsSidebar = ({ initialTickets, unseenMessages }: Use
     pusherClient.unbind("tickets:open")
     pusherClient.bind("tickets:open", handleOpen)
     pusherClient.unbind("tickets:update")
-    pusherClient.bind("tickets:update", handleUpdate)
+    pusherClient.bind("tickets:update", handleTicketUpdate)
     pusherClient.unbind("tickets:closeByUser")
     pusherClient.bind("tickets:closeByUser", handleCloseByUser)
     pusherClient.unbind("tickets:closeBySupport")
@@ -90,7 +90,7 @@ export const useSupportTicketsSidebar = ({ initialTickets, unseenMessages }: Use
 
     return () => {
       pusherClient.unbind("tickets:open", handleOpen)
-      pusherClient.unbind("tickets:update", handleUpdate)
+      pusherClient.unbind("tickets:update", handleTicketUpdate)
       pusherClient.unbind("tickets:closeByUser", handleCloseByUser)
       pusherClient.unbind("tickets:closeBySupport", handleCloseBySupport)
       pusherClient.unsubscribe(channelName)
