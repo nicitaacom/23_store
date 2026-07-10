@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { FiSend } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
@@ -21,15 +21,16 @@ export function MessageInput({ className, placeholder, onSend }: MessageInputPro
   const t = useI18n()
   const { messageBodyValue, setMessageBodyValue, image } = useMessagesStore()
   const [height, setHeight] = useState(52)
+  const [prevMessageBodyValue, setPrevMessageBodyValue] = useState(messageBodyValue)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const userId = getUserId()
 
-  useEffect(() => {
+  if (messageBodyValue !== prevMessageBodyValue) {
+    setPrevMessageBodyValue(messageBodyValue)
     const lineCount = messageBodyValue.split("\n").length
-
     setHeight(Math.max(42, 42 + (lineCount - 1) * 24))
-  }, [messageBodyValue])
+  }
 
   async function submitMessage() {
     if (!messageBodyValue.trim().length && !image) return

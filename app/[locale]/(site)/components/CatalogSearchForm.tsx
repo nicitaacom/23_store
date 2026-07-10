@@ -43,13 +43,16 @@ export function CatalogSearchForm({
   const [isPending, startTransition] = useTransition()
   const debouncedQuery = useDebounce(query.trim(), 3000)
   const lastNavigatedQueryRef = useRef(normalizedInitialQuery)
+  const [prevInitialQuery, setPrevInitialQuery] = useState(normalizedInitialQuery)
+
+  if (normalizedInitialQuery !== prevInitialQuery) {
+    setPrevInitialQuery(normalizedInitialQuery)
+    setQuery(normalizedInitialQuery)
+  }
 
   useEffect(() => {
-    const nextInitialQuery = initialQuery.trim()
-
-    setQuery(nextInitialQuery)
-    lastNavigatedQueryRef.current = nextInitialQuery
-  }, [initialQuery])
+    lastNavigatedQueryRef.current = normalizedInitialQuery
+  }, [normalizedInitialQuery])
 
   useEffect(() => {
     const currentQuery = searchParams?.get("query")?.trim() ?? ""

@@ -19,6 +19,7 @@ export function CategoriesForm() {
   const { categories, hydrate, addCategory, updateCategory, removeCategory } = useCategoriesStore()
 
   const [isFetching, setIsFetching] = useState(categories.length === 0)
+  const [prevCategoriesLength, setPrevCategoriesLength] = useState(categories.length)
   const [addName, setAddName] = useState("")
   const [addParentId, setAddParentId] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
@@ -33,11 +34,13 @@ export function CategoriesForm() {
 
   const childrenOf = useCallback((parentId: string) => categories.filter(c => c.parent_id === parentId), [categories])
 
+  if (categories.length !== prevCategoriesLength) {
+    setPrevCategoriesLength(categories.length)
+    if (categories.length > 0) setIsFetching(false)
+  }
+
   useEffect(() => {
-    if (categories.length > 0) {
-      setIsFetching(false)
-      return
-    }
+    if (categories.length > 0) return
     categoriesSDK.selectDBCategories().then(result => {
       if ("categories" in result) hydrate(result.categories)
       setIsFetching(false)

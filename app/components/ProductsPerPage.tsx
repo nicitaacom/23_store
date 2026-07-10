@@ -53,14 +53,8 @@ export default function ProductsPerPage({ className }: { className?: string }) {
     }
   }, [])
 
-  const [currentValuePerPage, setCurrentValuePerPage] = useState<number | null>(selectedPerPage)
-
   const [hover, setHover] = useState<number | null>(null)
   const isHover = hover !== null
-
-  useEffect(() => {
-    setCurrentValuePerPage(selectedPerPage)
-  }, [selectedPerPage])
 
   function mouseHover(index: number) {
     return () => setHover(index)
@@ -88,7 +82,7 @@ export default function ProductsPerPage({ className }: { className?: string }) {
       {/* Container content */}
       <div className="flex flex-row gap-x-2 justify-between items-center">
         <div className="flex items-center">
-          {currentValuePerPage} {t("per_page")}
+          {selectedPerPage} {t("per_page")}
         </div>
         <BiUpArrow />
       </div>
@@ -110,11 +104,10 @@ export default function ProductsPerPage({ className }: { className?: string }) {
                 ${
                   isHover
                     ? hover === perPage && "bg-foreground"
-                    : Number(currentValuePerPage) === perPage && "bg-brand text-title-foreground"
+                    : selectedPerPage === perPage && "bg-brand text-title-foreground"
                 }`}
             onMouseOver={mouseHover(perPage)}
             onClick={() => {
-              setCurrentValuePerPage(perPage)
               setShowDropdown(false)
             }}
             href={createHref(perPage)}

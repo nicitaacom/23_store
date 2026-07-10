@@ -18,13 +18,19 @@ interface CategoryDropdownProps {
 export function CategoryDropdown({ categories, value, onChange, disabled, uncategorizedLabel }: CategoryDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
+  const [prevOpen, setPrevOpen] = useState(open)
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useOnEscOrClickOutside(containerRef, () => setOpen(false), { isHookEnabled: open })
 
+  if (open !== prevOpen) {
+    setPrevOpen(open)
+    if (!open) setSearch("")
+  }
+
   useEffect(() => {
-    if (!open) { setSearch(""); return }
+    if (!open) return
     const timer = setTimeout(() => inputRef.current?.focus(), 50)
     return () => clearTimeout(timer)
   }, [open])

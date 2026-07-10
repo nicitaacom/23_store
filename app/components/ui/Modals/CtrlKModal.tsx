@@ -18,11 +18,16 @@ export function CtrlKModal() {
   const [searchQuery, setSearchQuery] = useState("")
   const debouncedSearchQuery = useDebounce(searchQuery.trim(), 2000)
   const lastSearchQueryRef = useRef("")
+  const [prevIsOpen, setPrevIsOpen] = useState(ctrlKModal.isOpen)
+
+  if (ctrlKModal.isOpen !== prevIsOpen) {
+    setPrevIsOpen(ctrlKModal.isOpen)
+    if (!ctrlKModal.isOpen) setSearchQuery("")
+  }
 
   useEffect(() => {
     if (ctrlKModal.isOpen) return
 
-    setSearchQuery("")
     lastSearchQueryRef.current = ""
   }, [ctrlKModal.isOpen])
 

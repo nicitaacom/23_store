@@ -13,7 +13,7 @@ interface TimerProps {
 export function Timer({ seconds, children, label, labelClassName, action }: TimerProps) {
   const [countDown, setCountDown] = useState(seconds)
   const timerRef = useRef<NodeJS.Timeout | undefined>()
-  const [isChildren, setIsChildren] = useState(false)
+  const isChildren = countDown <= 0
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
@@ -25,7 +25,6 @@ export function Timer({ seconds, children, label, labelClassName, action }: Time
   useEffect(() => {
     if (countDown <= 0) {
       clearInterval(timerRef.current)
-      setIsChildren(true)
       if (action) {
         action()
       }

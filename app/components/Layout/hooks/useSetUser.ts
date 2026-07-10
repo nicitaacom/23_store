@@ -1,10 +1,11 @@
-import { startTransition, useEffect, useRef, useState } from "react"
+import { startTransition, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { User } from "@supabase/supabase-js"
 
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
+import { useHasMounted } from "@/hooks/useHasMounted"
 import useUserStore from "@/store/user/userStore"
 
 async function syncAnonCategoryViews() {
@@ -24,13 +25,7 @@ export function useSetUser(user: User | null) {
   const { setUser, clearUser, logoutUser } = userStore
   const didRecoverUserRef = useRef(false)
   const currentUserRef = useRef<User | null>(user ?? null)
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-
-    return () => setIsMounted(false)
-  }, [])
+  const isMounted = useHasMounted()
 
   useEffect(() => {
     currentUserRef.current = user ?? null

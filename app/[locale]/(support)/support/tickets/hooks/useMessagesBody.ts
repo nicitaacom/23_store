@@ -18,10 +18,12 @@ export const useMessagesBody = ({ initialMessages, ticketId }: UseMessagesBodyPr
   const { user } = useUserStore()
   const { resetUnreadMessages } = useUnseenMessages()
   const [messages, setMessages] = useState(initialMessages)
+  const [prevInitialMessages, setPrevInitialMessages] = useState(initialMessages)
 
-  useEffect(() => {
+  if (initialMessages !== prevInitialMessages) {
+    setPrevInitialMessages(initialMessages)
     setMessages(initialMessages)
-  }, [initialMessages])
+  }
 
   useEffect(() => {
     if (document.visibilityState !== "visible" || !user?.id || messages.length === 0) return

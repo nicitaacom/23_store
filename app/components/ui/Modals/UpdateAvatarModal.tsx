@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { BiImageAdd, BiLinkExternal, BiRefresh, BiUpload } from "react-icons/bi"
@@ -33,14 +33,22 @@ export function UpdateAvatarModal() {
   const [avatarUrl, setAvatarUrl] = useState("")
   const [images, setImages] = useState<ImageListType>([])
   const [isPreviewBroken, setIsPreviewBroken] = useState(false)
+  const [prevOpenState, setPrevOpenState] = useState({
+    isOpen: updateAvatarModal.isOpen,
+    avatarUrl: updateAvatarModal.avatarUrl,
+  })
 
-  useEffect(() => {
+  if (
+    updateAvatarModal.isOpen !== prevOpenState.isOpen ||
+    updateAvatarModal.avatarUrl !== prevOpenState.avatarUrl
+  ) {
+    setPrevOpenState({ isOpen: updateAvatarModal.isOpen, avatarUrl: updateAvatarModal.avatarUrl })
     if (updateAvatarModal.isOpen) {
       setAvatarUrl(updateAvatarModal.avatarUrl)
       setImages([])
       setIsPreviewBroken(false)
     }
-  }, [updateAvatarModal.avatarUrl, updateAvatarModal.isOpen])
+  }
 
   const providerAvatarUrl = getUserAvatarUrl(user)
   const localPreviewUrl = images[0]?.data_url || ""

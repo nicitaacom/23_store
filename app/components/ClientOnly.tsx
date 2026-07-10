@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { useParams, usePathname } from "next/navigation"
 
 import { InitialPageLoadingSkeleton } from "./Skeletons/InitialPageLoadingSkeleton"
 import { SupportPageLoadingSkeleton } from "./Skeletons/support/SupportPageLoadingSkeleton"
+import { useHasMounted } from "@/hooks/useHasMounted"
 import { useLoading } from "@/store/ui/useLoading"
 
 interface ClientOnlyProps {
@@ -12,18 +12,13 @@ interface ClientOnlyProps {
 }
 //this file needs to prevent hydration error
 const ClientOnly: React.FC<ClientOnlyProps> = ({ children }) => {
-  const [hasMountedState, setHasMountedState] = useState(false)
+  const hasMountedState = useHasMounted()
   const { hasCartStoreInitialized } = useLoading() // this loading state required to get cartStore initialize
   // otherwise components will be rendered without result of initialize()
 
   const path = usePathname() || ""
   const ticketId = useParams() || {}
   const isLoading = !hasMountedState || !hasCartStoreInitialized
-
-  useEffect(() => {
-    setHasMountedState(true)
-     
-  }, [])
 
   if (isLoading && path.includes("support/tickets")) {
     return <SupportPageLoadingSkeleton ticketId={ticketId} />

@@ -15,12 +15,9 @@ import { useEffect, useState } from "react"
  * ```
  */
 export function useIsOnline() {
-  const [isOnline, setIsOnline] = useState(true)
+  const [isOnline, setIsOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine))
 
   useEffect(() => {
-    // 1. Sync once on mount — navigator.onLine is only available in the browser
-    setIsOnline(navigator.onLine)
-
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
 

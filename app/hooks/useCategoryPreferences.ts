@@ -5,13 +5,16 @@ import { useCategoryPreferencesStore } from "@/store/categories/useCategoryPrefe
 
 export const useCategoryPreferences = (isAuthenticated: boolean) => {
   const [isSkeleton, setIsSkeleton] = useState(isAuthenticated)
+  const [prevIsAuthenticated, setPrevIsAuthenticated] = useState(isAuthenticated)
   const { hydrateFromDB, recordView: storeRecordView } = useCategoryPreferencesStore()
 
+  if (isAuthenticated !== prevIsAuthenticated) {
+    setPrevIsAuthenticated(isAuthenticated)
+    if (!isAuthenticated) setIsSkeleton(false)
+  }
+
   useEffect(() => {
-    if (!isAuthenticated) {
-      setIsSkeleton(false)
-      return
-    }
+    if (!isAuthenticated) return
 
     categoryViewsSDK
       .selectDBCategoryViews()

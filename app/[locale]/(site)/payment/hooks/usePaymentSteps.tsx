@@ -9,7 +9,6 @@ import { substractOnStockFromQuantityFn } from "../functions/substractOnStockFro
 import { useFetchProductsData } from "./useFetchProductsData"
 import { verifySessionIdFn } from "../functions/verifySessionIdFn"
 import { formatDeliveryDate } from "@/utils/formatDeliveryDate"
-import { logFn } from "@/utils/logFn"
 import useCartStore from "@/store/user/cartStore"
 import { useCurrentLocale, useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
@@ -24,7 +23,7 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
   const { hasCartStoreInitialized } = useLoading()
   const [isValidSessionId, setIsValidSessionId] = useState(false)
   const [html, setHtml] = useState("")
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(() => (status === "success" ? 2 : 0))
   const [customerEmail, setCustomerEmail] = useState<string | null>(null)
   const deliveryDate = formatDeliveryDate()
   const t = useI18n()
@@ -37,22 +36,10 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
     html: html,
   }
 
-  const checkStatusFn = () => {
-    if (status === "success") {
-      logFn("set step 2")
-      setCurrentStep(2)
-    } else {
-      setCurrentStep(0)
-    }
-  }
-
   useFetchProductsData(currentStep, setCurrentStep)
 
   useEffect(() => {
     switch (currentStep) {
-      case 1:
-        checkStatusFn()
-        break
       case 2:
         getCustomerEmailFn(t, user?.email || null, session_id, setCustomerEmail, setCurrentStep)
         break

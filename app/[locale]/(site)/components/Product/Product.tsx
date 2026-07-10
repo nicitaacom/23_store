@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useEffect, useMemo, useState } from "react"
+import { memo, useMemo, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { twMerge } from "tailwind-merge"
@@ -43,7 +43,9 @@ function Product({ ...product }: Props) {
     () => product.variants?.filter(variant => variant.label && variant.image_url) || [],
     [product.variants],
   )
-  const [selectedVariantId, setSelectedVariantId] = useState(product.variantId || variants[0]?.id || "")
+  const derivedVariantId = product.variantId || variants[0]?.id || ""
+  const [selectedVariantId, setSelectedVariantId] = useState(derivedVariantId)
+  const [prevDerivedVariantId, setPrevDerivedVariantId] = useState(derivedVariantId)
   const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
   const previewImages = useMemo(() => getProductGalleryImages(product), [product.img_url])
   const selectedPrice = getProductPriceForVariant(product, selectedVariant?.id)
@@ -53,9 +55,10 @@ function Product({ ...product }: Props) {
   const availableStock = getAvailableStock(product, selectedVariant?.id)
   const isOutOfStock = availableStock === 0
 
-  useEffect(() => {
-    setSelectedVariantId(product.variantId || variants[0]?.id || "")
-  }, [product.variantId, variants])
+  if (derivedVariantId !== prevDerivedVariantId) {
+    setPrevDerivedVariantId(derivedVariantId)
+    setSelectedVariantId(derivedVariantId)
+  }
 
   return (
     // 1. Card — soft accent gradient + animated left accent bar that grows on hover

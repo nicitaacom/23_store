@@ -1,11 +1,11 @@
 "use client"
-import { ReactNode, useEffect, useState } from "react"
+import { ReactNode } from "react"
 import { createPortal } from "react-dom"
 
-export function PortalWrapper({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false)
+import { useHasMounted } from "@/hooks/useHasMounted"
 
-  useEffect(() => setMounted(true), [])
+export function PortalWrapper({ children }: { children: ReactNode }) {
+  const mounted = useHasMounted()
 
   return mounted ? createPortal(children, document.body) : null
 }

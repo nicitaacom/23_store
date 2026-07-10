@@ -1,8 +1,9 @@
 "use client"
 
-import { useMemo, useState, useEffect } from "react"
+import { useMemo } from "react"
 
 import { TProductDB } from "@/ts/product/TProductDB"
+import { useHasMounted } from "@/hooks/useHasMounted"
 import Products from "./Products"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 
@@ -30,10 +31,8 @@ interface SortedProductsProps {
 }
 
 export function SortedProducts({ products, serverViews, searchQuery }: SortedProductsProps) {
-  const [mounted, setMounted] = useState(false)
+  const mounted = useHasMounted()
   const { views: anonViews } = useAnonCategoryViewsStore()
-
-  useEffect(() => { setMounted(true) }, [])
 
   const sorted = useMemo(() => {
     if (searchQuery) return products

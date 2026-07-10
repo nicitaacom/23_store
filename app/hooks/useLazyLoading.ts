@@ -42,21 +42,32 @@ export const useLazyLoading = <T extends { id: string }>({
   const [bottomInView, setBottomInView] = useState(false)
   const highestFetched = useRef(currentState.length)
   const currentStateRef = useRef<T[]>(currentState)
+  const [prevResetKey, setPrevResetKey] = useState(resetKey)
+  const [prevResetWindowSize, setPrevResetWindowSize] = useState(windowSize)
+  const [prevWindowStartIndex, setPrevWindowStartIndex] = useState(currentWindow.startIndex)
 
   useEffect(() => {
     currentStateRef.current = currentState
     highestFetched.current = Math.max(highestFetched.current, currentState.length)
   }, [currentState])
 
-  useEffect(() => {
+  if (resetKey !== prevResetKey || windowSize !== prevResetWindowSize) {
+    setPrevResetKey(resetKey)
+    setPrevResetWindowSize(windowSize)
     setIsLoading(false)
     setCurrentWindow({ startIndex: 0, endIndex: windowSize })
     setHasNoMoreDataToFetch(false)
     setHasReachedStart(false)
+  }
+
+  useEffect(() => {
     highestFetched.current = currentStateRef.current.length
   }, [resetKey, windowSize])
 
-  useEffect(() => setHasReachedStart(currentWindow.startIndex === 0), [currentWindow.startIndex])
+  if (currentWindow.startIndex !== prevWindowStartIndex) {
+    setPrevWindowStartIndex(currentWindow.startIndex)
+    setHasReachedStart(currentWindow.startIndex === 0)
+  }
 
   useEffect(() => {
     if (!topNode) return
@@ -114,7 +125,7 @@ export const useLazyLoading = <T extends { id: string }>({
 
   useEffect(() => {
     if (isInitialLoading || isLoading || currentState.length > 0 || hasNoMoreDataToFetch) return
-    fetchDataForRange(0, step)
+    void Promise.resolve().then(() => fetchDataForRange(0, step))
   }, [currentState.length, fetchDataForRange, hasNoMoreDataToFetch, isInitialLoading, isLoading, step])
 
   useEffect(() => {
@@ -126,8 +137,10 @@ export const useLazyLoading = <T extends { id: string }>({
     const newWindowStart = Math.max(0, nextFetchStart - (windowSize - step))
     const newWindowEnd = nextFetchStart + step
 
-    setCurrentWindow({ startIndex: newWindowStart, endIndex: newWindowEnd })
-    fetchDataForRange(nextFetchStart, nextFetchEnd)
+    void Promise.resolve().then(() => {
+      setCurrentWindow({ startIndex: newWindowStart, endIndex: newWindowEnd })
+      fetchDataForRange(nextFetchStart, nextFetchEnd)
+    })
   }, [bottomInView, currentState.length, fetchDataForRange, hasNoMoreDataToFetch, isLoading, step, windowSize])
 
   useEffect(() => {
@@ -135,14 +148,17 @@ export const useLazyLoading = <T extends { id: string }>({
 
     const previousFetchEnd = currentWindow.startIndex
     const previousFetchStart = Math.max(0, previousFetchEnd - step)
-    if (previousFetchStart === previousFetchEnd) {
-      setHasReachedStart(true)
-      return
-    }
 
-    const newWindowStart = previousFetchStart
-    const newWindowEnd = Math.min(currentWindow.endIndex, newWindowStart + windowSize)
-    setCurrentWindow({ startIndex: newWindowStart, endIndex: newWindowEnd })
+    void Promise.resolve().then(() => {
+      if (previousFetchStart === previousFetchEnd) {
+        setHasReachedStart(true)
+        return
+      }
+
+      const newWindowStart = previousFetchStart
+      const newWindowEnd = Math.min(currentWindow.endIndex, newWindowStart + windowSize)
+      setCurrentWindow({ startIndex: newWindowStart, endIndex: newWindowEnd })
+    })
   }, [currentWindow.endIndex, currentWindow.startIndex, hasReachedStart, isLoading, step, topInView, windowSize])
 
   return {

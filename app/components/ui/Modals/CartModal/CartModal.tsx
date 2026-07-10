@@ -14,10 +14,9 @@ export function CartModal() {
   const t = useI18n()
   const router = useRouter()
   const cartStore = useCartStore()
-  const [isSkeleton, setIsSkeleton] = useState(false)
+  const [isSkeleton, setIsSkeleton] = useState(true)
 
   useEffect(() => {
-    setIsSkeleton(true)
     async function fetchProductsData() {
       try {
         await cartStore.fetchProductsData()

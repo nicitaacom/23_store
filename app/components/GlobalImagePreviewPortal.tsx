@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
 import { IoClose } from "react-icons/io5"
@@ -31,25 +31,11 @@ export function FileImagePreview({
   const formatFileSize = (bytes: number) =>
     bytes > 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(2)} MB` : `${(bytes / 1024).toFixed(2)} KB`
 
-  const [dimensions, setDimensions] = useState<{ width: number; height: number } | null>(null)
-  const [imageUrl, setImageUrl] = useState("")
+  const [loadedImageMeta, setLoadedImageMeta] = useState<{ url: string; width: number; height: number } | null>(null)
+  const imageUrl = useMemo(() => (image ? URL.createObjectURL(image) : ""), [image])
 
   useEffect(() => {
-    if (!image) {
-      setDimensions(null)
-      setImageUrl("")
-      return
-    }
-
-    const objectUrl = URL.createObjectURL(image)
-    const img = new window.Image()
-
-    setImageUrl(objectUrl)
-    img.src = objectUrl
-
-    img.onload = () => {
-      setDimensions({ width: img.naturalWidth, height: img.naturalHeight })
-    }
+    if (!imageUrl) return
 
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose?.()
@@ -59,9 +45,11 @@ export function FileImagePreview({
 
     return () => {
       window.removeEventListener("keydown", handleEsc)
-      URL.revokeObjectURL(objectUrl)
+      URL.revokeObjectURL(imageUrl)
     }
-  }, [image, onClose])
+  }, [imageUrl, onClose])
+
+  const dimensions = loadedImageMeta?.url === imageUrl ? loadedImageMeta : null
 
   return (
     <AnimatePresence>
@@ -95,6 +83,14 @@ export function FileImagePreview({
                   width={dimensions?.width ?? 1920}
                   height={dimensions?.height ?? 1080}
                   sizes="100vw"
+                  onLoad={event => {
+                    const imageElement = event.currentTarget
+                    setLoadedImageMeta({
+                      url: imageUrl,
+                      width: imageElement.naturalWidth,
+                      height: imageElement.naturalHeight,
+                    })
+                  }}
                 />
 
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs text-white/90 shadow backdrop-blur-sm">

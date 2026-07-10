@@ -34,9 +34,7 @@ export default function Error() {
     if (!lastAttempt) return null
     try { return JSON.parse(lastAttempt) as TOAuthAttempt } catch { return null }
   }, [lastAttempt])
-  const [persistedErrorDescription, setPersistedErrorDescription] = useState<string | null>(null)
-
-  const error_description = useMemo(() => {
+  const liveErrorDescription = useMemo(() => {
     const errorFromHook = searchParams?.get("error_description")
 
     if (errorFromHook) return errorFromHook
@@ -45,8 +43,40 @@ export default function Error() {
       if (errorFromLocation) return errorFromLocation
     }
 
-    return persistedErrorDescription
-  }, [persistedErrorDescription, searchParams])
+    return null
+  }, [searchParams])
+
+  const [persistedErrorDescription, setPersistedErrorDescription] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null
+
+    const rawPersistedError = sessionStorage.getItem(AUTH_ERROR_STORAGE_KEY)
+    if (!rawPersistedError) return null
+
+    try {
+      const persistedError = JSON.parse(rawPersistedError) as TPersistedAuthError
+
+      if (!persistedError?.value || persistedError.expiresAt < Date.now()) {
+        sessionStorage.removeItem(AUTH_ERROR_STORAGE_KEY)
+        return null
+      }
+
+      return persistedError.value
+    } catch (error) {
+      sessionStorage.removeItem(AUTH_ERROR_STORAGE_KEY)
+      console.error("[auth:oauth][error-page] failed to parse persisted auth error", error)
+      return null
+    }
+  })
+
+  const [prevLiveErrorDescription, setPrevLiveErrorDescription] = useState(liveErrorDescription)
+  if (liveErrorDescription !== prevLiveErrorDescription) {
+    setPrevLiveErrorDescription(liveErrorDescription)
+    if (liveErrorDescription) {
+      setPersistedErrorDescription(liveErrorDescription)
+    }
+  }
+
+  const error_description = liveErrorDescription ?? persistedErrorDescription
 
   const expectedSupabaseCallbackUrl = useMemo(() => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, "")
@@ -55,40 +85,15 @@ export default function Error() {
   }, [])
 
   useEffect(() => {
-    if (typeof window === "undefined") return
+    if (!liveErrorDescription) return
 
-    const errorFromHook = searchParams?.get("error_description")
-    const errorFromLocation = new URLSearchParams(window.location.search).get("error_description")
-    const nextErrorDescription = errorFromHook || errorFromLocation
-
-    if (nextErrorDescription) {
-      const payload: TPersistedAuthError = {
-        value: nextErrorDescription,
-        expiresAt: Date.now() + AUTH_ERROR_TTL_MS,
-      }
-
-      sessionStorage.setItem(AUTH_ERROR_STORAGE_KEY, JSON.stringify(payload))
-      setPersistedErrorDescription(nextErrorDescription)
-      return
+    const payload: TPersistedAuthError = {
+      value: liveErrorDescription,
+      expiresAt: Date.now() + AUTH_ERROR_TTL_MS,
     }
 
-    const rawPersistedError = sessionStorage.getItem(AUTH_ERROR_STORAGE_KEY)
-    if (!rawPersistedError) return
-
-    try {
-      const persistedError = JSON.parse(rawPersistedError) as TPersistedAuthError
-
-      if (!persistedError?.value || persistedError.expiresAt < Date.now()) {
-        sessionStorage.removeItem(AUTH_ERROR_STORAGE_KEY)
-        return
-      }
-
-      setPersistedErrorDescription(persistedError.value)
-    } catch (error) {
-      sessionStorage.removeItem(AUTH_ERROR_STORAGE_KEY)
-      console.error("[auth:oauth][error-page] failed to parse persisted auth error", error)
-    }
-  }, [searchParams])
+    sessionStorage.setItem(AUTH_ERROR_STORAGE_KEY, JSON.stringify(payload))
+  }, [liveErrorDescription])
 
   if (error_description === "Email link is invalid or has expired") {
     return <EmailLinkInvalidOrExpired />

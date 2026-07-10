@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Image, { ImageProps } from "next/image"
 import { twMerge } from "tailwind-merge"
 
@@ -34,13 +34,8 @@ export function ImageWithFallback({
   ...props
 }: ImageWithFallbackProps) {
   const t = useI18n()
-  const [isBroken, setIsBroken] = useState(false)
-  const showFallback = isBroken || !src
-
-  // Reset broken state when the source changes so a new url gets a fresh fetch attempt
-  useEffect(() => {
-    setIsBroken(false)
-  }, [src])
+  const [failedSrc, setFailedSrc] = useState<string | undefined>()
+  const showFallback = failedSrc === src || !src
 
   const image = (
     <Image
@@ -48,7 +43,7 @@ export function ImageWithFallback({
       className={twMerge(className, showFallback && fallbackClassName)}
       src={showFallback ? fallbackSrc : (src as string)}
       alt={alt}
-      onError={() => setIsBroken(true)}
+      onError={() => setFailedSrc(src)}
     />
   )
 

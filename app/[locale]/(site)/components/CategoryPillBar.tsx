@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
 import { TCategory } from "@/ts/categories/TCategory"
+import { useHasMounted } from "@/hooks/useHasMounted"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import { useCategoryPreferencesStore } from "@/store/categories/useCategoryPreferencesStore"
@@ -23,7 +24,7 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
   const searchParams = useSearchParams()
   const activeCategoryId = searchParams.get("category")
 
-  const [mounted, setMounted] = useState(false)
+  const mounted = useHasMounted()
   // sessionViews: optimistic local increments during this session (for immediate pill reorder feedback)
   const [sessionViews, setSessionViews] = useState<Record<string, number>>({})
   const { getSortedCategories } = useCategoryPreferencesStore()
@@ -33,10 +34,6 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
   const { set: setPrefilledMessage } = useSupportPrefilledMessage()
 
   const activePillRef = useRef<HTMLButtonElement | null>(null)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
     if (!mounted) return

@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LuShoppingCart } from "react-icons/lu"
 
+import { useHasMounted } from "@/hooks/useHasMounted"
 import useCartStore from "@/store/user/cartStore"
 
 interface CartIconProps {
@@ -16,12 +16,7 @@ export function CartIcon({ cart_quantity, userId }: CartIconProps) {
   const pathname = usePathname()
   const updatedPath = pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "CartModal"
   const cartStore = useCartStore()
-  const [hasMounted, setHasMounted] = useState(false)
-
-  // show SSR content then once SSR finished - show cartQuantity from cartStore (for interactability)
-  useEffect(() => {
-    setHasMounted(true)
-  }, [])
+  const hasMounted = useHasMounted()
 
   const cartQuantity = cartStore.getCartQuantity()
 
