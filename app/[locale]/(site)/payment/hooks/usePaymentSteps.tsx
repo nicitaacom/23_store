@@ -21,7 +21,6 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
   const { user } = useUser()
   const { addPurchasedProducts } = usePurchasedProductsStore()
   const { hasCartStoreInitialized } = useLoading()
-  const [, setIsValidSessionId] = useState(false)
   const [html, setHtml] = useState("")
   const [currentStep, setCurrentStep] = useState(() => (status === "success" ? 2 : 0))
   const [customerEmail, setCustomerEmail] = useState<string | null>(null)
@@ -50,7 +49,7 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
         renderEmailFn(cartStore.productsData, locale, deliveryDate, setHtml, setCurrentStep, t)
         break
       case 5:
-        verifySessionIdFn(setIsValidSessionId, session_id, setCurrentStep, t)
+        verifySessionIdFn(session_id, setCurrentStep, t)
         break
       case 6:
         sendEmailFn(emailData, setCurrentStep, t)

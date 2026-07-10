@@ -6,7 +6,6 @@ import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useToast from "@/store/ui/useToast"
 
 export async function verifySessionIdFn(
-  setIsValidSessionId: Dispatch<SetStateAction<boolean>>,
   session_id: string | null,
   setCurrentStep: Dispatch<SetStateAction<number>>,
   t: TI18nFunction,
@@ -15,8 +14,7 @@ export async function verifySessionIdFn(
 
   if (session_id) {
     try {
-      const response = await productsSDK.verifyPayment({ session_id })
-      setIsValidSessionId(response.valid)
+      await productsSDK.verifyPayment({ session_id })
       logFn(t("payment.session_id_is_valid"))
       setCurrentStep(6)
     } catch (error) {
