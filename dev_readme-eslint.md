@@ -1,5 +1,7 @@
 # ESLint setup
 
+_Last updated: 2026-07-10 (`d6da349 chore: eslint arrow-fn-only-for-hooks zustand exception`)_
+
 This project uses ESLint 9 flat config (`eslint.config.mjs`). The old `.eslintrc.json` (ESLint 8
 legacy config) was removed because `eslint-config-next@16.2.10` requires `eslint >= 9`.
 
