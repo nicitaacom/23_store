@@ -47,7 +47,7 @@ export async function generateMetadata({ params: paramsPromise }: ProductPagePro
 
 export default async function ProductPage({ params: paramsPromise }: ProductPageProps) {
   const params = await paramsPromise
-  const getScopedI18nResp = await getScopedI18n("product")
+  const t = await getScopedI18n("product")
   const supabase = await supabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   const getProductByIdResp = await getProductById(params.productId)
@@ -64,7 +64,7 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
       <section className="flex flex-col gap-5">
         <nav className="flex flex-wrap items-center gap-2 text-sm text-subTitle">
           <Link href={`/${params.locale}`} className="transition-colors duration-200 hover:text-success">
-            {getScopedI18nResp("products")}
+            {t("products")}
           </Link>
           <BiChevronRight className="text-base opacity-60" />
           <span className="max-w-full truncate text-title">{translation?.title}</span>
@@ -74,7 +74,7 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
           href={`/${params.locale}`}
           className="inline-flex w-fit items-center gap-2 rounded-[4px] border border-success/25 bg-success/5 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black">
           <BiArrowBack className="text-lg" />
-          {getScopedI18nResp("back_to_catalog")}
+          {t("back_to_catalog")}
         </Link>
 
         <ProductDetailView product={getProductByIdResp} isAuthenticated={!!user} />

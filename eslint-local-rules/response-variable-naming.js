@@ -19,8 +19,10 @@ const ALWAYS_VAGUE_NAMES = new Set(["result", "results", "data", "res", "somethi
 // Calls that match READ_VERB_PATTERN by name shape but aren't this codebase's own SDK/DB/Redis
 // read convention at all - a factory/client getter (getSupabaseServer) or a built-in Web API
 // (Response.json(), createImageBitmap) whose result is properly named for what it holds, not for
-// the "read" verb in the method name.
-const EXCLUDED_METHOD_NAMES = new Set(["getSupabaseServer", "json", "createImageBitmap", "getCookie"])
+// the "read" verb in the method name. getI18n/getScopedI18n are excluded too: the awaited result
+// is the translate function itself, always called `t` throughout this codebase (t("some.key")) -
+// renaming it to getI18nResp would force renaming every t(...) call site for no readability gain.
+const EXCLUDED_METHOD_NAMES = new Set(["getSupabaseServer", "json", "createImageBitmap", "getCookie", "getI18n", "getScopedI18n"])
 
 function getCalleeMethodName(callee) {
   if (callee.type === "Identifier") return callee.name

@@ -13,16 +13,16 @@ interface SearchPageProps {
 
 export async function generateMetadata({ searchParams: searchParamsPromise }: SearchPageProps): Promise<Metadata> {
   const { query } = await searchParamsPromise
-  const getI18nResp = await getI18n()
+  const t = await getI18n()
 
   if (query === undefined) {
     return {
-      title: `${getI18nResp("search.title")} - Joki`,
+      title: `${t("search.title")} - Joki`,
     }
   }
 
   return {
-    title: `${getI18nResp("search.title")} ${query} - Joki`,
+    title: `${t("search.title")} ${query} - Joki`,
   }
 }
 

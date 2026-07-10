@@ -47,7 +47,7 @@ export async function generateMetadata({ params: paramsPromise }: ManageProductP
 
 export default async function ManageProductPage({ params: paramsPromise }: ManageProductPageProps) {
   const params = await paramsPromise
-  const getScopedI18nResp = await getScopedI18n("product")
+  const t = await getScopedI18n("product")
   const getProductByIdResp = await getProductById(params.productId)
   const translation = getProductByIdResp
     ? getProductByIdResp.translations[toProductLocale(params.locale)] ?? getProductByIdResp.translations.fi
@@ -66,7 +66,7 @@ export default async function ManageProductPage({ params: paramsPromise }: Manag
       <section className="flex flex-col gap-5">
         <nav className="flex flex-wrap items-center gap-2 text-sm text-subTitle">
           <Link href={`/${params.locale}`} className="transition-colors duration-200 hover:text-success">
-            {getScopedI18nResp("products")}
+            {t("products")}
           </Link>
           <BiChevronRight className="text-base opacity-60" />
           <Link
@@ -75,7 +75,7 @@ export default async function ManageProductPage({ params: paramsPromise }: Manag
             {translation?.title}
           </Link>
           <BiChevronRight className="text-base opacity-60" />
-          <span className="text-title">{getScopedI18nResp("manage_product")}</span>
+          <span className="text-title">{t("manage_product")}</span>
         </nav>
 
         <div className="flex flex-wrap gap-3">
@@ -83,13 +83,13 @@ export default async function ManageProductPage({ params: paramsPromise }: Manag
             href={`/${params.locale}/products/${getProductByIdResp.id}`}
             className="inline-flex w-fit items-center gap-2 rounded-[4px] border border-success/18 bg-success/8 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success/35 hover:bg-success/14 hover:text-title">
             <BiArrowBack className="text-lg" />
-            {getScopedI18nResp("view_product")}
+            {t("view_product")}
           </Link>
           <Link
             href={`/${params.locale}`}
             className="inline-flex w-fit items-center gap-2 rounded-[4px] border border-white/8 bg-[#0f1318] px-4 py-2 text-sm font-semibold text-title transition-colors duration-300 hover:border-success/22 hover:bg-[#151b24]">
             <BiArrowBack className="text-lg" />
-            {getScopedI18nResp("back_to_catalog")}
+            {t("back_to_catalog")}
           </Link>
         </div>
 
