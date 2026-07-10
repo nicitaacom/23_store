@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 
@@ -35,7 +35,9 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   const wrapRef = useRef<((marker: string) => void) | null>(null)
   const editorContainerRef = useRef<HTMLDivElement | null>(null)
   const valueRef = useRef(value)
-  valueRef.current = value
+  useEffect(() => {
+    valueRef.current = value
+  }, [value])
 
   const enableInput = () => {
     setValue(currentTranslation.description ?? "")

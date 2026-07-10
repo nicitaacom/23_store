@@ -97,7 +97,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
       <div className="flex items-center gap-2">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle/70">{t("price")}:</p>
         {isEditing ? (
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={event => handleSubmit(onSubmit)(event)}>
             <div>
               <ProductInput
                 className={twMerge(

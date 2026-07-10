@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -59,8 +59,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [previewImageIndex, setPreviewImageIndex] = useState(0)
-  const previousPreviewIndexRef = useRef(0)
-  const slideDirection = previewImageIndex >= previousPreviewIndexRef.current ? "next" : "prev"
+  const [previousPreviewIndex, setPreviousPreviewIndex] = useState(0)
+  const slideDirection = previewImageIndex >= previousPreviewIndex ? "next" : "prev"
   const [variantLabel, setVariantLabel] = useState("")
   const [variantPrice, setVariantPrice] = useState("")
   const [variants, setVariants] = useState<TProductVariantDraft[]>(() => normalizeVariantsForDraft(product))
@@ -375,7 +375,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               initial={false}
               mode="popLayout"
               custom={slideDirection}
-              onExitComplete={() => { previousPreviewIndexRef.current = previewImageIndex }}>
+              onExitComplete={() => setPreviousPreviewIndex(previewImageIndex)}>
               <motion.div
                 key={previewImageIndex}
                 className="absolute inset-0"

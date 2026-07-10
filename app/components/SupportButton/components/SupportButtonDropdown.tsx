@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment, useRef } from "react"
+import { Fragment, useRef, useState } from "react"
 import { BiSupport } from "react-icons/bi"
 
 import { useSupportDropdownTicketClosedState } from "../hooks/useSupportDropdownTicketClosedState"
@@ -30,7 +30,7 @@ export default function SupportButtonDropdown() {
   const { messages, ticketId, setMessages } = useMessagesStore()
 
   // messages present on first render come from the initial fetch and must not animate; only later arrivals pop in
-  const initialIdsRef = useRef(new Set(messages.map(message => message.id)))
+  const [initialIds] = useState(() => new Set(messages.map(message => message.id)))
 
   useMarkMessagesAsSeen(isDropdown, ticketId, messages, userId, isLoading)
   useScrollToBottom(bottomRef, isDropdown)
@@ -90,7 +90,7 @@ export default function SupportButtonDropdown() {
                       </span>
                     </li>
                   )}
-                  <MessageBox animateEntry={!initialIdsRef.current.has(message.id)} message={message} />
+                  <MessageBox animateEntry={!initialIds.has(message.id)} message={message} />
                 </Fragment>
               ))}
             </ul>

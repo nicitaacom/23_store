@@ -106,7 +106,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   return (
     <div ref={containerRef} className="min-w-0 flex-1">
       {isEditing ? (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={event => handleSubmit(onSubmit)(event)}>
           <ProductInput
             className={twMerge(
               "w-full border-border-color/50 bg-background/60 text-start",

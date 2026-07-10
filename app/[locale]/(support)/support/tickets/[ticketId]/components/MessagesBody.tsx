@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment, useRef } from "react"
+import { Fragment, useState } from "react"
 
 import { IMessageDB } from "@/ts/support/IMessageDB"
 import { useMessagesBody } from "../../hooks/useMessagesBody"
@@ -21,7 +21,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
   const { bottomRef, messages } = useMessagesBody({ initialMessages, ticketId: ticket_id })
 
   // messages present on first render come from the initial fetch and must not animate; only later arrivals pop in
-  const initialIdsRef = useRef(new Set(messages.map(message => message.id)))
+  const [initialIds] = useState(() => new Set(messages.map(message => message.id)))
 
   if (messages.length === 0) {
     return (
@@ -53,7 +53,7 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
                 </span>
               </li>
             )}
-            <MessageBox animateEntry={!initialIdsRef.current.has(message.id)} showTimezone={true} message={message} />
+            <MessageBox animateEntry={!initialIds.has(message.id)} showTimezone={true} message={message} />
           </Fragment>
         ))}
       </ul>

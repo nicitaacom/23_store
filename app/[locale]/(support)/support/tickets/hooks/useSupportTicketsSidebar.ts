@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { ITicketDB } from "@/ts/support/ITicketDB"
@@ -36,15 +36,17 @@ export const useSupportTicketsSidebar = ({ initialTickets, unseenMessages }: Use
   const router = useRouter()
   const { show } = useToast()
   const [tickets, setTickets] = useState(initialTickets)
+  const [prevInitialTickets, setPrevInitialTickets] = useState(initialTickets)
   const [searchQuery, setSearchQuery] = useState("")
   const { unreadMessages, setUnreadMessages, resetUnreadMessages, increaseUnreadMessages } = useUnseenMessages()
 
   // When each ticket's unread arrived, so the sort can put the freshest unread on top (see the sort comment below).
-  const unreadArrivedAtRef = useRef<Record<string, number>>({})
+  const [unreadArrivedAt, setUnreadArrivedAt] = useState<Record<string, number>>({})
 
-  useEffect(() => {
+  if (initialTickets !== prevInitialTickets) {
+    setPrevInitialTickets(initialTickets)
     setTickets(initialTickets)
-  }, [initialTickets])
+  }
 
   useEffect(() => {
     setUnreadMessages(unseenMessages)
@@ -62,7 +64,7 @@ export const useSupportTicketsSidebar = ({ initialTickets, unseenMessages }: Use
     // ticket channel instead), so every update here is an incoming user message that must bump the support unread badge.
     const handleUpdate = (ticket: ITicketDB) => {
       setTickets(currentTickets => updateTicket(currentTickets, ticket))
-      unreadArrivedAtRef.current[ticket.id] = Date.now()
+      setUnreadArrivedAt(current => ({ ...current, [ticket.id]: Date.now() }))
       increaseUnreadMessages(ticket.id)
     }
 
@@ -102,14 +104,14 @@ export const useSupportTicketsSidebar = ({ initialTickets, unseenMessages }: Use
         const rightUnread = (unreadMessages[right.id] || 0) > 0
         // freshest unread first — Margulan thin-pancakes: you want to eat fresh pancakes instead of 1 day old pancake that is not fresh anymore; also an old unread often means the user already resolved the issue themselves and it's no longer relevant
         if (leftUnread && rightUnread) {
-          const leftArrived = unreadArrivedAtRef.current[left.id] ?? getTicketTime(left)
-          const rightArrived = unreadArrivedAtRef.current[right.id] ?? getTicketTime(right)
+          const leftArrived = unreadArrivedAt[left.id] ?? getTicketTime(left)
+          const rightArrived = unreadArrivedAt[right.id] ?? getTicketTime(right)
           return rightArrived - leftArrived
         }
         if (leftUnread !== rightUnread) return leftUnread ? -1 : 1
         return getTicketTime(right) - getTicketTime(left)
       }),
-    [tickets, unreadMessages],
+    [tickets, unreadMessages, unreadArrivedAt],
   )
 
   const filteredTickets = useMemo(() => {
