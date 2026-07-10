@@ -40,7 +40,6 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   }, [isLoading])
 
   async function updateTitle(title: string) {
-    const snapshot = translations
     updateProduct(id, product => ({
       ...product,
       translations: { ...translations, [locale]: { ...currentTranslation, title } },
@@ -55,7 +54,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
       replaceProduct(id, response.product)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
-      updateProduct(id, product => ({ ...product, translations: snapshot }))
+      updateProduct(id, product => ({ ...product, translations }))
       toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error), 10000)
     } finally {
       setIsLoading(false)

@@ -4,13 +4,12 @@ export function setCookie(name: TCookieName, val: string) {
   if (typeof document === "undefined") return
 
   const date = new Date()
-  const value = val
 
   // Set it expire in 7 days
   date.setTime(date.getTime() + 7 * 24 * 60 * 60 * 1000)
 
   // Set it
-  document.cookie = name + "=" + value + "; expires=" + date.toUTCString() + "; path=/"
+  document.cookie = name + "=" + val + "; expires=" + date.toUTCString() + "; path=/"
 }
 
 /**

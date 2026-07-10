@@ -35,8 +35,6 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   }, [isLoading])
 
   async function updatePrice(nextPrice: number) {
-    const snapshot = price
-
     updateProduct(id, product => ({ ...product, price: nextPrice }))
     isEditingRef.current = false
     setIsEditing(false)
@@ -48,7 +46,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
       replaceProduct(id, response.product)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
-      updateProduct(id, product => ({ ...product, price: snapshot }))
+      updateProduct(id, product => ({ ...product, price }))
       toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)
