@@ -23,9 +23,13 @@
 //
 // A one-liner arrow with a concise/expression body (no `{}` block, implicit return - e.g.
 // `const clamp = (v, min, max) => Math.max(min, Math.min(max, v))`) is exempt too - converting
-// it to a `function` + explicit `return` adds lines without adding clarity. This does NOT cover
-// a concise body that returns an object literal (`const store = (set) => ({ ... })`), since those
-// tend to hold many properties/methods and read the same as a real function body.
+// it to a `function` + explicit `return` adds lines without adding clarity.
+//
+// A zustand store file is exempt entirely (any top-level arrow const, including the common
+// `const someStore = (set) => ({ ... })` factory pattern) - detected by the file path containing
+// "store"/"zustand", or the file calling zustand's `create(`. This matches the community-standard
+// zustand shape (`export const useXStore = create((set) => ({ ... }))`) instead of forcing every
+// store factory into `function someStore(set) { return {...} }`.
 function isHookName(name) {
   return /^use[A-Z]/.test(name)
 }
@@ -33,6 +37,12 @@ function isHookName(name) {
 function isExemptOneLinerArrow(node) {
   if (node.type !== "ArrowFunctionExpression") return false
   return node.body.type !== "BlockStatement" && node.body.type !== "ObjectExpression"
+}
+
+function isZustandStoreFile(filename, sourceCode) {
+  const lowerPath = filename.toLowerCase()
+  if (lowerPath.includes("store") || lowerPath.includes("zustand")) return true
+  return /\bcreate\s*[<(]/.test(sourceCode.getText())
 }
 
 function isInsideFunctionBody(node) {
@@ -64,6 +74,10 @@ module.exports = {
       },
     },
     create(context) {
+      const filename = context.filename ?? context.getFilename()
+      const sourceCode = context.sourceCode ?? context.getSourceCode()
+      const isStoreFile = isZustandStoreFile(filename, sourceCode)
+
       return {
         VariableDeclarator(node) {
           if (node.id.type !== "Identifier" || !node.init) return
@@ -74,6 +88,7 @@ module.exports = {
           if (isHookName(name)) return
           if (isInsideFunctionBody(node)) return
           if (isExemptOneLinerArrow(node.init)) return
+          if (isStoreFile) return
 
           context.report({ node: node.id, messageId: "arrowNotHook", data: { name } })
         },
