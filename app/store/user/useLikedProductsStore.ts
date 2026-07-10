@@ -8,19 +8,17 @@ interface LikedProductsStore {
 
 type SetState = (fn: (prevState: LikedProductsStore) => LikedProductsStore) => void
 
-function likedProductsStore(set: SetState): LikedProductsStore {
-  return {
-    likedProductIds: [],
-    toggleProductLike(productId: string) {
-      set(state => ({
-        ...state,
-        likedProductIds: state.likedProductIds.includes(productId)
-          ? state.likedProductIds.filter(id => id !== productId)
-          : [...state.likedProductIds, productId],
-      }))
-    },
-  }
-}
+const likedProductsStore = (set: SetState): LikedProductsStore => ({
+  likedProductIds: [],
+  toggleProductLike(productId: string) {
+    set(state => ({
+      ...state,
+      likedProductIds: state.likedProductIds.includes(productId)
+        ? state.likedProductIds.filter(id => id !== productId)
+        : [...state.likedProductIds, productId],
+    }))
+  },
+})
 
 const useLikedProductsStore = create(devtools(persist(likedProductsStore, { name: "likedProducts" })))
 

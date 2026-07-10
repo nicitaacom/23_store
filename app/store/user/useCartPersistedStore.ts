@@ -10,12 +10,10 @@ type CartPersistedStore = {
 
 type SetState = (fn: (prevState: CartPersistedStore) => Partial<CartPersistedStore>) => void
 
-function cartPersistedStore(set: SetState): CartPersistedStore {
-  return {
-    products: {},
-    setProducts: products => set(() => ({ products })),
-  }
-}
+const cartPersistedStore = (set: SetState): CartPersistedStore => ({
+  products: {},
+  setProducts: products => set(() => ({ products })),
+})
 
 export const useCartPersistedStore = create<CartPersistedStore>()(
   devtools(persist(set => cartPersistedStore(set), { name: "cart" })),

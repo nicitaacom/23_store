@@ -12,17 +12,15 @@ function toggleDarkMode(darkMode: DarkModeStore) {
   return (darkMode.isDarkMode = !darkMode.isDarkMode)
 }
 
-function darkMode(set: SetState): DarkModeStore {
-  return {
-    isDarkMode: true,
-    toggleDarkMode() {
-      set((state: DarkModeStore) => ({
-        ...state,
-        isDarkMode: toggleDarkMode(state),
-      }))
-    },
-  }
-}
+const darkMode = (set: SetState): DarkModeStore => ({
+  isDarkMode: true,
+  toggleDarkMode() {
+    set((state: DarkModeStore) => ({
+      ...state,
+      isDarkMode: toggleDarkMode(state),
+    }))
+  },
+})
 
 const useDarkModeStore = create(devtools(persist(darkMode, { name: "darkMode" })))
 

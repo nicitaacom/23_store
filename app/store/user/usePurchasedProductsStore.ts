@@ -11,17 +11,15 @@ interface PurchasedProductsStore {
 
 type SetState = (fn: (prevState: PurchasedProductsStore) => PurchasedProductsStore) => void
 
-function purchasedProductsStore(set: SetState): PurchasedProductsStore {
-  return {
-    purchasedProductIds: [],
-    addPurchasedProducts(productIds: string[]) {
-      set(state => ({
-        ...state,
-        purchasedProductIds: [...new Set([...state.purchasedProductIds, ...productIds])],
-      }))
-    },
-  }
-}
+const purchasedProductsStore = (set: SetState): PurchasedProductsStore => ({
+  purchasedProductIds: [],
+  addPurchasedProducts(productIds: string[]) {
+    set(state => ({
+      ...state,
+      purchasedProductIds: [...new Set([...state.purchasedProductIds, ...productIds])],
+    }))
+  },
+})
 
 const usePurchasedProductsStore = create(devtools(persist(purchasedProductsStore, { name: "purchasedProducts" })))
 

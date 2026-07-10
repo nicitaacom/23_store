@@ -8,12 +8,10 @@ type OAuthDebugStore = {
 
 type SetState = (fn: (prevState: OAuthDebugStore) => Partial<OAuthDebugStore>) => void
 
-function oAuthDebugStore(set: SetState): OAuthDebugStore {
-  return {
-    lastAttempt: null,
-    setLastAttempt: payload => set(() => ({ lastAttempt: payload })),
-  }
-}
+const oAuthDebugStore = (set: SetState): OAuthDebugStore => ({
+  lastAttempt: null,
+  setLastAttempt: payload => set(() => ({ lastAttempt: payload })),
+})
 
 export const useOAuthDebugStore = create<OAuthDebugStore>()(
   devtools(persist(set => oAuthDebugStore(set), { name: "oauth:lastAttempt" })),

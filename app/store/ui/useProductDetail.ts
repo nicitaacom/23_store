@@ -12,13 +12,11 @@ type ProductDetailStore = {
 
 type SetState = (fn: (prevState: ProductDetailStore) => Partial<ProductDetailStore>) => void
 
-function productDetailStore(set: SetState): ProductDetailStore {
-  return {
-    selectedVariantId: "",
-    activeImage: "",
-    selectVariant: variantId => set(() => ({ selectedVariantId: variantId })),
-    selectImage: image => set(() => ({ activeImage: image })),
-  }
-}
+const productDetailStore = (set: SetState): ProductDetailStore => ({
+  selectedVariantId: "",
+  activeImage: "",
+  selectVariant: variantId => set(() => ({ selectedVariantId: variantId })),
+  selectImage: image => set(() => ({ activeImage: image })),
+})
 
 export const useProductDetail = create<ProductDetailStore>()(devtools(set => productDetailStore(set)))
