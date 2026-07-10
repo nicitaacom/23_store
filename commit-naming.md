@@ -17,12 +17,18 @@ One line, lowercase message, no period at the end, no scope, no body.
 
 ### Examples
 
-- `fix: check spam email`
-- `upd: getCached -> getRedis`
+- `fix: check spam email tg ntfcn`
+- `fix: change lang via dropdown (no cookie)`
 - `style: fix meeting info jumping`
+- `style: green add product btn`
+- `upd: J.png is now png (more rich)`
+- `upd: max 300 chars in desc`
 - `docs: no jargon`
 - `feat: AI iteration mode`
+- `-chore: night-run.sh`
+- `chore: getCached -> getRedis`
 - `chore: err -> error`
+- `chore: eslint fix imports-order`
 
 ### Rules
 
