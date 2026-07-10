@@ -1,6 +1,6 @@
 import { BannersSlider } from "./BannersSlider"
 import { PopularProductsLazyFeed } from "./PopularProductsLazyFeed"
-import { fetchPopularProducts } from "@/libs/popularProducts"
+import { selectPopularProducts } from "@/libs/popularProducts"
 
 interface PopularProductsPageProps {
   params: Promise<{ locale: string }>
@@ -8,7 +8,7 @@ interface PopularProductsPageProps {
 
 export default async function PopularProductsPage({ params: paramsPromise }: PopularProductsPageProps) {
   const params = await paramsPromise
-  const { products, totalItems } = await fetchPopularProducts({ limit: 24 })
+  const { products, totalItems } = await selectPopularProducts({ limit: 24 })
 
   return (
     <div className="mx-auto h-[calc(100vh-64px)] w-full overflow-hidden px-4 py-2 text-title">
@@ -20,7 +20,8 @@ export default async function PopularProductsPage({ params: paramsPromise }: Pop
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-title laptop:text-4xl">Popular products preview</h1>
             <p className="text-base leading-7 text-subTitle">
-              Browse the catalog in one continuous feed. New items load automatically as you approach the bottom, so the page feels like a real storefront instead of a paginated admin list.
+              Browse the catalog in one continuous feed. New items load automatically as you approach the bottom, so the page
+              feels like a real storefront instead of a paginated admin list.
             </p>
           </div>
           <div className="h-[320px] w-1/2">

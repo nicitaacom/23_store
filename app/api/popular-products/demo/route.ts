@@ -67,6 +67,7 @@ function formatFakeProductSeed(
   }
 }
 
+// eslint-disable-next-line local-rules/sdk-method-naming -- genuine 3rd-party fetch (fakestoreapi.com), not a DB/Redis read
 async function fetchFakeShopProducts() {
   const response = await fetch(FAKE_SHOP_API_URL, {
     signal: AbortSignal.timeout(15000),

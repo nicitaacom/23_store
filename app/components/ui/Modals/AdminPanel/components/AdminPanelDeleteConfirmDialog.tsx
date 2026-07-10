@@ -109,7 +109,7 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
         update([...items])
       }
 
-      await cartStore.fetchProductsData()
+      await cartStore.selectProductsData()
 
       const doneCount = items.filter(item => item.status === "done").length
       if (hasError) {
@@ -122,7 +122,7 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
       useOwnerProductsStore.getState().removeProduct(products[0].id)
       try {
         await productsSDK.deleteProduct({ id: products[0].id })
-        await cartStore.fetchProductsData()
+        await cartStore.selectProductsData()
         toast.show("success", tProduct("product_deleted"), tProduct("product_deleted_subtitle"), 3500)
       } catch (error) {
         if (snapshot) useOwnerProductsStore.getState().addProduct(snapshot)

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect } from "react"
 
-import { fetchProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
+import { selectProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
 import useCartStore from "@/store/user/cartStore"
 import { useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
@@ -13,7 +13,7 @@ export const useFetchProductsData = (currentStep: number, setCurrentStep: Dispat
   useEffect(() => {
     if (!hasCartStoreInitialized) return
     // to avoid issue where products is {} because cartStore is not initialized
-    fetchProductsDataFromDBFn(hasCartStoreInitialized, currentStep, setCurrentStep, cartStore.fetchProductsData, t)
+    selectProductsDataFromDBFn(hasCartStoreInitialized, currentStep, setCurrentStep, cartStore.selectProductsData, t)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasCartStoreInitialized])

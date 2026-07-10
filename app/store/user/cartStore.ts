@@ -15,7 +15,7 @@ interface CartStore {
   products: TRecordCartProduct
   productsData: TProductAfterDB[]
   keepExistingProductsRecord: (food: TRecordCartProduct) => Promise<TRecordCartProduct> // for case I user delete some food
-  fetchProductsData: () => Promise<void>
+  selectProductsData: () => Promise<void>
   getCartQuantity: () => number
   increaseProductQuantity: (id: string, variantId?: string | null) => void
   decreaseProductQuantity: (id: string, variantId?: string | null) => void
@@ -33,7 +33,7 @@ function cartStore(set: SetState, get: GetState): CartStore {
   return {
     products: {},
     productsData: [],
-    async fetchProductsData() {
+    async selectProductsData() {
       const products = get().products
       if (!products || Object.values(products).length === 0) {
         set(() => ({

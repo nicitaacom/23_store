@@ -27,7 +27,7 @@ export function AreYouSureDeleteProductModal() {
 
       //close modal and refresh - so user immediately see changes
       areYouSureDeleteProductModal.closeModal()
-      cartStore.fetchProductsData()
+      cartStore.selectProductsData()
       router.refresh()
     } finally {
       setIsLoading(false)

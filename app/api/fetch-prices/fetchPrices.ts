@@ -29,6 +29,7 @@ function htmlToCleanText(html: string, maxLength = MAX_CLEAN_LENGTH): string {
 }
 
 // server-side: use curl (child_process) to fetch raw HTML (avoids CORS)
+// eslint-disable-next-line local-rules/sdk-method-naming -- genuine 3rd-party HTTP fetch (curl to Google), not a DB/Redis read
 async function fetchHtmlWithCurl(url: string): Promise<string> {
   // This must run on server only.
   const maxSeconds = Math.max(1, Math.ceil(FETCH_TIMEOUT / 1000))
@@ -39,6 +40,7 @@ async function fetchHtmlWithCurl(url: string): Promise<string> {
 }
 
 // fetch Google search HTML and extract up to topN unique prices (USD/EUR)
+// eslint-disable-next-line local-rules/sdk-method-naming -- genuine 3rd-party fetch (Google search), not a DB/Redis read
 export async function fetchPricesRaw(query: string, topN = 5): Promise<number[]> {
   try {
     // server-only guard

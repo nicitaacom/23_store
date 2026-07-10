@@ -36,7 +36,7 @@ export class ProductsSDK extends BaseSDK {
     }
   }
 
-  async fetchSuggestedPrice(request: API.ProductsFetchSuggestedPriceRequest) {
+  async selectSuggestedPrice(request: API.ProductsFetchSuggestedPriceRequest) {
     return this.postJson<API.ProductsFetchSuggestedPriceRequest, API.ProductsFetchSuggestedPriceResponse>(
       "/api/fetch-prices",
       request satisfies API.ProductsFetchSuggestedPriceRequest,

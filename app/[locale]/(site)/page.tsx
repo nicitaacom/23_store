@@ -22,7 +22,7 @@ interface SearchProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-const fetchProducts = cache(async (categoryIds?: string[]) => {
+const selectProducts = cache(async (categoryIds?: string[]) => {
   const supabase = await supabaseServer()
   let query = supabase.from("23_products").select("*").order("price", { ascending: true })
   if (categoryIds && categoryIds.length > 0) {
@@ -33,7 +33,7 @@ const fetchProducts = cache(async (categoryIds?: string[]) => {
   return products
 })
 
-const fetchCategories = cache(async (): Promise<TCategory[]> => {
+const selectCategories = cache(async (): Promise<TCategory[]> => {
   const supabase = await supabaseServer()
   const { data } = await supabase
     .from("23_categories")
@@ -57,7 +57,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
   const viewsPromise = user
     ? supabase.from("23_category_views").select("category_id, view_count").eq("user_id", user.id)
     : Promise.resolve({ data: null })
-  const [categories, viewsResult] = await Promise.all([fetchCategories(), viewsPromise])
+  const [categories, viewsResult] = await Promise.all([selectCategories(), viewsPromise])
   const serverViews: Record<string, number> = {}
   if (viewsResult.data) {
     for (const row of viewsResult.data) serverViews[row.category_id] = row.view_count
@@ -83,9 +83,9 @@ export default async function Home({ params: paramsPromise, searchParams: search
     categoryIds = [validCategory, ...childIds]
   }
 
-  const fetchProductsResp = await fetchProducts(categoryIds)
-  if (fetchProductsResp.error) throw fetchProductsResp.error
-  const products = normalizeProducts(fetchProductsResp.data)
+  const selectProductsResp = await selectProducts(categoryIds)
+  if (selectProductsResp.error) throw selectProductsResp.error
+  const products = normalizeProducts(selectProductsResp.data)
   const filteredProducts = searchQuery ? filterProductsBySearchQuery(products, searchQuery) : products
   const addProductHref = user ? `/${params.locale}?modal=AdminPanel` : `/${params.locale}?modal=AuthModal&variant=login`
 

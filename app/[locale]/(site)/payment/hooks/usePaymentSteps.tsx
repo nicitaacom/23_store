@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
-import { fetchProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
+import { selectProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
 import { getCustomerEmailFn } from "../functions/getCustomerEmailFn"
 import { renderEmailFn } from "../functions/renderEmailFn"
 import { sendEmailFn } from "../functions/sendEmailFn"
@@ -44,7 +44,7 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
         getCustomerEmailFn(t, user?.email || null, session_id, setCustomerEmail, setCurrentStep)
         break
       case 3:
-        fetchProductsDataFromDBFn(hasCartStoreInitialized, currentStep, setCurrentStep, cartStore.fetchProductsData, t)
+        selectProductsDataFromDBFn(hasCartStoreInitialized, currentStep, setCurrentStep, cartStore.selectProductsData, t)
         break
       case 4:
         renderEmailFn(cartStore.productsData, locale, deliveryDate, setHtml, setCurrentStep, t)

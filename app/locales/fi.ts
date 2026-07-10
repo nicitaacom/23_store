@@ -180,7 +180,8 @@ export default {
   "backup.export_split": "Varmuuskopio oli suuri, joten se jaettiin kahteen tiedostoon (front + back). Säilytä molemmat.",
   "backup.export_progress": "Ladataan varmuuskopiota",
   "backup.import_title": "Tuonti",
-  "backup.import_subtitle": "Lähetä .tar.gz-varmuuskopio (molemmat osat jos jaettu) palauttaaksesi rivit ja tiedostot (olemassa olevat korvataan).",
+  "backup.import_subtitle":
+    "Lähetä .tar.gz-varmuuskopio (molemmat osat jos jaettu) palauttaaksesi rivit ja tiedostot (olemassa olevat korvataan).",
   "backup.import_button": "Lähetä varmuuskopio",
   "backup.import_progress": "Lähetetään varmuuskopiota",
   "backup.import_success": "Varmuuskopio tuotu",
@@ -262,7 +263,8 @@ export default {
   "product.open_preview_page": "Avaa esikatselusivu",
   "popular.badge": "Live-katalogikatselu",
   "popular.title": "Suosittujen tuotteiden esikatselu",
-  "popular.subtitle": "Selaa luetteloa yhtäjaksoisena virtana. Uudet tuotteet latautuvat automaattisesti kun lähestyt alaosaa — sivu tuntuu oikealta verkkokaupalta.",
+  "popular.subtitle":
+    "Selaa luetteloa yhtäjaksoisena virtana. Uudet tuotteet latautuvat automaattisesti kun lähestyt alaosaa — sivu tuntuu oikealta verkkokaupalta.",
   "popular.available_now": "Saatavilla nyt",
   "popular.navigation": "Navigointi",
   "popular.back_to_shop": "Takaisin kauppaan",
@@ -306,7 +308,8 @@ export default {
   "product.manage_keep_one_image_subtitle": "Tällä tuotteella täytyy olla vähintään yksi kuva galleriassa.",
   "product.manage_variant_label_required": "Anna variantille nimi ennen lisäämistä.",
   "product.manage_variant_price_required": "Anna variantille kelvollinen hinta ennen lisäämistä.",
-  "product.manage_variant_help": "Valitse esikatselukuva vasemmalta ja liitä se varianttiin täällä omalla hinnallaan. Ensimmäinen variantti toimii tuotteen oletushintana.",
+  "product.manage_variant_help":
+    "Valitse esikatselukuva vasemmalta ja liitä se varianttiin täällä omalla hinnallaan. Ensimmäinen variantti toimii tuotteen oletushintana.",
   "product.manage_variant_empty": "Variantteja ei ole vielä. Lisää vähintään yksi ennen tuotteen luontia tai tallennusta.",
   "product.variant": "Variantti",
   "product.selected_variant": "Valittu variantti",
@@ -398,7 +401,7 @@ export default {
   //                   payment
   // =================        =================
   "payment.products_data_fetched": "tuotetiedot haettu – vaihe 4 asetettu",
-  "payment.error.fetch_products_data": "virhe fetchProductsData",
+  "payment.error.fetch_products_data": "virhe selectProductsData",
   "payment.customer_email_received": "asiakkaan sähköposti vastaanotettu – vaihe 3 asetettu",
   "payment.error.receive_customer_email_title": "Virhe asiakkaan sähköpostin haussa",
   "payment.error.receive_customer_email_subtitle": "Tarkista getCustomerEmailFn – ota yhteyttä tukeen",

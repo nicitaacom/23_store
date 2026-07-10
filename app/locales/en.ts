@@ -262,7 +262,8 @@ export default {
   "product.open_preview_page": "Open preview page",
   "popular.badge": "Live catalog preview",
   "popular.title": "Popular products preview",
-  "popular.subtitle": "Browse the catalog in one continuous feed. New items appear automatically as you approach the bottom, so the page feels like a real storefront instead of a paginated admin list.",
+  "popular.subtitle":
+    "Browse the catalog in one continuous feed. New items appear automatically as you approach the bottom, so the page feels like a real storefront instead of a paginated admin list.",
   "popular.available_now": "Available now",
   "popular.navigation": "Navigation",
   "popular.back_to_shop": "Back to shop",
@@ -306,7 +307,8 @@ export default {
   "product.manage_keep_one_image_subtitle": "This product must keep one image in its gallery.",
   "product.manage_variant_label_required": "Enter a variant label before adding it.",
   "product.manage_variant_price_required": "Enter a valid variant price before adding it.",
-  "product.manage_variant_help": "Pick a preview image on the left, then attach it to a variant here with its own price. The first variant becomes the default product price.",
+  "product.manage_variant_help":
+    "Pick a preview image on the left, then attach it to a variant here with its own price. The first variant becomes the default product price.",
   "product.manage_variant_empty": "No variants yet. Add at least one before updating or creating the product.",
   "product.variant": "Variant",
   "product.selected_variant": "Selected variant",
@@ -398,7 +400,7 @@ export default {
   //                   payment
   // =================        =================
   "payment.products_data_fetched": "products data fetched - set step 4",
-  "payment.error.fetch_products_data": "error fetchProductsData",
+  "payment.error.fetch_products_data": "error selectProductsData",
   "payment.customer_email_received": "customer email received - set step 3",
   "payment.error.receive_customer_email_title": "Error fetching customer email",
   "payment.error.receive_customer_email_subtitle": "Please check getCustomerEmailFn - contact support",

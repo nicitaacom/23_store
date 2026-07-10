@@ -84,10 +84,10 @@ export async function resolveProductPrice(
   }
 
   try {
-    const fetchSuggestedPriceResp = await productsSDK.fetchSuggestedPrice({ title, description })
+    const selectSuggestedPriceResp = await productsSDK.selectSuggestedPrice({ title, description })
 
-    if (fetchSuggestedPriceResp.price && fetchSuggestedPriceResp.price > 0) {
-      return fetchSuggestedPriceResp.price
+    if (selectSuggestedPriceResp.price && selectSuggestedPriceResp.price > 0) {
+      return selectSuggestedPriceResp.price
     }
 
     const priceData = await aiSDK.prompt(`

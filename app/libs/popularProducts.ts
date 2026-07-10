@@ -16,7 +16,7 @@ export interface IPopularProductsResult {
   perPage: number
 }
 
-export async function fetchPopularProducts({
+export async function selectPopularProducts({
   page = 1,
   perPage = 24,
   limit,

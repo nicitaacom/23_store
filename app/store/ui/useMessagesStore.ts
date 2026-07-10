@@ -1,7 +1,7 @@
 import { create } from "zustand"
 
 import { TMessageDB } from "@/ts/support/TMessageDB"
-import fetchTicketId from "@/actions/fetchTicketId"
+import selectTicketId from "@/actions/selectTicketId"
 import { getUserId } from "@/utils/getUserId"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 
@@ -64,9 +64,9 @@ export const useMessagesStore = create<MessagesStore>()((set, get) => ({
 
     let ticketIdLet: string | null = null
     if (!state.ticketId) {
-      const fetchTicketIdResp = await fetchTicketId()
-      if (!fetchTicketIdResp) return
-      else ticketIdLet = fetchTicketIdResp
+      const selectTicketIdResp = await selectTicketId()
+      if (!selectTicketIdResp) return
+      else ticketIdLet = selectTicketIdResp
     }
 
     set(() => ({

@@ -19,7 +19,7 @@ const WINDOW_SIZE = 48
 export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }: PopularProductsLazyFeedProps) {
   const [products, setProducts] = useState(initialProducts)
 
-  const fetchPopularProducts = useCallback(async (start: number, end: number) => {
+  const selectPopularProducts = useCallback(async (start: number, end: number) => {
     try {
       return await productsSDK.getPopularProducts(start, end)
     } catch (error) {
@@ -28,16 +28,10 @@ export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }:
     }
   }, [])
 
-  const {
-    isFetching,
-    hasNoMoreDataToFetch,
-    currentWindow,
-    topRef,
-    bottomRef,
-  } = useLazyLoading({
+  const { isFetching, hasNoMoreDataToFetch, currentWindow, topRef, bottomRef } = useLazyLoading({
     step: STEP,
     windowSize: WINDOW_SIZE,
-    fetchFunction: fetchPopularProducts,
+    fetchFunction: selectPopularProducts,
     currentState: products,
     setState: setProducts,
   })
