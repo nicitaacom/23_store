@@ -16,6 +16,8 @@ A `.tar.gz` contains:
 ```
 23_users.json                  # one <table>.json per backed-up table
 23_users_cart.json
+23_categories.json
+23_category_views.json
 23_products.json
 23_tickets.json
 23_messages.json
@@ -24,7 +26,7 @@ storage/23_public-images/<...> # raw bytes of every object in each bucket
 storage/23_avatar-images/<...>
 ```
 
-- **Tables** (`BACKUP_TABLES`, FK-safe order): `23_users → 23_users_cart → 23_products → 23_tickets → 23_messages`.
+- **Tables** (`BACKUP_TABLES`, FK-safe order): `23_users → 23_users_cart → 23_categories → 23_category_views → 23_products → 23_tickets → 23_messages`.
   `utm_stats` is **excluded** — it is shared across projects 14/23/28/29.
 - **Buckets** (`BACKUP_BUCKETS`, mirrors `app/ts/types/TBuckets.ts`): `23_public-images`, `23_avatar-images`.
 
