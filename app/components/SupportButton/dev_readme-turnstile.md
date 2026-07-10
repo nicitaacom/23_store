@@ -11,6 +11,18 @@ Logic for this button:
 
 # Trunstile implementation
 
+## Cloudflare dashboard setup
+
+Widget config lives at Cloudflare dashboard → Turnstile → your widget → Edit Widget.
+
+Hostname Management — every hostname the widget is allowed to run on must be listed here, otherwise `siteverify` rejects the token:
+
+![hostname](/public/docs/turnstile/hostname.png)
+
+Widget Keys — Site key maps to `NEXT_PUBLIC_CLOUDFLARE_SITE_KEY`, Secret key maps to `TURNSTILE_SECRET_KEY`:
+
+![widget-keys](/public/docs/turnstile/widget-keys.png)
+
 ### Step 1
 
 In layout.tsx
