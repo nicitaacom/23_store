@@ -3,9 +3,9 @@
 import { useMemo } from "react"
 
 import { TProductDB } from "@/ts/product/TProductDB"
-import { useHasMounted } from "@/hooks/useHasMounted"
 import Products from "./Products"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
+import { useHasMounted } from "@/hooks/useHasMounted"
 
 function sortByViews(products: TProductDB[], views: Record<string, number>) {
   const topIds = Object.entries(views)

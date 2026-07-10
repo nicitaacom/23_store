@@ -4,8 +4,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LuShoppingCart } from "react-icons/lu"
 
-import { useHasMounted } from "@/hooks/useHasMounted"
 import useCartStore from "@/store/user/cartStore"
+import { useHasMounted } from "@/hooks/useHasMounted"
 
 interface CartIconProps {
   cart_quantity: number | undefined
