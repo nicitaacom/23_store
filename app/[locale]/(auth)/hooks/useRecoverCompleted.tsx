@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { UseFormGetValues } from "react-hook-form"
 
-import { IAuthFormData } from "../AuthModal/AuthModal"
+import { IAuthFormData } from "@/ts/interfaces/IAuthFormData"
 import { getPusherClient } from "@/libs/pusher"
 
 export const useRecoverCompleted = (

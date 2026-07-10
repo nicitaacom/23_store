@@ -1,8 +1,8 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import { UseFormReset } from "react-hook-form"
 
+import { IAuthFormData } from "@/ts/interfaces/IAuthFormData"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { IAuthFormData } from "../AuthModal/AuthModal"
 import { Timer } from "../AuthModal/components"
 import { UnknownError } from "./UnknownError"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"

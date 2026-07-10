@@ -1,8 +1,8 @@
 import { ReactNode } from "react"
 import { UseFormGetValues } from "react-hook-form"
 
+import { IAuthFormData } from "@/ts/interfaces/IAuthFormData"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { IAuthFormData } from "../AuthModal/AuthModal"
 import { UnknownError } from "./UnknownError"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"

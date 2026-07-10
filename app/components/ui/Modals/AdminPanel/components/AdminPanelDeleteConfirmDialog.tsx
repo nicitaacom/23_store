@@ -3,6 +3,7 @@
 import { BiTrash, BiCheck, BiErrorCircle, BiLoaderAlt } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
 
+import { IPendingDeleteProduct } from "@/ts/interfaces/IPendingDeleteProduct"
 import { AreYouSureModalContainer } from "../../ModalContainers/AreYouSureModalContainer"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useCartStore from "@/store/user/cartStore"
@@ -53,11 +54,6 @@ function BulkProgressToast({ items }: { items: { title: string; status: DeleteSt
       </ul>
     </div>
   )
-}
-
-export interface IPendingDeleteProduct {
-  id: string
-  title: string
 }
 
 interface AdminPanelDeleteConfirmDialogProps {

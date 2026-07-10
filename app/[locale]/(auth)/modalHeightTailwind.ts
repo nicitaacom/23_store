@@ -1,7 +1,7 @@
 import { FieldErrors } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
-import { IAuthFormData } from "./AuthModal/AuthModal"
+import { IAuthFormData } from "@/ts/interfaces/IAuthFormData"
 
 export function modalHeightTailwind(queryParams: string | null, errors: FieldErrors<IAuthFormData>) {
   return twMerge(

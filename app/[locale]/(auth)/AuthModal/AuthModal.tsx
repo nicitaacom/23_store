@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
+import { IAuthFormData } from "@/ts/interfaces/IAuthFormData"
 import { modalHeightTailwind } from "../modalHeightTailwind"
 import { recoverPassword } from "../functions/recoverPassword"
 import { resetPassword } from "../functions/resetPassword"
@@ -21,12 +22,6 @@ import { AuthLogo } from "./components/AuthLogo"
 import { AuthText } from "./components/AuthText"
 import { useCurrentLocale, useI18n } from "@/locales/client"
 import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
-
-export interface IAuthFormData {
-  username: string
-  email: string
-  password: string
-}
 
 export function AuthModal() {
   const router = useRouter()

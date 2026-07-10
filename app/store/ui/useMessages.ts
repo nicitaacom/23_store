@@ -1,8 +1,8 @@
 import { create } from "zustand"
 
 import { TMessageDB } from "@/ts/support/TMessageDB"
-import selectTicketId from "@/actions/selectTicketId"
 import { getUserId } from "@/utils/getUserId"
+import selectTicketId from "@/actions/selectTicketId"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 
 type MessagesStore = {

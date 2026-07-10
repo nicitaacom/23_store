@@ -1,10 +1,10 @@
 "use client"
 
+import { IUnseenMessages } from "@/ts/interfaces/IUnseenMessages"
 import { ITicketDB } from "@/ts/support/ITicketDB"
 import { useSupportTicketsSidebar } from "../hooks/useSupportTicketsSidebar"
 import { DesktopSidebar } from "./DesktopSidebar"
 import { MobileSidebar } from "./MobileSidebar"
-import { IUnseenMessages } from "@/actions/getUnreadMessages"
 
 interface SupportTicketsSidebarProps {
   initialTickets: ITicketDB[]

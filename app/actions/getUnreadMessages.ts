@@ -1,11 +1,7 @@
+import { IUnseenMessages } from "@/ts/interfaces/IUnseenMessages"
 import { getUser } from "./getUser"
 import { getAnonymousId } from "@/functions/getAnonymousId"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
-
-export interface IUnseenMessages {
-  ticket_id: string
-  amount_unseen: number
-}
 
 async function getUnreadMessages() {
   const getUserResp = await getUser()

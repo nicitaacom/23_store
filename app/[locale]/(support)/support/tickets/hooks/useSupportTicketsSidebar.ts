@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 
+import { IUnseenMessages } from "@/ts/interfaces/IUnseenMessages"
 import { ITicketDB } from "@/ts/support/ITicketDB"
 import { getPusherClient, subscribePusherChannel } from "@/libs/pusher"
 import useToast from "@/store/ui/useToast"
 import { useUnseenMessages } from "@/[locale]/(support)/store/useUnseenMessages"
-import { IUnseenMessages } from "@/actions/getUnreadMessages"
 
 interface UseSupportTicketsSidebarProps {
   initialTickets: ITicketDB[]

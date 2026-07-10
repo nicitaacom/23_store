@@ -6,6 +6,7 @@ import { FiPlus } from "react-icons/fi"
 import { CiEdit } from "react-icons/ci"
 import { MdOutlineDelete, MdOutlineCategory } from "react-icons/md"
 
+import { TPanelAction } from "@/ts/types/TPanelAction"
 import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 
 export const PANEL_ACTIONS = {
@@ -14,8 +15,6 @@ export const PANEL_ACTIONS = {
   delete: "delete",
   categories: "categories",
 } as const
-
-export type TPanelAction = (typeof PANEL_ACTIONS)[keyof typeof PANEL_ACTIONS]
 
 interface AdminPanelHeaderProps {
   className?: string

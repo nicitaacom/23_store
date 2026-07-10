@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
-import { selectProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
 import { getCustomerEmailFn } from "../functions/getCustomerEmailFn"
 import { renderEmailFn } from "../functions/renderEmailFn"
+import { selectProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
 import { sendEmailFn } from "../functions/sendEmailFn"
 import { substractOnStockFromQuantityFn } from "../functions/substractOnStockFromQuantityFn"
 import { useFetchProductsData } from "./useFetchProductsData"

@@ -5,12 +5,8 @@ import { twMerge } from "tailwind-merge"
 import { Carousel } from "react-responsive-carousel"
 import { AiFillCaretRight, AiFillCaretLeft } from "react-icons/ai"
 
+import { TImages } from "@/ts/types/TImages"
 import { ImageWithFallback } from "./ImageWithFallback"
-
-export type TImages = {
-  src: string
-  alt: string
-}[]
 
 interface SliderProps {
   images: TImages
@@ -22,7 +18,17 @@ interface SliderProps {
   className?: string
 }
 
-function SliderImage({ image, width, height, className }: { image: TImages[number]; width: number; height: number; className?: string }) {
+function SliderImage({
+  image,
+  width,
+  height,
+  className,
+}: {
+  image: TImages[number]
+  width: number
+  height: number
+  className?: string
+}) {
   return (
     <ImageWithFallback
       className={twMerge("object-contain w-full h-full", className)}
