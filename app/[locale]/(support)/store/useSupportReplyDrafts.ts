@@ -14,7 +14,8 @@ export const useSupportReplyDrafts = create<SupportReplyDraftsStore>()(set => ({
   setDraft: (ticketId, draftText) => set(state => ({ draftsByTicketId: { ...state.draftsByTicketId, [ticketId]: draftText } })),
   clearDraft: ticketId =>
     set(state => {
-      const { [ticketId]: _removed, ...rest } = state.draftsByTicketId
+      const rest = { ...state.draftsByTicketId }
+      delete rest[ticketId]
       return { draftsByTicketId: rest }
     }),
 }))

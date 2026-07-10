@@ -6,7 +6,6 @@ import { UnknownError } from "./UnknownError"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { useResetEmailStore } from "@/store/user/useResetEmailStore"
 import useUserStore from "@/store/user/userStore"
-import { Button } from "@/components/ui"
 
 export async function resetPassword(password: string, displayResponseMessage: (message: ReactNode) => void, t: TI18nFunction) {
   const userStore = useUserStore.getState()

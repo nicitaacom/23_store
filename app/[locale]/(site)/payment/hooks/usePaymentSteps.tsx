@@ -21,7 +21,7 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
   const { user } = useUserStore()
   const { addPurchasedProducts } = usePurchasedProductsStore()
   const { hasCartStoreInitialized } = useLoading()
-  const [isValidSessionId, setIsValidSessionId] = useState(false)
+  const [, setIsValidSessionId] = useState(false)
   const [html, setHtml] = useState("")
   const [currentStep, setCurrentStep] = useState(() => (status === "success" ? 2 : 0))
   const [customerEmail, setCustomerEmail] = useState<string | null>(null)

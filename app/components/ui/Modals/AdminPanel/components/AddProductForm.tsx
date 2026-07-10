@@ -36,7 +36,6 @@ import {
   MIN_IMAGE_RESOLUTION,
 } from "@/constants/uploadLimits"
 import { MarkdownEditor } from "@/components/ui/Inputs/MarkdownEditor"
-import { MarkdownText } from "@/components/ui/MarkdownText"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 
 const previewImageVariants = {
@@ -136,8 +135,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const previewTitle = titleValue?.trim() || t("placeholder.title")
-  const previewDescription = descriptionValue?.trim() || t("placeholder.description")
   const defaultVariant = variants[0]
   const previewPrice = defaultVariant?.price ? formatCurrency(defaultVariant.price) : "--"
 
@@ -539,7 +536,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             files,
           )
         }}>
-        {({ imageList, onImageUpload, onImageRemoveAll, onImageUpdate, onImageRemove, isDragging, dragProps }) => {
+        {({ imageList, onImageUpload, onImageRemoveAll, onImageRemove, isDragging, dragProps }) => {
           const safeActiveImageIndex = imageList[activeImageIndex] ? activeImageIndex : 0
           const activeImage = imageList[safeActiveImageIndex]
           const isPrimaryImage = safeActiveImageIndex === 0

@@ -12,7 +12,7 @@ export default function Payment() {
   const router = useRouter()
   const status = useSearchParams()?.get("status") ?? null
   const session_id = useSearchParams()?.get("session_id") ?? null
-  const { currentStep, cartStore } = usePaymentSteps(status, session_id)
+  const { cartStore } = usePaymentSteps(status, session_id)
   const t = useScopedI18n("payment")
 
   useNoProductsRedirect()

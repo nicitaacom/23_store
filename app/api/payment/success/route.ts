@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export type TAPIPaymentSuccess = {
   cartProducts: TRecordCartProduct
@@ -9,8 +8,7 @@ export type TAPIPaymentSuccess = {
 
 export async function POST(req: Request) {
   const { cartProducts } = (await req.json()) as TAPIPaymentSuccess
-  const productIds = Object.keys(cartProducts)
-  const productQuantities = Object.values(cartProducts).map(cartProduct => cartProduct.quantity)
+  // productIds = Object.keys(cartProducts), productQuantities = Object.values(cartProducts).map(p => p.quantity)
 
   try {
     // 1. Get data about products from DB to substract on_stock - product.quantity
@@ -32,6 +30,7 @@ export async function POST(req: Request) {
     // const substracted_on_stock = products.map((product, index) => product.on_stock - productQuantities[index])
 
     // 3. Update rows in supabase
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept to preserve vision, see comments below
     for (const [index, [id, product]] of Object.entries(cartProducts).entries()) {
       // const updatedOnStock = substracted_on_stock[index]
       // no longer need to update on stock but I comment this to keep vision in code so in the future

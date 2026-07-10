@@ -4,7 +4,6 @@ import { useState } from "react"
 import Image from "next/image"
 import { BiTrash } from "react-icons/bi"
 import { MdChecklist, MdClose } from "react-icons/md"
-import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { AdminPanelProductSearch } from "./AdminPanelProductSearch"

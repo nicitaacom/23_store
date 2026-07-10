@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { IoMdClose } from "react-icons/io"
 import { useSwipeable } from "react-swipeable"

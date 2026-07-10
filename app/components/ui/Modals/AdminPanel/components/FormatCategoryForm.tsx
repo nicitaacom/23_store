@@ -36,9 +36,6 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
   const currentName =
     categories.find(category => category.id === category_id)?.name ?? t("category.uncategorized")
 
-  const parentCategories = categories.filter(category => category.parent_id === null)
-  const childrenOf = (parentId: string) => categories.filter(category => category.parent_id === parentId)
-
   const handleSave = async () => {
     const snapshot = category_id ?? null
     updateProduct(id, product => ({ ...product, category_id: selectedId }))

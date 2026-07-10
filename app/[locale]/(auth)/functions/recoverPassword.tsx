@@ -9,7 +9,6 @@ import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 import { subscribePusherChannel } from "@/libs/pusher"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useResetEmailStore } from "@/store/user/useResetEmailStore"
-import { Button } from "@/components/ui"
 
 export async function recoverPassword(
   email: string,

@@ -17,7 +17,7 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   const t = useI18n()
   const { user } = useUserStore()
   const { messageBodyValue, setMessageBodyValue, setImage } = useMessagesStore()
-  const { draftsByTicketId, setDraft, clearDraft } = useSupportReplyDrafts()
+  const { setDraft, clearDraft } = useSupportReplyDrafts()
 
   // Seed this ticket's draft into the shared composer on mount / ticket change, and on unmount reset the
   // shared value so the chat window's composer (same useMessagesStore) never inherits a support draft.

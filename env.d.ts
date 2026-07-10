@@ -1,7 +1,3 @@
-interface ProcessEnv {
-  [key: string]: string | undefined
-}
-
 declare global {
   namespace NodeJS {
     interface ProcessEnv {

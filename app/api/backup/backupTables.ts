@@ -7,6 +7,7 @@ type AllTables = keyof Database["public"]["Tables"]
 
 // Tables intentionally left out of the backup archive. Any table added to types_db.ts that is
 // neither here nor in BACKUP_TABLES fails the exhaustiveness check below at compile time.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used only as a type below
 const EXCLUDED_FROM_BACKUP = ["utm_stats"] as const satisfies readonly AllTables[]
 
 // FK-safe order for restore: parents before children.
@@ -23,6 +24,7 @@ export const BACKUP_TABLES = [
 // Compile-time exhaustiveness check: fails if types_db.ts gains/loses a table that isn't
 // reflected in BACKUP_TABLES or EXCLUDED_FROM_BACKUP.
 type MissingFromBackup = Exclude<AllTables, (typeof BACKUP_TABLES)[number] | (typeof EXCLUDED_FROM_BACKUP)[number]>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- compile-time exhaustiveness assertion, value is never read
 const _assertAllTablesCovered: MissingFromBackup extends never ? true : never = true
 
 export type BackupTable = (typeof BACKUP_TABLES)[number]

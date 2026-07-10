@@ -1,12 +1,4 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import {
-  Connection as SolanaConnection,
-  PublicKey,
-  Transaction as SolanaTransaction,
-  SystemProgram,
-  sendAndConfirmTransaction,
-  Keypair,
-} from "@solana/web3.js"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"

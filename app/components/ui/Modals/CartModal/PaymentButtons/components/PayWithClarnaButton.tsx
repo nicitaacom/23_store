@@ -4,14 +4,12 @@ import { SiKlarna } from "react-icons/si"
 import { twMerge } from "tailwind-merge"
 
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui"
 
 export function PayWithKlarnaButton() {
   const toast = useToast()
-  const cartStore = useCartStore()
   const { isLoading, setIsLoading } = useLoading()
 
   // const klarnaProductsQuery = cartStore.productsData

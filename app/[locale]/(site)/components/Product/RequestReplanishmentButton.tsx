@@ -11,7 +11,7 @@ import { Button } from "@/components/ui"
 
 export function RequestReplanishmentButton({ product, className }: { product: TProductDB; className?: string }) {
   const toast = useToast()
-  const [html, setHtml] = useState("")
+  const [html] = useState("")
 
   // 1. Render TSX to html
   useEffect(() => {

@@ -3,7 +3,6 @@ import { NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 
 import { getAuthErrorRedirectUrl, getLocalizedAppUrl } from "@/utils/authCallback"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { syncPublicUserRecord } from "@/utils/publicUserSync"
 
 export async function GET(request: Request) {

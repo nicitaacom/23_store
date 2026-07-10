@@ -198,7 +198,7 @@ export function PayWithMetamaskButton() {
         await window.ethereum.request({
           method: "eth_requestAccounts",
         })
-      } catch (error) {
+      } catch {
         toast.show(
           "error",
           "You rejected connection",

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   try {
     // Replace 'YOUR_ACCESS_TOKEN_HERE' with the actual access token you obtain from Klarna
 

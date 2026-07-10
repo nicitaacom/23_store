@@ -1,7 +1,7 @@
 import { User } from "@supabase/supabase-js"
 
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
-import { getPreferredAvatarUrl, getUserAvatarUrl, getUserName, sanitizeAvatarUrl } from "@/utils/user"
+import { getPreferredAvatarUrl, getUserName, sanitizeAvatarUrl } from "@/utils/user"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { Json } from "@/ts/types_db"
 

@@ -1,7 +1,6 @@
 "use client"
 
 import { BiTrash } from "react-icons/bi"
-import { twMerge } from "tailwind-merge"
 
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { useScopedI18n } from "@/locales/client"

@@ -8,10 +8,6 @@ const useDragging = () => {
       setIsDragging(true)
     }
 
-    const leaveHandler = () => {
-      // setIsDragging(false)
-    }
-
     const dropHandler = () => {
       setIsDragging(false)
     }

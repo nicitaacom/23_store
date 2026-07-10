@@ -99,7 +99,7 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
         try {
           await productsSDK.deleteProduct({ id: products[index].id })
           items[index] = { ...items[index], status: "done" }
-        } catch (error) {
+        } catch {
           if (snapshot) useOwnerProductsStore.getState().addProduct(snapshot)
           items[index] = { ...items[index], status: "error" }
           hasError = true

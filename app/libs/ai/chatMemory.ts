@@ -377,21 +377,6 @@ function normalizeWorkingMemory(memory: string): string {
   return uniqueCaseInsensitive(items).slice(-MEMORY_FACT_LIMIT).join(" | ")
 }
 
-function buildFallbackMemory({ currentMemory, userPrompt, assistantReply }: UpdateWorkingMemoryParams): string {
-  const memoryItems = currentMemory
-    ? currentMemory
-        .split("|")
-        .map(item => clipText(normalizeText(item), MEMORY_ITEM_CHAR_LIMIT))
-        .filter(Boolean)
-    : []
-
-  const nextItems = uniqueCaseInsensitive(
-    [...memoryItems, clipText(normalizeText(userPrompt), MEMORY_ITEM_CHAR_LIMIT), clipText(normalizeText(assistantReply), MEMORY_ITEM_CHAR_LIMIT)].filter(Boolean),
-  )
-
-  return nextItems.slice(-MEMORY_FACT_LIMIT).join(" | ")
-}
-
 function getRedisClient(): Redis {
   if (!redisClient) redisClient = Redis.fromEnv()
   return redisClient
@@ -595,7 +580,7 @@ async function persistRecentHistory(userId: string, userPrompt: string, assistan
     .exec()
 }
 
-async function persistSemanticMemory(userId: string, userPrompt: string, assistantReply: string, memorySummary: string): Promise<void> {
+async function persistSemanticMemory(userId: string, userPrompt: string, assistantReply: string, _memorySummary: string): Promise<void> {
   const now = Date.now()
   const records = [
     {
@@ -678,8 +663,6 @@ export async function getRelevantSemanticContext({
 
     const summaryParts: string[] = []
     let currentLength = 0
-
-    const currentMemoryNormalized = normalizeText(memory)
 
     for (const match of pineconeMatches) {
       const text = match.text

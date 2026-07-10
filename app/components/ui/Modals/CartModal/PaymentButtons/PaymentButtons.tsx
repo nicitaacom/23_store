@@ -1,6 +1,5 @@
 "use client"
 
-import { PayWithKlarnaButton } from "./components/PayWithClarnaButton"
 import { PayWithMetamaskButton } from "./components/PayWithMetamaskButton"
 import { PayWithPaypalButton } from "./components/PayWithPaypalButton"
 import { PayWithStripeButton } from "./components/PayWithStripeButton"
