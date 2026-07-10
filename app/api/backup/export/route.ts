@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAdmin } from "../requireAdmin"
 import {
   BACKUP_BUCKETS,
-  BackupFile,
-  BackupFileRef,
-  BackupSnapshot,
+  TBackupFile,
+  TBackupFileRef,
+  TBackupSnapshot,
   createBackupArchive,
   downloadFilesByRef,
   listBucketObjects,
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
       try {
         // Tables are included in the full export and in the first chunk only.
-        let snapshot: BackupSnapshot = {}
+        let snapshot: TBackupSnapshot = {}
         if (isFirstChunk) {
           const { data, error } = await (supabaseAdmin.rpc as any)("backup_23_tables")
           if (error) {
@@ -46,10 +46,10 @@ export async function GET(request: NextRequest) {
             controller.close()
             return
           }
-          snapshot = (data ?? {}) as BackupSnapshot
+          snapshot = (data ?? {}) as TBackupSnapshot
         }
 
-        const allRefs: BackupFileRef[] = []
+        const allRefs: TBackupFileRef[] = []
         for (const bucket of BACKUP_BUCKETS) {
           allRefs.push(...(await listBucketObjects(supabaseAdmin.storage, bucket)))
         }
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
         const refs = isChunked ? allRefs.slice(from, parseInt(toParam!, 10) + 1) : allRefs
         send({ type: "progress", done: 0, total: refs.length })
 
-        const downloadFilesByRefResp: BackupFile[] = await downloadFilesByRef(supabaseAdmin.storage, refs, (done, total) =>
+        const downloadFilesByRefResp: TBackupFile[] = await downloadFilesByRef(supabaseAdmin.storage, refs, (done, total) =>
           send({ type: "progress", done, total }),
         )
 

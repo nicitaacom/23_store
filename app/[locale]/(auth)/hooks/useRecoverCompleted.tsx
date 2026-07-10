@@ -2,13 +2,13 @@ import { Dispatch, SetStateAction, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { UseFormGetValues } from "react-hook-form"
 
-import { AuthFormData } from "../AuthModal/AuthModal"
+import { IAuthFormData } from "../AuthModal/AuthModal"
 import { getPusherClient } from "@/libs/pusher"
 
 export const useRecoverCompleted = (
   isRecoverCompleted: boolean,
   setIsRecoverCompleted: Dispatch<SetStateAction<boolean>>,
-  getValues: UseFormGetValues<AuthFormData>,
+  getValues: UseFormGetValues<IAuthFormData>,
 ) => {
   const router = useRouter()
   // Show 'Recover completed' if user changed password in another window

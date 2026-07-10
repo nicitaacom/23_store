@@ -2,7 +2,7 @@
 
 import { Fragment, useState } from "react"
 
-import { IMessageDB } from "@/ts/support/IMessageDB"
+import { TMessageDB } from "@/ts/support/TMessageDB"
 import { useMessagesBody } from "../../hooks/useMessagesBody"
 import { getSupportMessageDayLabel, isSupportMessageSameDay } from "@/utils/support/getSupportMessageDayLabel"
 import { useScopedI18n } from "@/locales/client"
@@ -10,7 +10,7 @@ import { MessageBox } from "@/components/SupportButton/components/MessageBox"
 import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 
 interface MessagesBodyProps {
-  initialMessages: IMessageDB[]
+  initialMessages: TMessageDB[]
   ticket_id: string
 }
 

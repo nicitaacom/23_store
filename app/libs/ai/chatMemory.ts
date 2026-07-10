@@ -119,16 +119,16 @@ type RecentHistoryMessage = {
   createdAt: string
 }
 
-export type AssistantConversationMessage = {
+export type TAssistantConversationMessage = {
   role: AssistantRole
   content: string
 }
 
 type RecentMessageSource = "upstash" | "browser-fallback" | "merged"
 
-export type SalesAssistantDebugContext = {
+export type TSalesAssistantDebugContext = {
   semanticContext: string
-  recentMessages: AssistantConversationMessage[]
+  recentMessages: TAssistantConversationMessage[]
   recentSource: RecentMessageSource
   pineconeMatches: Array<{
     kind: "message"
@@ -256,7 +256,9 @@ function serializeWorkingMemory(memory: WorkingMemoryState): string {
 
 function pushMemoryValues(memory: WorkingMemoryState, key: WorkingMemoryKey, values: string[], limit = 4): void {
   const nextValues = uniqueCaseInsensitive(
-    [...memory[key], ...values.map(value => clipText(normalizeText(value), MEMORY_ITEM_CHAR_LIMIT)).filter(Boolean)].filter(Boolean),
+    [...memory[key], ...values.map(value => clipText(normalizeText(value), MEMORY_ITEM_CHAR_LIMIT)).filter(Boolean)].filter(
+      Boolean,
+    ),
   )
 
   memory[key] = nextValues.slice(-limit)
@@ -271,8 +273,9 @@ function inferLanguage(text: string): string | null {
 
 function extractMoneyValues(text: string): string[] {
   return uniqueCaseInsensitive(
-    Array.from(text.matchAll(/(?:[$€£]\s?\d+(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?\s?(?:usd|eur|euro|dollars?|bucks))/gi))
-      .map(match => normalizeText(match[0].replace(/\s+/g, ""))),
+    Array.from(text.matchAll(/(?:[$€£]\s?\d+(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?\s?(?:usd|eur|euro|dollars?|bucks))/gi)).map(match =>
+      normalizeText(match[0].replace(/\s+/g, "")),
+    ),
   )
 }
 
@@ -307,9 +310,9 @@ function extractInterestKeywords(text: string): string[] {
 
 function extractReferenceTitles(text: string): string[] {
   const boldMatches = Array.from(text.matchAll(/\*\*([^*]{2,80}?)\*\*/g)).map(match => normalizeText(match[1]))
-  const numberedMatches = Array.from(text.matchAll(/(?:^|\n|\d+\.\s)([A-Z][A-Za-z0-9/&,' -]{2,80}?)(?:\s*-\s*(?:[$€£]\d|\d)|:)/g)).map(match =>
-    normalizeText(match[1]),
-  )
+  const numberedMatches = Array.from(
+    text.matchAll(/(?:^|\n|\d+\.\s)([A-Z][A-Za-z0-9/&,' -]{2,80}?)(?:\s*-\s*(?:[$€£]\d|\d)|:)/g),
+  ).map(match => normalizeText(match[1]))
 
   return uniqueCaseInsensitive([...boldMatches, ...numberedMatches]).slice(-4)
 }
@@ -343,7 +346,12 @@ function updateWorkingMemoryDeterministically({
   pushMemoryValues(workingMemory, "Recent references", assistantReferences, 4)
 
   if (assistantReferences.length) {
-    pushMemoryValues(workingMemory, "Product interests", assistantReferences.map(reference => titleCase(reference)), 4)
+    pushMemoryValues(
+      workingMemory,
+      "Product interests",
+      assistantReferences.map(reference => titleCase(reference)),
+      4,
+    )
   }
 
   if (isRejectionPrompt(userPrompt)) {
@@ -476,21 +484,21 @@ function getMemoryNamespace(userId: string): string {
   return userId
 }
 
-function toAssistantConversationMessage(message: RecentHistoryMessage): AssistantConversationMessage {
+function toAssistantConversationMessage(message: RecentHistoryMessage): TAssistantConversationMessage {
   return {
     role: message.role,
     content: normalizeText(message.text),
   }
 }
 
-function areSameConversationMessages(left: AssistantConversationMessage, right: AssistantConversationMessage): boolean {
+function areSameConversationMessages(left: TAssistantConversationMessage, right: TAssistantConversationMessage): boolean {
   return left.role === right.role && left.content === right.content
 }
 
 function mergeRecentMessages(
-  storedHistory: AssistantConversationMessage[],
-  fallbackHistory: AssistantConversationMessage[],
-): SalesAssistantDebugContext["recentMessages"] {
+  storedHistory: TAssistantConversationMessage[],
+  fallbackHistory: TAssistantConversationMessage[],
+): TSalesAssistantDebugContext["recentMessages"] {
   if (!storedHistory.length) return fallbackHistory.slice(-RECENT_HISTORY_PROMPT_LIMIT)
   if (!fallbackHistory.length) return storedHistory.slice(-RECENT_HISTORY_PROMPT_LIMIT)
 
@@ -512,7 +520,10 @@ function mergeRecentMessages(
   return mergedMessages.slice(-RECENT_HISTORY_PROMPT_LIMIT)
 }
 
-function buildFallbackConversationHistory(conversationHistory: TAIChatMessage[], currentPrompt: string): AssistantConversationMessage[] {
+function buildFallbackConversationHistory(
+  conversationHistory: TAIChatMessage[],
+  currentPrompt: string,
+): TAssistantConversationMessage[] {
   const fallbackHistory = [...conversationHistory]
   const lastMessage = fallbackHistory[fallbackHistory.length - 1]
 
@@ -523,7 +534,7 @@ function buildFallbackConversationHistory(conversationHistory: TAIChatMessage[],
   return fallbackHistory
     .slice(-RECENT_HISTORY_LIMIT)
     .map(
-      (message): AssistantConversationMessage => ({
+      (message): TAssistantConversationMessage => ({
         role: message.role === "ai" ? "assistant" : "user",
         content: normalizeText(message.text),
       }),
@@ -531,7 +542,7 @@ function buildFallbackConversationHistory(conversationHistory: TAIChatMessage[],
     .filter(message => message.content)
 }
 
-async function readRecentHistory(userId: string): Promise<AssistantConversationMessage[]> {
+async function readRecentHistory(userId: string): Promise<TAssistantConversationMessage[]> {
   try {
     const entries = await getRedisClient().lrange<string>(getHistoryKey(userId), 0, -1)
 
@@ -571,16 +582,18 @@ async function persistRecentHistory(userId: string, userPrompt: string, assistan
 
   await getRedisClient()
     .pipeline()
-    .rpush(
-      getHistoryKey(userId),
-      ...entries.map(entry => JSON.stringify(entry)),
-    )
+    .rpush(getHistoryKey(userId), ...entries.map(entry => JSON.stringify(entry)))
     .ltrim(getHistoryKey(userId), -RECENT_HISTORY_LIMIT, -1)
     .expire(getHistoryKey(userId), RECENT_HISTORY_TTL_SECONDS)
     .exec()
 }
 
-async function persistSemanticMemory(userId: string, userPrompt: string, assistantReply: string, _memorySummary: string): Promise<void> {
+async function persistSemanticMemory(
+  userId: string,
+  userPrompt: string,
+  assistantReply: string,
+  _memorySummary: string,
+): Promise<void> {
   const now = Date.now()
   const records = [
     {
@@ -625,7 +638,7 @@ export async function getRelevantSemanticContext({
   memory,
 }: Pick<GetSalesAssistantContextParams, "userId" | "promptValue" | "memory">): Promise<{
   semanticContext: string
-  pineconeMatches: SalesAssistantDebugContext["pineconeMatches"]
+  pineconeMatches: TSalesAssistantDebugContext["pineconeMatches"]
 }> {
   const searchText = normalizeText([memory, promptValue].filter(Boolean).join("\n"))
 
@@ -634,15 +647,13 @@ export async function getRelevantSemanticContext({
 
   try {
     const [queryEmbedding] = await createEmbeddings([searchText])
-    const response = await getPineconeIndex()
-      .namespace(getMemoryNamespace(userId))
-      .query({
-        vector: queryEmbedding,
-        topK: SEMANTIC_TOP_K,
-        includeMetadata: true,
-      })
+    const response = await getPineconeIndex().namespace(getMemoryNamespace(userId)).query({
+      vector: queryEmbedding,
+      topK: SEMANTIC_TOP_K,
+      includeMetadata: true,
+    })
 
-    const pineconeMatches: SalesAssistantDebugContext["pineconeMatches"] = []
+    const pineconeMatches: TSalesAssistantDebugContext["pineconeMatches"] = []
     const seen = new Set<string>()
 
     for (const match of response.matches) {
@@ -695,10 +706,10 @@ export async function getSalesAssistantContext({
   memory,
   conversationHistory,
 }: GetSalesAssistantContextParams): Promise<{
-  recentMessages: AssistantConversationMessage[]
+  recentMessages: TAssistantConversationMessage[]
   semanticContext: string
   recentSource: RecentMessageSource
-  pineconeMatches: SalesAssistantDebugContext["pineconeMatches"]
+  pineconeMatches: TSalesAssistantDebugContext["pineconeMatches"]
 }> {
   const fallbackHistory = buildFallbackConversationHistory(conversationHistory, promptValue)
   const [storedHistory, semanticResult] = await Promise.all([
@@ -708,11 +719,7 @@ export async function getSalesAssistantContext({
 
   const recentMessages = mergeRecentMessages(storedHistory, fallbackHistory)
   const recentSource =
-    storedHistory.length && fallbackHistory.length
-      ? "merged"
-      : storedHistory.length
-        ? "upstash"
-        : "browser-fallback"
+    storedHistory.length && fallbackHistory.length ? "merged" : storedHistory.length ? "upstash" : "browser-fallback"
 
   return {
     recentMessages,

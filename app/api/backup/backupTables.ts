@@ -27,19 +27,19 @@ type MissingFromBackup = Exclude<AllTables, (typeof BACKUP_TABLES)[number] | (ty
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- compile-time exhaustiveness assertion, value is never read
 const _assertAllTablesCovered: MissingFromBackup extends never ? true : never = true
 
-export type BackupTable = (typeof BACKUP_TABLES)[number]
+export type TBackupTable = (typeof BACKUP_TABLES)[number]
 
 // Storage buckets to back up — mirrors app/ts/types/TBuckets.ts. Table rows only hold image
 // URLs/paths; the actual files live here, so a real backup must include these objects.
 export const BACKUP_BUCKETS = ["23_public-images", "23_avatar-images"] as const
 
-export type BackupBucket = (typeof BACKUP_BUCKETS)[number]
+export type TBackupBucket = (typeof BACKUP_BUCKETS)[number]
 
 // One storage object: its bucket, path within the bucket, mime type, and raw bytes.
-export type BackupFile = { bucket: string; path: string; contentType?: string; body: Buffer }
+export type TBackupFile = { bucket: string; path: string; contentType?: string; body: Buffer }
 
 // Conflict columns used to upsert each table on import (matches each table's primary key)
-export const BACKUP_CONFLICT_COLUMNS: Record<BackupTable, string> = {
+export const BACKUP_CONFLICT_COLUMNS: Record<TBackupTable, string> = {
   "23_users": "id",
   "23_users_cart": "id",
   "23_categories": "id",
@@ -51,7 +51,7 @@ export const BACKUP_CONFLICT_COLUMNS: Record<BackupTable, string> = {
 
 // UUID columns per table — values must be valid uuids or the upsert throws 22P02 (text vs uuid).
 // tickets.owner_id and messages.sender_id are intentionally TEXT (anonymous) and excluded here.
-export const BACKUP_UUID_COLUMNS: Record<BackupTable, readonly string[]> = {
+export const BACKUP_UUID_COLUMNS: Record<TBackupTable, readonly string[]> = {
   "23_users": ["id"],
   "23_users_cart": ["id"],
   "23_categories": ["id"],
@@ -65,7 +65,7 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 
 // Drop rows whose uuid column holds an empty/invalid value so a single bad row
 // will not fail the whole table's upsert with a 22P02 type error. Returns kept rows + skipped count.
-export function filterRowsByUuidColumns(table: BackupTable, rows: unknown[]) {
+export function filterRowsByUuidColumns(table: TBackupTable, rows: unknown[]) {
   const uuidColumns = BACKUP_UUID_COLUMNS[table]
   if (uuidColumns.length === 0) return { rows, skipped: 0 }
 
@@ -76,11 +76,11 @@ export function filterRowsByUuidColumns(table: BackupTable, rows: unknown[]) {
   return { rows: kept, skipped: rows.length - kept.length }
 }
 
-export type BackupSnapshot = Record<string, unknown[]>
+export type TBackupSnapshot = Record<string, unknown[]>
 
 // Tar entry prefix + helpers so storage files round-trip without clashing with <table>.json entries.
 const STORAGE_PREFIX = "storage/"
-function storageEntryName(file: BackupFile) {
+function storageEntryName(file: TBackupFile) {
   return `${STORAGE_PREFIX}${file.bucket}/${file.path}`
 }
 function parseStorageEntry(name: string) {
@@ -91,7 +91,7 @@ function parseStorageEntry(name: string) {
 }
 
 // Build a gzipped tar (.tar.gz): one <table>.json per table + storage/<bucket>/<path> per file.
-export function createBackupArchive(snapshot: BackupSnapshot, files: BackupFile[] = []): Promise<Buffer> {
+export function createBackupArchive(snapshot: TBackupSnapshot, files: TBackupFile[] = []): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const archive = pack()
     const chunks: Buffer[] = []
@@ -118,10 +118,10 @@ export function createBackupArchive(snapshot: BackupSnapshot, files: BackupFile[
 }
 
 // Parse a .tar.gz buffer back into table rows + storage files.
-export function parseBackupArchive(gzipped: Buffer): Promise<{ snapshot: BackupSnapshot; files: BackupFile[] }> {
+export function parseBackupArchive(gzipped: Buffer): Promise<{ snapshot: TBackupSnapshot; files: TBackupFile[] }> {
   return new Promise((resolve, reject) => {
-    const snapshot: BackupSnapshot = {}
-    const files: BackupFile[] = []
+    const snapshot: TBackupSnapshot = {}
+    const files: TBackupFile[] = []
     let contentTypes: Record<string, string> = {}
     const extractor = extract()
 
@@ -173,8 +173,8 @@ export function parseBackupArchive(gzipped: Buffer): Promise<{ snapshot: BackupS
 }
 
 // List + download every object in a bucket (recursively). Returns the files for the archive.
-export async function downloadBucketFiles(storage: { from: (bucket: string) => any }, bucket: string): Promise<BackupFile[]> {
-  const files: BackupFile[] = []
+export async function downloadBucketFiles(storage: { from: (bucket: string) => any }, bucket: string): Promise<TBackupFile[]> {
+  const files: TBackupFile[] = []
 
   for (const ref of await listBucketObjects(storage, bucket)) {
     const { data: downloadedFile, error } = await storage.from(bucket).download(ref.path)
@@ -185,11 +185,11 @@ export async function downloadBucketFiles(storage: { from: (bucket: string) => a
 }
 
 // A storage object's metadata only (no bytes) — cheap to list, used for estimating + chunking.
-export type BackupFileRef = { bucket: string; path: string; contentType?: string; size: number }
+export type TBackupFileRef = { bucket: string; path: string; contentType?: string; size: number }
 
 // List every object in a bucket (recursively) WITHOUT downloading bytes. Fast; used by the manifest.
-export async function listBucketObjects(storage: { from: (bucket: string) => any }, bucket: string): Promise<BackupFileRef[]> {
-  const refs: BackupFileRef[] = []
+export async function listBucketObjects(storage: { from: (bucket: string) => any }, bucket: string): Promise<TBackupFileRef[]> {
+  const refs: TBackupFileRef[] = []
 
   async function walk(prefix: string): Promise<void> {
     const { data: entries, error } = await storage.from(bucket).list(prefix, { limit: 1000 })
@@ -218,10 +218,10 @@ export async function listBucketObjects(storage: { from: (bucket: string) => any
 // onProgress fires after each file (done = files attempted so far) so the route can stream live progress.
 export async function downloadFilesByRef(
   storage: { from: (bucket: string) => any },
-  refs: BackupFileRef[],
+  refs: TBackupFileRef[],
   onProgress?: (done: number, total: number) => void | Promise<void>,
-): Promise<BackupFile[]> {
-  const files: BackupFile[] = []
+): Promise<TBackupFile[]> {
+  const files: TBackupFile[] = []
   for (let index = 0; index < refs.length; index++) {
     const ref = refs[index]
     const { data: downloadedFile, error } = await storage.from(ref.bucket).download(ref.path)
@@ -240,7 +240,7 @@ export async function downloadFilesByRef(
 
 // Split refs into contiguous index ranges so each chunk stays under targetBytes.
 // Returns array of [from, to] inclusive index pairs (may be a single chunk covering everything).
-export function splitRefsIntoChunks(refs: BackupFileRef[], targetBytes: number): Array<[number, number]> {
+export function splitRefsIntoChunks(refs: TBackupFileRef[], targetBytes: number): Array<[number, number]> {
   if (refs.length === 0) return []
   const chunks: Array<[number, number]> = []
   let chunkStart = 0

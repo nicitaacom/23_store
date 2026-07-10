@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { BsCheck2 } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
 
-import { IMessageDB } from "@/ts/support/IMessageDB"
+import { TMessageDB } from "@/ts/support/TMessageDB"
 import { formatTime } from "@/utils/formatTime"
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
 import { useScopedI18n } from "@/locales/client"
@@ -14,7 +14,7 @@ import useToast from "@/store/ui/useToast"
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback"
 
 interface MessageBoxProps {
-  message: IMessageDB
+  message: TMessageDB
   /** Show the timezone suffix in the meta time (thread view); off in the compact chat window. */
   showTimezone?: boolean
   animateEntry?: boolean
@@ -82,14 +82,19 @@ export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxPr
       )}
 
       <article className={twMerge("flex max-w-[min(82%,440px)] flex-col gap-1", isOwn && "items-end")}>
-
         {message.images && message.images.length === 1 && (
           <button
-            className={twMerge("relative w-full max-w-[240px] overflow-hidden rounded border", isOwn ? ownBubbleClass : foreignBubbleClass)}
+            className={twMerge(
+              "relative w-full max-w-[240px] overflow-hidden rounded border",
+              isOwn ? ownBubbleClass : foreignBubbleClass,
+            )}
             onClick={() => handleOpenImage(message.images![0])}
             type="button">
             <ImageWithFallback
-              className={twMerge("max-h-[220px] w-full object-cover transition-transform duration-300 hover:scale-[1.02]", isOpeningImage && "opacity-70")}
+              className={twMerge(
+                "max-h-[220px] w-full object-cover transition-transform duration-300 hover:scale-[1.02]",
+                isOpeningImage && "opacity-70",
+              )}
               src={message.images[0]}
               alt="Message attachment"
               width={240}
@@ -111,21 +116,12 @@ export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxPr
         )}
 
         {message.body && (
-          <div
-            className={twMerge(
-              bubbleBaseClass,
-              "whitespace-pre-wrap",
-              isOwn ? ownBubbleClass : foreignBubbleClass,
-            )}>
+          <div className={twMerge(bubbleBaseClass, "whitespace-pre-wrap", isOwn ? ownBubbleClass : foreignBubbleClass)}>
             {message.body}
           </div>
         )}
 
-        <div
-          className={twMerge(
-            "flex items-center gap-1.5 px-1 text-[10px] text-subTitle",
-            isOwn && "justify-end",
-          )}>
+        <div className={twMerge("flex items-center gap-1.5 px-1 text-[10px] text-subTitle", isOwn && "justify-end")}>
           {!isOwn && <span className="font-medium text-subTitle">{incomingLabel}</span>}
           {!isOwn && <span className="h-1 w-1 rounded-full bg-subTitle/40" />}
           <span>{metaTime}</span>

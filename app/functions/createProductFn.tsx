@@ -1,7 +1,7 @@
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { TProductDB } from "@/ts/product/TProductDB"
 import {
-  CreateProductFnInput,
+  TCreateProductFnInput,
   createStripeProduct,
   resolveProductPrice,
   resolveSourceProductImages,
@@ -29,7 +29,7 @@ import { useLoading } from "@/store/ui/useLoading"
  * We use Lambda for translation because Vercel server functions can time out
  * around 60 seconds, while the translation job may take 3-5 minutes.
  */
-export async function createProductFn(t: TI18nFunction, input: CreateProductFnInput) {
+export async function createProductFn(t: TI18nFunction, input: TCreateProductFnInput) {
   const { setIsLoading } = useLoading.getState()
   const { title, description, price, onStock, images, variants, manageLoading = true, category_id } = input
 

@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react"
 import { UseFormSetFocus } from "react-hook-form"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { AuthFormData } from "../AuthModal/AuthModal"
+import { IAuthFormData } from "../AuthModal/AuthModal"
 import { UnknownError } from "./UnknownError"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 import supabaseClient from "@/libs/supabase/supabaseClient"
@@ -12,7 +12,7 @@ export async function resendVerificationEmail(
   email: string,
   displayResponseMessage: (message: React.ReactNode | null) => void,
   setIsEmailSent: Dispatch<SetStateAction<boolean>>,
-  setFocus: UseFormSetFocus<AuthFormData>,
+  setFocus: UseFormSetFocus<IAuthFormData>,
   t: TI18nFunction,
   locale: string,
 ) {

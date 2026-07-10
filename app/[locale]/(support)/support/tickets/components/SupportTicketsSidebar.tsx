@@ -4,18 +4,19 @@ import { ITicketDB } from "@/ts/support/ITicketDB"
 import { useSupportTicketsSidebar } from "../hooks/useSupportTicketsSidebar"
 import { DesktopSidebar } from "./DesktopSidebar"
 import { MobileSidebar } from "./MobileSidebar"
-import { UnseenMessages } from "@/actions/getUnreadMessages"
+import { IUnseenMessages } from "@/actions/getUnreadMessages"
 
 interface SupportTicketsSidebarProps {
   initialTickets: ITicketDB[]
-  unseenMessages: UnseenMessages[]
+  unseenMessages: IUnseenMessages[]
 }
 
 export function SupportTicketsSidebar({ initialTickets, unseenMessages }: SupportTicketsSidebarProps) {
-  const { handleOpenTicket, filteredTickets, searchQuery, setSearchQuery, ticketsAmount, unreadMessages } = useSupportTicketsSidebar({
-    initialTickets,
-    unseenMessages,
-  })
+  const { handleOpenTicket, filteredTickets, searchQuery, setSearchQuery, ticketsAmount, unreadMessages } =
+    useSupportTicketsSidebar({
+      initialTickets,
+      unseenMessages,
+    })
 
   return (
     <>

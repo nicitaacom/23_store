@@ -6,7 +6,7 @@ export type TAPICustomer = {
   session_id: string
 }
 
-export interface TAPICustomerData {
+export interface IAPICustomerData {
   customerEmail: string | null
 }
 

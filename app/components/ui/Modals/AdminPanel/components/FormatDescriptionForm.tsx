@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 
-import { ProductTranslations } from "@/ts/product/TProductDB"
+import { TProductTranslations } from "@/ts/product/TProductDB"
 import { RichTextToolbar } from "./RichTextToolbar"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
@@ -17,7 +17,7 @@ import { MarkdownText } from "@/components/ui/MarkdownText"
 
 interface FormatDescriptionFormProps {
   id: string
-  translations: ProductTranslations
+  translations: TProductTranslations
 }
 
 export function FormatDescriptionForm({ id, translations }: FormatDescriptionFormProps) {
@@ -95,11 +95,16 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
           <div className="flex items-center justify-between">
             <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
             <div className="flex gap-1">
-              <button type="button" onClick={handleCancel}
+              <button
+                type="button"
+                onClick={handleCancel}
                 className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80">
                 Cancel
               </button>
-              <button type="button" onClick={handleSave} disabled={isLoading}
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isLoading}
                 className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50">
                 Save
               </button>
@@ -109,7 +114,10 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
             ref={descriptionRef}
             onWrapRef={wrapRef}
             value={value}
-            onChange={nextValue => { setValue(nextValue); setError(null) }}
+            onChange={nextValue => {
+              setValue(nextValue)
+              setError(null)
+            }}
             disabled={isLoading}
             placeholder={t("placeholder.description")}
             className={twMerge(isLoading && "animate-pulse")}

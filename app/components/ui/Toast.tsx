@@ -6,14 +6,14 @@ import { BiErrorCircle } from "react-icons/bi"
 
 import { Button } from "."
 import { useI18n } from "@/locales/client"
-import useToast, { ToastVariant } from "@/store/ui/useToast"
+import useToast, { TToastVariant } from "@/store/ui/useToast"
 
 export default function Toast() {
   const { variant, title, subTitle } = useToast()
   const t = useI18n()
 
   const variantConfig: Record<
-    ToastVariant,
+    TToastVariant,
     {
       icon: React.ReactNode
       borderColor: string

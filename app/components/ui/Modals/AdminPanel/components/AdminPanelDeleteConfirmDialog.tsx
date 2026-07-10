@@ -21,14 +21,13 @@ function BulkProgressToast({ items }: { items: { title: string; status: DeleteSt
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs text-subTitle">
-        <span>{done} / {total} deleted</span>
+        <span>
+          {done} / {total} deleted
+        </span>
         <span>{progress}%</span>
       </div>
       <div className="h-1 w-full overflow-hidden rounded-full bg-border-color/20">
-        <div
-          className="h-full rounded-full bg-danger transition-all duration-300"
-          style={{ width: `${progress}%` }}
-        />
+        <div className="h-full rounded-full bg-danger transition-all duration-300" style={{ width: `${progress}%` }} />
       </div>
       <ul className="mt-1 max-h-[160px] space-y-1 overflow-y-auto">
         {items.map((item, index) => (
@@ -36,14 +35,17 @@ function BulkProgressToast({ items }: { items: { title: string; status: DeleteSt
             {item.status === "done" && <BiCheck size={13} className="shrink-0 text-success" />}
             {item.status === "error" && <BiErrorCircle size={13} className="shrink-0 text-danger" />}
             {item.status === "deleting" && <BiLoaderAlt size={13} className="shrink-0 animate-spin text-subTitle" />}
-            {item.status === "pending" && <span className="h-[13px] w-[13px] shrink-0 rounded-full border border-border-color/40" />}
-            <span className={twMerge(
-              "truncate",
-              item.status === "done" && "text-subTitle line-through",
-              item.status === "error" && "text-danger",
-              item.status === "deleting" && "text-title",
-              item.status === "pending" && "text-subTitle/60",
-            )}>
+            {item.status === "pending" && (
+              <span className="h-[13px] w-[13px] shrink-0 rounded-full border border-border-color/40" />
+            )}
+            <span
+              className={twMerge(
+                "truncate",
+                item.status === "done" && "text-subTitle line-through",
+                item.status === "error" && "text-danger",
+                item.status === "deleting" && "text-title",
+                item.status === "pending" && "text-subTitle/60",
+              )}>
               {item.title}
             </span>
           </li>
@@ -53,13 +55,13 @@ function BulkProgressToast({ items }: { items: { title: string; status: DeleteSt
   )
 }
 
-export interface PendingDeleteProduct {
+export interface IPendingDeleteProduct {
   id: string
   title: string
 }
 
 interface AdminPanelDeleteConfirmDialogProps {
-  product: PendingDeleteProduct | PendingDeleteProduct[] | null
+  product: IPendingDeleteProduct | IPendingDeleteProduct[] | null
   onClose: () => void
 }
 

@@ -2,7 +2,7 @@ import { cache } from "react"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 
-import type { IMessageDB } from "@/ts/support/IMessageDB"
+import type { TMessageDB } from "@/ts/support/TMessageDB"
 import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
 import { ThisTicketIsCompleted } from "./components/ThisTicketIsCompleted"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
@@ -28,7 +28,7 @@ const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
     .eq("ticket_id", ticketId)
   if (messages_by_id_error) console.log(23, "messages by id error - ", messages_by_id_error.message)
   if (!messages_by_id_response) return notFound()
-  return messages_by_id_response as IMessageDB[]
+  return messages_by_id_response as TMessageDB[]
 })
 
 // cache ticket meta (is_open + created_at) because the current product rule keeps closed tickets closed
@@ -84,11 +84,7 @@ export default async function ChatPage({ params: paramsPromise }: ChatPageProps)
 
   if (!getInitialMessagesByTicketIdCacheResp || !getTicketMetaCacheResp?.is_open) {
     return <ThisTicketIsCompleted ticketId={ticketId} />
-  } else if (
-    getInitialMessagesByTicketIdCacheResp.length > 0 &&
-    firstMessage?.ticket_id &&
-    firstMessage.sender_username
-  ) {
+  } else if (getInitialMessagesByTicketIdCacheResp.length > 0 && firstMessage?.ticket_id && firstMessage.sender_username) {
     return (
       <main className="relative flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border-color/35 bg-foreground/35">
         <MessagesHeader

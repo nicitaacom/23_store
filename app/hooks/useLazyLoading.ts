@@ -12,12 +12,12 @@ interface LazyLoadingConfig<T> {
   resetKey?: string
 }
 
-export type LazyWindow = { startIndex: number; endIndex: number }
+export type TLazyWindow = { startIndex: number; endIndex: number }
 
 interface LazyLoadingReturn {
   isFetching: boolean
   hasNoMoreDataToFetch: boolean
-  currentWindow: LazyWindow
+  currentWindow: TLazyWindow
   topRef: (node: Element | null) => void
   bottomRef: (node: Element | null) => void
   bottomInView: boolean
@@ -33,7 +33,7 @@ export const useLazyLoading = <T extends { id: string }>({
   resetKey,
 }: LazyLoadingConfig<T>): LazyLoadingReturn => {
   const [isLoading, setIsLoading] = useState(false)
-  const [currentWindow, setCurrentWindow] = useState<LazyWindow>({ startIndex: 0, endIndex: windowSize })
+  const [currentWindow, setCurrentWindow] = useState<TLazyWindow>({ startIndex: 0, endIndex: windowSize })
   const [hasNoMoreDataToFetch, setHasNoMoreDataToFetch] = useState(false)
   const [hasReachedStart, setHasReachedStart] = useState(false)
   const [topNode, setTopNode] = useState<Element | null>(null)

@@ -7,7 +7,7 @@ import { MdChecklist, MdClose } from "react-icons/md"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { AdminPanelProductSearch } from "./AdminPanelProductSearch"
-import { PendingDeleteProduct } from "./AdminPanelDeleteConfirmDialog"
+import { IPendingDeleteProduct } from "./AdminPanelDeleteConfirmDialog"
 import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui"
 
 interface DeleteProductForm {
   ownerProducts: TProductDB[]
-  onRequestDelete: (products: PendingDeleteProduct | PendingDeleteProduct[]) => void
+  onRequestDelete: (products: IPendingDeleteProduct | IPendingDeleteProduct[]) => void
 }
 
 export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProductForm) {
@@ -26,8 +26,8 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
   const [isBulkMode, setIsBulkMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
-  const sortedProducts = [...ownerProducts].sort(
-    (productA, productB) => (productB.created_at ?? "").localeCompare(productA.created_at ?? ""),
+  const sortedProducts = [...ownerProducts].sort((productA, productB) =>
+    (productB.created_at ?? "").localeCompare(productA.created_at ?? ""),
   )
   const filteredProducts = searchQuery.trim() ? filterProductsBySearchQuery(sortedProducts, searchQuery) : sortedProducts
 
@@ -69,7 +69,9 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
                   <input
                     type="checkbox"
                     checked={allSelected}
-                    ref={el => { if (el) el.indeterminate = someSelected }}
+                    ref={el => {
+                      if (el) el.indeterminate = someSelected
+                    }}
                     onChange={toggleSelectAll}
                     className="h-4 w-4 cursor-pointer accent-danger"
                   />

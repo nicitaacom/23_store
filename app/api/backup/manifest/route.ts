@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { requireAdmin } from "../requireAdmin"
-import { BACKUP_BUCKETS, BackupFileRef, listBucketObjects } from "../backupTables"
+import { BACKUP_BUCKETS, TBackupFileRef, listBucketObjects } from "../backupTables"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export const runtime = "nodejs"
@@ -11,7 +11,7 @@ export async function GET() {
   const adminError = await requireAdmin()
   if (adminError) return NextResponse.json({ error: adminError }, { status: adminError === "Unauthorized" ? 401 : 403 })
 
-  const refs: BackupFileRef[] = []
+  const refs: TBackupFileRef[] = []
   for (const bucket of BACKUP_BUCKETS) {
     refs.push(...(await listBucketObjects(supabaseAdmin.storage, bucket)))
   }

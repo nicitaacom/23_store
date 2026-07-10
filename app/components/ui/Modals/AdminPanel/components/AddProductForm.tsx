@@ -14,7 +14,7 @@ import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { CategoryDropdown } from "./CategoryDropdown"
-import { PendingCreatedProduct, useSubscribeToProductCreated } from "../hooks/useSubscribeToProductCreated"
+import { TPendingCreatedProduct, useSubscribeToProductCreated } from "../hooks/useSubscribeToProductCreated"
 import { RichTextToolbar } from "./RichTextToolbar"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
@@ -102,7 +102,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const { categories: allCategories, hydrate: hydrateCategories } = useCategoriesStore()
   const previousImageIndexRef = useRef(0)
   const pendingTranslationsAmountRef = useRef(0)
-  const pendingCreatedProductsRef = useRef<PendingCreatedProduct[]>([])
+  const pendingCreatedProductsRef = useRef<TPendingCreatedProduct[]>([])
 
   const onChange = (imageList: ImageListType) => {
     setImages(imageList)
@@ -132,7 +132,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   // Register subTitle manually since it's no longer backed by a ProductInput/textarea
   useEffect(() => {
     register("subTitle", { validate: validateDescription })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const defaultVariant = variants[0]
@@ -186,7 +186,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         <a href={`/${locale}/products/${productId}`} className="underline underline-offset-2" target="_blank" rel="noreferrer">
           View product
         </a>
-      ) : "AI translation completed."
+      ) : (
+        "AI translation completed."
+      )
       showToast("success", "Product created", subTitle)
     } else {
       closeToast()
@@ -236,7 +238,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     if (!allCategories.length) return
     if (lastSuggestedKeyRef.current === trimmed) return
 
-    suggestDebounceRef.current = setTimeout(() => { void runSuggestCategory(trimmed) }, 800)
+    suggestDebounceRef.current = setTimeout(() => {
+      void runSuggestCategory(trimmed)
+    }, 800)
 
     return () => {
       if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current)
@@ -804,9 +808,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             placeholder={t("placeholder.description")}
             className={twMerge(inputCn, "min-h-[100px]")}
           />
-          {errors.subTitle?.message && (
-            <p className="font-secondary text-danger text-xs">{errors.subTitle.message as string}</p>
-          )}
+          {errors.subTitle?.message && <p className="font-secondary text-danger text-xs">{errors.subTitle.message as string}</p>}
         </div>
 
         {/* Category */}
@@ -815,9 +817,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
               {tGlobal("category.edit_category")}
             </label>
-            {isSuggestingCategory && (
-              <span className="text-[10px] text-white/40 animate-pulse">AI suggesting...</span>
-            )}
+            {isSuggestingCategory && <span className="text-[10px] text-white/40 animate-pulse">AI suggesting...</span>}
             {!isSuggestingCategory && autoAssignedName && categoryId && (
               <span className="flex items-center gap-1 rounded bg-success/10 px-1.5 py-0.5 text-[10px] text-success">
                 {tGlobal("category.auto_assigned")}: {autoAssignedName}
@@ -825,7 +825,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                   type="button"
                   tabIndex={-1}
                   className="ml-0.5 text-success/60 hover:text-success"
-                  onClick={() => { setCategoryId(null); setAutoAssignedName(null) }}>
+                  onClick={() => {
+                    setCategoryId(null)
+                    setAutoAssignedName(null)
+                  }}>
                   ×
                 </button>
               </span>
@@ -834,7 +837,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           <CategoryDropdown
             categories={allCategories}
             value={categoryId}
-            onChange={id => { setCategoryId(id); setAutoAssignedName(null) }}
+            onChange={id => {
+              setCategoryId(id)
+              setAutoAssignedName(null)
+            }}
             disabled={isLoading}
             uncategorizedLabel={tGlobal("category.uncategorized")}
           />

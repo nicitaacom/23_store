@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
-import { AdminPanelDeleteConfirmDialog, PendingDeleteProduct } from "./components/AdminPanelDeleteConfirmDialog"
+import { AdminPanelDeleteConfirmDialog, IPendingDeleteProduct } from "./components/AdminPanelDeleteConfirmDialog"
 import { AddProductForm } from "./components/AddProductForm"
-import { AdminPanelHeader, PANEL_ACTIONS, PanelAction } from "./components/AdminPanelHeader"
+import { AdminPanelHeader, PANEL_ACTIONS, TPanelAction } from "./components/AdminPanelHeader"
 import { CategoriesForm } from "./components/CategoriesForm"
 import { DeleteProductForm } from "./components/DeleteProductForm"
 import { EditProductForm } from "./components/EditProductForm"
@@ -27,8 +27,8 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
   const router = useRouter()
   const { products: hydratedOwnerProducts, hydrate: hydrateOwnerProducts } = useOwnerProductsStore()
 
-  const [panelAction, setPanelAction] = useState<PanelAction>(PANEL_ACTIONS.add)
-  const [pendingDeleteProduct, setPendingDeleteProduct] = useState<PendingDeleteProduct | PendingDeleteProduct[] | null>(null)
+  const [panelAction, setPanelAction] = useState<TPanelAction>(PANEL_ACTIONS.add)
+  const [pendingDeleteProduct, setPendingDeleteProduct] = useState<IPendingDeleteProduct | IPendingDeleteProduct[] | null>(null)
   const { isLoading } = useLoading()
 
   useEffect(() => {
@@ -89,10 +89,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
             )}
             {panelAction === PANEL_ACTIONS.delete && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
-                <DeleteProductForm
-                  ownerProducts={hydratedOwnerProducts}
-                  onRequestDelete={setPendingDeleteProduct}
-                />
+                <DeleteProductForm ownerProducts={hydratedOwnerProducts} onRequestDelete={setPendingDeleteProduct} />
               </div>
             )}
             {panelAction === PANEL_ACTIONS.categories && roles.includes("ADMIN") && (

@@ -2,7 +2,7 @@ import { getUser } from "./getUser"
 import { getAnonymousId } from "@/functions/getAnonymousId"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
-export interface UnseenMessages {
+export interface IUnseenMessages {
   ticket_id: string
   amount_unseen: number
 }
@@ -24,7 +24,7 @@ async function getUnreadMessages() {
   }
 
   if (data && data.length !== 0) {
-    const outputData: UnseenMessages[] = Object.values(
+    const outputData: IUnseenMessages[] = Object.values(
       data.reduce(
         (acc, { ticket_id, seen }) => {
           acc[ticket_id] = acc[ticket_id] || { ticket_id, amount_unseen: 0 }
@@ -33,7 +33,7 @@ async function getUnreadMessages() {
           }
           return acc
         },
-        {} as Record<string, UnseenMessages>,
+        {} as Record<string, IUnseenMessages>,
       ),
     )
     return outputData

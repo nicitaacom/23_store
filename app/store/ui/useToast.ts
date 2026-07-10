@@ -12,14 +12,14 @@ message.show('success','custom title','custom subTitle',3000) //disashow after 3
 
 */
 
-export type ToastVariant = "success" | "error" | "warning"
+export type TToastVariant = "success" | "error" | "warning"
 
 export interface IToast {
   isOpen: boolean
-  variant: ToastVariant
+  variant: TToastVariant
   title?: string
   subTitle?: React.ReactNode
-  show: (status: ToastVariant, title?: string, subTitle?: React.ReactNode, timeoutInMs?: number | null) => void
+  show: (status: TToastVariant, title?: string, subTitle?: React.ReactNode, timeoutInMs?: number | null) => void
   close: () => void
 }
 

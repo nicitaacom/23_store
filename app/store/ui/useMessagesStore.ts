@@ -1,13 +1,13 @@
 import { create } from "zustand"
 
-import { IMessageDB } from "@/ts/support/IMessageDB"
+import { TMessageDB } from "@/ts/support/TMessageDB"
 import fetchTicketId from "@/actions/fetchTicketId"
 import { getUserId } from "@/utils/getUserId"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 
 type MessagesStore = {
-  messages: IMessageDB[]
-  setMessages: (messages: IMessageDB[]) => void
+  messages: TMessageDB[]
+  setMessages: (messages: TMessageDB[]) => void
 
   messageBodyValue: string
   setMessageBodyValue: (messageBody: string) => void
@@ -27,7 +27,7 @@ type MessagesStore = {
 
 export const useMessagesStore = create<MessagesStore>()((set, get) => ({
   messages: [],
-  setMessages: (messages: IMessageDB[]) => set(() => ({ messages })),
+  setMessages: (messages: TMessageDB[]) => set(() => ({ messages })),
 
   messageBodyValue: "",
   setMessageBodyValue: messageBody => set(() => ({ messageBodyValue: messageBody })),

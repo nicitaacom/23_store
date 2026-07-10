@@ -8,7 +8,7 @@ interface FetchPopularProductsOptions {
   limit?: number
 }
 
-export interface PopularProductsResult {
+export interface IPopularProductsResult {
   products: TProductDB[]
   totalItems: number
   totalPages: number
@@ -20,7 +20,7 @@ export async function fetchPopularProducts({
   page = 1,
   perPage = 24,
   limit,
-}: FetchPopularProductsOptions = {}): Promise<PopularProductsResult> {
+}: FetchPopularProductsOptions = {}): Promise<IPopularProductsResult> {
   const currentPage = Math.max(1, page)
   const currentPerPage = Math.max(1, perPage)
   const from = limit ? 0 : (currentPage - 1) * currentPerPage

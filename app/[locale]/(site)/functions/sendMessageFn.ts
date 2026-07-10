@@ -1,7 +1,7 @@
 import moment from "moment-timezone"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { IMessageDB } from "@/ts/support/IMessageDB"
+import { TMessageDB } from "@/ts/support/TMessageDB"
 import { emailsSDK } from "@/sdk/EmailsSDK/EmailsSDK"
 import { getDisplayUsername } from "@/utils/getDisplayUsername"
 import { getUserId } from "@/utils/getUserId"
@@ -19,7 +19,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
   const ticketId = ticketIdState || getUserId()
   const senderUsername = getDisplayUsername(sender_id)
 
-  const message: IMessageDB = {
+  const message: TMessageDB = {
     id: crypto.randomUUID(), // to don't wait response from DB about generated id
     created_at: moment().tz("Europe/Berlin").format(),
     seen: false,
@@ -60,20 +60,20 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
     }
   }
 
-    try {
-      if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newMessage")
+  try {
+    if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newMessage")
 
-      // 3. Insert message in table 'messages'
-      await supportSDK.sendMessage({
-        id: message.id,
-        ticketId: message.ticket_id,
-        senderId: message.sender_id,
-        senderUsername: senderUsername,
-        senderAvatarUrl: null,
-        messageBody: message.body,
-        images: imageUrl ? [imageUrl] : undefined,
-        messageSender: "user",
-      })
+    // 3. Insert message in table 'messages'
+    await supportSDK.sendMessage({
+      id: message.id,
+      ticketId: message.ticket_id,
+      senderId: message.sender_id,
+      senderUsername: senderUsername,
+      senderAvatarUrl: null,
+      messageBody: message.body,
+      images: imageUrl ? [imageUrl] : undefined,
+      messageSender: "user",
+    })
   } catch (error) {
     console.log(75, t("message.error.message_sent"), error)
     setMessages(messages.slice(0, -1)) // delete last message and keep other

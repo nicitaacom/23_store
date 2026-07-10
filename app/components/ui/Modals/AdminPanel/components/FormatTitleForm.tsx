@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge"
 import { useForm } from "react-hook-form"
 
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
-import { ProductTranslations } from "@/ts/product/TProductDB"
+import { TProductTranslations } from "@/ts/product/TProductDB"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
@@ -16,7 +16,7 @@ import { ProductInput } from "@/components/ui/Inputs/Validation"
 
 interface FormatTitleFormProps {
   id: string
-  translations: ProductTranslations
+  translations: TProductTranslations
 }
 
 export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
@@ -31,7 +31,10 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
 
   useEffect(() => {
     if (!isLoading) return
-    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = "" }
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ""
+    }
     window.addEventListener("beforeunload", handler)
     return () => window.removeEventListener("beforeunload", handler)
   }, [isLoading])
@@ -111,10 +114,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
       {isEditing ? (
         <form onSubmit={event => handleSubmit(onSubmit)(event)}>
           <ProductInput
-            className={twMerge(
-              "w-full border-border-color/50 bg-background/60 text-start",
-              isLoading && "animate-pulse",
-            )}
+            className={twMerge("w-full border-border-color/50 bg-background/60 text-start", isLoading && "animate-pulse")}
             id="title"
             register={register}
             errors={errors}
@@ -124,11 +124,15 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
             onBlur={handleInputBlur}
           />
           <div className="mt-1 flex justify-end gap-1">
-            <button type="button" onClick={cancelInput}
+            <button
+              type="button"
+              onClick={cancelInput}
               className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80">
               Cancel
             </button>
-            <button type="submit" disabled={isLoading}
+            <button
+              type="submit"
+              disabled={isLoading}
               className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50">
               Save
             </button>

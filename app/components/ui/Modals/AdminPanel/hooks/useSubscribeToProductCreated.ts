@@ -8,7 +8,7 @@ import { getPusherClient, subscribePusherChannel } from "@/libs/pusher"
 import { getUserId } from "@/utils/getUserId"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 
-export type PendingCreatedProduct = {
+export type TPendingCreatedProduct = {
   optimisticProductId: string
   owner_id: string
   title: string
@@ -30,18 +30,19 @@ type ProductCreatedEventPayload = {
 }
 
 function matchPendingCreatedProduct(
-  pendingCreatedProductsRef: MutableRefObject<PendingCreatedProduct[]>,
+  pendingCreatedProductsRef: MutableRefObject<TPendingCreatedProduct[]>,
   payload: ProductCreatedEventPayload,
 ) {
   const matchingStrategies = [
-    (product: PendingCreatedProduct) =>
+    (product: TPendingCreatedProduct) =>
       product.owner_id === payload.owner_id &&
       product.title === payload.title &&
       product.price === payload.price &&
       product.on_stock === payload.on_stock,
-    (product: PendingCreatedProduct) => product.owner_id === payload.owner_id && product.title === payload.title && product.price === payload.price,
-    (product: PendingCreatedProduct) => product.owner_id === payload.owner_id && product.title === payload.title,
-    (product: PendingCreatedProduct) => product.owner_id === payload.owner_id,
+    (product: TPendingCreatedProduct) =>
+      product.owner_id === payload.owner_id && product.title === payload.title && product.price === payload.price,
+    (product: TPendingCreatedProduct) => product.owner_id === payload.owner_id && product.title === payload.title,
+    (product: TPendingCreatedProduct) => product.owner_id === payload.owner_id,
   ]
 
   for (const isMatch of matchingStrategies) {
@@ -59,7 +60,7 @@ export function useSubscribeToProductCreated({
   pendingCreatedProductsRef,
   decreasePendingTranslations,
 }: {
-  pendingCreatedProductsRef: MutableRefObject<PendingCreatedProduct[]>
+  pendingCreatedProductsRef: MutableRefObject<TPendingCreatedProduct[]>
   decreasePendingTranslations: (showCompletedToast?: boolean, productId?: string) => void
 }) {
   const decreasePendingTranslationsRef = useRef(decreasePendingTranslations)

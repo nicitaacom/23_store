@@ -2,13 +2,10 @@
 
 import { useCallback, useState } from "react"
 
-import { IMessageDB } from "@/ts/support/IMessageDB"
+import { TMessageDB } from "@/ts/support/TMessageDB"
 import { useSubscribeToTicketClosed } from "@/hooks/support/useSubscribeToTicketClosed"
 
-export const useSupportDropdownTicketClosedState = (
-  ticketId: string | null,
-  setMessages: (messages: IMessageDB[]) => void,
-) => {
+export const useSupportDropdownTicketClosedState = (ticketId: string | null, setMessages: (messages: TMessageDB[]) => void) => {
   const [isClosedBySupport, setIsClosedBySupport] = useState(false)
   const [prevTicketId, setPrevTicketId] = useState(ticketId)
 

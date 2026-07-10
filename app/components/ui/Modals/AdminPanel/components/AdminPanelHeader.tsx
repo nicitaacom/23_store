@@ -15,20 +15,20 @@ export const PANEL_ACTIONS = {
   categories: "categories",
 } as const
 
-export type PanelAction = (typeof PANEL_ACTIONS)[keyof typeof PANEL_ACTIONS]
+export type TPanelAction = (typeof PANEL_ACTIONS)[keyof typeof PANEL_ACTIONS]
 
 interface AdminPanelHeaderProps {
   className?: string
   title: string
-  activeAction: PanelAction
-  actionLabels: Record<PanelAction, string>
-  onActionChange: (action: PanelAction) => void
+  activeAction: TPanelAction
+  actionLabels: Record<TPanelAction, string>
+  onActionChange: (action: TPanelAction) => void
   onClose: () => void
   disabled?: boolean
   roles: string[]
 }
 
-const ACTION_ICONS: Record<PanelAction, typeof FiPlus> = {
+const ACTION_ICONS: Record<TPanelAction, typeof FiPlus> = {
   add: FiPlus,
   edit: CiEdit,
   delete: MdOutlineDelete,
@@ -65,27 +65,29 @@ export function AdminPanelHeader({
         </div>
 
         <div className="ml-2 hidden min-w-0 flex-1 items-center gap-1 mobile:flex">
-          {(Object.keys(PANEL_ACTIONS) as PanelAction[]).filter(action => action !== "categories" || roles.includes("ADMIN")).map(action => {
-            const Icon = ACTION_ICONS[action]
-            const isActive = action === activeAction
+          {(Object.keys(PANEL_ACTIONS) as TPanelAction[])
+            .filter(action => action !== "categories" || roles.includes("ADMIN"))
+            .map(action => {
+              const Icon = ACTION_ICONS[action]
+              const isActive = action === activeAction
 
-            return (
-              <button
-                key={action}
-                className={twMerge(
-                  // underline tab — flat, unified brand accent (active shows a brand underline bar)
-                  "relative flex h-8 min-w-0 items-center gap-1.5 px-2 text-xs transition-colors duration-150",
-                  isActive ? "text-brand" : "text-white/60 hover:text-white",
-                  disabled && "pointer-events-none opacity-50",
-                )}
-                type="button"
-                onClick={() => onActionChange(action)}>
-                <Icon className="shrink-0" />
-                <span className="truncate">{actionLabels[action]}</span>
-                {isActive && <span className="absolute inset-x-1 bottom-0 h-0.5 rounded-full bg-brand" />}
-              </button>
-            )
-          })}
+              return (
+                <button
+                  key={action}
+                  className={twMerge(
+                    // underline tab — flat, unified brand accent (active shows a brand underline bar)
+                    "relative flex h-8 min-w-0 items-center gap-1.5 px-2 text-xs transition-colors duration-150",
+                    isActive ? "text-brand" : "text-white/60 hover:text-white",
+                    disabled && "pointer-events-none opacity-50",
+                  )}
+                  type="button"
+                  onClick={() => onActionChange(action)}>
+                  <Icon className="shrink-0" />
+                  <span className="truncate">{actionLabels[action]}</span>
+                  {isActive && <span className="absolute inset-x-1 bottom-0 h-0.5 rounded-full bg-brand" />}
+                </button>
+              )
+            })}
         </div>
       </div>
 

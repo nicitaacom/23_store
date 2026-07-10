@@ -1,7 +1,7 @@
-import { ProductTranslations } from "@/ts/product/TProductDB"
+import { TProductTranslations } from "@/ts/product/TProductDB"
 
 type SearchableProduct = {
-  translations: ProductTranslations
+  translations: TProductTranslations
   variants?: { label: string }[] | null
 }
 

@@ -22,7 +22,7 @@ import { AuthText } from "./components/AuthText"
 import { useCurrentLocale, useI18n } from "@/locales/client"
 import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
 
-export interface AuthFormData {
+export interface IAuthFormData {
   username: string
   email: string
   password: string
@@ -53,7 +53,7 @@ export function AuthModal() {
     reset,
     setFocus,
     getValues,
-  } = useForm<AuthFormData>({ mode: "onBlur" })
+  } = useForm<IAuthFormData>({ mode: "onBlur" })
 
   //for case when user click 'Forgot password?' or 'Create account' and some data in responseMessage
   useResetResponseMessage(setResponseMessage, queryParams)
@@ -66,7 +66,7 @@ export function AuthModal() {
 
   useCloseModalIfAlreadyLoggedIn(authVariant)
 
-  const onSubmit = async (data: AuthFormData) => {
+  const onSubmit = async (data: IAuthFormData) => {
     if (queryParams === "login") {
       await signInWithPassword(data.email, data.password, reset, router, displayResponseMessage, t, locale)
     } else if (queryParams === "register") {
@@ -93,7 +93,10 @@ export function AuthModal() {
 
   return (
     <ModalQueryContainer
-      className={twMerge("w-[calc(100vw-1.5rem)] mobile:w-[500px] rounded-3xl transition-all duration-300", modalHeightTailwind(queryParams, errors))}
+      className={twMerge(
+        "w-[calc(100vw-1.5rem)] mobile:w-[500px] rounded-3xl transition-all duration-300",
+        modalHeightTailwind(queryParams, errors),
+      )}
       closeButtonClassName="right-4 top-4 rounded-xl p-1"
       modalQuery="AuthModal">
       <div className="mx-auto flex w-full flex-col justify-center gap-y-4 px-6 pb-6 pt-6 mobile:px-8">

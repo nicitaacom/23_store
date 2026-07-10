@@ -2,7 +2,7 @@ import { Dispatch, ReactNode, SetStateAction } from "react"
 import { UseFormGetValues, UseFormSetFocus } from "react-hook-form"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { AuthFormData } from "../AuthModal/AuthModal"
+import { IAuthFormData } from "../AuthModal/AuthModal"
 import { Timer } from "../AuthModal/components"
 import { UnknownError } from "./UnknownError"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
@@ -18,10 +18,10 @@ export async function signUp(
   password: string,
 
   setIsEmailSent: Dispatch<SetStateAction<boolean>>,
-  getValues: UseFormGetValues<AuthFormData>,
+  getValues: UseFormGetValues<IAuthFormData>,
   setResponseMessage: Dispatch<SetStateAction<ReactNode | null>>,
   displayResponseMessage: (message: React.ReactNode | null) => void,
-  setFocus: UseFormSetFocus<AuthFormData>,
+  setFocus: UseFormSetFocus<IAuthFormData>,
   locale: string,
 ) {
   try {

@@ -7,17 +7,17 @@ import { FieldErrors, UseFormHandleSubmit, UseFormRegister } from "react-hook-fo
 import { AiOutlineLock, AiOutlineMail, AiOutlineUser } from "react-icons/ai"
 
 import { AuthContinueWith } from "./AuthContinueWith"
-import { AuthFormData } from "../AuthModal"
+import { IAuthFormData } from "../AuthModal"
 import { useI18n } from "@/locales/client"
 import { Button, Checkbox } from "@/components/ui"
 import { FormInput } from "@/components/ui/Inputs/Validation"
 
 interface AuthFormProps {
-  handleSubmit: UseFormHandleSubmit<AuthFormData, undefined>
-  onSubmit: (data: AuthFormData) => Promise<void>
+  handleSubmit: UseFormHandleSubmit<IAuthFormData, undefined>
+  onSubmit: (data: IAuthFormData) => Promise<void>
   queryParams: "login" | "register" | "recover" | "resetPassword"
-  register: UseFormRegister<AuthFormData>
-  errors: FieldErrors<AuthFormData>
+  register: UseFormRegister<IAuthFormData>
+  errors: FieldErrors<IAuthFormData>
   isSubmitting: boolean
   isEmailSent: boolean
   responseMessage: ReactNode | null

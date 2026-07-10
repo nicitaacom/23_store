@@ -7,11 +7,11 @@ import { ITicketDB } from "@/ts/support/ITicketDB"
 import { getPusherClient, subscribePusherChannel } from "@/libs/pusher"
 import useToast from "@/store/ui/useToast"
 import { useUnseenMessages } from "@/[locale]/(support)/store/useUnseenMessages"
-import { UnseenMessages } from "@/actions/getUnreadMessages"
+import { IUnseenMessages } from "@/actions/getUnreadMessages"
 
 interface UseSupportTicketsSidebarProps {
   initialTickets: ITicketDB[]
-  unseenMessages: UnseenMessages[]
+  unseenMessages: IUnseenMessages[]
 }
 
 function addTicket(currentTickets: ITicketDB[], ticket: ITicketDB) {

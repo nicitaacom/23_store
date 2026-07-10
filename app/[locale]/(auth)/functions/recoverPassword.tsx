@@ -2,7 +2,7 @@ import { ReactNode } from "react"
 import { UseFormGetValues } from "react-hook-form"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { AuthFormData } from "../AuthModal/AuthModal"
+import { IAuthFormData } from "../AuthModal/AuthModal"
 import { UnknownError } from "./UnknownError"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
@@ -12,7 +12,7 @@ import { useResetEmailStore } from "@/store/user/useResetEmailStore"
 
 export async function recoverPassword(
   email: string,
-  getValues: UseFormGetValues<AuthFormData>,
+  getValues: UseFormGetValues<IAuthFormData>,
   displayResponseMessage: (message: ReactNode) => void,
   t: TI18nFunction,
   locale: string,

@@ -1,4 +1,4 @@
-import { ProductTranslations } from "@/ts/product/TProductDB"
+import { TProductTranslations } from "@/ts/product/TProductDB"
 import { FormatCategoryForm } from "./FormatCategoryForm"
 import { FormatDescriptionForm } from "./FormatDescriptionForm"
 import { FormatOnStockForm } from "./FormatOnStockForm"
@@ -7,7 +7,7 @@ import { FormatTitleForm } from "./FormatTitleForm"
 
 interface OwnerProductHeaderProps {
   id: string
-  translations: ProductTranslations
+  translations: TProductTranslations
   price: number
   onStock: number
   hasVariants: boolean

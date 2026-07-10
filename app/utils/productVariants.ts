@@ -1,4 +1,4 @@
-import { ProductTranslations } from "@/ts/product/TProductDB"
+import { TProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
 import { normalizeProductImageUrls, normalizeProductTranslations } from "./product"
 
@@ -16,7 +16,8 @@ function isProductVariant(value: unknown): value is TProductVariantCandidate {
     typeof candidate.id === "string" &&
     typeof candidate.label === "string" &&
     typeof candidate.image_url === "string" &&
-    (candidate.price === undefined || (typeof candidate.price === "number" && Number.isFinite(candidate.price) && candidate.price > 0))
+    (candidate.price === undefined ||
+      (typeof candidate.price === "number" && Number.isFinite(candidate.price) && candidate.price > 0))
   )
 }
 
@@ -34,7 +35,8 @@ export function normalizeProductVariants(value: unknown, fallbackPrice = 0, fall
     .filter(isProductVariant)
     .map(variant => ({
       ...variant,
-      price: typeof variant.price === "number" && Number.isFinite(variant.price) && variant.price > 0 ? variant.price : fallbackPrice,
+      price:
+        typeof variant.price === "number" && Number.isFinite(variant.price) && variant.price > 0 ? variant.price : fallbackPrice,
       quantity: resolveVariantQuantity(variant.quantity, fallbackQuantity),
     }))
     .filter(variant => variant.price > 0)
@@ -47,10 +49,14 @@ export function normalizeProduct<T extends { img_url?: unknown; variants?: unkno
 ): Omit<T, "img_url" | "variants" | "translations"> & {
   img_url: string[]
   variants: TProductVariant[] | null
-  translations: ProductTranslations
+  translations: TProductTranslations
 } {
-  const normalizedPrice = typeof (product as { price?: unknown }).price === "number" ? ((product as unknown as { price: number }).price ?? 0) : 0
-  const normalizedOnStock = typeof (product as { on_stock?: unknown }).on_stock === "number" ? ((product as unknown as { on_stock: number }).on_stock ?? 0) : 0
+  const normalizedPrice =
+    typeof (product as { price?: unknown }).price === "number" ? ((product as unknown as { price: number }).price ?? 0) : 0
+  const normalizedOnStock =
+    typeof (product as { on_stock?: unknown }).on_stock === "number"
+      ? ((product as unknown as { on_stock: number }).on_stock ?? 0)
+      : 0
 
   return {
     ...product,

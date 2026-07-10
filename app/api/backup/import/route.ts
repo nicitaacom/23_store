@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { requireAdmin } from "../requireAdmin"
-import {
-  BACKUP_CONFLICT_COLUMNS,
-  BACKUP_TABLES,
-  BackupFile,
-  filterRowsByUuidColumns,
-  parseBackupArchive,
-} from "../backupTables"
+import { BACKUP_CONFLICT_COLUMNS, BACKUP_TABLES, TBackupFile, filterRowsByUuidColumns, parseBackupArchive } from "../backupTables"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export const runtime = "nodejs"
@@ -26,7 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No backup file provided" } satisfies API.BackupImportResponse, { status: 400 })
 
   let snapshot: Awaited<ReturnType<typeof parseBackupArchive>>["snapshot"]
-  let files: BackupFile[]
+  let files: TBackupFile[]
   try {
     ;({ snapshot, files } = await parseBackupArchive(Buffer.from(await file.arrayBuffer())))
   } catch (error) {
@@ -51,7 +45,7 @@ export async function POST(request: Request) {
 
   // Re-upload storage files (upsert overwrites existing objects at the same path).
   const buckets: API.BackupImportBucketResult[] = []
-  const byBucket = new Map<string, BackupFile[]>()
+  const byBucket = new Map<string, TBackupFile[]>()
   for (const file of files) byBucket.set(file.bucket, [...(byBucket.get(file.bucket) ?? []), file])
 
   for (const [bucket, bucketFiles] of byBucket) {

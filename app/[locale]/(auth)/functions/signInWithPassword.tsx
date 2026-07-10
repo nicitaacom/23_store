@@ -2,7 +2,7 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 import { UseFormReset } from "react-hook-form"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { AuthFormData } from "../AuthModal/AuthModal"
+import { IAuthFormData } from "../AuthModal/AuthModal"
 import { Timer } from "../AuthModal/components"
 import { UnknownError } from "./UnknownError"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
@@ -15,7 +15,7 @@ import { Button } from "@/components/ui"
 export async function signInWithPassword(
   email: string,
   password: string,
-  reset: UseFormReset<AuthFormData>,
+  reset: UseFormReset<IAuthFormData>,
   router: AppRouterInstance,
   displayResponseMessage: (message: React.ReactNode) => void,
   t: TI18nFunction,
@@ -36,7 +36,9 @@ export async function signInWithPassword(
     if (signInError) {
       const isCredentialsProvider = existingUserData.providers?.includes("credentials")
       const isOnlyGoogleProvider =
-        Array.isArray(existingUserData.providers) && existingUserData.providers.length === 1 && existingUserData.providers[0] === "google"
+        Array.isArray(existingUserData.providers) &&
+        existingUserData.providers.length === 1 &&
+        existingUserData.providers[0] === "google"
       const providersLabel = Array.isArray(existingUserData.providers) ? existingUserData.providers.join(", ") : ""
       throw new Error(
         isCredentialsProvider

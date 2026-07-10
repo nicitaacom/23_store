@@ -1,13 +1,13 @@
 import { useEffect } from "react"
 
-import { IMessageDB } from "@/ts/support/IMessageDB"
+import { TMessageDB } from "@/ts/support/TMessageDB"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { useIsActiveTab } from "@/hooks/ui/supportButton/useActiveTab"
 
 export const useMarkMessagesAsSeen = (
   isDropdown: boolean,
   ticketId: string | null,
-  messages: IMessageDB[],
+  messages: TMessageDB[],
   userId: string | undefined,
   isLoading: boolean,
 ) => {

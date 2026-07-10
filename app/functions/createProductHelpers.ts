@@ -19,7 +19,7 @@ import {
   getInvalidCharacterDetails,
 } from "@/utils/productValidation"
 
-export type CreateProductFnInput = {
+export type TCreateProductFnInput = {
   title: string
   description: string
   price?: number
@@ -30,12 +30,12 @@ export type CreateProductFnInput = {
   category_id?: string | null
 }
 
-export type ProductDraftAssets = {
+export type TProductDraftAssets = {
   price: number
   imageFiles: File[]
 }
 
-export type StripeProductDraft = {
+export type TStripeProductDraft = {
   priceId: string
   productId: string
 }
@@ -178,7 +178,7 @@ export async function createStripeProduct(
   price: number,
   images: string[],
   t: TI18nFunction,
-): Promise<StripeProductDraft> {
+): Promise<TStripeProductDraft> {
   const trimmedTitle = title.trim()
   const stripeAmount = Math.max(1, Math.floor(price * 100))
   const trimmedDescription = description.trim()

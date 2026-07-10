@@ -2,13 +2,13 @@ import { Dispatch, SetStateAction, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { UseFormGetValues } from "react-hook-form"
 
-import { AuthFormData } from "../AuthModal/AuthModal"
+import { IAuthFormData } from "../AuthModal/AuthModal"
 import { getPusherClient } from "@/libs/pusher"
 
 export const useAuthCompleted = (
   isAuthCompleted: boolean,
   setIsAuthCompleted: Dispatch<SetStateAction<boolean>>,
-  getValues: UseFormGetValues<AuthFormData>,
+  getValues: UseFormGetValues<IAuthFormData>,
 ) => {
   const router = useRouter()
   const pusherClient = getPusherClient()

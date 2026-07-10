@@ -69,7 +69,7 @@ export class BackupSDK extends BaseSDK {
     const clientChunkBytes = speedBytesPerMs * CHUNK_BUDGET_MS
     const targetChunkBytes = Math.min(serverChunkBytes, clientChunkBytes, MAX_CHUNK_BYTES)
 
-    // Build synthetic BackupFileRef-like objects with just sizes for splitRefsIntoChunks.
+    // Build synthetic TBackupFileRef-like objects with just sizes for splitRefsIntoChunks.
     const syntheticRefs = manifest.refSizes.map(size => ({
       bucket: "",
       path: "",
@@ -91,9 +91,8 @@ export class BackupSDK extends BaseSDK {
       const chunkFractionStart = index / chunks.length
       const chunkFractionEnd = (index + 1) / chunks.length
 
-      const archiveFile = await this.streamExport(
-        `/api/backup/export?from=${from}&to=${to}`,
-        fraction => onProgress?.(chunkFractionStart + fraction * (chunkFractionEnd - chunkFractionStart)),
+      const archiveFile = await this.streamExport(`/api/backup/export?from=${from}&to=${to}`, fraction =>
+        onProgress?.(chunkFractionStart + fraction * (chunkFractionEnd - chunkFractionStart)),
       )
       archiveFiles.push(archiveFile)
       const date = new Date().toISOString().slice(0, 10)

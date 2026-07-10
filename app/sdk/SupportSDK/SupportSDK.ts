@@ -1,4 +1,4 @@
-import { IMessageDB } from "@/ts/support/IMessageDB"
+import { TMessageDB } from "@/ts/support/TMessageDB"
 import { BaseSDK } from "@/sdk/BaseSDK"
 
 export class SupportSDK extends BaseSDK {
@@ -17,7 +17,7 @@ export class SupportSDK extends BaseSDK {
   }
 
   async getMessages(request: API.SupportGetMessagesRequest) {
-    return this.postJson<API.SupportGetMessagesRequest, IMessageDB[]>(
+    return this.postJson<API.SupportGetMessagesRequest, TMessageDB[]>(
       "/api/messages/get-messages",
       request satisfies API.SupportGetMessagesRequest,
     )
@@ -50,7 +50,7 @@ export class SupportSDK extends BaseSDK {
       request satisfies API.SupportGetTicketIdRequest,
     )
 
-    return typeof response === "string" ? undefined : response.ticket_id ?? undefined
+    return typeof response === "string" ? undefined : (response.ticket_id ?? undefined)
   }
 }
 

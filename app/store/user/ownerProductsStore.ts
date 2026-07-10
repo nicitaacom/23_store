@@ -2,19 +2,19 @@ import { create } from "zustand"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 
-export type OwnerProductsSnapshot = {
+export type TOwnerProductsSnapshot = {
   products: TProductDB[]
   error: string | null
 }
 
-interface OwnerProductsStore extends OwnerProductsSnapshot {
+interface OwnerProductsStore extends TOwnerProductsSnapshot {
   hydrate: (products: TProductDB[]) => void
   addProduct: (product: TProductDB) => void
   replaceProduct: (productId: string, nextProduct: TProductDB) => void
   updateProduct: (productId: string, updater: (product: TProductDB) => TProductDB) => void
   removeProduct: (productId: string) => void
   setError: (error: string | null) => void
-  restore: (snapshot: OwnerProductsSnapshot) => void
+  restore: (snapshot: TOwnerProductsSnapshot) => void
 }
 
 export const useOwnerProductsStore = create<OwnerProductsStore>(set => ({

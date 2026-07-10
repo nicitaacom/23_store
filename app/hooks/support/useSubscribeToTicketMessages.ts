@@ -2,15 +2,15 @@
 
 import { RefObject, useEffect, useRef } from "react"
 
-import { IMessageDB } from "@/ts/support/IMessageDB"
+import { TMessageDB } from "@/ts/support/TMessageDB"
 import { getPusherClient, subscribePusherChannel } from "@/libs/pusher"
 
 interface UseSubscribeToTicketMessagesProps {
   bottomRef: RefObject<HTMLUListElement>
   isEnabled: boolean
-  messages: IMessageDB[]
-  onSeen?: (updatedMessages: IMessageDB[]) => void
-  setMessages: (messages: IMessageDB[]) => void
+  messages: TMessageDB[]
+  onSeen?: (updatedMessages: TMessageDB[]) => void
+  setMessages: (messages: TMessageDB[]) => void
   ticketId: string | null
 }
 
@@ -46,7 +46,7 @@ export const useSubscribeToTicketMessages = ({
 
     scrollToBottomFn()
 
-    const handleNewMessage = (message: IMessageDB) => {
+    const handleNewMessage = (message: TMessageDB) => {
       const hasMessage = messagesRef.current.some(currentMessage => currentMessage.id === message.id)
       if (hasMessage) return
 
@@ -57,7 +57,7 @@ export const useSubscribeToTicketMessages = ({
       scrollToBottomFn()
     }
 
-    const handleSeen = (updatedMessages: IMessageDB[]) => {
+    const handleSeen = (updatedMessages: TMessageDB[]) => {
       const nextMessages = messagesRef.current.map(
         message => updatedMessages.find(updatedMessage => updatedMessage.id === message.id) || message,
       )

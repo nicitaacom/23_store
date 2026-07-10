@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
 
-import { ProductTranslations } from "@/ts/product/TProductDB"
+import { TProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
 import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 import { normalizeProductImageUrls } from "@/utils/product"
@@ -13,7 +13,7 @@ import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
 export type TUpdateProductRequest = {
   productId: string
   images?: string[]
-  translations?: ProductTranslations
+  translations?: TProductTranslations
   price?: number
   onStock?: number
   variants?: TProductVariant[] | null
@@ -139,16 +139,17 @@ export async function POST(req: Request) {
 
     /* UPDATE VARIANTS */
     if (variants !== undefined) {
-      const normalizedVariants = normalizeProductVariants(variants, normalizedExistingProduct.price, normalizedExistingProduct.on_stock)
+      const normalizedVariants = normalizeProductVariants(
+        variants,
+        normalizedExistingProduct.price,
+        normalizedExistingProduct.on_stock,
+      )
       // When a product has variants its stock is the accumulated stock of those variants.
       // No variants → leave on_stock untouched (variantless products keep their manual value).
       const variantsUpdate = normalizedVariants
         ? { variants: normalizedVariants, on_stock: normalizedVariants.reduce((sum, variant) => sum + variant.quantity, 0) }
         : { variants: null }
-      const { error: updateVariantsError } = await supabase
-        .from("23_products")
-        .update(variantsUpdate)
-        .eq("id", productId)
+      const { error: updateVariantsError } = await supabase.from("23_products").update(variantsUpdate).eq("id", productId)
 
       if (updateVariantsError)
         throw new Error(
@@ -233,7 +234,9 @@ export async function POST(req: Request) {
         .eq("id", productId)
 
       if (updateCategoryError)
-        throw new Error(`update product category_id \n Path:/api/products/update/route.ts \n Error message:\n ${updateCategoryError.message}`)
+        throw new Error(
+          `update product category_id \n Path:/api/products/update/route.ts \n Error message:\n ${updateCategoryError.message}`,
+        )
 
       return getUpdatedProductResponse(productId)
     }
