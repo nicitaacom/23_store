@@ -1,11 +1,6 @@
 import { create } from "zustand"
 
-export type TWallet = {
-  accounts: string[]
-  balance: string
-  chainId: string
-  secret?: number[]
-}
+import { TWallet } from "@/ts/types/TWallet"
 
 type DoYouWantRecieveCheckModalStore = {
   wallet: TWallet

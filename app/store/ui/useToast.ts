@@ -1,5 +1,7 @@
 import { create } from "zustand"
 
+import { IToast } from "@/ts/interfaces/IToast"
+
 /* usage
 const message = useMessage()
 
@@ -11,17 +13,6 @@ message.show('success','custom title','custom subTitle')
 message.show('success','custom title','custom subTitle',3000) //disashow after 3s
 
 */
-
-export type TToastVariant = "success" | "error" | "warning"
-
-export interface IToast {
-  isOpen: boolean
-  variant: TToastVariant
-  title?: string
-  subTitle?: React.ReactNode
-  show: (status: TToastVariant, title?: string, subTitle?: React.ReactNode, timeoutInMs?: number | null) => void
-  close: () => void
-}
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 

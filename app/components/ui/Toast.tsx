@@ -4,9 +4,10 @@ import { motion } from "framer-motion"
 import { AiOutlineCheckCircle, AiOutlineWarning } from "react-icons/ai"
 import { BiErrorCircle } from "react-icons/bi"
 
+import { TToastVariant } from "@/ts/types/TToastVariant"
 import { Button } from "."
 import { useI18n } from "@/locales/client"
-import useToast, { TToastVariant } from "@/store/ui/useToast"
+import useToast from "@/store/ui/useToast"
 
 export default function Toast() {
   const { variant, title, subTitle } = useToast()

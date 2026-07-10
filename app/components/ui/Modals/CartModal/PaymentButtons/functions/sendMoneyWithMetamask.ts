@@ -1,10 +1,10 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { TWallet } from "@/ts/types/TWallet"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
-import { TWallet } from "@/store/ui/useDoYouWantRecieveCheckModal"
 
 export async function sendMoneyWithMetamask(
   productsPrice: number,
@@ -136,11 +136,7 @@ export async function sendMoneyWithMetamask(
         })
     }
   } catch (error) {
-    toast.show(
-      "error",
-      t("payment.error.failed_to_pay_with_metamask"),
-      error instanceof Error ? error.message : String(error),
-    )
+    toast.show("error", t("payment.error.failed_to_pay_with_metamask"), error instanceof Error ? error.message : String(error))
     setIsLoading(false)
   }
 }

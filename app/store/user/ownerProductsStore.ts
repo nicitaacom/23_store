@@ -1,11 +1,7 @@
 import { create } from "zustand"
 
+import { TOwnerProductsSnapshot } from "@/ts/types/TOwnerProductsSnapshot"
 import { TProductDB } from "@/ts/product/TProductDB"
-
-export type TOwnerProductsSnapshot = {
-  products: TProductDB[]
-  error: string | null
-}
 
 interface OwnerProductsStore extends TOwnerProductsSnapshot {
   hydrate: (products: TProductDB[]) => void
