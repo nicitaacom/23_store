@@ -6,13 +6,13 @@ import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { TWallet } from "@/store/ui/useDoYouWantRecieveCheckModal"
 
-export const sendMoneyWithMetamask = async (
+export async function sendMoneyWithMetamask(
   productsPrice: number,
   wallet: TWallet,
   router: AppRouterInstance,
   recipientAddress: string,
   t: TI18nFunction,
-) => {
+) {
   const toast = useToast.getState()
   const { setIsLoading } = useLoading.getState()
 

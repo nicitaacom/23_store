@@ -11,7 +11,7 @@ interface ClientOnlyProps {
   children: React.ReactNode
 }
 //this file needs to prevent hydration error
-const ClientOnly: React.FC<ClientOnlyProps> = ({ children }) => {
+function ClientOnly({ children }: ClientOnlyProps) {
   const hasMountedState = useHasMounted()
   const { hasCartStoreInitialized } = useLoading() // this loading state required to get cartStore initialize
   // otherwise components will be rendered without result of initialize()

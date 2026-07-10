@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 
 import { AuthFormData } from "./AuthModal/AuthModal"
 
-export const modalHeightTailwind = (queryParams: string | null, errors: FieldErrors<AuthFormData>) => {
+export function modalHeightTailwind(queryParams: string | null, errors: FieldErrors<AuthFormData>) {
   return twMerge(
     queryParams === "login"
       ? "h-[560px]"

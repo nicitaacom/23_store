@@ -10,15 +10,17 @@ interface RatedProductsStore {
 
 type SetState = (fn: (prevState: RatedProductsStore) => RatedProductsStore) => void
 
-const ratedProductsStore = (set: SetState): RatedProductsStore => ({
-  ratingByProductId: {},
-  setProductRating(productId: string, stars: number) {
-    set(state => ({
-      ...state,
-      ratingByProductId: { ...state.ratingByProductId, [productId]: stars },
-    }))
-  },
-})
+function ratedProductsStore(set: SetState): RatedProductsStore {
+  return {
+    ratingByProductId: {},
+    setProductRating(productId: string, stars: number) {
+      set(state => ({
+        ...state,
+        ratingByProductId: { ...state.ratingByProductId, [productId]: stars },
+      }))
+    },
+  }
+}
 
 const useRatedProductsStore = create(devtools(persist(ratedProductsStore, { name: "ratedProducts" })))
 

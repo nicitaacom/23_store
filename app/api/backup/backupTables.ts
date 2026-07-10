@@ -80,8 +80,10 @@ export type BackupSnapshot = Record<string, unknown[]>
 
 // Tar entry prefix + helpers so storage files round-trip without clashing with <table>.json entries.
 const STORAGE_PREFIX = "storage/"
-const storageEntryName = (file: BackupFile) => `${STORAGE_PREFIX}${file.bucket}/${file.path}`
-const parseStorageEntry = (name: string) => {
+function storageEntryName(file: BackupFile) {
+  return `${STORAGE_PREFIX}${file.bucket}/${file.path}`
+}
+function parseStorageEntry(name: string) {
   const rest = name.slice(STORAGE_PREFIX.length)
   const slash = rest.indexOf("/")
   if (slash < 0) return null
@@ -171,10 +173,7 @@ export function parseBackupArchive(gzipped: Buffer): Promise<{ snapshot: BackupS
 }
 
 // List + download every object in a bucket (recursively). Returns the files for the archive.
-export async function downloadBucketFiles(
-  storage: { from: (bucket: string) => any },
-  bucket: string,
-): Promise<BackupFile[]> {
+export async function downloadBucketFiles(storage: { from: (bucket: string) => any }, bucket: string): Promise<BackupFile[]> {
   const files: BackupFile[] = []
 
   for (const ref of await listBucketObjects(storage, bucket)) {
@@ -189,10 +188,7 @@ export async function downloadBucketFiles(
 export type BackupFileRef = { bucket: string; path: string; contentType?: string; size: number }
 
 // List every object in a bucket (recursively) WITHOUT downloading bytes. Fast; used by the manifest.
-export async function listBucketObjects(
-  storage: { from: (bucket: string) => any },
-  bucket: string,
-): Promise<BackupFileRef[]> {
+export async function listBucketObjects(storage: { from: (bucket: string) => any }, bucket: string): Promise<BackupFileRef[]> {
   const refs: BackupFileRef[] = []
 
   async function walk(prefix: string): Promise<void> {
@@ -230,7 +226,12 @@ export async function downloadFilesByRef(
     const ref = refs[index]
     const { data: downloadedFile, error } = await storage.from(ref.bucket).download(ref.path)
     if (!error && downloadedFile) {
-      files.push({ bucket: ref.bucket, path: ref.path, contentType: ref.contentType, body: Buffer.from(await downloadedFile.arrayBuffer()) })
+      files.push({
+        bucket: ref.bucket,
+        path: ref.path,
+        contentType: ref.contentType,
+        body: Buffer.from(await downloadedFile.arrayBuffer()),
+      })
     }
     await onProgress?.(index + 1, refs.length)
   }

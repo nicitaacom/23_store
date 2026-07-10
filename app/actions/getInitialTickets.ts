@@ -1,7 +1,7 @@
 import { ITicketDB } from "@/ts/support/ITicketDB"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
-const getInitialTickets = async () => {
+async function getInitialTickets() {
   const { data: tickets_response, error: tickets_error } = await supabaseAdmin
     .from("23_tickets")
     .select("*, 23_messages(created_at)")

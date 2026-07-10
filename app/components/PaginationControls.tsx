@@ -1,4 +1,3 @@
-import { FC } from "react"
 import { BiChevronLeft, BiChevronRight } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
 
@@ -43,7 +42,7 @@ function buildPaginationItems(currentPage: number, totalPages: number): Paginati
 const controlBaseClassName =
   "inline-flex h-11 min-w-[44px] items-center justify-center rounded border border-success/18 bg-[#111315] px-3 text-sm font-medium text-title transition-all duration-200 hover:border-success/40 hover:bg-success/8"
 
-const PaginationControls: FC<PaginationControlsProps> = ({
+function PaginationControls({
   hasNextPage,
   hasPrevPage,
   currentPage,
@@ -51,7 +50,7 @@ const PaginationControls: FC<PaginationControlsProps> = ({
   perPage,
   basePath,
   query,
-}) => {
+}: PaginationControlsProps) {
   const createPageHref = (targetPage: number) => {
     const params = new URLSearchParams({
       page: String(targetPage),
@@ -72,10 +71,7 @@ const PaginationControls: FC<PaginationControlsProps> = ({
       <div className="flex flex-wrap items-center justify-center gap-2 rounded border border-success/18 bg-[#111315]/92 p-2 shadow-[0_10px_28px_rgba(0,0,0,0.22)]">
         <a
           aria-disabled={!hasPrevPage}
-          className={twMerge(
-            controlBaseClassName,
-            !hasPrevPage && "pointer-events-none opacity-35",
-          )}
+          className={twMerge(controlBaseClassName, !hasPrevPage && "pointer-events-none opacity-35")}
           href={hasPrevPage ? createPageHref(currentPage - 1) : undefined}>
           <BiChevronLeft className="text-lg text-success" />
         </a>
@@ -107,10 +103,7 @@ const PaginationControls: FC<PaginationControlsProps> = ({
 
         <a
           aria-disabled={!hasNextPage}
-          className={twMerge(
-            controlBaseClassName,
-            !hasNextPage && "pointer-events-none opacity-35",
-          )}
+          className={twMerge(controlBaseClassName, !hasNextPage && "pointer-events-none opacity-35")}
           href={hasNextPage ? createPageHref(currentPage + 1) : undefined}>
           <BiChevronRight className="text-lg text-success" />
         </a>

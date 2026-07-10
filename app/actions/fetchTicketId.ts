@@ -4,7 +4,7 @@ import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 // simple in-memory cache (browser + server safe)
 let ticketIdPromiseCache: Promise<string | undefined> | null = null
 
-const fetchTicketId = async (): Promise<string | undefined> => {
+async function fetchTicketId(): Promise<string | undefined> {
   const userId = getUserId()
   if (!userId) return undefined
   if (userId.includes("anonymousId")) return userId

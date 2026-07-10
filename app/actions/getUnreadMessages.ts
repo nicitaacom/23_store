@@ -7,7 +7,7 @@ export interface UnseenMessages {
   amount_unseen: number
 }
 
-const getUnreadMessages = async () => {
+async function getUnreadMessages() {
   const getUserResp = await getUser()
 
   const userId = getUserResp?.id ? getUserResp.id : getAnonymousId()

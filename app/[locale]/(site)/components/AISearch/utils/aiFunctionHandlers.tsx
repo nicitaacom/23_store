@@ -17,7 +17,9 @@ type FunctionResult = {
 
 type HandlerArgs = Record<string, unknown>
 
-const fallbackT: TI18nFunction = (key: string) => key
+function fallbackT(key: string) {
+  return key
+}
 
 async function addProductToCartHandler(args: HandlerArgs): Promise<FunctionResult> {
   const { product, quantity = 1 } = args

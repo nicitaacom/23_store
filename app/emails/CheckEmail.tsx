@@ -34,7 +34,7 @@ interface CheckEmailProps {
   allRightsReserved: string
 }
 
-export const CheckEmail = ({
+export function CheckEmail({
   products,
   locale,
   deliveryDate,
@@ -48,7 +48,7 @@ export const CheckEmail = ({
   supportText,
   feedbackText,
   allRightsReserved,
-}: CheckEmailProps) => {
+}: CheckEmailProps) {
   const productLocale = toProductLocale(locale)
   const totalAmount = products.reduce((total, product) => total + product.price * product.quantity, 0)
 

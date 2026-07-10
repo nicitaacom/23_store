@@ -8,19 +8,21 @@ interface DarkModeStore {
 
 type SetState = (fn: (prevState: DarkModeStore) => DarkModeStore) => void
 
-const toggleDarkMode = (darkMode: DarkModeStore) => {
+function toggleDarkMode(darkMode: DarkModeStore) {
   return (darkMode.isDarkMode = !darkMode.isDarkMode)
 }
 
-const darkMode = (set: SetState): DarkModeStore => ({
-  isDarkMode: true,
-  toggleDarkMode() {
-    set((state: DarkModeStore) => ({
-      ...state,
-      isDarkMode: toggleDarkMode(state),
-    }))
-  },
-})
+function darkMode(set: SetState): DarkModeStore {
+  return {
+    isDarkMode: true,
+    toggleDarkMode() {
+      set((state: DarkModeStore) => ({
+        ...state,
+        isDarkMode: toggleDarkMode(state),
+      }))
+    },
+  }
+}
 
 const useDarkModeStore = create(devtools(persist(darkMode, { name: "darkMode" })))
 

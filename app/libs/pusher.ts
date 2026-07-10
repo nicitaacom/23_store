@@ -11,14 +11,14 @@ export const pusherServer = new PusherServer({
 
 let pusherClientInstance: PusherClient | null = null
 
-export const getPusherClient = () => {
+export function getPusherClient() {
   if (!pusherClientInstance) {
     pusherClientInstance = new PusherClient(process.env.NEXT_PUBLIC_PUSHER_APP_KEY, { cluster: "eu" })
   }
   return pusherClientInstance
 }
 
-export const subscribePusherChannel = (channelName: string) => {
+export function subscribePusherChannel(channelName: string) {
   const pusherClient = getPusherClient()
 
   return pusherClient.channels?.find(channelName) ?? pusherClient.subscribe(channelName)

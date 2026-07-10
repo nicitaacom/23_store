@@ -9,7 +9,7 @@ function isSameDay(left: string, right: string) {
   )
 }
 
-export const getSupportMessageDayLabel = (dateString: string) => {
+export function getSupportMessageDayLabel(dateString: string) {
   const date = new Date(dateString)
   const today = new Date()
 

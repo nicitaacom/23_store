@@ -2,7 +2,7 @@ import { getUser } from "./getUser"
 import { normalizeProducts } from "@/utils/productVariants"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 
-const getOwnerProducts = async () => {
+async function getOwnerProducts() {
   const getUserResp = await getUser()
 
   if (!getUserResp?.id) {

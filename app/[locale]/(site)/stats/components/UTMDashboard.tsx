@@ -2,7 +2,20 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Area, AreaChart, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
+import {
+  Area,
+  AreaChart,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts"
 import { IoChevronDown, IoCalendar, IoTrendingUp, IoGlobeOutline, IoLocationOutline } from "react-icons/io5"
 
 import { IUTMAggregatedStats, IUTMCountryStat, IUTMLocationStat } from "@/ts/interfaces/IUTMAggregatedStats"
@@ -20,7 +33,7 @@ const DAILY_VISITS_RANGE_OPTIONS = [
 
 type DailyVisitsRangeKey = (typeof DAILY_VISITS_RANGE_OPTIONS)[number]["key"]
 
-const getCountryFlag = (countryCode: string | null) => {
+function getCountryFlag(countryCode: string | null) {
   if (!countryCode || countryCode.length !== 2) return "🌍"
   return countryCode
     .toUpperCase()
@@ -111,7 +124,7 @@ function getDailyVisitsRangeData(data: API.UTMStatsChartItem[], range: DailyVisi
 }
 
 // Mock data generator based on selected period
-const getMockData = (year: number, month: number): IUTMAggregatedStats => {
+function getMockData(year: number, month: number): IUTMAggregatedStats {
   // 1. Generate base multiplier based on month (0 = entire year)
   const monthMultipliers = [12, 0.8, 0.9, 1.1, 1.2, 1.3, 1.4, 1.5, 1.2, 1.1, 0.9, 1.6, 1.8] // Index 0 = entire year
   const yearMultiplier = year === 2025 ? 1 : year === 2024 ? 0.85 : year === 2023 ? 0.7 : 0.6
@@ -657,7 +670,10 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
                     tickFormatter={(value: string) => (value.length > 16 ? `${value.slice(0, 16)}...` : value)}
                   />
                   <Tooltip
-                    formatter={(value: number | string | undefined) => [`${Number(value || 0).toLocaleString()} visits`, "Traffic"]}
+                    formatter={(value: number | string | undefined) => [
+                      `${Number(value || 0).toLocaleString()} visits`,
+                      "Traffic",
+                    ]}
                     labelFormatter={(_, payload) => {
                       const country = payload?.[0]?.payload as IUTMCountryStat | undefined
                       return country ? `${getCountryFlag(country.code)} ${country.name}` : "Country"

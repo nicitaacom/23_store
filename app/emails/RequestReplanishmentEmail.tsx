@@ -23,7 +23,7 @@ interface RequestReplanishmentEmailProps {
  *
  * This does not require translation because this email from old logic (default E-Commerce - I have AI E-commerce)
  */
-export const RequestReplanishmentEmail = ({ product }: RequestReplanishmentEmailProps) => {
+export function RequestReplanishmentEmail({ product }: RequestReplanishmentEmailProps) {
   const previewText = `User requested replanishment`
   const translation = product.translations.en ?? product.translations.fi
   return (

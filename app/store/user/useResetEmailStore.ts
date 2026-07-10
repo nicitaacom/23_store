@@ -9,12 +9,12 @@ type ResetEmailStore = {
 
 type SetState = (fn: (prevState: ResetEmailStore) => Partial<ResetEmailStore>) => void
 
-const resetEmailStore = (set: SetState): ResetEmailStore => ({
-  email: null,
-  setEmail: email => set(() => ({ email })),
-  clearEmail: () => set(() => ({ email: null })),
-})
+function resetEmailStore(set: SetState): ResetEmailStore {
+  return {
+    email: null,
+    setEmail: email => set(() => ({ email })),
+    clearEmail: () => set(() => ({ email: null })),
+  }
+}
 
-export const useResetEmailStore = create<ResetEmailStore>()(
-  devtools(persist((set) => resetEmailStore(set), { name: "email" })),
-)
+export const useResetEmailStore = create<ResetEmailStore>()(devtools(persist(set => resetEmailStore(set), { name: "email" })))

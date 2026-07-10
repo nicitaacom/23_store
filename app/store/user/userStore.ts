@@ -18,37 +18,39 @@ interface UserStore {
 
 type SetState = (fn: (prevState: UserStore) => UserStore) => void
 
-const userStore = (set: SetState): UserStore => ({
-  user: null,
-  clientAvatarUrl: "",
-  setUser(user: User | null) {
-    set((state: UserStore) => ({
-      ...state,
-      user: user ?? null,
-    }))
-  },
-  setClientAvatarUrl(url: string) {
-    set((state: UserStore) => ({
-      ...state,
-      clientAvatarUrl: url,
-    }))
-  },
-  clearUser() {
-    set((state: UserStore) => ({
-      ...state,
-      user: null,
-      clientAvatarUrl: "",
-    }))
-  },
-  logoutUser() {
-    delCookie("avatarUrl")
-    set((state: UserStore) => ({
-      ...state,
-      user: null,
-      clientAvatarUrl: "",
-    }))
-  },
-})
+function userStore(set: SetState): UserStore {
+  return {
+    user: null,
+    clientAvatarUrl: "",
+    setUser(user: User | null) {
+      set((state: UserStore) => ({
+        ...state,
+        user: user ?? null,
+      }))
+    },
+    setClientAvatarUrl(url: string) {
+      set((state: UserStore) => ({
+        ...state,
+        clientAvatarUrl: url,
+      }))
+    },
+    clearUser() {
+      set((state: UserStore) => ({
+        ...state,
+        user: null,
+        clientAvatarUrl: "",
+      }))
+    },
+    logoutUser() {
+      delCookie("avatarUrl")
+      set((state: UserStore) => ({
+        ...state,
+        user: null,
+        clientAvatarUrl: "",
+      }))
+    },
+  }
+}
 
 const useUserStore = create(subscribeWithSelector(devtools(userStore)))
 
