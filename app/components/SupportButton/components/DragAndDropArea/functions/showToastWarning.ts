@@ -27,8 +27,13 @@ export async function showToastWarningFn(errors: ErrorsType, options: ShowToastW
   } else if (errors?.maxNumber) {
     return toast.show("warning", `Max ${maxImages} images`, `Please use max ${maxImages} images`)
   } else if (errors?.resolution) {
-    const uploadedResolutionData = await getInvalidUploadedImageResolution(files, options.minResolution ?? MIN_IMAGE_RESOLUTION)
-    const uploadedResolution = uploadedResolutionData ? formatUploadResolution(uploadedResolutionData) : null
+    const getInvalidUploadedImageResolutionResp = await getInvalidUploadedImageResolution(
+      files,
+      options.minResolution ?? MIN_IMAGE_RESOLUTION,
+    )
+    const uploadedResolution = getInvalidUploadedImageResolutionResp
+      ? formatUploadResolution(getInvalidUploadedImageResolutionResp)
+      : null
 
     return toast.show(
       "warning",

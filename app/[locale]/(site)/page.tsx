@@ -47,7 +47,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
   const params = await paramsPromise
   const searchParams = await searchParamsPromise
   //Fetching all data from DB
-  const t = await getScopedI18n("product")
+  const getScopedI18nResp = await getScopedI18n("product")
   const supabase = await supabaseServer()
   const {
     data: { user },
@@ -83,9 +83,9 @@ export default async function Home({ params: paramsPromise, searchParams: search
     categoryIds = [validCategory, ...childIds]
   }
 
-  const products_response = await fetchProducts(categoryIds)
-  if (products_response.error) throw products_response.error
-  const products = normalizeProducts(products_response.data)
+  const fetchProductsResp = await fetchProducts(categoryIds)
+  if (fetchProductsResp.error) throw fetchProductsResp.error
+  const products = normalizeProducts(fetchProductsResp.data)
   const filteredProducts = searchQuery ? filterProductsBySearchQuery(products, searchQuery) : products
   const addProductHref = user ? `/${params.locale}?modal=AdminPanel` : `/${params.locale}?modal=AuthModal&variant=login`
 
@@ -113,25 +113,25 @@ export default async function Home({ params: paramsPromise, searchParams: search
                 <div className="flex w-full flex-row items-start justify-between gap-3">
                   <div className="w-full max-w-[480px] max-[480px]:max-w-none">
                     <CatalogSearchForm
-                      ariaLabel={t("catalog_search_action")}
+                      ariaLabel={getScopedI18nResp("catalog_search_action")}
                       initialQuery={searchQuery}
                       locale={params.locale}
                       perPage={perPage}
-                      placeholder={t("catalog_search_placeholder")}
-                      submitLabel={t("catalog_search_action")}
+                      placeholder={getScopedI18nResp("catalog_search_placeholder")}
+                      submitLabel={getScopedI18nResp("catalog_search_action")}
                     />
                   </div>
                   <div className="flex justify-end max-[480px]:hidden">
                     <div className="inline-flex w-fit items-center rounded-[2px] border border-success/25 bg-success/10 px-3 py-1 text-sm font-medium tracking-wide text-success">
-                      {t("products")}
+                      {getScopedI18nResp("products")}
                     </div>
                   </div>
                 </div>
                 <div className="flex max-w-3xl flex-col gap-2">
                   <h1 className="truncate whitespace-nowrap text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl laptop:text-4xl">
-                    {t("catalog_title")}
+                    {getScopedI18nResp("catalog_title")}
                   </h1>
-                  <p className="hidden max-w-3xl text-base leading-7 text-subTitle tablet:block">{t("catalog_subtitle")}</p>
+                  <p className="hidden max-w-3xl text-base leading-7 text-subTitle tablet:block">{getScopedI18nResp("catalog_subtitle")}</p>
                   <CategoryPillBar
                     categories={categories}
                     isAuthenticated={!!user}
@@ -141,18 +141,18 @@ export default async function Home({ params: paramsPromise, searchParams: search
                   <div className="flex flex-row items-center gap-[2px] pt-1">
                     <Link
                       href={addProductHref}
-                      aria-label={t("add")}
+                      aria-label={getScopedI18nResp("add")}
                       className="inline-flex h-10 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black mobile:text-base max-[480px]:flex-1 max-[480px]:gap-0 max-[480px]:px-0 max-[480px]:py-0">
                       <BiPlus className="hidden text-xl max-[480px]:block" />
                       <FaPlus className="hidden text-sm min-[481px]:block" />
-                      <span className="max-[480px]:hidden">{t("add")}</span>
+                      <span className="max-[480px]:hidden">{getScopedI18nResp("add")}</span>
                     </Link>
                     <Link
                       href={`/${params.locale}/popular-products`}
-                      aria-label={t("open_preview_page")}
+                      aria-label={getScopedI18nResp("open_preview_page")}
                       className="inline-flex h-10 w-fit items-center justify-center whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black mobile:text-base max-[480px]:flex-1 max-[480px]:px-0 max-[480px]:py-0">
                       <BiWindowOpen className="hidden text-xl max-[480px]:block" />
-                      <span className="max-[480px]:hidden">{t("open_preview_page")}</span>
+                      <span className="max-[480px]:hidden">{getScopedI18nResp("open_preview_page")}</span>
                     </Link>
                   </div>
                 </div>
@@ -162,7 +162,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
             <section className="panel-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto pr-1">
               {totalItems === 0 ? (
                 <div className="flex min-h-full items-center justify-center rounded-[4px] border border-dashed border-success/20 bg-background/60 px-6 py-12 text-center text-base text-subTitle">
-                  {t("no_products_found")}
+                  {getScopedI18nResp("no_products_found")}
                 </div>
               ) : (
                 <SortedProducts products={entries} serverViews={serverViews} searchQuery={searchQuery} />

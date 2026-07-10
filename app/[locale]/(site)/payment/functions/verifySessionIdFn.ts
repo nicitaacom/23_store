@@ -15,8 +15,8 @@ export async function verifySessionIdFn(
 
   if (session_id) {
     try {
-      const data = await productsSDK.verifyPayment({ session_id })
-      setIsValidSessionId(data.valid)
+      const response = await productsSDK.verifyPayment({ session_id })
+      setIsValidSessionId(response.valid)
       logFn(t("payment.session_id_is_valid"))
       setCurrentStep(6)
     } catch (error) {

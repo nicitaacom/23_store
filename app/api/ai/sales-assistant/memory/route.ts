@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const updatedMemory = await updateWorkingMemory({
+    const response = await updateWorkingMemory({
       currentMemory: memory,
       userPrompt,
       assistantReply,
@@ -30,11 +30,11 @@ export async function POST(req: Request) {
       userId: user.id,
       userPrompt,
       assistantReply,
-      memorySummary: updatedMemory,
+      memorySummary: response,
     })
 
     return NextResponse.json({
-      memory: updatedMemory,
+      memory: response,
     } as API.AISalesAssistantMemoryResponse)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)

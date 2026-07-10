@@ -37,9 +37,9 @@ export async function getUploadedImageResolution(files?: ImageListType): Promise
   for (const image of files ?? []) {
     if (!image.file) continue
 
-    const resolution = await getImageResolution(image.file)
+    const getImageResolutionResp = await getImageResolution(image.file)
 
-    if (resolution) return resolution
+    if (getImageResolutionResp) return getImageResolutionResp
   }
 
   return null
@@ -52,11 +52,11 @@ export async function getInvalidUploadedImageResolution(
   for (const image of files ?? []) {
     if (!image.file) continue
 
-    const resolution = await getImageResolution(image.file)
-    if (!resolution) continue
+    const getImageResolutionResp = await getImageResolution(image.file)
+    if (!getImageResolutionResp) continue
 
-    if (resolution.width < minResolution.width || resolution.height < minResolution.height) {
-      return resolution
+    if (getImageResolutionResp.width < minResolution.width || getImageResolutionResp.height < minResolution.height) {
+      return getImageResolutionResp
     }
   }
 

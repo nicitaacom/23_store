@@ -57,14 +57,14 @@ export const sendMoneyWithMetamask = async (
     }
 
     // 4. proceed to get price conversion for the specific token
-    const data = await productsSDK.getCoinmarketcapQuote({
+    const getCoinmarketcapQuoteResp = await productsSDK.getCoinmarketcapQuote({
       amount: productsPrice,
       symbol: "USD",
       convert: chainToken,
     })
 
     // 5. check if the token price is available
-    const tokenPrice = data.data[0].quote[chainToken]?.price
+    const tokenPrice = getCoinmarketcapQuoteResp.data[0].quote[chainToken]?.price
     if (!tokenPrice) {
       toast.show(
         "error",

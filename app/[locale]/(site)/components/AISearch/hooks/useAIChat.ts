@@ -51,12 +51,12 @@ export function useAIChat() {
 
   const syncFunctionTurnMemory = async (userPrompt: string, assistantReply: string, baseMemory: string) => {
     try {
-      const data = await aiSDK.syncSalesAssistantMemory({
+      const response = await aiSDK.syncSalesAssistantMemory({
         userPrompt,
         assistantReply,
         memory: baseMemory,
       })
-      return data?.memory || null
+      return response?.memory || null
     } catch (error) {
       console.error("Failed to sync AI function-call memory.", error)
       return null
@@ -82,14 +82,14 @@ export function useAIChat() {
     try {
       await rateLimitSDK.rateLimit(t, "aiPrompt")
 
-      const data = await aiSDK.chatWithSalesAssistant({
+      const response = await aiSDK.chatWithSalesAssistant({
         promptValue: userMessage,
         memory,
         conversationHistory: newConversation,
       })
-      if (data?.debug) setDebugContext(data.debug)
+      if (response?.debug) setDebugContext(response.debug)
       const openAIMessage = (
-        data?.openai as
+        response?.openai as
           | {
               choices?: Array<{
                 message?: {
@@ -131,20 +131,20 @@ export function useAIChat() {
 
           setConversation([...newConversation, aiMessage])
 
-          const syncedMemory = await syncFunctionTurnMemory(userMessage, aiMessage.text, data?.memory || memory)
+          const syncedMemory = await syncFunctionTurnMemory(userMessage, aiMessage.text, response?.memory || memory)
 
           if (syncedMemory) setMemory(syncedMemory)
-          else if (data?.memory) setMemory(data.memory)
+          else if (response?.memory) setMemory(response.memory)
           else if (functionResult.memory) setMemory(functionResult.memory)
           return
         }
 
         setConversation([...newConversation, { role: "ai", text: functionResult.message }])
 
-        const syncedMemory = await syncFunctionTurnMemory(userMessage, functionResult.message, data?.memory || memory)
+        const syncedMemory = await syncFunctionTurnMemory(userMessage, functionResult.message, response?.memory || memory)
 
         if (syncedMemory) setMemory(syncedMemory)
-        else if (data?.memory) setMemory(data.memory)
+        else if (response?.memory) setMemory(response.memory)
         else if (functionResult.memory) setMemory(functionResult.memory)
         return
       }
@@ -152,7 +152,7 @@ export function useAIChat() {
       const aiReply = openAIMessage?.content || t("aichat.error.no_reply_data")
       setConversation([...newConversation, { role: "ai", text: aiReply }])
 
-      if (data?.memory) setMemory(data.memory)
+      if (response?.memory) setMemory(response.memory)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       console.error(t("aichat.error"), error)
@@ -177,16 +177,16 @@ export function useAIChat() {
         type: generatedImage.contentType,
       })
 
-      const uploadResult = await uploadImageFn({ t, imageFile, bucket: "23_public-images" })
-      if (typeof uploadResult === "string") {
-        throw new Error(`Image upload failed: ${uploadResult}`)
+      const response = await uploadImageFn({ t, imageFile, bucket: "23_public-images" })
+      if (typeof response === "string") {
+        throw new Error(`Image upload failed: ${response}`)
       }
 
       setConversation([
         ...conversation,
         { role: "user", text: `${t("aichat.generate_image")}: ${promptValue}` },
         // TODO - add more variations e.g here is your generated image
-        { role: "ai", text: t("aichat.generate_image_completed"), imageUrl: uploadResult.publicUrl },
+        { role: "ai", text: t("aichat.generate_image_completed"), imageUrl: response.publicUrl },
       ])
       setPromptValue("")
     } catch (error) {

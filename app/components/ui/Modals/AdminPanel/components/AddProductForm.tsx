@@ -218,11 +218,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     lastSuggestedKeyRef.current = trimmed
     setIsSuggestingCategory(true)
     try {
-      const result = await aiSDK.suggestCategory({ title: trimmed })
-      if ("category_id" in result && result.category_id) {
-        const found = allCategories.find(category => category.id === result.category_id)
+      const response = await aiSDK.suggestCategory({ title: trimmed })
+      if ("category_id" in response && response.category_id) {
+        const found = allCategories.find(category => category.id === response.category_id)
         if (found) {
-          setCategoryId(result.category_id)
+          setCategoryId(response.category_id)
           setAutoAssignedName(found.name)
         }
       }

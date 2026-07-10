@@ -20,15 +20,15 @@ export async function uploadImagesAndSendMessage(
   const { image, setImage } = useMessagesStore.getState()
 
   if (image) {
-    const imgUrl = await uploadImageFn({
+    const response = await uploadImageFn({
       t,
       imageFile: image,
       bucket: "23_public-images",
     })
-    if (imgUrl === undefined) return
-    if (typeof imgUrl === "string") return toast.show("error", t("support.error.uploading_image"), imgUrl)
+    if (response === undefined) return
+    if (typeof response === "string") return toast.show("error", t("support.error.uploading_image"), response)
 
-    imageUrl = imgUrl.publicUrl
+    imageUrl = response.publicUrl
   }
   await sendMessageFn(t, messageBody.trim(), userId, imageUrl)
   setImage(null)

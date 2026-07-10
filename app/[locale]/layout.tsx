@@ -40,7 +40,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const { locale } = await paramsPromise
-  const ownerProducts = await getOwnerProducts()
+  const getOwnerProductsResp = await getOwnerProducts()
 
   const supabase = await supabaseServer()
   const {
@@ -61,7 +61,7 @@ export default async function RootLayout({
         <I18nProviderClient locale={locale}>
           <Layout user={normalizedUser}>{children}</Layout>
           <Suspense>
-            <ModalsQueryProvider ownerProducts={ownerProducts ?? []} roles={roles} isAuthenticated={!!normalizedUser} />
+            <ModalsQueryProvider ownerProducts={getOwnerProductsResp ?? []} roles={roles} isAuthenticated={!!normalizedUser} />
           </Suspense>
           <ModalsProvider />
           <ToastProvider />

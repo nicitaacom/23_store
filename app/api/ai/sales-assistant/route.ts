@@ -115,7 +115,7 @@ ${semanticContext || "none"}`
     const aiMessage = firstChoice?.message ?? null
     const assistantReply = typeof aiMessage?.content === "string" ? aiMessage.content.trim() : ""
     const hasFunctionCall = Boolean(aiMessage?.function_call?.name)
-    const updatedMemory = await updateWorkingMemory({
+    const response = await updateWorkingMemory({
       currentMemory: memory,
       userPrompt: promptValue,
       assistantReply: hasFunctionCall ? "" : assistantReply,
@@ -127,13 +127,13 @@ ${semanticContext || "none"}`
         userId: user.id,
         userPrompt: promptValue,
         assistantReply,
-        memorySummary: updatedMemory,
+        memorySummary: response,
       })
     }
 
     return NextResponse.json({
       openai: openaiData,
-      memory: updatedMemory,
+      memory: response,
       debug:
         process.env.NODE_ENV === "development"
           ? {

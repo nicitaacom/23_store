@@ -452,7 +452,7 @@ async function createEmbeddings(inputs: string[]): Promise<number[][]> {
   if (!cleanedInputs.length) return []
   if (!process.env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured.")
 
-  const model = await getEmbeddingModel()
+  const getEmbeddingModelResp = await getEmbeddingModel()
 
   const response = await fetch("https://api.openai.com/v1/embeddings", {
     method: "POST",
@@ -461,7 +461,7 @@ async function createEmbeddings(inputs: string[]): Promise<number[][]> {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model,
+      model: getEmbeddingModelResp,
       input: cleanedInputs,
     }),
   })
@@ -616,14 +616,14 @@ async function persistSemanticMemory(userId: string, userPrompt: string, assista
 
   if (!records.length) return
 
-  const embeddings = await createEmbeddings(records.map(record => record.text))
+  const createEmbeddingsResp = await createEmbeddings(records.map(record => record.text))
 
   await getPineconeIndex()
     .namespace(getMemoryNamespace(userId))
     .upsert({
       records: records.map((record, index) => ({
         id: record.id,
-        values: embeddings[index],
+        values: createEmbeddingsResp[index],
         metadata: {
           text: record.text,
           role: record.role,
@@ -649,7 +649,7 @@ export async function getRelevantSemanticContext({
 
   try {
     const [queryEmbedding] = await createEmbeddings([searchText])
-    const result = await getPineconeIndex()
+    const response = await getPineconeIndex()
       .namespace(getMemoryNamespace(userId))
       .query({
         vector: queryEmbedding,
@@ -660,7 +660,7 @@ export async function getRelevantSemanticContext({
     const pineconeMatches: SalesAssistantDebugContext["pineconeMatches"] = []
     const seen = new Set<string>()
 
-    for (const match of result.matches) {
+    for (const match of response.matches) {
       const metadata = match.metadata
       const text = clipText(normalizeText(String(metadata?.text ?? "")), 220)
 
@@ -768,11 +768,11 @@ export async function persistConversationTurn({
     persistSemanticMemory(userId, normalizedUserPrompt, normalizedAssistantReply, normalizedMemorySummary),
   ]
 
-  const results = await Promise.allSettled(tasks)
+  const response = await Promise.allSettled(tasks)
 
-  results.forEach(result => {
-    if (result.status === "rejected") {
-      console.error("Failed to persist AI memory state.", result.reason)
+  response.forEach(settledResult => {
+    if (settledResult.status === "rejected") {
+      console.error("Failed to persist AI memory state.", settledResult.reason)
     }
   })
 }

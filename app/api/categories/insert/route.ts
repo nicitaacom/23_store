@@ -24,9 +24,9 @@ export async function POST(req: Request) {
   if (adminError)
     return NextResponse.json({ error: adminError } satisfies API.CategoriesInsertResponse, { status: adminError === "Unauthorized" ? 401 : 403 })
 
-  const result = await insertDBCategory(body.name, body.parent_id ?? null)
-  if (typeof result === "string")
-    return NextResponse.json({ error: result } satisfies API.CategoriesInsertResponse, { status: 500 })
+  const response = await insertDBCategory(body.name, body.parent_id ?? null)
+  if (typeof response === "string")
+    return NextResponse.json({ error: response } satisfies API.CategoriesInsertResponse, { status: 500 })
 
-  return NextResponse.json({ category: result } satisfies API.CategoriesInsertResponse, { status: 201 })
+  return NextResponse.json({ category: response } satisfies API.CategoriesInsertResponse, { status: 201 })
 }

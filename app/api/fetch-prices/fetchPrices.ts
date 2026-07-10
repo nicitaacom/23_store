@@ -47,10 +47,10 @@ export async function fetchPricesRaw(query: string, topN = 5): Promise<number[]>
     }
 
     const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`
-    const html = await fetchHtmlWithCurl(url)
-    if (!html) return []
+    const fetchHtmlWithCurlResp = await fetchHtmlWithCurl(url)
+    if (!fetchHtmlWithCurlResp) return []
 
-    const cleanText = htmlToCleanText(html)
+    const cleanText = htmlToCleanText(fetchHtmlWithCurlResp)
     const matches = cleanText.match(/[$€]\s?[0-9]+(\.[0-9]{1,2})?/g) || []
     const prices = matches
       .map(match => parseFloat(match.replace(/[$€\s]/g, "")))
@@ -103,11 +103,11 @@ export async function getRealisticPrice(
 
   const topN = options?.topN ?? 5
   const query = `${title} ${subTitle}`.trim() || title
-  const sourcePrices = await fetchPricesRaw(query, topN)
+  const fetchPricesRawResp = await fetchPricesRaw(query, topN)
 
-  const price = derivePriceFromSources(sourcePrices, title, subTitle)
+  const price = derivePriceFromSources(fetchPricesRawResp, title, subTitle)
   const normalized = Math.round(price * 100) / 100
   const stripeAmount = Math.max(1, Math.round(normalized * 100))
 
-  return { price: normalized, stripeAmount, sourcePrices }
+  return { price: normalized, stripeAmount, sourcePrices: fetchPricesRawResp }
 }

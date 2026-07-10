@@ -16,8 +16,8 @@ export async function resetPassword(password: string, displayResponseMessage: (m
     const { email, clearEmail } = useResetEmailStore.getState()
 
     if (email && email.expires > new Date().getTime()) {
-      const data = await accountSDK.resetPassword({ email: email.value, password })
-      userStore.setUser((data.user as Parameters<typeof userStore.setUser>[0]) ?? null)
+      const response = await accountSDK.resetPassword({ email: email.value, password })
+      userStore.setUser((response.user as Parameters<typeof userStore.setUser>[0]) ?? null)
       clearEmail()
       displayResponseMessage(
         <div className="text-success flex flex-col justify-center items-center gap-1">

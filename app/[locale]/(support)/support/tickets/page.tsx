@@ -2,9 +2,9 @@ import { EmptyState } from "./components/EmptyState"
 import getInitialTickets from "@/actions/getInitialTickets"
 
 export default async function SupportChatPage() {
-  const tickets = await getInitialTickets()
+  const getInitialTicketsResp = await getInitialTickets()
 
-  if (tickets.length === 0) return <EmptyState />
+  if (getInitialTicketsResp.length === 0) return <EmptyState />
 
   return (
     <main className="hidden h-full min-w-0 flex-1 laptop:flex">

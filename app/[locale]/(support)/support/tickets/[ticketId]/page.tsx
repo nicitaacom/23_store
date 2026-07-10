@@ -49,8 +49,8 @@ export async function generateStaticParams(): Promise<{ ticketId: string }[]> {
 
 export async function generateMetadata({ params: paramsPromise }: ChatPageProps): Promise<Metadata> {
   const { ticketId } = await paramsPromise
-  const initial_messages = await getInitialMessagesByTicketIdCache(ticketId)
-  const firstMessage = initial_messages[0]
+  const getInitialMessagesByTicketIdCacheResp = await getInitialMessagesByTicketIdCache(ticketId)
+  const firstMessage = getInitialMessagesByTicketIdCacheResp[0]
 
   if (!firstMessage?.sender_username) {
     return {
@@ -65,7 +65,10 @@ export async function generateMetadata({ params: paramsPromise }: ChatPageProps)
 
   return {
     title: `Support chat with ${firstMessage.sender_username}`,
-    description: initial_messages.length === 1 ? "message" : `messages - chat with ${firstMessage.sender_username} - Joki`,
+    description:
+      getInitialMessagesByTicketIdCacheResp.length === 1
+        ? "message"
+        : `messages - chat with ${firstMessage.sender_username} - Joki`,
     openGraph: {
       images: [{ url: "/read-your-messages.jpg" }],
     },
@@ -75,24 +78,28 @@ export async function generateMetadata({ params: paramsPromise }: ChatPageProps)
 
 export default async function ChatPage({ params: paramsPromise }: ChatPageProps) {
   const { ticketId } = await paramsPromise
-  const initial_messages = await getInitialMessagesByTicketIdCache(ticketId)
-  const ticketMeta = await getTicketMetaCache(ticketId)
-  const firstMessage = initial_messages[0]
+  const getInitialMessagesByTicketIdCacheResp = await getInitialMessagesByTicketIdCache(ticketId)
+  const getTicketMetaCacheResp = await getTicketMetaCache(ticketId)
+  const firstMessage = getInitialMessagesByTicketIdCacheResp[0]
 
-  if (!initial_messages || !ticketMeta?.is_open) {
+  if (!getInitialMessagesByTicketIdCacheResp || !getTicketMetaCacheResp?.is_open) {
     return <ThisTicketIsCompleted ticketId={ticketId} />
-  } else if (initial_messages.length > 0 && firstMessage?.ticket_id && firstMessage.sender_username) {
+  } else if (
+    getInitialMessagesByTicketIdCacheResp.length > 0 &&
+    firstMessage?.ticket_id &&
+    firstMessage.sender_username
+  ) {
     return (
       <main className="relative flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border-color/35 bg-foreground/35">
         <MessagesHeader
-          is_open={ticketMeta.is_open}
+          is_open={getTicketMetaCacheResp.is_open}
           owner_avatar_url={firstMessage.sender_avatar_url || ""}
           owner_id={firstMessage.sender_id}
           owner_username={firstMessage.sender_username}
-          ticket_created_at={ticketMeta.created_at}
+          ticket_created_at={getTicketMetaCacheResp.created_at}
           ticket_id={firstMessage.ticket_id}
         />
-        <MessagesBody ticket_id={firstMessage.ticket_id} initialMessages={initial_messages ?? []} />
+        <MessagesBody ticket_id={firstMessage.ticket_id} initialMessages={getInitialMessagesByTicketIdCacheResp ?? []} />
         <MessagesFooter ticket_id={firstMessage.ticket_id} />
         <DragAndDropArea />
       </main>

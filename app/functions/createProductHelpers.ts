@@ -84,10 +84,10 @@ export async function resolveProductPrice(
   }
 
   try {
-    const data = await productsSDK.fetchSuggestedPrice({ title, description })
+    const fetchSuggestedPriceResp = await productsSDK.fetchSuggestedPrice({ title, description })
 
-    if (data.price && data.price > 0) {
-      return data.price
+    if (fetchSuggestedPriceResp.price && fetchSuggestedPriceResp.price > 0) {
+      return fetchSuggestedPriceResp.price
     }
 
     const priceData = await aiSDK.prompt(`
@@ -148,7 +148,7 @@ export async function uploadProductImages(imageFiles: File[], t: TI18nFunction) 
 
   const uploadResults = await Promise.all(
     imageFiles.map(async (imageFile, index) => {
-      const uploadResult = await uploadImageFn({
+      const response = await uploadImageFn({
         t,
         imageFile,
         bucket: "23_public-images",
@@ -157,11 +157,11 @@ export async function uploadProductImages(imageFiles: File[], t: TI18nFunction) 
         upsert: true,
       })
 
-      if (typeof uploadResult === "string") {
-        throw new Error(uploadResult)
+      if (typeof response === "string") {
+        throw new Error(response)
       }
 
-      return uploadResult.publicUrl
+      return response.publicUrl
     }),
   )
 
@@ -220,20 +220,20 @@ export async function createStripeProduct(
     throw new Error(t("product.subtitle_required"))
   }
 
-  const stripeData = await productsSDK.addProduct({
+  const response = await productsSDK.addProduct({
     title: trimmedTitle,
     ...(trimmedDescription ? { description: trimmedDescription } : {}),
     price: stripeAmount,
     images,
   })
 
-  if (!stripeData.id || !stripeData.product) {
+  if (!response.id || !response.product) {
     throw new Error(t("product.error.failed_to_create_product_on_stripe"))
   }
 
   return {
-    priceId: stripeData.id,
-    productId: stripeData.product,
+    priceId: response.id,
+    productId: response.product,
   }
 }
 

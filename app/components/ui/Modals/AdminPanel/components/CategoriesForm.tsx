@@ -56,16 +56,16 @@ export function CategoriesForm() {
       return
     }
     setIsAdding(true)
-    const result = await categoriesSDK.insertDBCategory({ name: addName.trim(), parent_id: addParentId })
+    const response = await categoriesSDK.insertDBCategory({ name: addName.trim(), parent_id: addParentId })
     setIsAdding(false)
-    if ("error" in result) {
-      toast.show("error", t("category.add"), result.error)
+    if ("error" in response) {
+      toast.show("error", t("category.add"), response.error)
       return
     }
-    addCategory(result.category)
+    addCategory(response.category)
     setAddName("")
     setAddParentId(null)
-    toast.show("success", t("category.add"), result.category.name)
+    toast.show("success", t("category.add"), response.category.name)
   }
 
   const startEdit = (cat: TCategory) => {
@@ -80,13 +80,13 @@ export function CategoriesForm() {
       return
     }
     setIsSubmittingCategoryChange(true)
-    const result = await categoriesSDK.updateDBCategory({ id, name: editName.trim() })
+    const response = await categoriesSDK.updateDBCategory({ id, name: editName.trim() })
     setIsSubmittingCategoryChange(false)
-    if ("error" in result) {
-      toast.show("error", t("category.edit_category"), result.error)
+    if ("error" in response) {
+      toast.show("error", t("category.edit_category"), response.error)
       return
     }
-    updateCategory(id, result.category)
+    updateCategory(id, response.category)
     setEditingId(null)
   }
 
@@ -94,16 +94,16 @@ export function CategoriesForm() {
     setDeletingId(id)
     setDeleteCount(null)
     setEditingId(null)
-    const result = await categoriesSDK.selectDBCategoryCount(id)
-    if ("count" in result) setDeleteCount(result.count)
+    const selectDBCategoryCountResp = await categoriesSDK.selectDBCategoryCount(id)
+    if ("count" in selectDBCategoryCountResp) setDeleteCount(selectDBCategoryCountResp.count)
   }
 
   const confirmDelete = async (id: string) => {
     setIsSubmittingCategoryChange(true)
-    const result = await categoriesSDK.deleteDBCategory({ id })
+    const response = await categoriesSDK.deleteDBCategory({ id })
     setIsSubmittingCategoryChange(false)
-    if ("error" in result) {
-      toast.show("error", "", result.error)
+    if ("error" in response) {
+      toast.show("error", "", response.error)
       return
     }
     removeCategory(id)

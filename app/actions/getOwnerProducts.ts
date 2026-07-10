@@ -3,9 +3,9 @@ import { normalizeProducts } from "@/utils/productVariants"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 
 const getOwnerProducts = async () => {
-  const user = await getUser()
+  const getUserResp = await getUser()
 
-  if (!user?.id) {
+  if (!getUserResp?.id) {
     return []
   }
 
@@ -13,7 +13,7 @@ const getOwnerProducts = async () => {
   const { data } = await supabase
     .from("23_products")
     .select("*")
-    .eq("owner_id", user.id)
+    .eq("owner_id", getUserResp.id)
     .order("price", { ascending: true })
 
   return normalizeProducts(data ?? [])

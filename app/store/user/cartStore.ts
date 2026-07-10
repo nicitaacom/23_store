@@ -226,8 +226,8 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
 
     const keepExistingProductsRecord = get().keepExistingProductsRecord
     const storage = getStorage()
-    const products = await storage.getProducts() // get products from localstorage or DB based on isAuthenticated
-    const existingProducts = await keepExistingProductsRecord(products || {}) // keep in record only existing productis in DB
+    const getProductsResp = await storage.getProducts() // get products from localstorage or DB based on isAuthenticated
+    const existingProducts = await keepExistingProductsRecord(getProductsResp || {}) // keep in record only existing productis in DB
 
     set(() => ({
       products: existingProducts,

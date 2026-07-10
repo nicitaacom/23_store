@@ -99,18 +99,18 @@ export const useLazyLoading = <T extends { id: string }>({
 
       try {
         setIsLoading(true)
-        const fetchedData = await fetchFunction(start, end)
+        const fetchFunctionResp = await fetchFunction(start, end)
 
-        if (fetchedData.length) {
-          highestFetched.current = Math.max(highestFetched.current, start + fetchedData.length)
+        if (fetchFunctionResp.length) {
+          highestFetched.current = Math.max(highestFetched.current, start + fetchFunctionResp.length)
         }
 
-        if (fetchedData.length === 0 || fetchedData.length < end - start) {
+        if (fetchFunctionResp.length === 0 || fetchFunctionResp.length < end - start) {
           setHasNoMoreDataToFetch(true)
         }
 
         const existingIds = new Set((currentStateRef.current || []).map(item => item.id))
-        const uniqueNewData = fetchedData.filter(item => !existingIds.has(item.id))
+        const uniqueNewData = fetchFunctionResp.filter(item => !existingIds.has(item.id))
         if (!uniqueNewData.length) return
 
         setState([...(currentStateRef.current || []), ...uniqueNewData])

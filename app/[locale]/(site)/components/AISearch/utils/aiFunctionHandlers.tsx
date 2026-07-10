@@ -32,7 +32,7 @@ async function addProductToCartHandler(args: HandlerArgs): Promise<FunctionResul
 
   try {
     const i18n = (args.t as unknown as TI18nFunction) ?? fallbackT
-    const createdProduct = await createProductFn(i18n, {
+    const response = await createProductFn(i18n, {
       title: typed.title,
       description: typed.subtitle,
       price: typed.price,
@@ -40,9 +40,9 @@ async function addProductToCartHandler(args: HandlerArgs): Promise<FunctionResul
       images: [],
       variants: [],
     })
-    if (!createdProduct?.id) return { success: false, message: "Failed to create product. No id." }
+    if (!response?.id) return { success: false, message: "Failed to create product. No id." }
 
-    for (let index = 0; index < Number(quantity || 1); index++) increaseProductQuantity(createdProduct.id)
+    for (let index = 0; index < Number(quantity || 1); index++) increaseProductQuantity(response.id)
 
     const quantityText = Number(quantity) > 1 ? `${quantity}x ${typed.title}` : typed.title
     return {
@@ -76,12 +76,12 @@ async function generateImageHandler(args: HandlerArgs): Promise<FunctionResult> 
       type: generatedImage.contentType,
     })
 
-    const uploadResult = await uploadImageFn({ t: i18n, imageFile, bucket: "23_public-images" })
-    if (!uploadResult || typeof uploadResult === "string") {
-      return { success: false, message: `Image upload failed: ${uploadResult ?? "unknown"}` }
+    const response = await uploadImageFn({ t: i18n, imageFile, bucket: "23_public-images" })
+    if (!response || typeof response === "string") {
+      return { success: false, message: `Image upload failed: ${response ?? "unknown"}` }
     }
 
-    const publicUrl = uploadResult.publicUrl
+    const publicUrl = response.publicUrl
     const userMsg = i18n("aichat.generate_image_completed") || `Here is your image:`
 
     const newMemory = `${memory ? memory + " | " : ""}generated-image:${publicUrl}`

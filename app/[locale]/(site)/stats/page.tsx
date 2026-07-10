@@ -2,8 +2,8 @@ import { selectDBUTMStatsAction } from "./actions/selectDBUTMStatsAction"
 import { UTMDashboard } from "./components/UTMDashboard"
 
 export default async function UTMStatsPage() {
-  const utmStatsResponse = await selectDBUTMStatsAction()
+  const selectDBUTMStatsActionResp = await selectDBUTMStatsAction()
 
-  if (typeof utmStatsResponse === "string") return <h1 className="text-danger text-2xl">{utmStatsResponse}</h1>
-  else return <UTMDashboard utmStatsResponse={utmStatsResponse} />
+  if (typeof selectDBUTMStatsActionResp === "string") return <h1 className="text-danger text-2xl">{selectDBUTMStatsActionResp}</h1>
+  else return <UTMDashboard utmStatsResponse={selectDBUTMStatsActionResp} />
 }

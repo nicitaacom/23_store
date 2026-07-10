@@ -27,9 +27,9 @@ export async function PATCH(req: Request) {
   if (adminError)
     return NextResponse.json({ error: adminError } satisfies API.CategoriesUpdateResponse, { status: adminError === "Unauthorized" ? 401 : 403 })
 
-  const result = await updateDBCategory(body.id, body.name, body.parent_id)
-  if (typeof result === "string")
-    return NextResponse.json({ error: result } satisfies API.CategoriesUpdateResponse, { status: 500 })
+  const response = await updateDBCategory(body.id, body.name, body.parent_id)
+  if (typeof response === "string")
+    return NextResponse.json({ error: response } satisfies API.CategoriesUpdateResponse, { status: 500 })
 
-  return NextResponse.json({ category: result } satisfies API.CategoriesUpdateResponse, { status: 200 })
+  return NextResponse.json({ category: response } satisfies API.CategoriesUpdateResponse, { status: 200 })
 }

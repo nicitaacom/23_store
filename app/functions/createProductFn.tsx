@@ -48,12 +48,12 @@ export async function createProductFn(t: TI18nFunction, input: CreateProductFnIn
 
     const resolvedVariants = resolveUploadedProductVariants(variants, uploadedImageUrls)
     const resolvedPrice = await resolveProductPrice(title, description, price, resolvedVariants)
-    const stripeProduct = await createStripeProduct(title, description, resolvedPrice, uploadedImageUrls, t)
+    const createStripeProductResp = await createStripeProduct(title, description, resolvedPrice, uploadedImageUrls, t)
     const userId = getUserId()
 
     const createProductResponse = await productsSDK.translateAndInsertInDB({
-      id: stripeProduct.productId,
-      price_id: stripeProduct.priceId,
+      id: createStripeProductResp.productId,
+      price_id: createStripeProductResp.priceId,
       owner_id: userId,
       title,
       description,
@@ -69,8 +69,8 @@ export async function createProductFn(t: TI18nFunction, input: CreateProductFnIn
     }
 
     return {
-      id: stripeProduct.productId,
-      price_id: stripeProduct.priceId,
+      id: createStripeProductResp.productId,
+      price_id: createStripeProductResp.priceId,
       owner_id: userId,
       translations: createRawProductTranslations(title, description),
       price: resolvedPrice,

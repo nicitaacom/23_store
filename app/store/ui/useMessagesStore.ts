@@ -59,19 +59,19 @@ export const useMessagesStore = create<MessagesStore>()((set, get) => ({
       return
     }
 
-    const messages = await supportSDK.getMessages({ userId })
-    const unseenAmount = messages.filter(message => !message.seen && message.sender_id !== userId).length
+    const getMessagesResp = await supportSDK.getMessages({ userId })
+    const unseenAmount = getMessagesResp.filter(message => !message.seen && message.sender_id !== userId).length
 
     let ticketIdLet: string | null = null
     if (!state.ticketId) {
-      const ticketId = await fetchTicketId()
-      if (!ticketId) return
-      else ticketIdLet = ticketId
+      const fetchTicketIdResp = await fetchTicketId()
+      if (!fetchTicketIdResp) return
+      else ticketIdLet = fetchTicketIdResp
     }
 
     set(() => ({
       unseenMessagesNumber: unseenAmount,
-      messages,
+      messages: getMessagesResp,
       ticketId: ticketIdLet,
     }))
   },

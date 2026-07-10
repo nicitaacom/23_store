@@ -57,15 +57,15 @@ export async function GET(request: NextRequest) {
         const refs = isChunked ? allRefs.slice(from, parseInt(toParam!, 10) + 1) : allRefs
         send({ type: "progress", done: 0, total: refs.length })
 
-        const files: BackupFile[] = await downloadFilesByRef(supabaseAdmin.storage, refs, (done, total) =>
+        const downloadFilesByRefResp: BackupFile[] = await downloadFilesByRef(supabaseAdmin.storage, refs, (done, total) =>
           send({ type: "progress", done, total }),
         )
 
-        const archive = await createBackupArchive(snapshot, files)
+        const createBackupArchiveResp = await createBackupArchive(snapshot, downloadFilesByRefResp)
         const date = new Date().toISOString().slice(0, 10)
         const suffix = isChunked ? `-part${from}` : ""
         const fileName = `23_backup-${date}${suffix}.tar.gz`
-        send({ type: "done", fileName, archive: archive.toString("base64") })
+        send({ type: "done", fileName, archive: createBackupArchiveResp.toString("base64") })
         controller.close()
       } catch (error) {
         send({ type: "error", error: error instanceof Error ? error.message : String(error) })

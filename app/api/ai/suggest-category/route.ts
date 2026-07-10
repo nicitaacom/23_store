@@ -41,11 +41,11 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     )
 
-  const categoriesResult = await selectDBCategories()
-  if (typeof categoriesResult === "string")
-    return NextResponse.json({ error: categoriesResult } satisfies API.AISuggestCategoryResponse, { status: 500 })
+  const selectDBCategoriesResp = await selectDBCategories()
+  if (typeof selectDBCategoriesResp === "string")
+    return NextResponse.json({ error: selectDBCategoriesResp } satisfies API.AISuggestCategoryResponse, { status: 500 })
 
-  const categoryList = categoriesResult.map(category => ({ id: category.id, name: category.name }))
+  const categoryList = selectDBCategoriesResp.map(category => ({ id: category.id, name: category.name }))
 
   const categoryLines = categoryList
     .map((category, index) => `${index + 1}. "${category.name}" = ${category.id}`)

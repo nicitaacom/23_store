@@ -118,8 +118,8 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
           ...variant,
           image_url: urlMap.get(variant.image_url) ?? variant.image_url,
         }))
-        const variantsResponse = await productsSDK.updateProduct({ productId: id, variants: remappedVariants })
-        if (typeof variantsResponse !== "string") replaceProduct(id, variantsResponse.product)
+        const updateProductResp = await productsSDK.updateProduct({ productId: id, variants: remappedVariants })
+        if (typeof updateProductResp !== "string") replaceProduct(id, updateProductResp.product)
       }
 
       setNewImages([])

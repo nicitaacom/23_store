@@ -107,20 +107,20 @@ export async function POST(req: Request) {
       descriptionLength: parsedPayload.description?.length ?? 0,
     })
 
-    const insertDBProductResponse = await insertDBProduct(parsedPayload)
-    if (typeof insertDBProductResponse === "string") {
-      throw new Error(insertDBProductResponse)
+    const insertDBProductResp = await insertDBProduct(parsedPayload)
+    if (typeof insertDBProductResp === "string") {
+      throw new Error(insertDBProductResp)
     }
 
     const invokeTranslateProductLambdaResponse = await invokeTranslateProductLambda(parsedPayload)
     if (typeof invokeTranslateProductLambdaResponse === "string") {
-      const rollbackError = await deleteDBProduct(parsedPayload.id)
+      const deleteDBProductResp = await deleteDBProduct(parsedPayload.id)
 
       console.error("[products/translate-insert] lambda invoke failed after product insert", {
         requestId,
         productId: parsedPayload.id,
         errorMessage: invokeTranslateProductLambdaResponse,
-        rollbackError,
+        deleteDBProductResp,
       })
 
       throw new Error(invokeTranslateProductLambdaResponse)

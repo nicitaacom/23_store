@@ -21,14 +21,14 @@ export function ProductsInCart() {
 
   async function handleRequestBetterPrices() {
     setIsLoading(true)
-    const result = await requestBetterPrices(t, cartStore.productsData, cartStore.getProductsPrice(), user?.email || null)
+    const response = await requestBetterPrices(t, cartStore.productsData, cartStore.getProductsPrice(), user?.email || null)
     setIsLoading(false)
-    if (result.success) {
-      toast.show("success", "Request sent!", result.message)
+    if (response.success) {
+      toast.show("success", "Request sent!", response.message)
       return
     }
 
-    toast.show("error", "Request failed", result.message)
+    toast.show("error", "Request failed", response.message)
   }
 
   return (

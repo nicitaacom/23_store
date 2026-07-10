@@ -14,9 +14,9 @@ export async function DELETE(req: Request) {
   if (adminError)
     return NextResponse.json({ error: adminError } satisfies API.CategoriesDeleteResponse, { status: adminError === "Unauthorized" ? 401 : 403 })
 
-  const result = await deleteDBCategory(body.id)
-  if (typeof result === "string")
-    return NextResponse.json({ error: result } satisfies API.CategoriesDeleteResponse, { status: 500 })
+  const response = await deleteDBCategory(body.id)
+  if (typeof response === "string")
+    return NextResponse.json({ error: response } satisfies API.CategoriesDeleteResponse, { status: 500 })
 
   return NextResponse.json({ ok: true } satisfies API.CategoriesDeleteResponse, { status: 200 })
 }

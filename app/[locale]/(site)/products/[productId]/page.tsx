@@ -34,8 +34,10 @@ const getProductById = cache(async (productId: string) => {
 
 export async function generateMetadata({ params: paramsPromise }: ProductPageProps): Promise<Metadata> {
   const params = await paramsPromise
-  const product = await getProductById(params.productId)
-  const translation = product ? product.translations[toProductLocale(params.locale)] ?? product.translations.fi : null
+  const getProductByIdResp = await getProductById(params.productId)
+  const translation = getProductByIdResp
+    ? getProductByIdResp.translations[toProductLocale(params.locale)] ?? getProductByIdResp.translations.fi
+    : null
 
   return {
     title: translation ? `${translation.title} - Joki` : "Product - Joki",
@@ -45,13 +47,15 @@ export async function generateMetadata({ params: paramsPromise }: ProductPagePro
 
 export default async function ProductPage({ params: paramsPromise }: ProductPageProps) {
   const params = await paramsPromise
-  const t = await getScopedI18n("product")
+  const getScopedI18nResp = await getScopedI18n("product")
   const supabase = await supabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
-  const product = await getProductById(params.productId)
-  const translation = product ? product.translations[toProductLocale(params.locale)] ?? product.translations.fi : null
+  const getProductByIdResp = await getProductById(params.productId)
+  const translation = getProductByIdResp
+    ? getProductByIdResp.translations[toProductLocale(params.locale)] ?? getProductByIdResp.translations.fi
+    : null
 
-  if (!product) {
+  if (!getProductByIdResp) {
     notFound()
   }
 
@@ -60,7 +64,7 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
       <section className="flex flex-col gap-5">
         <nav className="flex flex-wrap items-center gap-2 text-sm text-subTitle">
           <Link href={`/${params.locale}`} className="transition-colors duration-200 hover:text-success">
-            {t("products")}
+            {getScopedI18nResp("products")}
           </Link>
           <BiChevronRight className="text-base opacity-60" />
           <span className="max-w-full truncate text-title">{translation?.title}</span>
@@ -70,10 +74,10 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
           href={`/${params.locale}`}
           className="inline-flex w-fit items-center gap-2 rounded-[4px] border border-success/25 bg-success/5 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black">
           <BiArrowBack className="text-lg" />
-          {t("back_to_catalog")}
+          {getScopedI18nResp("back_to_catalog")}
         </Link>
 
-        <ProductDetailView product={product} isAuthenticated={!!user} />
+        <ProductDetailView product={getProductByIdResp} isAuthenticated={!!user} />
       </section>
     </div>
   )

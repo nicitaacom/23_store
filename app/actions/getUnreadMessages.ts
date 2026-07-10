@@ -8,9 +8,9 @@ export interface UnseenMessages {
 }
 
 const getUnreadMessages = async () => {
-  const user = await getUser()
+  const getUserResp = await getUser()
 
-  const userId = user?.id ? user.id : getAnonymousId()
+  const userId = getUserResp?.id ? getUserResp.id : getAnonymousId()
 
   const { data, error: get_unread_messages_error } = await supabaseAdmin
     .from("23_messages")

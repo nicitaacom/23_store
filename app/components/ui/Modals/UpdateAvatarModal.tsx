@@ -68,7 +68,7 @@ export function UpdateAvatarModal() {
       const fileExtension = imageFile.name.split(".").pop()?.toLowerCase() || "png"
       const avatarFile = new File([imageFile], `avatar.${fileExtension}`, { type: imageFile.type })
 
-      const uploadedImage = await uploadImageFn({
+      const response = await uploadImageFn({
         t,
         imageFile: avatarFile,
         bucket: "23_avatar-images",
@@ -76,11 +76,11 @@ export function UpdateAvatarModal() {
         upsert: true,
       })
 
-      if (typeof uploadedImage === "string") {
-        throw new Error(uploadedImage)
+      if (typeof response === "string") {
+        throw new Error(response)
       }
 
-      setAvatarUrl(uploadedImage.publicUrl)
+      setAvatarUrl(response.publicUrl)
     } catch (error) {
       toast.show("error", "Avatar upload failed", error instanceof Error ? error.message : String(error))
     } finally {
