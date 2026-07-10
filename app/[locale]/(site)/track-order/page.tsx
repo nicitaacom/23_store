@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { twMerge } from "tailwind-merge"
 
 import { useScopedI18n } from "@/locales/client"
@@ -88,13 +89,13 @@ export default function TrackOrderPage() {
 
           {/* Footer links */}
           <div className="flex justify-center gap-3 text-xs">
-            <a className="font-medium text-success hover:text-success-accent" href="/support">
+            <Link className="font-medium text-success hover:text-success-accent" href="/support">
               {t("support")}
-            </a>
+            </Link>
             <span className="text-border-color">•</span>
-            <a className="font-medium text-success hover:text-success-accent" href="/feedback">
+            <Link className="font-medium text-success hover:text-success-accent" href="/feedback">
               {t("feedback")}
-            </a>
+            </Link>
           </div>
         </div>
 
