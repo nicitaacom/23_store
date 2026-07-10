@@ -385,6 +385,7 @@ function normalizeWorkingMemory(memory: string): string {
   return uniqueCaseInsensitive(items).slice(-MEMORY_FACT_LIMIT).join(" | ")
 }
 
+// eslint-disable-next-line local-rules/db-redis-verb-naming -- factory/client getter (like getSupabaseServer), not a redis read
 function getRedisClient(): Redis {
   if (!redisClient) redisClient = Redis.fromEnv()
   return redisClient

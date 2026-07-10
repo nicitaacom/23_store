@@ -10,9 +10,6 @@ interface OwnerProductImageProps {
   alt?: string
 }
 
-export const OWNER_PRODUCT_MEDIA_WRAPPER_CLASSNAME =
-  "mx-auto w-full max-w-[480px] overflow-hidden rounded bg-foreground/[0.06] tablet:mx-0 tablet:max-w-none tablet:w-[233px] laptop:w-[267px] desktop:w-[333px]"
-
 export function OwnerProductImage({ imgUrl, className, alt }: OwnerProductImageProps) {
   return (
     <figure className={twMerge("relative w-full overflow-hidden bg-foreground/[0.06]", className)}>

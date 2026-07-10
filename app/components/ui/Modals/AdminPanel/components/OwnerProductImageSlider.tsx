@@ -4,7 +4,7 @@ import { useState } from "react"
 import { AiFillCaretLeft, AiFillCaretRight } from "react-icons/ai"
 import { twMerge } from "tailwind-merge"
 
-import { OWNER_PRODUCT_MEDIA_WRAPPER_CLASSNAME, OwnerProductImage } from "./OwnerProductImage"
+import { OwnerProductImage } from "./OwnerProductImage"
 
 interface OwnerProductImageSliderProps {
   images: string[]
@@ -28,7 +28,12 @@ export function OwnerProductImageSlider({ images, title, onClickSlide }: OwnerPr
   }
 
   return (
-    <div className={twMerge(OWNER_PRODUCT_MEDIA_WRAPPER_CLASSNAME, "relative max-w-none")} onClick={onClickSlide}>
+    <div
+      className={twMerge(
+        "mx-auto w-full max-w-[480px] overflow-hidden rounded bg-foreground/[0.06] tablet:mx-0 tablet:max-w-none tablet:w-[233px] laptop:w-[267px] desktop:w-[333px]",
+        "relative max-w-none",
+      )}
+      onClick={onClickSlide}>
       <OwnerProductImage
         key={images[safeIndex]}
         imgUrl={images[safeIndex]}

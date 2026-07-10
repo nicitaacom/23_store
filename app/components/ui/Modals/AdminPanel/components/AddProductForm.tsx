@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
@@ -116,7 +116,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     setValue,
     trigger,
     formState: { errors },
@@ -126,8 +126,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     reValidateMode: "onSubmit",
   })
 
-  const titleValue = watch("title")
-  const descriptionValue = watch("subTitle")
+  const titleValue = useWatch({ control, name: "title" })
+  const descriptionValue = useWatch({ control, name: "subTitle" })
 
   // Register subTitle manually since it's no longer backed by a ProductInput/textarea
   useEffect(() => {
