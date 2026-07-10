@@ -18,7 +18,7 @@ export async function sendMoneyWithMetamask(
 
   try {
     // 1. check the current network
-    const chainId = await window.ethereum.request({ method: "eth_chainId" })
+    const chainId = (await window.ethereum.request({ method: "eth_chainId" })) as string
 
     // 2. define relevant chain IDs and their corresponding tokens
     const ETH_MAINNET = "0x1"
@@ -122,7 +122,7 @@ export async function sendMoneyWithMetamask(
             },
           ],
         })
-        .then((txHash: string) => {
+        .then((txHash: unknown) => {
           router.push(`${location.origin}/payment?status=success`)
           console.log("You may use txHash as check QR code or payment identifier - ", txHash)
         })
@@ -135,8 +135,12 @@ export async function sendMoneyWithMetamask(
           setIsLoading(false)
         })
     }
-  } catch (error: any) {
-    toast.show("error", t("payment.error.failed_to_pay_with_metamask"), error.message as string)
+  } catch (error) {
+    toast.show(
+      "error",
+      t("payment.error.failed_to_pay_with_metamask"),
+      error instanceof Error ? error.message : String(error),
+    )
     setIsLoading(false)
   }
 }

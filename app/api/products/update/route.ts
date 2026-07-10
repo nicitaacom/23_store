@@ -242,7 +242,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ error: "No valid update payload provided" }, { status: 400 })
-  } catch (error: any) {
+  } catch (error) {
     if (error instanceof Stripe.errors.StripeError) {
       console.log("PRODUCT_UPDATE_ERROR\n(stripe)\n", error.message)
       return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 })

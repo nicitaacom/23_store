@@ -66,14 +66,14 @@ export function PayWithMetamaskButton() {
 
   async function updateWallet(accounts: string[]) {
     const balance = formatBalance(
-      await window.ethereum!.request({
+      (await window.ethereum!.request({
         method: "eth_getBalance",
         params: [accounts[0], "latest"],
-      }),
+      })) as string,
     )
-    const chainId = await window.ethereum!.request({
+    const chainId = (await window.ethereum!.request({
       method: "eth_chainId",
-    })
+    })) as string
     setWallet({ accounts, balance, chainId })
   }
 
@@ -96,7 +96,7 @@ export function PayWithMetamaskButton() {
       setHasProvider(Boolean(provider))
 
       if (provider) {
-        const accounts = await window.ethereum.request({ method: "eth_accounts" })
+        const accounts = (await window.ethereum.request({ method: "eth_accounts" })) as string[]
         refreshAccounts(accounts)
         window.ethereum.on("accountsChanged", refreshAccounts)
         window.ethereum.on("chainChanged", refreshChain)

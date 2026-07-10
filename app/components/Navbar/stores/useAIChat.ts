@@ -22,7 +22,9 @@ type AIChat = {
   resetChat: () => void
 }
 
-const useAIChat = (set: any): AIChat => ({
+type SetState = (fn: (prevState: AIChat) => Partial<AIChat>) => void
+
+const useAIChat = (set: SetState): AIChat => ({
   promptValue: "",
   setPromptValue: promptValue => set(() => ({ promptValue })),
 

@@ -58,9 +58,17 @@ declare global {
 
 /* for metamask detecting */
 
+interface TEthereumProvider {
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
+  on(event: "accountsChanged", handler: (accounts: string[]) => void): void
+  on(event: "chainChanged", handler: (chainId: string) => void): void
+  removeListener(event: "accountsChanged", handler: (accounts: string[]) => void): void
+  removeListener(event: "chainChanged", handler: (chainId: string) => void): void
+}
+
 declare global {
   interface Window {
-    ethereum: any
+    ethereum: TEthereumProvider
     turnstile?: {
       render: (
         container: HTMLElement,

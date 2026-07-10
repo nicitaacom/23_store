@@ -9,6 +9,7 @@ import { AdminPanelModalProps } from "@/components/ui/Modals/AdminPanel/AdminPan
 import { AuthModal } from "@/[locale]/(auth)/AuthModal/AuthModal"
 
 type ModalKey = "AdminPanel" | "AuthModal" | "CartModal" | "DbBackup"
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- heterogeneous registry of components with different prop shapes
 type ModalEntry = { Component: React.ComponentType<any>; props?: Record<string, unknown> }
 
 function AdminModalLoading() {

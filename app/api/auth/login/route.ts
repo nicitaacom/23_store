@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     const providers = Array.from(new Set((publicUsers || []).flatMap(user => user.providers || [])))
 
     return NextResponse.json({ providers: providers })
-  } catch (error: any) {
+  } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }

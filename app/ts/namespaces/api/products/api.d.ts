@@ -107,7 +107,7 @@ declare namespace API {
   }
 
   type ProductsPopularResponse = {
-    products: any[]
+    products: unknown[]
   }
 
   type ProductsCreateCheckoutSessionRequest = {

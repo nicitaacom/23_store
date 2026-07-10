@@ -232,10 +232,15 @@ function getMockData(year: number, month: number): IUTMAggregatedStats {
   // 8. Generate raw stats with appropriate dates
   const sources = ["google", "facebook", "twitter", "linkedin", "direct"]
   const mediums = ["cpc", "social", "organic", "email", "none"]
-  const rawStats = Array.from({ length: Math.min(20, Math.round(baseMultiplier * 5)) }, _ => ({
+  const rawStats: API.UTMStatsRawItem[] = Array.from({ length: Math.min(20, Math.round(baseMultiplier * 5)) }, _ => ({
+    user_id: "mock",
     utm_source: sources[Math.floor(Math.random() * sources.length)],
     utm_medium: mediums[Math.floor(Math.random() * mediums.length)],
     utm_campaign: campaigns[Math.floor(Math.random() * campaigns.length)] || "",
+    utm_term: null,
+    utm_content: null,
+    user_agent: null,
+    location: { userAgent: null, countryCode: null, country: null, region: null, city: null },
     visited_at: chartData[Math.floor(Math.random() * chartData.length)]?.date || formatDateKey(new Date()),
   }))
 
@@ -619,7 +624,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
                     fill="#8884d8"
                     dataKey="count"
                     labelLine={false}
-                    label={(props: any) => {
+                    label={(props: { name?: string; percent?: number }) => {
                       const percent = props.percent || 0
                       return `${props.name}: ${(percent * 100).toFixed(0)}%`
                     }}>

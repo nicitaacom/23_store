@@ -1,7 +1,10 @@
 import { gzipSync, gunzipSync } from "node:zlib"
 import { extract, pack } from "tar-stream"
+import { SupabaseClient } from "@supabase/supabase-js"
 
 import { Database } from "@/ts/types_db"
+
+type BackupStorageClient = SupabaseClient<Database>["storage"]
 
 type AllTables = keyof Database["public"]["Tables"]
 
@@ -173,7 +176,7 @@ export function parseBackupArchive(gzipped: Buffer): Promise<{ snapshot: TBackup
 }
 
 // List + download every object in a bucket (recursively). Returns the files for the archive.
-export async function downloadBucketFiles(storage: { from: (bucket: string) => any }, bucket: string): Promise<TBackupFile[]> {
+export async function downloadBucketFiles(storage: BackupStorageClient, bucket: string): Promise<TBackupFile[]> {
   const files: TBackupFile[] = []
 
   for (const ref of await listBucketObjects(storage, bucket)) {
@@ -188,7 +191,7 @@ export async function downloadBucketFiles(storage: { from: (bucket: string) => a
 export type TBackupFileRef = { bucket: string; path: string; contentType?: string; size: number }
 
 // List every object in a bucket (recursively) WITHOUT downloading bytes. Fast; used by the manifest.
-export async function listBucketObjects(storage: { from: (bucket: string) => any }, bucket: string): Promise<TBackupFileRef[]> {
+export async function listBucketObjects(storage: BackupStorageClient, bucket: string): Promise<TBackupFileRef[]> {
   const refs: TBackupFileRef[] = []
 
   async function walk(prefix: string): Promise<void> {
@@ -217,7 +220,7 @@ export async function listBucketObjects(storage: { from: (bucket: string) => any
 // Download a specific ordered subset of file refs (one export "half"). Skips any that fail.
 // onProgress fires after each file (done = files attempted so far) so the route can stream live progress.
 export async function downloadFilesByRef(
-  storage: { from: (bucket: string) => any },
+  storage: BackupStorageClient,
   refs: TBackupFileRef[],
   onProgress?: (done: number, total: number) => void | Promise<void>,
 ): Promise<TBackupFile[]> {

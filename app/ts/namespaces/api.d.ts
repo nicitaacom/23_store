@@ -88,7 +88,7 @@ declare namespace API {
   }
 
   type TelegramResponse = {
-    data: any
+    data: unknown
     status: number
     statusText: string
   }

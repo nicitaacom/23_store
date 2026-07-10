@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
         // Tables are included in the full export and in the first chunk only.
         let snapshot: TBackupSnapshot = {}
         if (isFirstChunk) {
-          const { data, error } = await (supabaseAdmin.rpc as any)("backup_23_tables")
+          const { data, error } = await supabaseAdmin.rpc("backup_23_tables" as never)
           if (error) {
             send({ type: "error", error: error.message })
             controller.close()

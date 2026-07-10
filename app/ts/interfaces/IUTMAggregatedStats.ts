@@ -22,6 +22,6 @@ export interface IUTMAggregatedStats {
   countryStats: IUTMCountryStat[]
   locationStats: IUTMLocationStat[]
   recentVisits: number
-  rawStats: Array<any>
+  rawStats: Array<API.UTMStatsRawItem>
   chartData: { date: string; visits: number }[]
 }

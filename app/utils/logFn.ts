@@ -8,7 +8,7 @@ function getLineNumber() {
   return lineNumber ? lineNumber[1] : "unknown"
 }
 
-export function logFn(message: string, ...optionalParams: any[]) {
+export function logFn(message: string, ...optionalParams: unknown[]) {
   if (process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_IS_DEBUG === "true") {
     const lineNumber = getLineNumber()
     console.log(`[Line ${Number(lineNumber)}] ${message}`, ...optionalParams)
