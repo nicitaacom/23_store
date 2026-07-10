@@ -220,7 +220,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     try {
       const result = await aiSDK.suggestCategory({ title: trimmed })
       if ("category_id" in result && result.category_id) {
-        const found = allCategories.find(c => c.id === result.category_id)
+        const found = allCategories.find(category => category.id === result.category_id)
         if (found) {
           setCategoryId(result.category_id)
           setAutoAssignedName(found.name)
@@ -801,7 +801,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             ref={descriptionRef}
             onWrapRef={wrapRef}
             value={descriptionValue ?? ""}
-            onChange={v => setValue("subTitle", v, { shouldValidate: false })}
+            onChange={nextValue => setValue("subTitle", nextValue, { shouldValidate: false })}
             onBlur={() => void trigger("subTitle")}
             disabled={isLoading}
             placeholder={t("placeholder.description")}

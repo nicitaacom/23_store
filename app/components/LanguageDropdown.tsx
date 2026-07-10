@@ -28,7 +28,7 @@ export function LanguageDropdown({ className, isDropUp = false }: { className?: 
 
   const locale = useCurrentLocale()
   const changeLocale = useChangeLocale({ preserveSearchParams: true })
-  const currentLocale = locales.find(l => l.code === locale)
+  const currentLocale = locales.find(localeOption => localeOption.code === locale)
 
   useOnEscOrClickOutside(dropdownContainerRef, () => setShowDropdown(false), { isHookEnabled: showDropdown })
 
@@ -71,15 +71,15 @@ export function LanguageDropdown({ className, isDropUp = false }: { className?: 
           isDropUp ? "bottom-full mb-1" : "top-full mt-1",
           showDropdown ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0",
         )}>
-          {locales.map(l => (
+          {locales.map(localeOption => (
             <button
-              key={l.code}
+              key={localeOption.code}
               className={`flex w-full items-center gap-2 whitespace-nowrap px-3 py-2 text-left text-sm transition-colors duration-100 ${
-                locale === l.code ? "bg-brand/15 text-brand hover:bg-brand/25" : "text-title hover:bg-foreground-accent"
+                locale === localeOption.code ? "bg-brand/15 text-brand hover:bg-brand/25" : "text-title hover:bg-foreground-accent"
               }`}
-              onClick={() => handleLocaleChange(l.code)}>
-              <Image src={l.flag} alt={l.name} width={18} height={13} sizes="18px" className="rounded-sm object-cover" />
-              {l.name}
+              onClick={() => handleLocaleChange(localeOption.code)}>
+              <Image src={localeOption.flag} alt={localeOption.name} width={18} height={13} sizes="18px" className="rounded-sm object-cover" />
+              {localeOption.name}
             </button>
           ))}
       </div>

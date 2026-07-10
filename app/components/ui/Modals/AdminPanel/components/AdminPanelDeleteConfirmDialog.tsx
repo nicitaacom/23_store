@@ -14,7 +14,7 @@ import useToast from "@/store/ui/useToast"
 type DeleteStatus = "pending" | "deleting" | "done" | "error"
 
 function BulkProgressToast({ items }: { items: { title: string; status: DeleteStatus }[] }) {
-  const done = items.filter(i => i.status === "done").length
+  const done = items.filter(item => item.status === "done").length
   const total = items.length
   const progress = Math.round((done / total) * 100)
 
@@ -31,8 +31,8 @@ function BulkProgressToast({ items }: { items: { title: string; status: DeleteSt
         />
       </div>
       <ul className="mt-1 max-h-[160px] space-y-1 overflow-y-auto">
-        {items.map((item, i) => (
-          <li key={i} className="flex items-center gap-2 text-xs">
+        {items.map((item, index) => (
+          <li key={index} className="flex items-center gap-2 text-xs">
             {item.status === "done" && <BiCheck size={13} className="shrink-0 text-success" />}
             {item.status === "error" && <BiErrorCircle size={13} className="shrink-0 text-danger" />}
             {item.status === "deleting" && <BiLoaderAlt size={13} className="shrink-0 animate-spin text-subTitle" />}
@@ -80,7 +80,10 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
     onClose()
 
     if (isBulk) {
-      const items: { title: string; status: DeleteStatus }[] = products.map(p => ({ title: p.title, status: "pending" }))
+      const items: { title: string; status: DeleteStatus }[] = products.map(singleProduct => ({
+        title: singleProduct.title,
+        status: "pending",
+      }))
 
       const update = (nextItems: typeof items) =>
         toast.show("warning", `Deleting ${products.length} products…`, <BulkProgressToast items={nextItems} />, null)
@@ -88,17 +91,17 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
       update(items)
 
       let hasError = false
-      for (let i = 0; i < products.length; i++) {
-        items[i] = { ...items[i], status: "deleting" }
+      for (let index = 0; index < products.length; index++) {
+        items[index] = { ...items[index], status: "deleting" }
         update([...items])
-        const snapshot = useOwnerProductsStore.getState().products.find(p => p.id === products[i].id)
-        useOwnerProductsStore.getState().removeProduct(products[i].id)
+        const snapshot = useOwnerProductsStore.getState().products.find(singleProduct => singleProduct.id === products[index].id)
+        useOwnerProductsStore.getState().removeProduct(products[index].id)
         try {
-          await productsSDK.deleteProduct({ id: products[i].id })
-          items[i] = { ...items[i], status: "done" }
+          await productsSDK.deleteProduct({ id: products[index].id })
+          items[index] = { ...items[index], status: "done" }
         } catch (error) {
           if (snapshot) useOwnerProductsStore.getState().addProduct(snapshot)
-          items[i] = { ...items[i], status: "error" }
+          items[index] = { ...items[index], status: "error" }
           hasError = true
         }
         update([...items])
@@ -106,14 +109,14 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
 
       await cartStore.fetchProductsData()
 
-      const doneCount = items.filter(i => i.status === "done").length
+      const doneCount = items.filter(item => item.status === "done").length
       if (hasError) {
         toast.show("error", `Deleted ${doneCount} of ${products.length}`, <BulkProgressToast items={items} />, 6000)
       } else {
         toast.show("success", tProduct("product_deleted"), tProduct("product_deleted_subtitle"), 3500)
       }
     } else {
-      const snapshot = useOwnerProductsStore.getState().products.find(p => p.id === products[0].id)
+      const snapshot = useOwnerProductsStore.getState().products.find(singleProduct => singleProduct.id === products[0].id)
       useOwnerProductsStore.getState().removeProduct(products[0].id)
       try {
         await productsSDK.deleteProduct({ id: products[0].id })
@@ -167,10 +170,10 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
                   {products.length} products selected
                 </p>
                 <ul className="mt-2 space-y-1.5">
-                  {products.map(p => (
-                    <li key={p.id} className="flex items-center gap-2 text-sm font-semibold leading-5 text-title">
+                  {products.map(singleProduct => (
+                    <li key={singleProduct.id} className="flex items-center gap-2 text-sm font-semibold leading-5 text-title">
                       <BiTrash size={13} className="shrink-0 text-danger/70" />
-                      {p.title}
+                      {singleProduct.title}
                     </li>
                   ))}
                 </ul>

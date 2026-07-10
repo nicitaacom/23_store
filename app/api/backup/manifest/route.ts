@@ -16,14 +16,14 @@ export async function GET() {
     refs.push(...(await listBucketObjects(supabaseAdmin.storage, bucket)))
   }
 
-  const totalBytes = refs.reduce((sum, r) => sum + r.size, 0)
+  const totalBytes = refs.reduce((sum, ref) => sum + ref.size, 0)
 
   return NextResponse.json(
     {
       fileCount: refs.length,
       totalBytes,
       // Only sizes are sent — paths are not needed client-side and would bloat the response.
-      refSizes: refs.map(r => r.size),
+      refSizes: refs.map(ref => ref.size),
     } satisfies API.BackupManifestResponse,
     { headers: { "Cache-Control": "no-store" } },
   )

@@ -123,25 +123,25 @@ export function ProductInput({
     validate:
       id === "title"
         ? (value: string | number) => {
-            const str = String(value ?? "")
-            if (!str || (patternValue && patternValue.test(str))) return true
-            const invalidCharacterMessage = getInvalidCharacterMessage(id, str)
+            const titleValue = String(value ?? "")
+            if (!titleValue || (patternValue && patternValue.test(titleValue))) return true
+            const invalidCharacterMessage = getInvalidCharacterMessage(id, titleValue)
             if (invalidCharacterMessage) return invalidCharacterMessage
-            if (str.length < MIN_PRODUCT_TITLE_LENGTH) return t("title_too_short")
-            if (str.length > MAX_PRODUCT_TITLE_LENGTH)
-              return t("title_too_long", { current: str.length, max: MAX_PRODUCT_TITLE_LENGTH })
-            if (!PRODUCT_TITLE_HAS_LETTER_REGEX.test(str)) return t("title_must_contain_letter")
-            if (!PRODUCT_TITLE_MUST_START_REGEX.test(str)) return t("title_must_start_alphanumeric")
+            if (titleValue.length < MIN_PRODUCT_TITLE_LENGTH) return t("title_too_short")
+            if (titleValue.length > MAX_PRODUCT_TITLE_LENGTH)
+              return t("title_too_long", { current: titleValue.length, max: MAX_PRODUCT_TITLE_LENGTH })
+            if (!PRODUCT_TITLE_HAS_LETTER_REGEX.test(titleValue)) return t("title_must_contain_letter")
+            if (!PRODUCT_TITLE_MUST_START_REGEX.test(titleValue)) return t("title_must_start_alphanumeric")
             return patternMessage
           }
         : id === "subTitle"
           ? (value: string | number) => {
-              const str = String(value ?? "").replace(/\r/g, "")
-              if (!str.trim()) return required ? t("this_field_is_required") : true
-              if (str.trim().length < MIN_PRODUCT_DESCRIPTION_LENGTH) return t("description_too_short")
-              if (str.length > MAX_PRODUCT_DESCRIPTION_LENGTH)
+              const subtitleValue = String(value ?? "").replace(/\r/g, "")
+              if (!subtitleValue.trim()) return required ? t("this_field_is_required") : true
+              if (subtitleValue.trim().length < MIN_PRODUCT_DESCRIPTION_LENGTH) return t("description_too_short")
+              if (subtitleValue.length > MAX_PRODUCT_DESCRIPTION_LENGTH)
                 return t("description_too_long", { max: MAX_PRODUCT_DESCRIPTION_LENGTH })
-              const invalidCharacterMessage = getInvalidCharacterMessage(id, str)
+              const invalidCharacterMessage = getInvalidCharacterMessage(id, subtitleValue)
               if (invalidCharacterMessage) return invalidCharacterMessage
               return true
             }

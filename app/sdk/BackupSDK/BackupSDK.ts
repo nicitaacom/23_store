@@ -86,10 +86,10 @@ export class BackupSDK extends BaseSDK {
     const archiveFiles: Blob[] = []
     const fileNames: string[] = []
 
-    for (let i = 0; i < chunks.length; i++) {
-      const [from, to] = chunks[i]
-      const chunkFractionStart = i / chunks.length
-      const chunkFractionEnd = (i + 1) / chunks.length
+    for (let index = 0; index < chunks.length; index++) {
+      const [from, to] = chunks[index]
+      const chunkFractionStart = index / chunks.length
+      const chunkFractionEnd = (index + 1) / chunks.length
 
       const archiveFile = await this.streamExport(
         `/api/backup/export?from=${from}&to=${to}`,
@@ -97,7 +97,7 @@ export class BackupSDK extends BaseSDK {
       )
       archiveFiles.push(archiveFile)
       const date = new Date().toISOString().slice(0, 10)
-      fileNames.push(`23_backup-${date}-part${i + 1}of${chunks.length}.tar.gz`)
+      fileNames.push(`23_backup-${date}-part${index + 1}of${chunks.length}.tar.gz`)
     }
 
     onProgress?.(1)
@@ -174,7 +174,7 @@ export class BackupSDK extends BaseSDK {
   private base64ToBlob(base64: string) {
     const binary = atob(base64)
     const bytes = new Uint8Array(binary.length)
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+    for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index)
     return new Blob([bytes], { type: "application/gzip" })
   }
 }

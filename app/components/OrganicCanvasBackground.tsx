@@ -80,32 +80,33 @@ class Particle {
   }
 
   // organic noise function for smooth random movement
-  noise(x: number): number {
-    const intX = Math.floor(x)
-    const fracX = x - intX
-    const a = this.hash(intX)
-    const b = this.hash(intX + 1)
-    return this.lerp(a, b, this.smoothstep(fracX))
+  noise(value: number): number {
+    const intX = Math.floor(value)
+    const fracX = value - intX
+    const start = this.hash(intX)
+    const end = this.hash(intX + 1)
+    return this.lerp(start, end, this.smoothstep(fracX))
   }
 
-  hash(x: number): number {
-    x = ((x >> 16) ^ x) * 0x45d9f3b
-    x = ((x >> 16) ^ x) * 0x45d9f3b
-    x = (x >> 16) ^ x
-    return (x / 0x100000000 + 0.5) * 2 - 1
+  hash(value: number): number {
+    let hashed = value
+    hashed = ((hashed >> 16) ^ hashed) * 0x45d9f3b
+    hashed = ((hashed >> 16) ^ hashed) * 0x45d9f3b
+    hashed = (hashed >> 16) ^ hashed
+    return (hashed / 0x100000000 + 0.5) * 2 - 1
   }
 
-  lerp(a: number, b: number, t: number): number {
-    return a + (b - a) * t
+  lerp(start: number, end: number, progress: number): number {
+    return start + (end - start) * progress
   }
 
-  smoothstep(t: number): number {
-    return t * t * (3 - 2 * t)
+  smoothstep(progress: number): number {
+    return progress * progress * (3 - 2 * progress)
   }
 
   // Ease-in-out function for smooth scaling
-  easeInOut(t: number): number {
-    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+  easeInOut(progress: number): number {
+    return progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress
   }
 
   update() {

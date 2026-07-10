@@ -66,7 +66,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
   // Resolve category filter
   const categoryParamRaw = searchParams["category"]
   const categoryParam = typeof categoryParamRaw === "string" ? categoryParamRaw : null
-  const knownIds = categories.map(c => c.id)
+  const knownIds = categories.map(category => category.id)
   const validCategory = categoryParam && knownIds.includes(categoryParam) ? categoryParam : null
 
   const searchQueryValue = searchParams["query"]
@@ -79,7 +79,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
 
   let categoryIds: string[] | undefined
   if (validCategory && !searchQuery) {
-    const childIds = categories.filter(c => c.parent_id === validCategory).map(c => c.id)
+    const childIds = categories.filter(category => category.parent_id === validCategory).map(category => category.id)
     categoryIds = [validCategory, ...childIds]
   }
 

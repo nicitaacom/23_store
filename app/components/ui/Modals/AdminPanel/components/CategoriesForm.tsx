@@ -30,9 +30,12 @@ export function CategoriesForm() {
   const [isSubmittingCategoryChange, setIsSubmittingCategoryChange] = useState(false)
   const addInputRef = useRef<HTMLInputElement>(null)
 
-  const parentCategories = categories.filter(c => c.parent_id === null)
+  const parentCategories = categories.filter(category => category.parent_id === null)
 
-  const childrenOf = useCallback((parentId: string) => categories.filter(c => c.parent_id === parentId), [categories])
+  const childrenOf = useCallback(
+    (parentId: string) => categories.filter(category => category.parent_id === parentId),
+    [categories],
+  )
 
   if (categories.length !== prevCategoriesLength) {
     setPrevCategoriesLength(categories.length)
@@ -131,8 +134,8 @@ export function CategoriesForm() {
               value={addParentId ?? ""}
               onChange={e => setAddParentId(e.target.value || null)}>
               <option value="">Root category (no parent)</option>
-              {parentCategories.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+              {parentCategories.map(category => (
+                <option key={category.id} value={category.id}>{category.name}</option>
               ))}
             </select>
             <button

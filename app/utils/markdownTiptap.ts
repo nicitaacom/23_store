@@ -3,42 +3,42 @@ type TiptapNode = { type: string; text?: string; marks?: TiptapMark[]; content?:
 
 function parseLine(text: string): TiptapNode[] {
   const nodes: TiptapNode[] = []
-  let i = 0
+  let charIndex = 0
   let textBuffer = ""
 
   const flush = () => {
     if (textBuffer) { nodes.push({ type: "text", text: textBuffer }); textBuffer = "" }
   }
 
-  while (i < text.length) {
-    if (text[i] === "*" && text[i + 1] === "*") {
-      const end = text.indexOf("**", i + 2)
+  while (charIndex < text.length) {
+    if (text[charIndex] === "*" && text[charIndex + 1] === "*") {
+      const end = text.indexOf("**", charIndex + 2)
       if (end !== -1) {
         flush()
-        nodes.push({ type: "text", text: text.slice(i + 2, end), marks: [{ type: "bold" }] })
-        i = end + 2
+        nodes.push({ type: "text", text: text.slice(charIndex + 2, end), marks: [{ type: "bold" }] })
+        charIndex = end + 2
         continue
       }
     }
-    if (text[i] === "_") {
-      const end = text.indexOf("_", i + 1)
+    if (text[charIndex] === "_") {
+      const end = text.indexOf("_", charIndex + 1)
       if (end !== -1) {
         flush()
-        nodes.push({ type: "text", text: text.slice(i + 1, end), marks: [{ type: "underline" }] })
-        i = end + 1
+        nodes.push({ type: "text", text: text.slice(charIndex + 1, end), marks: [{ type: "underline" }] })
+        charIndex = end + 1
         continue
       }
     }
-    if (text[i] === "*" && text[i + 1] !== "*") {
-      const end = text.indexOf("*", i + 1)
+    if (text[charIndex] === "*" && text[charIndex + 1] !== "*") {
+      const end = text.indexOf("*", charIndex + 1)
       if (end !== -1 && text[end + 1] !== "*") {
         flush()
-        nodes.push({ type: "text", text: text.slice(i + 1, end), marks: [{ type: "italic" }] })
-        i = end + 1
+        nodes.push({ type: "text", text: text.slice(charIndex + 1, end), marks: [{ type: "italic" }] })
+        charIndex = end + 1
         continue
       }
     }
-    textBuffer += text[i++]
+    textBuffer += text[charIndex++]
   }
   flush()
   return nodes
@@ -47,20 +47,20 @@ function parseLine(text: string): TiptapNode[] {
 export function markdownToTiptap(markdown: string): TiptapNode {
   const lines = (markdown || "").split("\n")
   const content: TiptapNode[] = []
-  let i = 0
+  let lineIndex = 0
 
-  while (i < lines.length) {
-    const line = lines[i]
+  while (lineIndex < lines.length) {
+    const line = lines[lineIndex]
     if (line.startsWith("* ")) {
       const items: TiptapNode[] = []
-      while (i < lines.length && lines[i].startsWith("* ")) {
-        items.push({ type: "listItem", content: [{ type: "paragraph", content: parseLine(lines[i].slice(2)) }] })
-        i++
+      while (lineIndex < lines.length && lines[lineIndex].startsWith("* ")) {
+        items.push({ type: "listItem", content: [{ type: "paragraph", content: parseLine(lines[lineIndex].slice(2)) }] })
+        lineIndex++
       }
       content.push({ type: "bulletList", content: items })
     } else {
       content.push({ type: "paragraph", content: parseLine(line) })
-      i++
+      lineIndex++
     }
   }
 

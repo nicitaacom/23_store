@@ -10,7 +10,7 @@ const FETCH_TIMEOUT = 6000 // ms
 const USER_AGENT = "Mozilla/5.0 (compatible; PriceBot/1.0; +https://example.com)"
 
 // clamp helper
-const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
 
 function htmlToCleanText(html: string, maxLength = MAX_CLEAN_LENGTH): string {
   if (!html) return ""
@@ -52,9 +52,11 @@ export async function fetchPricesRaw(query: string, topN = 5): Promise<number[]>
 
     const cleanText = htmlToCleanText(html)
     const matches = cleanText.match(/[$€]\s?[0-9]+(\.[0-9]{1,2})?/g) || []
-    const prices = matches.map(m => parseFloat(m.replace(/[$€\s]/g, ""))).filter(n => Number.isFinite(n) && n > 0)
+    const prices = matches
+      .map(match => parseFloat(match.replace(/[$€\s]/g, "")))
+      .filter(price => Number.isFinite(price) && price > 0)
 
-    const uniqueSorted = Array.from(new Set(prices)).sort((a, b) => a - b)
+    const uniqueSorted = Array.from(new Set(prices)).sort((priceA, priceB) => priceA - priceB)
     return uniqueSorted.slice(0, topN)
   } catch (error) {
     // keep errors quiet but log on server
@@ -79,7 +81,7 @@ function derivePriceFromSources(sourcePrices: number[], title: string, subtitle:
     return clamp(fallback, min, max)
   }
 
-  const sorted = [...sourcePrices].sort((a, b) => a - b)
+  const sorted = [...sourcePrices].sort((priceA, priceB) => priceA - priceB)
   const mid = Math.floor(sorted.length / 2)
   const median = sorted.length % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
   const p25 = sorted[Math.max(0, Math.floor(sorted.length * 0.25))]

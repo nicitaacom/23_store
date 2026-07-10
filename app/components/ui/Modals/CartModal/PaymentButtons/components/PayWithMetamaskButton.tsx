@@ -43,8 +43,8 @@ function toChecksumAddress(address: string): string {
     .reduce((acc, code) => ((acc << 5) - acc + code) | 0, 0)
     .toString(16)
   let checksumAddress = "0x"
-  for (let i = 0; i < address.length; i++) {
-    checksumAddress += parseInt(hash[i % hash.length], 16) > 7 ? address[i].toUpperCase() : address[i]
+  for (let index = 0; index < address.length; index++) {
+    checksumAddress += parseInt(hash[index % hash.length], 16) > 7 ? address[index].toUpperCase() : address[index]
   }
   return checksumAddress
 }

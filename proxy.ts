@@ -190,10 +190,10 @@ export async function proxy(request: NextRequest) {
   const localePageRateLimitResponse = await enforceLocalePageRateLimit(request, hasVerifiedTurnstile)
   if (localePageRateLimitResponse) return localePageRateLimitResponse
 
-  const res = NextResponse.next()
+  const middlewareResponse = NextResponse.next()
 
   // 2. init Supabase middleware client
-  const supabase = createMiddlewareClient({ req: request, res })
+  const supabase = createMiddlewareClient({ req: request, res: middlewareResponse })
 
   // 3. check session
   const { data } = await supabase.auth.getSession()
@@ -210,8 +210,8 @@ export async function proxy(request: NextRequest) {
 
   // 5. attach headers
   if (user) {
-    res.headers.set("x-user-id", user.id)
-    res.headers.set("x-user", encodeBase64Fn(JSON.stringify(user)))
+    middlewareResponse.headers.set("x-user-id", user.id)
+    middlewareResponse.headers.set("x-user", encodeBase64Fn(JSON.stringify(user)))
   }
 
   // 6. role-based protected routes
@@ -229,8 +229,8 @@ export async function proxy(request: NextRequest) {
     return new NextResponse("Forbidden", { status: 403 })
   }
 
-  // 7. return same res so Supabase cookies sync
-  return res
+  // 7. return same middlewareResponse so Supabase cookies sync
+  return middlewareResponse
 }
 
 // 8. middleware matcher

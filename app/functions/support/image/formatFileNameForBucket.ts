@@ -23,7 +23,7 @@ export function formatFileNameForBucket(
     .replace(/[_\s\-()%{}\[\]öäüßçàáâãèéêëìíîïòóôõùúûü]+/gi, " ") // replace _ßS with one space
     .replace(/[^a-zA-Z0-9 :.\-]/g, "") // ✅ Allow only lettersA, numbers7, spaces , . and : and dashes- to fix this https://i.imgur.com/X0uNCF7.png
     .replace(/\s+/g, " ") // 🔁 Normalize multiple spaces to single space
-    .replace(/^./, str => str.toUpperCase()) // Capitalize first letter only - allow other words to be capitalized e.g Pizza margherita Italy edition
+    .replace(/^./, firstChar => firstChar.toUpperCase()) // Capitalize first letter only - allow other words to be capitalized e.g Pizza margherita Italy edition
     .trim() // ✂️ Remove leading/trailing spaces
 
   const folder = `${folder_ ? `${folder_}/` : ""}`

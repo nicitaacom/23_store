@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      const send = (obj: unknown) => controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"))
+      const send = (payload: unknown) => controller.enqueue(encoder.encode(JSON.stringify(payload) + "\n"))
 
       try {
         // Tables are included in the full export and in the first chunk only.

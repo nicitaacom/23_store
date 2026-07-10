@@ -89,9 +89,9 @@ export function getProductPrimaryImageUrl(product: Pick<TProductDB, "img_url">) 
 }
 
 export function sortProductsByLocale<T extends { translations: ProductTranslations }>(products: T[], locale: ProductLocale = "fi") {
-  return [...products].sort((a, b) => {
-    const left = a.translations[locale]?.title || a.translations.fi.title
-    const right = b.translations[locale]?.title || b.translations.fi.title
+  return [...products].sort((productA, productB) => {
+    const left = productA.translations[locale]?.title || productA.translations.fi.title
+    const right = productB.translations[locale]?.title || productB.translations.fi.title
 
     return left.localeCompare(right, locale)
   })

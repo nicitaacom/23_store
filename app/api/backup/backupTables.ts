@@ -224,13 +224,13 @@ export async function downloadFilesByRef(
   onProgress?: (done: number, total: number) => void | Promise<void>,
 ): Promise<BackupFile[]> {
   const files: BackupFile[] = []
-  for (let i = 0; i < refs.length; i++) {
-    const ref = refs[i]
+  for (let index = 0; index < refs.length; index++) {
+    const ref = refs[index]
     const { data: downloadedFile, error } = await storage.from(ref.bucket).download(ref.path)
     if (!error && downloadedFile) {
       files.push({ bucket: ref.bucket, path: ref.path, contentType: ref.contentType, body: Buffer.from(await downloadedFile.arrayBuffer()) })
     }
-    await onProgress?.(i + 1, refs.length)
+    await onProgress?.(index + 1, refs.length)
   }
   return files
 }
@@ -242,12 +242,12 @@ export function splitRefsIntoChunks(refs: BackupFileRef[], targetBytes: number):
   const chunks: Array<[number, number]> = []
   let chunkStart = 0
   let chunkBytes = 0
-  for (let i = 0; i < refs.length; i++) {
-    chunkBytes += refs[i].size
-    const isLast = i === refs.length - 1
+  for (let index = 0; index < refs.length; index++) {
+    chunkBytes += refs[index].size
+    const isLast = index === refs.length - 1
     if (chunkBytes >= targetBytes || isLast) {
-      chunks.push([chunkStart, i])
-      chunkStart = i + 1
+      chunks.push([chunkStart, index])
+      chunkStart = index + 1
       chunkBytes = 0
     }
   }

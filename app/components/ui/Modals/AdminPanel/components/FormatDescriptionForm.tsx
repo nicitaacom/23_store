@@ -67,7 +67,10 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
     }
 
     const snapshot = translations
-    updateProduct(id, p => ({ ...p, translations: { ...translations, [locale]: { ...currentTranslation, description: trimmed } } }))
+    updateProduct(id, product => ({
+      ...product,
+      translations: { ...translations, [locale]: { ...currentTranslation, description: trimmed } },
+    }))
     setIsEditing(false)
     setIsLoading(true)
 
@@ -77,7 +80,7 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
       replaceProduct(id, response.product)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
-      updateProduct(id, p => ({ ...p, translations: snapshot }))
+      updateProduct(id, product => ({ ...product, translations: snapshot }))
       toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error), 10000)
     } finally {
       setIsLoading(false)
@@ -106,7 +109,7 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
             ref={descriptionRef}
             onWrapRef={wrapRef}
             value={value}
-            onChange={v => { setValue(v); setError(null) }}
+            onChange={nextValue => { setValue(nextValue); setError(null) }}
             disabled={isLoading}
             placeholder={t("placeholder.description")}
             className={twMerge(isLoading && "animate-pulse")}

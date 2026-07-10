@@ -9,18 +9,18 @@ import { useHasMounted } from "@/hooks/useHasMounted"
 
 function sortByViews(products: TProductDB[], views: Record<string, number>) {
   const topIds = Object.entries(views)
-    .sort(([, a], [, b]) => b - a)
+    .sort(([, viewsA], [, viewsB]) => viewsB - viewsA)
     .map(([id]) => id)
 
   if (topIds.length === 0) return products
 
-  return [...products].sort((a, b) => {
-    const idxA = a.category_id ? topIds.indexOf(a.category_id) : -1
-    const idxB = b.category_id ? topIds.indexOf(b.category_id) : -1
+  return [...products].sort((productA, productB) => {
+    const idxA = productA.category_id ? topIds.indexOf(productA.category_id) : -1
+    const idxB = productB.category_id ? topIds.indexOf(productB.category_id) : -1
     const rankA = idxA === -1 ? Infinity : idxA
     const rankB = idxB === -1 ? Infinity : idxB
     if (rankA !== rankB) return rankA - rankB
-    return (a.price ?? 0) - (b.price ?? 0)
+    return (productA.price ?? 0) - (productB.price ?? 0)
   })
 }
 

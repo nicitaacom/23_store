@@ -57,11 +57,11 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
     }
 
     // Remove from the accumulated pending list
-    pendingUrlsRef.current = pendingUrlsRef.current.filter(u => u !== url)
+    pendingUrlsRef.current = pendingUrlsRef.current.filter(pendingUrl => pendingUrl !== url)
     setDeletingUrls(prev => new Set(prev).add(url))
 
     // Optimistically show the removal immediately
-    updateProduct(id, p => ({ ...p, img_url: pendingUrlsRef.current! }))
+    updateProduct(id, product => ({ ...product, img_url: pendingUrlsRef.current! }))
 
     // Debounce: wait for rapid consecutive deletes before sending API call
     if (deleteTimerRef.current) clearTimeout(deleteTimerRef.current)
@@ -71,7 +71,7 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
       pendingUrlsRef.current = null
       deleteTimerRef.current = null
 
-      setPendingCount(c => c + 1)
+      setPendingCount(count => count + 1)
       try {
         const response = await productsSDK.updateProduct({ productId: id, images: nextUrls })
         if (typeof response === "string") throw new Error(response)
@@ -80,30 +80,30 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         toast.show("error", "Error deleting product image", errorMessage)
-        updateProduct(id, p => ({ ...p, img_url: snapshot }))
+        updateProduct(id, product => ({ ...product, img_url: snapshot }))
         setDeletingUrls(new Set())
       } finally {
-        setPendingCount(c => c - 1)
+        setPendingCount(count => count - 1)
       }
     }, 400)
   }
 
   async function saveImages(nextUrls: string[], filesToUpload: ImageListType, existingImgUrl = imgUrl) {
     setIsLoading(true)
-    setPendingCount(c => c + 1)
+    setPendingCount(count => count + 1)
     try {
       let uploadedUrls: string[] = []
       if (filesToUpload.length > 0) {
         const files = filesToUpload
           .map(img => img.file)
-          .filter((f): f is File => f instanceof File)
+          .filter((file): file is File => file instanceof File)
         uploadedUrls = await uploadProductImages(files, tGlobal)
       }
 
       let uploadIndex = 0
-      const finalUrls = nextUrls.map(u => {
-        if (u.startsWith("data:")) return uploadedUrls[uploadIndex++] ?? u
-        return u
+      const finalUrls = nextUrls.map(nextUrl => {
+        if (nextUrl.startsWith("data:")) return uploadedUrls[uploadIndex++] ?? nextUrl
+        return nextUrl
       })
 
       const response = await productsSDK.updateProduct({ productId: id, images: finalUrls })
@@ -113,10 +113,10 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
       // Remap variant image_url fields to new uploaded URLs (positional: old imgUrl[i] → finalUrls[i])
       const updatedProduct = response.product
       if (updatedProduct.variants?.length) {
-        const urlMap = new Map(existingImgUrl.map((old, i) => [old, finalUrls[i] ?? old]))
-        const remappedVariants = updatedProduct.variants.map(v => ({
-          ...v,
-          image_url: urlMap.get(v.image_url) ?? v.image_url,
+        const urlMap = new Map(existingImgUrl.map((old, index) => [old, finalUrls[index] ?? old]))
+        const remappedVariants = updatedProduct.variants.map(variant => ({
+          ...variant,
+          image_url: urlMap.get(variant.image_url) ?? variant.image_url,
         }))
         const variantsResponse = await productsSDK.updateProduct({ productId: id, variants: remappedVariants })
         if (typeof variantsResponse !== "string") replaceProduct(id, variantsResponse.product)
@@ -127,7 +127,7 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
     } catch (error) {
       toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
     } finally {
-      setPendingCount(c => c - 1)
+      setPendingCount(count => count - 1)
       setIsLoading(false)
     }
   }
@@ -142,7 +142,7 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
       void removeExistingImage(url)
     } else {
       const newIndex = index - imgUrl.length
-      setNewImages(prev => prev.filter((_, i) => i !== newIndex))
+      setNewImages(prev => prev.filter((_, index) => index !== newIndex))
     }
   }
 
@@ -152,7 +152,7 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
     const next = [...allImages]
     const [item] = next.splice(index, 1)
     next.unshift(item)
-    const existingNext = next.filter(u => !u.startsWith("data:"))
+    const existingNext = next.filter(url => !url.startsWith("data:"))
     const newNext = newImages.filter(img => next.includes(img.data_url!))
     void saveImages(existingNext, newNext, snapshot)
   }

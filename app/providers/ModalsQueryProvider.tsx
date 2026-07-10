@@ -30,15 +30,15 @@ function DbBackupModalLoading() {
 }
 
 const AdminPanelModal = dynamic<AdminPanelModalProps>(
-  () => import("@/components/ui/Modals/AdminPanel/AdminPanelModal").then(m => m.AdminPanelModal),
+  () => import("@/components/ui/Modals/AdminPanel/AdminPanelModal").then(module => module.AdminPanelModal),
   { loading: AdminModalLoading },
 )
 
-const CartModal = dynamic(() => import("@/components/ui/Modals/CartModal/CartModal").then(m => m.CartModal), {
+const CartModal = dynamic(() => import("@/components/ui/Modals/CartModal/CartModal").then(module => module.CartModal), {
   loading: CartModalLoading,
 })
 
-const DbBackupModal = dynamic(() => import("@/components/ui/Modals/DbBackup/DbBackupModal").then(m => m.DbBackupModal), {
+const DbBackupModal = dynamic(() => import("@/components/ui/Modals/DbBackup/DbBackupModal").then(module => module.DbBackupModal), {
   loading: DbBackupModalLoading,
 })
 

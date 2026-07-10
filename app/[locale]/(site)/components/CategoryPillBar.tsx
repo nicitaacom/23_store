@@ -40,7 +40,7 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
     activePillRef.current?.scrollIntoView({ behavior: "smooth", inline: "nearest", block: "nearest" })
   }, [mounted, activeCategoryId])
 
-  const rootCategories = useMemo(() => categories.filter(c => c.parent_id === null), [categories])
+  const rootCategories = useMemo(() => categories.filter(category => category.parent_id === null), [categories])
 
   // Merge serverViews with sessionViews for pill ordering
   const mergedViews = useMemo(() => {

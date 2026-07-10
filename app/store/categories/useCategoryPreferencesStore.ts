@@ -35,12 +35,13 @@ const store = (set: SetState, get: () => CategoryPreferencesStore): CategoryPref
 
   getSortedCategories: (categories: TCategory[], serverViews?: Record<string, number>) => {
     const views = serverViews ?? get().views
-    const rootCategories = categories.filter(c => c.parent_id === null)
-    const featured = rootCategories.find(c => c.name === "FEATURED")
-    const rest = rootCategories.filter(c => c.name !== "FEATURED")
+    const rootCategories = categories.filter(category => category.parent_id === null)
+    const featured = rootCategories.find(category => category.name === "FEATURED")
+    const rest = rootCategories.filter(category => category.name !== "FEATURED")
 
     const sorted = rest.sort(
-      (a, b) => (views[b.id] ?? 0) - (views[a.id] ?? 0) || a.name.localeCompare(b.name),
+      (categoryA, categoryB) =>
+        (views[categoryB.id] ?? 0) - (views[categoryA.id] ?? 0) || categoryA.name.localeCompare(categoryB.name),
     )
 
     return featured ? [featured, ...sorted] : sorted

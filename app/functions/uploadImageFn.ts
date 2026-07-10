@@ -76,11 +76,11 @@ export async function uploadImageFn({
   let index = 1
   let finalFileName = `${baseName}.${ext}`
 
-  while (matching.some(f => f.name === `${baseName}_${index}.${ext}`)) index++
-  if (matching.some(f => f.name === `${baseName}.${ext}`)) finalFileName = `${baseName}_${index}.${ext}`
+  while (matching.some(file => file.name === `${baseName}_${index}.${ext}`)) index++
+  if (matching.some(file => file.name === `${baseName}.${ext}`)) finalFileName = `${baseName}_${index}.${ext}`
 
   // 6. Optional: log what’s going on
-  console.log(`🧠 Existing variants: ${matching.map(f => f.name).join(", ")}`)
+  console.log(`🧠 Existing variants: ${matching.map(file => file.name).join(", ")}`)
   console.log(`✅ Final file name: ${finalFileName}`)
 
   // 7. Upload

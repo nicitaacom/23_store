@@ -52,15 +52,15 @@ export async function POST(request: Request) {
   // Re-upload storage files (upsert overwrites existing objects at the same path).
   const buckets: API.BackupImportBucketResult[] = []
   const byBucket = new Map<string, BackupFile[]>()
-  for (const f of files) byBucket.set(f.bucket, [...(byBucket.get(f.bucket) ?? []), f])
+  for (const file of files) byBucket.set(file.bucket, [...(byBucket.get(file.bucket) ?? []), file])
 
   for (const [bucket, bucketFiles] of byBucket) {
     let uploaded = 0
     let failed = 0
-    for (const f of bucketFiles) {
+    for (const file of bucketFiles) {
       const { error } = await supabaseAdmin.storage
         .from(bucket)
-        .upload(f.path, f.body, { contentType: f.contentType, upsert: true })
+        .upload(file.path, file.body, { contentType: file.contentType, upsert: true })
       if (error) failed += 1
       else uploaded += 1
     }

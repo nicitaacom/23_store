@@ -19,7 +19,7 @@ export async function GET(req: Request) {
 
   // Count products directly assigned to this category + all its children
   const { data: children } = await supabase.from("23_categories").select("id").eq("parent_id", id)
-  const childIds = (children ?? []).map(c => c.id)
+  const childIds = (children ?? []).map(category => category.id)
   const categoryIds = [id, ...childIds]
 
   const { count, error } = await supabase

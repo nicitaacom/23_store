@@ -17,7 +17,7 @@ type FunctionResult = {
 
 type HandlerArgs = Record<string, unknown>
 
-const fallbackT: TI18nFunction = (k: string) => k
+const fallbackT: TI18nFunction = (key: string) => key
 
 async function addProductToCartHandler(args: HandlerArgs): Promise<FunctionResult> {
   const { product, quantity = 1 } = args
@@ -42,7 +42,7 @@ async function addProductToCartHandler(args: HandlerArgs): Promise<FunctionResul
     })
     if (!createdProduct?.id) return { success: false, message: "Failed to create product. No id." }
 
-    for (let i = 0; i < Number(quantity || 1); i++) increaseProductQuantity(createdProduct.id)
+    for (let index = 0; index < Number(quantity || 1); index++) increaseProductQuantity(createdProduct.id)
 
     const quantityText = Number(quantity) > 1 ? `${quantity}x ${typed.title}` : typed.title
     return {
@@ -59,13 +59,13 @@ async function addProductToCartHandler(args: HandlerArgs): Promise<FunctionResul
 async function generateImageHandler(args: HandlerArgs): Promise<FunctionResult> {
   const prompt = (args.prompt as string) ?? ""
   const memory = (args.memory as string) ?? ""
-  const t = (args.t as unknown as TI18nFunction) ?? fallbackT
+  const i18n = (args.t as unknown as TI18nFunction) ?? fallbackT
 
   if (!prompt) return { success: false, message: "Missing prompt for image generation." }
 
   try {
     const rateLimitSDK = new RateLimitSDK()
-    await rateLimitSDK.rateLimit(t, "aiGenerateImage")
+    await rateLimitSDK.rateLimit(i18n, "aiGenerateImage")
 
     // ⚡ Combine memory + current prompt to generate accurate image
     const fullPrompt = [memory, prompt].filter(Boolean).join(" - ")
@@ -76,13 +76,13 @@ async function generateImageHandler(args: HandlerArgs): Promise<FunctionResult> 
       type: generatedImage.contentType,
     })
 
-    const uploadResult = await uploadImageFn({ t, imageFile, bucket: "23_public-images" })
+    const uploadResult = await uploadImageFn({ t: i18n, imageFile, bucket: "23_public-images" })
     if (!uploadResult || typeof uploadResult === "string") {
       return { success: false, message: `Image upload failed: ${uploadResult ?? "unknown"}` }
     }
 
     const publicUrl = uploadResult.publicUrl
-    const userMsg = t("aichat.generate_image_completed") || `Here is your image:`
+    const userMsg = i18n("aichat.generate_image_completed") || `Here is your image:`
 
     const newMemory = `${memory ? memory + " | " : ""}generated-image:${publicUrl}`
 

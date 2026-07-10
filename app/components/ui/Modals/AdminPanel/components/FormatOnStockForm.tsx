@@ -40,7 +40,7 @@ export function FormatOnStockForm({ id, onStock, isDerivedFromVariants = false }
   async function updateOnStock(nextOnStock: number) {
     const snapshot = onStock
 
-    updateProduct(id, p => ({ ...p, on_stock: nextOnStock }))
+    updateProduct(id, product => ({ ...product, on_stock: nextOnStock }))
     isEditingRef.current = false
     setIsEditing(false)
     setIsLoading(true)
@@ -51,7 +51,7 @@ export function FormatOnStockForm({ id, onStock, isDerivedFromVariants = false }
       replaceProduct(id, response.product)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
-      updateProduct(id, p => ({ ...p, on_stock: snapshot }))
+      updateProduct(id, product => ({ ...product, on_stock: snapshot }))
       toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)

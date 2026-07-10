@@ -35,15 +35,19 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
     return () => clearTimeout(timer)
   }, [open])
 
-  const parents = categories.filter(c => c.parent_id === null)
-  const childrenOf = (parentId: string) => categories.filter(c => c.parent_id === parentId)
+  const parents = categories.filter(category => category.parent_id === null)
+  const childrenOf = (parentId: string) => categories.filter(category => category.parent_id === parentId)
 
-  const q = search.toLowerCase().trim()
-  const filteredParents = q
-    ? parents.filter(p => p.name.toLowerCase().includes(q) || childrenOf(p.id).some(c => c.name.toLowerCase().includes(q)))
+  const query = search.toLowerCase().trim()
+  const filteredParents = query
+    ? parents.filter(
+        parent =>
+          parent.name.toLowerCase().includes(query) ||
+          childrenOf(parent.id).some(child => child.name.toLowerCase().includes(query)),
+      )
     : parents
 
-  const selectedName = categories.find(c => c.id === value)?.name ?? uncategorizedLabel
+  const selectedName = categories.find(category => category.id === value)?.name ?? uncategorizedLabel
 
   const handleSelect = (id: string | null) => {
     onChange(id)
@@ -56,7 +60,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
         type="button"
         tabIndex={-1}
         disabled={disabled}
-        onClick={() => setOpen(v => !v)}
+        onClick={() => setOpen(prevOpen => !prevOpen)}
         className={twMerge(
           "flex h-10 w-full items-center justify-between gap-2 rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white transition-colors duration-150",
           "hover:border-white/25 hover:bg-white/[0.09] focus:outline-none",
@@ -93,7 +97,9 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
           </button>
 
           {filteredParents.map(parent => {
-            const children = childrenOf(parent.id).filter(c => !q || c.name.toLowerCase().includes(q) || parent.name.toLowerCase().includes(q))
+            const children = childrenOf(parent.id).filter(
+              child => !query || child.name.toLowerCase().includes(query) || parent.name.toLowerCase().includes(query),
+            )
             return (
               <div key={parent.id}>
                 <button

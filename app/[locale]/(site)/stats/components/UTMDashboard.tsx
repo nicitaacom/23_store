@@ -177,7 +177,7 @@ const getMockData = (year: number, month: number): IUTMAggregatedStats => {
       name,
       count: Math.round((100 + index * 50) * baseMultiplier * (0.7 + Math.random() * 0.6)),
     }))
-    .sort((a, b) => b.count - a.count)
+    .sort((statA, statB) => statB.count - statA.count)
   const countryStats: IUTMCountryStat[] = [
     { name: "Finland", code: "FI", count: Math.round(420 * baseMultiplier) },
     { name: "Sweden", code: "SE", count: Math.round(220 * baseMultiplier) },
@@ -414,7 +414,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
   ]
 
   const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: currentYear - FIRST_YEAR + 1 }, (_, i) => currentYear - i)
+  const years = Array.from({ length: currentYear - FIRST_YEAR + 1 }, (_, index) => currentYear - index)
 
   const handleDateChange = (year: number, month: number) => {
     setIsAnimating(true)

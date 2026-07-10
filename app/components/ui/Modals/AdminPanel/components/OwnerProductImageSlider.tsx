@@ -19,12 +19,12 @@ export function OwnerProductImageSlider({ images, title, onClickSlide }: OwnerPr
 
   const prev = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setSlideIndex(i => Math.max(0, i - 1))
+    setSlideIndex(prevIndex => Math.max(0, prevIndex - 1))
   }
 
   const next = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setSlideIndex(i => Math.min(images.length - 1, i + 1))
+    setSlideIndex(prevIndex => Math.min(images.length - 1, prevIndex + 1))
   }
 
   return (

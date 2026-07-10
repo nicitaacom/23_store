@@ -45,9 +45,11 @@ export async function POST(req: NextRequest) {
   if (typeof categoriesResult === "string")
     return NextResponse.json({ error: categoriesResult } satisfies API.AISuggestCategoryResponse, { status: 500 })
 
-  const categoryList = categoriesResult.map(c => ({ id: c.id, name: c.name }))
+  const categoryList = categoriesResult.map(category => ({ id: category.id, name: category.name }))
 
-  const categoryLines = categoryList.map((c, index) => `${index + 1}. "${c.name}" = ${c.id}`).join("\n")
+  const categoryLines = categoryList
+    .map((category, index) => `${index + 1}. "${category.name}" = ${category.id}`)
+    .join("\n")
 
   const systemPrompt = `You are a product categorization assistant for an e-commerce store.
 Your only job is to pick the single most fitting category ID from the list below.
@@ -76,7 +78,7 @@ ${categoryLines}`
     })
 
     const raw = completion.choices[0]?.message?.content?.trim() || "null"
-    const isKnownId = isValidUUID(raw) && categoryList.some(c => c.id === raw)
+    const isKnownId = isValidUUID(raw) && categoryList.some(category => category.id === raw)
     const category_id = isKnownId ? raw : null
 
     return NextResponse.json({ category_id } satisfies API.AISuggestCategoryResponse, { status: 200 })

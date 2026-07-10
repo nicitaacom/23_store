@@ -27,7 +27,9 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
   const [isBulkMode, setIsBulkMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
-  const sortedProducts = [...ownerProducts].sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
+  const sortedProducts = [...ownerProducts].sort(
+    (productA, productB) => (productB.created_at ?? "").localeCompare(productA.created_at ?? ""),
+  )
   const filteredProducts = searchQuery.trim() ? filterProductsBySearchQuery(sortedProducts, searchQuery) : sortedProducts
 
   function toggleSelect(id: string) {
@@ -43,7 +45,7 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
     if (selectedIds.size === filteredProducts.length) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(filteredProducts.map(p => p.id)))
+      setSelectedIds(new Set(filteredProducts.map(product => product.id)))
     }
   }
 
@@ -52,7 +54,7 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
     setSelectedIds(new Set())
   }
 
-  const selectedProducts = ownerProducts.filter(p => selectedIds.has(p.id))
+  const selectedProducts = ownerProducts.filter(product => selectedIds.has(product.id))
   const allSelected = filteredProducts.length > 0 && selectedIds.size === filteredProducts.length
   const someSelected = selectedIds.size > 0 && !allSelected
 
@@ -88,7 +90,14 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
                     size="sm"
                     variant="danger"
                     disabled={selectedIds.size === 0}
-                    onClick={() => onRequestDelete(selectedProducts.map(p => ({ id: p.id, title: p.translations.en?.title ?? p.id })))}
+                    onClick={() =>
+                      onRequestDelete(
+                        selectedProducts.map(product => ({
+                          id: product.id,
+                          title: product.translations.en?.title ?? product.id,
+                        })),
+                      )
+                    }
                     className="shrink-0 gap-1.5">
                     <BiTrash size={14} />
                     Delete{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}

@@ -38,8 +38,8 @@ export function useDbBackup() {
       if (archiveFiles.length === 1) {
         downloadArchiveFile(archiveFiles[0], `23_backup-${date}.tar.gz`)
       } else {
-        for (let i = 0; i < archiveFiles.length; i++) {
-          downloadArchiveFile(archiveFiles[i], fileNames[i] ?? `23_backup-${date}-part${i + 1}.tar.gz`)
+        for (let index = 0; index < archiveFiles.length; index++) {
+          downloadArchiveFile(archiveFiles[index], fileNames[index] ?? `23_backup-${date}-part${index + 1}.tar.gz`)
         }
         toast.show("success", t("export_split"), "", 4000)
       }
@@ -59,9 +59,9 @@ export function useDbBackup() {
         setBuckets([])
         const tableResults: API.BackupImportTableResult[] = []
         const bucketResults: API.BackupImportBucketResult[] = []
-        for (let i = 0; i < files.length; i++) {
-          const response = await backupSDK.importBackup(files[i], fraction =>
-            setImportProgress((i + fraction) / files.length),
+        for (let index = 0; index < files.length; index++) {
+          const response = await backupSDK.importBackup(files[index], fraction =>
+            setImportProgress((index + fraction) / files.length),
           )
           if ("error" in response) throw new Error(response.error)
           tableResults.push(...response.results)

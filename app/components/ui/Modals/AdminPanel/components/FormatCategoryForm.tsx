@@ -34,14 +34,14 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
   }, [categories.length, hydrate])
 
   const currentName =
-    categories.find(c => c.id === category_id)?.name ?? t("category.uncategorized")
+    categories.find(category => category.id === category_id)?.name ?? t("category.uncategorized")
 
-  const parentCategories = categories.filter(c => c.parent_id === null)
-  const childrenOf = (parentId: string) => categories.filter(c => c.parent_id === parentId)
+  const parentCategories = categories.filter(category => category.parent_id === null)
+  const childrenOf = (parentId: string) => categories.filter(category => category.parent_id === parentId)
 
   const handleSave = async () => {
     const snapshot = category_id ?? null
-    updateProduct(id, p => ({ ...p, category_id: selectedId }))
+    updateProduct(id, product => ({ ...product, category_id: selectedId }))
     setIsEditing(false)
     setIsUpdatingCategory(true)
 
@@ -50,7 +50,7 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
       if (typeof response === "string") throw new Error(response)
       replaceProduct(id, response.product)
     } catch (error) {
-      updateProduct(id, p => ({ ...p, category_id: snapshot }))
+      updateProduct(id, product => ({ ...product, category_id: snapshot }))
       toast.show("error", t("category.edit_category"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsUpdatingCategory(false)

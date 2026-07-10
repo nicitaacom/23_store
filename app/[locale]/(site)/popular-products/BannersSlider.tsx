@@ -32,7 +32,7 @@ export function BannersSlider() {
     const timer = setInterval(() => {
       setAnimating(true)
       setTimeout(() => {
-        setCurrent((c) => (c + 1) % BANNERS.length)
+        setCurrent((prevCurrent) => (prevCurrent + 1) % BANNERS.length)
         setAnimating(false)
       }, 1000)
     }, 8000)
@@ -55,11 +55,11 @@ export function BannersSlider() {
       </div>
 
       <div className="absolute bottom-4 right-5 flex gap-2" style={{ zIndex: 10 }}>
-        {BANNERS.map((_, i) => (
+        {BANNERS.map((_, index) => (
           <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${i === current ? "w-6 bg-white" : "w-1.5 bg-white/40"}`}
+            key={index}
+            onClick={() => setCurrent(index)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${index === current ? "w-6 bg-white" : "w-1.5 bg-white/40"}`}
           />
         ))}
       </div>
