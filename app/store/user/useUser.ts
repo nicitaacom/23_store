@@ -4,7 +4,7 @@ import { User } from "@supabase/supabase-js"
 
 import useCartStore from "./cartStore"
 import { useLoading } from "../ui/useLoading"
-import { useMessagesStore } from "../ui/useMessagesStore"
+import { useMessages } from "../ui/useMessages"
 import { delCookie } from "@/utils/helpersCSR"
 
 interface UserStore {
@@ -52,17 +52,17 @@ function userStore(set: SetState): UserStore {
   }
 }
 
-const useUserStore = create(subscribeWithSelector(devtools(userStore)))
+const useUser = create(subscribeWithSelector(devtools(userStore)))
 
 setTimeout(() => {
-  useUserStore.subscribe(
+  useUser.subscribe(
     state => state.user?.id || null,
 
     async () => {
       const { setHasCartStoreInitialized } = useLoading.getState()
       setHasCartStoreInitialized(false) // show InitialPageLoadingSkeleton and wait until data will set in products state
       await useCartStore.getState().initialize()
-      await useMessagesStore.getState().initialize() // init messages store as well
+      await useMessages.getState().initialize() // init messages store as well
       // init other stores if needed
       setHasCartStoreInitialized(true)
     },
@@ -70,4 +70,4 @@ setTimeout(() => {
   )
 }, 0) // initialize with next CPU tick to fix error about "uncaught in promise"
 
-export default useUserStore
+export default useUser

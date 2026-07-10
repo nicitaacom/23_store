@@ -7,9 +7,9 @@ import { twMerge } from "tailwind-merge"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
-import useLikedProductsStore from "@/store/user/likedProductsStore"
+import useLikedProductsStore from "@/store/user/useLikedProductsStore"
 import { useScopedI18n } from "@/locales/client"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 
 interface ProductLikeButtonProps {
   productId: string
@@ -20,21 +20,24 @@ interface ProductLikeButtonProps {
 export function ProductLikeButton({ productId, categoryId, className }: ProductLikeButtonProps) {
   const t = useScopedI18n("product")
   const { likedProductIds, toggleProductLike } = useLikedProductsStore()
-  const { user } = useUserStore()
+  const { user } = useUser()
   const isLiked = likedProductIds.includes(productId)
   const { addView } = useAnonCategoryViewsStore()
 
-  const handleClick = useCallback((event: React.MouseEvent) => {
-    event.preventDefault()
-    event.stopPropagation()
-    const delta = isLiked ? -1 : 1
-    toggleProductLike(productId)
-    void supabaseClient.rpc("increment_product_likes", { p_id: productId, delta })
-    if (!isLiked && categoryId) {
-      if (user) categoryViewsSDK.incrementDBCategoryView({ category_id: categoryId, delta: 3 }).catch(() => {})
-      else addView(categoryId, 3)
-    }
-  }, [isLiked, productId, categoryId, user, toggleProductLike]) // don't add fn to deps
+  const handleClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
+      const delta = isLiked ? -1 : 1
+      toggleProductLike(productId)
+      void supabaseClient.rpc("increment_product_likes", { p_id: productId, delta })
+      if (!isLiked && categoryId) {
+        if (user) categoryViewsSDK.incrementDBCategoryView({ category_id: categoryId, delta: 3 }).catch(() => {})
+        else addView(categoryId, 3)
+      }
+    },
+    [isLiked, productId, categoryId, user, toggleProductLike],
+  ) // don't add fn to deps
 
   return (
     <button

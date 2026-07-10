@@ -6,14 +6,14 @@ import { emailsSDK } from "@/sdk/EmailsSDK/EmailsSDK"
 import { getDisplayUsername } from "@/utils/getDisplayUsername"
 import { getUserId } from "@/utils/getUserId"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
-import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useMessages } from "@/store/ui/useMessages"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 
 export async function sendMessageFn(t: TI18nFunction, messageBody: string, sender_id: string, imageUrl: string | null) {
   // Don't allow to send empty message (just with spaces and/or newlines)
   if (messageBody.trim().length === 0 && !imageUrl) return
 
-  const { messages, setMessages, ticketId: ticketIdState, setTicketId } = useMessagesStore.getState()
+  const { messages, setMessages, ticketId: ticketIdState, setTicketId } = useMessages.getState()
 
   const isFirstMessage = messages.length === 0
   const ticketId = ticketIdState || getUserId()

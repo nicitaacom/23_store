@@ -6,7 +6,7 @@ import useDarkModeStore from "./useDarkModeStore"
 import { useDoYouWantRecieveCheckModal } from "./useDoYouWantRecieveCheckModal"
 import { useGlobalImagePreview } from "./useGlobalImagePreview"
 import { useLoading } from "./useLoading"
-import { useMessagesStore } from "./useMessagesStore"
+import { useMessages } from "./useMessages"
 import { useSidebar } from "./useSidebar"
 import { useSupportDropdown } from "./useSupportDropdown"
 import { useToast } from "./useToast"
@@ -26,7 +26,7 @@ export {
   useSupportDropdown,
   useGlobalImagePreview,
   useLoading,
-  useMessagesStore,
+  useMessages,
   useSidebar,
   useToast,
   useUpdateAvatarModal,

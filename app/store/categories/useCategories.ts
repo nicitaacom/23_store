@@ -10,7 +10,7 @@ interface CategoriesStore {
   removeCategory: (id: string) => void
 }
 
-export const useCategoriesStore = create<CategoriesStore>(set => ({
+export const useCategories = create<CategoriesStore>(set => ({
   categories: [],
   hydrate: categories => set({ categories }),
   addCategory: category => set(state => ({ categories: [...state.categories, category] })),

@@ -9,7 +9,7 @@ import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 import supabaseClient from "@/libs/supabase/supabaseClient"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui"
 
 export async function signInWithPassword(
@@ -21,7 +21,7 @@ export async function signInWithPassword(
   t: TI18nFunction,
   locale: string,
 ) {
-  const userStore = useUserStore.getState()
+  const userStore = useUser.getState()
 
   try {
     // Check is user with this email doesn't exist and return providers and username

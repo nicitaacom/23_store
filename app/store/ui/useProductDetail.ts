@@ -21,4 +21,4 @@ function productDetailStore(set: SetState): ProductDetailStore {
   }
 }
 
-export const useProductDetailStore = create<ProductDetailStore>()(devtools(set => productDetailStore(set)))
+export const useProductDetail = create<ProductDetailStore>()(devtools(set => productDetailStore(set)))

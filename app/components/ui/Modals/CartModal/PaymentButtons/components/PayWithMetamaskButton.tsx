@@ -11,7 +11,7 @@ import { useDoYouWantRecieveCheckModal } from "@/store/ui/useDoYouWantRecieveChe
 import { useI18n, useScopedI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui/Button"
 
 // Only EVM-compatible chains work with MetaMask
@@ -56,7 +56,7 @@ export function PayWithMetamaskButton() {
   const toast = useToast()
   const cartStore = useCartStore()
   const { wallet, setWallet, openModal: openDoYouWantRecieveCheckModal } = useDoYouWantRecieveCheckModal()
-  const { user } = useUserStore()
+  const { user } = useUser()
 
   const [hasProvider, setHasProvider] = useState<boolean | null>(null)
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("ETH")

@@ -4,7 +4,7 @@ import { FiEdit3 } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui"
 
 type ManageProductButtonProps = {
@@ -20,15 +20,10 @@ const iconClassNameBySize: Record<NonNullable<ManageProductButtonProps["size"]>,
   md: "text-base text-warning",
 }
 
-export function ManageProductButton({
-  productId,
-  ownerId,
-  size = "md",
-  className,
-}: ManageProductButtonProps) {
+export function ManageProductButton({ productId, ownerId, size = "md", className }: ManageProductButtonProps) {
   const locale = useCurrentLocale()
   const t = useScopedI18n("product")
-  const { user } = useUserStore()
+  const { user } = useUser()
 
   if (user?.id !== ownerId) {
     return null

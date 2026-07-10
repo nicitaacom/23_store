@@ -9,7 +9,7 @@ import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui"
 
 export function PayWithPaypalButton() {
@@ -17,14 +17,16 @@ export function PayWithPaypalButton() {
   const router = useRouter()
   const toast = useToast()
   const cartStore = useCartStore()
-  const { user } = useUserStore()
+  const { user } = useUser()
   const { isLoading, setIsLoading } = useLoading()
 
   const payPalProductsQuery = encodeURIComponent(
     JSON.stringify(
       cartStore.productsData.map(product => ({
         imageUrl: product.selectedVariant?.image_url || product.img_url[0] || null,
-        name: product.selectedVariant ? `${product.translations.fi.title} - ${product.selectedVariant.label}` : product.translations.fi.title,
+        name: product.selectedVariant
+          ? `${product.translations.fi.title} - ${product.selectedVariant.label}`
+          : product.translations.fi.title,
         quantity: product.quantity,
         unitAmount: Math.max(1, Math.round(product.price * 100)),
       })),
@@ -54,7 +56,11 @@ export function PayWithPaypalButton() {
         )
       }
     } catch (error) {
-      toast.show("error", t("error.creating_provider_session", { provider: "paypal" }), error instanceof Error ? error.message : String(error))
+      toast.show(
+        "error",
+        t("error.creating_provider_session", { provider: "paypal" }),
+        error instanceof Error ? error.message : String(error),
+      )
     }
     setIsLoading(false)
   }

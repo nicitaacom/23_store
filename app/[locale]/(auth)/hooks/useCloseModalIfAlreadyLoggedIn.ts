@@ -3,11 +3,11 @@ import { useRouter, useSearchParams } from "next/navigation"
 
 import { useI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 
 export const useCloseModalIfAlreadyLoggedIn = (queryParams: "login" | "recover" | "resetPassword" | null) => {
   const toast = useToast()
-  const { user } = useUserStore()
+  const { user } = useUser()
   const searchParams = useSearchParams()
   const router = useRouter()
   const t = useI18n()

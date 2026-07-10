@@ -12,13 +12,13 @@ import { formatDeliveryDate } from "@/utils/formatDeliveryDate"
 import useCartStore from "@/store/user/cartStore"
 import { useCurrentLocale, useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
-import usePurchasedProductsStore from "@/store/user/purchasedProductsStore"
-import useUserStore from "@/store/user/userStore"
+import usePurchasedProductsStore from "@/store/user/usePurchasedProductsStore"
+import useUser from "@/store/user/useUser"
 
 export const usePaymentSteps = (status: string | null, session_id: string | null) => {
   const router = useRouter()
   const cartStore = useCartStore()
-  const { user } = useUserStore()
+  const { user } = useUser()
   const { addPurchasedProducts } = usePurchasedProductsStore()
   const { hasCartStoreInitialized } = useLoading()
   const [, setIsValidSessionId] = useState(false)

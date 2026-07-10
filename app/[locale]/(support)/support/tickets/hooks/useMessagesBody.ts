@@ -6,7 +6,7 @@ import { TMessageDB } from "@/ts/support/TMessageDB"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { useSubscribeToTicketMessages } from "@/hooks/support/useSubscribeToTicketMessages"
 import { useUnseenMessages } from "@/[locale]/(support)/store/useUnseenMessages"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 
 interface UseMessagesBodyProps {
   initialMessages: TMessageDB[]
@@ -15,7 +15,7 @@ interface UseMessagesBodyProps {
 
 export const useMessagesBody = ({ initialMessages, ticketId }: UseMessagesBodyProps) => {
   const bottomRef = useRef<HTMLUListElement>(null)
-  const { user } = useUserStore()
+  const { user } = useUser()
   const { resetUnreadMessages } = useUnseenMessages()
   const [messages, setMessages] = useState(initialMessages)
   const [prevInitialMessages, setPrevInitialMessages] = useState(initialMessages)

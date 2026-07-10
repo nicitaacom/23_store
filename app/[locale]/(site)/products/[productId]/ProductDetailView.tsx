@@ -7,7 +7,7 @@ import { FiCheckCircle, FiTruck } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
-import { useProductDetailViewHandlers } from "./hooks/useProductDetailViewHandlers"
+import { useProductDetailViewSync } from "./hooks/useProductDetailViewSync"
 import { ManageProductButton } from "../../components/ManageProductButton"
 import { ProductLikeButton } from "../../components/ProductLikeButton"
 import { RequestReplanishmentButton } from "../../components/Product/RequestReplanishmentButton"
@@ -16,7 +16,7 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import useCartStore from "@/store/user/cartStore"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import { useProductDetailStore } from "@/store/ui/useProductDetailStore"
+import { useProductDetail } from "@/store/ui/useProductDetail"
 import { AddToCartButton } from "@/components/ui/Buttons/AddToCartButton"
 import { MarkdownText } from "@/components/ui/MarkdownText"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
@@ -30,7 +30,7 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
   const t = useScopedI18n("product")
   const locale = useCurrentLocale()
   const { products } = useCartStore()
-  const { selectedVariantId, activeImage: storedImage } = useProductDetailStore()
+  const { selectedVariantId, activeImage: storedImage } = useProductDetail()
 
   const variants = useMemo(
     () => product.variants?.filter(variant => variant.label && variant.image_url) || [],
@@ -38,13 +38,20 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
   )
   const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
   const galleryImages = useMemo(() => {
-    const orderedImages = [selectedVariant?.image_url, ...(product.img_url || [])].filter((image): image is string => Boolean(image))
+    const orderedImages = [selectedVariant?.image_url, ...(product.img_url || [])].filter((image): image is string =>
+      Boolean(image),
+    )
     const uniqueImages = orderedImages.filter((image, index) => orderedImages.indexOf(image) === index)
     return uniqueImages.length ? uniqueImages : ["/placeholder.jpg"]
   }, [product.img_url, selectedVariant?.image_url])
   const activeImage = galleryImages.includes(storedImage) ? storedImage : galleryImages[0]
 
-  const { handleSelectVariant, handleSelectImage } = useProductDetailViewHandlers({ product, isAuthenticated, variants, galleryImages })
+  const { handleSelectVariant, handleSelectImage } = useProductDetailViewSync({
+    product,
+    isAuthenticated,
+    variants,
+    galleryImages,
+  })
 
   const translation = product.translations[locale] ?? product.translations.fi
   const isOutOfStock = (product.on_stock ?? 0) <= 0
@@ -73,9 +80,7 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
           onClick={() => handleSelectImage(image)}
           className={twMerge(
             "group relative h-16 w-16 shrink-0 overflow-hidden rounded-[2px] border bg-foreground/5 transition-colors duration-150",
-            activeImage === image
-              ? "border-success"
-              : "border-border-color/20 hover:border-success/30 hover:bg-success/5",
+            activeImage === image ? "border-success" : "border-border-color/20 hover:border-success/30 hover:bg-success/5",
           )}>
           <Image src={image} alt={`${translation.title}-${index + 1}`} fill className="object-cover" sizes="80px" />
         </button>
@@ -96,7 +101,13 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
               ? "border-success bg-success/10"
               : "border-border-color/20 bg-background/40 hover:border-success/30 hover:bg-success/5",
           )}>
-          <Image src={variant.image_url} alt={variant.label} width={64} height={64} className="h-14 w-14 rounded-[2px] object-cover" />
+          <Image
+            src={variant.image_url}
+            alt={variant.label}
+            width={64}
+            height={64}
+            className="h-14 w-14 rounded-[2px] object-cover"
+          />
           <div className="min-w-0">
             <span className="block text-base font-medium text-title">{variant.label}</span>
             <span className="text-sm text-success">{formatCurrency(variant.price)}</span>
@@ -109,7 +120,9 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
   const renderedHighlights = useMemo(
     () =>
       highlights.map(({ icon: Icon, label }) => (
-        <div key={label} className="flex items-center gap-2 rounded-[2px] border border-border-color/20 bg-foreground/5 px-3 py-2">
+        <div
+          key={label}
+          className="flex items-center gap-2 rounded-[2px] border border-border-color/20 bg-foreground/5 px-3 py-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] bg-success/10 text-success">
             <Icon className="text-lg" />
           </div>
@@ -143,13 +156,13 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
             </div>
           </div>
 
-          {variants.length > 0 && (
-            <div className="flex flex-wrap items-stretch gap-2">{renderedVariants}</div>
-          )}
+          {variants.length > 0 && <div className="flex flex-wrap items-stretch gap-2">{renderedVariants}</div>}
 
           {isLowStock && (
             <div className="w-full overflow-hidden rounded-[2px] border border-warning/30 bg-warning/5">
-              <p className="px-3 py-2 text-sm font-medium text-warning">{t("low_stock_hurry", { count: product.on_stock ?? 0 })}</p>
+              <p className="px-3 py-2 text-sm font-medium text-warning">
+                {t("low_stock_hurry", { count: product.on_stock ?? 0 })}
+              </p>
               <Image
                 src="/banners/run-to-grab-discount.gif"
                 alt="Hurry!"
@@ -170,9 +183,7 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
             <span
               className={twMerge(
                 "inline-flex items-center gap-2 rounded-[2px] border px-3 py-1 text-xs font-medium uppercase tracking-[0.18em]",
-                isOutOfStock
-                  ? "border-warning/30 bg-warning/10 text-warning"
-                  : "border-success/30 bg-success/10 text-success",
+                isOutOfStock ? "border-warning/30 bg-warning/10 text-warning" : "border-success/30 bg-success/10 text-success",
               )}>
               <FiCheckCircle className="text-sm" />
               {availabilityLabel}
@@ -194,19 +205,37 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
 
           {/* Title + buy control */}
           <div className="flex items-start justify-between gap-3">
-            <h1 className="text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl">
-              {translation.title}
-            </h1>
+            <h1 className="text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl">{translation.title}</h1>
             <div className="flex shrink-0 items-center gap-1">
               {isOutOfStock ? (
                 <RequestReplanishmentButton product={product} className="h-11 rounded-[2px] shadow-none" />
               ) : quantity === 0 ? (
-                <AddToCartButton className="h-11 justify-between rounded-[2px] px-5 shadow-none" productId={product.id} variantId={selectedVariant?.id} categoryId={product.category_id} />
+                <AddToCartButton
+                  className="h-11 justify-between rounded-[2px] px-5 shadow-none"
+                  productId={product.id}
+                  variantId={selectedVariant?.id}
+                  categoryId={product.category_id}
+                />
               ) : (
                 <>
-                  <ProductQuantityButton action="decrease" productId={product.id} variantId={selectedVariant?.id} className="h-11 w-11 rounded-[2px] border border-border-color/20" />
-                  <ProductQuantityButton action="increase" productId={product.id} variantId={selectedVariant?.id} className="h-11 w-11 rounded-[2px] border border-border-color/20" />
-                  <ProductQuantityButton action="clear" productId={product.id} variantId={selectedVariant?.id} className="h-11 rounded-[2px] px-4 shadow-none" />
+                  <ProductQuantityButton
+                    action="decrease"
+                    productId={product.id}
+                    variantId={selectedVariant?.id}
+                    className="h-11 w-11 rounded-[2px] border border-border-color/20"
+                  />
+                  <ProductQuantityButton
+                    action="increase"
+                    productId={product.id}
+                    variantId={selectedVariant?.id}
+                    className="h-11 w-11 rounded-[2px] border border-border-color/20"
+                  />
+                  <ProductQuantityButton
+                    action="clear"
+                    productId={product.id}
+                    variantId={selectedVariant?.id}
+                    className="h-11 rounded-[2px] px-4 shadow-none"
+                  />
                 </>
               )}
             </div>

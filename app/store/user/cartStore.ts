@@ -3,7 +3,7 @@ import { subscribeWithSelector } from "zustand/middleware"
 
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
-import useUserStore from "./userStore"
+import useUser from "./useUser"
 import { createCartProductKey, getProductVariantById } from "@/utils/cartProducts"
 import { getStorage } from "@/utils/getStorage"
 import { logFn } from "@/utils/logFn"
@@ -211,7 +211,7 @@ function cartStore(set: SetState, get: GetState): CartStore {
       const isNotExistingProductFound = Object.keys(products).length !== Object.keys(filtered_products).length
 
       // if found not existing product record - delete it from DB
-      const { user } = useUserStore.getState()
+      const { user } = useUser.getState()
       if (user?.id && isNotExistingProductFound) {
         const { error: update_cart_food_error } = await supabaseClient
           .from("23_users_cart")

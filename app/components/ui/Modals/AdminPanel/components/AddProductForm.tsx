@@ -23,7 +23,7 @@ import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
 import { getUserId } from "@/utils/getUserId"
-import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
+import { useCategories } from "@/store/categories/useCategories"
 import { useCurrentLocale, useI18n, useScopedI18n } from "@/locales/client"
 import useDragging from "@/hooks/ui/useDragging"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -99,7 +99,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSuggestedKeyRef = useRef<string | null>(null)
 
-  const { categories: allCategories, hydrate: hydrateCategories } = useCategoriesStore()
+  const { categories: allCategories, hydrate: hydrateCategories } = useCategories()
   const previousImageIndexRef = useRef(0)
   const pendingTranslationsAmountRef = useRef(0)
   const pendingCreatedProductsRef = useRef<TPendingCreatedProduct[]>([])

@@ -9,7 +9,7 @@ import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import useCartStore from "@/store/user/cartStore"
 import { useScopedI18n } from "@/locales/client"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 
 interface AddToCartButtonProps {
   productId: string
@@ -24,7 +24,7 @@ interface AddToCartButtonProps {
 export function AddToCartButton({ productId, categoryId, className, variantId }: AddToCartButtonProps) {
   const t = useScopedI18n("product")
   const cartStore = useCartStore()
-  const { user } = useUserStore()
+  const { user } = useUser()
   const { addView } = useAnonCategoryViewsStore()
 
   const handleAddToCart = useCallback(() => {
@@ -32,7 +32,7 @@ export function AddToCartButton({ productId, categoryId, className, variantId }:
     if (!categoryId) return
     if (user) categoryViewsSDK.incrementDBCategoryView({ category_id: categoryId, delta: 3 }).catch(() => {})
     else addView(categoryId, 3)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId, variantId, categoryId, user])
 
   return (

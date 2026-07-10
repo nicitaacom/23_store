@@ -7,7 +7,7 @@ import { uploadImageFn } from "./uploadImageFn"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { getUserId } from "@/utils/getUserId"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 import {
@@ -142,7 +142,7 @@ export async function tinifyProductImages(imageFiles: File[]) {
 }
 
 export async function uploadProductImages(imageFiles: File[], t: TI18nFunction) {
-  const userStore = useUserStore.getState()
+  const userStore = useUser.getState()
   const uploadFolder = userStore.user?.id || getAnonymousId() || getUserId()
   const uploadBatchId = crypto.randomUUID()
 

@@ -1,10 +1,10 @@
 import { getAnonymousId } from "@/functions/getAnonymousId"
 import { getUserAvatarUrl } from "@/utils/user"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 
 const useSender = (sender_avatar_url: string | undefined, sender_id: string) => {
-  const { user } = useUserStore()
+  const { user } = useUser()
   const { isDarkMode } = useDarkModeStore()
 
   const placeholder = "/placeholder.jpg"

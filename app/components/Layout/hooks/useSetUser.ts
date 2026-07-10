@@ -6,7 +6,7 @@ import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import { useHasMounted } from "@/hooks/useHasMounted"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 
 async function syncAnonCategoryViews() {
   try {
@@ -21,7 +21,7 @@ async function syncAnonCategoryViews() {
 
 export function useSetUser(user: User | null) {
   const router = useRouter()
-  const userStore = useUserStore()
+  const userStore = useUser()
   const { setUser, clearUser, logoutUser } = userStore
   const didRecoverUserRef = useRef(false)
   const currentUserRef = useRef<User | null>(user ?? null)

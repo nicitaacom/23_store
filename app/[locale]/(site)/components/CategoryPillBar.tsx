@@ -7,7 +7,7 @@ import { twMerge } from "tailwind-merge"
 import { TCategory } from "@/ts/categories/TCategory"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
-import { useCategoryPreferencesStore } from "@/store/categories/useCategoryPreferencesStore"
+import { useCategoryPreferences } from "@/store/categories/useCategoryPreferences"
 import { useHasMounted } from "@/hooks/useHasMounted"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import { useSupportPrefilledMessage } from "@/store/ui/useSupportPrefilledMessage"
@@ -27,7 +27,7 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
   const mounted = useHasMounted()
   // sessionViews: optimistic local increments during this session (for immediate pill reorder feedback)
   const [sessionViews, setSessionViews] = useState<Record<string, number>>({})
-  const { getSortedCategories } = useCategoryPreferencesStore()
+  const { getSortedCategories } = useCategoryPreferences()
   const { addView } = useAnonCategoryViewsStore()
 
   const { openDropdown } = useSupportDropdown()

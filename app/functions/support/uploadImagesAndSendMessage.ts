@@ -3,7 +3,7 @@ import { Dispatch, RefObject, SetStateAction } from "react"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { uploadImageFn } from "../uploadImageFn"
 import { sendMessageFn } from "@/[locale]/(site)/functions/sendMessageFn"
-import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useMessages } from "@/store/ui/useMessages"
 import useToast from "@/store/ui/useToast"
 
 export async function uploadImagesAndSendMessage(
@@ -14,10 +14,10 @@ export async function uploadImagesAndSendMessage(
   textareaRef: RefObject<HTMLTextAreaElement | null>,
 ) {
   const toast = useToast.getState()
-  const { setMessageBodyValue } = useMessagesStore.getState()
+  const { setMessageBodyValue } = useMessages.getState()
   setMessageBodyValue("") // Clear the textarea after sending the message
   let imageUrl: string | null = null
-  const { image, setImage } = useMessagesStore.getState()
+  const { image, setImage } = useMessages.getState()
 
   if (image) {
     const response = await uploadImageFn({

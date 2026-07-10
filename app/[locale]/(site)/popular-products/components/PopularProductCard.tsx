@@ -11,8 +11,8 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getProductPrimaryImageUrl, toProductLocale } from "@/utils/product"
 import supabaseClient from "@/libs/supabase/supabaseClient"
-import usePurchasedProductsStore from "@/store/user/purchasedProductsStore"
-import useRatedProductsStore from "@/store/user/ratedProductsStore"
+import usePurchasedProductsStore from "@/store/user/usePurchasedProductsStore"
+import useRatedProductsStore from "@/store/user/useRatedProductsStore"
 import { useScopedI18n } from "@/locales/client"
 import { ImageWithFallback } from "@/components/ui"
 
@@ -78,7 +78,9 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
               <FaStar className="text-warning" size={13} />
               {ratingCount > 0 ? `${averageRating.toFixed(1)} (${formatNumber(ratingCount)})` : t("no_ratings_yet")}
             </span>
-            <span>{formatNumber(likesCount)} {t("likes")}</span>
+            <span>
+              {formatNumber(likesCount)} {t("likes")}
+            </span>
           </div>
         </div>
 

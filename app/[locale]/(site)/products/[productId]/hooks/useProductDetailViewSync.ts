@@ -5,17 +5,17 @@ import { useEffect } from "react"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
-import { useProductDetailStore } from "@/store/ui/useProductDetailStore"
+import { useProductDetail } from "@/store/ui/useProductDetail"
 
-interface UseProductDetailViewHandlersParams {
+interface UseProductDetailViewSyncParams {
   product: TProductDB
   isAuthenticated: boolean
   variants: { id: string }[]
   galleryImages: string[]
 }
 
-export function useProductDetailViewHandlers({ product, isAuthenticated, variants, galleryImages }: UseProductDetailViewHandlersParams) {
-  const { activeImage, selectVariant, selectImage } = useProductDetailStore()
+export function useProductDetailViewSync({ product, isAuthenticated, variants, galleryImages }: UseProductDetailViewSyncParams) {
+  const { activeImage, selectVariant, selectImage } = useProductDetail()
   const { addView } = useAnonCategoryViewsStore()
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export function useProductDetailViewHandlers({ product, isAuthenticated, variant
     if (!product.category_id) return
     if (isAuthenticated) categoryViewsSDK.incrementDBCategoryView({ category_id: product.category_id, delta: 1 }).catch(() => {})
     else addView(product.category_id, 1)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return { handleSelectVariant: selectVariant, handleSelectImage: selectImage }

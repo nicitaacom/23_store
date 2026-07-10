@@ -1,6 +1,6 @@
 import { create } from "zustand"
 
-// Per-ticket unsent reply text for the support dashboard. Kept out of useMessagesStore (which the
+// Per-ticket unsent reply text for the support dashboard. Kept out of useMessages (which the
 // customer chat window shares) so a typed-but-unsent reply belongs to ITS ticket: typing in ticket A,
 // switching to B, then back to A still shows A's draft. Not persisted — drafts live for the session only.
 type SupportReplyDraftsStore = {

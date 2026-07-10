@@ -7,7 +7,7 @@ import { twMerge } from "tailwind-merge"
 import { CategoryDropdown } from "./CategoryDropdown"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
+import { useCategories } from "@/store/categories/useCategories"
 import { useI18n } from "@/locales/client"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import useToast from "@/store/ui/useToast"
@@ -20,7 +20,7 @@ interface FormatCategoryFormProps {
 export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps) {
   const t = useI18n()
   const toast = useToast()
-  const { categories, hydrate } = useCategoriesStore()
+  const { categories, hydrate } = useCategories()
   const { replaceProduct, updateProduct } = useOwnerProductsStore()
   const [isEditing, setIsEditing] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(category_id ?? null)
@@ -33,8 +33,7 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
     })
   }, [categories.length, hydrate])
 
-  const currentName =
-    categories.find(category => category.id === category_id)?.name ?? t("category.uncategorized")
+  const currentName = categories.find(category => category.id === category_id)?.name ?? t("category.uncategorized")
 
   const handleSave = async () => {
     const snapshot = category_id ?? null
@@ -80,7 +79,10 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
               <button
                 className="rounded border border-border-color/30 px-2 py-1 text-xs text-subTitle transition-colors duration-150 hover:bg-foreground/10"
                 type="button"
-                onClick={() => { setIsEditing(false); setSelectedId(category_id ?? null) }}>
+                onClick={() => {
+                  setIsEditing(false)
+                  setSelectedId(category_id ?? null)
+                }}>
                 Cancel
               </button>
             </div>

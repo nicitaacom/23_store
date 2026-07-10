@@ -7,7 +7,7 @@ import { twMerge } from "tailwind-merge"
 import { getUserId } from "@/utils/getUserId"
 import { uploadImagesAndSendMessage } from "@/functions/support/uploadImagesAndSendMessage"
 import { useI18n } from "@/locales/client"
-import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useMessages } from "@/store/ui/useMessages"
 import { PastedImagePreview } from "@/components/SupportButton/components/PastedImagePreview"
 
 interface MessageInputProps {
@@ -19,7 +19,7 @@ interface MessageInputProps {
 
 export function MessageInput({ className, placeholder, onSend }: MessageInputProps) {
   const t = useI18n()
-  const { messageBodyValue, setMessageBodyValue, image } = useMessagesStore()
+  const { messageBodyValue, setMessageBodyValue, image } = useMessages()
   const [height, setHeight] = useState(52)
   const [prevMessageBodyValue, setPrevMessageBodyValue] = useState(messageBodyValue)
 

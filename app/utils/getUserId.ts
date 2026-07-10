@@ -1,9 +1,9 @@
 import { getCookie } from "./helpersCSR"
 import { setAnonymousId } from "./setAnonymousId"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 
 export function getUserId(): string {
-  const { user } = useUserStore.getState()
+  const { user } = useUser.getState()
 
   const userId = user?.id || getCookie("anonymousId") || setAnonymousId()
 

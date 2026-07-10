@@ -50,4 +50,4 @@ function store(set: SetState, get: () => CategoryPreferencesStore): CategoryPref
   }
 }
 
-export const useCategoryPreferencesStore = create(devtools(store))
+export const useCategoryPreferences = create(devtools(store))

@@ -5,17 +5,17 @@ import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { uploadImageFn } from "@/functions/uploadImageFn"
-import { useAIChatStore } from "@/components/Navbar/stores/useAIChat"
+import { useAIChatStore } from "@/components/Navbar/stores/useAIChatStore"
 import { useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
 import { useToast } from "@/store/ui"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 
 export function useAIChat() {
   const router = useRouter()
   const pathname = usePathname()
-  const { user } = useUserStore()
+  const { user } = useUser()
   const userId = user?.id ?? ""
 
   const toast = useToast()
@@ -66,7 +66,7 @@ export function useAIChat() {
   const handleSubmit = async (prompt?: string) => {
     if ((!prompt && !promptValue.trim()) || isLoading) return
 
-    const { user } = useUserStore.getState()
+    const { user } = useUser.getState()
     if (!user?.id) {
       toast.show("warning", t("toast.please_login_title"), t("toast.please_login_subtitle"))
       router.push(pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "AuthModal&variant=login")

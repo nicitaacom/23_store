@@ -5,11 +5,11 @@ import { twMerge } from "tailwind-merge"
 
 import { showToastWarningFn } from "./functions/showToastWarning"
 import { useDragAndDrop } from "@/hooks/support/useDragAndDrop"
-import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useMessages } from "@/store/ui/useMessages"
 import { MAX_IMAGE_FILE_SIZE_BYTES } from "@/constants/uploadLimits"
 
 export function DragAndDropArea() {
-  const { image, setImage } = useMessagesStore()
+  const { image, setImage } = useMessages()
   const { isDragging, handleDrop } = useDragAndDrop()
 
   return (
@@ -27,7 +27,10 @@ export function DragAndDropArea() {
         }}>
         {({ dragProps }) => (
           <div
-            className={twMerge("absolute inset-0 transition-all duration-200", isDragging ? "pointer-events-auto" : "pointer-events-none")}
+            className={twMerge(
+              "absolute inset-0 transition-all duration-200",
+              isDragging ? "pointer-events-auto" : "pointer-events-none",
+            )}
             {...dragProps}
             onDrop={event => {
               dragProps.onDrop(event)

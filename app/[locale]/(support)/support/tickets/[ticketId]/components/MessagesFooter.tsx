@@ -6,21 +6,21 @@ import { getUserAvatarUrl, getUserName } from "@/utils/user"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useI18n } from "@/locales/client"
-import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useMessages } from "@/store/ui/useMessages"
 import { useSupportReplyDrafts } from "@/[locale]/(support)/store/useSupportReplyDrafts"
 import useToast from "@/store/ui/useToast"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { MessageInput } from "@/components/ui/Inputs/MessageInput"
 
 export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   const toast = useToast()
   const t = useI18n()
-  const { user } = useUserStore()
-  const { messageBodyValue, setMessageBodyValue, setImage } = useMessagesStore()
+  const { user } = useUser()
+  const { messageBodyValue, setMessageBodyValue, setImage } = useMessages()
   const { setDraft, clearDraft } = useSupportReplyDrafts()
 
   // Seed this ticket's draft into the shared composer on mount / ticket change, and on unmount reset the
-  // shared value so the chat window's composer (same useMessagesStore) never inherits a support draft.
+  // shared value so the chat window's composer (same useMessages) never inherits a support draft.
   useEffect(() => {
     setMessageBodyValue(useSupportReplyDrafts.getState().draftsByTicketId[ticket_id] ?? "")
     return () => setMessageBodyValue("")

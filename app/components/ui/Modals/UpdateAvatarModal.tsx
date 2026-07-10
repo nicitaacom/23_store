@@ -18,7 +18,7 @@ import { useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { useUpdateAvatarModal } from "@/store/ui/useUpdateAvatarModal"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { AccountSDK } from "@/sdk/AccountSDK/AccountSDK"
 
 const accountSDK = new AccountSDK()
@@ -27,7 +27,7 @@ export function UpdateAvatarModal() {
   const router = useRouter()
   const t = useI18n()
   const toast = useToast()
-  const { user, setClientAvatarUrl } = useUserStore()
+  const { user, setClientAvatarUrl } = useUser()
   const updateAvatarModal = useUpdateAvatarModal()
   const { isLoading, setIsLoading } = useLoading()
   const [avatarUrl, setAvatarUrl] = useState("")
@@ -38,10 +38,7 @@ export function UpdateAvatarModal() {
     avatarUrl: updateAvatarModal.avatarUrl,
   })
 
-  if (
-    updateAvatarModal.isOpen !== prevOpenState.isOpen ||
-    updateAvatarModal.avatarUrl !== prevOpenState.avatarUrl
-  ) {
+  if (updateAvatarModal.isOpen !== prevOpenState.isOpen || updateAvatarModal.avatarUrl !== prevOpenState.avatarUrl) {
     setPrevOpenState({ isOpen: updateAvatarModal.isOpen, avatarUrl: updateAvatarModal.avatarUrl })
     if (updateAvatarModal.isOpen) {
       setAvatarUrl(updateAvatarModal.avatarUrl)

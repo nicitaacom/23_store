@@ -6,11 +6,11 @@ import { IoMdClose, IoMdImage } from "react-icons/io"
 
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
 import { useLoading } from "@/store/ui/useLoading"
-import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useMessages } from "@/store/ui/useMessages"
 import { useScopedI18n } from "@/locales/client"
 
 export function PastedImagePreview({ containerRef }: { containerRef?: RefObject<HTMLDivElement> }) {
-  const { image, setImage } = useMessagesStore()
+  const { image, setImage } = useMessages()
   const { setImage: setImageToPreview } = useGlobalImagePreview()
   const { isLoading } = useLoading()
   const t = useScopedI18n("support")

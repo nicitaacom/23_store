@@ -9,14 +9,14 @@ import { twMerge } from "tailwind-merge"
 import { TCategory } from "@/ts/categories/TCategory"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { isValidCategoryName } from "@/utils/categoryValidation"
-import { useCategoriesStore } from "@/store/categories/useCategoriesStore"
+import { useCategories } from "@/store/categories/useCategories"
 import { useI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 
 export function CategoriesForm() {
   const t = useI18n()
   const toast = useToast()
-  const { categories, hydrate, addCategory, updateCategory, removeCategory } = useCategoriesStore()
+  const { categories, hydrate, addCategory, updateCategory, removeCategory } = useCategories()
 
   const [isFetching, setIsFetching] = useState(categories.length === 0)
   const [prevCategoriesLength, setPrevCategoriesLength] = useState(categories.length)
@@ -135,7 +135,9 @@ export function CategoriesForm() {
               onChange={e => setAddParentId(e.target.value || null)}>
               <option value="">Root category (no parent)</option>
               {parentCategories.map(category => (
-                <option key={category.id} value={category.id}>{category.name}</option>
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
               ))}
             </select>
             <button

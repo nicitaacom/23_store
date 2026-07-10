@@ -12,22 +12,22 @@ import { getAnonymousId } from "@/functions/getAnonymousId"
 import { getSupportMessageDayLabel, isSupportMessageSameDay } from "@/utils/support/getSupportMessageDayLabel"
 import { useLoading } from "@/store/ui/useLoading"
 import { useMarkMessagesAsSeen } from "@/hooks/ui/supportButton/useMarkMessagesAsSeen"
-import { useMessagesStore } from "@/store/ui/useMessagesStore"
+import { useMessages } from "@/store/ui/useMessages"
 import { useScopedI18n } from "@/locales/client"
 import { useScrollToBottom } from "@/hooks/ui/supportButton/useScrollToBottom"
 import { useSubscribeToTicketMessages } from "@/hooks/support/useSubscribeToTicketMessages"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 
 export default function SupportButtonDropdown() {
   const t = useScopedI18n("support")
   const bottomRef = useRef<HTMLUListElement>(null)
-  const { user } = useUserStore()
+  const { user } = useUser()
   const userId = user?.id || getAnonymousId()
   const { isLoading } = useLoading()
   const { isDropdown } = useSupportDropdown()
-  const { messages, ticketId, setMessages } = useMessagesStore()
+  const { messages, ticketId, setMessages } = useMessages()
 
   // messages present on first render come from the initial fetch and must not animate; only later arrivals pop in
   const [initialIds] = useState(() => new Set(messages.map(message => message.id)))

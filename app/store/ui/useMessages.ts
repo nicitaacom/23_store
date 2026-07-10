@@ -25,7 +25,7 @@ type MessagesStore = {
   initialize: () => Promise<void>
 }
 
-export const useMessagesStore = create<MessagesStore>()((set, get) => ({
+export const useMessages = create<MessagesStore>()((set, get) => ({
   messages: [],
   setMessages: (messages: TMessageDB[]) => set(() => ({ messages })),
 

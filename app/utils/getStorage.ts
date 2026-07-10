@@ -1,8 +1,8 @@
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { DBStorage } from "@/storages/DBStorage"
 import { LocalStorage } from "@/storages/LocalStorage"
 
 export function getStorage() {
-  const { user } = useUserStore.getState()
+  const { user } = useUser.getState()
   return user ? new DBStorage() : new LocalStorage()
 }

@@ -15,7 +15,7 @@ import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import { useScopedI18n } from "@/locales/client"
 import { useUpdateAvatarModal } from "@/store/ui/useUpdateAvatarModal"
-import useUserStore from "@/store/user/userStore"
+import useUser from "@/store/user/useUser"
 import { DropdownContainer, DropdownItem } from "@/components/ui"
 import { SwitchDarkMode } from "@/components"
 
@@ -49,11 +49,13 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
 
   useEscOrClickOutside(avatarDropdownRef, closeDropdown)
 
-  const { user, clientAvatarUrl } = useUserStore()
+  const { user, clientAvatarUrl } = useUser()
   const updateAvatarModal = useUpdateAvatarModal()
   const { isDarkMode, toggleDarkMode } = useDarkModeStore()
 
-  const avatarUrl = user ? getSafeAvatarUrl(clientAvatarUrl, getUserAvatarUrl(user), avatarUrlServer) : getAnonymousAvatar(isDarkMode)
+  const avatarUrl = user
+    ? getSafeAvatarUrl(clientAvatarUrl, getUserAvatarUrl(user), avatarUrlServer)
+    : getAnonymousAvatar(isDarkMode)
 
   function openAdminPanel() {
     router.push("?modal=AdminPanel")
@@ -86,7 +88,9 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
       icon={
         <Image className="w-[32px] h-[32px] rounded-full object-cover" src={avatarUrl} alt="user logo" width={64} height={64} />
       }>
-      {roles.includes("SUPPORT") && <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />}
+      {roles.includes("SUPPORT") && (
+        <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />
+      )}
       <DropdownItem label="Manage products" icon={BsWindow} onClick={openAdminPanel} />
       {roles.includes("ADMIN") && <DropdownItem label={t("dropdown_item")} icon={BsDatabaseDown} onClick={openDbBackup} />}
       <DropdownItem label="Update avatar" icon={BiImageAdd} onClick={openUpdateAvatarModal} />
