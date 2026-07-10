@@ -279,7 +279,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const deleteProduct = useCallback(async () => {
     if (!window.confirm(t("confirm_delete_product"))) return
 
-    setIsSaving(true)
+    setIsUpdatingProduct(true)
     try {
       await productsSDK.deleteProduct({ id: product.id })
 
@@ -290,7 +290,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       toast.show("error", t("manage_product_error"), errorMessage)
     } finally {
-      setIsSaving(false)
+      setIsUpdatingProduct(false)
     }
   }, [currentTranslation.title, locale, product.id, router, t, toast])
 
