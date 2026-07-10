@@ -240,6 +240,16 @@ const getMockData = (year: number, month: number): IUTMAggregatedStats => {
   }
 }
 
+function EmptyState({ title }: { title: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-[300px] text-subTitle">
+      <IoTrendingUp className="w-12 h-12 mb-4 opacity-50" />
+      <p className="text-lg font-medium">No data available</p>
+      <p className="text-sm opacity-75">{title} data will appear here</p>
+    </div>
+  )
+}
+
 function DailyVisitsChart({ data }: { data: { date: string; visits: number }[] }) {
   const [selectedRange, setSelectedRange] = useState<DailyVisitsRangeKey>("month")
 
@@ -413,15 +423,6 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
     setIsDatePickerOpen(false)
     // The period effect re-fetches filtered stats and clears isAnimating when it resolves.
   }
-
-  // 5. Empty state component
-  const EmptyState = ({ title }: { title: string }) => (
-    <div className="flex flex-col items-center justify-center h-[300px] text-subTitle">
-      <IoTrendingUp className="w-12 h-12 mb-4 opacity-50" />
-      <p className="text-lg font-medium">No data available</p>
-      <p className="text-sm opacity-75">{title} data will appear here</p>
-    </div>
-  )
 
   // Don't render until data is loaded
   if (!currentData) return null

@@ -21,9 +21,17 @@ export function ProductQuantityButton({ className, productId, action, variantId 
 
   // 1. Handle button click based on action type
   const handleClick = useCallback(() => {
-    action === "increase" && increaseProductQuantity(productId, variantId)
-    action === "decrease" && decreaseProductQuantity(productId, variantId)
-    action === "clear" && clearProductQuantity(productId, variantId)
+    if (action === "increase") {
+      increaseProductQuantity(productId, variantId)
+      return
+    }
+
+    if (action === "decrease") {
+      decreaseProductQuantity(productId, variantId)
+      return
+    }
+
+    clearProductQuantity(productId, variantId)
   }, [action, productId, variantId, increaseProductQuantity, decreaseProductQuantity, clearProductQuantity])
 
   // 2. Stepper buttons (+/−) share icon-button primitive with no outer border (parent provides the border)

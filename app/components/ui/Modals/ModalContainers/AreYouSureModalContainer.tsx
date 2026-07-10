@@ -91,6 +91,18 @@ export function AreYouSureModalContainer({
   const { isLoading } = useLoading()
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
 
+  function closeModal() {
+    if (isLoading) return
+    secondaryButtonAction()
+  }
+
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Escape" && !isLoading) {
+      event.stopImmediatePropagation()
+      closeModal()
+    }
+  }
+
   useEffect(() => {
     if (!isOpen) return
     let raf: number
@@ -113,22 +125,6 @@ export function AreYouSureModalContainer({
     return () => document.removeEventListener("keydown", handleKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, isOpen])
-
-  /* onClose - close modal - show scrollbar */
-  function closeModal() {
-    if (isLoading) return
-    secondaryButtonAction()
-  }
-
-  //Close modal on esc
-  const handleKeyDown = (event: KeyboardEvent) => {
-    //TODO - block esc key if isLoading (in ModalContainer.tsx)
-    if (event.key === "Escape" && !isLoading) {
-      //stopImmediatePropagation required to prevent close first opened modal (ModalContainer.tsx)
-      event.stopImmediatePropagation()
-      closeModal()
-    }
-  }
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */
   const modalBgHandler = useSwipeable({

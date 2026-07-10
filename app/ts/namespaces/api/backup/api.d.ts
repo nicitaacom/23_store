@@ -1,6 +1,6 @@
 // DO NOT import anything here
 
-declare module API {
+declare namespace API {
   // The export route returns a .tar.gz file (binary), so it has no JSON response type.
 
   // Pre-flight manifest: how big the backup is + per-file sizes for client-side chunk planning.

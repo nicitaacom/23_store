@@ -23,9 +23,12 @@ export function ProductsInCart() {
     setIsLoading(true)
     const result = await requestBetterPrices(t, cartStore.productsData, cartStore.getProductsPrice(), user?.email || null)
     setIsLoading(false)
-    result.success
-      ? toast.show("success", "Request sent!", result.message)
-      : toast.show("error", "Request failed", result.message)
+    if (result.success) {
+      toast.show("success", "Request sent!", result.message)
+      return
+    }
+
+    toast.show("error", "Request failed", result.message)
   }
 
   return (

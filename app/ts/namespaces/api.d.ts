@@ -1,6 +1,6 @@
 // DO NOT import anything here
 
-declare module API {
+declare namespace API {
   // /api/ai/generate-image
   type GenerateImageRequest = { prompt: string }
   type GenerateImageResponse = ArrayBuffer

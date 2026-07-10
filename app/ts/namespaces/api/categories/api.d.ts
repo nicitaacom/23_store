@@ -1,6 +1,6 @@
 // DO NOT import anything here
 
-declare module API {
+declare namespace API {
   type CategoriesSelectResponse = { categories: { id: string; name: string; parent_id: string | null }[] } | { error: string }
 
   type CategoriesInsertRequest = { name: string; parent_id?: string | null }

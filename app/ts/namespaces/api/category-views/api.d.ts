@@ -1,6 +1,6 @@
 // DO NOT import anything here
 
-declare module API {
+declare namespace API {
   type CategoryViewsSelectResponse = { views: { category_id: string; view_count: number; last_viewed_at: string }[] } | { error: string }
 
   type CategoryViewsIncrementRequest = { category_id: string; delta?: number }

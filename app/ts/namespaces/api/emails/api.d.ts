@@ -1,6 +1,6 @@
 // DO NOT import anything here
 
-declare module API {
+declare namespace API {
   type EmailsSendRequest = {
     from: string
     to: string | null

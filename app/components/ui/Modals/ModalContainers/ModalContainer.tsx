@@ -27,18 +27,12 @@ export function ModalContainer({
 }: ModalContainerProps) {
   const { isLoading } = useLoading()
 
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading])
-
   function closeModal() {
     if (isLoading) return
     onClose()
   }
 
-  const handleKeyDown = (event: KeyboardEvent) => {
+  function handleKeyDown(event: KeyboardEvent) {
     if (event.key !== "Escape" || isLoading) return
 
     const active = document.activeElement
@@ -51,6 +45,12 @@ export function ModalContainer({
 
     closeModal()
   }
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading])
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */
   const modalBgHandler = useSwipeable({

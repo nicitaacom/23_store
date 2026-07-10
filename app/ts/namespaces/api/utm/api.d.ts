@@ -1,6 +1,6 @@
 // DO NOT import anything here
 
-declare module API {
+declare namespace API {
   type UTMVisitMetadata = {
     userAgent: string | null
     countryCode: string | null

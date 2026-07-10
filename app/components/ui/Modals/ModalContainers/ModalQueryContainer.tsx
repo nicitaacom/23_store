@@ -38,11 +38,6 @@ export function ModalQueryContainer({
   const showModal = queryParams?.getAll("modal").includes(modalQuery)
   const [shouldClose, setShouldClose] = useState(false)
 
-  // Reset closing state whenever the modal is (re)opened via the URL
-  useEffect(() => {
-    if (showModal) setShouldClose(false)
-  }, [showModal])
-
   // Close modal: animate out, then strip the ?modal param WITHOUT a server roundtrip.
   // history.replaceState (instead of router.push) avoids re-running the server layout
   // (getOwnerProducts / auth) and re-tracking utm params on every modal close.
@@ -51,6 +46,7 @@ export function ModalQueryContainer({
     setShouldClose(true)
     setTimeout(() => {
       window.history.replaceState(null, "", pathname ?? "/")
+      setShouldClose(false)
     }, 260)
   }, [disableDismiss, isLoading, pathname])
 

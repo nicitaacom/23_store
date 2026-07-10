@@ -64,9 +64,27 @@ export function PayWithMetamaskButton() {
   const initialState = { accounts: [], balance: "", chainId: "" }
   const { isLoading, setIsLoading } = useLoading()
 
+  async function updateWallet(accounts: string[]) {
+    const balance = formatBalance(
+      await window.ethereum!.request({
+        method: "eth_getBalance",
+        params: [accounts[0], "latest"],
+      }),
+    )
+    const chainId = await window.ethereum!.request({
+      method: "eth_chainId",
+    })
+    setWallet({ accounts, balance, chainId })
+  }
+
   useEffect(() => {
     const refreshAccounts = (accounts: string[]) => {
-      accounts.length > 0 ? updateWallet(accounts) : setWallet(initialState)
+      if (accounts.length > 0) {
+        void updateWallet(accounts)
+        return
+      }
+
+      setWallet(initialState)
     }
 
     const refreshChain = (chainId: string) => {
@@ -93,19 +111,6 @@ export function PayWithMetamaskButton() {
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const updateWallet = async (accounts: string[]) => {
-    const balance = formatBalance(
-      await window.ethereum!.request({
-        method: "eth_getBalance",
-        params: [accounts[0], "latest"],
-      }),
-    )
-    const chainId = await window.ethereum!.request({
-      method: "eth_chainId",
-    })
-    setWallet({ accounts, balance, chainId })
-  }
 
   async function sendMoneyWithMetamaskFunction() {
     setIsLoading(true)

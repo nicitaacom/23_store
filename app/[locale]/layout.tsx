@@ -10,6 +10,8 @@ import { Layout, OfflineBanner } from "@/components"
 import { ModalsProvider, ModalsQueryProvider } from "@/providers"
 import { UTMTracker } from "@/[locale]/(site)/stats/UTMTracker"
 
+const ToastProvider = lazy(() => import("@/providers/ToastProvider"))
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_PRODUCTION_URL : "http://localhost:3023"),
   title: "Joki ",
@@ -39,7 +41,6 @@ export default async function RootLayout({
 }) {
   const { locale } = await paramsPromise
   const ownerProducts = await getOwnerProducts()
-  const ToastProvider = lazy(() => import("@/providers/ToastProvider"))
 
   const supabase = await supabaseServer()
   const {
