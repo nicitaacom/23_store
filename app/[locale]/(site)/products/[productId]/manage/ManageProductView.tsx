@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -150,7 +150,10 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     setVariants(currentVariants =>
       currentVariants.map(variant =>
         variant.id === variantId
-          ? { ...variant, quantity: Number.isFinite(normalizedQuantity) && normalizedQuantity > 0 ? Math.floor(normalizedQuantity) : 0 }
+          ? {
+              ...variant,
+              quantity: Number.isFinite(normalizedQuantity) && normalizedQuantity > 0 ? Math.floor(normalizedQuantity) : 0,
+            }
           : variant,
       ),
     )
@@ -197,6 +200,23 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       .filter((variant): variant is TProductVariant => Boolean(variant))
   }, [product.img_url, product.price, variants])
 
+  // Held in refs so other hooks below can call the latest version without listing these
+  // useCallback-wrapped functions in their own deps arrays.
+  const updateVariantLabelRef = useRef(updateVariantLabel)
+  const updateVariantPriceRef = useRef(updateVariantPrice)
+  const updateVariantQuantityRef = useRef(updateVariantQuantity)
+  const assignFirstImageToVariantRef = useRef(assignFirstImageToVariant)
+  const removeVariantRef = useRef(removeVariant)
+  const buildResolvedVariantsRef = useRef(buildResolvedVariants)
+  useEffect(() => {
+    updateVariantLabelRef.current = updateVariantLabel
+    updateVariantPriceRef.current = updateVariantPrice
+    updateVariantQuantityRef.current = updateVariantQuantity
+    assignFirstImageToVariantRef.current = assignFirstImageToVariant
+    removeVariantRef.current = removeVariant
+    buildResolvedVariantsRef.current = buildResolvedVariants
+  })
+
   const onSubmit = useCallback(
     async (data: IFormDataAddProduct) => {
       if (!product.img_url.length) {
@@ -210,7 +230,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       setIsUpdatingProduct(true)
 
       try {
-        const resolvedVariants = buildResolvedVariants()
+        const resolvedVariants = buildResolvedVariantsRef.current()
         const normalizedTitle = data.title.trim()
         const normalizedSubTitle = data.subTitle.trim()
         const normalizedPrice = resolvedVariants[0]?.price
@@ -261,7 +281,6 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       }
     },
     [
-      buildResolvedVariants,
       locale,
       product.id,
       product.img_url.length,
@@ -314,7 +333,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               <div className="flex min-w-0 flex-1 flex-col gap-2">
                 <input
                   value={variant.label}
-                  onChange={event => updateVariantLabel(variant.id, event.target.value)}
+                  onChange={event => updateVariantLabelRef.current(variant.id, event.target.value)}
                   className="w-full rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
                   placeholder={t("variant_label")}
                   disabled={isUpdatingProduct}
@@ -323,7 +342,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 <div className="flex gap-2">
                   <input
                     value={variant.price > 0 ? formatGroupedNumberInput(String(variant.price)) : ""}
-                    onChange={event => updateVariantPrice(variant.id, event.target.value)}
+                    onChange={event => updateVariantPriceRef.current(variant.id, event.target.value)}
                     className="w-full min-w-0 flex-1 rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
                     placeholder={t("placeholder.price")}
                     disabled={isUpdatingProduct}
@@ -331,7 +350,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   />
                   <input
                     value={variant.quantity > 0 ? formatGroupedNumberInput(String(variant.quantity)) : ""}
-                    onChange={event => updateVariantQuantity(variant.id, event.target.value)}
+                    onChange={event => updateVariantQuantityRef.current(variant.id, event.target.value)}
                     className={twMerge(
                       "w-full min-w-0 flex-1 rounded-xl border bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30",
                       variant.quantity > 0 ? "border-white/8" : "border-warning/40",
@@ -345,13 +364,13 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() => assignFirstImageToVariant(variant.id)}
+                    onClick={() => assignFirstImageToVariantRef.current(variant.id)}
                     className="rounded-xl border border-success/20 bg-success/8 px-3 py-2 text-xs font-medium text-success transition-colors hover:bg-success/12">
                     {t("assign_current_image")}
                   </button>
                   <button
                     type="button"
-                    onClick={() => removeVariant(variant.id)}
+                    onClick={() => removeVariantRef.current(variant.id)}
                     className="rounded-xl border border-danger/20 bg-danger/8 px-3 py-2 text-xs font-medium text-danger transition-colors hover:bg-danger/12">
                     {t("remove")}
                   </button>
@@ -361,7 +380,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           </div>
         )
       }),
-    [assignFirstImageToVariant, isUpdatingProduct, product.img_url, removeVariant, t, updateVariantLabel, updateVariantPrice, updateVariantQuantity, variants],
+    [isUpdatingProduct, product.img_url, t, variants],
   )
 
   return (
@@ -405,13 +424,16 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             id={product.id}
             imgUrl={product.img_url}
             selectedIndex={selectedImageIndex}
-            onSelect={index => { setSelectedImageIndex(index); setPreviewImageIndex(index) }}
+            onSelect={index => {
+              setSelectedImageIndex(index)
+              setPreviewImageIndex(index)
+            }}
             onHover={setPreviewImageIndex}
           />
         </div>
       </section>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <form onSubmit={event => handleSubmit(onSubmit)(event)} className="flex flex-col gap-4">
         <section className="rounded-2xl border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(20,90,44,0.22),transparent_28%),linear-gradient(155deg,rgba(11,14,19,0.99),rgba(8,10,14,1))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.42)]">
           <div className="mb-4">
             <p className="text-xs uppercase tracking-[0.24em] text-subTitle">{t("manage_product")}</p>

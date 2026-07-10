@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { backupSDK } from "@/sdk/BackupSDK/BackupSDK"
 import { useScopedI18n } from "@/locales/client"
@@ -26,6 +26,10 @@ export function useDbBackup() {
     anchor.click()
     URL.revokeObjectURL(url)
   }, [])
+  const downloadArchiveFileRef = useRef(downloadArchiveFile)
+  useEffect(() => {
+    downloadArchiveFileRef.current = downloadArchiveFile
+  })
 
   const exportFn = useCallback(async () => {
     try {
@@ -36,10 +40,10 @@ export function useDbBackup() {
       const { archiveFiles, fileNames } = await backupSDK.exportBackup(setExportProgress)
 
       if (archiveFiles.length === 1) {
-        downloadArchiveFile(archiveFiles[0], `23_backup-${date}.tar.gz`)
+        downloadArchiveFileRef.current(archiveFiles[0], `23_backup-${date}.tar.gz`)
       } else {
         for (let index = 0; index < archiveFiles.length; index++) {
-          downloadArchiveFile(archiveFiles[index], fileNames[index] ?? `23_backup-${date}-part${index + 1}.tar.gz`)
+          downloadArchiveFileRef.current(archiveFiles[index], fileNames[index] ?? `23_backup-${date}-part${index + 1}.tar.gz`)
         }
         toast.show("success", t("export_split"), "", 4000)
       }
@@ -48,7 +52,7 @@ export function useDbBackup() {
     } finally {
       setIsExporting(false)
     }
-  }, [downloadArchiveFile, t, toast])
+  }, [t, toast])
 
   const importFn = useCallback(
     async (files: File[]) => {
@@ -79,16 +83,18 @@ export function useDbBackup() {
     [t, toast],
   )
 
+  const importFnRef = useRef(importFn)
+  useEffect(() => {
+    importFnRef.current = importFn
+  })
+
   const handleImportClick = useCallback(() => fileInputRef.current?.click(), [])
 
-  const handleFileChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(event.target.files ?? [])
-      if (files.length > 0) void importFn(files)
-      event.target.value = ""
-    },
-    [importFn],
-  )
+  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? [])
+    if (files.length > 0) void importFnRef.current(files)
+    event.target.value = ""
+  }, [])
 
   return {
     isExporting,

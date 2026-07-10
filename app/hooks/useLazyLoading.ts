@@ -123,11 +123,16 @@ export const useLazyLoading = <T extends { id: string }>({
     },
     [fetchFunction, isInitialLoading, isLoading, setState],
   )
+  // eslint-disable-next-line local-rules/sdk-method-naming -- generic pass-through wrapper around the caller-supplied fetchFunction, not a DB/Redis read itself
+  const fetchDataForRangeRef = useRef(fetchDataForRange)
+  useEffect(() => {
+    fetchDataForRangeRef.current = fetchDataForRange
+  })
 
   useEffect(() => {
     if (isInitialLoading || isLoading || currentState.length > 0 || hasNoMoreDataToFetch) return
-    void Promise.resolve().then(() => fetchDataForRange(0, step))
-  }, [currentState.length, fetchDataForRange, hasNoMoreDataToFetch, isInitialLoading, isLoading, step])
+    void Promise.resolve().then(() => fetchDataForRangeRef.current(0, step))
+  }, [currentState.length, hasNoMoreDataToFetch, isInitialLoading, isLoading, step])
 
   useEffect(() => {
     if (!bottomInView || isLoading || hasNoMoreDataToFetch) return
@@ -140,9 +145,9 @@ export const useLazyLoading = <T extends { id: string }>({
 
     void Promise.resolve().then(() => {
       setCurrentWindow({ startIndex: newWindowStart, endIndex: newWindowEnd })
-      fetchDataForRange(nextFetchStart, nextFetchEnd)
+      fetchDataForRangeRef.current(nextFetchStart, nextFetchEnd)
     })
-  }, [bottomInView, currentState.length, fetchDataForRange, hasNoMoreDataToFetch, isLoading, step, windowSize])
+  }, [bottomInView, currentState.length, hasNoMoreDataToFetch, isLoading, step, windowSize])
 
   useEffect(() => {
     if (!topInView || isLoading || hasReachedStart || currentWindow.startIndex <= 0) return

@@ -8,6 +8,10 @@ export const useDragAndDrop = () => {
     dragCounter.current = 0
     setIsDragging(false)
   }, [])
+  const handleDropRef = useRef(handleDrop)
+  useEffect(() => {
+    handleDropRef.current = handleDrop
+  })
 
   useEffect(() => {
     const hasFiles = (event: DragEvent) => Array.from(event.dataTransfer?.types ?? []).includes("Files")
@@ -36,18 +40,20 @@ export const useDragAndDrop = () => {
       event.preventDefault()
     }
 
+    const handleDropEvent = () => handleDropRef.current()
+
     window.addEventListener("dragenter", handleDragEnter)
     window.addEventListener("dragleave", handleDragLeave)
     window.addEventListener("dragover", handleDragOver)
-    window.addEventListener("drop", handleDrop)
+    window.addEventListener("drop", handleDropEvent)
 
     return () => {
       window.removeEventListener("dragenter", handleDragEnter)
       window.removeEventListener("dragleave", handleDragLeave)
       window.removeEventListener("dragover", handleDragOver)
-      window.removeEventListener("drop", handleDrop)
+      window.removeEventListener("drop", handleDropEvent)
     }
-  }, [handleDrop])
+  }, [])
 
   return { isDragging, handleDrop }
 }
