@@ -591,11 +591,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               {/* 16:9 main preview — black bars only behind a real image, panel surface when empty
                   so clearing the form on submit doesn't flash a black slab */}
               <div
+                style={{ aspectRatio: "16/9" }}
                 className={twMerge(
                   "relative w-full shrink-0 overflow-hidden rounded",
                   activeImage ? "bg-black" : "bg-white/[0.02]",
-                )}
-                style={{ aspectRatio: "16/9" }}>
+                )}>
                 {activeImage ? (
                   <>
                     <AnimatePresence initial={false} custom={imageDirection} mode="popLayout">

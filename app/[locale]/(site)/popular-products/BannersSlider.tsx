@@ -54,7 +54,7 @@ export function BannersSlider() {
         </div>
       </div>
 
-      <div className="absolute bottom-4 right-5 flex gap-2" style={{ zIndex: 10 }}>
+      <div style={{ zIndex: 10 }} className="absolute bottom-4 right-5 flex gap-2">
         {BANNERS.map((_, index) => (
           <button
             key={index}

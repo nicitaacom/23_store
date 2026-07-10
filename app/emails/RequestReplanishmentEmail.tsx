@@ -49,7 +49,7 @@ export function RequestReplanishmentEmail({ product }: RequestReplanishmentEmail
           <Head />
           <Preview>{previewText}</Preview>
 
-          <Body className="bg-[#202020]" style={{ width: "480px", margin: "0 auto", padding: "20px 0 48px" }}>
+          <Body style={{ width: "480px", margin: "0 auto", padding: "20px 0 48px" }} className="bg-[#202020]">
             {/* CONTENT - START */}
 
             {/* HEADER */}

@@ -27,7 +27,7 @@ function BulkProgressToast({ items }: { items: { title: string; status: DeleteSt
         <span>{progress}%</span>
       </div>
       <div className="h-1 w-full overflow-hidden rounded-full bg-border-color/20">
-        <div className="h-full rounded-full bg-danger transition-all duration-300" style={{ width: `${progress}%` }} />
+        <div style={{ width: `${progress}%` }} className="h-full rounded-full bg-danger transition-all duration-300" />
       </div>
       <ul className="mt-1 max-h-[160px] space-y-1 overflow-y-auto">
         {items.map((item, index) => (

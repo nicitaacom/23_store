@@ -71,7 +71,7 @@ export function CheckEmail({
           <Head />
           <Preview>{previewText}</Preview>
 
-          <Body className="bg-[#f9fafb]" style={{ width: "600px", margin: "0 auto", padding: "40px 20px" }}>
+          <Body style={{ width: "600px", margin: "0 auto", padding: "40px 20px" }} className="bg-[#f9fafb]">
             {/* HEADER */}
             <Section
               style={{
@@ -82,10 +82,10 @@ export function CheckEmail({
                 padding: "40px",
                 marginBottom: "24px",
               }}>
-              <Heading className="m-0 text-[32px] font-bold text-title text-center" style={{ lineHeight: "1.3" }}>
+              <Heading style={{ lineHeight: "1.3" }} className="m-0 text-[32px] font-bold text-title text-center">
                 {orderConfirmed}
               </Heading>
-              <Text className="m-0 mt-3 text-[16px] text-subTitle text-center" style={{ lineHeight: "1.5" }}>
+              <Text style={{ lineHeight: "1.5" }} className="m-0 mt-3 text-[16px] text-subTitle text-center">
                 {willBeDelivered} <strong style={{ color: "#1a1a1a" }}>{deliveryDate}</strong>
               </Text>
             </Section>
@@ -105,9 +105,9 @@ export function CheckEmail({
 
                 return (
                   <Section
-                    className={twMerge(index !== products.length - 1 && "pb-6 mb-6 border-b border-[#e5e5e5]")}
                     key={product.id}
-                    style={{ padding: 0 }}>
+                    style={{ padding: 0 }}
+                    className={twMerge(index !== products.length - 1 && "pb-6 mb-6 border-b border-[#e5e5e5]")}>
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                       <tr>
                         <td style={{ width: "120px", verticalAlign: "top", paddingRight: "20px" }}>
@@ -121,15 +121,15 @@ export function CheckEmail({
                         </td>
                         <td style={{ verticalAlign: "top" }}>
                           <Text
-                            className="m-0 text-[18px] font-semibold text-title"
-                            style={{ lineHeight: "1.4", marginBottom: "8px" }}>
+                            style={{ lineHeight: "1.4", marginBottom: "8px" }}
+                            className="m-0 text-[18px] font-semibold text-title">
                             {translation.title}
                           </Text>
-                          <Text className="m-0 text-[14px] text-subTitle" style={{ lineHeight: "1.5", marginBottom: "12px" }}>
+                          <Text style={{ lineHeight: "1.5", marginBottom: "12px" }} className="m-0 text-[14px] text-subTitle">
                             {quantityText}: {product.quantity}
                           </Text>
                           {product.selectedVariant?.label && (
-                            <Text className="m-0 text-[14px] text-subTitle" style={{ lineHeight: "1.5", marginBottom: "12px" }}>
+                            <Text style={{ lineHeight: "1.5", marginBottom: "12px" }} className="m-0 text-[14px] text-subTitle">
                               Variant: {product.selectedVariant.label}
                             </Text>
                           )}
@@ -184,7 +184,7 @@ export function CheckEmail({
                 }}>
                 {trackYourOrder}
               </Link>
-              <Text className="m-0 text-[14px] text-subTitle" style={{ lineHeight: "1.5" }}>
+              <Text style={{ lineHeight: "1.5" }} className="m-0 text-[14px] text-subTitle">
                 {weKeepYouUpdated}
               </Text>
             </Section>
@@ -196,21 +196,21 @@ export function CheckEmail({
                 <tr>
                   <td>
                     <Link
-                      className="text-[14px] text-[#1ce956] mx-3"
                       href={`${getURL()}support`}
-                      style={{ textDecoration: "none", fontWeight: "500" }}>
+                      style={{ textDecoration: "none", fontWeight: "500" }}
+                      className="text-[14px] text-[#1ce956] mx-3">
                       {supportText}
                     </Link>
                     <Link
-                      className="text-[14px] text-[#1ce956] mx-3"
                       href={`${getURL()}feedback`}
-                      style={{ textDecoration: "none", fontWeight: "500" }}>
+                      style={{ textDecoration: "none", fontWeight: "500" }}
+                      className="text-[14px] text-[#1ce956] mx-3">
                       {feedbackText}
                     </Link>
                   </td>
                 </tr>
               </table>
-              <Text className="m-0 mt-6 text-[12px] text-subTitle" style={{ lineHeight: "1.5" }}>
+              <Text style={{ lineHeight: "1.5" }} className="m-0 mt-6 text-[12px] text-subTitle">
                 © {new Date().getFullYear()} Joki. {allRightsReserved}
               </Text>
             </Section>
