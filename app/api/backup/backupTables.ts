@@ -83,9 +83,7 @@ export type TBackupSnapshot = Record<string, unknown[]>
 
 // Tar entry prefix + helpers so storage files round-trip without clashing with <table>.json entries.
 const STORAGE_PREFIX = "storage/"
-function storageEntryName(file: TBackupFile) {
-  return `${STORAGE_PREFIX}${file.bucket}/${file.path}`
-}
+const storageEntryName = (file: TBackupFile) => `${STORAGE_PREFIX}${file.bucket}/${file.path}`
 function parseStorageEntry(name: string) {
   const rest = name.slice(STORAGE_PREFIX.length)
   const slash = rest.indexOf("/")

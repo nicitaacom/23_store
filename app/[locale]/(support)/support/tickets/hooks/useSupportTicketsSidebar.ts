@@ -14,12 +14,11 @@ interface UseSupportTicketsSidebarProps {
   unseenMessages: IUnseenMessages[]
 }
 
-function addTicket(currentTickets: ITicketDB[], ticket: ITicketDB) {
-  return currentTickets.some(currentTicket => currentTicket.id === ticket.id) ? currentTickets : [...currentTickets, ticket]
-}
+const addTicket = (currentTickets: ITicketDB[], ticket: ITicketDB) =>
+  currentTickets.some(currentTicket => currentTicket.id === ticket.id) ? currentTickets : [...currentTickets, ticket]
 
-function updateTicket(currentTickets: ITicketDB[], ticket: ITicketDB) {
-  return currentTickets.map(currentTicket =>
+const updateTicket = (currentTickets: ITicketDB[], ticket: ITicketDB) =>
+  currentTickets.map(currentTicket =>
     currentTicket.id === ticket.id
       ? {
           ...currentTicket,
@@ -28,15 +27,10 @@ function updateTicket(currentTickets: ITicketDB[], ticket: ITicketDB) {
         }
       : currentTicket,
   )
-}
 
-function removeTicket(currentTickets: ITicketDB[], ticketId: string) {
-  return currentTickets.filter(ticket => ticket.id !== ticketId)
-}
+const removeTicket = (currentTickets: ITicketDB[], ticketId: string) => currentTickets.filter(ticket => ticket.id !== ticketId)
 
-function getTicketTime(ticket: ITicketDB) {
-  return new Date(ticket.last_message_at ?? ticket.created_at).getTime()
-}
+const getTicketTime = (ticket: ITicketDB) => new Date(ticket.last_message_at ?? ticket.created_at).getTime()
 
 export const useSupportTicketsSidebar = ({ initialTickets, unseenMessages }: UseSupportTicketsSidebarProps) => {
   const router = useRouter()

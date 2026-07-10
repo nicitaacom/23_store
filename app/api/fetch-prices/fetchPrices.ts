@@ -10,9 +10,7 @@ const FETCH_TIMEOUT = 6000 // ms
 const USER_AGENT = "Mozilla/5.0 (compatible; PriceBot/1.0; +https://example.com)"
 
 // clamp helper
-function clamp(value: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, value))
-}
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
 
 function htmlToCleanText(html: string, maxLength = MAX_CLEAN_LENGTH): string {
   if (!html) return ""

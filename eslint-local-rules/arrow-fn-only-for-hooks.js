@@ -20,8 +20,19 @@
 // declared INSIDE another function/hook/component body is also exempt - it's already scoped to
 // that one function, not a module-wide export, so the same "components/helpers should use
 // `function`" concern doesn't apply to it.
+//
+// A one-liner arrow with a concise/expression body (no `{}` block, implicit return - e.g.
+// `const clamp = (v, min, max) => Math.max(min, Math.min(max, v))`) is exempt too - converting
+// it to a `function` + explicit `return` adds lines without adding clarity. This does NOT cover
+// a concise body that returns an object literal (`const store = (set) => ({ ... })`), since those
+// tend to hold many properties/methods and read the same as a real function body.
 function isHookName(name) {
   return /^use[A-Z]/.test(name)
+}
+
+function isExemptOneLinerArrow(node) {
+  if (node.type !== "ArrowFunctionExpression") return false
+  return node.body.type !== "BlockStatement" && node.body.type !== "ObjectExpression"
 }
 
 function isInsideFunctionBody(node) {
@@ -62,6 +73,7 @@ module.exports = {
           const name = node.id.name
           if (isHookName(name)) return
           if (isInsideFunctionBody(node)) return
+          if (isExemptOneLinerArrow(node.init)) return
 
           context.report({ node: node.id, messageId: "arrowNotHook", data: { name } })
         },
