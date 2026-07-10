@@ -83,9 +83,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const { isDraggingg } = useDragging()
 
   const [images, setImages] = useState<ImageListType>([])
-  const [variantLabel, setVariantLabel] = useState("")
-  const [variantPrice, setVariantPrice] = useState("")
-  const [variantQuantity, setVariantQuantity] = useState("")
+  const [variantLabelValue, setVariantLabelValue] = useState("")
+  const [variantPriceValue, setVariantPriceValue] = useState("")
+  const [variantQuantityValue, setVariantQuantityValue] = useState("")
   const [variants, setVariants] = useState<TProductVariantDraft[]>([])
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [pendingTranslationsAmount, setPendingTranslationsAmount] = useState(0)
@@ -260,9 +260,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setActiveImageIndex(0)
     previousImageIndexRef.current = 0
     lastSuggestedKeyRef.current = null
-    setVariantLabel("")
-    setVariantPrice("")
-    setVariantQuantity("")
+    setVariantLabelValue("")
+    setVariantPriceValue("")
+    setVariantQuantityValue("")
     setCategoryId(null)
     setAutoAssignedName(null)
   }
@@ -273,9 +273,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariants(snapshot.variants)
     setActiveImageIndex(snapshot.activeImageIndex)
     previousImageIndexRef.current = snapshot.activeImageIndex
-    setVariantLabel(snapshot.variantLabel)
-    setVariantPrice(snapshot.variantPrice)
-    setVariantQuantity(snapshot.variantQuantity)
+    setVariantLabelValue(snapshot.variantLabel)
+    setVariantPriceValue(snapshot.variantPrice)
+    setVariantQuantityValue(snapshot.variantQuantity)
   }
 
   const removePendingCreatedProduct = (optimisticProductId: string) => {
@@ -402,9 +402,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         images: [...images],
         variants: [...variants],
         activeImageIndex,
-        variantLabel,
-        variantPrice,
-        variantQuantity,
+        variantLabel: variantLabelValue,
+        variantPrice: variantPriceValue,
+        variantQuantity: variantQuantityValue,
       }
       const submitImages = [...images]
 
@@ -453,10 +453,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   }
 
   const addVariant = () => {
-    const normalizedLabel = variantLabel.trim()
-    const normalizedPrice = parseFormattedNumber(variantPrice)
+    const normalizedLabel = variantLabelValue.trim()
+    const normalizedPrice = parseFormattedNumber(variantPriceValue)
     // Stock is optional — empty/invalid means 0 = sold out. Owner can restock later via the Edit tab.
-    const parsedQuantity = parseFormattedNumber(variantQuantity)
+    const parsedQuantity = parseFormattedNumber(variantQuantityValue)
     const normalizedQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
 
     if (!images.length) {
@@ -490,9 +490,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         quantity: normalizedQuantity,
       },
     ])
-    setVariantLabel("")
-    setVariantPrice("")
-    setVariantQuantity("")
+    setVariantLabelValue("")
+    setVariantPriceValue("")
+    setVariantQuantityValue("")
   }
 
   const removeVariant = (variantId: string) => {
@@ -856,8 +856,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               </span>
               <input
                 className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
-                value={variantLabel}
-                onChange={event => setVariantLabel(event.target.value)}
+                value={variantLabelValue}
+                onChange={event => setVariantLabelValue(event.target.value)}
                 placeholder={t("variant_label")}
                 disabled={isLoading}
               />
@@ -868,8 +868,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               </span>
               <input
                 className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
-                value={variantPrice}
-                onChange={event => setVariantPrice(formatGroupedNumberInput(event.target.value))}
+                value={variantPriceValue}
+                onChange={event => setVariantPriceValue(formatGroupedNumberInput(event.target.value))}
                 placeholder={t("placeholder.price")}
                 disabled={isLoading}
                 inputMode="decimal"
@@ -881,8 +881,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               </span>
               <input
                 className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
-                value={variantQuantity}
-                onChange={event => setVariantQuantity(formatGroupedNumberInput(event.target.value))}
+                value={variantQuantityValue}
+                onChange={event => setVariantQuantityValue(formatGroupedNumberInput(event.target.value))}
                 placeholder="0"
                 disabled={isLoading}
                 inputMode="numeric"

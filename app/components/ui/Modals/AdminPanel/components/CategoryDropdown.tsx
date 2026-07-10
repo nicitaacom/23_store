@@ -17,7 +17,7 @@ interface CategoryDropdownProps {
 
 export function CategoryDropdown({ categories, value, onChange, disabled, uncategorizedLabel }: CategoryDropdownProps) {
   const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState("")
+  const [searchValue, setSearchValue] = useState("")
   const [prevOpen, setPrevOpen] = useState(open)
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -26,7 +26,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
 
   if (open !== prevOpen) {
     setPrevOpen(open)
-    if (!open) setSearch("")
+    if (!open) setSearchValue("")
   }
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
   const parents = categories.filter(category => category.parent_id === null)
   const childrenOf = (parentId: string) => categories.filter(category => category.parent_id === parentId)
 
-  const query = search.toLowerCase().trim()
+  const query = searchValue.toLowerCase().trim()
   const filteredParents = query
     ? parents.filter(
         parent =>
@@ -69,19 +69,23 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
         )}
         aria-expanded={open}>
         <span className={twMerge("truncate", !value && "text-white/40")}>{selectedName}</span>
-        <TbChevronDown size={14} className={twMerge("shrink-0 text-white/40 transition-transform duration-150", open && "rotate-180")} />
+        <TbChevronDown
+          size={14}
+          className={twMerge("shrink-0 text-white/40 transition-transform duration-150", open && "rotate-180")}
+        />
       </button>
 
-      <div className={twMerge(
-        "absolute left-0 top-full z-50 mt-1 w-full overflow-hidden rounded border border-white/15 bg-[#0e1010] shadow-compact transition-all duration-150",
-        open ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0",
-      )}>
+      <div
+        className={twMerge(
+          "absolute left-0 top-full z-50 mt-1 w-full overflow-hidden rounded border border-white/15 bg-[#0e1010] shadow-compact transition-all duration-150",
+          open ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0",
+        )}>
         <input
           ref={inputRef}
           className="w-full border-b border-white/10 bg-transparent px-3 py-2 text-sm text-white placeholder:text-white/32 focus:outline-none"
           placeholder="Search categories..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
+          value={searchValue}
+          onChange={e => setSearchValue(e.target.value)}
           onClick={e => e.stopPropagation()}
         />
 
@@ -127,9 +131,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
             )
           })}
 
-          {filteredParents.length === 0 && (
-            <p className="px-3 py-3 text-sm text-white/30">No categories found</p>
-          )}
+          {filteredParents.length === 0 && <p className="px-3 py-3 text-sm text-white/30">No categories found</p>}
         </div>
       </div>
     </div>

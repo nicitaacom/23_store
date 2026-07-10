@@ -39,15 +39,15 @@ export function CatalogSearchForm({
   const router = useRouter()
   const searchParams = useSearchParams()
   const normalizedInitialQuery = initialQuery.trim()
-  const [query, setQuery] = useState(normalizedInitialQuery)
+  const [queryValue, setQueryValue] = useState(normalizedInitialQuery)
   const [isPending, startTransition] = useTransition()
-  const debouncedQuery = useDebounce(query.trim(), 3000)
+  const debouncedQuery = useDebounce(queryValue.trim(), 3000)
   const lastNavigatedQueryRef = useRef(normalizedInitialQuery)
   const [prevInitialQuery, setPrevInitialQuery] = useState(normalizedInitialQuery)
 
   if (normalizedInitialQuery !== prevInitialQuery) {
     setPrevInitialQuery(normalizedInitialQuery)
-    setQuery(normalizedInitialQuery)
+    setQueryValue(normalizedInitialQuery)
   }
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export function CatalogSearchForm({
     const currentQuery = searchParams?.get("query")?.trim() ?? ""
 
     if (currentQuery === lastNavigatedQueryRef.current) {
-      setQuery(currentQuery)
+      setQueryValue(currentQuery)
     }
   }, [searchParams])
 
@@ -76,7 +76,7 @@ export function CatalogSearchForm({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const nextQuery = query.trim()
+    const nextQuery = queryValue.trim()
 
     if (nextQuery === lastNavigatedQueryRef.current) return
 
@@ -104,10 +104,10 @@ export function CatalogSearchForm({
         aria-label={ariaLabel}
         className="relative h-10 w-full rounded-[2px] bg-transparent px-3 text-base text-title outline-none placeholder:text-subTitle"
         name="query"
-        onChange={event => setQuery(event.currentTarget.value)}
+        onChange={event => setQueryValue(event.currentTarget.value)}
         placeholder={placeholder}
         type="search"
-        value={query}
+        value={queryValue}
       />
       <button
         aria-busy={isPending}

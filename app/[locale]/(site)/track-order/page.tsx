@@ -7,7 +7,7 @@ import { useScopedI18n } from "@/locales/client"
 import { Button } from "@/components/ui"
 
 export default function TrackOrderPage() {
-  const [orderNumber, setOrderNumber] = useState("")
+  const [orderNumberValue, setOrderNumberValue] = useState("")
   const t = useScopedI18n("trackorder")
 
   return (
@@ -32,9 +32,9 @@ export default function TrackOrderPage() {
                 className="flex-1 rounded-lg border border-border-color bg-background px-3 py-2 text-sm text-title
                            placeholder:text-subTitle focus:border-success focus:outline-none focus:ring-1 focus:ring-success/30"
                 placeholder="ORD-123456"
-                value={orderNumber}
+                value={orderNumberValue}
                 disabled
-                onChange={event => setOrderNumber(event.target.value)}
+                onChange={event => setOrderNumberValue(event.target.value)}
               />
               <Button
                 disabled

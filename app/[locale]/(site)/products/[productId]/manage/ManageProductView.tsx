@@ -61,8 +61,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const [previewImageIndex, setPreviewImageIndex] = useState(0)
   const [previousPreviewIndex, setPreviousPreviewIndex] = useState(0)
   const slideDirection = previewImageIndex >= previousPreviewIndex ? "next" : "prev"
-  const [variantLabel, setVariantLabel] = useState("")
-  const [variantPrice, setVariantPrice] = useState("")
+  const [variantLabelValue, setVariantLabelValue] = useState("")
+  const [variantPriceValue, setVariantPriceValue] = useState("")
   const [variants, setVariants] = useState<TProductVariantDraft[]>(() => normalizeVariantsForDraft(product))
   const [isUpdatingProduct, setIsUpdatingProduct] = useState(false)
 
@@ -84,9 +84,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const previewPrice = variants[0]?.price > 0 ? formatCurrency(variants[0].price) : formatCurrency(product.price)
 
   const addVariant = useCallback(() => {
-    const normalizedLabel = variantLabel.trim()
+    const normalizedLabel = variantLabelValue.trim()
     const firstImageUrl = product.img_url[0]
-    const normalizedPrice = parseFormattedNumber(variantPrice)
+    const normalizedPrice = parseFormattedNumber(variantPriceValue)
 
     if (!product.img_url.length || !firstImageUrl) {
       return toast.show("warning", t("manage_upload_image_first_title"), t("manage_upload_image_first_subtitle"))
@@ -119,9 +119,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         quantity: 0, // new variants start sold out; owner sets stock per row below
       },
     ])
-    setVariantLabel("")
-    setVariantPrice("")
-  }, [product.img_url, t, toast, variantLabel, variantPrice, variants.length])
+    setVariantLabelValue("")
+    setVariantPriceValue("")
+  }, [product.img_url, t, toast, variantLabelValue, variantPriceValue, variants.length])
 
   const updateVariantLabel = useCallback((variantId: string, nextLabel: string) => {
     setVariants(currentVariants =>
@@ -495,8 +495,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 </span>
                 <input
                   className={twMerge(inputCn, "h-12")}
-                  value={variantLabel}
-                  onChange={event => setVariantLabel(event.target.value)}
+                  value={variantLabelValue}
+                  onChange={event => setVariantLabelValue(event.target.value)}
                   placeholder={t("variant_label")}
                   disabled={isUpdatingProduct}
                 />
@@ -508,8 +508,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 </span>
                 <input
                   className={twMerge(inputCn, "h-12")}
-                  value={variantPrice}
-                  onChange={event => setVariantPrice(formatGroupedNumberInput(event.target.value))}
+                  value={variantPriceValue}
+                  onChange={event => setVariantPriceValue(formatGroupedNumberInput(event.target.value))}
                   placeholder={t("placeholder.price")}
                   disabled={isUpdatingProduct}
                   inputMode="decimal"

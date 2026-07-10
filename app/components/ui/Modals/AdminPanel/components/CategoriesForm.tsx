@@ -20,11 +20,11 @@ export function CategoriesForm() {
 
   const [isFetching, setIsFetching] = useState(categories.length === 0)
   const [prevCategoriesLength, setPrevCategoriesLength] = useState(categories.length)
-  const [addName, setAddName] = useState("")
+  const [addNameValue, setAddNameValue] = useState("")
   const [addParentId, setAddParentId] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editName, setEditName] = useState("")
+  const [editNameValue, setEditNameValue] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deleteCount, setDeleteCount] = useState<number | null>(null)
   const [isSubmittingCategoryChange, setIsSubmittingCategoryChange] = useState(false)
@@ -51,36 +51,36 @@ export function CategoriesForm() {
   }, [categories.length, hydrate])
 
   const handleAdd = async () => {
-    if (!isValidCategoryName(addName)) {
+    if (!isValidCategoryName(addNameValue)) {
       toast.show("error", t("category.add"), "Name must be 2–255 valid characters.")
       return
     }
     setIsAdding(true)
-    const response = await categoriesSDK.insertDBCategory({ name: addName.trim(), parent_id: addParentId })
+    const response = await categoriesSDK.insertDBCategory({ name: addNameValue.trim(), parent_id: addParentId })
     setIsAdding(false)
     if ("error" in response) {
       toast.show("error", t("category.add"), response.error)
       return
     }
     addCategory(response.category)
-    setAddName("")
+    setAddNameValue("")
     setAddParentId(null)
     toast.show("success", t("category.add"), response.category.name)
   }
 
   const startEdit = (cat: TCategory) => {
     setEditingId(cat.id)
-    setEditName(cat.name)
+    setEditNameValue(cat.name)
     setDeletingId(null)
   }
 
   const saveEdit = async (id: string) => {
-    if (!isValidCategoryName(editName)) {
+    if (!isValidCategoryName(editNameValue)) {
       toast.show("error", t("category.edit_category"), "Name must be 2–255 valid characters.")
       return
     }
     setIsSubmittingCategoryChange(true)
-    const response = await categoriesSDK.updateDBCategory({ id, name: editName.trim() })
+    const response = await categoriesSDK.updateDBCategory({ id, name: editNameValue.trim() })
     setIsSubmittingCategoryChange(false)
     if ("error" in response) {
       toast.show("error", t("category.edit_category"), response.error)
@@ -123,8 +123,8 @@ export function CategoriesForm() {
             ref={addInputRef}
             className="rounded border border-border-color/50 bg-background/60 px-3 py-1.5 text-sm text-title placeholder:text-subTitle/50 focus:border-border-color focus:outline-none"
             placeholder={t("category.name_placeholder")}
-            value={addName}
-            onChange={e => setAddName(e.target.value)}
+            value={addNameValue}
+            onChange={e => setAddNameValue(e.target.value)}
             onKeyDown={e => e.key === "Enter" && handleAdd()}
             maxLength={255}
           />
@@ -162,12 +162,12 @@ export function CategoriesForm() {
             <CategoryRow
               category={parent}
               isEditing={editingId === parent.id}
-              editName={editName}
+              editName={editNameValue}
               isDeleting={deletingId === parent.id}
               deleteCount={deletingId === parent.id ? deleteCount : null}
               isSubmittingCategoryChange={isSubmittingCategoryChange}
               onEdit={() => startEdit(parent)}
-              onEditNameChange={setEditName}
+              onEditNameChange={setEditNameValue}
               onSave={() => saveEdit(parent.id)}
               onCancelEdit={() => setEditingId(null)}
               onDelete={() => startDelete(parent.id)}
@@ -180,12 +180,12 @@ export function CategoriesForm() {
                 <CategoryRow
                   category={child}
                   isEditing={editingId === child.id}
-                  editName={editName}
+                  editName={editNameValue}
                   isDeleting={deletingId === child.id}
                   deleteCount={deletingId === child.id ? deleteCount : null}
                   isSubmittingCategoryChange={isSubmittingCategoryChange}
                   onEdit={() => startEdit(child)}
-                  onEditNameChange={setEditName}
+                  onEditNameChange={setEditNameValue}
                   onSave={() => saveEdit(child.id)}
                   onCancelEdit={() => setEditingId(null)}
                   onDelete={() => startDelete(child.id)}
