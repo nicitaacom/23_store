@@ -35,6 +35,7 @@ export function CtrlKModal() {
     if (!ctrlKModal.isOpen) return
 
     searchProducts(debouncedSearchQuery)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- searchProducts is redefined every render, never add fns to deps
   }, [ctrlKModal.isOpen, debouncedSearchQuery])
 
   function createSearchHref(query: string) {

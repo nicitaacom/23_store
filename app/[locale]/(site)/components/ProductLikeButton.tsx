@@ -36,7 +36,7 @@ export function ProductLikeButton({ productId, categoryId, className }: ProductL
         else addView(categoryId, 3)
       }
     },
-    [isLiked, productId, categoryId, user, toggleProductLike],
+    [isLiked, productId, categoryId, user, toggleProductLike, addView],
   ) // don't add fn to deps
 
   return (

@@ -85,7 +85,8 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
           <Image src={image} alt={`${translation.title}-${index + 1}`} fill className="object-cover" sizes="80px" />
         </button>
       )),
-    [galleryImages, activeImage, translation.title], // don't add fn to deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSelectImage is a stable store action, never add fns to deps
+    [galleryImages, activeImage, translation.title],
   )
 
   const renderedVariants = useMemo(
@@ -114,7 +115,8 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
           </div>
         </button>
       )),
-    [variants, selectedVariant], // don't add fn to deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSelectVariant is a stable store action, never add fns to deps
+    [variants, selectedVariant],
   )
 
   const renderedHighlights = useMemo(

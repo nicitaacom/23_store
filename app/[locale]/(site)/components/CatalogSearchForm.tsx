@@ -71,7 +71,7 @@ export function CatalogSearchForm({
     startTransition(() => {
       router.replace(createCatalogSearchHref(locale, perPage, nextQuery), { scroll: false })
     })
-  }, [debouncedQuery, locale, perPage])
+  }, [debouncedQuery, locale, perPage, router])
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()

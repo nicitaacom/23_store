@@ -245,6 +245,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     return () => {
       if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runSuggestCategory is redefined every render, never add fns to deps
   }, [titleValue, allCategories, categoryId])
 
   const handleTitleBlur = () => {

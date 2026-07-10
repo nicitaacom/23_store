@@ -47,6 +47,7 @@ function Product({ ...product }: Props) {
   const [selectedVariantId, setSelectedVariantId] = useState(derivedVariantId)
   const [prevDerivedVariantId, setPrevDerivedVariantId] = useState(derivedVariantId)
   const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- getProductGalleryImages only reads product.img_url
   const previewImages = useMemo(() => getProductGalleryImages(product), [product.img_url])
   const selectedPrice = getProductPriceForVariant(product, selectedVariant?.id)
   const isVariantSelectionLocked = Boolean(product.cartKey)

@@ -63,7 +63,7 @@ export function useSetUser(user: User | null) {
     }
 
     syncUserFromClient()
-  }, [isMounted, router, user])
+  }, [isMounted, router, user, setUser, clearUser])
 
   useEffect(() => {
     const {

@@ -265,7 +265,6 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       locale,
       product.id,
       product.img_url.length,
-      product.on_stock,
       product.price,
       product.translations,
       product.variants,
