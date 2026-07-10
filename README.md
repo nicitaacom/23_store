@@ -56,6 +56,16 @@ Want to run it locally or contribute? See [CONTRIBUTING.md](./CONTRIBUTING.md) f
 
 ---
 
+## ⚠️ Decisions Made Against
+
+**Maintaining This Project**
+
+I fix one issue - see another - fix another - see the next one - it's never ending mirage<br/>
+All these successfull people are telling one advice - **focus** - so I will focus on 1 project instead of 3
+
+
+---
+
 ## Feedback
 
 Found a bug? [Open an issue](https://github.com/nicitaacom/23_store/issues/new).
