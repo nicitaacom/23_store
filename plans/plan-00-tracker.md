@@ -58,7 +58,7 @@ Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screensh
 | Doc claim | Reality | Fixed by |
 | --- | --- | --- |
 | `dev_readme-backup.md:137` — "23_messages.sender_id … no auth FK, so they always restore" | Live DB rejects import with `23_messages_sender_id_fkey` (screenshot) | plan-02 task 4 |
-| `dev_readme-backup.md` `BACKUP_TABLES` lists 5 tables | `dev_readme-supbase-sql.md:323` restore order lists 7 (incl. `23_categories`, `23_category_views`) | plan-02 task 4 (docs aligned; code change = Nikita's call) |
+| ~~`dev_readme-backup.md` `BACKUP_TABLES` lists 5 tables~~ | ~~`dev_readme-supbase-sql.md:323` restore order lists 7 (incl. `23_categories`, `23_category_views`)~~ | **closed by plan-11** — `dev_readme-backup.md` fully rewritten with `backupConfig.ts`'s 7-table list as the source of truth |
 | `app/[locale]/(support)/support/tickets/components/dev_readme.md` documents `TicketsList.tsx` | No such file exists | plan-06 docs sub-task |
 | `app/locales/dev_readme_i18n.md` — locale-line rule is not written down | All 4 locale files are exactly 526 lines; keys sit on identical line numbers | plan-01 task 3 |
 | `app/api/admin/backfill-categories/route.ts` + backfill button (categories dev_readme §5 says "delete after run") | Both already deleted; only the unused `category.backfill_button` locale keys remain (`app/locales/en.ts:524`) | plan-08 task 3 |
