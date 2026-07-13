@@ -1,30 +1,140 @@
 import { BaseSDK } from "../BaseSDK"
-import { splitRefsIntoChunks } from "@/api/backup/backupTables"
+import {
+  BACKUP_TABLES,
+  addTarEntry,
+  finalizeTar,
+  parseTar,
+  gzipBufferClient,
+  gunzipBufferClient,
+  toCsv,
+  parseCsv,
+  getPublicUrl,
+  type TBackupTableConfig,
+  type TBackupFileRef,
+} from "@/api/backup/backupTables"
 
-// How long (ms) a single export chunk should take at most on the server side.
-// Kept well under the Vercel 60s cap to leave headroom for table dump + gzip.
-const CHUNK_BUDGET_MS = 40_000
-
-// Assumed server-side download throughput from Supabase Storage (bytes/ms ≈ 8 MB/s).
-// Used to convert a speed-derived chunk target into server time: even if the client is slow,
-// the server always downloads at ~this rate, so we size chunks to fit within the server budget.
-const SERVER_THROUGHPUT_BYTES_PER_MS = 8 * 1024 // 8 MB/s
-
-// Maximum chunk size in bytes — caps chunk size regardless of connection speed (100 MB).
-const MAX_CHUNK_BYTES = 100 * 1024 * 1024
-
-// Speed probe: fetch a publicly accessible static asset to measure download throughput.
-// Using the Next.js favicon which is always present and small enough to be fast.
+// Speed probe: fetch a publicly accessible static asset to measure download throughput. Display
+// only now (not used to size chunks — there is nothing to chunk, file bytes never pass through a
+// Vercel function). Using the Next.js favicon which is always present and small enough to be fast.
 const SPEED_PROBE_URL = "/favicon.ico"
-const SPEED_PROBE_DURATION_MS = 4000 // probe runs for up to 4 seconds
+const SPEED_PROBE_DURATION_MS = 4000
 
-export class BackupSDK extends BaseSDK {
-  async getManifest() {
-    return this.getJson<API.BackupManifestResponse>("/api/backup/manifest")
+const ROW_BATCH_SIZE = 500
+const URL_BATCH_SIZE = 100
+const DOWNLOAD_CONCURRENCY = 5
+
+export type TTablesImportResult = { tables: { table: string; rows: number; skipped: number }[] }
+export type TFilesImportResult = { buckets: { bucket: string; files: number; failed: number }[] }
+
+// Progress shape shared by the files flow (export + import) — bytes, not just a file count, plus
+// the measured connection speed once known.
+export type TBackupFilesProgress = {
+  bytesDone: number
+  bytesTotal: number
+  label: string
+  speedBytesPerMs: number | null
+}
+
+/** True for a .tar.gz / .gz archive (by extension), false for a loose .csv file. */
+function isArchiveFile(file: File): boolean {
+  return file.name.endsWith(".tar.gz") || file.name.endsWith(".gz") || file.name.endsWith(".tgz")
+}
+
+/**
+ * Collect `<table>.csv` text keyed by table name from one input file — either a .tar.gz archive
+ * (decompressed + parsed in the browser) or a single loose .csv (whose table is read from its
+ * filename). Archive bytes never reach a server function.
+ */
+async function readCsvEntries(file: File): Promise<Record<string, string>> {
+  if (!isArchiveFile(file)) {
+    const table = file.name.replace(/\.csv$/i, "")
+    return { [table]: await file.text() }
   }
 
-  // Measure download speed in bytes/ms by fetching a known asset for a fixed duration.
-  // Falls back to a conservative 512 KB/s if the probe fails or returns 0 bytes.
+  let tarBytes: Uint8Array
+  try {
+    tarBytes = await gunzipBufferClient(new Uint8Array(await file.arrayBuffer()))
+  } catch (error) {
+    throw new Error(`${file.name} is not a valid .tar.gz archive: ${error instanceof Error ? error.message : String(error)}`)
+  }
+
+  const entries = parseTar(Buffer.from(tarBytes))
+  const csvEntries: Record<string, string> = {}
+  for (const [name, entryBuffer] of Array.from(entries)) {
+    if (name.endsWith(".csv")) csvEntries[name.replace(/\.csv$/i, "")] = entryBuffer.toString("utf8")
+  }
+  return csvEntries
+}
+
+/**
+ * CSV stores every cell as text. On export a text[] column comes back a JS array and a jsonb /
+ * jsonb[] column comes back an object/array, both of which toCsv writes as JSON. Here we reverse
+ * that per the table's config so each row matches the column's Postgres type before upsert:
+ * numericColumns → number, arrayColumns/jsonColumns → parsed. Everything else stays a string
+ * (PostgREST coerces timestamp/uuid/enum/bool from text). A null cell stays null.
+ */
+function coerceRowsForImport(config: TBackupTableConfig, rows: Record<string, string | null>[]): Record<string, unknown>[] {
+  const parseJsonColumns = new Set([...config.arrayColumns, ...config.jsonColumns])
+  const numericColumns = new Set(config.numericColumns)
+
+  return rows.map((row, rowIndex) => {
+    const coerced: Record<string, unknown> = { ...row }
+    for (const [column, value] of Object.entries(row)) {
+      if (value === null) continue
+      if (numericColumns.has(column)) {
+        coerced[column] = value === "" ? null : Number(value)
+      } else if (parseJsonColumns.has(column)) {
+        try {
+          coerced[column] = JSON.parse(value)
+        } catch (error) {
+          throw new Error(
+            `${config.name}.csv row ${rowIndex + 1}, column "${column}": not valid JSON — ${error instanceof Error ? error.message : String(error)}`,
+          )
+        }
+      }
+    }
+    return coerced
+  })
+}
+
+/**
+ * Upload a file to a Supabase signed upload URL with real progress events, using the same
+ * multipart shape as the Supabase SDK's uploadToSignedUrl (a cacheControl field + the body
+ * appended under an empty-string key) — but via XHR so we get upload.onprogress. x-upsert: true
+ * mirrors the SDK and lets a re-import overwrite an existing object.
+ */
+function uploadToSignedUrlWithProgress(signedUrl: string, body: Blob, onProgress: (loaded: number) => void): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open("PUT", signedUrl)
+    xhr.setRequestHeader("x-upsert", "true")
+    xhr.upload.onprogress = event => {
+      if (event.lengthComputable) onProgress(event.loaded)
+    }
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve()
+      } else {
+        let message = xhr.responseText || xhr.statusText
+        try {
+          const parsed = JSON.parse(xhr.responseText)
+          if (parsed?.message) message = parsed.message
+        } catch {
+          // Not JSON — fall back to the raw text as-is.
+        }
+        reject(new Error(`Upload failed: ${message}`))
+      }
+    }
+    xhr.onerror = () => reject(new Error("Upload failed: network error"))
+    const formData = new FormData()
+    formData.append("cacheControl", "3600")
+    formData.append("", body)
+    xhr.send(formData)
+  })
+}
+
+export class BackupSDK extends BaseSDK {
+  // 4s probe, display only (see the module comment above SPEED_PROBE_URL).
   async measureSpeedBytesPerMs(): Promise<number> {
     const fallback = 512 // 512 bytes/ms = ~512 KB/s (conservative)
     try {
@@ -54,127 +164,244 @@ export class BackupSDK extends BaseSDK {
     }
   }
 
-  // Export the full backup, splitting into as many chunks as needed so each fits within the
-  // Vercel 60s budget at the user's measured connection speed. Chunks download sequentially
-  // so they don't compete for bandwidth on slow connections.
-  async exportBackup(onProgress?: (fraction: number) => void): Promise<{ archiveFiles: Blob[]; fileNames: string[] }> {
-    const [manifest, speedBytesPerMs] = await Promise.all([this.getManifest(), this.measureSpeedBytesPerMs()])
+  /**
+   * Export table rows only (no storage files) as one .tar.gz containing a .csv per table. Kept
+   * separate from file export so a table-only backup never has to touch Storage or wait on file
+   * downloads.
+   */
+  async exportTables(onProgress: (done: number, total: number) => void): Promise<{ fileName: string; archiveFile: Blob }> {
+    const response = await this.getJson<API.BackupRowsGetResponse>("/api/backup/rows")
+    if ("error" in response) throw new Error(response.error)
 
-    // The bottleneck is the server fetching files from Storage, not the client download.
-    // Size chunks by how much the server can pull in CHUNK_BUDGET_MS at SERVER_THROUGHPUT.
-    const serverChunkBytes = Math.min(SERVER_THROUGHPUT_BYTES_PER_MS * CHUNK_BUDGET_MS, MAX_CHUNK_BYTES)
+    const tarChunks: Buffer[] = []
+    let done = 0
+    onProgress(done, BACKUP_TABLES.length)
 
-    // Also consider what the client can receive within the budget: if the user's connection is
-    // slower than the server can produce, shrink chunks to what the client can absorb.
-    const clientChunkBytes = speedBytesPerMs * CHUNK_BUDGET_MS
-    const targetChunkBytes = Math.min(serverChunkBytes, clientChunkBytes, MAX_CHUNK_BYTES)
-
-    // Build synthetic TBackupFileRef-like objects with just sizes for splitRefsIntoChunks.
-    const syntheticRefs = manifest.refSizes.map(size => ({
-      bucket: "",
-      path: "",
-      size,
-    }))
-    const chunks = splitRefsIntoChunks(syntheticRefs, targetChunkBytes)
-
-    // If everything fits in one chunk (or no storage files), do a single full export.
-    if (chunks.length <= 1) {
-      const archiveFile = await this.streamExport("/api/backup/export", fraction => onProgress?.(fraction))
-      return { archiveFiles: [archiveFile], fileNames: [] }
+    for (const table of BACKUP_TABLES) {
+      const csv = toCsv((response.tables[table.name] ?? []) as Record<string, unknown>[])
+      addTarEntry(tarChunks, `${table.name}.csv`, Buffer.from(csv, "utf8"))
+      done++
+      onProgress(done, BACKUP_TABLES.length)
     }
 
-    const archiveFiles: Blob[] = []
-    const fileNames: string[] = []
+    const tarBuffer = finalizeTar(tarChunks)
+    const gzipped = await gzipBufferClient(new Uint8Array(tarBuffer))
+    const date = new Date().toISOString().slice(0, 10)
+    const fileName = `23_backup-tables-${date}.tar.gz`
+    const archiveFile = new Blob([gzipped], { type: "application/gzip" })
 
-    for (let index = 0; index < chunks.length; index++) {
-      const [from, to] = chunks[index]
-      const chunkFractionStart = index / chunks.length
-      const chunkFractionEnd = (index + 1) / chunks.length
-
-      const archiveFile = await this.streamExport(`/api/backup/export?from=${from}&to=${to}`, fraction =>
-        onProgress?.(chunkFractionStart + fraction * (chunkFractionEnd - chunkFractionStart)),
-      )
-      archiveFiles.push(archiveFile)
-      const date = new Date().toISOString().slice(0, 10)
-      fileNames.push(`23_backup-${date}-part${index + 1}of${chunks.length}.tar.gz`)
-    }
-
-    onProgress?.(1)
-    return { archiveFiles, fileNames }
+    return { fileName, archiveFile }
   }
 
-  // Upload a .tar.gz backup (upsert rows + re-upload files). Uses XMLHttpRequest for upload progress.
-  importBackup(file: File, onProgress?: (fraction: number) => void) {
-    return new Promise<API.BackupImportResponse>((resolve, reject) => {
-      const formData = new FormData()
-      formData.append("file", file)
+  /**
+   * Import table rows from CSV files — either .tar.gz archives (from exportTables) or loose .csv
+   * files. Rows are parsed in the browser and POSTed to /api/backup/rows in ≤500-row batches, in
+   * FK-safe order (BACKUP_TABLES). The server upserts on each table's primary key and returns
+   * real counts (plus how many rows it skipped for a bad uuid column).
+   */
+  async importTables(files: File[], onProgress: (done: number, total: number, label: string) => void): Promise<TTablesImportResult> {
+    const csvByTable: Record<string, string> = {}
+    for (const file of files) {
+      const entries = await readCsvEntries(file)
+      Object.assign(csvByTable, entries)
+    }
 
-      const xhr = new XMLHttpRequest()
-      xhr.open("POST", this.getApiUrl("/api/backup/import"))
-      xhr.responseType = "json"
+    const tablesToImport = BACKUP_TABLES.filter(table => csvByTable[table.name] !== undefined)
+    if (tablesToImport.length === 0) {
+      const example = BACKUP_TABLES[0]?.name ?? "table"
+      throw new Error(`No table CSV files found — expected files like ${example}.csv, either loose or inside a .tar.gz archive.`)
+    }
 
-      xhr.upload.onprogress = event => {
-        if (event.lengthComputable && onProgress) onProgress(event.loaded / event.total)
+    const result: TTablesImportResult = { tables: [] }
+    let done = 0
+    onProgress(done, tablesToImport.length, "Restoring tables…")
+
+    for (const table of tablesToImport) {
+      onProgress(done, tablesToImport.length, `Restoring ${table.name}…`)
+
+      let rows: Record<string, unknown>[]
+      try {
+        rows = coerceRowsForImport(table, parseCsv(csvByTable[table.name]))
+      } catch (error) {
+        throw new Error(`Failed to parse ${table.name}.csv: ${error instanceof Error ? error.message : String(error)}`)
       }
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          onProgress?.(1)
-          resolve(xhr.response as API.BackupImportResponse)
-        } else {
-          const message = (xhr.response as { error?: string } | null)?.error || `Upload failed (${xhr.status})`
-          reject(new Error(message))
+
+      let importedRows = 0
+      let skippedRows = 0
+
+      for (let start = 0; start < rows.length; start += ROW_BATCH_SIZE) {
+        const batch = rows.slice(start, start + ROW_BATCH_SIZE)
+        const postResp = await this.postJson<{ table: string; rows: Record<string, unknown>[] }, API.BackupRowsPostResponse>(
+          "/api/backup/rows",
+          { table: table.name, rows: batch },
+        )
+        if ("error" in postResp) throw new Error(`Failed to import ${table.name}: ${postResp.error}`)
+        importedRows += postResp.rows
+        skippedRows += postResp.skipped
+      }
+
+      result.tables.push({ table: table.name, rows: importedRows, skipped: skippedRows })
+      done++
+      onProgress(done, tablesToImport.length, `Restored ${table.name}`)
+    }
+
+    return result
+  }
+
+  /**
+   * Export storage files only as one .tar.gz, entirely in the browser: fetch the file list from
+   * the server, download each file directly from Supabase's public CDN, and pack them locally.
+   * The app server never touches Storage bytes, so there is no 60s function timeout regardless of
+   * how large the library is. Progress is byte-accurate (file sizes are known from the list), and
+   * the connection speed is measured once up front for display.
+   */
+  async exportFiles(onProgress: (progress: TBackupFilesProgress) => void): Promise<{ fileName: string; archiveFile: Blob }> {
+    const [filesResp, speedBytesPerMs] = await Promise.all([
+      this.getJson<API.BackupFilesGetResponse>("/api/backup/files"),
+      this.measureSpeedBytesPerMs(),
+    ])
+    if ("error" in filesResp) throw new Error(filesResp.error)
+
+    const files = filesResp.files
+    const bytesTotal = files.reduce((sum, file) => sum + file.size, 0)
+    let bytesDone = 0
+    onProgress({ bytesDone, bytesTotal, label: "", speedBytesPerMs })
+
+    const packed: Array<{ file: TBackupFileRef; downloadedBytes: Buffer | null }> = new Array(files.length)
+    let nextIndex = 0
+
+    const worker = async () => {
+      while (nextIndex < files.length) {
+        const index = nextIndex++
+        const file = files[index]
+        let downloadedBytes: Buffer | null = null
+        try {
+          const response = await fetch(getPublicUrl(file.bucket, file.path))
+          if (response.ok) downloadedBytes = Buffer.from(await response.arrayBuffer())
+        } catch {
+          // Missing/failed file — skip it (downloadedBytes stays null) rather than aborting the whole export.
         }
-      }
-      xhr.onerror = () => reject(new Error("Network error during upload"))
-      xhr.send(formData)
-    })
-  }
-
-  private async streamExport(path: string, onProgress?: (fraction: number) => void) {
-    const response = await this.request(path, { method: "GET" })
-    if (!response.body) throw new Error("No response stream")
-
-    const reader = response.body.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ""
-    let archive: Blob | null = null
-
-    for (;;) {
-      const { done, value } = await reader.read()
-      if (done) break
-      buffer += decoder.decode(value, { stream: true })
-
-      let newline: number
-      while ((newline = buffer.indexOf("\n")) >= 0) {
-        const line = buffer.slice(0, newline).trim()
-        buffer = buffer.slice(newline + 1)
-        if (!line) continue
-
-        const event = JSON.parse(line) as
-          | { type: "progress"; done: number; total: number }
-          | { type: "done"; fileName: string; archive: string }
-          | { type: "error"; error: string }
-
-        if (event.type === "progress") {
-          onProgress?.(event.total > 0 ? event.done / event.total : 0)
-        } else if (event.type === "error") {
-          throw new Error(event.error)
-        } else if (event.type === "done") {
-          archive = this.base64ToBlob(event.archive)
-          onProgress?.(1)
-        }
+        packed[index] = { file, downloadedBytes }
+        bytesDone += file.size
+        onProgress({ bytesDone, bytesTotal, label: `${file.bucket}/${file.path}`, speedBytesPerMs })
       }
     }
 
-    if (!archive) throw new Error("Export stream ended without an archive")
-    return archive
+    await Promise.all(Array.from({ length: Math.min(DOWNLOAD_CONCURRENCY, files.length || 1) }, worker))
+
+    const tarChunks: Buffer[] = []
+    const contentTypes: Record<string, string> = {}
+    for (const { file, downloadedBytes } of packed) {
+      if (!downloadedBytes) continue
+      addTarEntry(tarChunks, `storage/${file.bucket}/${file.path}`, downloadedBytes)
+      contentTypes[`${file.bucket}/${file.path}`] = file.contentType
+    }
+    addTarEntry(tarChunks, "storage-content-types.json", Buffer.from(JSON.stringify(contentTypes), "utf8"))
+
+    const tarBuffer = finalizeTar(tarChunks)
+    const gzipped = await gzipBufferClient(new Uint8Array(tarBuffer))
+    const date = new Date().toISOString().slice(0, 10)
+    const fileName = `23_backup-files-${date}.tar.gz`
+    const archiveFile = new Blob([gzipped], { type: "application/gzip" })
+
+    return { fileName, archiveFile }
   }
 
-  private base64ToBlob(base64: string) {
-    const binary = atob(base64)
-    const bytes = new Uint8Array(binary.length)
-    for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index)
-    return new Blob([bytes], { type: "application/gzip" })
+  /**
+   * Import storage files from a .tar.gz archive — entirely client-side. The browser decompresses
+   * and parses the archive locally (no server ever sees the archive bytes), asks the server for a
+   * signed upload URL per file, then PUTs each file's bytes straight to Supabase. Progress is
+   * byte-accurate: every file's exact size is already known from the parsed archive, and
+   * xhr.upload.onprogress gives real in-flight bytes for the file currently uploading.
+   */
+  async importFiles(file: File, onProgress: (progress: TBackupFilesProgress) => void): Promise<TFilesImportResult> {
+    const speedBytesPerMs = await this.measureSpeedBytesPerMs()
+    onProgress({ bytesDone: 0, bytesTotal: 0, label: "Reading archive…", speedBytesPerMs })
+
+    let tarBytes: Uint8Array
+    try {
+      tarBytes = await gunzipBufferClient(new Uint8Array(await file.arrayBuffer()))
+    } catch (error) {
+      throw new Error(`${file.name} is not a valid .tar.gz archive: ${error instanceof Error ? error.message : String(error)}`)
+    }
+
+    const entries = parseTar(Buffer.from(tarBytes))
+
+    const contentTypesEntry = entries.get("storage-content-types.json")
+    const contentTypes: Record<string, string> = contentTypesEntry ? JSON.parse(contentTypesEntry.toString("utf8")) : {}
+
+    const archiveFiles: { bucket: string; path: string; bytes: Uint8Array; contentType: string }[] = []
+    for (const [name, entryBuffer] of Array.from(entries)) {
+      if (!name.startsWith("storage/")) continue
+      const withoutPrefix = name.slice("storage/".length)
+      const slashIndex = withoutPrefix.indexOf("/")
+      if (slashIndex === -1) continue
+      const bucket = withoutPrefix.slice(0, slashIndex)
+      const path = withoutPrefix.slice(slashIndex + 1)
+      archiveFiles.push({
+        bucket,
+        path,
+        bytes: new Uint8Array(entryBuffer),
+        contentType: contentTypes[`${bucket}/${path}`] ?? "application/octet-stream",
+      })
+    }
+
+    if (archiveFiles.length === 0) {
+      throw new Error("No storage files found in the archive — expected storage/23_public-images/… or storage/23_avatar-images/… entries.")
+    }
+
+    const byPath = new Map(archiveFiles.map(archiveFile => [`${archiveFile.bucket}/${archiveFile.path}`, archiveFile]))
+    const bucketStats: Record<string, { files: number; failed: number }> = {}
+    const firstErrorByBucket: Record<string, string> = {}
+
+    const bytesTotal = archiveFiles.reduce((sum, archiveFile) => sum + archiveFile.bytes.length, 0)
+    let bytesUploadedSoFar = 0
+
+    const bumpStat = (bucket: string, key: "files" | "failed") => {
+      if (!bucketStats[bucket]) bucketStats[bucket] = { files: 0, failed: 0 }
+      bucketStats[bucket][key]++
+    }
+
+    for (let start = 0; start < archiveFiles.length; start += URL_BATCH_SIZE) {
+      const batch = archiveFiles.slice(start, start + URL_BATCH_SIZE)
+
+      const postResp = await this.postJson<{ files: { bucket: string; path: string }[] }, API.BackupFilesPostResponse>("/api/backup/files", {
+        files: batch.map(archiveFile => ({ bucket: archiveFile.bucket, path: archiveFile.path })),
+      })
+      if ("error" in postResp) throw new Error(`Failed to prepare file upload: ${postResp.error}`)
+
+      for (const target of postResp.results) {
+        const archiveFile = byPath.get(`${target.bucket}/${target.path}`)
+
+        if ("skipped" in target || !archiveFile) {
+          bumpStat(target.bucket, "failed")
+          if (archiveFile) bytesUploadedSoFar += archiveFile.bytes.length
+          continue
+        }
+
+        onProgress({ bytesDone: bytesUploadedSoFar, bytesTotal, label: `${target.bucket}/${target.path}`, speedBytesPerMs })
+        const uploadBlob = new Blob([archiveFile.bytes], { type: archiveFile.contentType })
+        try {
+          await uploadToSignedUrlWithProgress(target.signedUrl, uploadBlob, loaded =>
+            onProgress({ bytesDone: bytesUploadedSoFar + loaded, bytesTotal, label: `${target.bucket}/${target.path}`, speedBytesPerMs }),
+          )
+          bumpStat(target.bucket, "files")
+        } catch (error) {
+          bumpStat(target.bucket, "failed")
+          if (!firstErrorByBucket[target.bucket]) firstErrorByBucket[target.bucket] = error instanceof Error ? error.message : String(error)
+        }
+        bytesUploadedSoFar += archiveFile.bytes.length
+      }
+    }
+
+    const totalUploaded = Object.values(bucketStats).reduce((sum, stat) => sum + stat.files, 0)
+    if (totalUploaded === 0) {
+      const firstError = Object.values(firstErrorByBucket)[0]
+      throw new Error(firstError ?? "No files were uploaded — every path was skipped.")
+    }
+
+    onProgress({ bytesDone: bytesTotal, bytesTotal, label: "Done", speedBytesPerMs })
+    return { buckets: Object.entries(bucketStats).map(([bucket, stat]) => ({ bucket, ...stat })) }
   }
 }
 
