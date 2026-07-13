@@ -13,11 +13,11 @@ import {
   type TBackupFileRef,
 } from "@/api/backup/backupTables"
 
-// Speed probe: fetch a publicly accessible static asset to measure download throughput. Display
-// only now (not used to size chunks — there is nothing to chunk, file bytes never pass through a
-// Vercel function). Using the Next.js favicon which is always present and small enough to be fast.
-const SPEED_PROBE_URL = "/favicon.ico"
-const SPEED_PROBE_DURATION_MS = 4000
+// How often (ms) the speed tracker below re-samples throughput, and how much weight a new sample
+// gets against the running average (exponential moving average, not a flat average-since-start) —
+// a flat average would lag badly behind a real speed change partway through a large transfer.
+const SPEED_SAMPLE_INTERVAL_MS = 200
+const SPEED_SAMPLE_WEIGHT = 0.3
 
 const ROW_BATCH_SIZE = 500
 const URL_BATCH_SIZE = 100
@@ -133,37 +133,39 @@ function uploadToSignedUrlWithProgress(signedUrl: string, body: Blob, onProgress
   })
 }
 
-export class BackupSDK extends BaseSDK {
-  // 4s probe, display only (see the module comment above SPEED_PROBE_URL).
-  async measureSpeedBytesPerMs(): Promise<number> {
-    const fallback = 512 // 512 bytes/ms = ~512 KB/s (conservative)
-    try {
-      const start = performance.now()
-      const response = await fetch(`${SPEED_PROBE_URL}?_=${Date.now()}`, { cache: "no-store" })
-      if (!response.ok || !response.body) return fallback
+/**
+ * Tracks real transfer speed from actual progress deltas — not a synthetic probe against a
+ * separate asset (a fixed favicon fetch measures that one tiny file's latency, not the transfer
+ * actually in flight, and silently falls back to a made-up constant the moment that asset is
+ * missing or too small to fill its measurement window). Call sample(bytesDone) every time progress
+ * advances; it re-computes at most once per SPEED_SAMPLE_INTERVAL_MS and returns a smoothed
+ * bytes/ms figure (or null before the first real sample exists).
+ */
+function createSpeedTracker() {
+  let lastSampleTime = performance.now()
+  let lastSampleBytes = 0
+  let speedBytesPerMs: number | null = null
 
-      const reader = response.body.getReader()
-      let totalBytes = 0
-      const deadline = start + SPEED_PROBE_DURATION_MS
+  return {
+    sample(bytesDone: number): number | null {
+      const now = performance.now()
+      const elapsed = now - lastSampleTime
+      if (elapsed < SPEED_SAMPLE_INTERVAL_MS) return speedBytesPerMs
 
-      for (;;) {
-        if (performance.now() >= deadline) {
-          await reader.cancel()
-          break
-        }
-        const { done, value } = await reader.read()
-        if (done) break
-        totalBytes += value.byteLength
-      }
+      const instantBytesPerMs = (bytesDone - lastSampleBytes) / elapsed
+      speedBytesPerMs =
+        speedBytesPerMs === null
+          ? instantBytesPerMs
+          : speedBytesPerMs * (1 - SPEED_SAMPLE_WEIGHT) + instantBytesPerMs * SPEED_SAMPLE_WEIGHT
 
-      const elapsed = performance.now() - start
-      if (totalBytes === 0 || elapsed === 0) return fallback
-      return totalBytes / elapsed
-    } catch {
-      return fallback
-    }
+      lastSampleTime = now
+      lastSampleBytes = bytesDone
+      return speedBytesPerMs
+    },
   }
+}
 
+export class BackupSDK extends BaseSDK {
   /**
    * Export table rows only (no storage files) as one .tar.gz containing a .csv per table. Kept
    * separate from file export so a table-only backup never has to touch Storage or wait on file
@@ -253,19 +255,17 @@ export class BackupSDK extends BaseSDK {
    * the server, download each file directly from Supabase's public CDN, and pack them locally.
    * The app server never touches Storage bytes, so there is no 60s function timeout regardless of
    * how large the library is. Progress is byte-accurate (file sizes are known from the list), and
-   * the connection speed is measured once up front for display.
+   * the connection speed shown is measured live from these downloads as they happen.
    */
   async exportFiles(onProgress: (progress: TBackupFilesProgress) => void): Promise<{ fileName: string; archiveFile: Blob }> {
-    const [filesResp, speedBytesPerMs] = await Promise.all([
-      this.getJson<API.BackupFilesGetResponse>("/api/backup/files"),
-      this.measureSpeedBytesPerMs(),
-    ])
-    if ("error" in filesResp) throw new Error(filesResp.error)
+    const response = await this.getJson<API.BackupFilesGetResponse>("/api/backup/files")
+    if ("error" in response) throw new Error(response.error)
 
-    const files = filesResp.files
+    const files = response.files
     const bytesTotal = files.reduce((sum, file) => sum + file.size, 0)
     let bytesDone = 0
-    onProgress({ bytesDone, bytesTotal, label: "", speedBytesPerMs })
+    const speedTracker = createSpeedTracker()
+    onProgress({ bytesDone, bytesTotal, label: "", speedBytesPerMs: null })
 
     const packed: Array<{ file: TBackupFileRef; downloadedBytes: Buffer | null }> = new Array(files.length)
     let nextIndex = 0
@@ -283,7 +283,7 @@ export class BackupSDK extends BaseSDK {
         }
         packed[index] = { file, downloadedBytes }
         bytesDone += file.size
-        onProgress({ bytesDone, bytesTotal, label: `${file.bucket}/${file.path}`, speedBytesPerMs })
+        onProgress({ bytesDone, bytesTotal, label: `${file.bucket}/${file.path}`, speedBytesPerMs: speedTracker.sample(bytesDone) })
       }
     }
 
@@ -312,11 +312,12 @@ export class BackupSDK extends BaseSDK {
    * and parses the archive locally (no server ever sees the archive bytes), asks the server for a
    * signed upload URL per file, then PUTs each file's bytes straight to Supabase. Progress is
    * byte-accurate: every file's exact size is already known from the parsed archive, and
-   * xhr.upload.onprogress gives real in-flight bytes for the file currently uploading.
+   * xhr.upload.onprogress gives real in-flight bytes for the file currently uploading. The
+   * connection speed shown is measured live from these uploads as they happen.
    */
   async importFiles(file: File, onProgress: (progress: TBackupFilesProgress) => void): Promise<TFilesImportResult> {
-    const speedBytesPerMs = await this.measureSpeedBytesPerMs()
-    onProgress({ bytesDone: 0, bytesTotal: 0, label: "Reading archive…", speedBytesPerMs })
+    const speedTracker = createSpeedTracker()
+    onProgress({ bytesDone: 0, bytesTotal: 0, label: "Reading archive…", speedBytesPerMs: null })
 
     let tarBytes: Uint8Array
     try {
@@ -379,11 +380,21 @@ export class BackupSDK extends BaseSDK {
           continue
         }
 
-        onProgress({ bytesDone: bytesUploadedSoFar, bytesTotal, label: `${target.bucket}/${target.path}`, speedBytesPerMs })
+        onProgress({
+          bytesDone: bytesUploadedSoFar,
+          bytesTotal,
+          label: `${target.bucket}/${target.path}`,
+          speedBytesPerMs: speedTracker.sample(bytesUploadedSoFar),
+        })
         const uploadBlob = new Blob([archiveFile.bytes], { type: archiveFile.contentType })
         try {
           await uploadToSignedUrlWithProgress(target.signedUrl, uploadBlob, loaded =>
-            onProgress({ bytesDone: bytesUploadedSoFar + loaded, bytesTotal, label: `${target.bucket}/${target.path}`, speedBytesPerMs }),
+            onProgress({
+              bytesDone: bytesUploadedSoFar + loaded,
+              bytesTotal,
+              label: `${target.bucket}/${target.path}`,
+              speedBytesPerMs: speedTracker.sample(bytesUploadedSoFar + loaded),
+            }),
           )
           bumpStat(target.bucket, "files")
         } catch (error) {
@@ -400,7 +411,7 @@ export class BackupSDK extends BaseSDK {
       throw new Error(firstError ?? "No files were uploaded — every path was skipped.")
     }
 
-    onProgress({ bytesDone: bytesTotal, bytesTotal, label: "Done", speedBytesPerMs })
+    onProgress({ bytesDone: bytesTotal, bytesTotal, label: "Done", speedBytesPerMs: speedTracker.sample(bytesTotal) })
     return { buckets: Object.entries(bucketStats).map(([bucket, stat]) => ({ bucket, ...stat })) }
   }
 }

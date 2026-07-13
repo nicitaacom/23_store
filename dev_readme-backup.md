@@ -28,8 +28,13 @@ This version removes the limit instead of estimating around it: **no request car
 
 Two things from the old design are kept anyway, because they're independently useful, not because
 they were needed for the timeout problem:
-- **Connection speed display** — a 4s probe (`BackupSDK.measureSpeedBytesPerMs()`) still runs, but
-  purely for display now ("~2.4 MB/s"), not to size chunks.
+- **Connection speed display** — shown during the files tab's export/import ("~2.4 MB/s"). Not a
+  separate probe against a fixed asset (an earlier version fetched `/favicon.ico` to measure
+  throughput — that file does not exist in this project, so the probe 404'd every time and silently
+  fell back to a hardcoded constant, which is why the number never varied). `createSpeedTracker()`
+  in `BackupSDK.ts` instead computes a smoothed bytes/ms figure straight from the real transfer's
+  own progress deltas (an exponential moving average, resampled at most every 200ms) — it reflects
+  whatever is actually happening on the wire, no separate request involved.
 - **Byte-accurate progress** — the files tab shows "23 MB / 230 MB", not a file count. Every file's
   size is known ahead of time (from the bucket listing on export, from the parsed archive on
   import), and `xhr.upload.onprogress` gives real in-flight bytes during upload.
@@ -77,7 +82,7 @@ storage/23_avatar-images/<...>
 | ADMIN gate (string error or null) | `app/api/backup/requireAdmin.ts` |
 | Rows GET (export) / POST (import, ≤500/batch) | `app/api/backup/rows/route.ts` |
 | Files GET (list, paths only) / POST (signed upload URLs, ≤100/batch) | `app/api/backup/files/route.ts` |
-| Client SDK — 4 methods (export/import × tables/files) + speed probe | `app/sdk/BackupSDK/BackupSDK.ts` |
+| Client SDK — 4 methods (export/import × tables/files) + live speed tracker | `app/sdk/BackupSDK/BackupSDK.ts` |
 | Hook (owns state for all 4 flows, toast + i18n) | `app/components/ui/Modals/DbBackup/hooks/useDbBackup.ts` |
 | Modal UI (Tables/Files tabs, progress, results) | `app/components/ui/Modals/DbBackup/DbBackupModal.tsx` |
 | Response types | `app/ts/namespaces/api/backup/api.d.ts` |
