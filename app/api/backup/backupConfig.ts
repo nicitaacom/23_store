@@ -53,20 +53,40 @@ export type TBackupTableConfig = {
   numericColumns: string[]
   arrayColumns: string[]
   jsonColumns: string[]
+  // Columns whose Postgres type is uuid. A row with an empty/invalid value in one of these is
+  // dropped before upsert instead of failing the whole batch with a 22P02 (text = uuid) error —
+  // see filterRowsByUuidColumns below.
+  uuidColumns: string[]
 }
 
 // Column classification derived from app/ts/types_db.ts (not from prose docs, which have drifted
-// before — see plan-00-tracker.md's DEV_README inconsistencies audit).
+// before — see plan-00-tracker.md's DEV_README inconsistencies audit). uuidColumns mirrors the
+// live-verified set from the previous backupTables.ts (confirmed against the DB, plan-02, 2026-07-05).
 export const BACKUP_TABLES: TBackupTableConfig[] = [
-  { name: "23_users", onConflict: "id", numericColumns: [], arrayColumns: ["providers", "roles"], jsonColumns: [] },
-  { name: "23_users_cart", onConflict: "id", numericColumns: [], arrayColumns: [], jsonColumns: ["cart_products"] },
-  { name: "23_categories", onConflict: "id", numericColumns: [], arrayColumns: [], jsonColumns: [] },
+  {
+    name: "23_users",
+    onConflict: "id",
+    numericColumns: [],
+    arrayColumns: ["providers", "roles"],
+    jsonColumns: [],
+    uuidColumns: ["id"],
+  },
+  {
+    name: "23_users_cart",
+    onConflict: "id",
+    numericColumns: [],
+    arrayColumns: [],
+    jsonColumns: ["cart_products"],
+    uuidColumns: ["id"],
+  },
+  { name: "23_categories", onConflict: "id", numericColumns: [], arrayColumns: [], jsonColumns: [], uuidColumns: ["id"] },
   {
     name: "23_category_views",
     onConflict: "user_id,category_id",
     numericColumns: ["view_count"],
     arrayColumns: [],
     jsonColumns: [],
+    uuidColumns: ["id", "category_id"],
   },
   {
     name: "23_products",
@@ -74,13 +94,39 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     numericColumns: ["on_stock", "price"],
     arrayColumns: ["img_url"],
     jsonColumns: ["translations", "variants"],
+    uuidColumns: ["owner_id"],
   },
-  { name: "23_tickets", onConflict: "id", numericColumns: ["rate"], arrayColumns: [], jsonColumns: [] },
-  { name: "23_messages", onConflict: "id", numericColumns: [], arrayColumns: ["images"], jsonColumns: [] },
+  {
+    name: "23_tickets",
+    onConflict: "id",
+    numericColumns: ["rate"],
+    arrayColumns: [],
+    jsonColumns: [],
+    uuidColumns: [],
+  },
+  {
+    name: "23_messages",
+    onConflict: "id",
+    numericColumns: [],
+    arrayColumns: ["images"],
+    jsonColumns: [],
+    uuidColumns: ["id"],
+  },
 ]
 
 export function getTableConfig(name: string): TBackupTableConfig | undefined {
   return BACKUP_TABLES.find(table => table.name === name)
+}
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// Drop rows whose uuid column holds an empty/invalid value so a single bad row does not fail the
+// whole table's upsert with a 22P02 (text = uuid) error. Returns the kept rows + how many were skipped.
+export function filterRowsByUuidColumns(config: TBackupTableConfig, rows: Record<string, unknown>[]) {
+  if (config.uuidColumns.length === 0) return { rows, skipped: 0 }
+
+  const kept = rows.filter(row => config.uuidColumns.every(column => typeof row[column] === "string" && UUID_REGEX.test(row[column] as string)))
+  return { rows: kept, skipped: rows.length - kept.length }
 }
 
 // ── buckets ───────────────────────────────────────────────────────────────────
