@@ -8,6 +8,7 @@
     "start": "NODE_OPTIONS=\"${NODE_OPTIONS:+$NODE_OPTIONS }--disable-warning=DEP0040\" next start -p 3023",
     "lint": "eslint .",
     "type-check": "tsc -p tsconfig.json --noEmit",
+    "test:commit-naming": "node --test .github/scripts/validate-commit-naming.test.mjs",
     "test:eslint-rules": "node --test eslint-local-rules/*.test.js",
     "cypress:open": "XDG_CONFIG_HOME=.cache/config CYPRESS_CACHE_FOLDER=.cache/Cypress PLAYWRIGHT_BROWSERS_PATH=.cache/ms-playwright cypress open",
     "cypress:install-browsers": "XDG_CONFIG_HOME=.cache/config CYPRESS_CACHE_FOLDER=.cache/Cypress cypress install && PLAYWRIGHT_BROWSERS_PATH=.cache/ms-playwright playwright install firefox webkit",
