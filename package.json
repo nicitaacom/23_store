@@ -127,5 +127,10 @@
     "tailwindcss": "3.3.3",
     "typescript": "5.2.2",
     "vitest": "4.1.10"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

@@ -1,8 +1,36 @@
 import "../app/globals.css";
-
 import type { Preview } from "@storybook/nextjs-vite";
+import { initialize, mswLoader } from "msw-storybook-addon";
+
+import { reportStorybookFailures } from "../storybook/mocks/failureReporting";
+import { StorybookProvider } from "./StorybookProvider";
+
+initialize({
+  onUnhandledRequest(request, report) {
+    const requestUrl = new URL(request.url);
+    if (requestUrl.origin === window.location.origin && requestUrl.pathname.startsWith("/api/")) {
+      report.error();
+      return;
+    }
+
+    report.warning();
+  },
+  serviceWorker: {
+    url: "/mockServiceWorker.js",
+  },
+});
+
+reportStorybookFailures();
 
 const preview: Preview = {
+  decorators: [
+    (Story, context) => (
+      <StorybookProvider locale={context.globals.locale} storyId={context.id} theme={context.globals.theme}>
+        <Story />
+      </StorybookProvider>
+    ),
+  ],
+  loaders: [mswLoader],
   initialGlobals: {
     locale: "en",
     theme: "light",
@@ -34,6 +62,9 @@ const preview: Preview = {
   parameters: {
     nextjs: {
       appDirectory: true,
+      navigation: {
+        pathname: "/en",
+      },
     },
     options: {
       storySort: {
