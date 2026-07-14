@@ -65,8 +65,8 @@ const preview: Preview = {
     nextjs: {
       appDirectory: true,
       navigation: {
-        params: { locale: "en" },
         pathname: "/en",
+        segments: [["locale", "en"]],
       },
     },
     options: {

@@ -10,10 +10,21 @@ const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   optimizeDeps: {
     include: [
+      "@react-email/body",
+      "@react-email/container",
+      "@react-email/head",
+      "@react-email/heading",
+      "@react-email/hr",
+      "@react-email/html",
+      "@react-email/img",
+      "@react-email/render",
+      "@react-email/section",
+      "@react-email/text",
       "framer-motion",
       "react-icons/ai",
       "react-icons/bi",
       "react-icons/fi",
+      "react-icons/hi",
       "react-icons/io",
       "react-icons/io5",
       "react-images-uploading",

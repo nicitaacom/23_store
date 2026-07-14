@@ -36,6 +36,7 @@ export const supabaseClient = {
     signOut: fn(async () => ({ error: null })),
   },
   from: fn(() => new SupabaseQueryMock()),
+  rpc: fn(async () => ({ data: null, error: null })),
   storage: {
     from: fn(() => ({
       remove: fn(async () => ({ data: [], error: null })),
