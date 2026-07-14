@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en-US
+
+reviews:
+  profile: assertive
+  request_changes_workflow: true
+  review_status: true
+  commit_status: true
+  fail_commit_status: true
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 0
+    drafts: true
+    base_branches:
+      - ^development$
+      - ^production$
+      - ^production-vite$
+  finishing_touches:
+    autofix:
+      enabled: false
+  pre_merge_checks:
+    title:
+      mode: error
+      requirements: Follow commit-naming.md exactly because the pull request title becomes the squash commit subject.
+    custom_checks:
+      - name: Project code patterns
+        mode: error
+        instructions: >-
+          Inspect only changed code. Fail when a changed line conflicts with
+          dev_readme-code-patterns.md, dev_readme-eslint.md, or
+          good-bad-examples.md. Cite the conflicting repository rule and the
+          changed line. Pre-existing unchanged code does not fail this check.
+      - name: Introduced commit subjects
+        mode: error
+        instructions: >-
+          Inspect only non-merge commits introduced by this pull request. Fail
+          when any subject or body conflicts with commit-naming.md. Historical
+          commits outside the pull request range do not fail this check.
+      - name: Meaningful tests
+        mode: error
+        instructions: >-
+          Inspect changed tests and the behavior changed by this pull request.
+          Fail when assertions do not prove an observable result, interaction,
+          request argument, authorization result, or rollback. Fail when a test
+          was weakened, removed, skipped, or made less specific to accommodate a
+          production change without an equivalent or stronger assertion.
+      - name: Story service isolation
+        mode: error
+        instructions: >-
+          Inspect changed Storybook files and imported production paths. Fail
+          when a story can contact a live application API, Supabase, email,
+          payment, AI, upload, or Pusher service. Require deterministic fixtures,
+          module mocks, or MSW handlers for every external interaction used by a
+          story or play function.
+      - name: Authentication and authorization
+        mode: error
+        instructions: >-
+          Inspect changed authentication, authorization, API route, server
+          action, and protected UI code. Fail when caller identity, role, owner,
+          input validation, or denied behavior is missing or weakened. Evaluate
+          only behavior changed by this pull request.
+      - name: Supabase RLS boundary
+        mode: error
+        instructions: >-
+          Inspect changed request-bound database code. Fail when a route,
+          server action, page, or layout uses a Supabase service-role database
+          client without a documented authorization gate. Require
+          supabaseRouteHandler or supabaseServer when caller cookies and RLS are
+          the intended security boundary.
+      - name: No credentials
+        mode: error
+        instructions: >-
+          Inspect pull request changes, introduced commit text, workflows,
+          stories, logs, and documentation. Fail when they contain credentials,
+          private keys, API tokens, service-role values, or usable secret
+          examples. Environment-variable names and clearly fake placeholders are
+          allowed.
+  tools:
+    github-checks:
+      enabled: true
+      timeout_ms: 900000
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - commit-naming.md
+      - dev_readme-code-patterns.md
+      - dev_readme-eslint.md
+      - good-bad-examples.md
