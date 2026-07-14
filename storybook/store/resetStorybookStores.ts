@@ -1,4 +1,5 @@
 import { resetStorybookServices } from "../mocks/services";
+import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore";
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal";
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal";
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal";
@@ -28,6 +29,7 @@ interface IStorybookStore {
 }
 
 const storybookStores = [
+  useAnonCategoryViewsStore,
   useCategoryPreferences,
   useAreYouSureClearCartModal,
   useAreYouSureDeleteProductModal,
