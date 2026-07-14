@@ -1,6 +1,5 @@
 import { useLayoutEffect, type ReactNode } from "react";
 
-import { resetStorybookStores } from "../storybook/store/resetStorybookStores";
 import useDarkModeStore from "@/store/ui/useDarkModeStore";
 import { I18nProviderClient } from "@/locales/client";
 
@@ -23,7 +22,6 @@ export function StorybookProvider({ children, locale, storyId, theme }: IStorybo
   const normalizedLocale = getStorybookLocale(locale);
 
   useLayoutEffect(() => {
-    resetStorybookStores();
     useDarkModeStore.setState({ isDarkMode });
     document.documentElement.classList.toggle("dark", isDarkMode);
     document.documentElement.lang = normalizedLocale;

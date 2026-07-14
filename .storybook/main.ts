@@ -26,11 +26,13 @@ const config: StorybookConfig = {
       resolve: {
         ...viteConfig.resolve,
         alias: {
+          "@/actions/selectTicketId": path.resolve(currentDirectory, "../storybook/mocks/selectTicketId.ts"),
           "@/libs/pusher": path.resolve(currentDirectory, "../storybook/mocks/pusher.ts"),
           "@/libs/supabase/supabaseClient": path.resolve(
             currentDirectory,
             "../storybook/mocks/supabaseClient.ts",
           ),
+          "@/sdk/SupportSDK/SupportSDK": path.resolve(currentDirectory, "../storybook/mocks/supportSDK.ts"),
           ...viteConfig.resolve?.alias,
           "@": path.resolve(currentDirectory, "../app"),
         },
