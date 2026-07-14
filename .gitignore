@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+/.home/
+/.pnpm-store/
 /.pnp
 .pnp.js
 .pnpm-store
@@ -10,6 +12,7 @@ TODO
 
 # testing
 /coverage
+storybook-static/
 /.cache/
 /cypress/screenshots/
 /cypress/videos/
