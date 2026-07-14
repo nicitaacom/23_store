@@ -1,11 +1,5 @@
-import { BiSearchAlt } from "react-icons/bi"
-
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
-import { AvatarDropdown, HamburgerMenu, Logo, OpenAuthModalButton, CartIcon } from "./components"
-import { ContactButton } from "./components/ContactButton"
-import { LanguageDropdown } from "../LanguageDropdown"
-import { NavbarWrapper } from "./components/NavbarWrapper"
-import { SwitchDarkMode } from ".."
+import { NavbarView } from "./NavbarView"
 import { getCookie } from "@/utils/helpersSSR"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 
@@ -43,23 +37,5 @@ export default async function Navbar() {
   // need to get avatarUrl on server and then pass to client component (because I import cookies from next/headers)
   const avatarUrl = (await getCookie("avatarUrl")) || undefined
 
-  return (
-    <NavbarWrapper>
-      <div className="flex flex-row gap-x-4 items-center">
-        {/* HAMBURGER-ICON + LOGO */}
-        <HamburgerMenu />
-        <Logo />
-      </div>
-      {/* ICONS HELP */}
-      <div className="flex flex-row gap-x-2 items-center ">
-        {/* Tablet+ shows it inline; on mobile it lives at the bottom of the hamburger aside */}
-        <LanguageDropdown className="hidden tablet:flex" />
-        <SwitchDarkMode className="max-[500px]:hidden" />
-        <BiSearchAlt className="flex tablet:hidden" size={28} />
-        <CartIcon userId={user?.id} cart_quantity={cart_quantity} />
-        <ContactButton />
-        {user ? <AvatarDropdown roles={roles} avatarUrlServer={avatarUrl} /> : <OpenAuthModalButton />}
-      </div>
-    </NavbarWrapper>
-  )
+  return <NavbarView avatarUrl={avatarUrl} cartQuantity={cart_quantity} roles={roles} user={user} />
 }
