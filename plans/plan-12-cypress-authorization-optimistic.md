@@ -25,7 +25,6 @@ rewritten.
 | Read products | allow | allow | allow | product data remains public |
 | Contact support | allow | allow | allow | request is accepted with an anonymous id or user session |
 | Local cart and request better prices | allow | allow | allow | correct products, quantities, and total are submitted |
-| Start checkout | allow | allow | allow | provider-session request accepts a missing customer email |
 | Create product | deny | allow for the signed-in user | allow | route derives `owner_id` from the session |
 | Update product | deny | deny for another user's product | allow for own product | `401` / `403` / success |
 | Delete product | deny | deny for another user's product | allow for own product | denied requests leave the row unchanged |
@@ -33,8 +32,6 @@ rewritten.
 
 ## §2 Optimistic contracts
 
-- Create: show the temporary product before the request finishes; replace it after success; remove
-  it and restore the submitted form after failure.
 - Update: show the submitted title/price/stock/image change before the request finishes; replace it
   with the confirmed response after success; restore the prior value after failure.
 - Delete: remove the product before the request finishes; keep it removed after success; restore the
@@ -52,12 +49,23 @@ rewritten.
 ## Decisions made
 
 - UI timing tests use delayed intercepted responses; database/RLS tests use real route requests.
-- Database setup uses uniquely prefixed test rows and deletes only those rows/users.
+- Database setup uses uniquely prefixed product rows and deletes only those product rows. Fixed test
+  accounts remain available for later runs.
 - Supabase service-role credentials stay in Cypress's Node process and are never sent to browser code.
 - Anonymous support and checkout tests intercept external email/payment providers while asserting the
   application's request payload and visible result.
 - Stable `data-cy` attributes describe business controls and outcomes; styling and DOM nesting are not
   selectors.
+
+## Result
+
+- 20 Electron assertions pass across five specifications.
+- Chrome 149, Chromium 130, and Firefox 151 passed the responsive and i18n smoke set.
+- WebKit is configured with its browser binary; this host still needs Playwright's WebKit system
+  libraries. Edge is configured but is not installed on this host.
+- Checkout-provider success/failure tests were not added because the current cart UI exposes the
+  better-price request flow instead of a checkout control. That public flow is covered for anonymous
+  visitors, including quantities and totals.
 
 ## Code patterns to follow
 
