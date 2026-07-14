@@ -28,6 +28,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 10 | [plan-10-faceit-oauth.md](plan-10-faceit-oauth.md) | P3 | Opus · high | waiting | — |
 | 11 | [plan-11-backup-browser-only-bytes.md](plan-11-backup-browser-only-bytes.md) | P1 | Opus · high | in progress | — |
 | 12 | [plan-12-cypress-authorization-optimistic.md](plan-12-cypress-authorization-optimistic.md) | P1 | Opus · high | done | — |
+| 13 | [STORYBOOK-PLAN.md](../STORYBOOK-PLAN.md) | P1 | Opus · high | in progress | plan-12 |
 
 Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screenshot rule (2 = P1, 3+ = P0) sets nothing — P1 here means "blocks users or is the main asked-for work".
 
