@@ -1,45 +1,168 @@
 name: CI
 
 on:
-  push:
-    branches: ["development"]
   pull_request:
-    types: [opened, synchronize]
+    branches: [development, production, production-vite]
+  push:
+    branches: [development, production, production-vite]
+  merge_group:
+    types: [checks_requested]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  test-build:
-    name: lintrc
+  quality:
+    name: Quality
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v3
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js 20
-        uses: actions/setup-node@v3
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
         with:
-          node-version: 20
+          version: 10
 
-      - name: Setup bun
-        uses: oven-sh/setup-bun@v1
-
-      - name: Setup prettier
-        run: bun i prettier -D
-
-      - name: prettierrc
-        run: bun prettier --write app/*
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
 
       - name: Install dependencies
-        run: bun i
+        run: pnpm install --frozen-lockfile
 
-      - name: Building
-        run: bun build app/layout.tsx --outdir ./dist
-        env:
-          REACT_SUPABASE_URL: "https://random.supabase.co"
-          REACT_SUPABASE_ANON_KEY: "123"
+      - name: Test custom ESLint rules
+        run: pnpm test:eslint-rules
 
-      - name: lintrc
-        run: bun lint
+      - name: Lint tracked source
+        run: pnpm lint
+
+      - name: Generate Next.js route types
+        run: pnpm exec next typegen
+
+      - name: Type-check
+        run: pnpm type-check
+
+  cypress:
+    name: Cypress
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: 23-store-live-supabase-cypress
+      cancel-in-progress: false
+    env:
+      XDG_CONFIG_HOME: ${{ github.workspace }}/.cache/config
+      CYPRESS_CACHE_FOLDER: ${{ github.workspace }}/.cache/Cypress
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_PUSHER_APP_KEY: ${{ vars.NEXT_PUBLIC_PUSHER_APP_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_STRIPE_SECRET_KEY: ${{ secrets.NEXT_STRIPE_SECRET_KEY }}
+      PUSHER_APP_ID: ${{ secrets.PUSHER_APP_ID }}
+      PUSHER_SECRET: ${{ secrets.PUSHER_SECRET }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Cache browser binaries
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/Cypress
+            .cache/ms-playwright
+          key: browsers-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create CI dotenv file
+        run: node .github/scripts/create-ci-env.mjs
+
+      - name: Install Cypress, Firefox, and WebKit
+        run: |
+          pnpm exec cypress install
+          pnpm exec cypress verify
+          pnpm exec playwright install --with-deps firefox webkit
+
+      - name: Run full and cross-browser Cypress tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          pnpm dev > /tmp/joki-next.log 2>&1 &
+          server_pid=$!
+
+          stop_server() {
+            kill "$server_pid" 2>/dev/null || true
+            wait "$server_pid" 2>/dev/null || true
+          }
+          trap stop_server EXIT
+
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error http://127.0.0.1:3023 > /dev/null; then
+              break
+            fi
+
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              tail -200 /tmp/joki-next.log
+              exit 1
+            fi
+
+            if [ "$attempt" -eq 60 ]; then
+              tail -200 /tmp/joki-next.log
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+          pnpm run cypress:run:electron
+          pnpm run cypress:run:chrome -- --spec "cypress/e2e/i18n.cy.ts,cypress/e2e/responsiveness.cy.ts"
+          pnpm run cypress:run:firefox -- --spec "cypress/e2e/i18n.cy.ts,cypress/e2e/responsiveness.cy.ts"
+          pnpm run cypress:run:webkit -- --spec "cypress/e2e/i18n.cy.ts,cypress/e2e/responsiveness.cy.ts"
+
+      - name: Upload Cypress failure details
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-failure-${{ github.run_id }}
+          if-no-files-found: ignore
+          retention-days: 7
+          path: |
+            cypress/screenshots
+            cypress/videos
+            /tmp/joki-next.log
+
+  required:
+    name: CI required
+    if: always()
+    needs: [quality, cypress]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Require every CI job to pass
         env:
-          REACT_SUPABASE_URL: "https://random.supabase.co"
-          REACT_SUPABASE_ANON_KEY: "123"
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          CYPRESS_RESULT: ${{ needs.cypress.result }}
+        run: |
+          test "$QUALITY_RESULT" = "success"
+          test "$CYPRESS_RESULT" = "success"

@@ -1,0 +1,54 @@
+# Continuous integration and protected branches
+
+Every pull request targeting `development`, `production`, or the existing `production-vite` branch
+runs the same required `CI required` check. A merge reruns CI through the workflow's `push` trigger.
+
+CI performs:
+
+- custom ESLint-rule tests, repository lint, Next.js route type generation, and TypeScript checks;
+- all 20 Cypress assertions in Electron;
+- the responsive and internationalization smoke set in Chrome, Firefox, and WebKit;
+- serial fixture access so two runs do not delete each other's `cypress-e2e-` Supabase rows.
+
+## 👉 TODO — GitHub Actions values
+
+Open **Settings → Secrets and variables → Actions** and add these repository **Variables** using the
+matching values from `.env.local`:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_PUSHER_APP_KEY`
+
+Add these repository **Secrets**:
+
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_STRIPE_SECRET_KEY` — use a Stripe test-mode key because the owner-deletion test deactivates
+  fixture Stripe identifiers.
+- `PUSHER_APP_ID` and `PUSHER_SECRET` are optional because the current Cypress tests intercept
+  provider delivery, but add them if CI should exercise real Pusher delivery later.
+
+The workflow sends these values only to the Cypress job. `.github/scripts/create-ci-env.mjs` writes a
+temporary `.env.local`; Next.js and `cypress.config.ts` then read that same dotenv file. No public key
+or service-role key is hardcoded in the workflow.
+
+## 👉 TODO — Import branch protection
+
+Workflow YAML creates status checks, but GitHub repository rules decide whether a direct push or a
+failed merge is rejected. After this workflow has run once:
+
+1. Open **Settings → Rules → Rulesets**.
+2. Select **New ruleset → Import a ruleset**.
+3. Import `.github/rulesets/development-production.json` and confirm enforcement is **Active**.
+4. Leave the bypass list empty. The ruleset requires a pull request, requires `CI required`, blocks
+   force pushes and deletion, requires resolved review threads, and allows only squash merges.
+5. Under **Settings → General → Pull Requests**, enable **Allow squash merging** and disable merge
+   commits and rebase merging. Enable automatic head-branch deletion if desired.
+
+The normal workflow is:
+
+```text
+development → feature/fix branch → pull request → CI required passes → squash merge
+```
+
+Do not place a service-role key directly in `ci.yml`, a repository Variable, or a committed dotenv
+file. Repository Variables are appropriate only for browser-visible `NEXT_PUBLIC_*` values.

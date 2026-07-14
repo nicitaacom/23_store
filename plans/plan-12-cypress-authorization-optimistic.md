@@ -66,6 +66,10 @@ rewritten.
 - Checkout-provider success/failure tests were not added because the current cart UI exposes the
   better-price request flow instead of a checkout control. That public flow is covered for anonymous
   visitors, including quantities and totals.
+- GitHub CI now runs quality checks, the full Electron suite, and Chrome/Firefox/WebKit smoke tests
+  before and after merges into protected release branches.
+- `dev_readme-ci.md` lists the GitHub Variables/Secrets and importable ruleset that a repository admin
+  must apply before `CI required` can block direct pushes and failed merges.
 
 ## Code patterns to follow
 
