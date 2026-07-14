@@ -60,7 +60,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   } = useForm<IFormDataAddProduct>()
 
   const onSubmit = (data: IFormDataAddProduct) => {
-    updatePrice(data.price)
+    updatePrice(Number(data.price))
   }
 
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -98,6 +98,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
           <form onSubmit={event => handleSubmit(onSubmit)(event)}>
             <div>
               <ProductInput
+                data-cy="product-price-input"
                 className={twMerge(
                   "w-full border-border-color/50 bg-background/60 text-start",
                   isLoading && "animate-pulse",
@@ -112,8 +113,8 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
             </div>
           </form>
         ) : (
-          <button className="flex items-center gap-1.5 rounded p-1 transition-colors duration-150 hover:bg-warning/20" type="button" onClick={enableInput}>
-            <span className="text-sm font-semibold text-title">{formatCurrency(price)}</span>
+          <button data-cy="edit-product-price" className="flex items-center gap-1.5 rounded p-1 transition-colors duration-150 hover:bg-warning/20" type="button" onClick={enableInput}>
+            <span data-cy="product-price" className="text-sm font-semibold text-title">{formatCurrency(price)}</span>
             <CiEdit className="text-subTitle" />
           </button>
         )}
