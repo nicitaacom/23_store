@@ -16,7 +16,7 @@ export default function SupportButton() {
   const { unseenMessagesNumber } = useMessages()
   const { isDropdown, closeDropdown, toggle } = useSupportDropdown()
 
-  useEscOrClickOutside(dropdownRef, closeDropdown, { isHookEnabled: isDropdown })
+  useEscOrClickOutside(dropdownRef, closeDropdown, { ignoreInputs: true, isHookEnabled: isDropdown })
 
   return (
     <div className="fixed bottom-4 right-4 z-[120] mobile:bottom-5 mobile:right-5" ref={dropdownRef}>

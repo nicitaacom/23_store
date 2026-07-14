@@ -56,13 +56,18 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
 
     return (
       <button
+        aria-label={`Rate ${ratingValue} out of 5`}
         className="rounded p-1 transition-transform duration-150 hover:scale-105"
         key={ratingValue}
         onMouseEnter={() => setHover(ratingValue)}
         onMouseLeave={() => setHover(null)}
         onClick={() => rateTicket(ratingValue)}
         type="button">
-        {ratingValue <= (hover || rating || 0) ? <FaStar className="text-warning" size={30} /> : <CiStar className="text-icon-color" size={30} />}
+        {ratingValue <= (hover || rating || 0) ? (
+          <FaStar className="text-warning" size={30} />
+        ) : (
+          <CiStar className="text-icon-color" size={30} />
+        )}
       </button>
     )
   })
@@ -76,6 +81,7 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
   return (
     <>
       <button
+        aria-label={messagesLength === 0 ? "Close unavailable for empty ticket" : "Close ticket"}
         className={twMerge(
           "flex h-8 w-8 items-center justify-center rounded border border-white/16 bg-white/8 text-white/85 transition-colors duration-150 hover:border-success-accent/40 hover:bg-success-accent/15 hover:text-success-accent",
           messagesLength === 0 && "cursor-not-allowed opacity-55",

@@ -23,6 +23,7 @@ export default defineConfig({
       "framer-motion",
       "react-icons/ai",
       "react-icons/bi",
+      "react-icons/ci",
       "react-icons/fi",
       "react-icons/fa",
       "react-icons/hi",
