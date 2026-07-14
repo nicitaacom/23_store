@@ -23,11 +23,21 @@ const locales: Locale[] = [
   { code: "se", name: "Svenska", flag: "/languages/SE.png" },
 ]
 
-export function LanguageDropdown({ className, isDropUp = false }: { className?: string; isDropUp?: boolean }) {
+interface LanguageDropdownProps {
+  className?: string
+  isDropUp?: boolean
+  locale?: TLocaleTag
+}
+
+function CurrentLocaleLanguageDropdown(props: Omit<LanguageDropdownProps, "locale">) {
+  const locale = useCurrentLocale()
+  return <LanguageDropdownContent {...props} locale={locale} />
+}
+
+function LanguageDropdownContent({ className, isDropUp = false, locale }: LanguageDropdownProps & { locale: TLocaleTag }) {
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownContainerRef = useRef<HTMLDivElement>(null)
 
-  const locale = useCurrentLocale()
   const pathname = usePathname() || "/"
   const searchParams = useSearchParams()
   const currentLocale = locales.find(localeOption => localeOption.code === locale)
@@ -99,4 +109,8 @@ export function LanguageDropdown({ className, isDropUp = false }: { className?: 
       </div>
     </div>
   )
+}
+
+export function LanguageDropdown({ locale, ...props }: LanguageDropdownProps) {
+  return locale ? <LanguageDropdownContent {...props} locale={locale} /> : <CurrentLocaleLanguageDropdown {...props} />
 }
