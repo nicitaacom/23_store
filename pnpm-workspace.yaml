@@ -4,8 +4,10 @@ allowBuilds:
   '@swc/core': true
   bigint-buffer: true
   bufferutil: true
+  cypress: true
   esbuild: true
   keccak: true
+  playwright-webkit: true
   secp256k1: true
   sharp: true
   unrs-resolver: true
