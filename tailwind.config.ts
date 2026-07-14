@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss"
 
 const config: Config = {
-  content: ["./app/**/*.{tsx,mdx}"],
+  content: ["./app/**/*.{tsx,mdx}", "./storybook/**/*.{tsx,mdx}"],
   theme: {
     fontFamily: {
       primary: ["Inter", "sans-serif"],
