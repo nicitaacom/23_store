@@ -94,6 +94,7 @@ export function AreYouSureModalContainer({
 }: AreYouSureModalContainerProps) {
   const { isLoading } = useLoading()
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
+  const previouslyFocusedElementRef = useRef<HTMLElement | null>(null)
 
   function closeModal() {
     if (isLoading) return
@@ -109,6 +110,7 @@ export function AreYouSureModalContainer({
 
   useEffect(() => {
     if (!isOpen) return
+    previouslyFocusedElementRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
     let raf: number
     const tryFocus = () => {
       if (primaryButtonRef.current) {
@@ -121,6 +123,7 @@ export function AreYouSureModalContainer({
     return () => {
       clearTimeout(timer)
       cancelAnimationFrame(raf)
+      previouslyFocusedElementRef.current?.focus()
     }
   }, [isOpen])
 
@@ -172,15 +175,18 @@ export function AreYouSureModalContainer({
             exit={{ y: 8, opacity: 0 }}
             transition={{ type: "spring", stiffness: 440, damping: 36, mass: 0.85 }}
             {...modalHandler}>
-            <IoMdClose
+            <button
+              aria-label="Close confirmation"
               className={twMerge(
                 "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
                 closeButtonClassName,
                 isLoading && "opacity-50 cursor-default pointer-events-none",
               )}
-              size={22}
+              disabled={isLoading}
               onClick={closeModal}
-            />
+              type="button">
+              <IoMdClose size={22} />
+            </button>
             <div className={twMerge("flex max-w-[620px] flex-col gap-4 px-4 pb-4 pt-5 tablet:px-5", contentClassName)}>
               <div className={twMerge("flex flex-col gap-2 pr-10 text-start", titleClassName)}>
                 <div className="font-secondary text-xl font-bold leading-tight text-title">{label}</div>

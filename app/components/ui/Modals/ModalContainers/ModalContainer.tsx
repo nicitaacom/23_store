@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { IoMdClose } from "react-icons/io"
 import { useSwipeable } from "react-swipeable"
 import { AnimatePresence, motion } from "framer-motion"
@@ -26,6 +26,8 @@ export function ModalContainer({
   children,
 }: ModalContainerProps) {
   const { isLoading } = useLoading()
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const previouslyFocusedElementRef = useRef<HTMLElement | null>(null)
 
   function closeModal() {
     if (isLoading) return
@@ -51,6 +53,18 @@ export function ModalContainer({
     return () => document.removeEventListener("keydown", handleKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading])
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    previouslyFocusedElementRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const animationFrame = requestAnimationFrame(() => closeButtonRef.current?.focus())
+
+    return () => {
+      cancelAnimationFrame(animationFrame)
+      previouslyFocusedElementRef.current?.focus()
+    }
+  }, [isOpen])
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */
   const modalBgHandler = useSwipeable({
@@ -81,6 +95,8 @@ export function ModalContainer({
           transition={{ duration: 0.18, ease: "easeOut" }}
           {...modalBgHandler}>
           <motion.div
+            aria-label={typeof label === "string" ? label : "Modal"}
+            aria-modal="true"
             className={twMerge(
               "relative z-[50] overflow-hidden rounded-lg border border-border-color/35 bg-foreground shadow-compact",
               className,
@@ -89,15 +105,20 @@ export function ModalContainer({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 8, opacity: 0 }}
             transition={{ type: "spring", stiffness: 420, damping: 34, mass: 0.9 }}
+            role="dialog"
             {...modalHandler}>
-            <IoMdClose
-                className={twMerge(
+            <button
+              aria-label="Close modal"
+              className={twMerge(
                   "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
                   isLoading && "opacity-50 cursor-default pointer-events-none",
                 )}
-              size={22}
+              disabled={isLoading}
               onClick={closeModal}
-            />
+              ref={closeButtonRef}
+              type="button">
+              <IoMdClose size={22} />
+            </button>
             <div className="flex max-w-[600px] flex-col gap-3 px-4 pb-4 pt-5">
               {label && <div className="py-1 text-xl text-center text-title">{label}</div>}
               {children}

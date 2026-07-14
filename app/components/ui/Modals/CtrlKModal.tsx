@@ -10,9 +10,23 @@ import { useCtrlKModal } from "@/store/ui/useCtrlKModal"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { useDebounce } from "@/hooks/useDebounce"
 
-export function CtrlKModal() {
-  const t = useScopedI18n("modal")
+interface ICtrlKModalProps {
+  locale?: "en" | "fi" | "ru" | "se"
+}
+
+export function CtrlKModal({ locale }: ICtrlKModalProps = {}) {
+  if (locale) return <CtrlKModalContent locale={locale} />
+
+  return <LocalizedCtrlKModal />
+}
+
+function LocalizedCtrlKModal() {
   const locale = useCurrentLocale()
+  return <CtrlKModalContent locale={locale} />
+}
+
+function CtrlKModalContent({ locale }: { locale: string }) {
+  const t = useScopedI18n("modal")
   const router = useRouter()
   const ctrlKModal = useCtrlKModal()
   const [searchQuery, setSearchQuery] = useState("")

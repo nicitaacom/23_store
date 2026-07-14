@@ -8,6 +8,20 @@ import { defineConfig } from "vitest/config";
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+  optimizeDeps: {
+    include: [
+      "framer-motion",
+      "react-icons/ai",
+      "react-icons/bi",
+      "react-icons/fi",
+      "react-icons/io",
+      "react-icons/io5",
+      "react-images-uploading",
+      "react-loading-skeleton",
+      "react-responsive-carousel",
+      "react-swipeable",
+    ],
+  },
   test: {
     projects: [
       {
