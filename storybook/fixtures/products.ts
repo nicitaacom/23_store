@@ -51,7 +51,7 @@ export const soldOutProduct: TProductDB = {
 export const cartHeadphonesProduct: TProductAfterDB = {
   ...headphonesProduct,
   basePrice: headphonesProduct.price,
-  cartKey: `${headphonesProduct.id}:${FIXTURE_IDS.variant}`,
+  cartKey: `${headphonesProduct.id}::${FIXTURE_IDS.variant}`,
   price: productVariants[0].price,
   quantity: 2,
   selectedVariant: productVariants[0],

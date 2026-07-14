@@ -11,7 +11,7 @@ export const fixtureCategories: TCategory[] = [
 ];
 
 export const fixtureCart: TRecordCartProduct = {
-  [`${FIXTURE_IDS.product}:${FIXTURE_IDS.variant}`]: {
+  [`${FIXTURE_IDS.product}::${FIXTURE_IDS.variant}`]: {
     id: FIXTURE_IDS.product,
     quantity: 2,
     variantId: FIXTURE_IDS.variant,

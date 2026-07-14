@@ -3,6 +3,7 @@ import type { Preview } from "@storybook/nextjs-vite";
 import { initialize, mswLoader } from "msw-storybook-addon";
 
 import { reportStorybookFailures } from "../storybook/mocks/failureReporting";
+import { resetStorybookStores } from "../storybook/store/resetStorybookStores";
 import { StorybookProvider } from "./StorybookProvider";
 
 initialize({
@@ -12,8 +13,6 @@ initialize({
       report.error();
       return;
     }
-
-    report.warning();
   },
   serviceWorker: {
     url: "/mockServiceWorker.js",
@@ -23,6 +22,9 @@ initialize({
 reportStorybookFailures();
 
 const preview: Preview = {
+  beforeEach() {
+    resetStorybookStores();
+  },
   decorators: [
     (Story, context) => (
       <StorybookProvider locale={context.globals.locale} storyId={context.id} theme={context.globals.theme}>
