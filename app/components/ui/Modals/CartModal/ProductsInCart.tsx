@@ -5,7 +5,7 @@ import { Button } from "../.."
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 import useCartStore from "@/store/user/cartStore"
-import { useI18n } from "@/locales/client"
+import { useCurrentLocale, useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
@@ -13,6 +13,7 @@ import { Product } from "@/[locale]/(site)/components"
 
 export function ProductsInCart() {
   const t = useI18n()
+  const locale = useCurrentLocale()
   const cartStore = useCartStore()
   const areYouSureClearCartModal = useAreYouSureClearCartModal()
   const toast = useToast()
@@ -50,7 +51,9 @@ export function ProductsInCart() {
 
           <div className="flex items-center justify-between py-1.5">
             <span className="text-sm text-subTitle">{t("product.subtotal")}</span>
-            <span className="text-sm font-medium text-title">{formatCurrency(cartStore.getProductsPrice())}</span>
+            <span data-cy="cart-subtotal" className="text-sm font-medium text-title">
+              {formatCurrency(cartStore.getProductsPrice(), locale)}
+            </span>
           </div>
 
           <div className="my-2 h-px bg-border-color/20" />
@@ -58,13 +61,16 @@ export function ProductsInCart() {
           {/* 3. Total emphasized */}
           <div className="flex items-end justify-between py-1">
             <span className="text-sm font-semibold text-title">{t("product.total")}</span>
-            <span className="text-2xl font-bold tracking-tight text-success">{formatCurrency(cartStore.getProductsPrice())}</span>
+            <span data-cy="cart-total" className="text-2xl font-bold tracking-tight text-success">
+              {formatCurrency(cartStore.getProductsPrice(), locale)}
+            </span>
           </div>
         </div>
 
         {/* 4. Actions — primary first, destructive as ghost */}
         <div className="flex flex-col gap-2 laptop:mt-auto">
           <Button
+            data-cy="request-better-prices"
             className="w-full border-success/40 bg-success/10 text-success hover:bg-success/20"
             variant="default-outline"
             size="md"

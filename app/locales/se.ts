@@ -525,7 +525,7 @@ export default {
   "trackorder.order_status_5_subtitle": "Levererad till adress",
   "trackorder.support": "Support",
   "trackorder.feedback": "Feedback",
-  "trackorder.location_visible_after_shipment": "Plats synlig efter leverans",
+  "trackorder.location_available_after_shipment": "Plats synlig efter leverans",
   "category.all": "Alla",
   "category.uncategorized": "Okategoriserad",
   "category.request": "Begär ny kategori",
