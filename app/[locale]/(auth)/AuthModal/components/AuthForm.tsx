@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState } from "react"
+import { ReactNode, useState, useSyncExternalStore } from "react"
 import { usePathname } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 import { FieldErrors, UseFormHandleSubmit, UseFormRegister } from "react-hook-form"
@@ -23,6 +23,10 @@ interface AuthFormProps {
   responseMessage: ReactNode | null
 }
 
+function subscribeToHydration() {
+  return () => {}
+}
+
 export function AuthForm({
   handleSubmit,
   onSubmit,
@@ -37,10 +41,14 @@ export function AuthForm({
   const t = useI18n()
 
   const [isChecked, setIsChecked] = useState(false)
+  const isHydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false)
 
   return (
     <>
-      <form className="relative mb-3 flex w-full max-w-full flex-col gap-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        data-cy="auth-form"
+        className="relative mb-3 flex w-full max-w-full flex-col gap-y-4"
+        onSubmit={handleSubmit(onSubmit)}>
         {queryParams !== "resetPassword" && (
           <FormInput
             className="h-11 rounded-2xl"
@@ -121,13 +129,14 @@ export function AuthForm({
 
         {/* LOGIN/REGISTER BUTTON */}
         <Button
+          data-cy="auth-submit"
           type="submit"
           variant="default-outline"
           size="xl"
           rounded="xl"
           fullWidth
           className="mt-1 border-border-color/45 bg-background/55"
-          disabled={isSubmitting || isEmailSent}>
+          disabled={isSubmitting || isEmailSent || !isHydrated}>
           {queryParams === "login"
             ? t("auth.sign.in")
             : queryParams === "register"
@@ -136,7 +145,11 @@ export function AuthForm({
                 ? t("auth.recovery.button")
                 : "TODO - contact support - ask to translate it - попросите поддержку перевести этот текст"}
         </Button>
-        {responseMessage ? <div className="flex justify-center text-center text-sm">{responseMessage}</div> : null}
+        {responseMessage ? (
+          <div data-cy="auth-response" className="flex justify-center text-center text-sm">
+            {responseMessage}
+          </div>
+        ) : null}
       </form>
 
       {/* CONTINUE WITH (for login and register only) */}
