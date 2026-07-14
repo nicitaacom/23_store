@@ -15,7 +15,7 @@
     "cypress:run:chrome": "XDG_CONFIG_HOME=.cache/config CYPRESS_CACHE_FOLDER=.cache/Cypress cypress run --browser chrome",
     "cypress:run:chromium": "XDG_CONFIG_HOME=.cache/config CYPRESS_CACHE_FOLDER=.cache/Cypress cypress run --browser chromium",
     "cypress:run:edge": "XDG_CONFIG_HOME=.cache/config CYPRESS_CACHE_FOLDER=.cache/Cypress cypress run --browser edge",
-    "cypress:run:firefox": "XDG_CONFIG_HOME=.cache/config CYPRESS_CACHE_FOLDER=.cache/Cypress cypress run --browser firefox",
+    "cypress:run:firefox": "FIREFOX_BIN=$(find .cache/ms-playwright -type f -path '*/firefox/firefox' -print -quit) && test -n \"$FIREFOX_BIN\" && XDG_CONFIG_HOME=.cache/config CYPRESS_CACHE_FOLDER=.cache/Cypress cypress run --browser \"$FIREFOX_BIN\"",
     "cypress:run:webkit": "XDG_CONFIG_HOME=.cache/config CYPRESS_CACHE_FOLDER=.cache/Cypress PLAYWRIGHT_BROWSERS_PATH=.cache/ms-playwright cypress run --browser webkit",
     "cypress:run:all-browsers": "pnpm cypress:run:electron && pnpm cypress:run:chrome && pnpm cypress:run:chromium && pnpm cypress:run:edge && pnpm cypress:run:firefox && pnpm cypress:run:webkit",
     "test:e2e": "start-server-and-test dev http://127.0.0.1:3023 cypress:run:electron",

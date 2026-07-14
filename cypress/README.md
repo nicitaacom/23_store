@@ -35,6 +35,8 @@ pnpm test:e2e:all-browsers
 ```
 
 Individual browser scripts are available for Electron, Chrome, Chromium, Edge, Firefox, and WebKit.
+The Firefox script uses the modern Firefox binary downloaded by `pnpm cypress:install-browsers`
+instead of relying on the host's potentially outdated Firefox package.
 
 WebKit exercises the browser engine used by Safari; Cypress does not launch Apple's Safari application. Cypress WebKit support is experimental and its host needs Playwright's Linux browser libraries. Firefox 135 or newer is required. Edge must be installed on the runner that executes the Edge script.
 
