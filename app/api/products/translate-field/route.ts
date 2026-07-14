@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { normalizeProduct } from "@/utils/productVariants"
 import openai from "@/libs/openai"
-import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
+import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 
 const LOCALES = ["en", "fi", "ru", "se"] as const
 
@@ -13,7 +13,11 @@ function isValidTranslations(value: unknown): value is API.ProductsTranslations 
 
 function isValidAIOutput(value: unknown): value is Record<string, string> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false
-  return LOCALES.every(locale => typeof (value as Record<string, unknown>)[locale] === "string" && (value as Record<string, string>)[locale].trim().length > 0)
+  return LOCALES.every(
+    locale =>
+      typeof (value as Record<string, unknown>)[locale] === "string" &&
+      (value as Record<string, string>)[locale].trim().length > 0,
+  )
 }
 
 const SYSTEM_PROMPTS = {
@@ -32,12 +36,16 @@ export async function POST(req: Request) {
   const body = (await req.json()) as API.ProductsTranslateFieldRequest
 
   if (!body.productId?.trim()) return NextResponse.json({ error: "productId missing" }, { status: 400 })
-  if (!body.field || !SYSTEM_PROMPTS[body.field]) return NextResponse.json({ error: "field must be 'title' or 'description'" }, { status: 400 })
+  if (!body.field || !SYSTEM_PROMPTS[body.field])
+    return NextResponse.json({ error: "field must be 'title' or 'description'" }, { status: 400 })
   if (!body.value?.trim()) return NextResponse.json({ error: "value missing" }, { status: 400 })
-  if (!isValidTranslations(body.translations)) return NextResponse.json({ error: "translations missing or invalid" }, { status: 400 })
+  if (!isValidTranslations(body.translations))
+    return NextResponse.json({ error: "translations missing or invalid" }, { status: 400 })
 
-  const supabase = await supabaseServerAction()
-  const { data: { user } } = await supabase.auth.getUser()
+  const supabase = await supabaseRouteHandler()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { data: existingProduct, error: fetchError } = await supabase
@@ -60,7 +68,10 @@ export async function POST(req: Request) {
     })
 
     const raw = (completion.choices[0]?.message?.content ?? "").trim()
-    const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim()
+    const cleaned = raw
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/, "")
+      .trim()
     console.log("[translate-field] raw AI response:", raw)
 
     let parsed: unknown
@@ -98,7 +109,9 @@ export async function POST(req: Request) {
 
     if (refetchError || !updatedProduct) return NextResponse.json({ error: "Failed to fetch updated product" }, { status: 500 })
 
-    return NextResponse.json({ product: normalizeProduct(updatedProduct) } satisfies API.ProductsTranslateFieldResponse, { status: 200 })
+    return NextResponse.json({ product: normalizeProduct(updatedProduct) } satisfies API.ProductsTranslateFieldResponse, {
+      status: 200,
+    })
   } catch (error) {
     console.error("[translate-field] unexpected error:", error)
     return NextResponse.json({ error: error instanceof Error ? error.message : "Translation failed" }, { status: 500 })

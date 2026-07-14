@@ -54,7 +54,6 @@ export async function createProductFn(t: TI18nFunction, input: TCreateProductFnI
     const createProductResponse = await productsSDK.translateAndInsertInDB({
       id: createStripeProductResp.productId,
       price_id: createStripeProductResp.priceId,
-      owner_id: userId,
       title,
       description,
       price: resolvedPrice,

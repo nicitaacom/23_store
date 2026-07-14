@@ -26,7 +26,6 @@ export class ProductsSDK extends BaseSDK {
       console.error("[ProductsSDK.translateAndInsertInDB] request failed", {
         error: error instanceof Error ? error.message : String(error),
         productId: request.id,
-        ownerId: request.owner_id,
         imageCount: request.img_url?.length ?? 0,
         variantsCount: request.variants?.length ?? 0,
         titlePreview: request.title?.slice(0, 120),

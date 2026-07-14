@@ -1,5 +1,7 @@
 import { InvokeCommand, InvocationType, LambdaClient } from "@aws-sdk/client-lambda"
 
+import type { TProductInsertPayload } from "./insertDBProduct"
+
 const lambdaRegion = process.env.NEXT_PUBLIC_AWS_REGION
 const lambdaFnName = "23-ai-translate"
 const lambdaInvokeTimeoutMs = 20_000
@@ -13,7 +15,7 @@ const lambda = new LambdaClient({
   },
 })
 
-function buildLambdaPayload(payload: API.ProductsTranslateAndInsertRequest): API.ProductsTranslateAndInsertRequest {
+function buildLambdaPayload(payload: TProductInsertPayload): TProductInsertPayload {
   return {
     id: payload.id,
     price_id: payload.price_id,
@@ -44,7 +46,7 @@ type TInvokeTranslateProductLambdaResponse =
     }
 
 export async function invokeTranslateProductLambda(
-  payload: API.ProductsTranslateAndInsertRequest,
+  payload: TProductInsertPayload,
 ): Promise<TInvokeTranslateProductLambdaResponse | string> {
   try {
     if (!lambdaRegion) throw new Error("Missing AWS region for translate lambda")

@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server"
 
 import { deleteDBProduct, insertDBProduct } from "./insertDBProduct"
+import type { TProductInsertPayload } from "./insertDBProduct"
 import { invokeTranslateProductLambda } from "./invokeTranslateProductLambda"
+import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 
 export const runtime = "nodejs"
 export const maxDuration = 30
@@ -30,7 +32,7 @@ function normalizeVariants(variants: API.ProductsTranslateAndInsertRequest["vari
   }))
 }
 
-function normalizePayload(payload: API.ProductsTranslateAndInsertRequest): API.ProductsTranslateAndInsertRequest {
+function normalizePayload(payload: TProductInsertPayload): TProductInsertPayload {
   return {
     ...payload,
     description: typeof payload.description === "string" ? payload.description : "",
@@ -40,7 +42,7 @@ function normalizePayload(payload: API.ProductsTranslateAndInsertRequest): API.P
   }
 }
 
-function getInvalidPayloadFields(payload: API.ProductsTranslateAndInsertRequest) {
+function getInvalidPayloadFields(payload: TProductInsertPayload) {
   const invalidFields: string[] = []
 
   if (!payload.id?.trim()) invalidFields.push("id")
@@ -58,7 +60,12 @@ function getInvalidPayloadFields(payload: API.ProductsTranslateAndInsertRequest)
   if (
     Array.isArray(payload.variants) &&
     payload.variants.some(
-      variant => !variant.id?.trim() || !variant.label?.trim() || !variant.image_url?.trim() || !Number.isFinite(variant.price) || variant.price <= 0,
+      variant =>
+        !variant.id?.trim() ||
+        !variant.label?.trim() ||
+        !variant.image_url?.trim() ||
+        !Number.isFinite(variant.price) ||
+        variant.price <= 0,
     )
   ) {
     invalidFields.push("variants")
@@ -84,7 +91,19 @@ export async function POST(req: Request) {
   const requestId = crypto.randomUUID()
 
   try {
-    const parsedPayload = normalizePayload((await req.json()) as API.ProductsTranslateAndInsertRequest)
+    const supabase = await supabaseRouteHandler()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ ok: false, error: "Unauthorized" } satisfies API.ProductsTranslateAndInsertResponse, {
+        status: 401,
+      })
+    }
+
+    const requestPayload = (await req.json()) as API.ProductsTranslateAndInsertRequest
+    const parsedPayload = normalizePayload({ ...requestPayload, owner_id: user.id })
     const invalidFields = getInvalidPayloadFields(parsedPayload)
 
     if (invalidFields.length > 0) {
@@ -107,14 +126,14 @@ export async function POST(req: Request) {
       descriptionLength: parsedPayload.description?.length ?? 0,
     })
 
-    const insertDBProductResp = await insertDBProduct(parsedPayload)
+    const insertDBProductResp = await insertDBProduct(supabase, parsedPayload)
     if (typeof insertDBProductResp === "string") {
       throw new Error(insertDBProductResp)
     }
 
     const invokeTranslateProductLambdaResponse = await invokeTranslateProductLambda(parsedPayload)
     if (typeof invokeTranslateProductLambdaResponse === "string") {
-      const deleteDBProductResp = await deleteDBProduct(parsedPayload.id)
+      const deleteDBProductResp = await deleteDBProduct(supabase, parsedPayload.id)
 
       console.error("[products/translate-insert] lambda invoke failed after product insert", {
         requestId,

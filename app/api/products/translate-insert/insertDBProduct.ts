@@ -1,8 +1,15 @@
 import { createRawProductTranslations } from "@/utils/product"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 
-export async function insertDBProduct(payload: API.ProductsTranslateAndInsertRequest): Promise<string | null> {
-  const { error: insertError } = await supabaseAdmin.from("23_products").insert({
+export type TProductInsertPayload = API.ProductsTranslateAndInsertRequest & { owner_id: string }
+
+type SupabaseRouteHandlerClient = Awaited<ReturnType<typeof supabaseRouteHandler>>
+
+export async function insertDBProduct(
+  supabase: SupabaseRouteHandlerClient,
+  payload: TProductInsertPayload,
+): Promise<string | null> {
+  const { error: insertError } = await supabase.from("23_products").insert({
     id: payload.id,
     price_id: payload.price_id,
     owner_id: payload.owner_id,
@@ -18,8 +25,8 @@ export async function insertDBProduct(payload: API.ProductsTranslateAndInsertReq
   return null
 }
 
-export async function deleteDBProduct(productId: string): Promise<string | null> {
-  const { error: deleteError } = await supabaseAdmin.from("23_products").delete().eq("id", productId)
+export async function deleteDBProduct(supabase: SupabaseRouteHandlerClient, productId: string): Promise<string | null> {
+  const { error: deleteError } = await supabase.from("23_products").delete().eq("id", productId)
 
   if (deleteError) return deleteError.message
   return null
