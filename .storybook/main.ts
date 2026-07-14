@@ -20,16 +20,17 @@ const config: StorybookConfig = {
     name: "@storybook/nextjs-vite",
     options: {},
   },
-  staticDirs: ["../public"],
-  docs: {
-    autodocs: "tag",
-  },
   async viteFinal(viteConfig) {
     return {
       ...viteConfig,
       resolve: {
         ...viteConfig.resolve,
         alias: {
+          "@/libs/pusher": path.resolve(currentDirectory, "../storybook/mocks/pusher.ts"),
+          "@/libs/supabase/supabaseClient": path.resolve(
+            currentDirectory,
+            "../storybook/mocks/supabaseClient.ts",
+          ),
           ...viteConfig.resolve?.alias,
           "@": path.resolve(currentDirectory, "../app"),
         },
