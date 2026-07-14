@@ -1,6 +1,6 @@
 # ESLint setup
 
-_Last updated: 2026-07-10 (`d6da349 chore: eslint arrow-fn-only-for-hooks zustand exception`)_
+_Last updated: 2026-07-14 (`chore: new eslint use supabaseroutehandler`)_
 
 This project uses ESLint 9 flat config (`eslint.config.mjs`). The old `.eslintrc.json` (ESLint 8
 legacy config) was removed because `eslint-config-next@16.2.10` requires `eslint >= 9`.
@@ -13,9 +13,8 @@ without the build step, for a quick check.
 
 ## SOP: copying this setup into another project
 
-Everything lives in two places: the `eslint-local-rules/` folder (20 files: `index.js` + 19 rule
-files) and `eslint.config.mjs`. This SOP assumes the target project is also Next.js - if it isn't,
-see step 4.
+Everything lives in two places: the `eslint-local-rules/` folder and `eslint.config.mjs`. This SOP
+assumes the target project is also Next.js - if it isn't, see step 4.
 
 1. **Copy the rules folder as-is.**
 
@@ -152,6 +151,45 @@ rules live in `eslint-local-rules/*.js`, wired up as `local-rules/<name>` in `es
 | `@typescript-eslint/no-unused-vars`                      | `@typescript-eslint`                                | warn                  | unused variables (ignores `_`-prefixed; ignores `set`/`get` args inside `**/store/**`, `**/zustand/**`, `**/*.store.ts`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `react-hooks/exhaustive-deps`                            | `eslint-config-next` (React Compiler ESLint plugin) | warn                  | missing/extra hook dependencies                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | everything else from `next/core-web-vitals`              | `eslint-config-next`                                | mixed                 | Next.js/React Compiler correctness rules (`react-hooks/set-state-in-effect`, `react-hooks/purity`, `react-hooks/refs`, `jsx-a11y/*`, `import/*`, etc.) - not written by us, comes from Next 16's own recommended config                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+
+### Request-bound Supabase clients and RLS (`use-rls-supabase-client`)
+
+`supabaseAdmin` authenticates with the service-role key, so its database queries bypass Postgres row
+level security (RLS). In API routes, server pages/layouts, and server actions, use a client that reads
+the caller's Supabase session from cookies:
+
+- `supabaseRouteHandler()` is the route-handler-specific choice.
+- `supabaseServer()` is also valid and preserves RLS because it reads the same authenticated cookies.
+
+Wrong - the submitted `owner_id` reaches the database through the service role, so the product
+INSERT policy is skipped:
+
+```ts
+import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+
+export async function POST(request: Request) {
+  const product = await request.json()
+  return supabaseAdmin.from("23_products").insert(product)
+}
+```
+
+Correct - the caller session reaches Supabase, and RLS checks that `auth.uid()` matches the inserted
+row's `owner_id`:
+
+```ts
+import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
+
+export async function POST(request: Request) {
+  const product = await request.json()
+  const supabase = await supabaseRouteHandler()
+  return supabase.from("23_products").insert(product)
+}
+```
+
+`supabaseAdmin.auth.admin.*`, `supabaseAdmin.storage.*`, and database work outside request-bound
+files are not flagged. An intentional database service-role operation inside request code must use a
+scoped ESLint suppression with a reason that identifies the authorization performed before the
+query.
 
 ### Banned words (`no-banned-words`, hard error)
 

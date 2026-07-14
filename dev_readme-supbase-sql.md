@@ -219,13 +219,28 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_products' AND policyname='Owner delete') THEN
     CREATE POLICY "Owner delete" ON public."23_products" FOR DELETE USING (owner_id = auth.uid());
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_products' AND policyname='Auth insert') THEN
-    CREATE POLICY "Auth insert" ON public."23_products" FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-  END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_products' AND policyname='Owner update') THEN
     CREATE POLICY "Owner update" ON public."23_products" FOR UPDATE USING (owner_id = auth.uid());
   END IF;
 END $$;
+
+-- 👉 TODO — LIVE SUPABASE: Run this DROP/CREATE block in Dashboard → SQL Editor.
+-- This is the only manual update required; no environment variable or application-code change is
+-- required after it succeeds.
+-- Request-bound Supabase clients send the user's JWT, so this policy enforces product ownership.
+-- Replacing the former role-only policy prevents an authenticated user from inserting another
+-- user's owner_id through the direct Supabase REST API.
+DROP POLICY IF EXISTS "Auth insert" ON public."23_products";
+DROP POLICY IF EXISTS "Owner insert" ON public."23_products";
+CREATE POLICY "Owner insert" ON public."23_products"
+  FOR INSERT
+  TO authenticated
+  WITH CHECK ((SELECT auth.uid()) = owner_id);
+
+-- Verify that the result contains Owner insert / INSERT / {authenticated} and the owner_id check.
+SELECT policyname, cmd, roles, with_check
+FROM pg_policies
+WHERE schemaname = 'public' AND tablename = '23_products' AND policyname = 'Owner insert';
 
 -- 🛍️ Users Cart Table
 CREATE TABLE IF NOT EXISTS public."23_users_cart" (
