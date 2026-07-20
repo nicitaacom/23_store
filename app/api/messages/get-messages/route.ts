@@ -19,6 +19,7 @@ export async function POST(req: Request) {
   let ticketIdResponse: string | undefined = ticketId
 
   if (userId) {
+    // eslint-disable-next-line local-rules/use-rls-supabase-client -- The supplied support identity scopes this legacy anonymous-ticket lookup to one open ticket.
     const { data: ticketId } = await supabaseAdmin
       .from("23_tickets")
       .select("id")
@@ -31,6 +32,7 @@ export async function POST(req: Request) {
     return NextResponse.json([])
   }
 
+  // eslint-disable-next-line local-rules/use-rls-supabase-client -- The resolved ticket id scopes this legacy anonymous-support message read.
   const { data: messages_by_id_response, error: messages_by_id_error } = await supabaseAdmin
     .from("23_messages")
     .select("*")

@@ -37,6 +37,7 @@ export async function POST(req: Request) {
 
   // 3. Update seen:true in '23_messages' table
   if (unseenMessageIds.length !== 0) {
+    // eslint-disable-next-line local-rules/use-rls-supabase-client -- Required fields and the caller's message list scope this legacy support update to unseen message ids.
     const { error: messages_error } = await supabaseAdmin.from("23_messages").update({ seen: true }).in("id", unseenMessageIds)
     if (messages_error) {
       console.log(35, "error updating seen message - ", messages_error)

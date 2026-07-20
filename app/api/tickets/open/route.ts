@@ -34,6 +34,7 @@ export async function POST(req: Request) {
   const timestampString = now.toISOString().replace("T", " ").replace("Z", "+00")
 
   // 1. Insert new ticket in 'tickets' table
+  // eslint-disable-next-line local-rules/use-rls-supabase-client -- Required owner and ticket fields authorize this legacy anonymous-support ticket boundary.
   const { error } = await supabaseAdmin.from("23_tickets").insert({
     id: ticketId,
     created_at: timestampString,

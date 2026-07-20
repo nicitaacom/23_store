@@ -13,6 +13,7 @@ export type TAPITicketGetTicketIdData = {
 export async function POST(req: Request) {
   const { userId } = (await req.json()) as TAPITicketGetTicketIdRequest
 
+  // eslint-disable-next-line local-rules/use-rls-supabase-client -- The support identity scopes this legacy anonymous-ticket lookup to one open ticket.
   const { data: ticket_id } = await supabaseAdmin
     .from("23_tickets")
     .select("id")

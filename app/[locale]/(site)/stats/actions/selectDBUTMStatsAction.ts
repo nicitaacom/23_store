@@ -2,7 +2,7 @@
 
 import { IUTMAggregatedStats } from "@/ts/interfaces/IUTMAggregatedStats"
 import { parseUTMVisitMetadata } from "@/utils/utmVisitMetadata"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 
 const PROJECT_URL_FRAGMENTS = ["://localhost:3023/", "://23-store.vercel.app/", "://jokik.fi/", "://www.jokik.fi/"]
 
@@ -69,8 +69,9 @@ export async function selectDBUTMStatsAction(
   try {
     const urlFilters = PROJECT_URL_FRAGMENTS.map(urlFragment => `url.ilike.%${urlFragment}%`).join(",")
     const dateRange = resolveDateRange(dateSelection?.year, dateSelection?.month)
+    const supabase = await supabaseServer()
 
-    let query = supabaseAdmin
+    let query = supabase
       .from("utm_stats")
       .select("id, user_id, created_at, source, medium, campaign, url, user_agent")
       .or(urlFilters)

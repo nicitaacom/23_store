@@ -4,7 +4,7 @@ import { headers } from "next/headers"
 
 import { getCountryNameFromCode, IUTMVisitMetadata } from "@/utils/utmVisitMetadata"
 import { insertDBUTMVisitAction } from "@/actions/insertDBUTMVisitAction"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 
 interface UTMParams {
   utm_source?: string
@@ -50,8 +50,9 @@ export async function trackVisitAction(
   const utmParams = extractUTMParams(normalizedSearchParams)
   const hasUTMParams = Object.values(utmParams).some(param => param !== undefined)
   const today = new Date().toISOString().split("T")[0]
+  const supabase = await supabaseServer()
 
-  const { data: recentVisit } = await supabaseAdmin
+  const { data: recentVisit } = await supabase
     .from("utm_stats")
     .select("id, created_at")
     .eq("user_id", userId)
