@@ -43,7 +43,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
       onBlur: () => onBlur?.(),
       editorProps: {
         attributes: {
-          class: "min-h-[100px] w-full outline-none text-white [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:font-bold [&_em]:italic [&_em]:opacity-70 [&_u]:underline [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:mb-2",
+          class: "min-h-[100px] w-full outline-none text-title [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:font-bold [&_em]:italic [&_em]:opacity-70 [&_u]:underline [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:mb-2",
         },
       },
     })
@@ -82,11 +82,11 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
     return (
       <div
         className={twMerge(
-          "relative overflow-hidden rounded border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white transition-colors duration-150 focus-within:border-white/20 focus-within:bg-white/[0.06]",
-          disabled && "opacity-50 pointer-events-none",
+          "relative overflow-hidden rounded border border-border-color/30 bg-background/60 px-3 py-2 text-sm text-title transition-colors duration-150 focus-within:border-brand/40 focus-within:bg-background",
+          disabled && "pointer-events-none cursor-not-allowed bg-foreground/45",
         )}>
         {isEmpty && placeholder && (
-          <div className="pointer-events-none absolute left-3 top-2 text-sm text-white/40 select-none">
+          <div className="pointer-events-none absolute left-3 top-2 text-sm text-subTitle select-none">
             {placeholder}
           </div>
         )}

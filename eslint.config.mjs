@@ -5,6 +5,9 @@ import unicorn from "eslint-plugin-unicorn"
 import localRules from "./eslint-local-rules/index.js"
 
 export default [
+  {
+    ignores: [".cache/**", ".home/**", ".open-next/**", ".pnpm-store/**", "storybook-static/**"],
+  },
   ...nextConfig,
   {
     files: ["**/*.ts", "**/*.tsx"],

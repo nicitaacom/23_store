@@ -112,6 +112,7 @@ export function MessageInput({ className, placeholder, onSend }: MessageInputPro
           onChange={handleChange}
           onKeyDown={handleKeyDown}></textarea>
         <button
+          aria-label="Send message"
           data-cy="support-message-send"
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-success-accent/30 bg-success-accent/15 text-success-accent transition-colors duration-150 hover:bg-success-accent/25 disabled:cursor-not-allowed disabled:opacity-45"
           disabled={!messageBodyValue.trim().length && !image}

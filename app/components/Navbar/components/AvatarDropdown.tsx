@@ -79,6 +79,7 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
 
   return (
     <DropdownContainer
+      list
       isDropdown={isShowDropdown}
       toggle={toggleDropdown}
       dropdownRef={avatarDropdownRef}

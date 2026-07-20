@@ -71,14 +71,13 @@ function DropdownExample() {
   return (
     <div className="flex justify-end p-3">
       <DropdownContainer
+        list
         dropdownRef={dropdownRef}
         icon={<button aria-label="Open actions" className="h-8 w-8 rounded border border-border-color"><FiMoreHorizontal /></button>}
         isDropdown={isDropdown}
         toggle={() => setIsDropdown(current => !current)}>
-        <ul>
-          <DropdownItem icon={FiUser} label="Profile" />
-          <DropdownItem icon={FiShoppingBag} label="Orders" href="/en/orders" />
-        </ul>
+        <DropdownItem icon={FiUser} label="Profile" />
+        <DropdownItem icon={FiShoppingBag} label="Orders" href="/en/orders" />
       </DropdownContainer>
     </div>
   );

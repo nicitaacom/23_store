@@ -163,10 +163,62 @@ jobs:
             cypress/videos
             /tmp/joki-next.log
 
+  storybook:
+    name: Storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Cache Chromium
+        uses: actions/cache@v4
+        with:
+          path: .cache/ms-playwright
+          key: storybook-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build static Storybook
+        run: pnpm build-storybook
+
+      - name: Run Storybook render, interaction, and accessibility tests
+        run: pnpm test:storybook
+
+      - name: Upload Storybook failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-failure-${{ github.run_id }}
+          if-no-files-found: ignore
+          retention-days: 7
+          path: |
+            storybook-static
+            test-results
+            playwright-report
+
   required:
     name: CI required
     if: always()
-    needs: [quality, cypress]
+    needs: [quality, cypress, storybook]
     runs-on: ubuntu-latest
     timeout-minutes: 2
 
@@ -175,6 +227,8 @@ jobs:
         env:
           QUALITY_RESULT: ${{ needs.quality.result }}
           CYPRESS_RESULT: ${{ needs.cypress.result }}
+          STORYBOOK_RESULT: ${{ needs.storybook.result }}
         run: |
           test "$QUALITY_RESULT" = "success"
           test "$CYPRESS_RESULT" = "success"
+          test "$STORYBOOK_RESULT" = "success"
