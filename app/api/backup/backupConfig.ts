@@ -4,14 +4,13 @@
 //
 // 23_store is admin-only, all data: requireAdmin() (app/api/backup/requireAdmin.ts) is the whole
 // access boundary, checked once per route. There is no per-row/per-file ownership to scope by.
+import type { SupabaseClient } from "@supabase/supabase-js"
+
 import { Database } from "@/ts/types_db"
 
-// Untyped on purpose: routes pass a client typed to this project's full generated Database schema
-// (SupabaseClient<Database>). Threading that specific generic through every function here causes
-// TypeScript's inference to recurse ("Type instantiation is excessively deep") once a query chains
-// .from(table).select()... against it. A bare `any` is the actual fix — call sites still get full
-// typing on their own supabaseAdmin variable; only the parameter type here is loosened.
-type AnySupabaseClient = any
+// File backup only needs the Storage API. Limiting the parameter to that API avoids threading
+// database query generics through the recursive bucket walk.
+type TStorageClient = Pick<SupabaseClient<Database>, "storage">
 
 type AllTables = keyof Database["public"]["Tables"]
 
@@ -165,7 +164,7 @@ function contentTypeForPath(path: string): string {
 }
 
 // A folder entry has no id; recurse into it. A file entry has an id; record it.
-async function listBucketFiles(admin: AnySupabaseClient, bucket: string, prefix = ""): Promise<TBackupFileRef[]> {
+async function listBucketFiles(admin: TStorageClient, bucket: string, prefix = ""): Promise<TBackupFileRef[]> {
   const files: TBackupFileRef[] = []
   let offset = 0
 
@@ -195,7 +194,7 @@ async function listBucketFiles(admin: AnySupabaseClient, bucket: string, prefix 
   return files
 }
 
-export async function listFiles(admin: AnySupabaseClient): Promise<TBackupFileRef[]> {
+export async function listFiles(admin: TStorageClient): Promise<TBackupFileRef[]> {
   const files: TBackupFileRef[] = []
   for (const bucket of BACKUP_BUCKETS) {
     files.push(...(await listBucketFiles(admin, bucket)))
