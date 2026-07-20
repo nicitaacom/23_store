@@ -1,5 +1,5 @@
-import { MessagesBodySkeleton, MessagesFooterSkeleton, MessagesHeaderSkeleton } from "./components"
 import { DesktopSidebarSkeleton } from "./components/DesktopSidebarSkeleton"
+import { MessagesBodySkeleton, MessagesFooterSkeleton, MessagesHeaderSkeleton } from "./components"
 import { MobileSidebarSkeleton } from "./components/MobileSidebarSkeleton"
 
 export function SupportPageSkeleton({ ticketId }: { ticketId: string | Record<string, string | string[] | undefined> }) {

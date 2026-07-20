@@ -1,7 +1,7 @@
 "use server"
 
-import { IUTMVisitMetadata, serializeUTMVisitMetadata } from "@/utils/utmVisitMetadata"
 import supabaseServer from "@/libs/supabase/supabaseServer"
+import { IUTMVisitMetadata, serializeUTMVisitMetadata } from "@/utils/utmVisitMetadata"
 
 interface UTMParams {
   utm_source?: string
