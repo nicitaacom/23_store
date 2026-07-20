@@ -107,7 +107,7 @@ export function FormInput({
               id={id}
               type={type}
               placeholder={placeholder}
-              autoComplete={id}
+              autoComplete={id === "password" ? "current-password" : id}
               disabled={disabled}
               {...register(id, {
                 required: required ? validationMessages?.required || requiredMessage : undefined,

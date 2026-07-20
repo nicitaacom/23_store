@@ -76,12 +76,12 @@ function SpacingAndRadius() {
       <section className="rounded border border-border-color bg-foreground/5 p-3">
         <SectionHeading>Spacing</SectionHeading>
         <div className="mt-3 grid gap-2">
-          <div className="h-3 w-1 bg-brand" aria-label="4 pixels" />
-          <div className="h-3 w-2 bg-brand" aria-label="8 pixels" />
-          <div className="h-3 w-3 bg-brand" aria-label="12 pixels" />
-          <div className="h-3 w-4 bg-brand" aria-label="16 pixels" />
-          <div className="h-3 w-6 bg-brand" aria-label="24 pixels" />
-          <div className="h-3 w-8 bg-brand" aria-label="32 pixels" />
+          <div className="h-3 w-1 bg-brand" aria-label="4 pixels" role="img" />
+          <div className="h-3 w-2 bg-brand" aria-label="8 pixels" role="img" />
+          <div className="h-3 w-3 bg-brand" aria-label="12 pixels" role="img" />
+          <div className="h-3 w-4 bg-brand" aria-label="16 pixels" role="img" />
+          <div className="h-3 w-6 bg-brand" aria-label="24 pixels" role="img" />
+          <div className="h-3 w-8 bg-brand" aria-label="32 pixels" role="img" />
         </div>
       </section>
       <section className="rounded border border-border-color bg-foreground/5 p-3">

@@ -96,8 +96,8 @@ export const MobileMenu: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.click(await canvas.findByRole("button", { name: "Open menu" }))
-    await expect(await canvas.findByRole("heading", { name: "Projects" })).toBeVisible()
-    await expect(canvas.getByText("Language")).toBeVisible()
+    await waitFor(() => expect(canvas.getByRole("heading", { name: "Projects" })).toBeVisible())
+    await waitFor(() => expect(canvas.getByText("Language")).toBeVisible())
     await userEvent.keyboard("{Escape}")
     await waitFor(() => expect(canvas.queryByRole("heading", { name: "Projects" })).not.toBeInTheDocument())
   },

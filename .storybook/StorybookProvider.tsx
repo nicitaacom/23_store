@@ -23,13 +23,12 @@ export function StorybookProvider({ children, locale, storyId, theme }: IStorybo
 
   useLayoutEffect(() => {
     useDarkModeStore.setState({ isDarkMode });
-    document.documentElement.classList.toggle("dark", isDarkMode);
     document.documentElement.lang = normalizedLocale;
   }, [isDarkMode, normalizedLocale, storyId]);
 
   return (
     <I18nProviderClient locale={normalizedLocale}>
-      <div className="min-h-screen bg-light text-dark dark:bg-dark dark:text-light">{children}</div>
+      <div className={`${isDarkMode ? "dark " : ""}min-h-screen bg-background text-title`}>{children}</div>
     </I18nProviderClient>
   );
 }

@@ -12,6 +12,7 @@ interface DropdownContainerProps {
   classNameIsDropdownTrue?: string
   classNameIsDropdownFalse?: string
   username?: string | undefined
+  list?: boolean
   onClick?: () => void
   isDropdown: boolean
   toggle: () => void
@@ -22,6 +23,7 @@ export function DropdownContainer({
   children,
   icon,
   username,
+  list = false,
   className = "",
   classNameDropdownContainer = "",
   classNameIsDropdownTrue,
@@ -58,7 +60,7 @@ export function DropdownContainer({
         )}>
         <div className="overflow-hidden rounded-lg border border-border-color/35 bg-foreground/95 text-sm shadow-compact">
           {username && hasMounted && <h1 className="border-b border-border-color/30 px-3 py-2 text-center text-title">Hi {username}</h1>}
-          {children}
+          {list ? <ul>{children}</ul> : children}
         </div>
       </div>
     </div>

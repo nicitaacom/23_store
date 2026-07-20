@@ -62,6 +62,9 @@ const preview: Preview = {
     },
   },
   parameters: {
+    a11y: {
+      test: "error",
+    },
     nextjs: {
       appDirectory: true,
       navigation: {
