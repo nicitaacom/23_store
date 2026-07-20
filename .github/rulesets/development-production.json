@@ -38,6 +38,12 @@
         "required_status_checks": [
           {
             "context": "CI required"
+          },
+          {
+            "context": "UI Test"
+          },
+          {
+            "context": "UI Review"
           }
         ]
       }
