@@ -14,8 +14,9 @@ CI performs:
 
 ## 👉 TODO — GitHub Actions values
 
-Open **Settings → Secrets and variables → Actions** and add these repository **Variables** using the
-matching values from `.env.local`:
+Open **Settings → Secrets and variables → Actions** and add these as repository **Variables**
+(preferred because they are browser-visible values) or repository **Secrets** using the matching
+values from `.env.local`:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
@@ -31,10 +32,12 @@ Add these repository **Secrets**:
 - `PUSHER_APP_ID` and `PUSHER_SECRET` are optional because the current Cypress tests intercept
   provider delivery, but add them if CI should exercise real Pusher delivery later.
 
-The CI workflow sends the application values only to the Cypress job. The Chromatic workflow receives
-only `CHROMATIC_PROJECT_TOKEN`. `.github/scripts/create-ci-env.mjs` writes a temporary `.env.local`;
-Next.js and `cypress.config.ts` then read that same dotenv file. No token, public key, or service-role
-key is hardcoded in a workflow.
+The CI workflow reads each `NEXT_PUBLIC_*` repository Variable first and falls back to the
+same-named repository Secret, then sends the application values only to the Cypress job. The
+Chromatic workflow receives only `CHROMATIC_PROJECT_TOKEN`.
+`.github/scripts/create-ci-env.mjs` writes a temporary `.env.local`; Next.js and
+`cypress.config.ts` then read that same dotenv file. No token, public key, or service-role key is
+hardcoded in a workflow.
 
 ## 👉 TODO — Import branch protection
 
