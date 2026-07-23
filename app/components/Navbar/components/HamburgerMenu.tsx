@@ -96,8 +96,8 @@ export function HamburgerMenu() {
               transition={{ type: "spring", stiffness: 280, damping: 30 }}
               {...panelHandlers}>
               <div
-                ref={containerRef}
-                className="flex h-full flex-col border-r border-border-color bg-foreground px-4 py-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+                className="flex h-full flex-col border-r border-border-color bg-foreground px-4 py-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+                ref={containerRef}>
                 <div className="mb-6 rounded-[18px] border border-border-color/70 bg-background/80 px-4 py-4">
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex flex-col">
@@ -118,14 +118,14 @@ export function HamburgerMenu() {
                 <nav className="flex flex-col gap-2">
                   {menuItems.map(item => (
                     <Link
-                      key={item.href}
                       className="group flex items-center gap-3 rounded-[16px] border border-border-color/70 bg-background px-4 py-3 transition-all duration-200 hover:-translate-y-[1px] hover:border-brand/40 hover:bg-foreground-accent/40"
+                      key={item.href}
                       href={item.href}
                       target="_blank"
                       rel="noreferrer"
                       onClick={closeSidebar}>
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[12px] border border-border-color/60 bg-foreground">
-                        <Image src={item.iconSrc} alt={item.iconAlt} width={32} height={32} className="h-8 w-8 object-contain" />
+                        <Image className="h-8 w-8 object-contain" src={item.iconSrc} alt={item.iconAlt} width={32} height={32} />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-base font-medium text-title">{item.label}</p>

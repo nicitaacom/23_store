@@ -39,8 +39,8 @@ export function ImageWithFallback({
 
   const image = (
     <Image
-      {...props}
       className={twMerge(className, showFallback && fallbackClassName)}
+      {...props}
       src={showFallback ? fallbackSrc : (src as string)}
       alt={alt}
       onError={() => setFailedSrc(src)}

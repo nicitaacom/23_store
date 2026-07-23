@@ -34,8 +34,8 @@ export default function SupportButton() {
       </AnimatePresence>
 
       <Button
-        data-cy="open-support"
         className="relative h-12 w-12 border border-success/30 bg-background/95 px-0 shadow-compact backdrop-blur-xl transition-colors duration-150 hover:border-success/45 hover:bg-foreground/80 desktop:h-14 desktop:w-14"
+        data-cy="open-support"
         variant="default-outline"
         size="icon-md"
         rounded="lg"

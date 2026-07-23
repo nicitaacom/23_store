@@ -119,7 +119,7 @@ function AppearanceStates() {
           <button className="h-8 rounded border border-brand bg-background px-3 text-sm text-title outline-none ring-2 ring-brand ring-offset-2 ring-offset-background">
             Visible keyboard focus
           </button>
-          <button disabled className="h-8 cursor-not-allowed rounded border border-border-color bg-foreground/20 px-3 text-sm text-subTitle opacity-50">
+          <button className="h-8 cursor-not-allowed rounded border border-border-color bg-foreground/20 px-3 text-sm text-subTitle opacity-50" disabled>
             Disabled control
           </button>
         </div>

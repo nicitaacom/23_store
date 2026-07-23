@@ -105,9 +105,9 @@ export function CheckEmail({
 
                 return (
                   <Section
-                    key={product.id}
                     style={{ padding: 0 }}
-                    className={twMerge(index !== products.length - 1 && "pb-6 mb-6 border-b border-[#e5e5e5]")}>
+                    className={twMerge(index !== products.length - 1 && "pb-6 mb-6 border-b border-[#e5e5e5]")}
+                    key={product.id}>
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                       <tr>
                         <td style={{ width: "120px", verticalAlign: "top", paddingRight: "20px" }}>
@@ -170,7 +170,6 @@ export function CheckEmail({
                 textAlign: "center",
               }}>
               <Link
-                href={`${getURL()}track-order`}
                 style={{
                   display: "inline-block",
                   background: "#1ce956",
@@ -181,7 +180,8 @@ export function CheckEmail({
                   fontSize: "16px",
                   fontWeight: "600",
                   marginBottom: "16px",
-                }}>
+                }}
+                href={`${getURL()}track-order`}>
                 {trackYourOrder}
               </Link>
               <Text style={{ lineHeight: "1.5" }} className="m-0 text-[14px] text-subTitle">
@@ -196,15 +196,15 @@ export function CheckEmail({
                 <tr>
                   <td>
                     <Link
-                      href={`${getURL()}support`}
                       style={{ textDecoration: "none", fontWeight: "500" }}
-                      className="text-[14px] text-[#1ce956] mx-3">
+                      className="text-[14px] text-[#1ce956] mx-3"
+                      href={`${getURL()}support`}>
                       {supportText}
                     </Link>
                     <Link
-                      href={`${getURL()}feedback`}
                       style={{ textDecoration: "none", fontWeight: "500" }}
-                      className="text-[14px] text-[#1ce956] mx-3">
+                      className="text-[14px] text-[#1ce956] mx-3"
+                      href={`${getURL()}feedback`}>
                       {feedbackText}
                     </Link>
                   </td>

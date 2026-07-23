@@ -54,18 +54,18 @@ function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
 function LoadingIndicator() {
   return (
     <motion.div
+      className="flex justify-start"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="flex justify-start">
+      transition={{ duration: 0.3 }}>
       <div className="px-4 py-3 rounded-lg bg-foreground-accent border border-border-color">
         <div className="flex gap-1.5">
           {[0, 200, 400].map(delay => (
             <motion.span
+              className="w-2 h-2 rounded-full bg-subTitle"
               key={delay}
               animate={{ y: [0, -3, 0] }}
               transition={{ duration: 1, repeat: Infinity, delay: delay / 1000 }}
-              className="w-2 h-2 rounded-full bg-subTitle"
             />
           ))}
         </div>

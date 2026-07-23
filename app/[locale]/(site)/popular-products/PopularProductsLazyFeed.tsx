@@ -56,7 +56,7 @@ export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }:
         <div className="text-xs uppercase tracking-[0.24em] text-success">Scroll to load more</div>
       </div>
 
-      <div ref={topRef} className="h-px" />
+      <div className="h-px" ref={topRef} />
 
       <div className="grid grid-cols-1 gap-4 mobile:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4">
         {visibleProducts.map(product => (
@@ -64,7 +64,7 @@ export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }:
         ))}
       </div>
 
-      {!hasNoMoreDataToFetch && <div ref={bottomRef} className="h-20" />}
+      {!hasNoMoreDataToFetch && <div className="h-20" ref={bottomRef} />}
 
       {!hasNoMoreDataToFetch && isFetching && (
         <div className="flex items-center justify-center gap-3 rounded-[24px] border border-success/20 bg-success/5 px-4 py-5 text-sm text-subTitle">

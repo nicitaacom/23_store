@@ -32,8 +32,8 @@ export function SearchInput({
         pattern={pattern}
         name={name}
         required={required}
-        autoFocus
         {...props}
+        autoFocus
       />
       {endIcon && <div className="absolute right-2 top-1/2 -translate-y-1/2 text-icon-color">{endIcon}</div>}
     </div>

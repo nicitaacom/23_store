@@ -55,27 +55,27 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
     <div className={twMerge("relative inline-flex w-[130px] flex-col", className)} ref={dropdownContainerRef}>
       {/* Trigger — w-full so it stretches to whatever width the container is */}
       <button
-        data-cy="language-trigger"
         className="flex w-full items-center gap-1.5 rounded border border-border-color/35 bg-background/55 px-2.5 py-1.5
         text-sm text-title transition-colors duration-150 hover:bg-foreground/10"
+        data-cy="language-trigger"
         onClick={() => setShowDropdown(!showDropdown)}
         aria-expanded={showDropdown}>
         {currentLocale ? (
           <Image
+            className="rounded-sm object-cover"
             src={currentLocale.flag}
             alt={currentLocale.name}
             width={18}
             height={13}
             sizes="18px"
-            className="rounded-sm object-cover"
           />
         ) : (
-          <TbWorld size={14} className="text-icon-color" />
+          <TbWorld className="text-icon-color" size={14} />
         )}
         <span className="text-xs font-medium uppercase tracking-wide">{currentLocale?.code}</span>
         <TbChevronDown
-          size={12}
           className={`ml-auto text-icon-color transition-transform duration-150 ${showDropdown ? "rotate-180" : ""}`}
+          size={12}
         />
       </button>
 
@@ -88,20 +88,20 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
         )}>
         {locales.map(localeOption => (
           <a
-            data-cy={`language-${localeOption.code}`}
-            key={localeOption.code}
-            href={getLocaleHref(localeOption.code)}
             className={`flex w-full items-center gap-2 whitespace-nowrap px-3 py-2 text-left text-sm transition-colors duration-100 ${
               locale === localeOption.code ? "bg-brand/15 text-brand hover:bg-brand/25" : "text-title hover:bg-foreground-accent"
             }`}
+            data-cy={`language-${localeOption.code}`}
+            key={localeOption.code}
+            href={getLocaleHref(localeOption.code)}
             onClick={() => setShowDropdown(false)}>
             <Image
+              className="rounded-sm object-cover"
               src={localeOption.flag}
               alt={localeOption.name}
               width={18}
               height={13}
               sizes="18px"
-              className="rounded-sm object-cover"
             />
             {localeOption.name}
           </a>

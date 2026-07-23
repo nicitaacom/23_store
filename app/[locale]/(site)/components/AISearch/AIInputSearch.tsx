@@ -105,17 +105,17 @@ export function AIInputSearch() {
 
   return (
     <div
-      {...swipeHandlers}
       style={{ width: mobileSheetWidth }}
       className={twMerge(
         "fixed bottom-4 left-4 z-[110] overflow-hidden rounded-[4px] border border-border-color/30 bg-background/95 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-[height,transform] duration-300 laptop:hidden",
         isExpanded ? "h-[min(72vh,680px)] tablet:h-[min(62vh,720px)]" : "h-[48px]",
-      )}>
+      )}
+      {...swipeHandlers}>
       <button
+        className="flex h-12 w-full items-center gap-3 border-b border-success/10 px-3 text-left"
         type="button"
         onClick={() => setIsExpanded(current => !current)}
-        aria-expanded={isExpanded}
-        className="flex h-12 w-full items-center gap-3 border-b border-success/10 px-3 text-left">
+        aria-expanded={isExpanded}>
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-success/20 bg-success/10">
           <BsStars className="text-base text-success" />
         </div>

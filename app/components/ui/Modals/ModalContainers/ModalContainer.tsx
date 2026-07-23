@@ -95,12 +95,12 @@ export function ModalContainer({
           transition={{ duration: 0.18, ease: "easeOut" }}
           {...modalBgHandler}>
           <motion.div
-            aria-label={typeof label === "string" ? label : "Modal"}
-            aria-modal="true"
             className={twMerge(
               "relative z-[50] overflow-hidden rounded-lg border border-border-color/35 bg-foreground shadow-compact",
               className,
             )}
+            aria-label={typeof label === "string" ? label : "Modal"}
+            aria-modal="true"
             initial={{ y: 14, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 8, opacity: 0 }}
@@ -108,11 +108,11 @@ export function ModalContainer({
             role="dialog"
             {...modalHandler}>
             <button
-              aria-label="Close modal"
               className={twMerge(
                   "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
                   isLoading && "opacity-50 cursor-default pointer-events-none",
                 )}
+              aria-label="Close modal"
               disabled={isLoading}
               onClick={closeModal}
               ref={closeButtonRef}

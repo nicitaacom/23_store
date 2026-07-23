@@ -38,13 +38,13 @@ export function ProductQuantityButton({ className, productId, action, variantId 
   if (action === "increase" || action === "decrease") {
     return (
       <button
-        type="button"
-        onClick={handleClick}
         className={twMerge(
           "inline-flex h-8 w-8 items-center justify-center bg-background/55 text-sm font-semibold text-icon-color transition-colors duration-150 hover:bg-foreground/50",
           action === "increase" ? "text-success" : "text-danger",
           className,
-        )}>
+        )}
+        type="button"
+        onClick={handleClick}>
         {action === "increase" ? "+" : "−"}
       </button>
     )

@@ -42,15 +42,15 @@ export function OwnerProductImageSlider({ images, title, onClickSlide }: OwnerPr
       {hasMultiple && (
         <>
           <button
+            className="absolute left-0 top-0 z-10 flex h-full w-9 items-center justify-center bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-20"
             onClick={prev}
-            disabled={safeIndex === 0}
-            className="absolute left-0 top-0 z-10 flex h-full w-9 items-center justify-center bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-20">
+            disabled={safeIndex === 0}>
             <AiFillCaretLeft size={18} />
           </button>
           <button
+            className="absolute right-0 top-0 z-10 flex h-full w-9 items-center justify-center bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-20"
             onClick={next}
-            disabled={safeIndex === images.length - 1}
-            className="absolute right-0 top-0 z-10 flex h-full w-9 items-center justify-center bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-20">
+            disabled={safeIndex === images.length - 1}>
             <AiFillCaretRight size={18} />
           </button>
           <span className="absolute bottom-1.5 right-2 z-10 rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-medium text-white/80 tabular-nums">

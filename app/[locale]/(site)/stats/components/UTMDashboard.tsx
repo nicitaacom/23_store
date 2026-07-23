@@ -301,12 +301,12 @@ function DailyVisitsChart({ data }: { data: { date: string; visits: number }[] }
         <div className="flex flex-wrap gap-2">
           {DAILY_VISITS_RANGE_OPTIONS.map(option => (
             <button
-              key={option.key}
-              type="button"
-              onClick={() => setSelectedRange(option.key)}
               className={`rounded-full px-3 py-1.5 text-xs mobile:text-sm font-medium transition-colors ${
                 selectedRange === option.key ? "bg-brand text-foreground" : "bg-background/60 text-subTitle hover:bg-active-color"
-              }`}>
+              }`}
+              key={option.key}
+              type="button"
+              onClick={() => setSelectedRange(option.key)}>
               {option.label}
             </button>
           ))}
@@ -452,13 +452,13 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
   return (
     <div className="min-h-screen bg-background p-4 mobile:p-6">
       <motion.div
-        key={forceRender} // Force re-render when this changes
+        className="max-w-7xl mx-auto" // Force re-render when this changes
+        key={forceRender}
         initial="hidden"
         animate="visible"
-        variants={containerVariants}
-        className="max-w-7xl mx-auto">
+        variants={containerVariants}>
         {/* Header with Date Picker */}
-        <motion.div variants={itemVariants} className="mb-8">
+        <motion.div className="mb-8" variants={itemVariants}>
           <div className="flex flex-col mobile:flex-row mobile:items-center mobile:justify-between gap-4">
             <div>
               <h1 className="text-3xl mobile:text-4xl font-bold text-title mb-2">UTM Analytics Dashboard</h1>
@@ -469,10 +469,10 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
 
             <div className="relative">
               <motion.button
+                className="bg-brand text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-                className="bg-brand text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow">
+                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}>
                 <IoCalendar className="w-4 h-4 text-foreground" />
                 <span className="text-sm font-medium text-foreground">
                   {months[selectedMonth]} {selectedYear}
@@ -485,21 +485,21 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
               <AnimatePresence>
                 {isDatePickerOpen && (
                   <motion.div
+                    className="absolute right-0 mt-2 bg-foreground border border-border-color rounded-lg shadow-xl z-50 min-w-[200px]"
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 mt-2 bg-foreground border border-border-color rounded-lg shadow-xl z-50 min-w-[200px]">
+                    exit={{ opacity: 0, y: -10 }}>
                     <div className="p-4">
                       <div className="mb-4">
                         <label className="text-xs font-medium text-subTitle mb-2 block">Year</label>
                         <div className="grid grid-cols-3 gap-1">
                           {years.map(year => (
                             <button
-                              key={year}
-                              onClick={() => handleDateChange(year, selectedMonth)}
                               className={`px-2 py-1 text-sm rounded transition-colors ${
                                 year === selectedYear ? "bg-brand text-white" : "text-title hover:bg-active-color"
-                              }`}>
+                              }`}
+                              key={year}
+                              onClick={() => handleDateChange(year, selectedMonth)}>
                               {year}
                             </button>
                           ))}
@@ -510,11 +510,11 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
                         <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-border-color scrollbar-track-transparent">
                           {months.map((month, index) => (
                             <button
-                              key={index}
-                              onClick={() => handleDateChange(selectedYear, index)}
                               className={`px-2 py-1 text-sm text-left rounded transition-colors ${
                                 index === selectedMonth ? "bg-brand text-white" : "text-title hover:bg-active-color"
-                              }`}>
+                              }`}
+                              key={index}
+                              onClick={() => handleDateChange(selectedYear, index)}>
                               {month}
                             </button>
                           ))}
@@ -530,8 +530,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
 
         {/* Key Metrics */}
         <motion.div
-          variants={itemVariants}
-          className="grid grid-cols-1 mobile:grid-cols-2 laptop:grid-cols-5 gap-4 mobile:gap-6 mb-8">
+          className="grid grid-cols-1 mobile:grid-cols-2 laptop:grid-cols-5 gap-4 mobile:gap-6 mb-8"
+          variants={itemVariants}>
           {[
             {
               title: "Total Visits",
@@ -563,16 +563,16 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
             },
           ].map((metric, index) => (
             <motion.div
+              className={`${metric.bgClass} p-4 mobile:p-6 rounded-xl shadow-lg`}
               key={metric.title}
               variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
-              className={`${metric.bgClass} p-4 mobile:p-6 rounded-xl shadow-lg`}>
+              whileHover={{ scale: 1.05 }}>
               <h3 className={`${metric.titleClass} text-xs mobile:text-sm font-medium opacity-90`}>{metric.title}</h3>
               <motion.p
+                className={`${metric.numberClass} text-2xl mobile:text-3xl font-bold mt-2`}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: index * 0.1 + 0.2 }}
-                className={`${metric.numberClass} text-2xl mobile:text-3xl font-bold mt-2`}>
+                transition={{ delay: index * 0.1 + 0.2 }}>
                 {isAnimating ? "..." : metric.value.toLocaleString()}
               </motion.p>
             </motion.div>
@@ -583,8 +583,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
         <motion.div className="grid grid-cols-1 laptop:grid-cols-2 gap-6 mobile:gap-8">
           {/* UTM Sources Chart */}
           <motion.div
-            variants={itemVariants}
-            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg">
+            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg"
+            variants={itemVariants}>
             <h3 className="text-lg mobile:text-xl font-bold text-title mb-4">Traffic Sources</h3>
             {stats.sourceStats.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
@@ -610,8 +610,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
 
           {/* UTM Medium Pie Chart */}
           <motion.div
-            variants={itemVariants}
-            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg">
+            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg"
+            variants={itemVariants}>
             <h3 className="text-lg mobile:text-xl font-bold text-title mb-4">Traffic Medium</h3>
             {stats.mediumStats.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
@@ -650,8 +650,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
 
         <motion.div className="grid grid-cols-1 laptop:grid-cols-2 gap-6 mobile:gap-8 mt-6 mobile:mt-8">
           <motion.div
-            variants={itemVariants}
-            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg">
+            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg"
+            variants={itemVariants}>
             <div className="mb-4 flex items-center gap-3">
               <div className="rounded-full bg-brand/15 p-2 text-brand">
                 <IoGlobeOutline className="h-5 w-5" />
@@ -699,8 +699,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
           </motion.div>
 
           <motion.div
-            variants={itemVariants}
-            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg">
+            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg"
+            variants={itemVariants}>
             <div className="mb-4 flex items-center gap-3">
               <div className="rounded-full bg-info/15 p-2 text-info">
                 <IoLocationOutline className="h-5 w-5" />
@@ -717,11 +717,11 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
 
                   return (
                     <motion.div
+                      className="rounded-xl border border-border-color/70 bg-background/50 p-4"
                       key={`${location.name}-${index}`}
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.08 }}
-                      className="rounded-xl border border-border-color/70 bg-background/50 p-4">
+                      transition={{ delay: index * 0.08 }}>
                       <div className="mb-3 flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-base font-semibold text-title">
@@ -754,8 +754,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
 
         {/* Daily Visits Chart - Full Width */}
         <motion.div
-          variants={itemVariants}
-          className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg mt-6 mobile:mt-8">
+          className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg mt-6 mobile:mt-8"
+          variants={itemVariants}>
           <DailyVisitsChart data={stats.chartData || []} />
         </motion.div>
       </motion.div>

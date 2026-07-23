@@ -19,9 +19,9 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
       <div className="h-48 rounded border border-border-color/35 bg-foreground/55" />
     ) : (
     <article
+      className="overflow-hidden rounded border border-border-color/35 bg-foreground/55 shadow-none"
       data-cy="owner-product"
-      data-product-id={ownerProduct.id}
-      className="overflow-hidden rounded border border-border-color/35 bg-foreground/55 shadow-none">
+      data-product-id={ownerProduct.id}>
       <div className="flex flex-col tablet:flex-row">
         <div className="group shrink-0 border-b border-border-color/35 bg-foreground/[0.02] tablet:border-b-0 tablet:border-r">
           <OwnerProductImageSlider

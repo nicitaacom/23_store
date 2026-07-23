@@ -57,9 +57,9 @@ export default function Toast() {
 
   return (
     <motion.div
-      data-click-outside-ignore
       className={`fixed bottom-[2%] right-[2%] z-[4999] flex w-auto max-w-[min(92vw,420px)] gap-3 rounded
         border ${currentConfig.borderColor} bg-foreground/95 px-3 py-2 shadow-compact`}
+      data-click-outside-ignore
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 100, opacity: 0 }}

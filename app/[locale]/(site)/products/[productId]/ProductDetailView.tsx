@@ -75,14 +75,14 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
     () =>
       galleryImages.map((image, index) => (
         <button
-          key={`${image}-${index}`}
-          type="button"
-          onClick={() => handleSelectImage(image)}
           className={twMerge(
             "group relative h-16 w-16 shrink-0 overflow-hidden rounded-[2px] border bg-foreground/5 transition-colors duration-150",
             activeImage === image ? "border-success" : "border-border-color/20 hover:border-success/30 hover:bg-success/5",
-          )}>
-          <Image src={image} alt={`${translation.title}-${index + 1}`} fill className="object-cover" sizes="80px" />
+          )}
+          key={`${image}-${index}`}
+          type="button"
+          onClick={() => handleSelectImage(image)}>
+          <Image className="object-cover" src={image} alt={`${translation.title}-${index + 1}`} fill sizes="80px" />
         </button>
       )),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSelectImage is a stable store action, never add fns to deps
@@ -93,21 +93,21 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
     () =>
       variants.map(variant => (
         <button
-          key={variant.id}
-          type="button"
-          onClick={() => handleSelectVariant(variant.id)}
           className={twMerge(
             "flex h-20 items-center gap-3 rounded-[2px] border px-3 text-left transition-colors duration-150",
             variant.id === selectedVariant?.id
               ? "border-success bg-success/10"
               : "border-border-color/20 bg-background/40 hover:border-success/30 hover:bg-success/5",
-          )}>
+          )}
+          key={variant.id}
+          type="button"
+          onClick={() => handleSelectVariant(variant.id)}>
           <Image
+            className="h-14 w-14 rounded-[2px] object-cover"
             src={variant.image_url}
             alt={variant.label}
             width={64}
             height={64}
-            className="h-14 w-14 rounded-[2px] object-cover"
           />
           <div className="min-w-0">
             <span className="block text-base font-medium text-title">{variant.label}</span>
@@ -123,8 +123,8 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
     () =>
       highlights.map(({ icon: Icon, label }) => (
         <div
-          key={label}
-          className="flex items-center gap-2 rounded-[2px] border border-border-color/20 bg-foreground/5 px-3 py-2">
+          className="flex items-center gap-2 rounded-[2px] border border-border-color/20 bg-foreground/5 px-3 py-2"
+          key={label}>
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[2px] bg-success/10 text-success">
             <Icon className="text-lg" />
           </div>
@@ -148,12 +148,12 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
           <div className="overflow-hidden rounded-[2px] border border-success/20 bg-foreground/5">
             <div className="relative aspect-square w-full max-h-[480px]">
               <Image
+                className="object-contain p-4 mobile:p-6"
                 src={activeImage}
                 alt={selectedVariant?.label || translation.title}
                 fill
                 priority
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 70vw, 50vw"
-                className="object-contain p-4 mobile:p-6"
               />
             </div>
           </div>
@@ -166,11 +166,11 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
                 {t("low_stock_hurry", { count: product.on_stock ?? 0 })}
               </p>
               <Image
+                className="mx-auto h-auto w-full max-w-[320px]"
                 src="/banners/run-to-grab-discount.gif"
                 alt="Hurry!"
                 width={800}
                 height={600}
-                className="mx-auto h-auto w-full max-w-[320px]"
               />
             </div>
           )}
@@ -199,9 +199,9 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
           <div className="flex flex-wrap items-center gap-2">
             <ManageProductButton productId={product.id} ownerId={product.owner_id} size="sm" />
             <ProductLikeButton
+              className="h-8 w-8 rounded-[2px] border-border-color/20 bg-foreground/5 hover:border-warning/25 hover:bg-foreground/10"
               productId={product.id}
               categoryId={product.category_id}
-              className="h-8 w-8 rounded-[2px] border-border-color/20 bg-foreground/5 hover:border-warning/25 hover:bg-foreground/10"
             />
           </div>
 
@@ -210,7 +210,7 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
             <h1 className="text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl">{translation.title}</h1>
             <div className="flex shrink-0 items-center gap-1">
               {isOutOfStock ? (
-                <RequestReplanishmentButton product={product} className="h-11 rounded-[2px] shadow-none" />
+                <RequestReplanishmentButton className="h-11 rounded-[2px] shadow-none" product={product} />
               ) : quantity === 0 ? (
                 <AddToCartButton
                   className="h-11 justify-between rounded-[2px] px-5 shadow-none"
@@ -221,22 +221,22 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
               ) : (
                 <>
                   <ProductQuantityButton
+                    className="h-11 w-11 rounded-[2px] border border-border-color/20"
                     action="decrease"
                     productId={product.id}
                     variantId={selectedVariant?.id}
-                    className="h-11 w-11 rounded-[2px] border border-border-color/20"
                   />
                   <ProductQuantityButton
+                    className="h-11 w-11 rounded-[2px] border border-border-color/20"
                     action="increase"
                     productId={product.id}
                     variantId={selectedVariant?.id}
-                    className="h-11 w-11 rounded-[2px] border border-border-color/20"
                   />
                   <ProductQuantityButton
+                    className="h-11 rounded-[2px] px-4 shadow-none"
                     action="clear"
                     productId={product.id}
                     variantId={selectedVariant?.id}
-                    className="h-11 rounded-[2px] px-4 shadow-none"
                   />
                 </>
               )}

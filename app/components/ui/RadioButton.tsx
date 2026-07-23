@@ -12,19 +12,19 @@ interface IRadioButtonProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 export function RadioButton({ label, inputName, onChange, children, disabled, ...props }: IRadioButtonProps) {
   return (
     <label
-      htmlFor={label}
       className={twMerge(
         `relative flex cursor-pointer items-start justify-start rounded border border-border-color/35
         bg-foreground/45 px-3 py-2 text-sm font-medium text-title transition-colors duration-150
         hover:border-border-color/45 hover:bg-foreground/60`,
         disabled && "opacity-50 pointer-events-none cursor-default",
-      )}>
+      )}
+      htmlFor={label}>
       <input
+        className="peer sr-only"
         type="radio"
         name={inputName}
         value={label}
         id={label}
-        className="peer sr-only"
         onChange={onChange}
         disabled={disabled}
         {...props}

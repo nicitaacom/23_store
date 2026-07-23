@@ -166,7 +166,6 @@ export function ProductInput({
       )}
       {id === "subTitle" ? (
         <textarea
-          {...textareaRest}
           className={twMerge(
             "min-h-[92px] w-full resize-y rounded border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none transition-colors duration-150 placeholder:text-white/32 focus:border-white/20 focus:bg-white/[0.06]",
             startIcon && "pl-8",
@@ -177,6 +176,7 @@ export function ProductInput({
             disabled && "opacity-50 cursor-default",
             className,
           )}
+          {...textareaRest}
           id={id}
           autoComplete={id}
           placeholder={placeholder}
@@ -191,8 +191,6 @@ export function ProductInput({
         />
       ) : (
         <input
-          {...rest}
-          onBlur={e => { rest.onBlur?.(e); onBlurProp?.(e) }}
           className={twMerge(
             "w-full rounded border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none transition-colors duration-150 placeholder:text-white/32 focus:border-white/20 focus:bg-white/[0.06]",
             startIcon && "pl-8",
@@ -203,6 +201,8 @@ export function ProductInput({
             disabled && "opacity-50 cursor-default",
             className,
           )}
+          {...rest}
+          onBlur={e => { rest.onBlur?.(e); onBlurProp?.(e) }}
           id={id}
           type={type}
           autoComplete={id}

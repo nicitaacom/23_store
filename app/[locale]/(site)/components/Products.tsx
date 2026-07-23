@@ -26,8 +26,8 @@ function Products({ products }: ProductsProps) {
       </div>
       <AnimatePresence mode="wait">
         <motion.ul
-          key={productsKey}
           className="flex flex-col gap-y-8"
+          key={productsKey}
           initial="hidden"
           animate="visible"
           exit="exit"

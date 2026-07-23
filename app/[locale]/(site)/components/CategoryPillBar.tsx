@@ -84,13 +84,13 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
     <div className="flex items-center gap-2">
       <div className="flex flex-1 gap-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <button
-          ref={isAllActive ? activePillRef : null}
           className={twMerge(
             "h-8 shrink-0 rounded border px-3 text-sm transition-colors duration-150",
             isAllActive
               ? "border-success/40 bg-success/10 font-medium text-success"
               : "border-border-color/35 bg-background/55 text-subTitle hover:border-border-color hover:bg-foreground/10 hover:text-title",
           )}
+          ref={isAllActive ? activePillRef : null}
           type="button"
           onClick={() => handlePillClick(null)}>
           All
@@ -100,14 +100,14 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
           const isActive = activeCategoryId === category.id
           return (
             <button
-              key={category.id}
-              ref={isActive ? activePillRef : null}
               className={twMerge(
                 "h-8 shrink-0 rounded border px-3 text-sm transition-colors duration-150",
                 isActive
                   ? "border-success/40 bg-success/10 font-medium text-success"
                   : "border-border-color/35 bg-background/55 text-subTitle hover:border-border-color hover:bg-foreground/10 hover:text-title",
               )}
+              key={category.id}
+              ref={isActive ? activePillRef : null}
               type="button"
               onClick={() => handlePillClick(category.id)}>
               {category.name}

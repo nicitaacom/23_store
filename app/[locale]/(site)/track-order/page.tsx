@@ -38,9 +38,9 @@ export default function TrackOrderPage() {
                 onChange={event => setOrderNumberValue(event.target.value)}
               />
               <Button
-                disabled
                 className="rounded-lg bg-success px-5 text-sm font-semibold
-                           opacity-60 transition hover:bg-success-accent">
+                           opacity-60 transition hover:bg-success-accent"
+                disabled>
                 {t("track")}
               </Button>
             </div>
@@ -71,7 +71,7 @@ export default function TrackOrderPage() {
                 { title: t("order_status_4_title"), desc: t("order_status_1_subtitle"), active: false },
                 { title: t("order_status_5_title"), desc: t("order_status_1_subtitle"), active: false },
               ].map(step => (
-                <div key={step.title} className="relative flex gap-3">
+                <div className="relative flex gap-3" key={step.title}>
                   <div
                     className={twMerge(
                       "z-10 h-4 w-4 rounded-full border-2 border-background",

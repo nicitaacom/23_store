@@ -26,14 +26,14 @@ export function OwnerDeleteProduct({ onRequestDelete, isBulkMode, isSelected, on
       <div className="h-32 rounded border border-border-color/35 bg-foreground/55" />
     ) : (
     <article
-      data-cy="delete-product"
-      data-product-id={ownerProduct.id}
       className={twMerge(
         "group overflow-hidden rounded border border-border-color/35 bg-foreground/55 shadow-none transition-[border-color,background-color] duration-150",
         isBulkMode && "cursor-pointer",
         isBulkMode && isSelected && "border-danger/35 bg-danger/[0.04]",
         isBulkMode && !isSelected && "hover:border-border-color/45 hover:bg-background/20",
       )}
+      data-cy="delete-product"
+      data-product-id={ownerProduct.id}
       onClick={isBulkMode ? () => onToggleSelect?.(ownerProduct.id) : undefined}>
       <div className="flex flex-col tablet:flex-row">
         <div className="shrink-0 border-b border-border-color/35 bg-foreground/[0.02] tablet:border-b-0 tablet:border-r">

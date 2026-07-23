@@ -49,8 +49,6 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
 
   return (
     <ModalQueryContainer
-      hideCloseButton
-      disableDismiss={!!pendingDeleteProduct}
       className={twMerge(
         "flex flex-col overflow-hidden border-border-color/35 bg-modal-surface shadow-compact-lg transition-all duration-300",
         // mobile: true full-screen, no border/radius
@@ -60,6 +58,8 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
         // laptop / desktop: cap width so the dialog stays readable on wide screens
         "laptop:w-[min(92vw,1100px)] desktop:w-[min(90vw,1400px)]",
       )}
+      hideCloseButton
+      disableDismiss={!!pendingDeleteProduct}
       ignoreInputs={false}
       modalQuery="AdminPanel">
       {({ closeModal }) => (

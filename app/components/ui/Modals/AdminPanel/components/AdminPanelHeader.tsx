@@ -48,11 +48,11 @@ export function AdminPanelHeader({
     <OrganicCanvasBackground
       // mark the whole header as a non-dismiss zone so clicking empty space (gaps/padding)
       // between the tabs doesn't trip the modal's click-outside handler and close it
-      data-click-outside-ignore
       className={twMerge(
         "h-[52px] overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.12),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))] tablet:h-[56px] tablet:rounded-t-lg",
         className,
       )}
+      data-click-outside-ignore
       parentClassName="relative flex h-full items-center justify-between gap-2 px-2 py-2 tablet:px-3"
       particleCount={3}
       brandHsl="137, 82%, 52%"
@@ -72,14 +72,14 @@ export function AdminPanelHeader({
 
               return (
                 <button
-                  data-cy={`admin-action-${action}`}
-                  key={action}
                   className={twMerge(
                     // underline tab — flat, unified brand accent (active shows a brand underline bar)
                     "relative flex h-8 min-w-0 items-center gap-1.5 px-2 text-xs transition-colors duration-150",
                     isActive ? "text-brand" : "text-white/60 hover:text-white",
                     disabled && "pointer-events-none opacity-50",
                   )}
+                  data-cy={`admin-action-${action}`}
+                  key={action}
                   type="button"
                   onClick={() => onActionChange(action)}>
                   <Icon className="shrink-0" />

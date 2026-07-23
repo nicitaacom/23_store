@@ -325,12 +325,11 @@ export function OrganicCanvasBackground({
 
   return (
     <div
-      ref={containerRef}
       style={{ position: "relative" }}
       className={twMerge("relative w-full h-full overflow-hidden", className)}
+      ref={containerRef}
       {...rest}>
       <canvas
-        ref={canvasRef}
         style={{
           opacity: canvasOpacity,
           mixBlendMode: "screen",
@@ -341,6 +340,7 @@ export function OrganicCanvasBackground({
           height: `calc(100% + ${verticalOverflow * 2}px)`,
         }}
         className="pointer-events-none absolute left-0 right-0 w-full"
+        ref={canvasRef}
       />
       <div className={twMerge("relative z-10 w-full h-full", parentClassName)}>{children}</div>
     </div>

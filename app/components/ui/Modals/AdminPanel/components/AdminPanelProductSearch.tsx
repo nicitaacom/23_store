@@ -24,15 +24,15 @@ export function AdminPanelProductSearch({
     <div className="flex items-center gap-2">
       <div className="flex-1">
         <SearchInput
-          autoFocus={false}
-          autoComplete="off"
           className="w-full"
+          autoComplete="off"
           name="admin-panel-product-search"
           onChange={event => onQueryChange(event.currentTarget.value)}
           placeholder={t("catalog_search_placeholder")}
           startIcon={<BiSearchAlt className="text-icon-color" size={20} />}
           type="search"
           value={query}
+          autoFocus={false}
         />
       </div>
       <span className="shrink-0 text-xs font-medium tabular-nums text-subTitle/70">

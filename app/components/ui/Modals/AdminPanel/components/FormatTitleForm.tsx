@@ -109,7 +109,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   }, [])
 
   return (
-    <div ref={containerRef} className="min-w-0 flex-1">
+    <div className="min-w-0 flex-1" ref={containerRef}>
       {isEditing ? (
         <form onSubmit={event => handleSubmit(onSubmit)(event)}>
           <ProductInput
@@ -118,21 +118,21 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
             register={register}
             errors={errors}
             placeholder={currentTranslation.title}
-            autoFocus
             required
             onBlur={handleInputBlur}
+            autoFocus
           />
           <div className="mt-1 flex justify-end gap-1">
             <button
+              className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80"
               type="button"
-              onClick={cancelInput}
-              className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80">
+              onClick={cancelInput}>
               Cancel
             </button>
             <button
+              className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50"
               type="submit"
-              disabled={isLoading}
-              className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50">
+              disabled={isLoading}>
               Save
             </button>
           </div>

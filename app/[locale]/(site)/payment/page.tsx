@@ -29,11 +29,11 @@ export default function Payment() {
       {status === "success" ? (
         <>
           <Image
+            style={{ width: "auto" }}
             src="/success-checkmark.gif"
             alt={t("success_checkmark")}
             width={256}
             height={256}
-            style={{ width: "auto" }}
             priority
           />
           <h1 className="text-2xl mb-2">{t("successfull")}</h1>
@@ -44,7 +44,7 @@ export default function Payment() {
         </>
       ) : (
         <>
-          <Image src="/error-checkmark.gif" alt="Error Checkmark" width={256} height={256} style={{ width: "auto" }} priority />
+          <Image style={{ width: "auto" }} src="/error-checkmark.gif" alt="Error Checkmark" width={256} height={256} priority />
           <h1 className="text-2xl mb-2">{t("canceled")}</h1>
           <p className="flex flex-row">
             {t("redirecting_to_homepage_in")} <Timer seconds={4} action={() => router.replace("/")} />

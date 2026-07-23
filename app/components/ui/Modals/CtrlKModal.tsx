@@ -78,8 +78,8 @@ function CtrlKModalContent({ locale }: { locale: string }) {
 
   return (
     <ModalContainer
-      classnameContainer="z-[1000]"
       className="relative w-full max-w-[450px]"
+      classnameContainer="z-[1000]"
       isOpen={ctrlKModal.isOpen}
       onClose={ctrlKModal.closeModal}>
       <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>

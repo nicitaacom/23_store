@@ -46,7 +46,7 @@ export function BannersSlider() {
       <div
         style={{ transition: "opacity 1000ms ease" }}
         className={`relative h-full w-full ${animating ? "opacity-0" : "opacity-100"}`}>
-        <Image src={banner.src} alt={banner.alt} fill className="object-cover" unoptimized />
+        <Image className="object-cover" src={banner.src} alt={banner.alt} fill unoptimized />
         <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent" />
         <div className="absolute bottom-6 left-6 max-w-[55%]">
           <p className="text-xl font-bold leading-tight text-white laptop:text-2xl">{banner.heading}</p>
@@ -57,9 +57,9 @@ export function BannersSlider() {
       <div style={{ zIndex: 10 }} className="absolute bottom-4 right-5 flex gap-2">
         {BANNERS.map((_, index) => (
           <button
+            className={`h-1.5 rounded-full transition-all duration-300 ${index === current ? "w-6 bg-white" : "w-1.5 bg-white/40"}`}
             key={index}
             onClick={() => setCurrent(index)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${index === current ? "w-6 bg-white" : "w-1.5 bg-white/40"}`}
           />
         ))}
       </div>

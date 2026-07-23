@@ -140,17 +140,17 @@ export default async function Home({ params: paramsPromise, searchParams: search
                   />
                   <div className="flex flex-row items-center gap-[2px] pt-1">
                     <Link
+                      className="inline-flex h-10 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black mobile:text-base max-[480px]:flex-1 max-[480px]:gap-0 max-[480px]:px-0 max-[480px]:py-0"
                       href={addProductHref}
-                      aria-label={t("add")}
-                      className="inline-flex h-10 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black mobile:text-base max-[480px]:flex-1 max-[480px]:gap-0 max-[480px]:px-0 max-[480px]:py-0">
+                      aria-label={t("add")}>
                       <BiPlus className="hidden text-xl max-[480px]:block" />
                       <FaPlus className="hidden text-sm min-[481px]:block" />
                       <span className="max-[480px]:hidden">{t("add")}</span>
                     </Link>
                     <Link
+                      className="inline-flex h-10 w-fit items-center justify-center whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black mobile:text-base max-[480px]:flex-1 max-[480px]:px-0 max-[480px]:py-0"
                       href={`/${params.locale}/popular-products`}
-                      aria-label={t("open_preview_page")}
-                      className="inline-flex h-10 w-fit items-center justify-center whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black mobile:text-base max-[480px]:flex-1 max-[480px]:px-0 max-[480px]:py-0">
+                      aria-label={t("open_preview_page")}>
                       <BiWindowOpen className="hidden text-xl max-[480px]:block" />
                       <span className="max-[480px]:hidden">{t("open_preview_page")}</span>
                     </Link>

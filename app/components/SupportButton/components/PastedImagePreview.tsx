@@ -50,15 +50,15 @@ export function PastedImagePreview({ containerRef }: { containerRef?: RefObject<
         )}
         ref={containerRef}>
         <button
-          onClick={() => setImageToPreview(image, "user", true)}
           className="flex items-center gap-1.5 text-title hover:text-success transition-colors"
+          onClick={() => setImageToPreview(image, "user", true)}
           title={t("image_attached_click_to_preview")}>
           <IoMdImage className="text-base text-success" />
           <span>{t("image_attached_click_to_preview")}</span>
         </button>
         <button
-          onClick={() => setImage(null)}
           className="p-0.5 rounded hover:bg-danger/10 text-subTitle hover:text-danger transition-colors"
+          onClick={() => setImage(null)}
           title={t("remove_image")}
           tabIndex={-1}>
           <IoMdClose className="text-sm" />

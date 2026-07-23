@@ -55,7 +55,7 @@ function ProductQuantityControl() {
     <div className="flex items-center gap-2 p-3">
       <div className="flex overflow-hidden rounded border border-border-color">
         <ProductQuantityButton action="decrease" productId={FIXTURE_IDS.product} variantId={FIXTURE_IDS.variant} />
-        <output aria-label="Quantity" className="flex min-w-8 items-center justify-center bg-background text-sm text-title">{quantity}</output>
+        <output className="flex min-w-8 items-center justify-center bg-background text-sm text-title" aria-label="Quantity">{quantity}</output>
         <ProductQuantityButton action="increase" productId={FIXTURE_IDS.product} variantId={FIXTURE_IDS.variant} />
       </div>
       <ProductQuantityButton action="clear" productId={FIXTURE_IDS.product} variantId={FIXTURE_IDS.variant} />
@@ -73,7 +73,7 @@ function DropdownExample() {
       <DropdownContainer
         list
         dropdownRef={dropdownRef}
-        icon={<button aria-label="Open actions" className="h-8 w-8 rounded border border-border-color"><FiMoreHorizontal /></button>}
+        icon={<button className="h-8 w-8 rounded border border-border-color" aria-label="Open actions"><FiMoreHorizontal /></button>}
         isDropdown={isDropdown}
         toggle={() => setIsDropdown(current => !current)}>
         <DropdownItem icon={FiUser} label="Profile" />

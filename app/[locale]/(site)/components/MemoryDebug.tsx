@@ -37,7 +37,7 @@ export function MemoryDebug({ memory, debugContext }: MemoryDebugProps) {
           {debugContext?.pineconeMatches?.length ? (
             <div className="space-y-1">
               {debugContext.pineconeMatches.map((match, index) => (
-                <p key={`${match.kind}-${match.role}-${index}`} className="break-words text-xs text-title">
+                <p className="break-words text-xs text-title" key={`${match.kind}-${match.role}-${index}`}>
                   <span className="font-semibold text-warning">
                     {match.kind === "working-memory" ? "Memory" : match.role === "assistant" ? "AI" : "User"}:
                   </span>{" "}
@@ -57,7 +57,7 @@ export function MemoryDebug({ memory, debugContext }: MemoryDebugProps) {
           {debugContext?.recentMessages?.length ? (
             <div className="space-y-1">
               {debugContext.recentMessages.map((message, index) => (
-                <p key={`${message.role}-${index}`} className="break-words text-xs text-title">
+                <p className="break-words text-xs text-title" key={`${message.role}-${index}`}>
                   <span className="font-semibold text-warning">{message.role === "assistant" ? "AI" : "User"}:</span>{" "}
                   {message.content}
                 </p>

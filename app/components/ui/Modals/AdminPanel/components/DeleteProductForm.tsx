@@ -67,13 +67,13 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
               {isBulkMode && (
                 <label className="flex shrink-0 cursor-pointer items-center gap-2 pl-0.5">
                   <input
+                    className="h-4 w-4 cursor-pointer accent-danger"
                     type="checkbox"
                     checked={allSelected}
                     ref={el => {
                       if (el) el.indeterminate = someSelected
                     }}
                     onChange={toggleSelectAll}
-                    className="h-4 w-4 cursor-pointer accent-danger"
                   />
                 </label>
               )}
@@ -88,6 +88,7 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
               {isBulkMode ? (
                 <>
                   <Button
+                    className="shrink-0 gap-1.5"
                     size="sm"
                     variant="danger"
                     disabled={selectedIds.size === 0}
@@ -98,17 +99,16 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
                           title: product.translations.en?.title ?? product.id,
                         })),
                       )
-                    }
-                    className="shrink-0 gap-1.5">
+                    }>
                     <BiTrash size={14} />
                     Delete{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
                   </Button>
-                  <Button size="sm" variant="default-outline" onClick={exitBulkMode} className="shrink-0">
+                  <Button className="shrink-0" size="sm" variant="default-outline" onClick={exitBulkMode}>
                     <MdClose size={15} />
                   </Button>
                 </>
               ) : (
-                <Button size="sm" variant="default-outline" onClick={() => setIsBulkMode(true)} className="shrink-0 gap-1.5">
+                <Button className="shrink-0 gap-1.5" size="sm" variant="default-outline" onClick={() => setIsBulkMode(true)}>
                   <MdChecklist size={15} />
                   Select
                 </Button>

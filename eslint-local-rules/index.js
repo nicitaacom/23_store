@@ -6,7 +6,7 @@ module.exports = {
   ...require("./no-banned-words"),
   ...require("./no-function-in-deps"),
   ...require("./no-vague-names"),
-  ...require("./style-before-classname"),
+  ...require("./attributes-order"),
   ...require("./sdk-method-naming"),
   ...require("./no-throwaway-alias"),
   ...require("./no-zustand-types-in-store-file"),

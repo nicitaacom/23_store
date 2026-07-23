@@ -22,11 +22,11 @@ export function ContactButton() {
 
   return (
     <DropdownContainer
+      className="before:translate-x-[-300%] translate-x-[35%] w-[125px]"
       isDropdown={isShowDropdown}
       toggle={toggleDropdown}
       dropdownRef={dropDownRef}
       classNameDropdownContainer="hidden mobile:flex"
-      className="before:translate-x-[-300%] translate-x-[35%] w-[125px]"
       icon={<FiPhoneCall size={28} />}>
       <div className="flex flex-col gap-y-2 justify-center items-center px-4 py-2">
         <div className="flex flex-col justify-center items-center">

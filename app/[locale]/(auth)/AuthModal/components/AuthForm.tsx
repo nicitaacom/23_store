@@ -46,8 +46,8 @@ export function AuthForm({
   return (
     <>
       <form
-        data-cy="auth-form"
         className="relative mb-3 flex w-full max-w-full flex-col gap-y-4"
+        data-cy="auth-form"
         onSubmit={handleSubmit(onSubmit)}>
         {queryParams !== "resetPassword" && (
           <FormInput
@@ -129,13 +129,13 @@ export function AuthForm({
 
         {/* LOGIN/REGISTER BUTTON */}
         <Button
+          className="mt-1 border-border-color/45 bg-background/55"
           data-cy="auth-submit"
           type="submit"
           variant="default-outline"
           size="xl"
           rounded="xl"
           fullWidth
-          className="mt-1 border-border-color/45 bg-background/55"
           disabled={isSubmitting || isEmailSent || !isHydrated}>
           {queryParams === "login"
             ? t("auth.sign.in")
@@ -146,7 +146,7 @@ export function AuthForm({
                 : "TODO - contact support - ask to translate it - попросите поддержку перевести этот текст"}
         </Button>
         {responseMessage ? (
-          <div data-cy="auth-response" className="flex justify-center text-center text-sm">
+          <div className="flex justify-center text-center text-sm" data-cy="auth-response">
             {responseMessage}
           </div>
         ) : null}

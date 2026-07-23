@@ -36,13 +36,13 @@ export function ChatInput({
       <div className="flex items-center gap-3 px-4 py-3">
         <div className="flex items-center gap-2">
           <Button
+            className="text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-700/40 transition-colors"
             variant="ghost"
             size="icon-md"
             rounded="lg"
             onClick={generateImage}
             disabled={isLoading}
-            title="Generate Image"
-            className="text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-700/40 transition-colors">
+            title="Generate Image">
             <HiOutlineSparkles className="text-xl" />
           </Button>
 
@@ -58,6 +58,8 @@ export function ChatInput({
         </div>
 
         <textarea
+          className="hide-scrollbar min-h-[40px] leading-5 max-h-[120px] flex-1 bg-transparent
+          text-title placeholder:text-subTitle outline-none text-[15px] resize-none overflow-y-auto"
           ref={inputRef}
           placeholder="Describe what you want..."
           value={promptValue}
@@ -69,8 +71,6 @@ export function ChatInput({
           onInput={handleTextareaInput}
           disabled={isLoading}
           rows={1}
-          className="hide-scrollbar min-h-[40px] leading-5 max-h-[120px] flex-1 bg-transparent
-          text-title placeholder:text-subTitle outline-none text-[15px] resize-none overflow-y-auto"
         />
 
         <div className="flex items-center gap-2">
@@ -80,12 +80,12 @@ export function ChatInput({
           </div>
 
           <Button
+            className="disabled:border-border-color/35 disabled:bg-background/55 disabled:text-subTitle"
             variant="success"
             size="md"
             rounded="lg"
             onClick={handleSubmit}
             disabled={!promptValue.trim() || isLoading}
-            className="disabled:border-border-color/35 disabled:bg-background/55 disabled:text-subTitle"
             rightIcon={<AiOutlineSend className="text-base" />}>
             <span className="hidden mobile:inline text-sm">{t("button.send")}</span>
           </Button>

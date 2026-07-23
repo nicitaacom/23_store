@@ -56,14 +56,14 @@ export function FileImagePreview({
       {image && imageUrl && isFullscreen && isShowImage && (
         <PortalWrapper>
           <motion.div
+            className="fixed inset-0 z-[2100] flex items-center justify-center backdrop-blur-[10px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, transition: { duration: 0.22 } }}
             exit={{ opacity: 0, transition: { duration: 0.18 } }}
-            className="fixed inset-0 z-[2100] flex items-center justify-center backdrop-blur-[10px]"
             onClick={onClose}>
             <OrganicCanvasBackground
-              parentClassName="flex h-full w-full items-center justify-center"
               className="absolute inset-0 bg-[radial-gradient(circle_at_top,hsl(var(--foreground-accent)/0.38),rgba(10,14,24,0.96)_62%)]"
+              parentClassName="flex h-full w-full items-center justify-center"
               brandHsl={side === "user" ? "137, 82%, 44%" : "210, 100%, 50%"}>
               <button
                 className="absolute right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-black/45 text-white transition-all duration-150 hover:scale-105 hover:bg-danger"
@@ -76,8 +76,8 @@ export function FileImagePreview({
                 className="relative flex max-h-full w-full max-w-[min(96vw,2200px)] items-center justify-center"
                 onClick={event => event.stopPropagation()}>
                 <Image
-                  unoptimized
                   className="h-auto max-h-[calc(100vh-56px)] w-auto max-w-full rounded-[24px] border border-white/10 object-contain shadow-[0_36px_120px_rgba(0,0,0,0.45)]"
+                  unoptimized
                   src={imageUrl}
                   alt="Image preview"
                   width={dimensions?.width ?? 1920}

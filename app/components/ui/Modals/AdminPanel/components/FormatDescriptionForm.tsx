@@ -90,26 +90,27 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
     <div className="rounded border border-border-color/30 bg-background/70 p-3 shadow-none">
       <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("description")}</p>
       {isEditing ? (
-        <div ref={editorContainerRef} className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1" ref={editorContainerRef}>
           <div className="flex items-center justify-between">
             <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
             <div className="flex gap-1">
               <button
+                className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80"
                 type="button"
-                onClick={handleCancel}
-                className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80">
+                onClick={handleCancel}>
                 Cancel
               </button>
               <button
+                className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50"
                 type="button"
                 onClick={handleSave}
-                disabled={isLoading}
-                className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50">
+                disabled={isLoading}>
                 Save
               </button>
             </div>
           </div>
           <MarkdownEditor
+            className={twMerge(isLoading && "animate-pulse")}
             ref={descriptionRef}
             onWrapRef={wrapRef}
             value={value}
@@ -119,7 +120,6 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
             }}
             disabled={isLoading}
             placeholder={t("placeholder.description")}
-            className={twMerge(isLoading && "animate-pulse")}
           />
           {error && <p className="text-xs text-danger">{error}</p>}
         </div>

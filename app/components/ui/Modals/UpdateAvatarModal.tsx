@@ -108,8 +108,8 @@ export function UpdateAvatarModal() {
 
   return (
     <ModalContainer
-      classnameContainer="z-[1001]"
       className="relative w-[92vw] max-w-[520px] overflow-hidden border-none bg-transparent p-0 shadow-none"
+      classnameContainer="z-[1001]"
       isOpen={updateAvatarModal.isOpen}
       onClose={updateAvatarModal.closeModal}>
       <div className="rounded-lg border border-border-color/35 bg-foreground/95 shadow-compact">
@@ -177,8 +177,8 @@ export function UpdateAvatarModal() {
                 ) : null}
                 {imageList.map((image, index) => (
                   <div
-                    key={index}
-                    className="flex w-full flex-col gap-3 overflow-hidden rounded border border-border-color/30 bg-background/70 p-3 shadow-none">
+                    className="flex w-full flex-col gap-3 overflow-hidden rounded border border-border-color/30 bg-background/70 p-3 shadow-none"
+                    key={index}>
                     <Image
                       className="aspect-square w-full max-h-[260px] rounded object-cover"
                       src={image.data_url}

@@ -94,7 +94,7 @@ export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps
           </div>
 
           <div className="flex flex-col items-center gap-4 rounded-[24px] border border-border-color/70 bg-background px-4 py-6">
-            <div ref={turnstileRef} className="min-h-[70px]" />
+            <div className="min-h-[70px]" ref={turnstileRef} />
 
             {status === "verifying" && <p className="text-sm text-subTitle">Verifying challenge...</p>}
             {status === "verified" && <p className="text-sm text-success">Verification complete. Redirecting...</p>}

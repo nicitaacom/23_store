@@ -51,7 +51,7 @@ function ImageStates() {
 
 function SkeletonStates() {
   return (
-    <div aria-label="Loading form" className="grid max-w-lg gap-2 p-3">
+    <div className="grid max-w-lg gap-2 p-3" aria-label="Loading form">
       <FormSkeleton count={4} />
     </div>
   );

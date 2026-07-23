@@ -18,9 +18,9 @@ export function OfflineBanner() {
     <AnimatePresence>
       {!isOnline && (
         <motion.div
+          className="fixed inset-x-0 bottom-0 z-[100] flex items-center justify-center gap-2 border-t border-danger/40 bg-danger px-3 py-2 text-sm font-medium text-title-foreground"
           role="status"
           aria-live="assertive"
-          className="fixed inset-x-0 bottom-0 z-[100] flex items-center justify-center gap-2 border-t border-danger/40 bg-danger px-3 py-2 text-sm font-medium text-title-foreground"
           initial={{ opacity: 0, y: reduced ? 0 : 12 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: reduced ? 0 : 12 }}

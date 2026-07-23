@@ -120,8 +120,8 @@ export function CategoriesForm() {
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle/70">{t("category.add")}</p>
         <div className="flex flex-col gap-2">
           <input
-            ref={addInputRef}
             className="rounded border border-border-color/50 bg-background/60 px-3 py-1.5 text-sm text-title placeholder:text-subTitle/50 focus:border-border-color focus:outline-none"
+            ref={addInputRef}
             placeholder={t("category.name_placeholder")}
             value={addNameValue}
             onChange={e => setAddNameValue(e.target.value)}
@@ -158,7 +158,7 @@ export function CategoriesForm() {
       {/* Category list */}
       <div className="space-y-2">
         {parentCategories.map(parent => (
-          <div key={parent.id} className="rounded border border-border-color/20 bg-background/40">
+          <div className="rounded border border-border-color/20 bg-background/40" key={parent.id}>
             <CategoryRow
               category={parent}
               isEditing={editingId === parent.id}
@@ -176,7 +176,7 @@ export function CategoriesForm() {
               isParent
             />
             {childrenOf(parent.id).map(child => (
-              <div key={child.id} className="border-t border-border-color/10 pl-4">
+              <div className="border-t border-border-color/10 pl-4" key={child.id}>
                 <CategoryRow
                   category={child}
                   isEditing={editingId === child.id}
@@ -239,7 +239,6 @@ function CategoryRow({
       <div className="flex items-center gap-2">
         {isEditing ? (
           <input
-            autoFocus
             className="flex-1 rounded border border-border-color/50 bg-background/60 px-2 py-1 text-sm text-title focus:border-border-color focus:outline-none"
             value={editName}
             onChange={e => onEditNameChange(e.target.value)}
@@ -248,6 +247,7 @@ function CategoryRow({
               if (e.key === "Escape") onCancelEdit()
             }}
             maxLength={255}
+            autoFocus
           />
         ) : (
           <span className={twMerge("flex-1 text-sm", isParent ? "font-semibold text-title" : "text-subTitle")}>
