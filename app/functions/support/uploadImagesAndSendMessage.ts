@@ -1,8 +1,8 @@
 import { Dispatch, RefObject, SetStateAction } from "react"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { sendMessageFn } from "./sendMessageFn"
 import { uploadImageFn } from "../uploadImageFn"
-import { sendMessageFn } from "@/[locale]/(site)/functions/sendMessageFn"
 import { useMessages } from "@/store/ui/useMessages"
 import useToast from "@/store/ui/useToast"
 

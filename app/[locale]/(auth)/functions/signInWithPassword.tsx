@@ -3,14 +3,13 @@ import { UseFormReset } from "react-hook-form"
 
 import { IAuthFormData } from "@/ts/interfaces/IAuthFormData"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { Timer } from "../AuthModal/components"
 import { UnknownError } from "./UnknownError"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { getAuthCallbackBaseUrl } from "@/utils/getAuthCallbackBaseUrl"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import useUser from "@/store/user/useUser"
-import { Button } from "@/components/ui"
+import { Button, Timer } from "@/components/ui"
 
 export async function signInWithPassword(
   email: string,

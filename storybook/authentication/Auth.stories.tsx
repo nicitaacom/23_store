@@ -5,7 +5,7 @@ import { expect, fn, userEvent, waitFor, within } from "storybook/test"
 import type { IAuthFormData } from "@/ts/interfaces/IAuthFormData"
 import { AuthForm } from "@/[locale]/(auth)/AuthModal/components/AuthForm"
 import { OpenAuthModalButton } from "@/components/Navbar/components/OpenAuthModalButton"
-import { Timer } from "@/[locale]/(auth)/AuthModal/components/Timer"
+import { Timer } from "@/components/ui/Timer"
 
 type AuthVariant = "login" | "recover" | "register" | "resetPassword"
 

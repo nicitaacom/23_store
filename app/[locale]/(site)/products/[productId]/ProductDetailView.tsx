@@ -10,7 +10,6 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { useProductDetailViewSync } from "./hooks/useProductDetailViewSync"
 import { ManageProductButton } from "../../components/ManageProductButton"
 import { ProductLikeButton } from "../../components/ProductLikeButton"
-import { RequestReplanishmentButton } from "../../components/Product/RequestReplanishmentButton"
 import { createCartProductKey, getProductPriceForVariant } from "@/utils/cartProducts"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
@@ -20,6 +19,7 @@ import { useProductDetail } from "@/store/ui/useProductDetail"
 import { AddToCartButton } from "@/components/ui/Buttons/AddToCartButton"
 import { MarkdownText } from "@/components/ui/MarkdownText"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
+import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
 
 interface ProductDetailViewProps {
   product: TProductDB

@@ -54,6 +54,7 @@ export default [
       "local-rules/type-naming-prefix": "warn",
       "local-rules/no-type-export-in-action-or-component": "warn",
       "local-rules/imports-order": "warn",
+      "local-rules/no-high-level-import": "warn",
       "local-rules/no-cross-route-group-absolute-import": "warn",
       "local-rules/require-absolute-import-for-shared-folders": "warn",
       "local-rules/use-rls-supabase-client": "warn",

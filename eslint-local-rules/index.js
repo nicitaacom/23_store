@@ -21,6 +21,7 @@ module.exports = {
   ...require("./type-naming-prefix"),
   ...require("./no-type-export-in-action-or-component"),
   ...require("./imports-order"),
+  ...require("./no-high-level-import"),
   ...require("./no-cross-route-group-absolute-import"),
   ...require("./require-absolute-import-for-shared-folders"),
   ...require("./use-rls-supabase-client"),

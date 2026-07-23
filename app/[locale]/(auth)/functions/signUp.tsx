@@ -6,10 +6,9 @@ import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { resendVerificationEmail } from "./resendVerificationEmail"
 import { UnknownError } from "./UnknownError"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
-import { Timer } from "../AuthModal/components"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { subscribePusherChannel } from "@/libs/pusher"
-import { Button } from "@/components/ui"
+import { Button, Timer } from "@/components/ui"
 
 export async function signUp(
   t: TI18nFunction,
