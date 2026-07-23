@@ -31,8 +31,8 @@ const path = require("path")
 //   7. other @/ absolute imports, sorted by descending segment count
 // Within tier 6 specifically, a single-consumer check (best-effort, uses `grep -rl` from the repo
 // root) additionally requires a same-directory (./) import that's ONLY referenced by this one file
-// to sort after a same-directory import that IS reused elsewhere - this only reorders same-
-// directory imports relative to each other, applied after the descending-depth sort.
+// to sort after every reusable relative import. Treating isolation as a complete sort key keeps the
+// comparator transitive when same-directory and parent-directory imports are mixed.
 function isReactImport(source) {
   return source === "react" || source.startsWith("react/")
 }
@@ -272,9 +272,9 @@ module.exports = {
               if (tierA === 6 || tierA === 7) {
                 const isSameDirA = isSameDirectoryImport(a.importNode.source.value)
                 const isSameDirB = isSameDirectoryImport(b.importNode.source.value)
-                if (tierA === 6 && isSameDirA && isSameDirB) {
-                  const isolatedA = isolationByImport.get(a.importNode) ?? false
-                  const isolatedB = isolationByImport.get(b.importNode) ?? false
+                if (tierA === 6) {
+                  const isolatedA = isSameDirA && (isolationByImport.get(a.importNode) ?? false)
+                  const isolatedB = isSameDirB && (isolationByImport.get(b.importNode) ?? false)
                   if (isolatedA !== isolatedB) return isolatedA ? 1 : -1
                 }
 

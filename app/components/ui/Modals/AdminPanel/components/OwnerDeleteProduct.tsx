@@ -3,8 +3,8 @@
 import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
-import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { DeleteProductHeader } from "./DeleteProductHeader"
+import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { useCurrentLocale } from "@/locales/client"
 import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
 

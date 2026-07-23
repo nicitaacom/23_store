@@ -1,6 +1,8 @@
 import { useAreYouSureClearCartModal } from "./areYouSureClearCartModal"
 import { useAreYouSureDeleteProductModal } from "./areYouSureDeleteProductModal"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "./areYouSureMarkTicketAsCompletedSupportModal"
+import { useAvatarDropdown } from "./useAvatarDropdown"
+import { useContactDropdown } from "./useContactDropdown"
 import { useCtrlKModal } from "./useCtrlKModal"
 import useDarkModeStore from "./useDarkModeStore"
 import { useDoYouWantRecieveCheckModal } from "./useDoYouWantRecieveCheckModal"
@@ -11,8 +13,6 @@ import { useSidebar } from "./useSidebar"
 import { useSupportDropdown } from "./useSupportDropdown"
 import { useToast } from "./useToast"
 import { useUpdateAvatarModal } from "./useUpdateAvatarModal"
-import { useAvatarDropdown } from "./useAvatarDropdown"
-import { useContactDropdown } from "./useContactDropdown"
 
 export {
   useAreYouSureClearCartModal,

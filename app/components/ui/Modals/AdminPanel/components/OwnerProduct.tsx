@@ -2,8 +2,8 @@
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { FormatImagesForm } from "./FormatImagesForm"
-import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { OwnerProductHeader } from "./OwnerProductHeader"
+import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { VariantsForm } from "./VariantsForm"
 import { useCurrentLocale } from "@/locales/client"
 import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
