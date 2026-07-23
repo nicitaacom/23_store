@@ -1,8 +1,9 @@
 import { ITicketDB } from "@/ts/support/ITicketDB"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 
 async function getInitialTickets() {
-  const { data: tickets_response, error: tickets_error } = await supabaseAdmin
+  const supabase = await supabaseServer()
+  const { data: tickets_response, error: tickets_error } = await supabase
     .from("23_tickets")
     .select("*, 23_messages(created_at)")
     .eq("is_open", true)

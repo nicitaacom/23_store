@@ -21,6 +21,7 @@ export async function GET() {
   const tables: Record<string, unknown[]> = {}
 
   for (const table of BACKUP_TABLES) {
+    // eslint-disable-next-line local-rules/use-rls-supabase-client -- requireAdmin authorizes this full-database export before the loop.
     const { data, error } = await supabaseAdmin.from(table.name).select("*")
     if (error) {
       return NextResponse.json(
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
   const { rows: keptRows, skipped } = filterRowsByUuidColumns(config, rows)
   if (keptRows.length === 0) return NextResponse.json({ rows: 0, skipped } satisfies API.BackupRowsPostResponse)
 
+  // eslint-disable-next-line local-rules/use-rls-supabase-client -- requireAdmin authorizes this validated backup-table import before the upsert.
   const { error } = await supabaseAdmin.from(config.name).upsert(keptRows as never, { onConflict: config.onConflict })
   if (error) {
     return NextResponse.json(

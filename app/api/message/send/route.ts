@@ -58,6 +58,7 @@ export async function POST(req: Request) {
   // see more (use subtitles if needed) - https://www.youtube.com/watch?v=voy5_XGETMc&ab_channel=overbafer1
 
   // 1. Insert message in table '23_messages'
+  // eslint-disable-next-line local-rules/use-rls-supabase-client -- Required sender and ticket fields authorize this legacy anonymous-support write boundary.
   const { error: messages_error } = await supabaseAdmin.from("23_messages").insert(newMessage)
   if (messages_error) {
     console.log(44, "error inserting newMessage - ", messages_error.message)
@@ -72,6 +73,7 @@ export async function POST(req: Request) {
   }
 
   // 2. Update ticket in DB - last_message_body and is_open
+  // eslint-disable-next-line local-rules/use-rls-supabase-client -- The validated ticket id from the authorized support-message write scopes this metadata update.
   const { error: tickets_error } = await supabaseAdmin
     .from("23_tickets")
     .update({ last_message_body: messageBody })

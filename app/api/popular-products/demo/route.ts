@@ -4,7 +4,6 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 
 import { createRawProductTranslations } from "@/utils/product"
 import { getResponseErrorMessage } from "@/utils/getResponseErrorMessage"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { TablesInsert } from "@/ts/types_db"
 
 const PLACEHOLDER_IMAGE = "/placeholder.jpg"
@@ -84,11 +83,7 @@ async function fetchFakeShopProducts() {
   return Array.isArray(products) ? products : []
 }
 
-async function resolveOwnerId(explicitOwnerId?: string) {
-  if (explicitOwnerId) {
-    return explicitOwnerId
-  }
-
+async function resolveOwnerId() {
   const supabase = createRouteHandlerClient({ cookies })
   const {
     data: { user },
@@ -104,8 +99,9 @@ export async function GET() {
     return NextResponse.json({ error: "Missing authenticated user" }, { status: 401 })
   }
 
+  const supabase = createRouteHandlerClient({ cookies })
   const ownerFragment = ownerId.replace(/-/g, "").slice(0, 12)
-  const response = await supabaseAdmin
+  const response = await supabase
     .from("23_products")
     .select("id", { count: "exact", head: true })
     .eq("owner_id", ownerId)
@@ -125,10 +121,10 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}))
   const count = Math.min(400, Math.max(1, Number(body.count) || 1))
   const startAt = Math.max(0, Number(body.startAt) || 0)
-  const ownerId = await resolveOwnerId(body.ownerId)
+  const ownerId = await resolveOwnerId()
 
   if (!ownerId) {
-    return NextResponse.json({ error: "Missing ownerId or authenticated user" }, { status: 401 })
+    return NextResponse.json({ error: "Missing authenticated user" }, { status: 401 })
   }
 
   const fakeShopProducts = await fetchFakeShopProducts().catch(() => [])
@@ -138,7 +134,8 @@ export async function POST(req: Request) {
     return formatFakeProductSeed(sourceProduct, index, ownerId)
   })
 
-  const response = await supabaseAdmin.from("23_products").insert(products).select("id")
+  const supabase = createRouteHandlerClient({ cookies })
+  const response = await supabase.from("23_products").insert(products).select("id")
 
   if (response.error) {
     return NextResponse.json({ error: response.error.message }, { status: 500 })

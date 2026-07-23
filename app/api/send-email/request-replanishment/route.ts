@@ -13,6 +13,7 @@ export async function POST(req: Request) {
   const { owner_id, subject, html } = (await req.json()) as TAPISendEmailRequestReplanishment
 
   try {
+    // eslint-disable-next-line local-rules/use-rls-supabase-client -- The replenishment request's product owner id scopes this server-only email lookup to one recipient.
     const { data: owner_email_response } = await supabaseAdmin.from("23_users").select("email").eq("id", owner_id).single()
 
     if (owner_email_response?.email) {

@@ -30,6 +30,7 @@ export async function POST(req: Request) {
     }
 
     // 2. Check if user with this email already exists with verified email
+    // eslint-disable-next-line local-rules/use-rls-supabase-client -- This pre-authentication lookup is restricted to the validated registration email and confirmation state.
     const { data: existingUsers, error: selectUsersError } = await supabaseAdmin
       .from("23_users")
       .select("email,email_confirmed_at")

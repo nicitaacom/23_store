@@ -32,6 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Avatar URL must be a valid http or https URL" }, { status: 400 })
   }
 
+  // eslint-disable-next-line local-rules/use-rls-supabase-client -- getUser authenticates the caller and the update is restricted to that user's id.
   const { error } = await supabaseAdmin
     .from("23_users")
     .update({ avatar_url: avatarUrl || null })

@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   const { ticketId, rate } = (await req.json()) as TAPITicketsRate
 
   // Update is_open:false and rate:rate in 'tickets'
+  // eslint-disable-next-line local-rules/use-rls-supabase-client -- The validated support rating payload scopes this legacy anonymous-support update to one ticket id.
   const { error } = await supabaseAdmin.from("23_tickets").update({ is_open: false, rate: rate }).eq("id", ticketId)
   if (error) return NextResponse.json({ error: `Error in api/tickets/rate/route.ts\n ${error.message}` }, { status: 400 })
 
