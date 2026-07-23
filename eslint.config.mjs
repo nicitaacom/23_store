@@ -59,6 +59,7 @@ export default [
       "local-rules/no-cross-route-group-absolute-import": "warn",
       "local-rules/require-absolute-import-for-shared-folders": "warn",
       "local-rules/use-rls-supabase-client": "warn",
+      "local-rules/console-log-line-number": "warn",
     },
   },
   {

@@ -16,7 +16,7 @@ async function getUnreadMessages() {
     .eq("seen", false)
 
   if (get_unread_messages_error) {
-    console.log(25, "get_unread_messages_error - ", get_unread_messages_error)
+    console.log(19, "get_unread_messages_error - ", get_unread_messages_error)
     throw get_unread_messages_error
   }
 

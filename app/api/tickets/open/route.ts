@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   if (!ticketId || !ownerId || !ownerUsername || !messageBody) {
     console.log(
-      22,
+      21,
       `API_TICKETS_OPEN_ERROR - missing required fields \n
        ticketId - ${ticketId} \n
        ownerId - ${ownerId} \n

@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     }
   } catch (error) {
     if (error instanceof Error) {
-      console.log(29, "SUBSTRACT_PRODUCTS_ON_STOCK_ERROR\n  \n", error.message)
+      console.log(49, "SUBSTRACT_PRODUCTS_ON_STOCK_ERROR\n  \n", error.message)
       return new NextResponse(`/api/payment/success/route.ts error \n ${error}`, {
         status: 500,
       })

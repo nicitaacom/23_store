@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     .eq("ticket_id", ticketIdResponse)
     .order("created_at", { ascending: true })
   if (messages_by_id_error) {
-    console.log(25, "GET_MESSAGES_BY_TICKETID_ERROR")
+    console.log(42, "GET_MESSAGES_BY_TICKETID_ERROR")
     return new NextResponse(
       `Delete images from bucket \n
        Path:/api/products/delete/route.ts \n

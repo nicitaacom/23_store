@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
   if (!ticketId || !messages || !userId) {
     console.log(
-      18,
+      17,
       `missing required fields \n
        ticketId - ${ticketId} \n
        messages - ${messages} \n
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     // eslint-disable-next-line local-rules/use-rls-supabase-client -- Required fields and the caller's message list scope this legacy support update to unseen message ids.
     const { error: messages_error } = await supabaseAdmin.from("23_messages").update({ seen: true }).in("id", unseenMessageIds)
     if (messages_error) {
-      console.log(35, "error updating seen message - ", messages_error)
+      console.log(43, "error updating seen message - ", messages_error)
       return NextResponse.json({ error: `ERROR_UPDATING_MESSAGE \n ${messages_error}` })
     }
     await pusherServer.trigger(ticketId, "messages:seen", updatedUnseenMessages)

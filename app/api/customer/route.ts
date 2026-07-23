@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const { session_id } = (await req.json()) as TAPICustomer
 
   if (!session_id) {
-    console.log(19, "No session_id found")
+    console.log(17, "No session_id found")
     return new NextResponse(
       `get customer email from session_id \n
                 Path:/api/customer/route.ts \n
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   if (session.customer_details?.email) {
     return NextResponse.json({ customerEmail: session.customer_details?.email })
   } else {
-    console.log(23, "no customer email")
+    console.log(31, "no customer email")
     return NextResponse.json({ customerEmail: null })
   }
 }

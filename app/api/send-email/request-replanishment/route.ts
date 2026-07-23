@@ -24,7 +24,7 @@ export async function POST(req: Request) {
         html: html,
       })
     } else {
-      console.log(23, "Owner email not found")
+      console.log(27, "Owner email not found")
       return new NextResponse(
         `Send email "request replanishment" error \n
                 Path:/api/send-email/request-replanishment/route.ts \n
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ status: 200 })
   } catch (error) {
     if (error instanceof Error) {
-      console.log(29, "SEND_EMAIL_ERROR\n  \n", error.message)
+      console.log(39, "SEND_EMAIL_ERROR\n  \n", error.message)
       return new NextResponse(`/api/check/send-email/route.ts error \n ${error}`, {
         status: 500,
       })

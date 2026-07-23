@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
   if (!ticketId || !senderId || !senderUsername || (!messageBody && !images?.length) || !messageSender) {
     console.log(
-      23,
+      27,
       `API_MESSAGES_SEND_ERROR - missing required fields \n
        ticketId: ${ticketId} \n
        senderId: ${senderId} \n
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
   // eslint-disable-next-line local-rules/use-rls-supabase-client -- Required sender and ticket fields authorize this legacy anonymous-support write boundary.
   const { error: messages_error } = await supabaseAdmin.from("23_messages").insert(newMessage)
   if (messages_error) {
-    console.log(44, "error inserting newMessage - ", messages_error.message)
+    console.log(64, "error inserting newMessage - ", messages_error.message)
     if (messages_error.message !== "TypeError: fetch failed") return
     // fetch failed because internet connection may be not stable
     return new NextResponse(
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     .update({ last_message_body: messageBody })
     .eq("id", ticketId)
   if (tickets_error) {
-    console.log(29, "error updating ticket in DB - last_message_body and is_open - ", tickets_error)
+    console.log(82, "error updating ticket in DB - last_message_body and is_open - ", tickets_error)
     return new NextResponse(
       `Update ticket 'tickets' error \n
                 Path:/api/message/send/route.ts \n

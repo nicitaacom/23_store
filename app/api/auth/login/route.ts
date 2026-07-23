@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       throw new Error("User with this email doesn't exist")
     }
     if (emailSelectError) {
-      console.log(22, "emailSelectError \n", emailSelectError)
+      console.log(29, "emailSelectError \n", emailSelectError)
       throw emailSelectError
     }
 

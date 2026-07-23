@@ -11,7 +11,7 @@ async function getInitialTickets() {
     .limit(1, { referencedTable: "23_messages" })
 
   if (tickets_error) {
-    console.log(6, "tickets error - ", tickets_error)
+    console.log(14, "tickets error - ", tickets_error)
     throw tickets_error
   }
 

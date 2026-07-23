@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ status: 200 })
   } catch (error) {
     if (error instanceof Error) {
-      console.log(30, "SEND_EMAIL_ERROR\n  \n", error.message)
+      console.log(31, "SEND_EMAIL_ERROR\n  \n", error.message)
       return new NextResponse(`/api/send-email/route.ts error \n ${error}`, {
         status: 500,
       })

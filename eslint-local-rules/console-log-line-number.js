@@ -6,6 +6,11 @@
 // without a stack trace). The number silently goes stale the moment code is inserted/removed
 // above the call and shifts its line - this rule checks the literal against the call's real
 // node.loc.start.line and autofixes it back in sync.
+//
+// Bad (this console.log is really on line 40):
+//   console.log(30, "user", user)
+// Good:
+//   console.log(40, "user", user)
 module.exports = {
   "console-log-line-number": {
     meta: {

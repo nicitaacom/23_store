@@ -40,7 +40,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
       if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newTicket")
 
       setTicketId(ticketId)
-      console.log(39, "messages - ", messages)
+      console.log(43, "messages - ", messages)
 
       // 1. Send message in telegram
       await emailsSDK.sendTelegramMessage(messageBody || t("message.image_sent"))
@@ -54,7 +54,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
         ownerAvatarUrl: null,
       })
     } catch (error) {
-      console.log(53, t("message.error.image_sent"), error)
+      console.log(57, t("message.error.image_sent"), error)
       setMessages([])
       setTicketId("")
     }
@@ -75,7 +75,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
       messageSender: "user",
     })
   } catch (error) {
-    console.log(75, t("message.error.message_sent"), error)
+    console.log(78, t("message.error.message_sent"), error)
     setMessages(messages.slice(0, -1)) // delete last message and keep other
   }
 }

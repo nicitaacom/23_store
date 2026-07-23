@@ -27,7 +27,7 @@ const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
     .select("*")
     .order("created_at", { ascending: true })
     .eq("ticket_id", ticketId)
-  if (messages_by_id_error) console.log(23, "messages by id error - ", messages_by_id_error.message)
+  if (messages_by_id_error) console.log(30, "messages by id error - ", messages_by_id_error.message)
   if (!messages_by_id_response) return notFound()
   return messages_by_id_response as TMessageDB[]
 })

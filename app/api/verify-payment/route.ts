@@ -25,13 +25,13 @@ export async function POST(req: Request) {
   } catch (error) {
     // Best practice to throw error like this
     if (error instanceof Stripe.errors.StripeError) {
-      console.log(23, "VERIFY_PAYMENT_ERROR\n (stripe) \n ", error.message)
+      console.log(28, "VERIFY_PAYMENT_ERROR\n (stripe) \n ", error.message)
       return new NextResponse(`/api/product/delete/route.ts error (stripe) \n ${error.message}`, {
         status: 500,
       })
     }
     if (error instanceof Error) {
-      console.log(29, "VERIFY_PAYMENT_ERROR\n (unknown) \n", error.message)
+      console.log(34, "VERIFY_PAYMENT_ERROR\n (unknown) \n", error.message)
       return new NextResponse(`/api/product/delete/route.ts error \n ${error}`, {
         status: 500,
       })
