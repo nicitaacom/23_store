@@ -6,7 +6,14 @@ import localRules from "./eslint-local-rules/index.js"
 
 export default [
   {
-    ignores: [".cache/**", ".home/**", ".open-next/**", ".pnpm-store/**", "storybook-static/**"],
+    ignores: [
+      ".cache/**",
+      ".home/**",
+      ".open-next/**",
+      ".pnpm-store/**",
+      "public/mockServiceWorker.js",
+      "storybook-static/**",
+    ],
   },
   ...nextConfig,
   {
