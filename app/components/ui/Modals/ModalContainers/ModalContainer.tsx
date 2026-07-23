@@ -95,8 +95,6 @@ export function ModalContainer({
           transition={{ duration: 0.18, ease: "easeOut" }}
           {...modalBgHandler}>
           <motion.div
-            aria-label={typeof label === "string" ? label : "Modal"}
-            aria-modal="true"
             className={twMerge(
               "relative z-[50] overflow-hidden rounded-lg border border-border-color/35 bg-foreground shadow-compact",
               className,
