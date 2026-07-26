@@ -78,19 +78,21 @@ export function RequestReplanishmentEmail({ product }: RequestReplanishmentEmail
                 padding: "1rem 0rem",
                 textAlign: "center",
               }}>
-              <tr>
-                <td>
-                  <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}support`}>
-                    Support
-                  </Link>
-                  <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}feedback`}>
-                    Feedback
-                  </Link>
-                  <Link className="m-0 text-[#407ded] text-sm text-center" href={`${getURL()}unsubscribe?request-replanishment`}>
-                    Unsubscribe
-                  </Link>
-                </td>
-              </tr>
+              <tbody>
+                <tr>
+                  <td>
+                    <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}support`}>
+                      Support
+                    </Link>
+                    <Link className="m-0 text-[#407ded] text-sm text-center mr-4" href={`${getURL()}feedback`}>
+                      Feedback
+                    </Link>
+                    <Link className="m-0 text-[#407ded] text-sm text-center" href={`${getURL()}unsubscribe?request-replanishment`}>
+                      Unsubscribe
+                    </Link>
+                  </td>
+                </tr>
+              </tbody>
             </table>
             {/* CONTENT - END */}
           </Body>
