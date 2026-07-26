@@ -6,6 +6,7 @@ import { useContactDropdown } from "./useContactDropdown"
 import { useCtrlKModal } from "./useCtrlKModal"
 import useDarkModeStore from "./useDarkModeStore"
 import { useDoYouWantRecieveCheckModal } from "./useDoYouWantRecieveCheckModal"
+import useEcosystemHintStore from "./useEcosystemHintStore"
 import { useGlobalImagePreview } from "./useGlobalImagePreview"
 import { useLoading } from "./useLoading"
 import { useMessages } from "./useMessages"
@@ -23,6 +24,7 @@ export {
   useCtrlKModal,
   useDarkModeStore,
   useDoYouWantRecieveCheckModal,
+  useEcosystemHintStore,
   useSupportDropdown,
   useGlobalImagePreview,
   useLoading,

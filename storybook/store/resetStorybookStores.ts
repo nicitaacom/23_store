@@ -9,6 +9,7 @@ import { useCategoryPreferences } from "@/store/categories/useCategoryPreference
 import { useContactDropdown } from "@/store/ui/useContactDropdown"
 import { useCtrlKModal } from "@/store/ui/useCtrlKModal"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import useEcosystemHintStore from "@/store/ui/useEcosystemHintStore"
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
 import useLikedProductsStore from "@/store/user/useLikedProductsStore"
 import { useLoading } from "@/store/ui/useLoading"
@@ -39,6 +40,7 @@ const storybookStores = [
   useContactDropdown,
   useCtrlKModal,
   useDarkModeStore,
+  useEcosystemHintStore,
   useGlobalImagePreview,
   useLoading,
   useMessages,
