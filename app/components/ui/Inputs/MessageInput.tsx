@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { FiSend } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
@@ -8,6 +8,7 @@ import { getUserId } from "@/utils/getUserId"
 import { uploadImagesAndSendMessage } from "@/functions/support/uploadImagesAndSendMessage"
 import { useI18n } from "@/locales/client"
 import { useMessages } from "@/store/ui/useMessages"
+import { useSupportPrefilledMessage } from "@/store/ui/useSupportPrefilledMessage"
 import { PastedImagePreview } from "@/components/SupportButton/components/PastedImagePreview"
 
 interface MessageInputProps {
@@ -20,11 +21,21 @@ interface MessageInputProps {
 export function MessageInput({ className, placeholder, onSend }: MessageInputProps) {
   const t = useI18n()
   const { messageBodyValue, setMessageBodyValue, image } = useMessages()
+  const { message: prefilledMessage, clear: clearPrefilledMessage } = useSupportPrefilledMessage()
   const [height, setHeight] = useState(52)
   const [prevMessageBodyValue, setPrevMessageBodyValue] = useState(messageBodyValue)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const userId = getUserId()
+
+  // "Request a category" (CategoryPillBar) writes the text here, opens the chat window and this seeds
+  // the composer with it exactly once - never over typed text.
+  useEffect(() => {
+    if (!prefilledMessage) return
+    if (!messageBodyValue.trim().length) setMessageBodyValue(prefilledMessage)
+    clearPrefilledMessage()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefilledMessage])
 
   if (messageBodyValue !== prevMessageBodyValue) {
     setPrevMessageBodyValue(messageBodyValue)
