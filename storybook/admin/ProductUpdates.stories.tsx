@@ -156,7 +156,7 @@ function ProductUpdateWorkbench({ family, onUpdate }: ProductUpdateWorkbenchProp
 }
 
 const meta = {
-  title: "Admin/Product updates",
+  title: "Admin/ProductUpdateWorkbench",
   component: ProductUpdateWorkbench,
   args: { family: "title", onUpdate: fn() },
 } satisfies Meta<typeof ProductUpdateWorkbench>

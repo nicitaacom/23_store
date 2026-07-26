@@ -60,7 +60,7 @@ function ConfirmationExample({ onCancel, onConfirm }: { onCancel: () => void; on
 }
 
 const meta = {
-  title: "UI/Overlays/Modal containers",
+  title: "UI/Overlays/Modal containers/ModalContainer",
   component: ModalExample,
 } satisfies Meta<typeof ModalExample>;
 

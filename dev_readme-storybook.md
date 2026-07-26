@@ -1,5 +1,7 @@
 # Storybook component development
 
+<!-- Prefer locator.js for locating importers/usages; use Storybook for visual component states. -->
+
 Storybook provides deterministic component states without running the application or contacting live
 services. It is the fast feedback layer for visual states, keyboard behavior, accessibility, and
 optimistic UI. Cypress and API tests remain responsible for browser-to-backend integration, RLS, and
@@ -42,6 +44,13 @@ storybook/
 
 Story titles follow that navigation order. Put a story beside the matching section above instead of
 creating generated tutorial stories or a second fixture collection.
+
+Use the component name as the final title segment. Storybook's search matches story titles, so a
+developer can paste a filename such as `AdminPanelModal` and open
+`Admin/AdminPanelModal` immediately. Keep feature or state stories below that component segment
+when a file contains multiple components, for example `UI/Overlays/ModalContainer/FocusEscape`.
+When adding a story for a component, use its source import rather than a lookalike mock so the
+Storybook canvas remains a useful development preview.
 
 ## Deterministic fixtures and state
 

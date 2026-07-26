@@ -16,7 +16,7 @@ function ProductWithOwner(product: TProductDB) {
 }
 
 const meta = {
-  title: "Commerce/Product/Product card",
+  title: "Commerce/Product",
   component: Product,
   args: headphonesProduct,
   parameters: {

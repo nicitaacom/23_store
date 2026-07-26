@@ -54,7 +54,7 @@ function ValidationForm() {
 }
 
 const meta = {
-  title: "UI/Inputs/Text inputs",
+  title: "UI/Inputs/BaseInput",
   component: BaseInput,
 } satisfies Meta<typeof BaseInput>;
 

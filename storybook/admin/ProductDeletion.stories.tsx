@@ -118,7 +118,7 @@ function ProductDeletionWorkbench({ authorized, onDelete }: ProductDeletionWorkb
 }
 
 const meta = {
-  title: "Admin/Product deletion",
+  title: "Admin/ProductDeletionWorkbench",
   component: ProductDeletionWorkbench,
   args: { authorized: true, onDelete: fn() },
 } satisfies Meta<typeof ProductDeletionWorkbench>

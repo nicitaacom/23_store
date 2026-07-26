@@ -100,7 +100,7 @@ function ProductSlider() {
 }
 
 const meta = {
-  title: "UI/Controls/Control collection",
+  title: "UI/Controls/SelectionControls",
   component: SelectionControls,
 } satisfies Meta<typeof SelectionControls>;
 

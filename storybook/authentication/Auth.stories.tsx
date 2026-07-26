@@ -65,7 +65,7 @@ function AnonymousPrompt() {
 }
 
 const meta = {
-  title: "Authentication/Auth form",
+  title: "Authentication/AuthExample",
   component: AuthExample,
   args: {
     isEmailSent: false,

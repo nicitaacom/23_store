@@ -199,7 +199,7 @@ function ProductCreationWorkbench({ initialState, onCreate }: ProductCreationWor
 }
 
 const meta = {
-  title: "Admin/Product creation",
+  title: "Admin/ProductCreationWorkbench",
   component: ProductCreationWorkbench,
   args: { initialState: "empty", onCreate: fn() },
 } satisfies Meta<typeof ProductCreationWorkbench>

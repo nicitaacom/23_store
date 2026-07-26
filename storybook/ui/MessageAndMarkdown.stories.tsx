@@ -24,7 +24,7 @@ function MarkdownExample() {
 }
 
 const meta = {
-  title: "UI/Inputs/Message and markdown",
+  title: "UI/Inputs/MessageInput",
   component: MessageInput,
   args: {
     onSend: fn(async () => undefined),

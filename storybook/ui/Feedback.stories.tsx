@@ -73,7 +73,7 @@ function PendingAndFailure() {
 }
 
 const meta = {
-  title: "UI/Feedback/Feedback states",
+  title: "UI/Feedback/ToastExample",
   component: ToastExample,
   args: { variant: "success" },
 } satisfies Meta<typeof ToastExample>;

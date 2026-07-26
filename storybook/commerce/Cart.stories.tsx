@@ -91,7 +91,7 @@ function CartComposition({ authenticated = false, products = [cartHeadphonesProd
 }
 
 const meta = {
-  title: "Commerce/Cart/Cart compositions",
+  title: "Commerce/CartComposition",
   component: CartComposition,
   args: { products: [cartHeadphonesProduct] },
   parameters: {

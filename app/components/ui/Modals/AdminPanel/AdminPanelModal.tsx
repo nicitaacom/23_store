@@ -24,6 +24,7 @@ export interface AdminPanelModalProps {
   isAuthenticated: boolean
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product&globals=backgrounds.value:dark;theme:dark
 export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: AdminPanelModalProps) {
   const t = useI18n()
   const router = useRouter()

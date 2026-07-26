@@ -27,7 +27,7 @@ function AvatarModalExample() {
 }
 
 const meta = {
-  title: "UI/Overlays/Application modals",
+  title: "UI/Overlays/Application modals/CtrlKModal",
   component: SearchModalExample,
 } satisfies Meta<typeof SearchModalExample>;
 

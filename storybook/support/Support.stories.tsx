@@ -103,7 +103,7 @@ function CompletedTicketExample({ closedBySupport = false }: { closedBySupport?:
 }
 
 const meta = {
-  title: "Support/Customer chat",
+  title: "Support/SupportExample",
   component: SupportExample,
   args: {
     messages: fixtureMessages,
