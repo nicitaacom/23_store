@@ -89,6 +89,25 @@ The `lastSuggestedKeyRef` is reset to `null` in `clearForm()` so the next produc
 
 ---
 
+## 4.1 Re-suggest after a manual pick
+
+A title edit that happens AFTER the admin picked a category by hand re-runs the suggest, even when the
+debounce key matches the previous one. Picking a category never triggers a suggest on its own, so the
+dropdown never fights the admin mid-pick.
+
+```
+title typed        -> AI assigns "Toys"
+admin picks "Home" -> manualCategoryPickRef = true   (no suggest runs)
+admin edits title  -> title changed + manual pick    -> suggest runs again, dropdown updates
+admin edits title  -> title changed, no manual pick  -> key check applies as before
+```
+
+Refs in `AddProductForm.tsx`: `manualCategoryPickRef` (set in `CategoryDropdown.onChange`, cleared when
+the debounced suggest fires) and `lastSuggestedTitleRef` (tells a title edit apart from a `categoryId`
+change, since both re-run the effect). Both reset in `clearForm()`.
+
+---
+
 ## 5. TODO
 
-- [ ] Trigger suggest again if user manually changes the dropdown (currently once auto-assigned, changing title won't re-assign unless the key differs)
+- [x] Trigger suggest again if user manually changes the dropdown (currently once auto-assigned, changing title won't re-assign unless the key differs)

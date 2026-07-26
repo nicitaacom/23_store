@@ -151,4 +151,11 @@ Admin opens Categories tab → sees "X products have no category"
 - [ ] **You**: add screenshots for section 1.1 (CategoryPillBar UI) and 1.4 (Supabase 23_categories rows, Zustand devtools)
 - [ ] After backfill run: delete `app/api/admin/backfill-categories/route.ts` and the backfill button in `CategoriesForm.tsx`
 - [ ] If a subcategory needs multiple parents, migrate to a many-to-many join table (name UNIQUE constraint prevents this now)
-- [ ] Wire `useSupportPrefilledMessage` into `SupportButton`'s `MessageInput.tsx` — on mount, read `message`, set as `defaultValue`, call `clear()`
+- [x] Wire `useSupportPrefilledMessage` into `SupportButton`'s `MessageInput.tsx` — on mount, read `message`, set as `defaultValue`, call `clear()`
+
+```
+"Request a category" click -> useSupportPrefilledMessage.set(text) + openDropdown()
+                           -> MessageInput mounts, reads `message`
+                           -> seeds useMessages.messageBodyValue (only when the composer is empty)
+                           -> clear() so the text seeds exactly once
+```

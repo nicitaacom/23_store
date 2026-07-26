@@ -19,13 +19,13 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 01 | [plan-01-language-switcher.md](plan-01-language-switcher.md) | P1 | Sonnet · medium | done | — |
 | 02 | [plan-02-db-anonymous-tickets.md](plan-02-db-anonymous-tickets.md) | P1 | Sonnet · medium | waiting | — |
 | 03 | [plan-03-ecosystem-links-icon-utm.md](plan-03-ecosystem-links-icon-utm.md) | P2 | Sonnet · low | done | — |
-| 04 | [plan-04-replenishment-button.md](plan-04-replenishment-button.md) | P2 | Sonnet · medium | waiting | — |
-| 05 | [plan-05-ai-suggest-retrigger.md](plan-05-ai-suggest-retrigger.md) | P2 | Sonnet · medium | waiting | — |
+| 04 | [plan-04-replenishment-button.md](plan-04-replenishment-button.md) | P2 | Sonnet · medium | blocked: task 3 needs Nikita's storage pick (tasks 1, 2, 5 done - email body renders again) | — |
+| 05 | [plan-05-ai-suggest-retrigger.md](plan-05-ai-suggest-retrigger.md) | P2 | Sonnet · medium | done | — |
 | 06 | [plan-06-support-ui-overhaul.md](plan-06-support-ui-overhaul.md) | P1 | Opus · high | done | — |
-| 07 | [plan-07-support-prefilled-message.md](plan-07-support-prefilled-message.md) | P2 | Sonnet · low | waiting | plan-06 |
-| 08 | [plan-08-i18n-sweep.md](plan-08-i18n-sweep.md) | P2 | Sonnet · medium | waiting | plan-06 (touches same files) |
-| 09 | [plan-09-utm-stats-hardening.md](plan-09-utm-stats-hardening.md) | P3 | Opus · medium | waiting | — |
-| 10 | [plan-10-faceit-oauth.md](plan-10-faceit-oauth.md) | P3 | Opus · high | waiting | — |
+| 07 | [plan-07-support-prefilled-message.md](plan-07-support-prefilled-message.md) | P2 | Sonnet · low | done | plan-06 |
+| 08 | [plan-08-i18n-sweep.md](plan-08-i18n-sweep.md) | P2 | Sonnet · medium | in progress: the 3 known anchors are translated (auth button, AddProductForm toast, replenishment button); the project-wide audit of task 1 is still open | plan-06 (touches same files) |
+| 09 | [plan-09-utm-stats-hardening.md](plan-09-utm-stats-hardening.md) | P3 | Opus · medium | blocked: tasks 1/2/4/5 touch the shared `utm_stats` table - needs Nikita. Task 3 closed with a decision AGAINST | — |
+| 10 | [plan-10-faceit-oauth.md](plan-10-faceit-oauth.md) | P3 | Opus · high | blocked: needs `FACEIT_CLIENT_ID` / `FACEIT_CLIENT_SECRET` from the faceit developer portal | — |
 | 11 | [plan-11-backup-browser-only-bytes.md](plan-11-backup-browser-only-bytes.md) | P1 | Opus · high | in progress | — |
 | 12 | [plan-12-cypress-authorization-optimistic.md](plan-12-cypress-authorization-optimistic.md) | P1 | Opus · high | done | — |
 | 13 | [STORYBOOK-PLAN.md](../STORYBOOK-PLAN.md) | P1 | Opus · high | in progress | plan-12 |
