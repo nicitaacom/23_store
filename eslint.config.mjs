@@ -70,6 +70,14 @@ export default [
     },
   },
   {
+    // Components live in .tsx only - in .ts the rule would ask route handlers and helpers for a story.
+    files: ["**/*.tsx"],
+    ignores: ["**/*.stories.tsx", "storybook/**", "cypress/**"],
+    rules: {
+      "local-rules/require-storybook-url": "warn",
+    },
+  },
+  {
     files: ["**/store/**", "**/zustand/**", "**/*.store.ts"],
     rules: {
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^(set|get)$" }],

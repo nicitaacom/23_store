@@ -39,4 +39,5 @@ module.exports = {
   ...require("./no-handlers-variable"),
   ...require("./no-inner-component"),
   ...require("./arrow-parens-avoid"),
+  ...require("./require-storybook-url"),
 }
