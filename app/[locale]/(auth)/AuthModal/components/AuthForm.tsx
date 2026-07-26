@@ -137,13 +137,7 @@ export function AuthForm({
           rounded="xl"
           fullWidth
           disabled={isSubmitting || isEmailSent || !isHydrated}>
-          {queryParams === "login"
-            ? t("auth.sign.in")
-            : queryParams === "register"
-              ? t("auth.sign.up")
-              : queryParams === "recover" || queryParams === "resetPassword"
-                ? t("auth.recovery.button")
-                : "TODO - contact support - ask to translate it - попросите поддержку перевести этот текст"}
+          {queryParams === "login" ? t("auth.sign.in") : queryParams === "register" ? t("auth.sign.up") : t("auth.recovery.button")}
         </Button>
         {responseMessage ? (
           <div className="flex justify-center text-center text-sm" data-cy="auth-response">
