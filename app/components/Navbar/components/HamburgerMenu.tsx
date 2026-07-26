@@ -86,12 +86,7 @@ function HintRing({ radius, isBorderLoading }: { radius: number; isBorderLoading
 export function HamburgerMenu() {
   const pathname = usePathname()
   const { isSidebar, openSidebar, closeSidebar } = useSidebar()
-  const hintStage = useEcosystemHintStore(state => state.hintStage)
-  const hasHydrated = useEcosystemHintStore(state => state.hasHydrated)
-  const initializeHint = useEcosystemHintStore(state => state.initializeHint)
-  const markMenuOpened = useEcosystemHintStore(state => state.markMenuOpened)
-  const markMusicClicked = useEcosystemHintStore(state => state.markMusicClicked)
-  const setHasHydrated = useEcosystemHintStore(state => state.setHasHydrated)
+  const { hintStage, hasHydrated, initializeHint, markMenuOpened, markMusicClicked, setHasHydrated } = useEcosystemHintStore()
   const containerRef = useRef<HTMLDivElement>(null)
   const [isBorderLoading, setIsBorderLoading] = useState(hintStage !== "complete")
   const isHintVisible = hasHydrated && hintStage !== "complete"
