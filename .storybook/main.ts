@@ -6,10 +6,9 @@ import type { StorybookConfig } from "@storybook/nextjs-vite";
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 const config: StorybookConfig = {
-  stories: [
-    "../app/**/*.stories.@(js|jsx|mjs|ts|tsx)",
-    "../storybook/**/*.stories.@(js|jsx|mjs|ts|tsx)",
-  ],
+  // Stories live in `storybook/` only (see dev_readme-storybook.md) - an `app/**` glob matches
+  // nothing and makes every storybook/vitest run print a "No story files found" warning.
+  stories: ["../storybook/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
   addons: [
     "@storybook/addon-docs",
     "@storybook/addon-themes",
