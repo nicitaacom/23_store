@@ -98,6 +98,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const wrapRef = useRef<((marker: string) => void) | null>(null)
   const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSuggestedKeyRef = useRef<string | null>(null)
+  const manualCategoryPickRef = useRef(false)
+  const lastSuggestedTitleRef = useRef<string | null>(null)
 
   const { categories: allCategories, hydrate: hydrateCategories } = useCategories()
   const previousImageIndexRef = useRef(0)
@@ -210,10 +212,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     })
   }, [allCategories.length, hydrateCategories])
 
-  const runSuggestCategory = async (trimmed: string) => {
+  const runSuggestCategory = async (trimmed: string, isAfterManualPick = false) => {
     if (trimmed.length < 10) return
     if (!allCategories.length) return
-    if (lastSuggestedKeyRef.current === trimmed) return
+    if (!isAfterManualPick && lastSuggestedKeyRef.current === trimmed) return
     lastSuggestedKeyRef.current = trimmed
     setIsSuggestingCategory(true)
     try {
@@ -229,17 +231,24 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setIsSuggestingCategory(false)
   }
 
-  // Debounced AI auto-assign: fires 800ms after title stops changing, only when no category assigned yet
+  // Debounced AI auto-assign: fires 800ms after title stops changing, only when no category assigned yet.
+  // Exception - a title edit that comes AFTER the admin picked a category by hand re-runs the suggest even
+  // for an already-suggested title; picking a category on its own never triggers it (no fighting the admin).
   useEffect(() => {
     if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current)
-    if (categoryId) return
     const trimmed = titleValue?.trim() ?? ""
+    const isTitleEdited = lastSuggestedTitleRef.current !== trimmed
+    lastSuggestedTitleRef.current = trimmed
+    const isAfterManualPick = isTitleEdited && manualCategoryPickRef.current
+
+    if (categoryId && !isAfterManualPick) return
     if (trimmed.length < 10) return
     if (!allCategories.length) return
-    if (lastSuggestedKeyRef.current === trimmed) return
+    if (!isAfterManualPick && lastSuggestedKeyRef.current === trimmed) return
 
     suggestDebounceRef.current = setTimeout(() => {
-      void runSuggestCategory(trimmed)
+      manualCategoryPickRef.current = false
+      void runSuggestCategory(trimmed, isAfterManualPick)
     }, 800)
 
     return () => {
@@ -260,6 +269,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setActiveImageIndex(0)
     previousImageIndexRef.current = 0
     lastSuggestedKeyRef.current = null
+    lastSuggestedTitleRef.current = null
+    manualCategoryPickRef.current = false
     setVariantLabelValue("")
     setVariantPriceValue("")
     setVariantQuantityValue("")
@@ -841,6 +852,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             onChange={id => {
               setCategoryId(id)
               setAutoAssignedName(null)
+              manualCategoryPickRef.current = true
             }}
             disabled={isLoading}
             uncategorizedLabel={tGlobal("category.uncategorized")}
