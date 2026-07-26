@@ -6,16 +6,18 @@ import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { emailsSDK } from "@/sdk/EmailsSDK/EmailsSDK"
+import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui"
 import { RequestReplanishmentEmail } from "@/emails/RequestReplanishmentEmail"
 
 export function RequestReplanishmentButton({ product, className }: { product: TProductDB; className?: string }) {
   const toast = useToast()
+  const t = useScopedI18n("product")
 
   async function requestReplanishment() {
     if (!product.owner_id) {
-      toast.show("error", "No owner id found", "Please contact support about this issue")
+      toast.show("error", t("error.no_owner_id_title"), t("error.no_owner_id_body"))
       return
     }
 
@@ -31,9 +33,9 @@ export function RequestReplanishmentButton({ product, className }: { product: TP
       })
 
       // 3. Show toast
-      toast.show("success", "You requested replanishment", "Now product owner know that somebody wants to buy it again")
+      toast.show("success", t("success.replenishment_title"), t("success.replenishment_body"))
     } catch (error) {
-      toast.show("error", "Failed to request replenishment", error instanceof Error ? error.message : String(error))
+      toast.show("error", t("error.replenishment_title"), error instanceof Error ? error.message : String(error))
     }
   }
 
@@ -46,7 +48,7 @@ export function RequestReplanishmentButton({ product, className }: { product: TP
       shadow="none"
       rightIcon={<HiOutlineRefresh className="text-lg" />}
       onClick={requestReplanishment}>
-      Request replenishment
+      {t("request_replenishment")}
     </Button>
   )
 }

@@ -158,15 +158,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
     const pendingProductsLabel =
       nextPendingTranslationsAmount === 1
-        ? "1 product is processing."
-        : `${nextPendingTranslationsAmount} products are processing.`
-    // TODO - translate this
-    showToast(
-      "success",
-      "Creating product, translating...",
-      `${pendingProductsLabel} You can create another product while AI finishes translation.`,
-      null,
-    )
+        ? t("one_product_processing")
+        : t("products_processing", { count: nextPendingTranslationsAmount })
+
+    showToast("success", t("creating_translating"), `${pendingProductsLabel} ${t("create_another_meanwhile")}`, null)
   }
 
   const increasePendingTranslations = () => {
