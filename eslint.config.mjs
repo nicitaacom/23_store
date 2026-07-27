@@ -71,8 +71,25 @@ export default [
   },
   {
     // Components live in .tsx only - in .ts the rule would ask route handlers and helpers for a story.
+    // Next.js route files (page/layout/loading/error/global-error/not-found/template) are routes, not
+    // components: they run on the server, read params/cookies and fetch their own data, so Storybook
+    // shows the components they render instead. Providers and the Storybook decorator itself wrap other
+    // components and render nothing on their own.
     files: ["**/*.tsx"],
-    ignores: ["**/*.stories.tsx", "storybook/**", "cypress/**"],
+    ignores: [
+      "**/*.stories.tsx",
+      "storybook/**",
+      ".storybook/**",
+      "cypress/**",
+      "app/**/page.tsx",
+      "app/**/layout.tsx",
+      "app/**/loading.tsx",
+      "app/**/error.tsx",
+      "app/**/not-found.tsx",
+      "app/**/template.tsx",
+      "app/global-error.tsx",
+      "app/providers/**",
+    ],
     rules: {
       "local-rules/require-storybook-url": "warn",
     },
