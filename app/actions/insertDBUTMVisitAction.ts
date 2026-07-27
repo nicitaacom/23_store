@@ -20,6 +20,8 @@ export async function insertDBUTMVisitAction(
   try {
     const supabase = await supabaseServer()
     // 1. Insert visit tracking data
+    // Geo goes into both places: the real columns (this project reads and filters on them) and the
+    // JSON in `user_agent` (projects 14/28/29 still read geo from there).
     const { error } = await supabase.from("utm_stats").insert({
       user_id: userId,
       source: utmParams.utm_source,
@@ -27,6 +29,10 @@ export async function insertDBUTMVisitAction(
       campaign: utmParams.utm_campaign,
       url: pageUrl,
       user_agent: serializeUTMVisitMetadata(metadata),
+      country_code: metadata.countryCode?.toUpperCase() ?? null,
+      country: metadata.country ?? null,
+      region: metadata.region ?? null,
+      city: metadata.city ?? null,
     })
     if (error) throw Error(error.message)
   } catch (error) {

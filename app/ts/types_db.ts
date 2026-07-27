@@ -221,6 +221,10 @@ export type Database = {
           medium: string | null
           campaign: string | null
           url: string | null
+          country_code: string | null
+          country: string | null
+          region: string | null
+          city: string | null
         }
         Insert: {
           id?: string
@@ -231,6 +235,10 @@ export type Database = {
           medium?: string | null
           campaign?: string | null
           url?: string | null
+          country_code?: string | null
+          country?: string | null
+          region?: string | null
+          city?: string | null
         }
         Update: {
           id?: string

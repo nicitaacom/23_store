@@ -21,10 +21,38 @@ CREATE TABLE IF NOT EXISTS public.utm_stats (
   user_agent  TEXT
 );
 
+-- Geo columns. Nullable on purpose: projects 14/28/29 keep writing only the JSON in `user_agent` and
+-- keep working untouched - 23_store writes both and reads the column first, the JSON second.
+ALTER TABLE public.utm_stats ADD COLUMN IF NOT EXISTS country_code TEXT;
+ALTER TABLE public.utm_stats ADD COLUMN IF NOT EXISTS country      TEXT;
+ALTER TABLE public.utm_stats ADD COLUMN IF NOT EXISTS region       TEXT;
+ALTER TABLE public.utm_stats ADD COLUMN IF NOT EXISTS city         TEXT;
+
+-- One-time backfill from the JSON already sitting in `user_agent`. Safe to re-run: it only fills rows
+-- whose columns are still empty, and rows whose user_agent is not JSON are skipped by the ? test.
+UPDATE public.utm_stats
+SET country_code = COALESCE(country_code, NULLIF(user_agent::jsonb ->> 'countryCode', '')),
+    country      = COALESCE(country,      NULLIF(user_agent::jsonb ->> 'country', '')),
+    region       = COALESCE(region,       NULLIF(user_agent::jsonb ->> 'region', '')),
+    city         = COALESCE(city,         NULLIF(user_agent::jsonb ->> 'city', ''))
+WHERE user_agent IS NOT NULL
+  AND user_agent LIKE '{%'
+  AND (user_agent::jsonb) ? 'countryCode'
+  AND (country_code IS NULL OR country IS NULL OR region IS NULL OR city IS NULL);
+
 CREATE INDEX IF NOT EXISTS idx_utm_stats_created_at ON public.utm_stats(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_utm_stats_user_id    ON public.utm_stats(user_id);
 CREATE INDEX IF NOT EXISTS idx_utm_stats_source     ON public.utm_stats(source);
 CREATE INDEX IF NOT EXISTS idx_utm_stats_campaign   ON public.utm_stats(campaign);
+CREATE INDEX IF NOT EXISTS idx_utm_stats_country    ON public.utm_stats(country_code);
+
+-- Before/after check for the period scan the stats page runs (plan-09 task 4). The created_at index
+-- above already exists, so this is a measurement, not a change:
+--   EXPLAIN ANALYZE SELECT id, user_id, created_at, source, medium, campaign, url, user_agent
+--   FROM public.utm_stats
+--   WHERE created_at >= date_trunc('month', NOW()) AND created_at < date_trunc('month', NOW()) + INTERVAL '1 month';
+-- A "Seq Scan on utm_stats" line there means the planner ignores the index because the table is still
+-- small - nothing to add, re-measure when the row count grows.
 
 -- 🔐 RLS Policies
 ALTER TABLE public.utm_stats ENABLE ROW LEVEL SECURITY;

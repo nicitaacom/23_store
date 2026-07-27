@@ -130,7 +130,7 @@ utm_stats
 - **❌ Did not add a dedicated geo columns (`country`, `city`, …).** Geo is packed as JSON into
   the **`user_agent`** column (see ⚠️ in section 1). This was a deliberate shortcut to avoid a
   migration — `serializeUTMVisitMetadata` writes JSON in, `parseUTMVisitMetadata` reads it out.
-  Cost: you can't `WHERE country = 'FI'` in SQL; aggregation happens in JS after fetch.
+  Cost while it lasted: no `WHERE country = 'FI'` in SQL. The geo columns below now allow it.
 - **❌ Did not track anonymous visitors.** `trackVisitAction` returns early without a `userId`.
   Keeps rows attributable + dedupable, at the cost of missing logged-out traffic.
 - **❌ Mock data is NOT shown when real data exists.** `getMockData` in `UTMDashboard` is only a
@@ -138,15 +138,25 @@ utm_stats
 
 ### TODO
 
-- [ ] Promote geo out of the `user_agent` JSON into real columns + a migration, so countries
+- [x] Promote geo out of the `user_agent` JSON into real columns + a migration, so countries
       can be filtered/aggregated in SQL instead of in JS.
+      Shipped: `utm_stats` gained `country_code` / `country` / `region` / `city` (all nullable, so
+      projects 14/28/29 keep working unchanged). `insertDBUTMVisitAction` writes the columns AND the
+      JSON; `selectDBUTMStatsAction` reads the column first and falls back to the JSON for rows
+      written before the backfill. The ALTER + backfill UPDATE + `idx_utm_stats_country` are in
+      `dev_readme-supbase-sql.md` under the shared-table block - 🚨 Nikita runs them once.
 - [x] ~~Move `FIRST_YEAR` (currently `2023` in `UTMDashboard.tsx`) into a shared config constant.~~
       Decided AGAINST: `app/constant/dev_readme.md` says feature-specific values do not belong in
       `app/constant`, and `FIRST_YEAR` has exactly one reader (`UTMDashboard.tsx:435`). It stays a
       named constant at the top of that component; move it only when a second file needs it.
-- [ ] Add an index on `utm_stats(created_at)` if the period scan ever gets slow.
+- [x] ~~Add an index on `utm_stats(created_at)` if the period scan ever gets slow.~~
+      Already there: `idx_utm_stats_created_at ON utm_stats(created_at DESC)` ships with the table.
+      The ready-made `EXPLAIN ANALYZE` for the period query sits next to it in
+      `dev_readme-supbase-sql.md`; run it when the table grows and only then consider more indexes.
 - [ ] Consider server-side aggregation (SQL `count ... group by`) instead of fetching rows and
-      reducing in JS, once row count is large.
+      reducing in JS, once row count is large. **Not done on purpose**: it needs a new RPC on the
+      SHARED table plus a measurement on live row counts, and the geo columns above already remove
+      the JSON parsing that made the JS pass expensive. Revisit when a period scan is visibly slow.
 - [ ] Drop screenshots into `./img/` and replace the 📸 placeholders above.
 
 <br/>

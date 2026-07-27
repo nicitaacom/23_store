@@ -1,7 +1,7 @@
 "use server"
 
 import { IUTMAggregatedStats } from "@/ts/interfaces/IUTMAggregatedStats"
-import { parseUTMVisitMetadata } from "@/utils/utmVisitMetadata"
+import { getCountryNameFromCode, parseUTMVisitMetadata } from "@/utils/utmVisitMetadata"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 
 const PROJECT_URL_FRAGMENTS = ["://localhost:3023/", "://23-store.vercel.app/", "://jokik.fi/", "://www.jokik.fi/"]
@@ -73,7 +73,7 @@ export async function selectDBUTMStatsAction(
 
     let query = supabase
       .from("utm_stats")
-      .select("id, user_id, created_at, source, medium, campaign, url, user_agent")
+      .select("id, user_id, created_at, source, medium, campaign, url, user_agent, country_code, country, region, city")
       .or(urlFilters)
       .order("created_at", { ascending: false })
 
@@ -87,11 +87,20 @@ export async function selectDBUTMStatsAction(
     if (!stats?.length) return EMPTY_STATS
 
     const statsWithMetadata = stats.map(stat => {
-      const visitMetadata = parseUTMVisitMetadata(stat.user_agent)
+      const visitMetadataFromJson = parseUTMVisitMetadata(stat.user_agent)
+      // The geo columns win when they are filled; rows written before the backfill still answer from
+      // the JSON in `user_agent`, and so do rows written by projects 14/28/29.
+      const countryCode = stat.country_code || visitMetadataFromJson.countryCode
 
       return {
         ...stat,
-        visitMetadata,
+        visitMetadata: {
+          userAgent: visitMetadataFromJson.userAgent,
+          countryCode,
+          country: stat.country || visitMetadataFromJson.country || getCountryNameFromCode(countryCode),
+          region: stat.region || visitMetadataFromJson.region,
+          city: stat.city || visitMetadataFromJson.city,
+        },
       }
     })
 
