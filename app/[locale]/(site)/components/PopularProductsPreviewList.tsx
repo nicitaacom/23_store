@@ -84,7 +84,7 @@ export function PopularProductsPreviewList({
 
                   {showPreviewLink && (
                     <Link
-                      className="rounded border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-black"
+                      className="rounded border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-background"
                       href={`/${locale}/popular-products`}>
                       Preview list
                     </Link>

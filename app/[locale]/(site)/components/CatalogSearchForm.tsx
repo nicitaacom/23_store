@@ -114,7 +114,7 @@ export function CatalogSearchForm({
         className={`relative inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-[2px] border px-4 text-sm font-semibold transition-all duration-300 ${
           isPending
             ? "border-success bg-success text-black"
-            : "border-success/30 bg-success/10 text-success hover:border-success hover:bg-success hover:text-black"
+            : "border-success/30 bg-success/10 text-success hover:border-success hover:bg-success hover:text-background"
         }`}
         aria-busy={isPending}
         disabled={isPending}

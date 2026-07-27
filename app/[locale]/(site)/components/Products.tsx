@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "framer-motion"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { Product } from "."
-import { useScopedI18n } from "@/locales/client"
 
 interface ProductsProps {
   products: TProductDB[] | undefined
@@ -15,15 +14,11 @@ function Products({ products }: ProductsProps) {
   // output products with product.quantity that I take from user ? cart_products : anonymousCart.cartProducts
   // set individual quantity for each user in updatedProducts variable
 
-  const t = useScopedI18n("product")
   const productsKey = products?.map(product => product.id).join("-") ?? "empty"
 
   return (
     <div
       className="w-full min-w-0 rounded mobile:border-[1px] broder-border-color">
-      <div className="flex flex-row justify-between px-4">
-        <h1 className="hidden tablet:flex text-lg">{t("products")}:</h1>
-      </div>
       <AnimatePresence mode="wait">
         <motion.ul
           className="flex flex-col gap-y-8"

@@ -71,7 +71,7 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
         </nav>
 
         <Link
-          className="inline-flex w-fit items-center gap-2 rounded-[4px] border border-success/25 bg-success/5 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-black"
+          className="inline-flex w-fit items-center gap-2 rounded-[4px] border border-success/25 bg-success/5 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-background"
           href={`/${params.locale}`}>
           <BiArrowBack className="text-lg" />
           {t("back_to_catalog")}
