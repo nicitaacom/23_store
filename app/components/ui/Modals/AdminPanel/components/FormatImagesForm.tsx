@@ -23,6 +23,7 @@ interface FormatImagesFormProps {
   onHover?: (index: number) => void
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover }: FormatImagesFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()

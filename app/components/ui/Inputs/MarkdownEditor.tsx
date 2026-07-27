@@ -23,6 +23,7 @@ const MARKER_TO_COMMAND = {
   "_": "toggleUnderline",
 } as const
 
+// http://localhost:6006/?path=/story/ui-inputs-messageinput--message
 export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
   ({ value, onChange, onBlur, onWrapRef, placeholder, disabled }, ref) => {
     const suppressUpdateRef = useRef(false)

@@ -3,6 +3,7 @@ import Link from "next/link"
 
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function Logo() {
   const darkMode = useDarkModeStore.getState().isDarkMode
 

@@ -10,6 +10,7 @@ interface TimerProps {
   action?: () => void
 }
 
+// http://localhost:6006/?path=/story/authentication-authexample--sign-in
 export function Timer({ seconds, children, label, labelClassName, action }: TimerProps) {
   const [countDown, setCountDown] = useState(seconds)
   const timerRef = useRef<NodeJS.Timeout | undefined>()

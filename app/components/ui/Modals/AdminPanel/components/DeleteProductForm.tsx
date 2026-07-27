@@ -19,6 +19,7 @@ interface DeleteProductForm {
   onRequestDelete: (products: IPendingDeleteProduct | IPendingDeleteProduct[]) => void
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProductForm) {
   const t = useScopedI18n("product")
   const isDarkMode = useDarkModeStore().isDarkMode

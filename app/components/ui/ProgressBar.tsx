@@ -7,6 +7,7 @@ interface ProgressBarProps {
 }
 
 // Thin determinate progress bar driven by a 0..1 fraction (e.g. XHR upload / streamed download).
+// http://localhost:6006/?path=/story/ui-controls-selectioncontrols--selection
 export function ProgressBar({ className, value, label }: ProgressBarProps) {
   const percent = Math.round(Math.min(Math.max(value, 0), 1) * 100)
 

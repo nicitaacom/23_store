@@ -17,6 +17,7 @@ interface FormatCategoryFormProps {
   category_id: string | null | undefined
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps) {
   const t = useI18n()
   const toast = useToast()

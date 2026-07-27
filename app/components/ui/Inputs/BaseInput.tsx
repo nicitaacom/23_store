@@ -4,6 +4,7 @@ import { twMerge } from "tailwind-merge"
 // The shared text-input look (lighter "soft card" vibe + soft GREEN/brand focus ring), owned by ONE
 // component so the look lives in a single place. Input / FormInput / SearchInput and the variant
 // inputs compose this. ProductInput and MessageInput keep their own styles on purpose.
+// http://localhost:6006/?path=/story/admin-productcreationworkbench--empty-form
 export const BaseInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => (
     <input

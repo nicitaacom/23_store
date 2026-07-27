@@ -17,6 +17,7 @@ interface ProductLikeButtonProps {
   className?: string
 }
 
+// http://localhost:6006/?path=/story/commerce-product--normal
 export function ProductLikeButton({ productId, categoryId, className }: ProductLikeButtonProps) {
   const t = useScopedI18n("product")
   const { likedProductIds, toggleProductLike } = useLikedProductsStore()

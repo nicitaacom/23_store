@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { BiUserCircle } from "react-icons/bi"
 
+// http://localhost:6006/?path=/story/authentication-authexample--sign-in
 export function OpenAuthModalButton() {
   const pathname = usePathname()
   const updatedPath = pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "AuthModal&variant=login"

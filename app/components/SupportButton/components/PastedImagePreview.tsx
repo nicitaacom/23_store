@@ -9,6 +9,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import { useMessages } from "@/store/ui/useMessages"
 import { useScopedI18n } from "@/locales/client"
 
+// http://localhost:6006/?path=/story/support-supportexample--closed-button
 export function PastedImagePreview({ containerRef }: { containerRef?: RefObject<HTMLDivElement> }) {
   const { image, setImage } = useMessages()
   const { setImage: setImageToPreview } = useGlobalImagePreview()

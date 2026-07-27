@@ -10,6 +10,7 @@ interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>
   disabled?: boolean
 }
 
+// http://localhost:6006/?path=/story/ui-controls-selectioncontrols--selection
 export function Checkbox({
   isChecked,
   onChange,

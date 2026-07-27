@@ -14,6 +14,7 @@ interface ICtrlKModalProps {
   locale?: "en" | "fi" | "ru" | "se"
 }
 
+// http://localhost:6006/?path=/story/ui-overlays-application-modals-ctrlkmodal--search
 export function CtrlKModal({ locale }: ICtrlKModalProps = {}) {
   if (locale) return <CtrlKModalContent locale={locale} />
 

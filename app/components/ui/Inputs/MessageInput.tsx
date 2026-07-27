@@ -18,6 +18,7 @@ interface MessageInputProps {
   onSend?: (messageBody: string, image: File | null) => Promise<void>
 }
 
+// http://localhost:6006/?path=/story/support-supportexample--closed-button
 export function MessageInput({ className, placeholder, onSend }: MessageInputProps) {
   const t = useI18n()
   const { messageBodyValue, setMessageBodyValue, image } = useMessages()

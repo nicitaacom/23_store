@@ -1,5 +1,6 @@
 import React from "react"
 
+// http://localhost:6006/?path=/story/ui-inputs-messageinput--message
 export function MarkdownText({ text }: { text: string }) {
   const lines = text.split("\n")
   return (

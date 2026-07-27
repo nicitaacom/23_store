@@ -8,6 +8,7 @@ import { VariantsForm } from "./VariantsForm"
 import { useCurrentLocale } from "@/locales/client"
 import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function OwnerProduct({ ...ownerProduct }: TProductDB) {
   const locale = useCurrentLocale()
   const translation = ownerProduct.translations[locale] ?? ownerProduct.translations.fi

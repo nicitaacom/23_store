@@ -11,6 +11,7 @@ import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
 import { Product } from "@/[locale]/(site)/components"
 
+// http://localhost:6006/?path=/story/commerce-cartcomposition--empty
 export function ProductsInCart() {
   const t = useI18n()
   const locale = useCurrentLocale()

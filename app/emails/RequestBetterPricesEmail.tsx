@@ -20,6 +20,7 @@ interface RequestBetterPricesEmailProps {
  *
  * This does not require translation because this email will be sent to support - support speaks english
  */
+// http://localhost:6006/?path=/story/commerce-cartcomposition--empty
 export function RequestBetterPricesEmail({ products, totalPrice, userEmail }: RequestBetterPricesEmailProps) {
   return (
     <Html>

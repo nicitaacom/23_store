@@ -6,6 +6,7 @@ import { User } from "@supabase/supabase-js"
 import { useSetUser } from "./hooks/useSetUser"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export default function Layout({ children, user }: { children: React.ReactNode; user: User | null }) {
   const darkMode = useDarkModeStore()
 

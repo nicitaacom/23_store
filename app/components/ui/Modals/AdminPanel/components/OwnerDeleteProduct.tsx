@@ -15,6 +15,7 @@ interface OwnerDeleteProductProps extends TProductDB {
   onToggleSelect?: (id: string) => void
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function OwnerDeleteProduct({ onRequestDelete, isBulkMode, isSelected, onToggleSelect, ...ownerProduct }: OwnerDeleteProductProps) {
   const locale = useCurrentLocale()
   const translation = ownerProduct.translations[locale] ?? ownerProduct.translations.fi

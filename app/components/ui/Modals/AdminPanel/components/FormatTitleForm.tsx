@@ -19,6 +19,7 @@ interface FormatTitleFormProps {
   translations: TProductTranslations
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const t = useScopedI18n("product")
   const locale = useCurrentLocale()

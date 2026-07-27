@@ -20,6 +20,7 @@ interface ModalQueryContainerProps {
   ignoreInputs?: boolean
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function ModalQueryContainer({
   children,
   modalQuery,

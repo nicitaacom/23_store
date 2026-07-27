@@ -13,6 +13,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   required?: boolean
 }
 
+// http://localhost:6006/?path=/story/ui-inputs-baseinput--states
 export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
   const { type, value, onChange, className, startIcon, endIcon, pattern, required, ...rest } = props
 

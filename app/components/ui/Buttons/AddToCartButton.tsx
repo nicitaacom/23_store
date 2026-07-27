@@ -21,6 +21,7 @@ interface AddToCartButtonProps {
  *
  * @deprecated
  */
+// http://localhost:6006/?path=/story/ui-controls-selectioncontrols--selection
 export function AddToCartButton({ productId, categoryId, className, variantId }: AddToCartButtonProps) {
   const t = useScopedI18n("product")
   const cartStore = useCartStore()

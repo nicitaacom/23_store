@@ -20,6 +20,7 @@ interface FormatDescriptionFormProps {
   translations: TProductTranslations
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function FormatDescriptionForm({ id, translations }: FormatDescriptionFormProps) {
   const t = useScopedI18n("product")
   const locale = useCurrentLocale()

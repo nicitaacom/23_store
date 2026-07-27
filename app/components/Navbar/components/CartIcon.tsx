@@ -12,6 +12,7 @@ interface CartIconProps {
   userId: string | undefined | null
 }
 
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function CartIcon({ cart_quantity, userId }: CartIconProps) {
   const pathname = usePathname()
   const updatedPath = pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "CartModal"

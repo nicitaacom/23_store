@@ -13,6 +13,7 @@ import { useCategories } from "@/store/categories/useCategories"
 import { useI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function CategoriesForm() {
   const t = useI18n()
   const toast = useToast()

@@ -15,6 +15,7 @@ interface ContinueWithButtonProps {
   href?: string
 }
 
+// http://localhost:6006/?path=/story/authentication-authexample--sign-in
 export function ContinueWithButton({ href, provider, className }: ContinueWithButtonProps) {
   const toast = useToast()
   const t = useI18n()

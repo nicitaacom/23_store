@@ -7,6 +7,7 @@ import supabaseClient from "@/libs/supabase/supabaseClient"
 import useUser from "@/store/user/useUser"
 import { DropdownItem } from "@/components/ui/DropdownItem"
 
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function LogoutDropdownItem() {
   const router = useRouter()
   const userStore = useUser()

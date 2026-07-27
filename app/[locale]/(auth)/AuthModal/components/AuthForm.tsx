@@ -27,6 +27,7 @@ function subscribeToHydration() {
   return () => {}
 }
 
+// http://localhost:6006/?path=/story/authentication-authexample--sign-in
 export function AuthForm({
   handleSubmit,
   onSubmit,

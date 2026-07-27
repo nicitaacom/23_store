@@ -20,6 +20,7 @@ interface MessageBoxProps {
   animateEntry?: boolean
 }
 
+// http://localhost:6006/?path=/story/support-supportexample--closed-button
 export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxProps) {
   const toast = useToast()
   const { isOwn, avatar_url } = useSender(message.sender_avatar_url || "", message.sender_id)

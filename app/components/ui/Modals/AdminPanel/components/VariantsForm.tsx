@@ -56,6 +56,7 @@ function signature(drafts: VariantDraft[]) {
   )
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps) {
   const t = useScopedI18n("product")
   const toast = useToast()

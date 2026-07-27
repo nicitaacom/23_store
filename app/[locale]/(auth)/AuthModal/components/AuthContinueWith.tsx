@@ -11,6 +11,7 @@ interface AuthContinueWithProps {
   pathname: string
 }
 
+// http://localhost:6006/?path=/story/authentication-authexample--sign-in
 export function AuthContinueWith({ isSubmitting, isEmailSent, queryParams, pathname }: AuthContinueWithProps) {
   const t = useI18n()
   return (

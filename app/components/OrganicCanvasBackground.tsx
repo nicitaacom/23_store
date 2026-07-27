@@ -211,6 +211,7 @@ interface OrganicCanvasBackgroundProps extends React.HTMLAttributes<HTMLDivEleme
   canvasOpacity?: number
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function OrganicCanvasBackground({
   children,
   className = "",

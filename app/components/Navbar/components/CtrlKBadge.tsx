@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 
 import { useCtrlKModal } from "@/store/ui/useCtrlKModal"
 
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function CtrlKBadge() {
   const ctrlKModal = useCtrlKModal()
   const params = useSearchParams()?.get("modal")

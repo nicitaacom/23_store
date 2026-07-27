@@ -14,6 +14,7 @@ interface OwnerProductHeaderProps {
   category_id?: string | null
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function OwnerProductHeader({ id, translations, price, onStock, hasVariants, category_id }: OwnerProductHeaderProps) {
   return (
     <section className="flex min-w-0 flex-col gap-y-3">

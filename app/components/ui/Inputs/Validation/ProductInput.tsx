@@ -53,6 +53,7 @@ interface ValidationRules {
   }
 }
 
+// http://localhost:6006/?path=/story/authentication-authexample--sign-in
 export function ProductInput({
   className = "",
   id,

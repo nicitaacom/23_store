@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function NavbarWrapper({ children }: { children: React.ReactNode }) {
   const [scrollPosition, setScrollPosition] = useState(0)
 

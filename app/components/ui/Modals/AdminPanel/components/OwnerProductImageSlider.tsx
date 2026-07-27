@@ -12,6 +12,7 @@ interface OwnerProductImageSliderProps {
   onClickSlide?: (e: React.MouseEvent) => void
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function OwnerProductImageSlider({ images, title, onClickSlide }: OwnerProductImageSliderProps) {
   const [slideIndex, setSlideIndex] = useState(0)
   const hasMultiple = images.length > 1

@@ -16,6 +16,7 @@ interface ProductQuantityButtonProps {
   variantId?: string | null
 }
 
+// http://localhost:6006/?path=/story/ui-controls-selectioncontrols--selection
 export function ProductQuantityButton({ className, productId, action, variantId }: ProductQuantityButtonProps) {
   const { increaseProductQuantity, decreaseProductQuantity, clearProductQuantity } = useCartStore()
 

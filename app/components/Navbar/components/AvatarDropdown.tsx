@@ -33,6 +33,7 @@ function getAnonymousAvatar(isDarkMode: boolean) {
   return isDarkMode ? "/BiUserCircle-dark.svg" : "/BiUserCircle-light.svg"
 }
 
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) {
   const router = useRouter()
   const t = useScopedI18n("backup")

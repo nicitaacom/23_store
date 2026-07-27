@@ -7,6 +7,7 @@ interface ProductImageProps {
   productTitle: string
 }
 
+// http://localhost:6006/?path=/story/commerce-product--normal
 export function ProductImage({ imgUrl, productTitle }: ProductImageProps) {
   return imgUrl.length === 1 ? (
     <ImageWithFallback

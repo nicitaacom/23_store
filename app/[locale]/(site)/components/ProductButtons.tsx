@@ -18,6 +18,7 @@ interface ProductButtonsProps {
   categoryId?: string | null
 }
 
+// http://localhost:6006/?path=/story/commerce-product--normal
 export function ProductButtons({ productId, ownerId, showViewButton = true, variantId, categoryId }: ProductButtonsProps) {
   const cartStore = useCartStore()
   const quantity = cartStore.products?.[createCartProductKey(productId, variantId)]?.quantity ?? 0

@@ -17,6 +17,7 @@ interface MarkTicketAsCompletedUserProps {
   messagesLength: number
 }
 
+// http://localhost:6006/?path=/story/support-supportexample--closed-button
 export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, messagesLength }: MarkTicketAsCompletedUserProps) {
   const router = useRouter()
   const { closeDropdown } = useSupportDropdown()

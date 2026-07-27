@@ -4,6 +4,7 @@ interface RichTextToolbarProps {
   onWrap: (marker: string) => void
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function RichTextToolbar({ onWrap }: RichTextToolbarProps) {
   return (
     <div className="flex gap-1 pb-1">

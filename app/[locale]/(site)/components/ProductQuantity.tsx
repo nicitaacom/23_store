@@ -13,6 +13,7 @@ interface ProductQuantityProps {
   variantId?: string | null
 }
 
+// http://localhost:6006/?path=/story/commerce-product--normal
 export function ProductQuantity({ productId, productPrice, variantId }: ProductQuantityProps) {
   const { products } = useCartStore()
   const quantity = products?.[createCartProductKey(productId, variantId)]?.quantity ?? 0

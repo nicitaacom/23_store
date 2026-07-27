@@ -17,6 +17,7 @@ interface DeleteProductHeaderProps {
   onToggleSelect?: (id: string) => void
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function DeleteProductHeader({ id, title, description, price, onRequestDelete, isBulkMode, isSelected, onToggleSelect }: DeleteProductHeaderProps) {
   const t = useScopedI18n("product")
 

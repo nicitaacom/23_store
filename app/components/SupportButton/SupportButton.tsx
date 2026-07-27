@@ -11,6 +11,7 @@ import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import SupportButtonDropdown from "@/components/SupportButton/components/SupportButtonDropdown"
 
 // export feault in order to lazy import this
+// http://localhost:6006/?path=/story/support-supportexample--closed-button
 export default function SupportButton() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { unseenMessagesNumber } = useMessages()

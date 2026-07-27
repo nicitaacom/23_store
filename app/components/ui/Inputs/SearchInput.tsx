@@ -12,6 +12,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   required?: boolean
 }
 
+// http://localhost:6006/?path=/story/ui-inputs-baseinput--states
 export function SearchInput({
   type = "text",
   className = "",

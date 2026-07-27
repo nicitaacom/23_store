@@ -12,6 +12,7 @@ interface AdminPanelProductSearchProps {
   totalCount: number
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function AdminPanelProductSearch({
   query,
   onQueryChange,

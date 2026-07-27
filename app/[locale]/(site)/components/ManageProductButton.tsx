@@ -20,6 +20,7 @@ const iconClassNameBySize: Record<NonNullable<ManageProductButtonProps["size"]>,
   md: "text-base text-warning",
 }
 
+// http://localhost:6006/?path=/story/commerce-product--normal
 export function ManageProductButton({ productId, ownerId, size = "md", className }: ManageProductButtonProps) {
   const locale = useCurrentLocale()
   const t = useScopedI18n("product")

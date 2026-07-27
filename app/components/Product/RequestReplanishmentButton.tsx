@@ -11,6 +11,7 @@ import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui"
 import { RequestReplanishmentEmail } from "@/emails/RequestReplanishmentEmail"
 
+// http://localhost:6006/?path=/story/commerce-product--normal
 export function RequestReplanishmentButton({ product, className }: { product: TProductDB; className?: string }) {
   const toast = useToast()
   const t = useScopedI18n("product")

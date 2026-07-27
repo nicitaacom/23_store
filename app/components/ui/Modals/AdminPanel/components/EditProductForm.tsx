@@ -15,6 +15,7 @@ interface EditProductForm {
   ownerProducts: TProductDB[]
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function EditProductForm({ ownerProducts }: EditProductForm) {
   const t = useScopedI18n("product")
   const isDarkMode = useDarkModeStore().isDarkMode

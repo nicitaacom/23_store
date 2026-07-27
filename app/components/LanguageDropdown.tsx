@@ -111,6 +111,7 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
   )
 }
 
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function LanguageDropdown({ locale, ...props }: LanguageDropdownProps) {
   return locale ? <LanguageDropdownContent {...props} locale={locale} /> : <CurrentLocaleLanguageDropdown {...props} />
 }

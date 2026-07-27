@@ -23,6 +23,7 @@ import { AccountSDK } from "@/sdk/AccountSDK/AccountSDK"
 
 const accountSDK = new AccountSDK()
 
+// http://localhost:6006/?path=/story/ui-overlays-application-modals-ctrlkmodal--search
 export function UpdateAvatarModal() {
   const router = useRouter()
   const t = useI18n()

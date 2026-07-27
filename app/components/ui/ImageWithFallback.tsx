@@ -23,6 +23,7 @@ interface ImageWithFallbackProps extends Omit<ImageProps, "src" | "onError"> {
  * next/image wrapper that swaps to a fallback image when the source is missing or
  * fails to fetch correctly. Single source of truth for product image fallback across the app.
  */
+// http://localhost:6006/?path=/story/ui-feedback-toastexample--success-toast
 export function ImageWithFallback({
   src,
   fallbackSrc = DEFAULT_FALLBACK_SRC,

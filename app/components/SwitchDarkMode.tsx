@@ -6,6 +6,7 @@ interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string
 }
 
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function SwitchDarkMode({ className, ...props }: SwitchProps) {
   const mode = useDarkModeStore()
 

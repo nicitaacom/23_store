@@ -34,6 +34,7 @@ const ACTION_ICONS: Record<TPanelAction, typeof FiPlus> = {
   categories: MdOutlineCategory,
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function AdminPanelHeader({
   className,
   title,

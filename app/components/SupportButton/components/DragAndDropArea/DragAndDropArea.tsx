@@ -8,6 +8,7 @@ import { useDragAndDrop } from "@/hooks/support/useDragAndDrop"
 import { useMessages } from "@/store/ui/useMessages"
 import { MAX_IMAGE_FILE_SIZE_BYTES } from "@/constants/uploadLimits"
 
+// http://localhost:6006/?path=/story/support-supportexample--closed-button
 export function DragAndDropArea() {
   const { image, setImage } = useMessages()
   const { isDragging, handleDrop } = useDragAndDrop()

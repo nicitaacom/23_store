@@ -9,6 +9,7 @@ import { useScopedI18n } from "@/locales/client"
 // Fixed red bar pinned to the bottom of the viewport while the browser is offline.
 // Mounted once at the app root so every screen (and any button click made while
 // offline) surfaces the same connection warning.
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function OfflineBanner() {
   const t = useScopedI18n("common")
   const isOnline = useIsOnline()

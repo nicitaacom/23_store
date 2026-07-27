@@ -75,6 +75,7 @@ const EMPTY_PRODUCT_FORM_VALUES: Partial<IFormDataAddProduct> = {
   onStock: "" as never,
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function AddProductForm({ onCreated }: AddProductFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()

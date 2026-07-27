@@ -61,6 +61,7 @@ interface AdminPanelDeleteConfirmDialogProps {
   onClose: () => void
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDeleteConfirmDialogProps) {
   const tModal = useScopedI18n("modal")
   const tProduct = useScopedI18n("product")

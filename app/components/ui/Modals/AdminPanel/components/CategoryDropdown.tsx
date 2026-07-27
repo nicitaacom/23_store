@@ -15,6 +15,7 @@ interface CategoryDropdownProps {
   uncategorizedLabel: string
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function CategoryDropdown({ categories, value, onChange, disabled, uncategorizedLabel }: CategoryDropdownProps) {
   const [open, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")

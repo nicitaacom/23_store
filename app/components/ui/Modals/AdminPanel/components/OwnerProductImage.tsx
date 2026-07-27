@@ -10,6 +10,7 @@ interface OwnerProductImageProps {
   alt?: string
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function OwnerProductImage({ imgUrl, className, alt }: OwnerProductImageProps) {
   return (
     <figure className={twMerge("relative w-full overflow-hidden bg-foreground/[0.06]", className)}>

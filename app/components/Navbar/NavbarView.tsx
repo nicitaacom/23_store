@@ -16,6 +16,7 @@ interface NavbarViewProps {
   user: User | null
 }
 
+// http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function NavbarView({ avatarUrl, cartQuantity, locale, roles, user }: NavbarViewProps) {
   return (
     <NavbarWrapper>

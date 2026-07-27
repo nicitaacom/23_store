@@ -45,6 +45,7 @@ function SliderImage({
   )
 }
 
+// http://localhost:6006/?path=/story/ui-controls-selectioncontrols--selection
 export function Slider({ images, width, height, emulateTouch, swipeable, className, containerClassName }: SliderProps) {
   return (
     <figure

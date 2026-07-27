@@ -19,6 +19,7 @@ interface FormatPriceFormProps {
   price: number
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   const t = useScopedI18n("product")
   const toast = useToast()
