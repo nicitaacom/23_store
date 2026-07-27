@@ -10,13 +10,13 @@ import { ProductButtons } from "../ProductButtons"
 import { ProductImage } from "../ProductImage"
 import { ProductLikeButton } from "../ProductLikeButton"
 import { ProductQuantity } from "../ProductQuantity"
-import { RequestReplanishmentButton } from "./RequestReplanishmentButton"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getAvailableStock, getProductPriceForVariant } from "@/utils/cartProducts"
 import { getProductGalleryImages } from "@/utils/product"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { MarkdownText } from "@/components/ui/MarkdownText"
+import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
 
 function VariantImage({ src, alt }: { src: string; alt: string }) {
   const [errored, setErrored] = useState(false)
@@ -82,7 +82,7 @@ function Product({ ...product }: Props) {
 
         {/* 4. Title + colored price pill */}
         <div className="flex flex-col gap-2 tablet:flex-row tablet:items-start tablet:justify-between">
-          <Link href={`/${locale}/products/${product.id}`} className="line-clamp-2 min-w-0 text-lg font-semibold leading-snug text-title transition-colors duration-300 hover:text-success mobile:text-xl">
+          <Link className="line-clamp-2 min-w-0 text-lg font-semibold leading-snug text-title transition-colors duration-300 hover:text-success mobile:text-xl" href={`/${locale}/products/${product.id}`}>
             {translation.title}
           </Link>
           <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded border border-success/20 bg-success/10 px-2.5 py-1">
@@ -126,16 +126,16 @@ function Product({ ...product }: Props) {
               const isVariantSoldOut = variant.quantity === 0
               return (
                 <button
-                  key={variant.id}
-                  type="button"
-                  onClick={() => setSelectedVariantId(variant.id)}
                   className={twMerge(
                     "flex shrink-0 items-center gap-2 rounded-md border px-2 py-1.5 text-left transition-colors duration-200",
                     isActive
                       ? "border-success/40 bg-success/10 text-title"
                       : "border-border-color/20 bg-background/40 text-subTitle hover:border-success/25 hover:bg-success/5",
                     isVariantSoldOut && "opacity-55",
-                  )}>
+                  )}
+                  key={variant.id}
+                  type="button"
+                  onClick={() => setSelectedVariantId(variant.id)}>
                   <VariantImage src={variant.image_url} alt={variant.label} />
                   <div className="min-w-0">
                     <span className="block max-w-[120px] truncate text-sm font-medium leading-4">{variant.label}</span>

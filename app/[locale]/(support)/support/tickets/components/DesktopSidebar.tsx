@@ -34,11 +34,11 @@ export function DesktopSidebar({ onOpenTicket, tickets, ticketsAmount, unreadMes
           <p className="mt-1 text-xs text-subTitle">Unread conversations stay pinned at the top.</p>
           <SearchInput
             className="mt-3 h-9"
-            autoFocus={false}
             startIcon={<FiSearch size={16} />}
             placeholder={t("search_placeholder")}
             value={searchQuery}
             onChange={event => setSearchQuery(event.target.value)}
+            autoFocus={false}
           />
         </div>
         {tickets.length === 0 ? (

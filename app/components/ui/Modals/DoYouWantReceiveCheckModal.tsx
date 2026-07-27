@@ -61,7 +61,7 @@ export function DoYouWantReceiveCheckModal() {
       <Button
         variant="danger-outline"
         onClick={() => {
-          if (!recipientAddress) return console.log(212, "No recipient address")
+          if (!recipientAddress) return console.log(64, "No recipient address")
           sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, recipientAddress, t)
           closeModal()
         }}>

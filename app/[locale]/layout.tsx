@@ -2,13 +2,13 @@ import "../globals.css"
 import React, { lazy, Suspense } from "react"
 import type { Metadata } from "next"
 
+import { UTMTracker } from "./UTMTracker"
 import { getCookie } from "@/utils/helpersSSR"
 import getOwnerProducts from "@/actions/getOwnerProducts"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { I18nProviderClient } from "@/locales/client"
 import { Layout, OfflineBanner } from "@/components"
 import { ModalsProvider, ModalsQueryProvider } from "@/providers"
-import { UTMTracker } from "@/[locale]/(site)/stats/UTMTracker"
 
 const ToastProvider = lazy(() => import("@/providers/ToastProvider"))
 
@@ -56,7 +56,7 @@ export default async function RootLayout({
   const userId = normalizedUser?.id ?? anonymousId
 
   return (
-    <html lang={locale} className={darkMode ?? "dark"}>
+    <html className={darkMode ?? "dark"} lang={locale}>
       <body>
         <I18nProviderClient locale={locale}>
           <Layout user={normalizedUser}>{children}</Layout>

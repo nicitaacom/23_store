@@ -57,12 +57,17 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
     return (
       <button
         className="rounded p-1 transition-transform duration-150 hover:scale-105"
+        aria-label={`Rate ${ratingValue} out of 5`}
         key={ratingValue}
         onMouseEnter={() => setHover(ratingValue)}
         onMouseLeave={() => setHover(null)}
         onClick={() => rateTicket(ratingValue)}
         type="button">
-        {ratingValue <= (hover || rating || 0) ? <FaStar className="text-warning" size={30} /> : <CiStar className="text-icon-color" size={30} />}
+        {ratingValue <= (hover || rating || 0) ? (
+          <FaStar className="text-warning" size={30} />
+        ) : (
+          <CiStar className="text-icon-color" size={30} />
+        )}
       </button>
     )
   })
@@ -80,6 +85,7 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
           "flex h-8 w-8 items-center justify-center rounded border border-white/16 bg-white/8 text-white/85 transition-colors duration-150 hover:border-success-accent/40 hover:bg-success-accent/15 hover:text-success-accent",
           messagesLength === 0 && "cursor-not-allowed opacity-55",
         )}
+        aria-label={messagesLength === 0 ? "Close unavailable for empty ticket" : "Close ticket"}
         onClick={() => messagesLength !== 0 && setShowMarkTicketAsCompleted(true)}
         title={messagesLength === 0 ? "I don't let you close empty ticket" : "Close ticket"}
         type="button">

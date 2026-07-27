@@ -3,13 +3,12 @@ import { UseFormGetValues, UseFormSetFocus } from "react-hook-form"
 
 import { IAuthFormData } from "@/ts/interfaces/IAuthFormData"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { Timer } from "../AuthModal/components"
+import { resendVerificationEmail } from "./resendVerificationEmail"
 import { UnknownError } from "./UnknownError"
 import { UserExistEmailNotConfirmed } from "./UserExistEmailNotConfirmed"
-import { resendVerificationEmail } from "./resendVerificationEmail"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { subscribePusherChannel } from "@/libs/pusher"
-import { Button } from "@/components/ui"
+import { Button, Timer } from "@/components/ui"
 
 export async function signUp(
   t: TI18nFunction,

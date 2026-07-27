@@ -75,8 +75,8 @@ export function DbBackupModal() {
       <div className="flex gap-1 rounded border border-border-color/35 bg-foreground/5 p-1">
         {TABS.map(option => (
           <Button
-            key={option.value}
             className="flex-1"
+            key={option.value}
             variant={tab === option.value ? "default" : "ghost"}
             size="sm"
             disabled={isBusy}
@@ -104,8 +104,8 @@ export function DbBackupModal() {
           {tablesExportPhase === "error" && <p className="text-xs text-danger">{tablesExportError}</p>}
 
           <Button
-            type="button"
             className="w-fit"
+            type="button"
             variant="secondary"
             size="sm"
             leftIcon={<BiUpload size={14} />}
@@ -128,7 +128,7 @@ export function DbBackupModal() {
           {tablesImportResult && tablesImportPhase === "done" && (
             <ul className="flex flex-col gap-0.5 border-t border-border-color/35 pt-2">
               {tablesImportResult.tables.map(table => (
-                <li key={table.table} className="flex items-center justify-between text-xs text-subTitle">
+                <li className="flex items-center justify-between text-xs text-subTitle" key={table.table}>
                   <span>{table.table}</span>
                   <span>
                     {table.rows} rows{table.skipped > 0 ? ` (${table.skipped} skipped)` : ""}
@@ -172,8 +172,8 @@ export function DbBackupModal() {
           {filesExportPhase === "error" && <p className="text-xs text-danger">{filesExportError}</p>}
 
           <Button
-            type="button"
             className="w-fit"
+            type="button"
             variant="secondary"
             size="sm"
             leftIcon={<BiUpload size={14} />}
@@ -206,7 +206,7 @@ export function DbBackupModal() {
           {filesImportResult && filesImportPhase === "done" && (
             <ul className="flex flex-col gap-0.5 border-t border-border-color/35 pt-2">
               {filesImportResult.buckets.map(bucket => (
-                <li key={bucket.bucket} className="flex items-center justify-between text-xs text-subTitle">
+                <li className="flex items-center justify-between text-xs text-subTitle" key={bucket.bucket}>
                   <span>{bucket.bucket}</span>
                   <span>
                     {bucket.files} files{bucket.failed > 0 ? ` (${bucket.failed} failed)` : ""}

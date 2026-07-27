@@ -94,6 +94,7 @@ export function AreYouSureModalContainer({
 }: AreYouSureModalContainerProps) {
   const { isLoading } = useLoading()
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
+  const previouslyFocusedElementRef = useRef<HTMLElement | null>(null)
 
   function closeModal() {
     if (isLoading) return
@@ -109,6 +110,7 @@ export function AreYouSureModalContainer({
 
   useEffect(() => {
     if (!isOpen) return
+    previouslyFocusedElementRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
     let raf: number
     const tryFocus = () => {
       if (primaryButtonRef.current) {
@@ -121,6 +123,7 @@ export function AreYouSureModalContainer({
     return () => {
       clearTimeout(timer)
       cancelAnimationFrame(raf)
+      previouslyFocusedElementRef.current?.focus()
     }
   }, [isOpen])
 
@@ -152,35 +155,38 @@ export function AreYouSureModalContainer({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          data-click-outside-ignore
           className="fixed inset-0 z-[2000] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px]"
+          data-click-outside-ignore
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.16, ease: "easeOut" }}
           {...modalBgHandler}>
           <motion.div
-            data-click-outside-ignore
-            role="dialog"
-            aria-modal="true"
             className={twMerge(
               "relative z-[100] w-[min(calc(100vw-2rem),560px)] overflow-hidden rounded-lg border border-border-color/35 bg-foreground/95 shadow-compact",
               className,
             )}
+            data-click-outside-ignore
+            role="dialog"
+            aria-modal="true"
             initial={{ y: 12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 8, opacity: 0 }}
             transition={{ type: "spring", stiffness: 440, damping: 36, mass: 0.85 }}
             {...modalHandler}>
-            <IoMdClose
+            <button
               className={twMerge(
                 "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
                 closeButtonClassName,
                 isLoading && "opacity-50 cursor-default pointer-events-none",
               )}
-              size={22}
+              aria-label="Close confirmation"
+              disabled={isLoading}
               onClick={closeModal}
-            />
+              type="button">
+              <IoMdClose size={22} />
+            </button>
             <div className={twMerge("flex max-w-[620px] flex-col gap-4 px-4 pb-4 pt-5 tablet:px-5", contentClassName)}>
               <div className={twMerge("flex flex-col gap-2 pr-10 text-start", titleClassName)}>
                 <div className="font-secondary text-xl font-bold leading-tight text-title">{label}</div>
@@ -188,12 +194,12 @@ export function AreYouSureModalContainer({
               </div>
               <div className={twMerge("flex flex-col-reverse gap-3 tablet:flex-row tablet:justify-end", actionsClassName)}>
                 <Button
-                  data-cy={secondaryButtonDataCy}
                   className={twMerge(
                     // strong ring on :focus (not only :focus-visible) so the button the modal auto-focuses is obviously highlighted before Enter acts on it
                     "px-3 ring-offset-2 ring-offset-foreground focus:scale-[1.02] focus:ring-2 focus:ring-current focus-visible:scale-[1.02] focus-visible:ring-2 focus-visible:ring-current",
                     secondaryButtonClassName,
                   )}
+                  data-cy={secondaryButtonDataCy}
                   variant={secondaryButtonVariant ? secondaryButtonVariant : "default-outline"}
                   size={secondaryButtonSize}
                   onClick={secondaryButtonAction}
@@ -201,12 +207,12 @@ export function AreYouSureModalContainer({
                   {secondaryButtonLabel} {SecondaryButtonIcon && <SecondaryButtonIcon />}
                 </Button>
                 <Button
-                  data-cy={primaryButtonDataCy}
-                  ref={primaryButtonRef}
                   className={twMerge(
                     "px-3 ring-offset-2 ring-offset-foreground focus:scale-[1.02] focus:ring-2 focus:ring-current focus-visible:scale-[1.02] focus-visible:ring-2 focus-visible:ring-current",
                     primaryButtonClassName,
                   )}
+                  data-cy={primaryButtonDataCy}
+                  ref={primaryButtonRef}
                   variant={primaryButtonVariant ? primaryButtonVariant : "info"}
                   size={primaryButtonSize}
                   onClick={primaryButtonAction}

@@ -107,7 +107,7 @@ export function FormatOnStockForm({ id, onStock, isDerivedFromVariants = false }
   }
 
   return (
-    <div ref={containerRef} className={twMerge("rounded border border-border-color/30 bg-background/70 px-3 py-2 shadow-none")}>
+    <div className={twMerge("rounded border border-border-color/30 bg-background/70 px-3 py-2 shadow-none")} ref={containerRef}>
       <div className="flex items-center gap-2">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle/70">{t("on_stock")}:</p>
         {isEditing ? (
@@ -124,8 +124,8 @@ export function FormatOnStockForm({ id, onStock, isDerivedFromVariants = false }
                 register={register}
                 errors={errors}
                 placeholder={formatNumber(onStock) || onStock.toString()}
-                autoFocus
                 required
+                autoFocus
               />
             </div>
           </form>

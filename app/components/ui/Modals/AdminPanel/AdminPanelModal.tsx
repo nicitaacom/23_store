@@ -7,9 +7,9 @@ import { twMerge } from "tailwind-merge"
 import { IPendingDeleteProduct } from "@/ts/interfaces/IPendingDeleteProduct"
 import { TPanelAction } from "@/ts/types/TPanelAction"
 import { TProductDB } from "@/ts/product/TProductDB"
-import { AdminPanelHeader, PANEL_ACTIONS } from "./components/AdminPanelHeader"
 import { AddProductForm } from "./components/AddProductForm"
 import { AdminPanelDeleteConfirmDialog } from "./components/AdminPanelDeleteConfirmDialog"
+import { AdminPanelHeader, PANEL_ACTIONS } from "./components/AdminPanelHeader"
 import { CategoriesForm } from "./components/CategoriesForm"
 import { DeleteProductForm } from "./components/DeleteProductForm"
 import { EditProductForm } from "./components/EditProductForm"
@@ -24,6 +24,7 @@ export interface AdminPanelModalProps {
   isAuthenticated: boolean
 }
 
+// http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product&globals=backgrounds.value:dark;theme:dark
 export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: AdminPanelModalProps) {
   const t = useI18n()
   const router = useRouter()
@@ -49,8 +50,6 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
 
   return (
     <ModalQueryContainer
-      hideCloseButton
-      disableDismiss={!!pendingDeleteProduct}
       className={twMerge(
         "flex flex-col overflow-hidden border-border-color/35 bg-modal-surface shadow-compact-lg transition-all duration-300",
         // mobile: true full-screen, no border/radius
@@ -60,6 +59,8 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
         // laptop / desktop: cap width so the dialog stays readable on wide screens
         "laptop:w-[min(92vw,1100px)] desktop:w-[min(90vw,1400px)]",
       )}
+      hideCloseButton
+      disableDismiss={!!pendingDeleteProduct}
       ignoreInputs={false}
       modalQuery="AdminPanel">
       {({ closeModal }) => (

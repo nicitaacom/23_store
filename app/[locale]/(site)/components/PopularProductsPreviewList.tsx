@@ -51,15 +51,15 @@ export function PopularProductsPreviewList({
 
           return (
             <article
-              key={product.id}
-              className="group flex flex-col overflow-hidden rounded-lg border border-border-color/20 bg-background/80 shadow-lg shadow-success/5 transition-transform duration-300 hover:-translate-y-1 hover:border-success/30">
+              className="group flex flex-col overflow-hidden rounded-lg border border-border-color/20 bg-background/80 shadow-lg shadow-success/5 transition-transform duration-300 hover:-translate-y-1 hover:border-success/30"
+              key={product.id}>
               {/* Vertical card — image banner on top, details below (grid tile) */}
               <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-foreground/5">
                 <ImageWithFallback
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                   src={imageUrl}
                   alt={translation.title}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                   fallbackClassName="object-contain"
                   sizes="(max-width: 768px) 50vw, (max-width: 1440px) 25vw, 20vw"
                 />
@@ -83,8 +83,8 @@ export function PopularProductsPreviewList({
 
                   {showPreviewLink && (
                     <Link
-                      href={`/${locale}/popular-products`}
-                      className="rounded border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-black">
+                      className="rounded border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-black"
+                      href={`/${locale}/popular-products`}>
                       Preview list
                     </Link>
                   )}

@@ -132,10 +132,10 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
       <div className="flex items-center justify-between gap-2">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-subTitle">{t("variant")}</p>
         <button
+          className="inline-flex items-center gap-1 rounded border border-border-color/35 bg-background/55 px-2 py-1 text-[11px] font-medium text-icon-color transition-colors duration-150 hover:bg-foreground/50 disabled:opacity-40"
           type="button"
           onClick={addDraft}
-          disabled={isLoading}
-          className="inline-flex items-center gap-1 rounded border border-border-color/35 bg-background/55 px-2 py-1 text-[11px] font-medium text-icon-color transition-colors duration-150 hover:bg-foreground/50 disabled:opacity-40">
+          disabled={isLoading}>
           <BiPlus size={14} /> {t("add_variant_action")}
         </button>
       </div>
@@ -153,11 +153,11 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
             const isSoldOut = !(parseFormattedNumber(draft.quantityInput) > 0)
             return (
               <div
-                key={draft.id}
                 className={twMerge(
                   "rounded border bg-foreground/5 p-2",
                   isImageMissing ? "border-warning/40" : "border-border-color/35",
-                )}>
+                )}
+                key={draft.id}>
                 <div className="flex flex-col gap-2 tablet:flex-row">
                   <div className="flex min-w-0 flex-1 flex-col gap-2">
                     <div className="flex items-center gap-2">
@@ -194,12 +194,12 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                     </div>
                   </div>
                   <button
+                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded border border-border-color/35 bg-background/55 text-danger transition-colors duration-150 hover:bg-danger/10 disabled:opacity-40"
                     type="button"
                     tabIndex={-1}
                     onClick={() => removeDraft(draft.id)}
                     disabled={isLoading}
-                    title={t("remove")}
-                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded border border-border-color/35 bg-background/55 text-danger transition-colors duration-150 hover:bg-danger/10 disabled:opacity-40">
+                    title={t("remove")}>
                     <BiTrash size={14} />
                   </button>
                 </div>
@@ -214,15 +214,15 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                       const isActive = url === draft.image_url
                       return (
                         <button
+                          className={twMerge(
+                            "relative h-12 w-12 shrink-0 overflow-hidden rounded border transition-colors duration-150",
+                            isActive ? "border-brand/60 ring-1 ring-brand/40" : "border-border-color/30 hover:border-brand/40",
+                          )}
                           key={`${url}-${index}`}
                           type="button"
                           tabIndex={-1}
                           onClick={() => updateDraft(draft.id, { image_url: url })}
-                          disabled={isLoading}
-                          className={twMerge(
-                            "relative h-12 w-12 shrink-0 overflow-hidden rounded border transition-colors duration-150",
-                            isActive ? "border-brand/60 ring-1 ring-brand/40" : "border-border-color/30 hover:border-brand/40",
-                          )}>
+                          disabled={isLoading}>
                           <Image className="object-cover" src={url} alt={`variant-image-${index + 1}`} fill sizes="48px" />
                         </button>
                       )

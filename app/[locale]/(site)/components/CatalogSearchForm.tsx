@@ -95,14 +95,14 @@ export function CatalogSearchForm({
       }`}
       onSubmit={handleSubmit}>
       <div
-        aria-hidden="true"
         className={`pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-transparent via-success/20 to-transparent transition-opacity duration-300 ${
           isPending ? "animate-[searchSweep_1.2s_linear_infinite] opacity-100" : "opacity-0"
         }`}
+        aria-hidden="true"
       />
       <input
-        aria-label={ariaLabel}
         className="relative h-10 w-full rounded-[2px] bg-transparent px-3 text-base text-title outline-none placeholder:text-subTitle"
+        aria-label={ariaLabel}
         name="query"
         onChange={event => setQueryValue(event.currentTarget.value)}
         placeholder={placeholder}
@@ -110,18 +110,18 @@ export function CatalogSearchForm({
         value={queryValue}
       />
       <button
-        aria-busy={isPending}
         className={`relative inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-[2px] border px-4 text-sm font-semibold transition-all duration-300 ${
           isPending
             ? "border-success bg-success text-black"
             : "border-success/30 bg-success/10 text-success hover:border-success hover:bg-success hover:text-black"
         }`}
+        aria-busy={isPending}
         disabled={isPending}
         type="submit">
         {isPending ? <BiLoaderAlt className="animate-spin text-base" /> : <BiSearchAlt className="text-base" />}
         <span>{isPending ? "Searching..." : submitLabel}</span>
       </button>
-      <span aria-live="polite" className="sr-only">
+      <span className="sr-only" aria-live="polite">
         {isPending ? "Searching products" : ""}
       </span>
     </form>

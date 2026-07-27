@@ -51,6 +51,8 @@ declare global {
 
       TINIFY_API_KEY_ARR: string
 
+      CHROMATIC_PROJECT_TOKEN: string
+
       NEXT_PUBLIC_IS_DEBUG: string
     }
   }

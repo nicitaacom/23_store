@@ -91,30 +91,30 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   }, [])
 
   return (
-    <div ref={containerRef} className="shrink-0 rounded border border-border-color/30 bg-background/70 px-2 py-1 shadow-none">
+    <div className="shrink-0 rounded border border-border-color/30 bg-background/70 px-2 py-1 shadow-none" ref={containerRef}>
       <div className="flex items-center gap-2">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle/70">{t("price")}:</p>
         {isEditing ? (
           <form onSubmit={event => handleSubmit(onSubmit)(event)}>
             <div>
               <ProductInput
-                data-cy="product-price-input"
                 className={twMerge(
                   "w-full border-border-color/50 bg-background/60 text-start",
                   isLoading && "animate-pulse",
                 )}
+                data-cy="product-price-input"
                 id="price"
                 register={register}
                 errors={errors}
                 placeholder={price.toString()}
-                autoFocus
                 required
+                autoFocus
               />
             </div>
           </form>
         ) : (
-          <button data-cy="edit-product-price" className="flex items-center gap-1.5 rounded p-1 transition-colors duration-150 hover:bg-warning/20" type="button" onClick={enableInput}>
-            <span data-cy="product-price" className="text-sm font-semibold text-title">{formatCurrency(price)}</span>
+          <button className="flex items-center gap-1.5 rounded p-1 transition-colors duration-150 hover:bg-warning/20" data-cy="edit-product-price" type="button" onClick={enableInput}>
+            <span className="text-sm font-semibold text-title" data-cy="product-price">{formatCurrency(price)}</span>
             <CiEdit className="text-subTitle" />
           </button>
         )}

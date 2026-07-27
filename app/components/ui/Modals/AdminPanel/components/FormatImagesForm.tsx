@@ -195,14 +195,14 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
               const isSelected = selectedIndex === index
               return (
                 <div
-                  key={`${url}-${index}`}
-                  onClick={() => onSelect?.(index)}
-                  onMouseEnter={() => onHover?.(index)}
-                  onMouseLeave={() => onHover?.(selectedIndex ?? 0)}
                   className={twMerge(
                     "group relative h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded border bg-foreground/[0.06]",
                     isSelected ? "border-brand/60 ring-1 ring-brand/40" : "border-border-color/30",
-                  )}>
+                  )}
+                  key={`${url}-${index}`}
+                  onClick={() => onSelect?.(index)}
+                  onMouseEnter={() => onHover?.(index)}
+                  onMouseLeave={() => onHover?.(selectedIndex ?? 0)}>
                   <Image
                     className="object-cover"
                     src={url}
@@ -212,30 +212,30 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
                   />
                   {isPending && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                      <BiUpload size={14} className="text-white/80" />
+                      <BiUpload className="text-white/80" size={14} />
                     </div>
                   )}
                   {isPrimary && (
                     <span className="absolute left-0.5 top-0.5 rounded bg-black/60 p-0.5">
-                      <BiStar size={10} className="text-yellow-400" />
+                      <BiStar className="text-yellow-400" size={10} />
                     </span>
                   )}
                   <div className="absolute inset-0 flex items-center justify-center gap-1 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                     {!isPrimary && (
                       <button
+                        className="rounded bg-white/10 p-1 text-white hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
                         type="button"
                         disabled={isLoading}
                         onClick={e => { e.stopPropagation(); makePrimary(index) }}
-                        className="rounded bg-white/10 p-1 text-white hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
                         title="Set as primary">
                         <BiStar size={12} />
                       </button>
                     )}
                     <button
+                      className="rounded bg-danger/70 p-1 text-white hover:bg-danger disabled:cursor-not-allowed disabled:opacity-40"
                       type="button"
                       disabled={deletingUrls.has(url)}
                       onClick={e => { e.stopPropagation(); removeImage(url, index) }}
-                      className="rounded bg-danger/70 p-1 text-white hover:bg-danger disabled:cursor-not-allowed disabled:opacity-40"
                       title="Remove">
                       <BiTrash size={12} />
                     </button>
@@ -247,14 +247,14 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
             {/* Add button */}
             {imgUrl.length < MAX_PRODUCT_IMAGES && (
               <button
-                type="button"
-                onClick={onImageUpload}
-                disabled={isLoading}
-                {...dragProps}
                 className={twMerge(
                   "flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded border border-dashed border-border-color/35 bg-foreground/[0.03] text-subTitle/50 transition-colors hover:border-brand/40 hover:bg-brand/5 hover:text-brand disabled:opacity-40",
                   isDragging && "border-brand/60 bg-brand/10",
-                )}>
+                )}
+                type="button"
+                onClick={onImageUpload}
+                disabled={isLoading}
+                {...dragProps}>
                 <BiPlus size={18} />
                 <span className="text-[9px] font-semibold uppercase tracking-wider">Add</span>
               </button>

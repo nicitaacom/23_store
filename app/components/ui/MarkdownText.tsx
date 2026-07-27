@@ -22,8 +22,8 @@ export function MarkdownText({ text }: { text: string }) {
             })[0]
           if (!first) { parts.push(rest); break }
           if (first.index! > 0) parts.push(rest.slice(0, first.index))
-          if (first === bold) parts.push(<strong key={key++} className="font-semibold text-title">{first[1]}</strong>)
-          else if (first === italic) parts.push(<em key={key++} className="italic">{first[1]}</em>)
+          if (first === bold) parts.push(<strong className="font-semibold text-title" key={key++}>{first[1]}</strong>)
+          else if (first === italic) parts.push(<em className="italic" key={key++}>{first[1]}</em>)
           else parts.push(<u key={key++}>{first[1]}</u>)
           rest = rest.slice(first.index! + first[0].length)
         }

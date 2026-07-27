@@ -10,9 +10,23 @@ import { useCtrlKModal } from "@/store/ui/useCtrlKModal"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { useDebounce } from "@/hooks/useDebounce"
 
-export function CtrlKModal() {
-  const t = useScopedI18n("modal")
+interface ICtrlKModalProps {
+  locale?: "en" | "fi" | "ru" | "se"
+}
+
+export function CtrlKModal({ locale }: ICtrlKModalProps = {}) {
+  if (locale) return <CtrlKModalContent locale={locale} />
+
+  return <LocalizedCtrlKModal />
+}
+
+function LocalizedCtrlKModal() {
   const locale = useCurrentLocale()
+  return <CtrlKModalContent locale={locale} />
+}
+
+function CtrlKModalContent({ locale }: { locale: string }) {
+  const t = useScopedI18n("modal")
   const router = useRouter()
   const ctrlKModal = useCtrlKModal()
   const [searchQuery, setSearchQuery] = useState("")
@@ -64,8 +78,8 @@ export function CtrlKModal() {
 
   return (
     <ModalContainer
-      classnameContainer="z-[1000]"
       className="relative w-full max-w-[450px]"
+      classnameContainer="z-[1000]"
       isOpen={ctrlKModal.isOpen}
       onClose={ctrlKModal.closeModal}>
       <form className="flex flex-col gap-y-2" onSubmit={handleSubmit}>

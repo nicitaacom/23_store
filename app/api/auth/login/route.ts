@@ -14,6 +14,7 @@ export async function POST(req: Request) {
 
   try {
     // 1. Check is user with this email doesn't exist
+    // eslint-disable-next-line local-rules/use-rls-supabase-client -- This pre-authentication lookup is restricted to the normalized login email and non-sensitive confirmation fields.
     const { data: publicUsers, error: emailSelectError } = await supabaseAdmin
       .from("23_users")
       .select("email,email_confirmed_at,providers")
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
       throw new Error("User with this email doesn't exist")
     }
     if (emailSelectError) {
-      console.log(22, "emailSelectError \n", emailSelectError)
+      console.log(29, "emailSelectError \n", emailSelectError)
       throw emailSelectError
     }
 

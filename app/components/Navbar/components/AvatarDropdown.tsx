@@ -79,11 +79,12 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
 
   return (
     <DropdownContainer
+      className="max-w-[200px]"
+      list
       isDropdown={isShowDropdown}
       toggle={toggleDropdown}
       dropdownRef={avatarDropdownRef}
       classNameDropdownContainer="ml-1 z-[102]"
-      className="max-w-[200px]"
       username={getUserName(user) || "anonymous"}
       icon={
         <span data-cy="user-menu">

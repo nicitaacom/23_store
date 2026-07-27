@@ -3,6 +3,16 @@
 Use `CheckEmail.tsx` example and every time send request to send email to previrew it because preview in react-email works not properly
 and you may got different email from that you saw in react-email preview
 
+### Two rules that bite
+
+1. **Always write `<table><tbody><tr>`** - React warns about `<tr>` directly inside `<table>` and the
+   emitted HTML is invalid. Every `<table>` in `CheckEmail.tsx` / `RequestReplanishmentEmail.tsx` has a
+   `<tbody>` for that reason.
+2. **Render the template where you send it, not in a `useEffect`.** `requestBetterPrices.tsx` and
+   `RequestReplanishmentButton.tsx` both call `renderAsync(<Template ... />)` inside the click handler and
+   pass the returned string straight to the SDK method - rendering into a state variable first once shipped
+   an email with an empty body for months.
+
 I reccomend you to do it with `<table>` `<tbody>` `<tr>` `<td>` rather then with `<div>`
 
 You may check examples to get understanding how it works - https://react.email/examples

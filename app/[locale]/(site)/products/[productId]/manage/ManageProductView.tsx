@@ -319,12 +319,12 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
         return (
           <div
-            key={variant.id}
-            className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(14,18,24,0.96),rgba(9,11,15,0.98))] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.2)]">
+            className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(14,18,24,0.96),rgba(9,11,15,0.98))] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.2)]"
+            key={variant.id}>
             <div className="flex gap-3">
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black">
                 {linkedImageUrl ? (
-                  <Image src={linkedImageUrl} alt={variant.label} fill className="object-cover" sizes="64px" />
+                  <Image className="object-cover" src={linkedImageUrl} alt={variant.label} fill sizes="64px" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-[10px] text-white/35">{t("variant")}</div>
                 )}
@@ -332,29 +332,29 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
               <div className="flex min-w-0 flex-1 flex-col gap-2">
                 <input
+                  className="w-full rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
                   value={variant.label}
                   onChange={event => updateVariantLabelRef.current(variant.id, event.target.value)}
-                  className="w-full rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
                   placeholder={t("variant_label")}
                   disabled={isUpdatingProduct}
                 />
 
                 <div className="flex gap-2">
                   <input
+                    className="w-full min-w-0 flex-1 rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
                     value={variant.price > 0 ? formatGroupedNumberInput(String(variant.price)) : ""}
                     onChange={event => updateVariantPriceRef.current(variant.id, event.target.value)}
-                    className="w-full min-w-0 flex-1 rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
                     placeholder={t("placeholder.price")}
                     disabled={isUpdatingProduct}
                     inputMode="decimal"
                   />
                   <input
-                    value={variant.quantity > 0 ? formatGroupedNumberInput(String(variant.quantity)) : ""}
-                    onChange={event => updateVariantQuantityRef.current(variant.id, event.target.value)}
                     className={twMerge(
                       "w-full min-w-0 flex-1 rounded-xl border bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30",
                       variant.quantity > 0 ? "border-white/8" : "border-warning/40",
                     )}
+                    value={variant.quantity > 0 ? formatGroupedNumberInput(String(variant.quantity)) : ""}
+                    onChange={event => updateVariantQuantityRef.current(variant.id, event.target.value)}
                     placeholder={t("variant_quantity")}
                     disabled={isUpdatingProduct}
                     inputMode="numeric"
@@ -363,15 +363,15 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
                 <div className="flex flex-wrap gap-2">
                   <button
+                    className="rounded-xl border border-success/20 bg-success/8 px-3 py-2 text-xs font-medium text-success transition-colors hover:bg-success/12"
                     type="button"
-                    onClick={() => assignFirstImageToVariantRef.current(variant.id)}
-                    className="rounded-xl border border-success/20 bg-success/8 px-3 py-2 text-xs font-medium text-success transition-colors hover:bg-success/12">
+                    onClick={() => assignFirstImageToVariantRef.current(variant.id)}>
                     {t("assign_current_image")}
                   </button>
                   <button
+                    className="rounded-xl border border-danger/20 bg-danger/8 px-3 py-2 text-xs font-medium text-danger transition-colors hover:bg-danger/12"
                     type="button"
-                    onClick={() => removeVariantRef.current(variant.id)}
-                    className="rounded-xl border border-danger/20 bg-danger/8 px-3 py-2 text-xs font-medium text-danger transition-colors hover:bg-danger/12">
+                    onClick={() => removeVariantRef.current(variant.id)}>
                     {t("remove")}
                   </button>
                 </div>
@@ -395,8 +395,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               custom={slideDirection}
               onExitComplete={() => setPreviousPreviewIndex(previewImageIndex)}>
               <motion.div
-                key={previewImageIndex}
                 className="absolute inset-0"
+                key={previewImageIndex}
                 custom={slideDirection}
                 variants={{
                   initial: (dir: "next" | "prev") => ({ x: dir === "next" ? "100%" : "-100%", opacity: 0 }),
@@ -433,7 +433,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         </div>
       </section>
 
-      <form onSubmit={event => handleSubmit(onSubmit)(event)} className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={event => handleSubmit(onSubmit)(event)}>
         <section className="rounded-2xl border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(20,90,44,0.22),transparent_28%),linear-gradient(155deg,rgba(11,14,19,0.99),rgba(8,10,14,1))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.42)]">
           <div className="mb-4">
             <p className="text-xs uppercase tracking-[0.24em] text-subTitle">{t("manage_product")}</p>

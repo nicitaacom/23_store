@@ -35,9 +35,9 @@ export function RequestBetterPricesEmail({ products, totalPrice, userEmail }: Re
               const translation = product.translations.en ?? product.translations.fi
 
               return (
-                <div key={product.id} style={productCard}>
+                <div style={productCard} key={product.id}>
                   {(product.selectedVariant?.image_url ? [product.selectedVariant.image_url] : product.img_url)?.map(url => (
-                    <Img key={url} src={url} alt={product.selectedVariant?.label || translation.title} style={productImage} />
+                    <Img style={productImage} key={url} src={url} alt={product.selectedVariant?.label || translation.title} />
                   ))}
                 <Text style={productNumber}>#{index + 1}</Text>
                   <Text style={productName}>{translation.title}</Text>
@@ -66,7 +66,7 @@ export function RequestBetterPricesEmail({ products, totalPrice, userEmail }: Re
               <Section>
                 <Text style={text}>
                   Customer Email:{" "}
-                  <a href={`mailto:${userEmail}`} style={link}>
+                  <a style={link} href={`mailto:${userEmail}`}>
                     {userEmail}
                   </a>
                 </Text>

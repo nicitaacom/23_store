@@ -8,6 +8,7 @@ async function getUnreadMessages() {
 
   const userId = getUserResp?.id ? getUserResp.id : getAnonymousId()
 
+  // eslint-disable-next-line local-rules/use-rls-supabase-client -- The resolved authenticated or anonymous identity scopes unread support messages below.
   const { data, error: get_unread_messages_error } = await supabaseAdmin
     .from("23_messages")
     .select("ticket_id,id,seen")
@@ -15,7 +16,7 @@ async function getUnreadMessages() {
     .eq("seen", false)
 
   if (get_unread_messages_error) {
-    console.log(25, "get_unread_messages_error - ", get_unread_messages_error)
+    console.log(19, "get_unread_messages_error - ", get_unread_messages_error)
     throw get_unread_messages_error
   }
 

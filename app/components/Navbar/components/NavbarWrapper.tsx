@@ -18,10 +18,10 @@ export function NavbarWrapper({ children }: { children: React.ReactNode }) {
   }, [])
   return (
     <nav
-      id="nav"
       className={`fixed top-0 left-0 right-0 z-[1499] w-full min-h-[64px] flex flex-row justify-between items-center
       px-4 tablet:px-6 laptop:px-8 py-2 mx-auto text-title transition-colors duration-300
-    ${scrollPosition < 40 ? "bg-background" : "bg-foreground"}`}>
+    ${scrollPosition < 40 ? "bg-background" : "bg-foreground"}`}
+      id="nav">
       {children}
     </nav>
   )

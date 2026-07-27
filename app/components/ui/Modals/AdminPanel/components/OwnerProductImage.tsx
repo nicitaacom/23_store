@@ -14,8 +14,8 @@ export function OwnerProductImage({ imgUrl, className, alt }: OwnerProductImageP
   return (
     <figure className={twMerge("relative w-full overflow-hidden bg-foreground/[0.06]", className)}>
       <ImageWithFallback
-        key={imgUrl}
         className="h-auto w-full max-w-full object-contain"
+        key={imgUrl}
         showLabel
         fallbackWrapperClassName="absolute inset-0 flex flex-col items-center justify-center gap-1.5"
         fallbackClassName="h-4/5 w-auto"

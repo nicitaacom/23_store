@@ -45,10 +45,10 @@ export function DeleteProductHeader({ id, title, description, price, onRequestDe
             className="flex cursor-pointer select-none items-center gap-2.5"
             onClick={e => e.stopPropagation()}>
             <input
+              className="h-4 w-4 cursor-pointer accent-danger"
               type="checkbox"
               checked={isSelected}
               onChange={() => onToggleSelect?.(id)}
-              className="h-4 w-4 cursor-pointer accent-danger"
             />
             <span className="text-sm leading-6 text-subTitle">
               {isSelected ? "Selected for deletion" : t("confirm_delete_product")}
@@ -58,8 +58,8 @@ export function DeleteProductHeader({ id, title, description, price, onRequestDe
           <>
             <p className="text-sm leading-6 text-subTitle">{t("confirm_delete_product")}</p>
             <Button
-              data-cy="request-product-delete"
               className="w-full tablet:w-auto"
+              data-cy="request-product-delete"
               size="sm"
               variant="danger-outline"
               onClick={() => onRequestDelete(id, title)}>

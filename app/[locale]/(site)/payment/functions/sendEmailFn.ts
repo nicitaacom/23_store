@@ -22,7 +22,7 @@ export async function sendEmailFn(emailData: EmailData, setCurrentStep: Dispatch
     setCurrentStep(7)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.log(102, t("payment.error.email_sent"), errorMessage)
+    console.log(25, t("payment.error.email_sent"), errorMessage)
     toast.show("error", t("payment.error.email_sent"), errorMessage, 15000)
   }
 }

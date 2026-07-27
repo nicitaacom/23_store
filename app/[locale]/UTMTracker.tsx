@@ -4,7 +4,7 @@ import { useEffect } from "react"
 
 import { getCookie } from "@/utils/helpersCSR"
 import { setAnonymousId } from "@/utils/setAnonymousId"
-import { trackVisitAction } from "@/[locale]/(site)/stats/actions/trackVisitAction"
+import { trackVisitAction } from "@/actions/trackVisitAction"
 
 export function UTMTracker({ userId }: { userId: string | undefined }) {
   useEffect(() => {

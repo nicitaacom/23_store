@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 
-import { BackToMainButton } from "./components/BackToMainButton"
 import { AuthNotCompleted } from "./AuthNotCompleted"
+import { BackToMainButton } from "./components/BackToMainButton"
 import { EmailLinkInvalidOrExpired } from "./EmailLinkInvalidOrExpired"
 import { ExchangeCookiesError } from "./ExchangeCookiesError"
 import { NoCodeFoundError } from "./NoCodeFoundError"

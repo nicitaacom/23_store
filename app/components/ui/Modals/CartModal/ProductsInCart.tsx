@@ -51,7 +51,7 @@ export function ProductsInCart() {
 
           <div className="flex items-center justify-between py-1.5">
             <span className="text-sm text-subTitle">{t("product.subtotal")}</span>
-            <span data-cy="cart-subtotal" className="text-sm font-medium text-title">
+            <span className="text-sm font-medium text-title" data-cy="cart-subtotal">
               {formatCurrency(cartStore.getProductsPrice(), locale)}
             </span>
           </div>
@@ -61,7 +61,7 @@ export function ProductsInCart() {
           {/* 3. Total emphasized */}
           <div className="flex items-end justify-between py-1">
             <span className="text-sm font-semibold text-title">{t("product.total")}</span>
-            <span data-cy="cart-total" className="text-2xl font-bold tracking-tight text-success">
+            <span className="text-2xl font-bold tracking-tight text-success" data-cy="cart-total">
               {formatCurrency(cartStore.getProductsPrice(), locale)}
             </span>
           </div>
@@ -70,8 +70,8 @@ export function ProductsInCart() {
         {/* 4. Actions — primary first, destructive as ghost */}
         <div className="flex flex-col gap-2 laptop:mt-auto">
           <Button
-            data-cy="request-better-prices"
             className="w-full border-success/40 bg-success/10 text-success hover:bg-success/20"
+            data-cy="request-better-prices"
             variant="default-outline"
             size="md"
             disabled={isLoading}

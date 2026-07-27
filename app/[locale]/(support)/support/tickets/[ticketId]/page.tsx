@@ -5,7 +5,7 @@ import { Metadata } from "next"
 import type { TMessageDB } from "@/ts/support/TMessageDB"
 import { MessagesBody, MessagesFooter, MessagesHeader, NoTicketFound } from "./components"
 import { ThisTicketIsCompleted } from "./components/ThisTicketIsCompleted"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import supabaseServer from "@/libs/supabase/supabaseServer"
 import { DragAndDropArea } from "@/components/SupportButton/components/DragAndDropArea/DragAndDropArea"
 
 interface ChatPageProps {
@@ -21,30 +21,26 @@ export const revalidate = 5
 
 //I cache data to don't fetch data from DB twice
 const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
-  const { data: messages_by_id_response, error: messages_by_id_error } = await supabaseAdmin
+  const supabase = await supabaseServer()
+  const { data: messages_by_id_response, error: messages_by_id_error } = await supabase
     .from("23_messages")
     .select("*")
     .order("created_at", { ascending: true })
     .eq("ticket_id", ticketId)
-  if (messages_by_id_error) console.log(23, "messages by id error - ", messages_by_id_error.message)
+  if (messages_by_id_error) console.log(30, "messages by id error - ", messages_by_id_error.message)
   if (!messages_by_id_response) return notFound()
   return messages_by_id_response as TMessageDB[]
 })
 
 // cache ticket meta (is_open + created_at) because the current product rule keeps closed tickets closed
 const getTicketMetaCache = cache(async (ticketId: string) => {
-  const { data: ticket_meta } = await supabaseAdmin.from("23_tickets").select("is_open, created_at").eq("id", ticketId).single()
+  const supabase = await supabaseServer()
+  const { data: ticket_meta } = await supabase.from("23_tickets").select("is_open, created_at").eq("id", ticketId).single()
   return ticket_meta
 })
 
-export async function generateStaticParams(): Promise<{ ticketId: string }[]> {
-  const { data, error } = await supabaseAdmin.from("23_tickets").select("id").eq("is_open", true)
-  if (error) {
-    console.log(42, "error generating statuc params - ", error.message)
-    return []
-  }
-  if (!data) return []
-  return data.map(row => ({ ticketId: row.id }))
+export function generateStaticParams(): { ticketId: string }[] {
+  return []
 }
 
 export async function generateMetadata({ params: paramsPromise }: ChatPageProps): Promise<Metadata> {

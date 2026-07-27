@@ -32,10 +32,10 @@ function BulkProgressToast({ items }: { items: { title: string; status: DeleteSt
       </div>
       <ul className="mt-1 max-h-[160px] space-y-1 overflow-y-auto">
         {items.map((item, index) => (
-          <li key={index} className="flex items-center gap-2 text-xs">
-            {item.status === "done" && <BiCheck size={13} className="shrink-0 text-success" />}
-            {item.status === "error" && <BiErrorCircle size={13} className="shrink-0 text-danger" />}
-            {item.status === "deleting" && <BiLoaderAlt size={13} className="shrink-0 animate-spin text-subTitle" />}
+          <li className="flex items-center gap-2 text-xs" key={index}>
+            {item.status === "done" && <BiCheck className="shrink-0 text-success" size={13} />}
+            {item.status === "error" && <BiErrorCircle className="shrink-0 text-danger" size={13} />}
+            {item.status === "deleting" && <BiLoaderAlt className="shrink-0 animate-spin text-subTitle" size={13} />}
             {item.status === "pending" && (
               <span className="h-[13px] w-[13px] shrink-0 rounded-full border border-border-color/40" />
             )}
@@ -169,8 +169,8 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
                 </p>
                 <ul className="mt-2 space-y-1.5">
                   {products.map(singleProduct => (
-                    <li key={singleProduct.id} className="flex items-center gap-2 text-sm font-semibold leading-5 text-title">
-                      <BiTrash size={13} className="shrink-0 text-danger/70" />
+                    <li className="flex items-center gap-2 text-sm font-semibold leading-5 text-title" key={singleProduct.id}>
+                      <BiTrash className="shrink-0 text-danger/70" size={13} />
                       {singleProduct.title}
                     </li>
                   ))}

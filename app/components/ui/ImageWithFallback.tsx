@@ -39,8 +39,8 @@ export function ImageWithFallback({
 
   const image = (
     <Image
-      {...props}
       className={twMerge(className, showFallback && fallbackClassName)}
+      {...props}
       src={showFallback ? fallbackSrc : (src as string)}
       alt={alt}
       onError={() => setFailedSrc(src)}
@@ -53,7 +53,7 @@ export function ImageWithFallback({
   return (
     <div className={twMerge(showFallback && fallbackWrapperClassName)}>
       {image}
-      {showFallback && <p className="text-center text-xs text-white/40">{t("product.no_image_found")}</p>}
+      {showFallback && <p className="text-center text-xs text-subTitle">{t("product.no_image_found")}</p>}
     </div>
   )
 }

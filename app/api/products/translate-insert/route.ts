@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 
 import { deleteDBProduct, insertDBProduct } from "./insertDBProduct"
-import type { TProductInsertPayload } from "./insertDBProduct"
 import { invokeTranslateProductLambda } from "./invokeTranslateProductLambda"
+import type { TProductInsertPayload } from "./insertDBProduct"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 
 export const runtime = "nodejs"

@@ -105,39 +105,41 @@ export function CheckEmail({
 
                 return (
                   <Section
-                    key={product.id}
                     style={{ padding: 0 }}
-                    className={twMerge(index !== products.length - 1 && "pb-6 mb-6 border-b border-[#e5e5e5]")}>
+                    className={twMerge(index !== products.length - 1 && "pb-6 mb-6 border-b border-[#e5e5e5]")}
+                    key={product.id}>
                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                      <tr>
-                        <td style={{ width: "120px", verticalAlign: "top", paddingRight: "20px" }}>
-                          <Img
-                            style={{ objectFit: "cover", borderRadius: "8px", display: "block" }}
-                            src={product.selectedVariant?.image_url || product.img_url[0]}
-                            width="120"
-                            height="120"
-                            alt={product.selectedVariant?.label || translation.title}
-                          />
-                        </td>
-                        <td style={{ verticalAlign: "top" }}>
-                          <Text
-                            style={{ lineHeight: "1.4", marginBottom: "8px" }}
-                            className="m-0 text-[18px] font-semibold text-title">
-                            {translation.title}
-                          </Text>
-                          <Text style={{ lineHeight: "1.5", marginBottom: "12px" }} className="m-0 text-[14px] text-subTitle">
-                            {quantityText}: {product.quantity}
-                          </Text>
-                          {product.selectedVariant?.label && (
-                            <Text style={{ lineHeight: "1.5", marginBottom: "12px" }} className="m-0 text-[14px] text-subTitle">
-                              Variant: {product.selectedVariant.label}
+                      <tbody>
+                        <tr>
+                          <td style={{ width: "120px", verticalAlign: "top", paddingRight: "20px" }}>
+                            <Img
+                              style={{ objectFit: "cover", borderRadius: "8px", display: "block" }}
+                              src={product.selectedVariant?.image_url || product.img_url[0]}
+                              width="120"
+                              height="120"
+                              alt={product.selectedVariant?.label || translation.title}
+                            />
+                          </td>
+                          <td style={{ verticalAlign: "top" }}>
+                            <Text
+                              style={{ lineHeight: "1.4", marginBottom: "8px" }}
+                              className="m-0 text-[18px] font-semibold text-title">
+                              {translation.title}
                             </Text>
-                          )}
-                          <Text className="m-0 text-[16px] font-medium text-title">
-                            {formatCurrency(product.price * product.quantity)}
-                          </Text>
-                        </td>
-                      </tr>
+                            <Text style={{ lineHeight: "1.5", marginBottom: "12px" }} className="m-0 text-[14px] text-subTitle">
+                              {quantityText}: {product.quantity}
+                            </Text>
+                            {product.selectedVariant?.label && (
+                              <Text style={{ lineHeight: "1.5", marginBottom: "12px" }} className="m-0 text-[14px] text-subTitle">
+                                Variant: {product.selectedVariant.label}
+                              </Text>
+                            )}
+                            <Text className="m-0 text-[16px] font-medium text-title">
+                              {formatCurrency(product.price * product.quantity)}
+                            </Text>
+                          </td>
+                        </tr>
+                      </tbody>
                     </table>
                   </Section>
                 )
@@ -146,14 +148,16 @@ export function CheckEmail({
               {/* TOTAL */}
               <Section style={{ borderTop: "2px solid #e5e5e5", paddingTop: "24px", marginTop: "24px" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <tr>
-                    <td style={{ textAlign: "left" }}>
-                      <Text className="m-0 text-[20px] font-bold text-title">{totalText}</Text>
-                    </td>
-                    <td style={{ textAlign: "right" }}>
-                      <Text className="m-0 text-[24px] font-bold text-title">{formatCurrency(totalAmount)}</Text>
-                    </td>
-                  </tr>
+                  <tbody>
+                    <tr>
+                      <td style={{ textAlign: "left" }}>
+                        <Text className="m-0 text-[20px] font-bold text-title">{totalText}</Text>
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        <Text className="m-0 text-[24px] font-bold text-title">{formatCurrency(totalAmount)}</Text>
+                      </td>
+                    </tr>
+                  </tbody>
                 </table>
               </Section>
             </Section>
@@ -170,7 +174,6 @@ export function CheckEmail({
                 textAlign: "center",
               }}>
               <Link
-                href={`${getURL()}track-order`}
                 style={{
                   display: "inline-block",
                   background: "#1ce956",
@@ -181,7 +184,8 @@ export function CheckEmail({
                   fontSize: "16px",
                   fontWeight: "600",
                   marginBottom: "16px",
-                }}>
+                }}
+                href={`${getURL()}track-order`}>
                 {trackYourOrder}
               </Link>
               <Text style={{ lineHeight: "1.5" }} className="m-0 text-[14px] text-subTitle">
@@ -193,22 +197,24 @@ export function CheckEmail({
             <Section style={{ width: "100%", maxWidth: "600px", textAlign: "center", paddingTop: "24px" }}>
               <Text className="m-0 text-[14px] text-subTitle mb-3">Need help with your order?</Text>
               <table style={{ width: "100%", textAlign: "center" }}>
-                <tr>
-                  <td>
-                    <Link
-                      href={`${getURL()}support`}
-                      style={{ textDecoration: "none", fontWeight: "500" }}
-                      className="text-[14px] text-[#1ce956] mx-3">
-                      {supportText}
-                    </Link>
-                    <Link
-                      href={`${getURL()}feedback`}
-                      style={{ textDecoration: "none", fontWeight: "500" }}
-                      className="text-[14px] text-[#1ce956] mx-3">
-                      {feedbackText}
-                    </Link>
-                  </td>
-                </tr>
+                <tbody>
+                  <tr>
+                    <td>
+                      <Link
+                        style={{ textDecoration: "none", fontWeight: "500" }}
+                        className="text-[14px] text-[#1ce956] mx-3"
+                        href={`${getURL()}support`}>
+                        {supportText}
+                      </Link>
+                      <Link
+                        style={{ textDecoration: "none", fontWeight: "500" }}
+                        className="text-[14px] text-[#1ce956] mx-3"
+                        href={`${getURL()}feedback`}>
+                        {feedbackText}
+                      </Link>
+                    </td>
+                  </tr>
+                </tbody>
               </table>
               <Text style={{ lineHeight: "1.5" }} className="m-0 mt-6 text-[12px] text-subTitle">
                 © {new Date().getFullYear()} Joki. {allRightsReserved}

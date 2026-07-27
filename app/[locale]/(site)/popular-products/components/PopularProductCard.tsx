@@ -49,10 +49,10 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
       {/* Image banner + like (only when not bought) */}
       <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-foreground/5">
         <ImageWithFallback
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
           src={imageUrl}
           alt={translation.title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
           fallbackClassName="object-contain"
           sizes="(max-width: 768px) 100vw, (max-width: 1440px) 33vw, 25vw"
         />
@@ -96,8 +96,8 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
                 const isFilled = starValue <= (hover || myRating)
                 return (
                   <button
-                    key={starValue}
                     className="rounded p-0.5 transition-transform duration-150 hover:scale-110 disabled:cursor-default disabled:hover:scale-100"
+                    key={starValue}
                     type="button"
                     disabled={Boolean(myRating)}
                     onMouseEnter={() => !myRating && setHover(starValue)}
@@ -112,8 +112,8 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
         )}
 
         <Link
-          href={`/${locale}/products/${product.id}`}
-          className="mt-auto flex items-center justify-center rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-title-foreground transition-colors duration-150 hover:bg-brand/90">
+          className="mt-auto flex items-center justify-center rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-title-foreground transition-colors duration-150 hover:bg-brand/90"
+          href={`/${locale}/products/${product.id}`}>
           {t("view_product")}
         </Link>
       </div>

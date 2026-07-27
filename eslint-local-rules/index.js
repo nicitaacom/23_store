@@ -6,7 +6,7 @@ module.exports = {
   ...require("./no-banned-words"),
   ...require("./no-function-in-deps"),
   ...require("./no-vague-names"),
-  ...require("./style-before-classname"),
+  ...require("./attributes-order"),
   ...require("./sdk-method-naming"),
   ...require("./no-throwaway-alias"),
   ...require("./no-zustand-types-in-store-file"),
@@ -21,6 +21,8 @@ module.exports = {
   ...require("./type-naming-prefix"),
   ...require("./no-type-export-in-action-or-component"),
   ...require("./imports-order"),
+  ...require("./no-high-level-import"),
+  ...require("./check-importers"),
   ...require("./no-cross-route-group-absolute-import"),
   ...require("./require-absolute-import-for-shared-folders"),
   ...require("./use-rls-supabase-client"),
@@ -37,4 +39,5 @@ module.exports = {
   ...require("./no-handlers-variable"),
   ...require("./no-inner-component"),
   ...require("./arrow-parens-avoid"),
+  ...require("./require-storybook-url"),
 }

@@ -1,11 +1,11 @@
 import { ReactNode } from "react"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { Timer } from "../AuthModal/components"
 import { UnknownError } from "./UnknownError"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
 import { useResetEmailStore } from "@/store/user/useResetEmailStore"
 import useUser from "@/store/user/useUser"
+import { Timer } from "@/components/ui"
 
 export async function resetPassword(password: string, displayResponseMessage: (message: ReactNode) => void, t: TI18nFunction) {
   const userStore = useUser.getState()

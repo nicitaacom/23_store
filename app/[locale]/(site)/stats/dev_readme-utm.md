@@ -140,7 +140,10 @@ utm_stats
 
 - [ ] Promote geo out of the `user_agent` JSON into real columns + a migration, so countries
       can be filtered/aggregated in SQL instead of in JS.
-- [ ] Move `FIRST_YEAR` (currently `2023` in `UTMDashboard.tsx`) into a shared config constant.
+- [x] ~~Move `FIRST_YEAR` (currently `2023` in `UTMDashboard.tsx`) into a shared config constant.~~
+      Decided AGAINST: `app/constant/dev_readme.md` says feature-specific values do not belong in
+      `app/constant`, and `FIRST_YEAR` has exactly one reader (`UTMDashboard.tsx:435`). It stays a
+      named constant at the top of that component; move it only when a second file needs it.
 - [ ] Add an index on `utm_stats(created_at)` if the period scan ever gets slow.
 - [ ] Consider server-side aggregation (SQL `count ... group by`) instead of fetching rows and
       reducing in JS, once row count is large.

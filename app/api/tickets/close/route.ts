@@ -23,6 +23,7 @@ export async function POST(req: Request) {
   const { ticketId, closedBy } = (await req.json()) as TAPITicketsClose
 
   // 1. Update 'tickets' to is_open:false
+  // eslint-disable-next-line local-rules/use-rls-supabase-client -- The validated support close payload scopes this legacy anonymous-support update to one ticket id.
   const { error } = await supabaseAdmin.from("23_tickets").update({ is_open: false }).eq("id", ticketId)
   if (error) return NextResponse.json({ error: `Error in api/tickets/close/route.ts\n ${error.message}` }, { status: 400 })
 

@@ -17,7 +17,7 @@ const buttonVariants = cva(
         "default-outline": "border-border-color/40 bg-background/55 text-title hover:border-brand/30 hover:bg-brand/8",
 
         primary: "bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500 shadow-sm",
-        "primary-outline": "bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500",
+        "primary-outline": "border border-info bg-transparent text-info hover:bg-blue-50 focus-visible:ring-blue-500",
 
         secondary:
           "border-border-color/35 bg-foreground/65 text-title hover:border-border-color/45 hover:bg-foreground/85",

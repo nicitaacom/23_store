@@ -183,8 +183,8 @@ export function PayWithMetamaskButton() {
           <br />
           {st("error.or_enable_metamask")}
           <Button
-            onClick={() => window.location.reload()}
             className="inline w-fit text-info"
+            onClick={() => window.location.reload()}
             variant="link"
             active="active"
             target="_blank">
@@ -223,10 +223,10 @@ export function PayWithMetamaskButton() {
             const chainConfig = CHAIN_CONFIG[chain]
             return (
               <button
-                key={chain}
                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
                   selectedChain === chain ? "bg-success/10 border-l-4 border-success" : "hover:bg-foreground-accent"
                 }`}
+                key={chain}
                 onClick={() => {
                   setSelectedChain(chain)
                   setShowChainSelector(false)

@@ -98,6 +98,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const wrapRef = useRef<((marker: string) => void) | null>(null)
   const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSuggestedKeyRef = useRef<string | null>(null)
+  const manualCategoryPickRef = useRef(false)
+  const lastSuggestedTitleRef = useRef<string | null>(null)
 
   const { categories: allCategories, hydrate: hydrateCategories } = useCategories()
   const previousImageIndexRef = useRef(0)
@@ -156,15 +158,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
     const pendingProductsLabel =
       nextPendingTranslationsAmount === 1
-        ? "1 product is processing."
-        : `${nextPendingTranslationsAmount} products are processing.`
-    // TODO - translate this
-    showToast(
-      "success",
-      "Creating product, translating...",
-      `${pendingProductsLabel} You can create another product while AI finishes translation.`,
-      null,
-    )
+        ? t("one_product_processing")
+        : t("products_processing", { count: nextPendingTranslationsAmount })
+
+    showToast("success", t("creating_translating"), `${pendingProductsLabel} ${t("create_another_meanwhile")}`, null)
   }
 
   const increasePendingTranslations = () => {
@@ -183,7 +180,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       updateBackgroundToast(nextPendingTranslationsAmount)
     } else if (showCompletedToast) {
       const subTitle = productId ? (
-        <a href={`/${locale}/products/${productId}`} className="underline underline-offset-2" target="_blank" rel="noreferrer">
+        <a className="underline underline-offset-2" href={`/${locale}/products/${productId}`} target="_blank" rel="noreferrer">
           View product
         </a>
       ) : (
@@ -210,10 +207,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     })
   }, [allCategories.length, hydrateCategories])
 
-  const runSuggestCategory = async (trimmed: string) => {
+  const runSuggestCategory = async (trimmed: string, isAfterManualPick = false) => {
     if (trimmed.length < 10) return
     if (!allCategories.length) return
-    if (lastSuggestedKeyRef.current === trimmed) return
+    if (!isAfterManualPick && lastSuggestedKeyRef.current === trimmed) return
     lastSuggestedKeyRef.current = trimmed
     setIsSuggestingCategory(true)
     try {
@@ -229,17 +226,24 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setIsSuggestingCategory(false)
   }
 
-  // Debounced AI auto-assign: fires 800ms after title stops changing, only when no category assigned yet
+  // Debounced AI auto-assign: fires 800ms after title stops changing, only when no category assigned yet.
+  // Exception - a title edit that comes AFTER the admin picked a category by hand re-runs the suggest even
+  // for an already-suggested title; picking a category on its own never triggers it (no fighting the admin).
   useEffect(() => {
     if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current)
-    if (categoryId) return
     const trimmed = titleValue?.trim() ?? ""
+    const isTitleEdited = lastSuggestedTitleRef.current !== trimmed
+    lastSuggestedTitleRef.current = trimmed
+    const isAfterManualPick = isTitleEdited && manualCategoryPickRef.current
+
+    if (categoryId && !isAfterManualPick) return
     if (trimmed.length < 10) return
     if (!allCategories.length) return
-    if (lastSuggestedKeyRef.current === trimmed) return
+    if (!isAfterManualPick && lastSuggestedKeyRef.current === trimmed) return
 
     suggestDebounceRef.current = setTimeout(() => {
-      void runSuggestCategory(trimmed)
+      manualCategoryPickRef.current = false
+      void runSuggestCategory(trimmed, isAfterManualPick)
     }, 800)
 
     return () => {
@@ -260,6 +264,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setActiveImageIndex(0)
     previousImageIndexRef.current = 0
     lastSuggestedKeyRef.current = null
+    lastSuggestedTitleRef.current = null
+    manualCategoryPickRef.current = false
     setVariantLabelValue("")
     setVariantPriceValue("")
     setVariantQuantityValue("")
@@ -553,17 +559,17 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             <section className="panel-scroll flex min-h-0 flex-col gap-2 overflow-y-auto pb-1">
               {/* Upload trigger */}
               <button
-                ref={dragZone}
-                onClick={onImageUpload}
-                disabled={isLoading}
-                type="button"
-                {...dragProps}
                 className={twMerge(
                   "group flex shrink-0 flex-col items-center justify-center gap-1.5 rounded border border-dashed border-white/15 bg-white/[0.02] px-4 py-4 text-center transition-colors duration-150",
                   "hover:border-success-accent/40 hover:bg-success-accent/10",
                   isDragging && "border-success-accent/60 bg-success-accent/12",
                   isDraggingg && "fixed inset-0 z-[101] rounded-none border-0 bg-[#0a0f15]/95",
-                )}>
+                )}
+                ref={dragZone}
+                onClick={onImageUpload}
+                disabled={isLoading}
+                type="button"
+                {...dragProps}>
                 <div className="flex h-8 w-8 items-center justify-center rounded bg-white/[0.05] text-success-accent">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path
@@ -601,14 +607,14 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                   <>
                     <AnimatePresence initial={false} custom={imageDirection} mode="popLayout">
                       <motion.div
+                        className="absolute inset-0"
                         key={`${safeActiveImageIndex}-${activeImage.data_url}`}
                         custom={imageDirection}
                         variants={previewImageVariants}
                         initial="initial"
                         animate="animate"
                         exit="exit"
-                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                        className="absolute inset-0">
+                        transition={{ duration: 0.5, ease: "easeInOut" }}>
                         <Image
                           className="h-full w-full object-contain"
                           src={activeImage.data_url}
@@ -622,25 +628,25 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     {imageList.length > 1 && (
                       <>
                         <button
-                          type="button"
-                          aria-label="Previous image"
-                          onClick={() => hasPrevImage && navigateToImage(safeActiveImageIndex - 1)}
-                          disabled={!hasPrevImage}
                           className={twMerge(
                             "absolute inset-y-0 left-0 z-10 flex w-[44px] items-center justify-center bg-black/40 transition-opacity duration-200",
                             hasPrevImage ? "cursor-pointer hover:bg-black/55" : "cursor-default opacity-30",
-                          )}>
+                          )}
+                          type="button"
+                          aria-label="Previous image"
+                          onClick={() => hasPrevImage && navigateToImage(safeActiveImageIndex - 1)}
+                          disabled={!hasPrevImage}>
                           <FaAngleLeft className="h-6 w-6 text-white" />
                         </button>
                         <button
-                          type="button"
-                          aria-label="Next image"
-                          onClick={() => hasNextImage && navigateToImage(safeActiveImageIndex + 1)}
-                          disabled={!hasNextImage}
                           className={twMerge(
                             "absolute inset-y-0 right-0 z-10 flex w-[44px] items-center justify-center bg-black/40 transition-opacity duration-200",
                             hasNextImage ? "cursor-pointer hover:bg-black/55" : "cursor-default opacity-30",
-                          )}>
+                          )}
+                          type="button"
+                          aria-label="Next image"
+                          onClick={() => hasNextImage && navigateToImage(safeActiveImageIndex + 1)}
+                          disabled={!hasNextImage}>
                           <FaAngleRight className="h-6 w-6 text-white" />
                         </button>
                       </>
@@ -688,13 +694,13 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 <div className="flex shrink-0 gap-1.5">
                   {imageList.slice(0, 5).map((image, index) => (
                     <button
-                      key={`${image.data_url}-${index}`}
-                      type="button"
-                      onClick={() => navigateToImage(index)}
                       className={twMerge(
                         "relative h-11 flex-1 overflow-hidden rounded-xl border-2 border-transparent transition-all duration-150",
                         index === safeActiveImageIndex && "border-success-accent/60",
-                      )}>
+                      )}
+                      key={`${image.data_url}-${index}`}
+                      type="button"
+                      onClick={() => navigateToImage(index)}>
                       <Image
                         className="h-full w-full object-cover"
                         src={image.data_url}
@@ -716,16 +722,16 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               {activeImage && (
                 <div className={twMerge("grid shrink-0 gap-1.5", imageList.length > 1 ? "grid-cols-3" : "grid-cols-2")}>
                   <button
-                    type="button"
-                    onClick={() => makeImagePrimary(safeActiveImageIndex)}
-                    disabled={isLoading}
-                    aria-pressed={isPrimaryImage}
                     className={twMerge(
                       "flex h-9 items-center justify-center gap-2 rounded border text-[11px] font-medium transition-colors disabled:opacity-40",
                       isPrimaryImage
                         ? "border-success-accent/35 bg-success-accent/12 text-success-accent"
                         : "border-white/10 bg-white/[0.04] text-white/60 hover:bg-white/[0.07] hover:text-white/80",
-                    )}>
+                    )}
+                    type="button"
+                    onClick={() => makeImagePrimary(safeActiveImageIndex)}
+                    disabled={isLoading}
+                    aria-pressed={isPrimaryImage}>
                     <span
                       className={twMerge(
                         "flex h-4 w-4 items-center justify-center rounded border transition-colors",
@@ -746,21 +752,21 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     {t("primary_image")}
                   </button>
                   <button
+                    className="h-9 rounded border border-danger/50 bg-danger/8 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40"
                     type="button"
                     onClick={() => onImageRemove(safeActiveImageIndex)}
-                    disabled={isLoading}
-                    className="h-9 rounded border border-danger/50 bg-danger/8 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
+                    disabled={isLoading}>
                     {t("remove")}
                   </button>
                   {imageList.length > 1 && (
                     <button
+                      className="h-9 rounded border border-danger/50 bg-danger/8 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40"
                       type="button"
                       onClick={() => {
                         onImageRemoveAll()
                         setActiveImageIndex(0)
                       }}
-                      disabled={isLoading}
-                      className="h-9 rounded border border-danger/50 bg-danger/8 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12 disabled:opacity-40">
+                      disabled={isLoading}>
                       {t("remove_all_images")}
                     </button>
                   )}
@@ -773,13 +779,13 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
       {/* ── RIGHT: Details Form + Variants ── */}
       <form
+        className="panel-scroll flex min-h-0 flex-col gap-3 overflow-y-auto pb-1"
         noValidate
         onSubmit={event => {
           event.preventDefault()
           event.stopPropagation()
           void handleFormSubmit(event)
-        }}
-        className="panel-scroll flex min-h-0 flex-col gap-3 overflow-y-auto pb-1">
+        }}>
         {/* Title */}
         <div className="grid gap-1.5">
           <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("title")}</label>
@@ -800,6 +806,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("description")}</label>
           <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
           <MarkdownEditor
+            className={twMerge(inputCn, "min-h-[100px]")}
             ref={descriptionRef}
             onWrapRef={wrapRef}
             value={descriptionValue ?? ""}
@@ -807,7 +814,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             onBlur={() => void trigger("subTitle")}
             disabled={isLoading}
             placeholder={t("placeholder.description")}
-            className={twMerge(inputCn, "min-h-[100px]")}
           />
           {errors.subTitle?.message && <p className="font-secondary text-danger text-xs">{errors.subTitle.message as string}</p>}
         </div>
@@ -823,9 +829,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               <span className="flex items-center gap-1 rounded bg-success/10 px-1.5 py-0.5 text-[10px] text-success">
                 {tGlobal("category.auto_assigned")}: {autoAssignedName}
                 <button
+                  className="ml-0.5 text-success/60 hover:text-success"
                   type="button"
                   tabIndex={-1}
-                  className="ml-0.5 text-success/60 hover:text-success"
                   onClick={() => {
                     setCategoryId(null)
                     setAutoAssignedName(null)
@@ -841,6 +847,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             onChange={id => {
               setCategoryId(id)
               setAutoAssignedName(null)
+              manualCategoryPickRef.current = true
             }}
             disabled={isLoading}
             uncategorizedLabel={tGlobal("category.uncategorized")}
@@ -889,10 +896,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               />
             </label>
             <button
+              className="h-10 rounded border border-success-accent/30 bg-success-accent/10 px-4 text-[13px] font-semibold text-success-accent transition-colors tablet:self-end hover:bg-success-accent/15 disabled:cursor-default disabled:opacity-40"
               type="button"
               onClick={addVariant}
-              disabled={isLoading || !images.length || variants.length >= MAX_PRODUCT_VARIANTS}
-              className="h-10 rounded border border-success-accent/30 bg-success-accent/10 px-4 text-[13px] font-semibold text-success-accent transition-colors tablet:self-end hover:bg-success-accent/15 disabled:cursor-default disabled:opacity-40">
+              disabled={isLoading || !images.length || variants.length >= MAX_PRODUCT_VARIANTS}>
               {t("add_variant_action")}
             </button>
           </div>
@@ -907,12 +914,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 if (!variantImage) return null
 
                 return (
-                  <div key={variant.id} className="flex items-center gap-2 rounded border border-white/8 bg-white/[0.03] p-2">
+                  <div className="flex items-center gap-2 rounded border border-white/8 bg-white/[0.03] p-2" key={variant.id}>
                     <button
+                      className="relative h-14 w-14 shrink-0 overflow-hidden rounded border border-white/10"
                       type="button"
                       tabIndex={-1}
-                      onClick={() => variantImageIndex >= 0 && navigateToImage(variantImageIndex)}
-                      className="relative h-14 w-14 shrink-0 overflow-hidden rounded border border-white/10">
+                      onClick={() => variantImageIndex >= 0 && navigateToImage(variantImageIndex)}>
                       <Image
                         className="h-full w-full object-cover"
                         src={variantImage.data_url}
@@ -929,10 +936,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                       </p>
                     </div>
                     <button
+                      className="rounded border border-danger/50 bg-danger/8 px-3 py-2 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12"
                       type="button"
                       tabIndex={-1}
-                      onClick={() => removeVariant(variant.id)}
-                      className="rounded border border-danger/50 bg-danger/8 px-3 py-2 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12">
+                      onClick={() => removeVariant(variant.id)}>
                       {t("remove")}
                     </button>
                   </div>
@@ -960,13 +967,13 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
         {/* Submit */}
         <button
-          type="submit"
-          disabled={isLoading || !images.length || variants.length === 0}
           className={twMerge(
             "ml-0.5 mt-auto min-h-[40px] w-[calc(100%-0.25rem)] rounded border border-success-accent/30 bg-success-accent/10 px-4 py-2 text-[14px] font-semibold text-success-accent transition-colors duration-150",
             "hover:bg-success-accent/15",
             (isLoading || !images.length || variants.length === 0) && "cursor-not-allowed opacity-50",
-          )}>
+          )}
+          type="submit"
+          disabled={isLoading || !images.length || variants.length === 0}>
           {t("create_product")}
         </button>
       </form>

@@ -5,6 +5,16 @@ import unicorn from "eslint-plugin-unicorn"
 import localRules from "./eslint-local-rules/index.js"
 
 export default [
+  {
+    ignores: [
+      ".cache/**",
+      ".home/**",
+      ".open-next/**",
+      ".pnpm-store/**",
+      "public/mockServiceWorker.js",
+      "storybook-static/**",
+    ],
+  },
   ...nextConfig,
   {
     files: ["**/*.ts", "**/*.tsx"],
@@ -36,7 +46,7 @@ export default [
       "local-rules/no-banned-words": "error",
       "local-rules/no-function-in-deps": "warn",
       "local-rules/no-vague-names": "warn",
-      "local-rules/style-before-classname": "warn",
+      "local-rules/attributes-order": "warn",
       "local-rules/sdk-method-naming": "warn",
       "local-rules/no-throwaway-alias": "warn",
       "local-rules/no-zustand-types-in-store-file": "warn",
@@ -51,9 +61,20 @@ export default [
       "local-rules/type-naming-prefix": "warn",
       "local-rules/no-type-export-in-action-or-component": "warn",
       "local-rules/imports-order": "warn",
+      "local-rules/no-high-level-import": "warn",
+      "local-rules/check-importers": "warn",
       "local-rules/no-cross-route-group-absolute-import": "warn",
       "local-rules/require-absolute-import-for-shared-folders": "warn",
       "local-rules/use-rls-supabase-client": "warn",
+      "local-rules/console-log-line-number": "warn",
+    },
+  },
+  {
+    // Components live in .tsx only - in .ts the rule would ask route handlers and helpers for a story.
+    files: ["**/*.tsx"],
+    ignores: ["**/*.stories.tsx", "storybook/**", "cypress/**"],
+    rules: {
+      "local-rules/require-storybook-url": "warn",
     },
   },
   {

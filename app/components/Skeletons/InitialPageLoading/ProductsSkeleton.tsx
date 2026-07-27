@@ -16,14 +16,14 @@ export function ProductsSkeleton() {
               <article className="flex tablet:hidden flex-col gap-y-2">
                 {/* Image */}
                 <Skeleton
-                  duration={2}
-                  containerClassName="flex w-full"
                   style={{
                     display: "flex",
                     maxWidth: "1800px",
                     width: "100vw",
                     height: "300px",
                   }}
+                  duration={2}
+                  containerClassName="flex w-full"
                   baseColor="hsl(0deg 0% 7%)"
                   highlightColor="hsl(0deg 0% 16%)"
                 />
@@ -32,17 +32,17 @@ export function ProductsSkeleton() {
                   <div className="flex flex-row gap-x-2 justify-between w-full h-full">
                     {/* Ttile */}
                     <Skeleton
+                      style={{ display: "flex", height: "42px" }}
                       duration={2}
                       containerClassName="flex w-[80%] h-fit"
-                      style={{ display: "flex", height: "42px" }}
                       baseColor="hsl(0deg 0% 7%)"
                       highlightColor="hsl(0deg 0% 16%)"
                     />
                     {/* Price */}
                     <Skeleton
+                      style={{ display: "flex", height: "42px" }}
                       duration={2}
                       containerClassName="flex w-[20%] h-fit"
-                      style={{ display: "flex", height: "42px" }}
                       baseColor="hsl(0deg 0% 7%)"
                       highlightColor="hsl(0deg 0% 16%)"
                     />
@@ -50,17 +50,17 @@ export function ProductsSkeleton() {
                   <div className="flex flex-col gap-y-2 w-full h-full">
                     {/* description */}
                     <Skeleton
+                      style={{ display: "flex", height: "20px" }}
                       duration={2}
                       containerClassName="flex w-[60%] mx-auto"
-                      style={{ display: "flex", height: "20px" }}
                       baseColor="hsl(0deg 0% 7%)"
                       highlightColor="hsl(0deg 0% 16%)"
                     />
                     {/* price */}
                     <Skeleton
+                      style={{ display: "flex", height: "20px" }}
                       duration={2}
                       containerClassName="flex w-[30%] mx-auto"
-                      style={{ display: "flex", height: "20px" }}
                       baseColor="hsl(0deg 0% 7%)"
                       highlightColor="hsl(0deg 0% 16%)"
                     />
@@ -69,33 +69,33 @@ export function ProductsSkeleton() {
                     {/* Green outline + button */}
                     <div className="flex flex-col justify-between">
                       <Skeleton
+                        style={{ display: "flex", height: "2px" }}
                         duration={2}
                         containerClassName="flex h-[2px]"
-                        style={{ display: "flex", height: "2px" }}
                         baseColor="hsl(0deg 0% 7%)"
                         highlightColor="hsl(118deg 80% 78%)"
                       />
                       <div className="flex flex-row justify-between">
                         <Skeleton
+                          style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                           duration={1}
                           containerClassName="flex"
-                          style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(118deg 80% 78%)"
                         />
                         <Skeleton
+                          style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                           direction="rtl"
                           duration={1}
                           containerClassName="flex"
-                          style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(118deg 80% 78%)"
                         />
                       </div>
                       <Skeleton
+                        style={{ display: "flex", height: "2px", rotate: "180deg" }}
                         duration={2}
                         containerClassName="flex w-[50px]"
-                        style={{ display: "flex", height: "2px", rotate: "180deg" }}
                         baseColor="hsl(0deg 0% 7%)"
                         highlightColor="hsl(118deg 80% 78%)"
                       />
@@ -103,33 +103,33 @@ export function ProductsSkeleton() {
                     {/* Red outline + button */}
                     <div className="flex flex-col justify-between">
                       <Skeleton
+                        style={{ display: "flex", height: "2px" }}
                         duration={2}
                         containerClassName="flex h-[2px]"
-                        style={{ display: "flex", height: "2px" }}
                         baseColor="hsl(0deg 0% 7%)"
                         highlightColor="hsl(0deg 80% 72%)"
                       />
                       <div className="flex flex-row justify-between">
                         <Skeleton
+                          style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                           duration={1}
                           containerClassName="flex"
-                          style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(0deg 80% 72%)"
                         />
                         <Skeleton
+                          style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                           direction="rtl"
                           duration={1}
                           containerClassName="flex"
-                          style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(0deg 80% 72%)"
                         />
                       </div>
                       <Skeleton
+                        style={{ display: "flex", height: "2px", rotate: "180deg" }}
                         duration={2}
                         containerClassName="flex w-[50px]"
-                        style={{ display: "flex", height: "2px", rotate: "180deg" }}
                         baseColor="hsl(0deg 0% 7%)"
                         highlightColor="hsl(0deg 80% 72%)"
                       />
@@ -137,33 +137,33 @@ export function ProductsSkeleton() {
                     {/* Red outline Clear button */}
                     <div className="flex flex-col justify-between">
                       <Skeleton
+                        style={{ display: "flex", width: "115px", height: "2px" }}
                         duration={2}
                         containerClassName="flex h-[2px] w-[115px]"
-                        style={{ display: "flex", width: "115px", height: "2px" }}
                         baseColor="hsl(0deg 0% 7%)"
                         highlightColor="hsl(0deg 80% 72%)"
                       />
                       <div className="flex flex-row justify-between">
                         <Skeleton
+                          style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                           duration={1}
                           containerClassName="flex"
-                          style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(0deg 80% 72%)"
                         />
                         <Skeleton
+                          style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                           direction="rtl"
                           duration={1}
                           containerClassName="flex"
-                          style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(0deg 80% 72%)"
                         />
                       </div>
                       <Skeleton
+                        style={{ display: "flex", width: "115px", height: "2px", rotate: "180deg" }}
                         duration={2}
                         containerClassName="flex w-[115px]"
-                        style={{ display: "flex", width: "115px", height: "2px", rotate: "180deg" }}
                         baseColor="hsl(0deg 0% 7%)"
                         highlightColor="hsl(0deg 80% 72%)"
                       />
@@ -177,14 +177,14 @@ export function ProductsSkeleton() {
               <div className="hidden tablet:flex flex-row gap-x-2 h-[300px] tablet:h-[175px] laptop:h-[200px] overflow-hidden">
                 {/* Image */}
                 <Skeleton
-                  duration={2}
-                  containerClassName="flex w-full tablet:w-[33%] mb-1"
                   style={{
                     display: "flex",
                     maxWidth: "1800px",
                     width: "100vw",
                     height: "300px",
                   }}
+                  duration={2}
+                  containerClassName="flex w-full tablet:w-[33%] mb-1"
                   baseColor="hsl(0deg 0% 7%)"
                   highlightColor="hsl(0deg 0% 16%)"
                 />
@@ -194,25 +194,25 @@ export function ProductsSkeleton() {
                     {/* Title + description (on stock omitted) */}
                     <div className="flex flex-col gap-y-2 w-full">
                       <Skeleton
+                        style={{ display: "flex", height: "28px" }}
                         duration={2}
                         containerClassName="flex w-[80%]"
-                        style={{ display: "flex", height: "28px" }}
                         baseColor="hsl(0deg 0% 7%)"
                         highlightColor="hsl(0deg 0% 16%)"
                       />
                       <Skeleton
+                        style={{ display: "flex", height: "20px" }}
                         duration={2}
                         containerClassName="flex w-[30%]"
-                        style={{ display: "flex", height: "20px" }}
                         baseColor="hsl(0deg 0% 7%)"
                         highlightColor="hsl(0deg 0% 16%)"
                       />
                     </div>
                     {/* Price */}
                     <Skeleton
+                      style={{ display: "flex", height: "28px" }}
                       duration={2}
                       containerClassName="flex w-[20%]"
-                      style={{ display: "flex", height: "28px" }}
                       baseColor="hsl(0deg 0% 7%)"
                       highlightColor="hsl(0deg 0% 16%)"
                     />
@@ -221,16 +221,16 @@ export function ProductsSkeleton() {
                     {/* quantity + subTotal */}
                     <div className="flex flex-col justify-between w-[20%] h-full">
                       <Skeleton
+                        style={{ display: "flex", height: "20px" }}
                         duration={2}
                         containerClassName="flex w-full"
-                        style={{ display: "flex", height: "20px" }}
                         baseColor="hsl(0deg 0% 7%)"
                         highlightColor="hsl(0deg 0% 16%)"
                       />
                       <Skeleton
+                        style={{ display: "flex", height: "20px" }}
                         duration={2}
                         containerClassName="flex items-end w-[90%]"
-                        style={{ display: "flex", height: "20px" }}
                         baseColor="hsl(0deg 0% 7%)"
                         highlightColor="hsl(0deg 0% 16%)"
                       />
@@ -239,33 +239,33 @@ export function ProductsSkeleton() {
                       {/* Green outline + button */}
                       <div className="flex flex-col justify-between">
                         <Skeleton
+                          style={{ display: "flex", height: "2px" }}
                           duration={2}
                           containerClassName="flex h-[2px]"
-                          style={{ display: "flex", height: "2px" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(118deg 80% 78%)"
                         />
                         <div className="flex flex-row justify-between">
                           <Skeleton
+                            style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                             duration={1}
                             containerClassName="flex"
-                            style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                             baseColor="hsl(0deg 0% 7%)"
                             highlightColor="hsl(118deg 80% 78%)"
                           />
                           <Skeleton
+                            style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                             direction="rtl"
                             duration={1}
                             containerClassName="flex"
-                            style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                             baseColor="hsl(0deg 0% 7%)"
                             highlightColor="hsl(118deg 80% 78%)"
                           />
                         </div>
                         <Skeleton
+                          style={{ display: "flex", height: "2px", rotate: "180deg" }}
                           duration={2}
                           containerClassName="flex w-[50px]"
-                          style={{ display: "flex", height: "2px", rotate: "180deg" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(118deg 80% 78%)"
                         />
@@ -273,33 +273,33 @@ export function ProductsSkeleton() {
                       {/* Red outline + button */}
                       <div className="flex flex-col justify-between">
                         <Skeleton
+                          style={{ display: "flex", height: "2px" }}
                           duration={2}
                           containerClassName="flex h-[2px]"
-                          style={{ display: "flex", height: "2px" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(0deg 80% 72%)"
                         />
                         <div className="flex flex-row justify-between">
                           <Skeleton
+                            style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                             duration={1}
                             containerClassName="flex"
-                            style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                             baseColor="hsl(0deg 0% 7%)"
                             highlightColor="hsl(0deg 80% 72%)"
                           />
                           <Skeleton
+                            style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                             direction="rtl"
                             duration={1}
                             containerClassName="flex"
-                            style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                             baseColor="hsl(0deg 0% 7%)"
                             highlightColor="hsl(0deg 80% 72%)"
                           />
                         </div>
                         <Skeleton
+                          style={{ display: "flex", height: "2px", rotate: "180deg" }}
                           duration={2}
                           containerClassName="flex w-[50px]"
-                          style={{ display: "flex", height: "2px", rotate: "180deg" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(0deg 80% 72%)"
                         />
@@ -307,33 +307,33 @@ export function ProductsSkeleton() {
                       {/* Red outline Clear button */}
                       <div className="flex flex-col justify-between">
                         <Skeleton
+                          style={{ display: "flex", width: "115px", height: "2px" }}
                           duration={2}
                           containerClassName="flex h-[2px] w-[115px]"
-                          style={{ display: "flex", width: "115px", height: "2px" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(0deg 80% 72%)"
                         />
                         <div className="flex flex-row justify-between">
                           <Skeleton
+                            style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                             duration={1}
                             containerClassName="flex"
-                            style={{ display: "flex", width: "2px", height: "50px", rotate: "180deg" }}
                             baseColor="hsl(0deg 0% 7%)"
                             highlightColor="hsl(0deg 80% 72%)"
                           />
                           <Skeleton
+                            style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                             direction="rtl"
                             duration={1}
                             containerClassName="flex"
-                            style={{ display: "flex", width: "2px", height: "50px", rotate: "360deg" }}
                             baseColor="hsl(0deg 0% 7%)"
                             highlightColor="hsl(0deg 80% 72%)"
                           />
                         </div>
                         <Skeleton
+                          style={{ display: "flex", width: "115px", height: "2px", rotate: "180deg" }}
                           duration={2}
                           containerClassName="flex w-[115px]"
-                          style={{ display: "flex", width: "115px", height: "2px", rotate: "180deg" }}
                           baseColor="hsl(0deg 0% 7%)"
                           highlightColor="hsl(0deg 80% 72%)"
                         />

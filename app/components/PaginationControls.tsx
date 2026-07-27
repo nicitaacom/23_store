@@ -70,8 +70,8 @@ function PaginationControls({
     <div className="flex w-full flex-col items-center gap-2 tablet:w-auto tablet:items-start">
       <div className="flex flex-wrap items-center justify-center gap-2 rounded border border-success/18 bg-[#111315]/92 p-2 shadow-[0_10px_28px_rgba(0,0,0,0.22)]">
         <a
-          aria-disabled={!hasPrevPage}
           className={twMerge(controlBaseClassName, !hasPrevPage && "pointer-events-none opacity-35")}
+          aria-disabled={!hasPrevPage}
           href={hasPrevPage ? createPageHref(currentPage - 1) : undefined}>
           <BiChevronLeft className="text-lg text-success" />
         </a>
@@ -80,21 +80,21 @@ function PaginationControls({
           {paginationItems.map((item, index) =>
             typeof item === "number" ? (
               <a
-                key={`${item}-${index}`}
-                aria-current={item === currentPage ? "page" : undefined}
                 className={twMerge(
                   controlBaseClassName,
                   item === currentPage
                     ? "border-success bg-success/14 text-success shadow-[inset_0_0_0_1px_rgba(34,197,94,0.35)]"
                     : "text-title/88",
                 )}
+                key={`${item}-${index}`}
+                aria-current={item === currentPage ? "page" : undefined}
                 href={createPageHref(item)}>
                 {item}
               </a>
             ) : (
               <span
-                key={`${item}-${index}`}
-                className="inline-flex h-11 min-w-[44px] items-center justify-center rounded border border-white/8 bg-[#15181b] px-3 text-sm text-subTitle">
+                className="inline-flex h-11 min-w-[44px] items-center justify-center rounded border border-white/8 bg-[#15181b] px-3 text-sm text-subTitle"
+                key={`${item}-${index}`}>
                 ...
               </span>
             ),
@@ -102,8 +102,8 @@ function PaginationControls({
         </div>
 
         <a
-          aria-disabled={!hasNextPage}
           className={twMerge(controlBaseClassName, !hasNextPage && "pointer-events-none opacity-35")}
+          aria-disabled={!hasNextPage}
           href={hasNextPage ? createPageHref(currentPage + 1) : undefined}>
           <BiChevronRight className="text-lg text-success" />
         </a>

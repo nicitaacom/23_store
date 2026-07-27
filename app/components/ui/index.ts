@@ -6,5 +6,6 @@ import { ImageWithFallback } from "./ImageWithFallback"
 import { ProgressBar } from "./ProgressBar"
 import { RadioButton } from "./RadioButton"
 import { Slider } from "./Slider"
+import { Timer } from "./Timer"
 
-export { Button, DropdownContainer, DropdownItem, Checkbox, Slider, RadioButton, ImageWithFallback, ProgressBar }
+export { Button, DropdownContainer, DropdownItem, Checkbox, Slider, RadioButton, ImageWithFallback, ProgressBar, Timer }

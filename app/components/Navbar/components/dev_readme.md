@@ -93,6 +93,9 @@ Mobile/sidebar project links menu.
 - holds the **`LanguageDropdown` at the bottom on mobile** (`mt-auto` + `tablet:hidden`, opens upward via
   `isDropUp`). The navbar shows the dropdown inline only on tablet+ (`hidden tablet:flex` in `Navbar.tsx`),
   so below tablet it lives here instead.
+- shows a persisted ecosystem hint: the hamburger button is highlighted on the first visit, opening the
+  menu highlights Jokik Music with a `Try it` badge, and completing that link hides the hint; the hint
+  starts again after 30 days.
 
 If you want to add a new external project card, update `menuItems` here — keep the same UTM params and use
 a transparent PNG for the icon.

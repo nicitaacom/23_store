@@ -1,7 +1,7 @@
 import { ChangeEvent } from "react"
 import { twMerge } from "tailwind-merge"
 
-interface RadioButton extends React.HTMLAttributes<HTMLInputElement> {
+interface IRadioButtonProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "name" | "onChange"> {
   label: string
   inputName: string
   onChange: (e: ChangeEvent<HTMLInputElement>) => void
@@ -9,22 +9,22 @@ interface RadioButton extends React.HTMLAttributes<HTMLInputElement> {
   disabled?: boolean
 }
 
-export function RadioButton({ label, inputName, onChange, children, disabled, ...props }: RadioButton) {
+export function RadioButton({ label, inputName, onChange, children, disabled, ...props }: IRadioButtonProps) {
   return (
     <label
-      htmlFor={label}
       className={twMerge(
         `relative flex cursor-pointer items-start justify-start rounded border border-border-color/35
         bg-foreground/45 px-3 py-2 text-sm font-medium text-title transition-colors duration-150
         hover:border-border-color/45 hover:bg-foreground/60`,
         disabled && "opacity-50 pointer-events-none cursor-default",
-      )}>
+      )}
+      htmlFor={label}>
       <input
+        className="peer sr-only"
         type="radio"
         name={inputName}
         value={label}
         id={label}
-        className="hidden peer"
         onChange={onChange}
         disabled={disabled}
         {...props}
