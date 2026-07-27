@@ -117,3 +117,25 @@ export const DarkTheme: Story = {
   args: { cartQuantity: 3, user: customerUser },
   globals: { theme: "dark" },
 }
+
+// The hint ring is an svg with no viewBox. An <svg> is a replaced element, so `inset` alone leaves it
+// at its intrinsic 300x150 and the progress bar stretches across the navbar - this story measures the
+// svg against the button it wraps, which is what went wrong on screen.
+export const HintRingFitsTheButton: Story = {
+  parameters: { viewport: { defaultViewport: "mobileLarge" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const menuButton = await waitFor(() => canvas.getByRole("button", { name: "Open menu" }))
+    const progressRing = await waitFor(() => {
+      const svg = canvasElement.querySelector("svg[aria-hidden='true'].pointer-events-none")
+      if (!svg) throw new Error("progress ring is not on screen")
+      return svg
+    })
+
+    const buttonBox = menuButton.getBoundingClientRect()
+    const ringBox = progressRing.getBoundingClientRect()
+
+    await expect(Math.round(ringBox.width)).toBe(Math.round(buttonBox.width) + 8)
+    await expect(Math.round(ringBox.height)).toBe(Math.round(buttonBox.height) + 8)
+  },
+}
