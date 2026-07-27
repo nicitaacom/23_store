@@ -18,4 +18,6 @@ export type TProductDB = {
   likes_count?: number
   rating_sum?: number
   rating_count?: number
+  // How many buyers pressed "Request replenishment" on a sold-out product.
+  replanishment_requests_count?: number
 }

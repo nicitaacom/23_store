@@ -63,6 +63,13 @@ export class ProductsSDK extends BaseSDK {
     )
   }
 
+  async updateDBReplanishmentRequests(request: API.ProductsReplanishmentRequestsRequest) {
+    return this.postJson<API.ProductsReplanishmentRequestsRequest, API.ProductsReplanishmentRequestsResponse>(
+      "/api/products/replanishment-requests",
+      request satisfies API.ProductsReplanishmentRequestsRequest,
+    )
+  }
+
   async deleteProduct(request: API.ProductsDeleteRequest) {
     return this.postJson<API.ProductsDeleteRequest, API.ProductsDeleteResponse>(
       "/api/products/delete",

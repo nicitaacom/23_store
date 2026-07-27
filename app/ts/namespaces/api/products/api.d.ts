@@ -144,4 +144,10 @@ declare namespace API {
   type ProductsCustomerResponse = {
     customerEmail: string | null
   }
+
+  type ProductsReplanishmentRequestsRequest = {
+    product_id: string
+  }
+
+  type ProductsReplanishmentRequestsResponse = { replanishment_requests_count: number } | { error: string }
 }

@@ -44,3 +44,26 @@ What Product.tsx does with it:
 The cart side is guarded too — `cartStore.increaseProductQuantity` won't add a sold-out variant and
 `getProductsPrice` skips sold-out lines. Full data flow + the "manual only, no auto-decrement" decision
 live in [AdminPanel/dev_readme-adminPanel.md](../../../components/ui/Modals/AdminPanel/dev_readme-adminPanel.md).
+
+<br/>
+
+## Request replenishment (sold-out product)
+
+`RequestReplanishmentButton` ([Product/RequestReplanishmentButton.tsx](../../../components/Product/RequestReplanishmentButton.tsx))
+does three things on one click, in this order:
+
+```
+click "Request replenishment"
+  -> renderAsync(<RequestReplanishmentEmail product={...} />)      html for the email body
+  -> emailsSDK.sendRequestReplanishmentEmail({ owner_id, html })   owner gets the email
+  -> productsSDK.updateDBReplanishmentRequests({ product_id })     23_products.replanishment_requests_count + 1
+  -> toast "You requested replenishment" + the new count on the button
+```
+
+Why the render sits in the click handler and not in an effect: an effect that renders into state shipped
+an empty email body for months (see [emails/dev_readme.md](../../../emails/dev_readme.md)).
+
+The counter is one INTEGER column on the product, raised through
+`increment_product_replanishment_requests` so two buyers clicking at the same second both count. The
+column + function SQL is in [dev_readme-supbase-sql.md](../../../../dev_readme-supbase-sql.md) under
+"REPLENISHMENT REQUESTS" - it has to be run once in Supabase before the number moves.

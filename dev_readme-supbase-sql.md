@@ -387,6 +387,25 @@ $$;
 GRANT EXECUTE ON FUNCTION public.increment_product_likes(VARCHAR, INTEGER) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.add_product_rating(VARCHAR, INTEGER) TO anon, authenticated;
 
+-- =================================== ↻ REPLENISHMENT REQUESTS ===================================
+-- How many buyers asked the owner to restock a sold-out product. One column on the product, raised
+-- by one per click on "Request replenishment" (app/components/Product/RequestReplanishmentButton.tsx).
+
+ALTER TABLE public."23_products"
+  ADD COLUMN IF NOT EXISTS replanishment_requests_count INTEGER NOT NULL DEFAULT 0;
+
+CREATE OR REPLACE FUNCTION public.increment_product_replanishment_requests(p_id VARCHAR)
+RETURNS INTEGER
+LANGUAGE sql
+AS $$
+  UPDATE public."23_products"
+  SET replanishment_requests_count = replanishment_requests_count + 1
+  WHERE id = p_id
+  RETURNING replanishment_requests_count;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.increment_product_replanishment_requests(VARCHAR) TO anon, authenticated;
+
 -- =================================== 👁️ CATEGORY VIEWS ===================================
 
 CREATE OR REPLACE FUNCTION public.increment_category_view(p_user_id TEXT, p_category_id UUID, p_delta INTEGER DEFAULT 1)

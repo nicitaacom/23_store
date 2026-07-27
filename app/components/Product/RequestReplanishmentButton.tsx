@@ -1,11 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import { renderAsync } from "@react-email/render"
 import { HiOutlineRefresh } from "react-icons/hi"
 import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { emailsSDK } from "@/sdk/EmailsSDK/EmailsSDK"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui"
@@ -15,6 +17,7 @@ import { RequestReplanishmentEmail } from "@/emails/RequestReplanishmentEmail"
 export function RequestReplanishmentButton({ product, className }: { product: TProductDB; className?: string }) {
   const toast = useToast()
   const t = useScopedI18n("product")
+  const [requestsAmount, setRequestsAmount] = useState(product.replanishment_requests_count ?? 0)
 
   async function requestReplanishment() {
     if (!product.owner_id) {
@@ -33,7 +36,13 @@ export function RequestReplanishmentButton({ product, className }: { product: TP
         html: html,
       })
 
-      // 3. Show toast
+      // 3. Count the request so the owner sees how many buyers are waiting for this product
+      const updateDBReplanishmentRequestsResp = await productsSDK.updateDBReplanishmentRequests({ product_id: product.id })
+      if ("replanishment_requests_count" in updateDBReplanishmentRequestsResp) {
+        setRequestsAmount(updateDBReplanishmentRequestsResp.replanishment_requests_count)
+      }
+
+      // 4. Show toast
       toast.show("success", t("success.replenishment_title"), t("success.replenishment_body"))
     } catch (error) {
       toast.show("error", t("error.replenishment_title"), error instanceof Error ? error.message : String(error))
@@ -50,6 +59,11 @@ export function RequestReplanishmentButton({ product, className }: { product: TP
       rightIcon={<HiOutlineRefresh className="text-lg" />}
       onClick={requestReplanishment}>
       {t("request_replenishment")}
+      {requestsAmount > 0 && (
+        <span className="ml-2 rounded-full border border-info/40 bg-info/10 px-2 py-0.5 text-xs font-semibold text-info">
+          {requestsAmount}
+        </span>
+      )}
     </Button>
   )
 }

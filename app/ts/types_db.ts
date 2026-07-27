@@ -100,6 +100,7 @@ export type Database = {
           translations: Json
           variants: Json | null
           category_id: string | null
+          replanishment_requests_count: number
         }
         Insert: {
           id: string
@@ -111,6 +112,7 @@ export type Database = {
           translations: Json
           variants?: Json | null
           category_id?: string | null
+          replanishment_requests_count?: number
         }
         Update: {
           id?: string
@@ -259,6 +261,10 @@ export type Database = {
       increment_category_view: {
         Args: { p_user_id: string; p_category_id: string; p_delta?: number }
         Returns: undefined
+      }
+      increment_product_replanishment_requests: {
+        Args: { p_id: string }
+        Returns: number
       }
     }
     Enums: {
