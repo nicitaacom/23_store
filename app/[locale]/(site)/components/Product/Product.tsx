@@ -67,7 +67,9 @@ function Product({ ...product }: Props) {
       className={twMerge(
         "group relative flex flex-col overflow-hidden rounded-md border border-border-color/20 bg-gradient-to-br from-foreground/5 to-transparent transition-colors duration-300 tablet:flex-row",
         "hover:border-success/30 hover:from-success/10 hover:to-transparent",
-        "before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:origin-top before:scale-y-0 before:bg-gradient-to-b before:from-success before:to-success-accent before:transition-transform before:duration-300 hover:before:scale-y-100",
+        // before:z-10 - the media div below is positioned too, so without it the accent bar paints
+        // under the product image and the hover effect is only visible next to the text
+        "before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-1 before:origin-top before:scale-y-0 before:bg-gradient-to-b before:from-success before:to-success-accent before:transition-transform before:duration-300 hover:before:scale-y-100",
         product.containerClassName,
       )}>
 
