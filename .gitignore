@@ -12,6 +12,9 @@ TODO
 
 # testing
 /coverage
+/.cache/
+/cypress/screenshots/
+/cypress/videos/
 
 # next.js
 /.next/

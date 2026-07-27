@@ -72,6 +72,7 @@ export function AdminPanelHeader({
 
               return (
                 <button
+                  data-cy={`admin-action-${action}`}
                   key={action}
                   className={twMerge(
                     // underline tab — flat, unified brand accent (active shows a brand underline bar)

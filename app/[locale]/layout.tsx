@@ -56,7 +56,7 @@ export default async function RootLayout({
   const userId = normalizedUser?.id ?? anonymousId
 
   return (
-    <html lang="en" className={darkMode ?? "dark"}>
+    <html lang={locale} className={darkMode ?? "dark"}>
       <body>
         <I18nProviderClient locale={locale}>
           <Layout user={normalizedUser}>{children}</Layout>

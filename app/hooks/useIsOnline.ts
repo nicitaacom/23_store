@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 
 /**
  * Tracks the browser's network status via the `online` / `offline` window events.
@@ -15,19 +15,14 @@ import { useEffect, useState } from "react"
  * ```
  */
 export function useIsOnline() {
-  const [isOnline, setIsOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine))
-
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-
-    window.addEventListener("online", handleOnline)
-    window.addEventListener("offline", handleOffline)
+  const subscribe = (notify: () => void) => {
+    window.addEventListener("online", notify)
+    window.addEventListener("offline", notify)
     return () => {
-      window.removeEventListener("online", handleOnline)
-      window.removeEventListener("offline", handleOffline)
+      window.removeEventListener("online", notify)
+      window.removeEventListener("offline", notify)
     }
-  }, [])
+  }
 
-  return isOnline
+  return useSyncExternalStore(subscribe, () => navigator.onLine, () => true)
 }

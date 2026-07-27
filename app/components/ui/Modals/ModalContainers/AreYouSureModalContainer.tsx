@@ -63,6 +63,8 @@ interface AreYouSureModalContainerProps {
   primaryButtonSize?: ButtonProps["size"]
   secondaryButtonClassName?: string
   secondaryButtonSize?: ButtonProps["size"]
+  primaryButtonDataCy?: string
+  secondaryButtonDataCy?: string
 }
 
 export function AreYouSureModalContainer({
@@ -87,6 +89,8 @@ export function AreYouSureModalContainer({
   primaryButtonSize = "md",
   secondaryButtonClassName,
   secondaryButtonSize = "md",
+  primaryButtonDataCy,
+  secondaryButtonDataCy,
 }: AreYouSureModalContainerProps) {
   const { isLoading } = useLoading()
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
@@ -114,7 +118,10 @@ export function AreYouSureModalContainer({
       }
     }
     const timer = setTimeout(tryFocus, 200)
-    return () => { clearTimeout(timer); cancelAnimationFrame(raf) }
+    return () => {
+      clearTimeout(timer)
+      cancelAnimationFrame(raf)
+    }
   }, [isOpen])
 
   //correct way to add event listener to listen keydown
@@ -174,17 +181,14 @@ export function AreYouSureModalContainer({
               size={22}
               onClick={closeModal}
             />
-            <div
-              className={twMerge(
-                "flex max-w-[620px] flex-col gap-4 px-4 pb-4 pt-5 tablet:px-5",
-                contentClassName,
-              )}>
+            <div className={twMerge("flex max-w-[620px] flex-col gap-4 px-4 pb-4 pt-5 tablet:px-5", contentClassName)}>
               <div className={twMerge("flex flex-col gap-2 pr-10 text-start", titleClassName)}>
                 <div className="font-secondary text-xl font-bold leading-tight text-title">{label}</div>
                 {subTitle && <div className={twMerge("text-sm leading-6 text-subTitle", subTitleClassName)}>{subTitle}</div>}
               </div>
               <div className={twMerge("flex flex-col-reverse gap-3 tablet:flex-row tablet:justify-end", actionsClassName)}>
                 <Button
+                  data-cy={secondaryButtonDataCy}
                   className={twMerge(
                     // strong ring on :focus (not only :focus-visible) so the button the modal auto-focuses is obviously highlighted before Enter acts on it
                     "px-3 ring-offset-2 ring-offset-foreground focus:scale-[1.02] focus:ring-2 focus:ring-current focus-visible:scale-[1.02] focus-visible:ring-2 focus-visible:ring-current",
@@ -197,6 +201,7 @@ export function AreYouSureModalContainer({
                   {secondaryButtonLabel} {SecondaryButtonIcon && <SecondaryButtonIcon />}
                 </Button>
                 <Button
+                  data-cy={primaryButtonDataCy}
                   ref={primaryButtonRef}
                   className={twMerge(
                     "px-3 ring-offset-2 ring-offset-foreground focus:scale-[1.02] focus:ring-2 focus:ring-current focus-visible:scale-[1.02] focus-visible:ring-2 focus-visible:ring-current",

@@ -58,6 +58,7 @@ export function DeleteProductHeader({ id, title, description, price, onRequestDe
           <>
             <p className="text-sm leading-6 text-subTitle">{t("confirm_delete_product")}</p>
             <Button
+              data-cy="request-product-delete"
               className="w-full tablet:w-auto"
               size="sm"
               variant="danger-outline"

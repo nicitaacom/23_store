@@ -24,7 +24,6 @@ declare namespace API {
   type ProductsTranslateAndInsertRequest = {
     id: string
     price_id: string
-    owner_id: string
     title: string
     description: string
     price: number

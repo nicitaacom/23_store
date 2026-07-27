@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
@@ -28,16 +28,17 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
   const t = useI18n()
   const router = useRouter()
   const { products: hydratedOwnerProducts, hydrate: hydrateOwnerProducts } = useOwnerProductsStore()
+  const hasHydratedOwnerProductsRef = useRef(false)
 
   const [panelAction, setPanelAction] = useState<TPanelAction>(PANEL_ACTIONS.add)
   const [pendingDeleteProduct, setPendingDeleteProduct] = useState<IPendingDeleteProduct | IPendingDeleteProduct[] | null>(null)
   const { isLoading } = useLoading()
 
   useEffect(() => {
-    if (hydratedOwnerProducts.length === 0) {
-      hydrateOwnerProducts(ownerProducts)
-    }
-  }, [hydrateOwnerProducts, hydratedOwnerProducts.length, ownerProducts])
+    if (hasHydratedOwnerProductsRef.current) return
+    hasHydratedOwnerProductsRef.current = true
+    hydrateOwnerProducts(ownerProducts)
+  }, [hydrateOwnerProducts, ownerProducts])
 
   useEffect(() => {
     if (!isAuthenticated) {

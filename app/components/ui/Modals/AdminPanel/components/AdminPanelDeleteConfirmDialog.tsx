@@ -186,10 +186,12 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
         ) : null
       }
       primaryButtonIcon={BiTrash}
+      primaryButtonDataCy="confirm-product-delete"
       primaryButtonVariant="danger"
       primaryButtonAction={deleteProducts}
       primaryButtonLabel={tProduct("delete")}
       secondaryButtonAction={onClose}
+      secondaryButtonDataCy="cancel-product-delete"
       secondaryButtonVariant="default-outline"
       secondaryButtonLabel={tModal("are_you_sure_delete_product.secondary_button")}
     />

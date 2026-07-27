@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 
 import { stripe } from "@/libs/stripe"
-import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
+import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 
 type TRequest = {
   id: string
@@ -40,7 +40,7 @@ function isMissingStripeResource(error: unknown) {
 
 export async function POST(request: NextRequest) {
   const { id }: TRequest = await request.json()
-  const supabase = await supabaseServerAction()
+  const supabase = await supabaseRouteHandler()
 
   try {
     if (!id?.trim()) {

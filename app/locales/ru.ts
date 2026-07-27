@@ -525,7 +525,7 @@ export default {
   "trackorder.order_status_5_subtitle": "Доставлено по адресу",
   "trackorder.support": "Поддержка",
   "trackorder.feedback": "Обратная связь",
-  "trackorder.location_visible_after_shipment": "Местоположение видно после отправки",
+  "trackorder.location_available_after_shipment": "Местоположение видно после отправки",
   "category.all": "Все",
   "category.uncategorized": "Без категории",
   "category.request": "Запросить новую категорию",

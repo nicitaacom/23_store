@@ -26,6 +26,8 @@ export function OwnerDeleteProduct({ onRequestDelete, isBulkMode, isSelected, on
       <div className="h-32 rounded border border-border-color/35 bg-foreground/55" />
     ) : (
     <article
+      data-cy="delete-product"
+      data-product-id={ownerProduct.id}
       className={twMerge(
         "group overflow-hidden rounded border border-border-color/35 bg-foreground/55 shadow-none transition-[border-color,background-color] duration-150",
         isBulkMode && "cursor-pointer",

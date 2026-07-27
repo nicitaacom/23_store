@@ -3,11 +3,20 @@ import Stripe from "stripe"
 
 import { normalizeProductImageUrls } from "@/utils/product"
 import { stripe } from "@/libs/stripe"
+import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
 
 export async function POST(req: Request) {
   const body = await req.json()
+  const supabase = await supabaseRouteHandler()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
 
   const title = String(body.title ?? "").trim()
   const description = String(body.description ?? "").trim()

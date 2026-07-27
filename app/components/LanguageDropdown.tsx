@@ -2,11 +2,12 @@
 
 import { useRef, useState } from "react"
 import Image from "next/image"
+import { usePathname, useSearchParams } from "next/navigation"
 import { TbChevronDown, TbWorld } from "react-icons/tb"
 import { twMerge } from "tailwind-merge"
 
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
-import { useChangeLocale, useCurrentLocale } from "@/locales/client"
+import { useCurrentLocale } from "@/locales/client"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
 type Locale = {
@@ -27,20 +28,24 @@ export function LanguageDropdown({ className, isDropUp = false }: { className?: 
   const dropdownContainerRef = useRef<HTMLDivElement>(null)
 
   const locale = useCurrentLocale()
-  const changeLocale = useChangeLocale({ preserveSearchParams: true })
+  const pathname = usePathname() || "/"
+  const searchParams = useSearchParams()
   const currentLocale = locales.find(localeOption => localeOption.code === locale)
 
   useOnEscOrClickOutside(dropdownContainerRef, () => setShowDropdown(false), { isHookEnabled: showDropdown })
 
-  const handleLocaleChange = (code: TLocaleTag) => {
-    changeLocale(code)
-    setShowDropdown(false)
+  const getLocaleHref = (code: TLocaleTag) => {
+    const localePrefix = new RegExp(`^/(${locales.map(localeOption => localeOption.code).join("|")})(?=/|$)`)
+    const pathWithoutLocale = pathname.replace(localePrefix, "") || "/"
+    const query = searchParams.toString()
+    return `/${code}${pathWithoutLocale}${query ? `?${query}` : ""}`
   }
 
   return (
     <div className={twMerge("relative inline-flex w-[130px] flex-col", className)} ref={dropdownContainerRef}>
       {/* Trigger — w-full so it stretches to whatever width the container is */}
       <button
+        data-cy="language-trigger"
         className="flex w-full items-center gap-1.5 rounded border border-border-color/35 bg-background/55 px-2.5 py-1.5
         text-sm text-title transition-colors duration-150 hover:bg-foreground/10"
         onClick={() => setShowDropdown(!showDropdown)}
@@ -71,17 +76,26 @@ export function LanguageDropdown({ className, isDropUp = false }: { className?: 
           isDropUp ? "bottom-full mb-1" : "top-full mt-1",
           showDropdown ? "visible translate-y-0 opacity-100" : "invisible -translate-y-1 opacity-0",
         )}>
-          {locales.map(localeOption => (
-            <button
-              key={localeOption.code}
-              className={`flex w-full items-center gap-2 whitespace-nowrap px-3 py-2 text-left text-sm transition-colors duration-100 ${
-                locale === localeOption.code ? "bg-brand/15 text-brand hover:bg-brand/25" : "text-title hover:bg-foreground-accent"
-              }`}
-              onClick={() => handleLocaleChange(localeOption.code)}>
-              <Image src={localeOption.flag} alt={localeOption.name} width={18} height={13} sizes="18px" className="rounded-sm object-cover" />
-              {localeOption.name}
-            </button>
-          ))}
+        {locales.map(localeOption => (
+          <a
+            data-cy={`language-${localeOption.code}`}
+            key={localeOption.code}
+            href={getLocaleHref(localeOption.code)}
+            className={`flex w-full items-center gap-2 whitespace-nowrap px-3 py-2 text-left text-sm transition-colors duration-100 ${
+              locale === localeOption.code ? "bg-brand/15 text-brand hover:bg-brand/25" : "text-title hover:bg-foreground-accent"
+            }`}
+            onClick={() => setShowDropdown(false)}>
+            <Image
+              src={localeOption.flag}
+              alt={localeOption.name}
+              width={18}
+              height={13}
+              sizes="18px"
+              className="rounded-sm object-cover"
+            />
+            {localeOption.name}
+          </a>
+        ))}
       </div>
     </div>
   )

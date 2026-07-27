@@ -6,7 +6,7 @@ import { TProductVariant } from "@/ts/product/TProductVariant"
 import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 import { normalizeProductImageUrls } from "@/utils/product"
 import { stripe } from "@/libs/stripe"
-import supabaseServerAction from "@/libs/supabase/supabaseServerAction"
+import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
 
@@ -23,7 +23,7 @@ export type TUpdateProductRequest = {
 export async function POST(req: Request) {
   const body: TUpdateProductRequest = await req.json()
 
-  const supabase = await supabaseServerAction()
+  const supabase = await supabaseRouteHandler()
   const productId = body.productId
   const images = body.images
   const translations = body.translations

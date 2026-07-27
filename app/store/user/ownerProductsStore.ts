@@ -19,7 +19,7 @@ export const useOwnerProductsStore = create<OwnerProductsStore>(set => ({
   hydrate: products => set({ products, error: null }),
   addProduct: product =>
     set(state => ({
-      products: [product, ...state.products],
+      products: [product, ...state.products.filter(existingProduct => existingProduct.id !== product.id)],
       error: null,
     })),
   replaceProduct: (productId, nextProduct) =>

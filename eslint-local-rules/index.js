@@ -23,6 +23,7 @@ module.exports = {
   ...require("./imports-order"),
   ...require("./no-cross-route-group-absolute-import"),
   ...require("./require-absolute-import-for-shared-folders"),
+  ...require("./use-rls-supabase-client"),
   ...require("./function-body-own-line"),
   ...require("./console-log-line-number"),
   ...require("./no-redundant-return-parens"),

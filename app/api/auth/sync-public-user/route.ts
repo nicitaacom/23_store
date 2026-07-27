@@ -1,7 +1,6 @@
-import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 
+import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 import { syncPublicUserRecord } from "@/utils/publicUserSync"
 
 type TAPIAuthSyncPublicUser = {
@@ -10,7 +9,7 @@ type TAPIAuthSyncPublicUser = {
 
 export async function POST(request: Request) {
   const body = ((await request.json().catch(() => ({}))) || {}) as TAPIAuthSyncPublicUser
-  const supabase = createRouteHandlerClient({ cookies })
+  const supabase = await supabaseRouteHandler()
   const {
     data: { user },
     error: getUserError,
@@ -33,9 +32,6 @@ export async function POST(request: Request) {
 
     return response
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to sync public user" },
-      { status: 400 },
-    )
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to sync public user" }, { status: 400 })
   }
 }

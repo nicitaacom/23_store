@@ -86,7 +86,9 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
       className="max-w-[200px]"
       username={getUserName(user) || "anonymous"}
       icon={
-        <Image className="w-[32px] h-[32px] rounded-full object-cover" src={avatarUrl} alt="user logo" width={64} height={64} />
+        <span data-cy="user-menu">
+          <Image className="w-[32px] h-[32px] rounded-full object-cover" src={avatarUrl} alt="user logo" width={64} height={64} />
+        </span>
       }>
       {roles.includes("SUPPORT") && (
         <DropdownItem label="Support chat" icon={IoChatboxEllipsesOutline} onClick={openSupportTickets} />
