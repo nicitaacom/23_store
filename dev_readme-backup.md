@@ -153,12 +153,13 @@ still enforces the FK on upsert), so a genuine FK violation still surfaces as a 
 `error` in the table's result, not a skip.
 
 `23_tickets.owner_id` is TEXT with no auth FK, confirmed live — those rows always restore.
-`23_messages.sender_id` status is **open, not settled by this doc**: an earlier version of this
-file claimed it was also FK-free, but plan-00-tracker.md's inconsistency audit records a live
-screenshot where import was rejected with `23_messages_sender_id_fkey`. That contradiction is
-tracked by `plan-02-db-anonymous-tickets.md` (status: waiting) — a schema question, out of scope
-for this architecture change. See **ANONYMOUS TICKETS CLEANUP** in `dev_readme-supbase-sql.md` for
-the copy-paste SQL a fresh project needs once plan-02 resolves it.
+`23_messages.sender_id` is **settled: TEXT, no FK**. Nikita read the live constraints (plan-02 task 1)
+and the only ones on these two tables are `23_tickets_pkey`, `23_messages_pkey` and
+`23_messages_ticket_id_fkey` (`ON DELETE CASCADE`) — the `23_messages_sender_id_fkey` from the old
+import screenshot is gone, so anonymous rows (`sender_id = anonymousId_…`) import and restore like any
+other row. A fresh project gets the same shape from `dev_readme-supbase-sql.md`; its **ANONYMOUS
+TICKETS CLEANUP** section holds the pg_cron job that deletes anonymous tickets after a month of
+silence from the anonymous owner.
 
 <br/>
 
