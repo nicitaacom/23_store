@@ -7,7 +7,6 @@ import { useSwipeable } from "react-swipeable"
 import { twMerge } from "tailwind-merge"
 import { AnimatePresence, motion } from "framer-motion"
 
-import { useLoading } from "@/store/ui/useLoading"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
 interface ModalQueryContainerProps {
@@ -32,24 +31,37 @@ export function ModalQueryContainer({
 }: ModalQueryContainerProps) {
   const pathname = usePathname()
   const queryParams = useSearchParams()
-  const { isLoading } = useLoading()
   const modalRef = useRef<HTMLDivElement | null>(null)
   const backdropRef = useRef<HTMLDivElement | null>(null)
 
-  const showModal = queryParams?.getAll("modal").includes(modalQuery)
+  const isModalInQuery = queryParams?.getAll("modal").includes(modalQuery) ?? false
   const [shouldClose, setShouldClose] = useState(false)
+  const [isDismissed, setIsDismissed] = useState(false)
+
+  // The X and the backdrop hide the modal through `isDismissed`, so the close never depends on the
+  // router picking the URL change up. `isDismissed` resets as soon as ?modal= is gone, which is what
+  // lets the same modal open again.
+  if (!isModalInQuery && isDismissed) setIsDismissed(false)
+
+  const showModal = isModalInQuery && !isDismissed
 
   // Close modal: animate out, then strip the ?modal param WITHOUT a server roundtrip.
   // history.replaceState (instead of router.push) avoids re-running the server layout
   // (getOwnerProducts / auth) and re-tracking utm params on every modal close.
+  // The popstate event after it is what makes the App Router re-read the URL: without it
+  // `useSearchParams()` keeps returning ?modal=... and the modal comes straight back.
+  // A pending request (`isLoading`) must NOT block the close - only `disableDismiss` does,
+  // which is what the flows that truly must not be interrupted set.
   const closeModal = useCallback(() => {
-    if (isLoading || disableDismiss) return
+    if (disableDismiss) return
     setShouldClose(true)
     setTimeout(() => {
+      setIsDismissed(true)
       window.history.replaceState(null, "", pathname ?? "/")
+      window.dispatchEvent(new PopStateEvent("popstate"))
       setShouldClose(false)
     }, 260)
-  }, [disableDismiss, isLoading, pathname])
+  }, [disableDismiss, pathname])
 
   useOnEscOrClickOutside(modalRef, closeModal, {
     isHookEnabled: showModal && !shouldClose && !disableDismiss,
@@ -112,7 +124,7 @@ export function ModalQueryContainer({
                 className={twMerge(
                   "absolute right-3 top-3 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
                   closeButtonClassName,
-                  (isLoading || disableDismiss) && "opacity-50 cursor-default pointer-events-none",
+                  disableDismiss && "opacity-50 cursor-default pointer-events-none",
                 )}
                 size={22}
                 onClick={closeModal}
