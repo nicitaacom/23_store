@@ -1,0 +1,1 @@
+import{i as e}from"./preload-helper-CmHZQJgV.js";function t(){let e=()=>void 0,t=()=>void 0;return{promise:new Promise((n,r)=>{e=r,t=n}),reject:e,resolve:t}}var n=e((()=>{}));export{n,t};

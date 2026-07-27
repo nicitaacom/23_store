@@ -1,0 +1,1 @@
+import{i as e}from"./preload-helper-CmHZQJgV.js";function t(e,t){return new Intl.NumberFormat(t?n[t]??t:void 0,{currency:`USD`,style:`currency`}).format(e)}var n,r=e((()=>{n={en:`en-US`,fi:`fi-FI`,ru:`ru-RU`,se:`sv-SE`}}));export{r as n,t};
