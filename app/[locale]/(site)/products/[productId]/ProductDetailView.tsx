@@ -13,11 +13,14 @@ import { ProductLikeButton } from "../../components/ProductLikeButton"
 import { createCartProductKey, getProductPriceForVariant } from "@/utils/cartProducts"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
+import { resolvePersonalizationConfig } from "@/utils/printMetrics"
 import useCartStore from "@/store/user/cartStore"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { useProductDetail } from "@/store/ui/useProductDetail"
 import { AddToCartButton } from "@/components/ui/Buttons/AddToCartButton"
 import { MarkdownText } from "@/components/ui/MarkdownText"
+import { PersonalizeButton } from "@/components/ui/Buttons/PersonalizeButton"
+import { PersonalizeModal } from "@/components/ui/Modals/PersonalizeModal/PersonalizeModal"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
 import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
 
@@ -58,6 +61,7 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
   const isOutOfStock = (product.on_stock ?? 0) <= 0
   const isLowStock = (product.on_stock ?? 0) < 50 && !isOutOfStock
   const selectedPrice = getProductPriceForVariant(product, selectedVariant?.id)
+  const personalizationConfig = resolvePersonalizationConfig(product, selectedVariant?.id)
   const quantity = products?.[createCartProductKey(product.id, selectedVariant?.id)]?.quantity ?? 0
   const subtotal = formatCurrency(quantity * selectedPrice)
   const availabilityLabel = isOutOfStock
@@ -210,6 +214,9 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
           <div className="flex items-start justify-between gap-3">
             <h1 className="text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl">{translation.title}</h1>
             <div className="flex shrink-0 items-center gap-1">
+              {personalizationConfig && !isOutOfStock && (
+                <PersonalizeButton className="h-11 rounded-[2px]" productId={product.id} variantId={selectedVariant?.id} />
+              )}
               {isOutOfStock ? (
                 <RequestReplanishmentButton className="h-11 rounded-[2px] shadow-none" product={product} />
               ) : quantity === 0 ? (
@@ -263,6 +270,9 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
           <div className="grid gap-2">{renderedHighlights}</div>
         </section>
       </aside>
+
+      {/* Mounted here because this view already holds the product - the modal reads it by id from the query */}
+      {personalizationConfig && <PersonalizeModal products={[product]} />}
     </div>
   )
 }

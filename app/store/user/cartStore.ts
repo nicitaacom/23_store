@@ -17,7 +17,7 @@ interface CartStore {
   keepExistingProductsRecord: (food: TRecordCartProduct) => Promise<TRecordCartProduct> // for case I user delete some food
   selectProductsData: () => Promise<void>
   getCartQuantity: () => number
-  increaseProductQuantity: (id: string, variantId?: string | null) => void
+  increaseProductQuantity: (id: string, variantId?: string | null, designId?: string | null) => void
   decreaseProductQuantity: (id: string, variantId?: string | null) => void
   clearProductQuantity: (id: string, variantId?: string | null) => void
   getProductsPrice: () => number
@@ -74,6 +74,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
           quantity: cartProduct.quantity,
           selectedVariant,
           variantId: selectedVariant?.id ?? cartProduct.variantId ?? null,
+          designId: cartProduct.designId ?? null,
         })
 
         return accum
@@ -96,9 +97,9 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
         }, 0)
       : 0
   },
-  increaseProductQuantity(id: string, variantId?: string | null) {
+  increaseProductQuantity(id: string, variantId?: string | null, designId?: string | null) {
     const updatedProducts = { ...get().products }
-    const cartKey = createCartProductKey(id, variantId)
+    const cartKey = createCartProductKey(id, variantId, designId)
 
     // Block adding a sold-out variant (quantity 0). Only enforced when we already hold the
     // line's product data — a fresh add from the product page is guarded by the UI instead.
@@ -121,6 +122,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
         id,
         quantity: 1,
         variantId: variantId ?? null,
+        designId: designId ?? null,
         //no sence to create logic because I don't add product in cart
         //I can add prodcut in store
       }

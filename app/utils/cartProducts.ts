@@ -1,8 +1,11 @@
 import { TProductVariant } from "@/ts/product/TProductVariant"
 import { TProductDB } from "@/ts/product/TProductDB"
 
-export function createCartProductKey(productId: string, variantId?: string | null) {
-  return variantId ? `${productId}::${variantId}` : productId
+// A personalized line is its own line: the same product + variant with two different designs are two
+// separate cart entries, so the design id is part of the key.
+export function createCartProductKey(productId: string, variantId?: string | null, designId?: string | null) {
+  const variantKey = variantId ? `${productId}::${variantId}` : productId
+  return designId ? `${variantKey}::${designId}` : variantKey
 }
 
 export function getProductVariantById(product: Pick<TProductDB, "variants">, variantId?: string | null): TProductVariant | null {

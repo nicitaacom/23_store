@@ -7,4 +7,5 @@ export type TProductAfterDB = TProductDB & {
   quantity: number
   selectedVariant: TProductVariant | null
   variantId: string | null
+  designId?: string | null
 }
