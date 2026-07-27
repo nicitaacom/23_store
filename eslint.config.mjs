@@ -59,6 +59,7 @@ export default [
       "local-rules/arrow-fn-only-for-hooks": "warn",
       "local-rules/ts-ignore-dynamic-table-only": "warn",
       "local-rules/type-naming-prefix": "warn",
+      "local-rules/one-liner-component-props-interface": "warn",
       "local-rules/no-type-export-in-action-or-component": "warn",
       "local-rules/imports-order": "warn",
       "local-rules/no-high-level-import": "warn",

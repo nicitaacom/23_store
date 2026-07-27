@@ -18,17 +18,19 @@ interface SliderProps {
   className?: string
 }
 
+interface SliderImageProps {
+  image: TImages[number]
+  width: number
+  height: number
+  className?: string
+}
+
 function SliderImage({
   image,
   width,
   height,
   className,
-}: {
-  image: TImages[number]
-  width: number
-  height: number
-  className?: string
-}) {
+}: SliderImageProps) {
   return (
     <ImageWithFallback
       className={twMerge("object-contain w-full h-full", className)}

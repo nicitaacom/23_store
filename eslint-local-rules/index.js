@@ -19,6 +19,7 @@ module.exports = {
   ...require("./arrow-fn-only-for-hooks"),
   ...require("./ts-ignore-dynamic-table-only"),
   ...require("./type-naming-prefix"),
+  ...require("./one-liner-component-props-interface"),
   ...require("./no-type-export-in-action-or-component"),
   ...require("./imports-order"),
   ...require("./no-high-level-import"),

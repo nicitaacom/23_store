@@ -9,6 +9,14 @@ import { OrganicCanvasBackground } from "./OrganicCanvasBackground"
 import { PortalWrapper } from "./PortalWrapper"
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
 
+interface FileImagePreviewProps {
+  side: "user" | "support"
+  image: File | null
+  isShowImage: boolean
+  isFullscreen?: boolean
+  onClose?: () => void
+}
+
 // http://localhost:6006/?path=/story/ui-overlays-confirmations--clear-cart
 export function GlobalImagePreviewPortal() {
   const { clearImage, image, isFullscreen, side } = useGlobalImagePreview()
@@ -23,13 +31,7 @@ export function FileImagePreview({
   isShowImage,
   isFullscreen = false,
   onClose,
-}: {
-  side: "user" | "support"
-  image: File | null
-  isShowImage: boolean
-  isFullscreen?: boolean
-  onClose?: () => void
-}) {
+}: FileImagePreviewProps) {
   const formatFileSize = (bytes: number) =>
     bytes > 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(2)} MB` : `${(bytes / 1024).toFixed(2)} KB`
 

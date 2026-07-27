@@ -3,13 +3,15 @@ import Script from "next/script"
 import { TurnstileChallenge } from "./TurnstileChallenge"
 import { getSafeNextPath } from "@/utils/turnstile"
 
+interface HumanCheckPageProps {
+  params: Promise<{ locale: string }>
+  searchParams?: Promise<{ next?: string }>
+}
+
 export default async function HumanCheckPage({
   params,
   searchParams,
-}: {
-  params: Promise<{ locale: string }>
-  searchParams?: Promise<{ next?: string }>
-}) {
+}: HumanCheckPageProps) {
   const { locale } = await params
   const resolvedSearchParams = await searchParams
   const nextPath = getSafeNextPath(resolvedSearchParams?.next, locale)

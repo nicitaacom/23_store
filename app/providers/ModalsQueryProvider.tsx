@@ -12,6 +12,12 @@ type ModalKey = "AdminPanel" | "AuthModal" | "CartModal" | "DbBackup"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- heterogeneous registry of components with different prop shapes
 type ModalEntry = { Component: React.ComponentType<any>; props?: Record<string, unknown> }
 
+interface ModalsQueryProviderProps {
+  ownerProducts: TProductDB[]
+  roles: string[]
+  isAuthenticated: boolean
+}
+
 function AdminModalLoading() {
   const t = useI18n()
 
@@ -43,7 +49,7 @@ const DbBackupModal = dynamic(() => import("@/components/ui/Modals/DbBackup/DbBa
   loading: DbBackupModalLoading,
 })
 
-export function ModalsQueryProvider({ ownerProducts, roles, isAuthenticated }: { ownerProducts: TProductDB[]; roles: string[]; isAuthenticated: boolean }) {
+export function ModalsQueryProvider({ ownerProducts, roles, isAuthenticated }: ModalsQueryProviderProps) {
   const searchParams = useSearchParams()
 
   const modalParams = searchParams?.getAll("modal")

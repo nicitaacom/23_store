@@ -32,13 +32,15 @@ export const metadata: Metadata = {
   },
 }
 
+interface RootLayoutProps {
+  params: Promise<{ locale: string }>
+  children: React.ReactNode
+}
+
 export default async function RootLayout({
   params: paramsPromise,
   children,
-}: {
-  params: Promise<{ locale: string }>
-  children: React.ReactNode
-}) {
+}: RootLayoutProps) {
   const { locale } = await paramsPromise
   const getOwnerProductsResp = await getOwnerProducts()
 
