@@ -29,6 +29,8 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 11 | [plan-11-backup-browser-only-bytes.md](plan-11-backup-browser-only-bytes.md) | P1 | Opus · high | in progress | — |
 | 12 | [plan-12-cypress-authorization-optimistic.md](plan-12-cypress-authorization-optimistic.md) | P1 | Opus · high | done | — |
 | 13 | [STORYBOOK-PLAN.md](../STORYBOOK-PLAN.md) | P1 | Opus · high | in progress | plan-12 |
+| 14 | [plan-14-optional-variant-image.md](plan-14-optional-variant-image.md) | P2 | Sonnet · medium | waiting | — |
+| 15 | personalization phase 3 - owner notification on a paid design (see `app/components/ui/Modals/PersonalizeModal/dev_readme-personalize.md` §4) | P2 | Sonnet · medium | waiting | — |
 
 Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screenshot rule (2 = P1, 3+ = P0) sets nothing — P1 here means "blocks users or is the main asked-for work".
 
