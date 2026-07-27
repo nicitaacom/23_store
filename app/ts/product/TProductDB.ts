@@ -1,3 +1,4 @@
+import { TProductPersonalization } from "./TPersonalization"
 import { TProductVariant } from "./TProductVariant"
 
 export type TProductTranslation = { title: string; description: string }
@@ -20,4 +21,6 @@ export type TProductDB = {
   rating_count?: number
   // How many buyers pressed "Request replenishment" on a sold-out product.
   replanishment_requests_count?: number
+  // Print area + mockup config - null/absent means the product has no Personalize button.
+  personalization?: TProductPersonalization | null
 }

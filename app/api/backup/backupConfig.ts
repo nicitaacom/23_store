@@ -28,6 +28,7 @@ export const BACKUP_TABLE_NAMES = [
   "23_categories",
   "23_category_views",
   "23_products",
+  "23_personalized_designs",
   "23_tickets",
   "23_messages",
 ] as const satisfies readonly Exclude<AllTables, (typeof EXCLUDED_FROM_BACKUP)[number]>[]
@@ -94,6 +95,14 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: ["img_url"],
     jsonColumns: ["translations", "variants"],
     uuidColumns: ["owner_id"],
+  },
+  {
+    name: "23_personalized_designs",
+    onConflict: "id",
+    numericColumns: ["source_width_px", "source_height_px", "print_width_mm", "print_height_mm", "effective_dpi"],
+    arrayColumns: [],
+    jsonColumns: ["placement"],
+    uuidColumns: ["id", "owner_id"],
   },
   {
     name: "23_tickets",

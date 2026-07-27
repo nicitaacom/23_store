@@ -434,6 +434,71 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.increment_product_replanishment_requests(VARCHAR) TO anon, authenticated;
 
+-- =================================== 🖼️ PRODUCT PERSONALIZATION ===================================
+-- Print area (in mm) + the mockup image + the rectangle on that mockup where the print lands.
+-- Per-variant overrides are keyed by the variant id that already lives in "23_products".variants,
+-- because variants are the size axis (S/M/L, 30x40 vs 50x70).
+--   { "isEnabled": true,
+--     "defaultConfig": { "mockupUrl": "...",
+--                        "printArea":  {"widthMm":900,"heightMm":400,"minDpi":150},
+--                        "mockupRect": {"leftPct":6.2,"topPct":12.4,"widthPct":87.6,"heightPct":39.0} },
+--     "variantConfigs": { "<variantId>": { ...same shape... } } }
+-- mockupRect is in % of the mockup image, so the preview overlay is the true print area at any screen size.
+
+ALTER TABLE public."23_products"
+  ADD COLUMN IF NOT EXISTS personalization JSONB NULL;
+
+-- What the buyer uploaded, so the owner has the file to print after checkout.
+-- user_id is TEXT: anonymous buyers use anonymousId_<uuid>, same as "23_tickets".owner_id.
+-- owner_id is copied from the product so the owner lists their print jobs without a join.
+CREATE TABLE IF NOT EXISTS public."23_personalized_designs" (
+  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  user_id          TEXT NOT NULL,
+  owner_id         UUID NOT NULL REFERENCES auth.users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  product_id       VARCHAR NOT NULL,
+  variant_id       TEXT NULL,
+  source_url       TEXT NOT NULL,
+  source_width_px  INTEGER NOT NULL,
+  source_height_px INTEGER NOT NULL,
+  print_width_mm   NUMERIC NOT NULL,
+  print_height_mm  NUMERIC NOT NULL,
+  placement        JSONB NOT NULL DEFAULT '{"scale":1,"offsetXPct":0,"offsetYPct":0}'::jsonb,
+  effective_dpi    INTEGER NOT NULL,
+  status           TEXT NOT NULL DEFAULT 'draft'
+);
+
+CREATE INDEX IF NOT EXISTS idx_23_personalized_designs_owner ON public."23_personalized_designs"(owner_id, status);
+CREATE INDEX IF NOT EXISTS idx_23_personalized_designs_user  ON public."23_personalized_designs"(user_id);
+
+ALTER TABLE public."23_personalized_designs" ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_personalized_designs' AND policyname='Anyone insert') THEN
+    CREATE POLICY "Anyone insert" ON public."23_personalized_designs" FOR INSERT WITH CHECK (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_personalized_designs' AND policyname='Buyer or owner select') THEN
+    CREATE POLICY "Buyer or owner select" ON public."23_personalized_designs" FOR SELECT
+      USING (user_id = auth.uid()::text OR owner_id = auth.uid());
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='23_personalized_designs' AND policyname='Owner update') THEN
+    CREATE POLICY "Owner update" ON public."23_personalized_designs" FOR UPDATE USING (owner_id = auth.uid());
+  END IF;
+END $$;
+
+-- Switch personalization on for one product to try it before the admin form exists.
+-- Replace the mockup URL, the mm, the percentages and the product id.
+--   UPDATE public."23_products"
+--   SET personalization = jsonb_build_object(
+--     'isEnabled', true,
+--     'defaultConfig', jsonb_build_object(
+--       'mockupUrl',  'https://<project>.supabase.co/storage/v1/object/public/23_public-images/mockups/mousepad.png',
+--       'printArea',  jsonb_build_object('widthMm', 900, 'heightMm', 400, 'minDpi', 150),
+--       'mockupRect', jsonb_build_object('leftPct', 6.2, 'topPct', 12.4, 'widthPct', 87.6, 'heightPct', 39.0)
+--     )
+--   )
+--   WHERE id = '<prod_xxx>';
+
 -- =================================== 👁️ CATEGORY VIEWS ===================================
 
 CREATE OR REPLACE FUNCTION public.increment_category_view(p_user_id TEXT, p_category_id UUID, p_delta INTEGER DEFAULT 1)

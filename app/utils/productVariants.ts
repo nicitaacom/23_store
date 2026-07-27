@@ -1,5 +1,11 @@
 import { TProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
+import {
+  TMockupRect,
+  TPersonalizationConfig,
+  TPrintArea,
+  TProductPersonalization,
+} from "@/ts/product/TPersonalization"
 import { normalizeProductImageUrls, normalizeProductTranslations } from "./product"
 
 // price and quantity are optional on the raw row — legacy variants predate both fields
@@ -44,12 +50,64 @@ export function normalizeProductVariants(value: unknown, fallbackPrice = 0, fall
   return variants.length ? variants : null
 }
 
-export function normalizeProduct<T extends { img_url?: unknown; variants?: unknown; translations?: unknown }>(
+function isPrintArea(value: unknown): value is TPrintArea {
+  const candidate = value as Record<string, unknown> | null
+  return (
+    !!candidate &&
+    typeof candidate.widthMm === "number" &&
+    typeof candidate.heightMm === "number" &&
+    candidate.widthMm > 0 &&
+    candidate.heightMm > 0
+  )
+}
+
+function isMockupRect(value: unknown): value is TMockupRect {
+  const candidate = value as Record<string, unknown> | null
+  return (
+    !!candidate &&
+    ["leftPct", "topPct", "widthPct", "heightPct"].every(key => typeof candidate[key] === "number") &&
+    (candidate.widthPct as number) > 0 &&
+    (candidate.heightPct as number) > 0
+  )
+}
+
+function normalizePersonalizationConfig(value: unknown): TPersonalizationConfig | null {
+  const candidate = value as Record<string, unknown> | null
+  if (!candidate || typeof candidate.mockupUrl !== "string" || !candidate.mockupUrl) return null
+  if (!isPrintArea(candidate.printArea) || !isMockupRect(candidate.mockupRect)) return null
+
+  return { mockupUrl: candidate.mockupUrl, printArea: candidate.printArea, mockupRect: candidate.mockupRect }
+}
+
+// A half-written config would render a preview that lies about the print size, so a config without a
+// mockup, a print area in mm and a rectangle is dropped to null - the product gets no Personalize button.
+export function normalizePersonalization(value: unknown): TProductPersonalization | null {
+  const candidate = value as Record<string, unknown> | null
+  if (!candidate || candidate.isEnabled !== true) return null
+
+  const defaultConfig = normalizePersonalizationConfig(candidate.defaultConfig)
+  const rawVariantConfigs = (candidate.variantConfigs as Record<string, unknown> | undefined) ?? {}
+  const variantConfigs: Record<string, TPersonalizationConfig> = {}
+
+  for (const [variantId, rawConfig] of Object.entries(rawVariantConfigs)) {
+    const config = normalizePersonalizationConfig(rawConfig)
+    if (config) variantConfigs[variantId] = config
+  }
+
+  if (!defaultConfig && !Object.keys(variantConfigs).length) return null
+
+  return { isEnabled: true, defaultConfig, variantConfigs }
+}
+
+export function normalizeProduct<
+  T extends { img_url?: unknown; variants?: unknown; translations?: unknown; personalization?: unknown },
+>(
   product: T,
-): Omit<T, "img_url" | "variants" | "translations"> & {
+): Omit<T, "img_url" | "variants" | "translations" | "personalization"> & {
   img_url: string[]
   variants: TProductVariant[] | null
   translations: TProductTranslations
+  personalization: TProductPersonalization | null
 } {
   const normalizedPrice =
     typeof (product as { price?: unknown }).price === "number" ? ((product as unknown as { price: number }).price ?? 0) : 0
@@ -63,9 +121,12 @@ export function normalizeProduct<T extends { img_url?: unknown; variants?: unkno
     img_url: normalizeProductImageUrls(product.img_url),
     variants: normalizeProductVariants(product.variants, normalizedPrice, normalizedOnStock),
     translations: normalizeProductTranslations(product.translations),
+    personalization: normalizePersonalization(product.personalization),
   }
 }
 
-export function normalizeProducts<T extends { variants?: unknown; translations?: unknown }>(products: T[]) {
+export function normalizeProducts<
+  T extends { variants?: unknown; translations?: unknown; personalization?: unknown },
+>(products: T[]) {
   return products.map(product => normalizeProduct(product))
 }

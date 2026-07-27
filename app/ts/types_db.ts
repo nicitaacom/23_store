@@ -89,6 +89,47 @@ export type Database = {
         }
         Relationships: []
       }
+      "23_personalized_designs": {
+        Row: {
+          id: string
+          created_at: string
+          user_id: string
+          owner_id: string
+          product_id: string
+          variant_id: string | null
+          source_url: string
+          source_width_px: number
+          source_height_px: number
+          print_width_mm: number
+          print_height_mm: number
+          placement: Json
+          effective_dpi: number
+          status: string
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          user_id: string
+          owner_id: string
+          product_id: string
+          variant_id?: string | null
+          source_url: string
+          source_width_px: number
+          source_height_px: number
+          print_width_mm: number
+          print_height_mm: number
+          placement?: Json
+          effective_dpi: number
+          status?: string
+        }
+        Update: {
+          variant_id?: string | null
+          placement?: Json
+          effective_dpi?: number
+          status?: string
+        }
+        Relationships: []
+      }
       "23_products": {
         Row: {
           id: string
@@ -101,6 +142,7 @@ export type Database = {
           variants: Json | null
           category_id: string | null
           replanishment_requests_count: number
+          personalization: Json | null
         }
         Insert: {
           id: string
@@ -113,6 +155,7 @@ export type Database = {
           variants?: Json | null
           category_id?: string | null
           replanishment_requests_count?: number
+          personalization?: Json | null
         }
         Update: {
           id?: string

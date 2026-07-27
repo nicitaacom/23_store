@@ -51,6 +51,7 @@ they were needed for the timeout problem:
 23_categories.csv
 23_category_views.csv
 23_products.csv
+23_personalized_designs.csv
 23_tickets.csv
 23_messages.csv
 ```
@@ -65,7 +66,7 @@ storage/23_avatar-images/<...>
 ```
 
 - **Tables** (`BACKUP_TABLES`, FK-safe order, in `app/api/backup/backupConfig.ts`):
-  `23_users → 23_users_cart → 23_categories → 23_category_views → 23_products → 23_tickets → 23_messages`.
+  `23_users → 23_users_cart → 23_categories → 23_category_views → 23_products → 23_personalized_designs → 23_tickets → 23_messages`.
   `utm_stats` is **excluded** — it is shared across projects 14/23/28/29.
 - **Buckets** (`BACKUP_BUCKETS`, mirrors `app/ts/types/TBuckets.ts`): `23_public-images`, `23_avatar-images`.
 
@@ -127,7 +128,7 @@ owner column), then PUTs each file's bytes directly to the signed URL with
 `upsert: true` baked into the token, so a re-import overwrites the existing object.
 
 Progress on both flows is byte-accurate on the files tab (`23 MB / 230 MB`) and count-based on the
-tables tab (`3 / 7 tables`) — CSV rows are not large enough for byte progress to be meaningful.
+tables tab (`3 / 8 tables`) — CSV rows are not large enough for byte progress to be meaningful.
 
 <br/>
 
