@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
 
+import { TProductPersonalization } from "@/ts/product/TPersonalization"
 import { TProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
 import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
@@ -18,6 +19,7 @@ export type TUpdateProductRequest = {
   onStock?: number
   variants?: TProductVariant[] | null
   category_id?: string | null
+  personalization?: TProductPersonalization | null
 }
 
 export async function POST(req: Request) {
@@ -224,6 +226,21 @@ export async function POST(req: Request) {
       } else {
         throw new Error(`Update price\n Product with id ${productId} not found in DB\n`)
       }
+    }
+
+    /* UPDATE PERSONALIZATION */
+    if ("personalization" in body) {
+      const { error: updatePersonalizationError } = await supabase
+        .from("23_products")
+        .update({ personalization: body.personalization ?? null })
+        .eq("id", productId)
+
+      if (updatePersonalizationError)
+        throw new Error(
+          `update product personalization \n Path:/api/products/update/route.ts \n Error message:\n ${updatePersonalizationError.message}`,
+        )
+
+      return getUpdatedProductResponse(productId)
     }
 
     /* UPDATE CATEGORY */

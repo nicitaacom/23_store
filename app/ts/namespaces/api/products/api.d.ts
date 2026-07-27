@@ -60,6 +60,20 @@ declare namespace API {
     product: string
   }
 
+  // Mirrors app/ts/product/TPersonalization.ts - this file holds no imports on purpose
+  type ProductsPrintArea = { widthMm: number; heightMm: number; minDpi?: number }
+  type ProductsMockupRect = { leftPct: number; topPct: number; widthPct: number; heightPct: number }
+  type ProductsPersonalizationConfig = {
+    mockupUrl: string
+    printArea: ProductsPrintArea
+    mockupRect: ProductsMockupRect
+  }
+  type ProductsPersonalization = {
+    isEnabled: boolean
+    defaultConfig: ProductsPersonalizationConfig | null
+    variantConfigs?: Record<string, ProductsPersonalizationConfig>
+  }
+
   type ProductsUpdateRequest = {
     productId: string
     images?: string[]
@@ -68,6 +82,7 @@ declare namespace API {
     onStock?: number
     variants?: ProductsVariant[] | null
     category_id?: string | null
+    personalization?: ProductsPersonalization | null
   }
 
   type ProductsDeleteRequest = {

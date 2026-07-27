@@ -38,6 +38,7 @@ So this feature answers two questions before the order, not after:
 | Upload + design row | `functions/uploadDesignFn.ts` |
 | Entry button | `app/components/ui/Buttons/PersonalizeButton.tsx` |
 | All the math | `app/utils/printMetrics.ts` |
+| Owner's print-area editor | `app/components/ui/Modals/AdminPanel/components/PersonalizationForm.tsx` |
 | Types | `app/ts/product/TPersonalization.ts` |
 | Route | `app/api/personalized-designs/route.ts` |
 
@@ -144,8 +145,12 @@ choose/paste image → readPastedImages (size + resolution gate)
 
 ## 4. TODO
 
-- [ ] Admin form to set the print size and drag the rectangle on the mockup. Until then the config is
-      written by the SQL block in `dev_readme-supbase-sql.md` (**PRODUCT PERSONALIZATION**).
+- [x] Admin form to set the print size and drag the rectangle on the mockup:
+      `app/components/ui/Modals/AdminPanel/components/PersonalizationForm.tsx`, rendered on the product's
+      manage page (`/[locale]/products/<id>/manage`). Tick "Buyers can personalize this product", pick one
+      of the product's own images as the mockup, type the print size in mm, drag the rectangle over it.
+      The rectangle turns red when its shape drifts from the print size, with a one-click fix.
+      It updates `23_products.personalization` through `productsSDK.updateProduct`.
 - [ ] Notify the owner on a paid personalized order (design URL + print size + DPI), reusing the
       `requestBetterPrices.tsx` email + Telegram path.
 - [ ] Show the design thumbnail on the personalized line in `app/emails/CheckEmail.tsx`.

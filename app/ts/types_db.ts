@@ -167,6 +167,8 @@ export type Database = {
           translations?: Json
           variants?: Json | null
           category_id?: string | null
+          replanishment_requests_count?: number
+          personalization?: Json | null
         }
         Relationships: []
       }
