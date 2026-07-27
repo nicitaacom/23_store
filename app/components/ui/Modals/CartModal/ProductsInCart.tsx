@@ -26,11 +26,11 @@ export function ProductsInCart() {
     const response = await requestBetterPrices(t, cartStore.productsData, cartStore.getProductsPrice(), user?.email || null)
     setIsLoading(false)
     if (response.success) {
-      toast.show("success", "Request sent!", response.message)
+      toast.show("success", t("product.success.better_prices_title"), response.message)
       return
     }
 
-    toast.show("error", "Request failed", response.message)
+    toast.show("error", t("product.error.better_prices_title"), response.message)
   }
 
   return (

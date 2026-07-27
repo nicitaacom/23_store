@@ -60,3 +60,34 @@ auth edge case shows the TODO text ✗     every surface reads from t("...") ✓
 Read them BEFORE editing; validate every group diff line-by-line before saying done.
 
 ➡️ Next plan: [plan-09-utm-stats-hardening.md](plan-09-utm-stats-hardening.md)
+
+## Audit result (project-wide grep, this session)
+
+Translated now (buyer sees them):
+
+- `app/components/ui/Modals/CartModal/ProductsInCart.tsx` - better-prices toasts
+- `app/components/ui/Modals/UpdateAvatarModal.tsx` - 4 avatar toasts
+- `app/components/ui/Modals/DoYouWantReceiveCheckModal.tsx` - 3 check toasts
+- `app/components/ui/Modals/CartModal/PaymentButtons/components/PayWithMetamaskButton.tsx` - transaction error
+- `app/components/ui/Modals/CartModal/PaymentButtons/components/PayWithClarnaButton.tsx` - session error
+  (its text said "paypal session" inside the Klarna button - fixed while translating)
+- `app/[locale]/(site)/components/AISearch/ChatInput.tsx` - composer placeholder
+- `app/components/SupportButton/components/DragAndDropArea/*` - drop-zone labels + the 4 image
+  warnings, which now reuse the `product.warning.*` keys the admin form already had
+- `app/components/ui/Modals/AdminPanel/components/AddProductForm.tsx` - background translation toast
+- `app/components/Product/RequestReplanishmentButton.tsx` - button + toasts
+- `app/[locale]/(auth)/AuthModal/components/AuthForm.tsx` - the literal TODO string that could render
+
+Left in English on purpose:
+
+- Admin-only surfaces: `CategoriesForm.tsx`, `FormatImagesForm.tsx`, `DbBackupModal`, `UTMDashboard`.
+  Only Nikita opens them.
+- Support dashboard (`app/[locale]/(support)/...`): "Support inbox", "Open tickets", "Ticket", the
+  empty states. Only the support role sees them.
+- `app/global-error.tsx`: it renders outside the locale layout, so no i18n provider exists there.
+- `app/emails/RequestBetterPricesEmail.tsx`: the mail goes to support, not to a buyer.
+- `app/[locale]/error/*`: the auth-callback error screens are technical dead ends aimed at support.
+
+Unused keys deleted: `category.backfill_button` (all 4 files). All 4 locale files hold the same key
+set - checked by diffing the key lists, not by line count (prettier wraps long values, so the old
+"same line number" rule only held while every value was short).

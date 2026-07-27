@@ -1,5 +1,6 @@
 import { ErrorsType, ImageListType } from "react-images-uploading"
 
+import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { formatUploadFileSize, formatUploadResolution, MAX_IMAGE_FILE_SIZE_BYTES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
 import { getInvalidUploadedImageResolution } from "@/utils/getUploadedImageResolution"
 import useToast from "@/store/ui/useToast"
@@ -13,7 +14,15 @@ interface ShowToastWarningOptions {
   }
 }
 
-export async function showToastWarningFn(errors: ErrorsType, options: ShowToastWarningOptions = {}, files?: ImageListType) {
+// Same `product.warning.*` keys as the admin variant (AdminPanel/functions/showToastWarningFn.ts):
+// the wording is about the image file itself, so it reads right in both the product form and the
+// support chat, and one set of keys stays translated in all 4 locales.
+export async function showToastWarningFn(
+  t: TI18nFunction,
+  errors: ErrorsType,
+  options: ShowToastWarningOptions = {},
+  files?: ImageListType,
+) {
   const toast = useToast.getState()
 
   const maxImages = options.maxNumber ?? 5
@@ -21,11 +30,19 @@ export async function showToastWarningFn(errors: ErrorsType, options: ShowToastW
   const minResolution = formatUploadResolution(options.minResolution ?? MIN_IMAGE_RESOLUTION)
 
   if (errors?.acceptType) {
-    return toast.show("warning", "Add file extention", "Please add file.extention like .jpg or .png or .avif or .webp")
+    return toast.show("warning", t("product.warning.add_file_extension_title"), t("product.warning.add_file_extension_subtitle"))
   } else if (errors?.maxFileSize) {
-    return toast.show("warning", `Max file size is ${maxFileSize}`, `Please upload an image that is ${maxFileSize} or smaller.`)
+    return toast.show(
+      "warning",
+      t("product.warning.max_file_size_title", { maxFileSize }),
+      t("product.warning.max_file_size_subtitle", { maxFileSize }),
+    )
   } else if (errors?.maxNumber) {
-    return toast.show("warning", `Max ${maxImages} images`, `Please use max ${maxImages} images`)
+    return toast.show(
+      "warning",
+      t("product.warning.max_images_title", { maxImages }),
+      t("product.warning.max_images_subtitle", { maxImages }),
+    )
   } else if (errors?.resolution) {
     const getInvalidUploadedImageResolutionResp = await getInvalidUploadedImageResolution(
       files,
@@ -37,10 +54,10 @@ export async function showToastWarningFn(errors: ErrorsType, options: ShowToastW
 
     return toast.show(
       "warning",
-      "Use higher resolution",
+      t("product.warning.use_higer_resolution_title"),
       uploadedResolution
-        ? `You uploaded ${uploadedResolution}px but minimum required resolution is ${minResolution}px.`
-        : `Minimum required resolution is ${minResolution}px.`,
+        ? t("product.warning.use_higer_resolution_subtitle_with_uploaded", { uploadedResolution, minResolution })
+        : t("product.warning.use_higer_resolution_subtitle", { minResolution }),
     )
   }
 }

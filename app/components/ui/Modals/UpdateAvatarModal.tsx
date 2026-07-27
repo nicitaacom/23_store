@@ -80,7 +80,7 @@ export function UpdateAvatarModal() {
 
       setAvatarUrl(response.publicUrl)
     } catch (error) {
-      toast.show("error", "Avatar upload failed", error instanceof Error ? error.message : String(error))
+      toast.show("error", t("modal.avatar.upload_failed"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)
     }
@@ -98,10 +98,10 @@ export function UpdateAvatarModal() {
       setClientAvatarUrl(resolvedUrl)
 
       updateAvatarModal.closeModal()
-      toast.show("success", "Avatar updated", "Your avatar was saved successfully.")
+      toast.show("success", t("modal.avatar.updated_title"), t("modal.avatar.updated_body"))
       router.refresh()
     } catch (error) {
-      toast.show("error", "Avatar update failed", error instanceof Error ? error.message : String(error))
+      toast.show("error", t("modal.avatar.update_failed"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)
     }

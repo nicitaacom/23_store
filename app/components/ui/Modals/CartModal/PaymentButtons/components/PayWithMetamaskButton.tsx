@@ -148,7 +148,7 @@ export function PayWithMetamaskButton() {
       }
     } catch (error) {
       console.error(st("error.sending_money_with_metamask"), error)
-      toast.show("error", "Transaction Error", error instanceof Error ? error.message : String(error))
+      toast.show("error", t("payment.error.transaction_title"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsLoading(false)
     }

@@ -23,7 +23,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 05 | [plan-05-ai-suggest-retrigger.md](plan-05-ai-suggest-retrigger.md) | P2 | Sonnet · medium | done | — |
 | 06 | [plan-06-support-ui-overhaul.md](plan-06-support-ui-overhaul.md) | P1 | Opus · high | done | — |
 | 07 | [plan-07-support-prefilled-message.md](plan-07-support-prefilled-message.md) | P2 | Sonnet · low | done | plan-06 |
-| 08 | [plan-08-i18n-sweep.md](plan-08-i18n-sweep.md) | P2 | Sonnet · medium | in progress: the 3 known anchors are translated (auth button, AddProductForm toast, replenishment button); the project-wide audit of task 1 is still open | plan-06 (touches same files) |
+| 08 | [plan-08-i18n-sweep.md](plan-08-i18n-sweep.md) | P2 | Sonnet · medium | done for buyer-facing text - audit ran project-wide; admin-only and support-dashboard-only strings stay English on purpose (see the plan) | plan-06 (touches same files) |
 | 09 | [plan-09-utm-stats-hardening.md](plan-09-utm-stats-hardening.md) | P3 | Opus · medium | done - geo columns + backfill SQL written (Nikita runs it), index already existed, task 3 closed AGAINST, task 5 deferred with a reason in dev_readme-utm.md | — |
 | 10 | [plan-10-faceit-oauth.md](plan-10-faceit-oauth.md) | P3 | Opus · high | blocked: needs `FACEIT_CLIENT_ID` / `FACEIT_CLIENT_SECRET` from the faceit developer portal | — |
 | 11 | [plan-11-backup-browser-only-bytes.md](plan-11-backup-browser-only-bytes.md) | P1 | Opus · high | in progress | — |

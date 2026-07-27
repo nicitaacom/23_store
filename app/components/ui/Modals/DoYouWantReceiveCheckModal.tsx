@@ -34,14 +34,26 @@ export function DoYouWantReceiveCheckModal() {
   } = useForm<FormData>()
 
   const onSubmit = (data: FormData) => {
-    if (!recipientAddress) toast.show("error", "No recipient address", "Make sure recipient address exist (contact support)")
+    if (!recipientAddress) toast.show(
+        "error",
+        t("modal.do_you_want_receive_check.no_recipient_title"),
+        t("modal.do_you_want_receive_check.no_recipient_body"),
+      )
     else if (data.email.length === 0) {
-      toast.show("error", "Please enter your email", "If you want to recieve check - please enter your email")
+      toast.show(
+        "error",
+        t("modal.do_you_want_receive_check.enter_email_title"),
+        t("modal.do_you_want_receive_check.enter_email_body"),
+      )
     } else {
       // TODO - use email to send email when I fix this issue - https://github.com/resend/react-email/issues/1150
       // Also I need to somehow get this success state after paying with metamask to send check
       // so when I will have money on my metamask it will be possible to test metamask transaction and send check
-      toast.show("error", "Check will be not sent", "react-email error - https://github.com/resend/react-email/issues/1150")
+      toast.show(
+        "error",
+        t("modal.do_you_want_receive_check.not_sent_title"),
+        t("modal.do_you_want_receive_check.not_sent_body"),
+      )
       sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, recipientAddress, t)
     }
   }
@@ -62,7 +74,7 @@ export function DoYouWantReceiveCheckModal() {
       <Button
         variant="danger-outline"
         onClick={() => {
-          if (!recipientAddress) return console.log(65, "No recipient address")
+          if (!recipientAddress) return console.log(77, "No recipient address")
           sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, recipientAddress, t)
           closeModal()
         }}>

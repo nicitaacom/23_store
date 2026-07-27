@@ -4,6 +4,7 @@ import { SiKlarna } from "react-icons/si"
 import { twMerge } from "tailwind-merge"
 
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui"
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui"
 // http://localhost:6006/?path=/story/commerce-checkout--cart
 export function PayWithKlarnaButton() {
   const toast = useToast()
+  const t = useI18n()
   const { isLoading, setIsLoading } = useLoading()
 
   // const klarnaProductsQuery = cartStore.productsData
@@ -27,7 +29,7 @@ export function PayWithKlarnaButton() {
     try {
       await productsSDK.createKlarnaSession()
     } catch (error) {
-      toast.show("error", "Error creating paypal session", error instanceof Error ? error.message : String(error))
+      toast.show("error", t("payment.error.klarna_session_title"), error instanceof Error ? error.message : String(error))
     }
     setIsLoading(false)
   }

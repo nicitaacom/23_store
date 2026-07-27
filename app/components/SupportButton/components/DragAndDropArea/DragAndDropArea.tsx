@@ -5,11 +5,13 @@ import { twMerge } from "tailwind-merge"
 
 import { showToastWarningFn } from "./functions/showToastWarning"
 import { useDragAndDrop } from "@/hooks/support/useDragAndDrop"
+import { useI18n } from "@/locales/client"
 import { useMessages } from "@/store/ui/useMessages"
 import { MAX_IMAGE_FILE_SIZE_BYTES } from "@/constants/uploadLimits"
 
 // http://localhost:6006/?path=/story/support-supportexample--closed-button
 export function DragAndDropArea() {
+  const t = useI18n()
   const { image, setImage } = useMessages()
   const { isDragging, handleDrop } = useDragAndDrop()
 
@@ -24,7 +26,7 @@ export function DragAndDropArea() {
         maxNumber={1}
         maxFileSize={MAX_IMAGE_FILE_SIZE_BYTES}
         onError={(errors, files) => {
-          void showToastWarningFn(errors, { maxNumber: 1, maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES }, files)
+          void showToastWarningFn(t, errors, { maxNumber: 1, maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES }, files)
         }}>
         {({ dragProps }) => (
           <div
@@ -43,8 +45,8 @@ export function DragAndDropArea() {
                 isDragging ? "border-success/45 bg-background/72 opacity-100 backdrop-blur-sm" : "border-transparent opacity-0",
               )}>
               <div className="rounded-[20px] border border-success/20 bg-success/10 px-4 py-3 text-center shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
-                <p className="text-sm font-semibold text-title">Drop image here</p>
-                <p className="mt-1 text-xs text-subTitle">Attach 1 image to your support message</p>
+                <p className="text-sm font-semibold text-title">{t("support.drop_image_title")}</p>
+                <p className="mt-1 text-xs text-subTitle">{t("support.drop_image_subtitle")}</p>
               </div>
             </section>
           </div>

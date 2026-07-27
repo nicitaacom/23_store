@@ -62,7 +62,7 @@ export function ChatInput({
           className="hide-scrollbar min-h-[40px] leading-5 max-h-[120px] flex-1 bg-transparent
           text-title placeholder:text-subTitle outline-none text-[15px] resize-none overflow-y-auto"
           ref={inputRef}
-          placeholder="Describe what you want..."
+          placeholder={t("describe_placeholder")}
           value={promptValue}
           onChange={event => {
             const value = event.target.value
