@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 interface UsePasteImagesOptions {
   isHookEnabled?: boolean
@@ -19,6 +19,15 @@ interface UsePasteImagesOptions {
  * ```
  */
 export function usePasteImages(onPasteImages: (files: File[]) => void, { isHookEnabled = true }: UsePasteImagesOptions = {}) {
+  // The listener is attached once, so running `onPasteImages` directly would keep running the very
+  // first render's version of it forever - it would still see an empty image list and every paste
+  // would replace the gallery instead of adding to it. The ref always holds the current one.
+  const onPasteImagesRef = useRef(onPasteImages)
+
+  useEffect(() => {
+    onPasteImagesRef.current = onPasteImages
+  })
+
   useEffect(() => {
     if (!isHookEnabled) return
 
@@ -31,11 +40,11 @@ export function usePasteImages(onPasteImages: (files: File[]) => void, { isHookE
       if (!files.length) return
 
       event.preventDefault()
-      onPasteImages(files)
+      onPasteImagesRef.current(files)
     }
 
     window.addEventListener("paste", handlePaste)
     return () => window.removeEventListener("paste", handlePaste)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [isHookEnabled])
 }
