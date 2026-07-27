@@ -1,5 +1,6 @@
 import { useI18n } from "@/locales/client"
 
+// http://localhost:6006/?path=/story/authentication-authpieces--headers-per-variant
 export function AuthText({ queryParams }: { queryParams: string | null }) {
   const t = useI18n()
   return (

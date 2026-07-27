@@ -3,6 +3,7 @@ import "react-loading-skeleton/dist/skeleton.css"
 import { NavbarSkeleton } from "./NavbarSkeleton"
 import { ProductsSkeleton } from "./InitialPageLoading/ProductsSkeleton"
 
+// http://localhost:6006/?path=/story/foundations-skeletons--page-loading
 export function InitialPageLoadingSkeleton() {
   return (
     //pr-[17px] - for scrollbar needed - so skeleton looks closer to actual UI

@@ -1,3 +1,4 @@
+// http://localhost:6006/?path=/story/foundations-skeletons--page-loading
 export function DesktopSidebarSkeleton() {
   return (
     <aside className="hidden h-full w-[320px] shrink-0 laptop:flex">

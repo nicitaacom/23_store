@@ -11,6 +11,7 @@ interface SupportTicketsSidebarProps {
   unseenMessages: IUnseenMessages[]
 }
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function SupportTicketsSidebar({ initialTickets, unseenMessages }: SupportTicketsSidebarProps) {
   const { handleOpenTicket, filteredTickets, searchQuery, setSearchQuery, ticketsAmount, unreadMessages } =
     useSupportTicketsSidebar({

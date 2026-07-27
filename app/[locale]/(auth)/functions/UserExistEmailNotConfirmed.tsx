@@ -1,5 +1,6 @@
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 
+// http://localhost:6006/?path=/story/authentication-authpieces--headers-per-variant
 export function UserExistEmailNotConfirmed({ t }: { t: TI18nFunction }) {
   return (
     <div className="flex flex-col justify-center items-center">

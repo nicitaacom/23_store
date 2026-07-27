@@ -2,6 +2,7 @@ import { DesktopSidebarSkeleton } from "./components/DesktopSidebarSkeleton"
 import { MessagesBodySkeleton, MessagesFooterSkeleton, MessagesHeaderSkeleton } from "./components"
 import { MobileSidebarSkeleton } from "./components/MobileSidebarSkeleton"
 
+// http://localhost:6006/?path=/story/foundations-skeletons--page-loading
 export function SupportPageSkeleton({ ticketId }: { ticketId: string | Record<string, string | string[] | undefined> }) {
   const hasTicket = typeof ticketId === "object" && Object.keys(ticketId).length !== 0
 

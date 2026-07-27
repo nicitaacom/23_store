@@ -4,6 +4,7 @@ import Image from "next/image"
 import { BackToMainButton } from "./components/BackToMainButton"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
+// http://localhost:6006/?path=/story/authentication-authpieces--headers-per-variant
 export function AuthNotCompleted() {
   const { isDarkMode } = useDarkModeStore()
   const [isSmallScreen, setIsSmallScreen] = useState(false)

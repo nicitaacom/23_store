@@ -8,6 +8,7 @@ interface AuthLogoProps {
   isRecoverCompleted: boolean
 }
 
+// http://localhost:6006/?path=/story/authentication-authpieces--headers-per-variant
 export function AuthLogo({ isAuthCompleted, isRecoverCompleted }: AuthLogoProps) {
   const darkMode = useDarkModeStore()
   return (

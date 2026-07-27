@@ -19,6 +19,7 @@ interface MobileSidebarProps {
   setSearchQuery: (searchQuery: string) => void
 }
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function MobileSidebar({ onOpenTicket, tickets, ticketsAmount, unreadMessages, searchQuery, setSearchQuery }: MobileSidebarProps) {
   const t = useScopedI18n("support")
   const { isOpen } = useTicket()

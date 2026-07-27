@@ -1,6 +1,7 @@
 import "react-loading-skeleton/dist/skeleton.css"
 import Skeleton from "react-loading-skeleton"
 
+// http://localhost:6006/?path=/story/foundations-skeletons--page-loading
 export function NavbarSkeleton() {
   return (
     <div className="flex flex-col max-h-[48px] mobile:max-h-[62px] px-4 tablet:px-6 laptop:px-8 py-2">

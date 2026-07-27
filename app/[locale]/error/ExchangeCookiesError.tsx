@@ -3,6 +3,7 @@ import Image from "next/image"
 import { BackToMainButton } from "./components/BackToMainButton"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
+// http://localhost:6006/?path=/story/authentication-authpieces--headers-per-variant
 export function ExchangeCookiesError({ message }: { message?: string }) {
   const { isDarkMode } = useDarkModeStore()
 

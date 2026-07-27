@@ -16,6 +16,7 @@ interface SidebarTicketRowProps {
   onClick: () => void
 }
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function SidebarTicketRow({ ticket, unseenMessagesAmount, onClick }: SidebarTicketRowProps) {
   const { ticketId } = useTicket()
   const { avatar_url } = useSender(ticket.owner_avatar_url, ticket.owner_id)

@@ -16,6 +16,7 @@ interface MessagesBodyProps {
 
 export const dynamic = "force-dynamic"
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) {
   const t = useScopedI18n("support")
   const { bottomRef, messages } = useMessagesBody({ initialMessages, ticketId: ticket_id })

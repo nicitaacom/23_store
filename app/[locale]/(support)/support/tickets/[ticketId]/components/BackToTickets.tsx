@@ -6,6 +6,7 @@ import { IoMdArrowRoundBack } from "react-icons/io"
 import { useScopedI18n } from "@/locales/client"
 import { Button } from "@/components/ui"
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function BackToTickets() {
   const router = useRouter()
   const t = useScopedI18n("support")

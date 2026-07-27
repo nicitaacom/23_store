@@ -1,6 +1,7 @@
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { Button } from "@/components/ui"
 
+// http://localhost:6006/?path=/story/authentication-authpieces--headers-per-variant
 export function UnknownError({ t }: { t: TI18nFunction }) {
   return (
     <div className="text-danger flex flex-row">

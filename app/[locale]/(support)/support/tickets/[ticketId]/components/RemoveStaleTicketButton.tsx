@@ -10,6 +10,7 @@ import { Button } from "@/components/ui"
 
 // Closes an empty/unlinked ticket (row is open but has no valid messages) so it stops showing in the
 // sidebar. closeTicket fires tickets:closeBySupport, which the sidebar already listens to and removes the row.
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function RemoveStaleTicketButton({ ticketId }: { ticketId: string }) {
   const router = useRouter()
   const t = useScopedI18n("support")

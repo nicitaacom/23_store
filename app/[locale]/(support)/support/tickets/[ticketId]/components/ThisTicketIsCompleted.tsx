@@ -5,6 +5,7 @@ import Image from "next/image"
 import { BackToTickets } from "./BackToTickets"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function ThisTicketIsCompleted({ ticketId }: { ticketId: string }) {
   const { isDarkMode } = useDarkModeStore()
 

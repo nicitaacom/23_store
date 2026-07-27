@@ -18,6 +18,7 @@ interface MessagesHeaderProps {
   ticket_created_at: string
 }
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function MessagesHeader({ owner_username, owner_avatar_url, owner_id, ticket_id, is_open, ticket_created_at }: MessagesHeaderProps) {
   const t = useScopedI18n("support")
   const { avatar_url } = useSender(owner_avatar_url, owner_id)

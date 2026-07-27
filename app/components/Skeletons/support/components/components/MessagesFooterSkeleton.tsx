@@ -1,3 +1,4 @@
+// http://localhost:6006/?path=/story/foundations-skeletons--page-loading
 export function MessagesFooterSkeleton() {
   return (
     <div className="w-full border-t border-border-color/35 bg-background/55 px-3 py-3">

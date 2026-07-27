@@ -1,3 +1,4 @@
+// http://localhost:6006/?path=/story/foundations-skeletons--page-loading
 export function MessagesBodySkeleton() {
   return (
     <div className="min-h-0 flex-1 bg-background/35 px-3 py-3 laptop:px-4">

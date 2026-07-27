@@ -6,6 +6,7 @@ import { twMerge } from "tailwind-merge"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
 import { Button } from "@/components/ui"
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function MarkTicketAsCompletedSupport({ className }: { className?: string }) {
   const areYouSureMarkTicketAsCompletedSupportModal = useAreYouSureMarkTicketAsCompletedSupportModal()
 

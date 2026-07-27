@@ -1,3 +1,4 @@
+// http://localhost:6006/?path=/story/foundations-skeletons--page-loading
 export function MessagesHeaderSkeleton() {
   return (
     <div className="flex animate-pulse items-center justify-between gap-3 border-b border-border-color/30 bg-foreground/10 px-3 py-3 tablet:px-4">

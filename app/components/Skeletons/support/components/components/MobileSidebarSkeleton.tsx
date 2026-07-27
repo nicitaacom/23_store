@@ -1,3 +1,4 @@
+// http://localhost:6006/?path=/story/foundations-skeletons--page-loading
 export function MobileSidebarSkeleton() {
   return (
     <div className="flex h-full w-full flex-col laptop:hidden">

@@ -12,6 +12,7 @@ import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
 import { MessageInput } from "@/components/ui/Inputs/MessageInput"
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   const toast = useToast()
   const t = useI18n()

@@ -11,6 +11,7 @@ type TurnstileChallengeProps = {
   nextPath: string
 }
 
+// http://localhost:6006/?path=/story/authentication-authpieces--headers-per-variant
 export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps) {
   const turnstileRef = useRef<HTMLDivElement>(null)
   const widgetIdRef = useRef<string | null>(null)

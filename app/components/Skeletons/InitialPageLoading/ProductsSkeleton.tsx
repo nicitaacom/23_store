@@ -2,6 +2,7 @@ import "react-loading-skeleton/dist/skeleton.css"
 import Skeleton from "react-loading-skeleton"
 import { v4 as uuidv4 } from "uuid"
 
+// http://localhost:6006/?path=/story/foundations-skeletons--page-loading
 export function ProductsSkeleton() {
   return (
     <section className="flex flex-col gap-y-8 py-12 h-auto max-[1800px]:max-w-[80vw] w-[100vw] max-w-[1442px] overflow-hidden mx-auto">

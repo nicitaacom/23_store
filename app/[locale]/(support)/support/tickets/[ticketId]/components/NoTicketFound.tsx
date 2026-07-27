@@ -6,6 +6,7 @@ import { BackToTickets } from "./BackToTickets"
 import { RemoveStaleTicketButton } from "./RemoveStaleTicketButton"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function NoTicketFound({ ticketId }: { ticketId: string }) {
   const { isDarkMode } = useDarkModeStore()
 

@@ -17,6 +17,7 @@ interface DesktopSidebarProps {
   setSearchQuery: (searchQuery: string) => void
 }
 
+// http://localhost:6006/?path=/story/support-supportdashboard--desktop-ticket-list
 export function DesktopSidebar({ onOpenTicket, tickets, ticketsAmount, unreadMessages, searchQuery, setSearchQuery }: DesktopSidebarProps) {
   const t = useScopedI18n("support")
 
