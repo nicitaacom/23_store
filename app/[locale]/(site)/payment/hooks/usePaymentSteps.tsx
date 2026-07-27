@@ -9,6 +9,7 @@ import { substractOnStockFromQuantityFn } from "../functions/substractOnStockFro
 import { useFetchProductsData } from "./useFetchProductsData"
 import { verifySessionIdFn } from "../functions/verifySessionIdFn"
 import { formatDeliveryDate } from "@/utils/formatDeliveryDate"
+import { personalizedDesignsSDK } from "@/sdk/PersonalizedDesignsSDK/PersonalizedDesignsSDK"
 import useCartStore from "@/store/user/cartStore"
 import { useCurrentLocale, useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
@@ -57,6 +58,12 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
       case 7:
         // Record what was bought (client-side) so the user can rate these products afterwards
         addPurchasedProducts([...new Set(Object.values(cartStore.products).map(product => product.id))])
+        // A paid design stops being a draft - this is what turns it into a print job for the owner
+        void personalizedDesignsSDK.updateDBDesignsToOrdered({
+          design_ids: Object.values(cartStore.products)
+            .map(product => product.designId)
+            .filter((designId): designId is string => Boolean(designId)),
+        })
         substractOnStockFromQuantityFn(cartStore.products, cartStore.clearCart, router, t)
         break
       default:

@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { Product } from "."
+import { PersonalizeModal } from "@/components/ui/Modals/PersonalizeModal/PersonalizeModal"
 
 interface ProductsProps {
   products: TProductDB[] | undefined
@@ -65,6 +66,9 @@ function Products({ products }: ProductsProps) {
           ))}
         </motion.ul>
       </AnimatePresence>
+
+      {/* One modal for the whole list - it reads which product to show from ?productId= */}
+      <PersonalizeModal products={products ?? []} />
     </div>
   )
 }

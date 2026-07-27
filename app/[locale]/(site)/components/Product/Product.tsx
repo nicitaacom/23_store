@@ -14,8 +14,10 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getAvailableStock, getProductPriceForVariant } from "@/utils/cartProducts"
 import { getProductGalleryImages } from "@/utils/product"
+import { resolvePersonalizationConfig } from "@/utils/printMetrics"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { MarkdownText } from "@/components/ui/MarkdownText"
+import { PersonalizeButton } from "@/components/ui/Buttons/PersonalizeButton"
 import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
 
 function VariantImage({ src, alt }: { src: string; alt: string }) {
@@ -55,6 +57,7 @@ function Product({ ...product }: Props) {
   // 0 = sold out, so a single sold-out variant disables only that variant — not the whole product.
   const availableStock = getAvailableStock(product, selectedVariant?.id)
   const isOutOfStock = availableStock === 0
+  const personalizationConfig = resolvePersonalizationConfig(product, selectedVariant?.id)
 
   if (derivedVariantId !== prevDerivedVariantId) {
     setPrevDerivedVariantId(derivedVariantId)
@@ -163,13 +166,18 @@ function Product({ ...product }: Props) {
               <RequestReplanishmentButton product={product} />
             </div>
           ) : (
-            <ProductButtons
-              ownerId={product.owner_id}
-              productId={product.id}
-              showViewButton={product.showViewButton}
-              variantId={selectedVariant?.id}
-              categoryId={product.category_id}
-            />
+            <>
+              {personalizationConfig && (
+                <PersonalizeButton className="h-9" productId={product.id} variantId={selectedVariant?.id} />
+              )}
+              <ProductButtons
+                ownerId={product.owner_id}
+                productId={product.id}
+                showViewButton={product.showViewButton}
+                variantId={selectedVariant?.id}
+                categoryId={product.category_id}
+              />
+            </>
           )}
         </section>
 
