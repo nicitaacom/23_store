@@ -46,6 +46,8 @@ const hintRingOffsetPx = 4
 const hintRingSize = `calc(100% + ${hintRingOffsetPx * 2}px)`
 // One lap of the travelling segment. Two laps fit in hintBorderDurationMs.
 const hintLapDurationMs = hintBorderDurationMs / 2
+// How long the travelling segment takes to hand over to the glowing state.
+const hintFadeDurationMs = 600
 
 // Sizing note: an <svg> is a replaced element, so `inset` alone does NOT stretch it - it keeps its
 // intrinsic 300x150 and the rect draws a long bar across the navbar. Width and height are therefore
@@ -53,11 +55,19 @@ const hintLapDurationMs = hintBorderDurationMs / 2
 // No viewBox on purpose: a stretched viewBox would make the 2px stroke thick on the long edges and
 // thin on the short ones, and would bend the corner radius. `pathLength="100"` normalizes the dash
 // to the perimeter, so "25 75" is a quarter-long segment whatever the element measures.
-function ProgressBorder({ radius }: { radius: number }) {
+function ProgressBorder({ radius, isFadingOut }: { radius: number; isFadingOut: boolean }) {
   return (
     <svg
-      style={{ top: -hintRingOffsetPx, left: -hintRingOffsetPx, width: hintRingSize, height: hintRingSize }}
-      className="pointer-events-none absolute overflow-visible"
+      style={{
+        top: -hintRingOffsetPx,
+        left: -hintRingOffsetPx,
+        width: hintRingSize,
+        height: hintRingSize,
+        transitionDuration: `${hintFadeDurationMs}ms`,
+      }}
+      className={`pointer-events-none absolute overflow-visible transition-opacity ease-out ${
+        isFadingOut ? "opacity-0" : "opacity-100"
+      }`}
       aria-hidden="true">
       <rect
         x="1"
@@ -84,19 +94,34 @@ function ProgressBorder({ radius }: { radius: number }) {
   )
 }
 
+// The two laps end into the glowing state, and that swap is a cross-fade: the travelling segment
+// fades out while the dim border turns into the white glow, instead of both switching on one frame.
+// The svg stays mounted for the length of the fade and only then leaves, so its animation stops.
 function HintRing({ radius, isBorderLoading }: { radius: number; isBorderLoading: boolean }) {
+  const [isProgressMounted, setIsProgressMounted] = useState(isBorderLoading)
+
+  // Re-opening the menu starts the laps again - derived here during render, an effect would be a
+  // second render pass for something already known.
+  if (isBorderLoading && !isProgressMounted) setIsProgressMounted(true)
+
+  useEffect(() => {
+    if (isBorderLoading) return
+    const timeoutId = window.setTimeout(() => setIsProgressMounted(false), hintFadeDurationMs)
+    return () => window.clearTimeout(timeoutId)
+  }, [isBorderLoading])
+
   return (
     <>
       <span
-        style={{ borderRadius: radius, inset: -hintRingOffsetPx }}
-        className={`pointer-events-none absolute border-2 ${
+        style={{ borderRadius: radius, inset: -hintRingOffsetPx, transitionDuration: `${hintFadeDurationMs}ms` }}
+        className={`pointer-events-none absolute border-2 transition-[border-color,box-shadow] ease-out ${
           isBorderLoading
             ? "border-white/40"
             : "animate-pulse border-white shadow-[0_0_4px_#fff,0_0_10px_rgba(255,255,255,0.75),0_0_16px_rgba(255,255,255,0.45)]"
         }`}
         aria-hidden="true"
       />
-      {isBorderLoading && <ProgressBorder radius={radius} />}
+      {isProgressMounted && <ProgressBorder radius={radius} isFadingOut={!isBorderLoading} />}
     </>
   )
 }
