@@ -1,7 +1,15 @@
 import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 
+// Emoji in a description are wanted (✨ 🎁 📦), so the allowed set spells out every piece one can be
+// built from: the pictograph itself, a skin-tone modifier, the two regional letters of a flag, the
+// zero-width joiner that glues 👩‍💻 together and the variation selector that makes ❤️ render in color.
+const EMOJI_CHARACTERS = "\\p{Extended_Pictographic}\\p{Emoji_Modifier}\\p{Regional_Indicator}\\u200D\\uFE0F"
+
 export const PRODUCT_TITLE_INVALID_CHARACTER_REGEX = /[^\p{L}\p{N}#%$()_+&/,.''\-= |–:]/u
-export const PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX = /[^-:.,()#@&%\/"'`~\[\]|><=+!?*_;\p{L}\p{N}\n °]/u
+export const PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX = new RegExp(
+  `[^-:.,()#@&%\\/"'\`~\\[\\]|><=+!?*_;\\p{L}\\p{N}\\n °${EMOJI_CHARACTERS}]`,
+  "u",
+)
 export const PRODUCT_TITLE_HAS_LETTER_REGEX = /\p{L}/u
 export const PRODUCT_TITLE_MUST_START_REGEX = /^[\p{L}\p{N}]/u
 
@@ -11,7 +19,7 @@ export const PRODUCT_TITLE_PATTERN = new RegExp(
 )
 
 export const PRODUCT_DESCRIPTION_PATTERN = new RegExp(
-  "^[-:.,()#@&%\\/\"'`~\\[\\]|><=+!?*_;\\p{L}\\p{N}\\n °]{1," + MAX_PRODUCT_DESCRIPTION_LENGTH + "}$",
+  `^[-:.,()#@&%\\/"'\`~\\[\\]|><=+!?*_;\\p{L}\\p{N}\\n °${EMOJI_CHARACTERS}]{1,${MAX_PRODUCT_DESCRIPTION_LENGTH}}$`,
   "u",
 )
 
