@@ -7,6 +7,7 @@ import { BiUpArrow } from "react-icons/bi"
 import { perPage } from "@/constant/perPage"
 import { useScopedI18n } from "@/locales/client"
 
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export default function ProductsPerPage({ className }: { className?: string }) {
   const t = useScopedI18n("product")
   const [showDropdown, setShowDropdown] = useState(false)

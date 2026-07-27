@@ -23,6 +23,7 @@ interface PopularProductCardProps {
 
 // Reference "USDT / Claim" card adapted to a product: big title, feature rows, bottom action.
 // Heart (like) shows for users who have NOT bought it; stars (rate) show for users who HAVE bought it.
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function PopularProductCard({ product, locale }: PopularProductCardProps) {
   const t = useScopedI18n("product")
   const translation = product.translations[toProductLocale(locale)] ?? product.translations.fi

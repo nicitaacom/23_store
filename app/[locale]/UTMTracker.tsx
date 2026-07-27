@@ -6,6 +6,7 @@ import { getCookie } from "@/utils/helpersCSR"
 import { setAnonymousId } from "@/utils/setAnonymousId"
 import { trackVisitAction } from "@/actions/trackVisitAction"
 
+// http://localhost:6006/?path=/story/navigation-appshell--sign-in
 export function UTMTracker({ userId }: { userId: string | undefined }) {
   useEffect(() => {
     const params = Object.fromEntries(new URLSearchParams(window.location.search).entries())

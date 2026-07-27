@@ -5,6 +5,7 @@ import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal
 import useCartStore from "@/store/user/cartStore"
 import { useScopedI18n } from "@/locales/client"
 
+// http://localhost:6006/?path=/story/ui-overlays-confirmations--clear-cart
 export function AreYouSureClearCartModal() {
   const t = useScopedI18n("modal")
   const areYouSuteClearCartModal = useAreYouSureClearCartModal()

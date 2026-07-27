@@ -10,7 +10,7 @@ function isComponentName(name) {
 
 function isFunctionalComponentInitializer(node) {
   if (!node) return false
-  if (["ArrowFunctionExpression", "FunctionExpression"].includes(node.type)) return true
+  if (["ArrowFunctionExpression", "FunctionExpression"].includes(node.type)) return !node.async
   return node.type === "CallExpression" && node.callee.type === "Identifier" && ["forwardRef", "memo", "lazy", "dynamic"].includes(node.callee.name)
 }
 
@@ -46,7 +46,8 @@ module.exports = {
           if (!declaration) return
 
           if (declaration.type === "FunctionDeclaration") {
-            checkComponent(node, declaration.id?.name)
+            // An async component is a server component - it awaits its own data and never renders in Storybook.
+            if (!declaration.async) checkComponent(node, declaration.id?.name)
             return
           }
 
@@ -57,7 +58,8 @@ module.exports = {
           }
         },
         ExportDefaultDeclaration(node) {
-          if (node.declaration.type === "FunctionDeclaration") checkComponent(node, node.declaration.id?.name || "DefaultComponent")
+          if (node.declaration.type !== "FunctionDeclaration" || node.declaration.async) return
+          checkComponent(node, node.declaration.id?.name || "DefaultComponent")
         },
       }
     },

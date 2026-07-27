@@ -16,6 +16,7 @@ interface PopularProductsLazyFeedProps {
 const STEP = 24
 const WINDOW_SIZE = 48
 
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }: PopularProductsLazyFeedProps) {
   const [products, setProducts] = useState(initialProducts)
 

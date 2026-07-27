@@ -9,12 +9,14 @@ import { OrganicCanvasBackground } from "./OrganicCanvasBackground"
 import { PortalWrapper } from "./PortalWrapper"
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
 
+// http://localhost:6006/?path=/story/ui-overlays-confirmations--clear-cart
 export function GlobalImagePreviewPortal() {
   const { clearImage, image, isFullscreen, side } = useGlobalImagePreview()
 
   return <FileImagePreview image={image} side={side} isShowImage={!!image} isFullscreen={isFullscreen} onClose={clearImage} />
 }
 
+// http://localhost:6006/?path=/story/ui-overlays-confirmations--clear-cart
 export function FileImagePreview({
   side,
   image,

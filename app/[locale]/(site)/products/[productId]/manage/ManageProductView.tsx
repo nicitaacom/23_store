@@ -50,6 +50,7 @@ async function postProductUpdate(request: API.ProductsUpdateRequest) {
   return productsSDK.updateProduct(request)
 }
 
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function ManageProductView({ product }: ManageProductViewProps) {
   const t = useScopedI18n("product")
   const locale = useCurrentLocale()

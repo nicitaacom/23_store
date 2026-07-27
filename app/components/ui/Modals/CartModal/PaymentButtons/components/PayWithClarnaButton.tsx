@@ -8,6 +8,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui"
 
+// http://localhost:6006/?path=/story/commerce-checkout--cart
 export function PayWithKlarnaButton() {
   const toast = useToast()
   const { isLoading, setIsLoading } = useLoading()

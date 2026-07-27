@@ -24,6 +24,7 @@ const BANNERS = [
   },
 ]
 
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function BannersSlider() {
   const [current, setCurrent] = useState(0)
   const [animating, setAnimating] = useState(false)

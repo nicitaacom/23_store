@@ -10,6 +10,7 @@ import useCartStore from "@/store/user/cartStore"
 import { useI18n } from "@/locales/client"
 import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
 
+// http://localhost:6006/?path=/story/commerce-checkout--cart
 export function CartModal() {
   const t = useI18n()
   const router = useRouter()

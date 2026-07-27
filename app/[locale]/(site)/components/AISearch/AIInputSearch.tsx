@@ -13,6 +13,7 @@ import { ChatMessages } from "./ChatMessages"
 import { MemoryDebug } from "../MemoryDebug"
 import { useScopedI18n } from "@/locales/client"
 
+// http://localhost:6006/?path=/story/commerce-aisearch--search-entry-point
 export function AIInputSearch() {
   const t = useScopedI18n("aichat")
   const {

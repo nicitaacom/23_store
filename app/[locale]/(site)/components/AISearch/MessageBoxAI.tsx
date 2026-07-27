@@ -2,6 +2,7 @@ import Image from "next/image"
 
 import { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 
+// http://localhost:6006/?path=/story/commerce-aisearch--search-entry-point
 export function MessageBoxAI({ role, text, imageUrl }: TAIChatMessage) {
   return (
     <div className={`flex ${role === "user" ? "justify-end" : "justify-start"} animate-[fadeIn_0.3s_ease-in]`}>

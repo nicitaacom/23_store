@@ -12,6 +12,7 @@ import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui"
 
+// http://localhost:6006/?path=/story/commerce-checkout--cart
 export function PayWithPaypalButton() {
   const t = useScopedI18n("payment")
   const router = useRouter()

@@ -19,6 +19,7 @@ type Props = {
   handleTextareaInput: (event: React.FormEvent<HTMLTextAreaElement>) => void
 }
 
+// http://localhost:6006/?path=/story/commerce-aisearch--search-entry-point
 export function ChatInput({
   promptValue,
   setPromptValue,

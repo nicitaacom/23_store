@@ -19,6 +19,7 @@ interface CategoryPillBarProps {
   serverViews: Record<string, number>
 }
 
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function CategoryPillBar({ categories, isAuthenticated, locale, serverViews }: CategoryPillBarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()

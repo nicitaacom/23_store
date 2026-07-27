@@ -23,6 +23,7 @@ import { AuthText } from "./components/AuthText"
 import { useCurrentLocale, useI18n } from "@/locales/client"
 import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers"
 
+// http://localhost:6006/?path=/story/navigation-appshell--sign-in
 export function AuthModal() {
   const router = useRouter()
   // const emailInputRef = useRef<HTMLInputElement>(null)

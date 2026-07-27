@@ -2,6 +2,7 @@ import { BsStars } from "react-icons/bs"
 
 import { useScopedI18n } from "@/locales/client"
 
+// http://localhost:6006/?path=/story/commerce-aisearch--search-entry-point
 export function ChatHeader() {
   const t = useScopedI18n("aichat")
 

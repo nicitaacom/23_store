@@ -68,6 +68,16 @@ test("ignores route handlers exported as HTTP methods", () => {
   assert.deepEqual(messages, [])
 })
 
+test("ignores async server components", () => {
+  const messages = verify(`
+    export async function Navbar() { return null }
+    export default async function Layout() { return null }
+    export const Sidebar = async () => null
+  `)
+
+  assert.deepEqual(messages, [])
+})
+
 test("checks named default-exported components", () => {
   const messages = verify(`
     export default function Example() { return null }

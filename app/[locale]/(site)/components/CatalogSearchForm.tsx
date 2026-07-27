@@ -28,6 +28,7 @@ function createCatalogSearchHref(locale: string, perPage: number, query: string)
   return `/${locale}?${params.toString()}`
 }
 
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function CatalogSearchForm({
   locale,
   initialQuery,

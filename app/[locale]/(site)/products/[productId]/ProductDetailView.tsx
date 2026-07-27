@@ -26,6 +26,7 @@ interface ProductDetailViewProps {
   isAuthenticated: boolean
 }
 
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function ProductDetailView({ product, isAuthenticated }: ProductDetailViewProps) {
   const t = useScopedI18n("product")
   const locale = useCurrentLocale()

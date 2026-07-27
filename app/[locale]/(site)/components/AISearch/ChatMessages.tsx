@@ -9,6 +9,7 @@ import { useScopedI18n } from "@/locales/client"
 
 type Props = { conversation: TAIChatMessage[]; isLoading: boolean; chatEndRef: React.RefObject<HTMLDivElement> }
 
+// http://localhost:6006/?path=/story/commerce-aisearch--search-entry-point
 export function ChatMessages({ conversation, isLoading, chatEndRef }: Props) {
   const t = useScopedI18n("aichat")
   return (

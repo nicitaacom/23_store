@@ -49,6 +49,7 @@ function toChecksumAddress(address: string): string {
   return checksumAddress
 }
 
+// http://localhost:6006/?path=/story/commerce-checkout--cart
 export function PayWithMetamaskButton() {
   const st = useScopedI18n("payment")
   const t = useI18n()

@@ -10,6 +10,7 @@ function renderRecentSourceLabel(source: API.AISalesAssistantDebug["recentSource
   return "Unknown"
 }
 
+// http://localhost:6006/?path=/story/admin-admintools--utm-stats
 export function MemoryDebug({ memory, debugContext }: MemoryDebugProps) {
   if (process.env.NODE_ENV !== "development") return null
 

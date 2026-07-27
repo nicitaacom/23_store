@@ -11,6 +11,7 @@ interface AddToCartButtonProps {
   className?: string
 }
 
+// http://localhost:6006/?path=/story/commerce-aisearch--search-entry-point
 export function AddToCartButton({ productId, className }: AddToCartButtonProps) {
   const { increaseProductQuantity } = useCartStore()
   const t = useScopedI18n("aichat")

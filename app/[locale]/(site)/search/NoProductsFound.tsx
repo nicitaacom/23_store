@@ -5,6 +5,7 @@ import Image from "next/image"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { useScopedI18n } from "@/locales/client"
 
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function NoProductsFound() {
   const { isDarkMode } = useDarkModeStore()
   const t = useScopedI18n("product")

@@ -17,6 +17,7 @@ interface PopularProductsPreviewListProps {
   showPreviewLink?: boolean
 }
 
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function PopularProductsPreviewList({
   products,
   locale,

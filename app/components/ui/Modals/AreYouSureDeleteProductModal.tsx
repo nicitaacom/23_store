@@ -10,6 +10,7 @@ import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
 
+// http://localhost:6006/?path=/story/ui-overlays-confirmations--clear-cart
 export function AreYouSureDeleteProductModal() {
   const t = useScopedI18n("modal")
   const router = useRouter()

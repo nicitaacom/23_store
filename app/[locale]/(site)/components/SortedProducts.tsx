@@ -30,6 +30,7 @@ interface SortedProductsProps {
   searchQuery?: string
 }
 
+// http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function SortedProducts({ products, serverViews, searchQuery }: SortedProductsProps) {
   const mounted = useHasMounted()
   const { views: anonViews } = useAnonCategoryViewsStore()

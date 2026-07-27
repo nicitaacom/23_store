@@ -19,6 +19,7 @@ interface FormData {
   password: string
 }
 
+// http://localhost:6006/?path=/story/commerce-checkout--cart
 export function DoYouWantReceiveCheckModal() {
   const t = useI18n()
   const cartStore = useCartStore()
@@ -61,7 +62,7 @@ export function DoYouWantReceiveCheckModal() {
       <Button
         variant="danger-outline"
         onClick={() => {
-          if (!recipientAddress) return console.log(64, "No recipient address")
+          if (!recipientAddress) return console.log(65, "No recipient address")
           sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, recipientAddress, t)
           closeModal()
         }}>

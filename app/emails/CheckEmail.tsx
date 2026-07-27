@@ -34,6 +34,7 @@ interface CheckEmailProps {
   allRightsReserved: string
 }
 
+// http://localhost:6006/?path=/story/foundations-emails--order-confirmation
 export function CheckEmail({
   products,
   locale,

@@ -25,6 +25,7 @@ const TABS: { value: TBackupTab; labelKey: "tab_tables" | "tab_files" }[] = [
   { value: "files", labelKey: "tab_files" },
 ]
 
+// http://localhost:6006/?path=/story/admin-admintools--utm-stats
 export function DbBackupModal() {
   const t = useScopedI18n("backup")
   const {
