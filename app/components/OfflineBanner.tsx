@@ -19,7 +19,9 @@ export function OfflineBanner() {
     <AnimatePresence>
       {!isOnline && (
         <motion.div
-          className="fixed inset-x-0 bottom-0 z-[100] flex items-center justify-center gap-2 border-t border-danger/40 bg-danger px-3 py-2 text-sm font-medium text-title-foreground"
+          // z-[9999] beats every modal (z-[1601]) and dropdown, so losing the connection is visible
+          // even while a modal is open - which is exactly when a click is about to fail
+          className="fixed inset-x-0 bottom-0 z-[9999] flex items-center justify-center gap-2 border-t border-danger/40 bg-danger px-3 py-2 text-sm font-medium text-title-foreground"
           role="status"
           aria-live="assertive"
           initial={{ opacity: 0, y: reduced ? 0 : 12 }}
