@@ -325,7 +325,7 @@ export default {
   "product.price_required": "Enter price from 0.01 to 999,999 with 2 decimal places",
   "product.on_stock_required": "Enter stock as a positive number with optional decimals",
   "product.drop_files_here": "Drop files here",
-  "product.click_or_drop_here": "Click or Drop here",
+  "product.click_or_drop_here": "Click, drop or paste",
   "product.update": "Update",
   "product.primary_image": "Primary image",
   "product.remove": "Remove",

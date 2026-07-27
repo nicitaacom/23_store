@@ -323,7 +323,7 @@ export default {
   "product.price_required": "Введите цену от 0,01 до 999 999 с двумя знаками после запятой",
   "product.on_stock_required": "Укажите остаток как положительное число, при необходимости с десятичной частью",
   "product.drop_files_here": "Перетащите файлы сюда",
-  "product.click_or_drop_here": "Кликните или перетащите сюда",
+  "product.click_or_drop_here": "Нажмите, перетащите или вставьте",
   "product.update": "Обновить",
   "product.primary_image": "Первая картинка",
   "product.remove": "Удалить",

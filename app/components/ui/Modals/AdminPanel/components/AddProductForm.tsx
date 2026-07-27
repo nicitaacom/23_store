@@ -12,6 +12,7 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa"
 import { TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductDB } from "@/ts/product/TProductDB"
+import { readPastedImages } from "../functions/readPastedImages"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { CategoryDropdown } from "./CategoryDropdown"
 import { RichTextToolbar } from "./RichTextToolbar"
@@ -27,6 +28,7 @@ import { useCategories } from "@/store/categories/useCategories"
 import { useCurrentLocale, useI18n, useScopedI18n } from "@/locales/client"
 import useDragging from "@/hooks/ui/useDragging"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
+import { usePasteImages } from "@/hooks/ui/usePasteImages"
 import useToast from "@/store/ui/useToast"
 import { validateDescription } from "@/utils/productValidation"
 import {
@@ -114,6 +116,29 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       return Math.min(current, imageList.length - 1)
     })
   }
+
+  // Ctrl+V with a screenshot in the clipboard adds it to the gallery, same limits as the drop zone.
+  usePasteImages(
+    async pastedFiles => {
+      const readPastedImagesResp = await readPastedImages(pastedFiles, images.length)
+
+      if (readPastedImagesResp.images.length) {
+        const nextImages = [...images, ...readPastedImagesResp.images]
+        setImages(nextImages)
+        setActiveImageIndex(nextImages.length - 1)
+      }
+
+      if (Object.keys(readPastedImagesResp.errors).length) {
+        void showToastWarningFn(
+          tGlobal,
+          readPastedImagesResp.errors,
+          { maxNumber: MAX_PRODUCT_IMAGES, maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES, minResolution: MIN_IMAGE_RESOLUTION },
+          readPastedImagesResp.rejectedFiles,
+        )
+      }
+    },
+    { isHookEnabled: !isSubmitting },
+  )
 
   const {
     register,

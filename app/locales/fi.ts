@@ -325,7 +325,7 @@ export default {
   "product.price_required": "Anna hinta väliltä 0,01–999 999 kahdella desimaalilla",
   "product.on_stock_required": "Anna varastosaldo positiivisena numerona, desimaalit sallittu",
   "product.drop_files_here": "Pudota tiedostot tähän",
-  "product.click_or_drop_here": "Klikkaa tai pudota tähän",
+  "product.click_or_drop_here": "Napsauta, raahaa tai liitä",
   "product.update": "Päivitä",
   "product.primary_image": "Ensisijainen kuva",
   "product.remove": "Poista",
