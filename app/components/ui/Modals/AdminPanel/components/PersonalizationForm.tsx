@@ -164,15 +164,20 @@ export function PersonalizationForm({ imageUrls, productId, personalization, cla
           <div className="grid gap-2">
             <p className="text-xs uppercase tracking-widest text-subTitle">{t("admin_draw_hint")}</p>
 
+            {/* onDragStart is refused for the whole box: an image the browser is allowed to drag steals
+                the pointer mid-rectangle, and Add product's drop zone then takes the drop as a new upload */}
             <div
               className="relative w-full cursor-crosshair select-none overflow-hidden rounded border border-border-color/40"
               data-cy="personalization-mockup"
+              onDragStart={event => event.preventDefault()}
               onPointerDown={startDrawing}
               onPointerMove={drawRect}
               onPointerUp={stopDrawing}>
               {/* eslint-disable-next-line @next/next/no-img-element -- the mockup is one of the product's own uploads, with no size known to next/image */}
               <img
                 className="w-full"
+                draggable={false}
+                data-cy="personalization-mockup-image"
                 src={mockupUrl || "/placeholder.jpg"}
                 alt={t("mockup_alt")}
                 onLoad={event =>
@@ -198,7 +203,7 @@ export function PersonalizationForm({ imageUrls, productId, personalization, cla
                   type="button"
                   onClick={() => setPickedMockupUrl(imageUrl)}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- thumbnails of the product's own uploads */}
-                  <img className="h-full w-full object-cover" src={imageUrl} alt={t("mockup_alt")} />
+                  <img className="h-full w-full object-cover" draggable={false} src={imageUrl} alt={t("mockup_alt")} />
                 </button>
               ))}
             </div>

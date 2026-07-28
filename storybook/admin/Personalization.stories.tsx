@@ -60,6 +60,12 @@ export const PrintAreaEditor: Story = {
     await waitFor(() => expect(canvas.getByText("Print width (mm)")).toBeVisible())
     // The mm the owner typed are echoed back as a physical size, so a typo is visible immediately
     await expect(canvas.getByText(/900 × 400 mm/)).toBeVisible()
+    // A draggable mockup steals the pointer halfway through a rectangle, and Add product's drop zone
+    // then takes the drop as a new upload - so the browser is never allowed to drag it
+    await expect(canvasElement.querySelector('[data-cy="personalization-mockup-image"]')).toHaveAttribute(
+      "draggable",
+      "false",
+    )
   },
 }
 
