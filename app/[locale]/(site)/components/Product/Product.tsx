@@ -41,10 +41,9 @@ function Product({ ...product }: Props) {
   const locale = useCurrentLocale()
   const t = useScopedI18n("product")
   const translation = product.translations[locale] ?? product.translations.fi
-  const variants = useMemo(
-    () => product.variants?.filter(variant => variant.label && variant.image_url) || [],
-    [product.variants],
-  )
+  // A label is all a variant needs to be real - size variants (S/M/L) look identical in a photo, so
+  // they have no image of their own and show as a text chip instead of a swatch.
+  const variants = useMemo(() => product.variants?.filter(variant => variant.label) || [], [product.variants])
   const derivedVariantId = product.variantId || variants[0]?.id || ""
   const [selectedVariantId, setSelectedVariantId] = useState(derivedVariantId)
   const [prevDerivedVariantId, setPrevDerivedVariantId] = useState(derivedVariantId)
@@ -132,7 +131,8 @@ function Product({ ...product }: Props) {
               return (
                 <button
                   className={twMerge(
-                    "flex shrink-0 items-center gap-2 rounded-md border px-2 py-1.5 text-left transition-colors duration-200",
+                    // min-h matches the swatch chip, so a row mixing both keeps one height
+                    "flex min-h-[3.375rem] shrink-0 items-center gap-2 rounded-md border px-2 py-1.5 text-left transition-colors duration-200",
                     isActive
                       ? "border-success/40 bg-success/10 text-title"
                       : "border-border-color/20 bg-background/40 text-subTitle hover:border-success/25 hover:bg-success/5",
@@ -141,7 +141,7 @@ function Product({ ...product }: Props) {
                   key={variant.id}
                   type="button"
                   onClick={() => setSelectedVariantId(variant.id)}>
-                  <VariantImage src={variant.image_url} alt={variant.label} />
+                  {variant.image_url && <VariantImage src={variant.image_url} alt={variant.label} />}
                   <div className="min-w-0">
                     <span className="block max-w-[120px] truncate text-sm font-medium leading-4">{variant.label}</span>
                     {isVariantSoldOut ? (
