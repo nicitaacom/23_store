@@ -167,20 +167,40 @@ an OpenAI outage must not make the store unable to add products.
 ### Generate appropriate image
 
 The way out of a mismatch. It asks `/api/ai/generate-image` for a photo whose printable surface has the
-proportions of the print size, then the file goes through `AddProductForm.addImageFiles` — the same path
-a Ctrl+V paste takes, so it gets the same size/resolution limits — and is picked as the mockup:
+proportions of the print size, and that photo **replaces the one the print area was marked on** — it is
+a correction of that image, not an extra product image, so the gallery never grows:
 
 ```
 "Generate appropriate image"
   → aiSDK.generateImageBuffer(prompt built from the mm)
-  → new File(...)  → onGeneratedMockup(file)
-  → AddProductForm.addImageFiles([file])   → returns the new data URL
-  → setPickedMockupUrl(dataUrl)            → the signature moves on, verdict back to "unchecked"
+  → new File(...)  → onGeneratedMockup(file, mockupUrl)
+  → AddProductForm.replaceMockupImage(file, replacedDataUrl)
+        images[replacedIndex] = the generated one     → returns its data URL
+  → setPickedMockupUrl(dataUrl)   → the signature moves on, verdict back to "unchecked"
 ```
+
+```
+BEFORE                                AFTER
+img_url[0]  desk photo (wrong)  ──►   img_url[0]  generated photo (right proportions)
+img_url[1]  packaging shot            img_url[1]  packaging shot        (untouched)
+```
+
+`replaceMockupImage` deliberately **skips `readPastedImages`**. Those limits guard what a person drops
+in; this file comes from our own image route, and a generated PNG is regularly over the **1 MB** paste
+cap — which is why the first version reported success while the image was silently rejected and nothing
+on screen changed. Tinify still compresses it at submit, so nothing oversized reaches the bucket.
+
+The success toast only fires when the swap actually happened: `onGeneratedMockup` returning `null` means
+the caller already explained why, and the form returns without claiming anything.
 
 The button only renders where `onGeneratedMockup` is passed, which today is **Add product** only — the
 Edit tab and the manage page show the mismatch message without it. Stories:
 `Admin/Personalization → AIRejectsTheMarkedArea` and `→ AIGeneratesAMatchingMockup`.
+
+Nothing in this path touches the router or the modal. `PersonalizationForm` and `AddProductForm` hold no
+`router.refresh()` at all — only this form's own image list moves. The editor's `<section>` also sets
+`data-click-outside-ignore`, the same guard the admin panel header tabs use: marking the rectangle
+redraws the box under the pointer, and the panel closes on a mousedown it reads as outside itself.
 
 ### Each variant wants its own photo
 
