@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 import { deleteDBProduct, insertDBProduct } from "./insertDBProduct"
 import { invokeTranslateProductLambda } from "./invokeTranslateProductLambda"
 import type { TProductInsertPayload } from "./insertDBProduct"
+import { getRunPersonalizationSqlMessage, isMissingSchemaError } from "@/utils/personalizationSchema"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 
 export const runtime = "nodejs"
@@ -125,6 +126,18 @@ export async function POST(req: Request) {
 
     const insertDBProductResp = await insertDBProduct(supabase, parsedPayload)
     if (typeof insertDBProductResp === "string") {
+      // The insert is atomic, so a database without the personalization column created nothing - name
+      // the SQL block to run instead of passing the raw Postgres message on to the owner.
+      if (parsedPayload.personalization && isMissingSchemaError({ message: insertDBProductResp })) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: getRunPersonalizationSqlMessage('The "personalization" column of 23_products'),
+          } satisfies API.ProductsTranslateAndInsertResponse,
+          { status: 503 },
+        )
+      }
+
       throw new Error(insertDBProductResp)
     }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
 import { useForm, useWatch } from "react-hook-form"
@@ -9,12 +9,14 @@ import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa"
 
+import { TPersonalizationDraft } from "@/ts/product/TPersonalization"
 import { TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { readPastedImages } from "../functions/readPastedImages"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { CategoryDropdown } from "./CategoryDropdown"
+import { PersonalizationForm } from "./PersonalizationForm"
 import { RichTextToolbar } from "./RichTextToolbar"
 import { TPendingCreatedProduct, useSubscribeToProductCreated } from "../hooks/useSubscribeToProductCreated"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
@@ -24,6 +26,7 @@ import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
 import { getUserId } from "@/utils/getUserId"
+import { resolveUploadedPersonalization } from "@/functions/createProductHelpers"
 import { useCategories } from "@/store/categories/useCategories"
 import { useCurrentLocale, useI18n, useScopedI18n } from "@/locales/client"
 import useDragging from "@/hooks/ui/useDragging"
@@ -69,6 +72,7 @@ type PendingFormSnapshot = {
   values: IFormDataAddProduct
   images: ImageListType
   variants: TProductVariantDraft[]
+  personalization: TPersonalizationDraft | null
   activeImageIndex: number
   variantLabel: string
   variantPrice: string
@@ -96,6 +100,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   // Colour variants take the image on screen; size variants (S/M/L) look the same in a photo and take none
   const [isVariantImageAttached, setIsVariantImageAttached] = useState(true)
   const [variants, setVariants] = useState<TProductVariantDraft[]>([])
+  const [personalizationDraft, setPersonalizationDraft] = useState<TPersonalizationDraft | null>(null)
+  // Bumped to re-mount the print-area editor when the form is cleared or restored
+  const [personalizationFormKey, setPersonalizationFormKey] = useState(0)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [pendingTranslationsAmount, setPendingTranslationsAmount] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -178,6 +185,14 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   // a product here always has variants, so a manual total would just contradict the per-variant counts.
   const totalStock = variants.reduce((sum, variant) => sum + variant.quantity, 0)
   const previewStock = variants.length ? formatGroupedNumberInput(String(totalStock)) : "--"
+
+  // Memoized: the print-area editor watches this list, and a fresh array each render would keep
+  // re-reporting its draft. The same helper turns a restored draft back into a config for the editor.
+  const imageDataUrls = useMemo(() => images.map(image => image.data_url || "").filter(Boolean), [images])
+  const restoredPersonalization = useMemo(
+    () => resolveUploadedPersonalization(personalizationDraft, imageDataUrls),
+    [personalizationDraft, imageDataUrls],
+  )
 
   // Shared className applied to every ProductInput — guarantees identical backgrounds
   const inputCn =
@@ -295,6 +310,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     reset(EMPTY_PRODUCT_FORM_VALUES)
     setImages([])
     setVariants([])
+    setPersonalizationDraft(null)
+    setPersonalizationFormKey(currentKey => currentKey + 1)
     setActiveImageIndex(0)
     previousImageIndexRef.current = 0
     lastSuggestedKeyRef.current = null
@@ -312,6 +329,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     reset(snapshot.values)
     setImages(snapshot.images)
     setVariants(snapshot.variants)
+    // The editor reads its starting values once, so a new key re-mounts it on the restored config
+    setPersonalizationDraft(snapshot.personalization)
+    setPersonalizationFormKey(currentKey => currentKey + 1)
     setActiveImageIndex(snapshot.activeImageIndex)
     previousImageIndexRef.current = snapshot.activeImageIndex
     setVariantLabelValue(snapshot.variantLabel)
@@ -338,6 +358,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     formattedOnStock,
     submitImages,
     resolvedVariants,
+    submittedPersonalization,
     snapshot,
     submittedCategoryId,
   }: {
@@ -347,6 +368,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     formattedOnStock: number
     submitImages: ImageListType
     resolvedVariants: TProductVariantDraft[]
+    submittedPersonalization: TPersonalizationDraft | null
     snapshot: PendingFormSnapshot
     submittedCategoryId: string | null
   }) => {
@@ -357,6 +379,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         onStock: formattedOnStock,
         images: submitImages,
         variants: resolvedVariants,
+        personalization: submittedPersonalization,
         manageLoading: false,
         category_id: submittedCategoryId,
       })
@@ -443,6 +466,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         values: data,
         images: [...images],
         variants: [...variants],
+        personalization: personalizationDraft,
         activeImageIndex,
         variantLabel: variantLabelValue,
         variantPrice: variantPriceValue,
@@ -462,6 +486,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         formattedOnStock,
         submitImages,
         resolvedVariants,
+        submittedPersonalization: personalizationDraft,
         snapshot,
         submittedCategoryId: categoryId,
       })
@@ -1011,17 +1036,17 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           )}
         </div>
 
-        {/* The print area is stored on the product row, so it needs a product id first — shown here as an
-            unavailable step, then editable from Product workspace → Edit product */}
-        <div className="grid gap-1.5 rounded border border-white/8 bg-white/[0.02] p-3 opacity-60">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">
-            {tGlobal("personalize.admin_title")}
-          </p>
-          <label className="flex w-fit items-center gap-2 text-[13px] text-white/60">
-            <input type="checkbox" disabled />
-            {tGlobal("personalize.admin_enable")}
-          </label>
+        {/* The print area is marked out here and stored with the product on create — the same editor the
+            Edit tab and the manage page mount, minus its update button (there is no row to update yet) */}
+        <div className="grid gap-1.5 rounded border border-white/8 bg-white/[0.02] p-3">
           <p className="text-[11px] text-white/50">{tGlobal("personalize.admin_add_product_hint")}</p>
+          <PersonalizationForm
+            className="rounded-none border-0 bg-transparent p-0 shadow-none"
+            key={personalizationFormKey}
+            imageUrls={imageDataUrls}
+            personalization={restoredPersonalization}
+            onDraftChange={setPersonalizationDraft}
+          />
         </div>
 
         {/* Live preview row — on_stock is the accumulated stock of all variants, not a manual field */}

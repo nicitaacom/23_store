@@ -601,5 +601,6 @@ export default {
   "personalize.admin_failed_title": "Update failed",
   "personalize.admin_incomplete_title": "Print size is missing",
   "personalize.admin_incomplete_subtitle": "Pick a mockup image and enter the print width and height in mm.",
-  "personalize.admin_add_product_hint": "Personalization is set up after the product exists - open Edit product and mark the print area there.",
+  "personalize.admin_add_product_hint": "Mark the print area now - it is stored together with the product. You can change it later in Edit product.",
+  "personalize.admin_draft_hint": "The print area is stored when you press Create product.",
 } as const

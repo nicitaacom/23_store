@@ -1,10 +1,9 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { TMockupRect, TPersonalizationConfig } from "@/ts/product/TPersonalization"
-import { TProductDB } from "@/ts/product/TProductDB"
+import { TMockupRect, TPersonalizationConfig, TPersonalizationDraft, TProductPersonalization } from "@/ts/product/TPersonalization"
 import { formatPrintSize, getAspectCorrectHeightPct, getAspectDrift, MAX_ASPECT_DRIFT } from "@/utils/printMetrics"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -12,24 +11,29 @@ import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui/Button"
 
+// productId is absent while the product is still being created - then there is nothing to update yet,
+// so the form reports what was marked out through onDraftChange and the create pipeline stores it.
 // className lets the admin panel drop the standalone card chrome - the manage page keeps it.
 interface PersonalizationFormProps {
-  product: TProductDB
+  imageUrls: string[]
+  productId?: string
+  personalization?: TProductPersonalization | null
   className?: string
+  onDraftChange?: (draft: TPersonalizationDraft | null) => void
 }
 
 const EMPTY_RECT: TMockupRect = { leftPct: 10, topPct: 10, widthPct: 80, heightPct: 40 }
 
 // http://localhost:6006/?path=/story/admin-personalization--print-area-editor
-export function PersonalizationForm({ product, className }: PersonalizationFormProps) {
+export function PersonalizationForm({ imageUrls, productId, personalization, className, onDraftChange }: PersonalizationFormProps) {
   const t = useScopedI18n("personalize")
   const toast = useToast()
   const { replaceProduct } = useOwnerProductsStore()
   const dragStartRef = useRef<{ xPct: number; yPct: number } | null>(null)
 
-  const savedConfig = product.personalization?.defaultConfig ?? null
-  const [isEnabled, setIsEnabled] = useState(Boolean(product.personalization?.isEnabled))
-  const [mockupUrl, setMockupUrl] = useState(savedConfig?.mockupUrl ?? product.img_url[0] ?? "")
+  const savedConfig = personalization?.defaultConfig ?? null
+  const [isEnabled, setIsEnabled] = useState(Boolean(personalization?.isEnabled))
+  const [pickedMockupUrl, setPickedMockupUrl] = useState(savedConfig?.mockupUrl ?? "")
   const [widthMmValue, setWidthMmValue] = useState(String(savedConfig?.printArea.widthMm ?? ""))
   const [heightMmValue, setHeightMmValue] = useState(String(savedConfig?.printArea.heightMm ?? ""))
   const [mockupRect, setMockupRect] = useState<TMockupRect>(savedConfig?.mockupRect ?? EMPTY_RECT)
@@ -38,11 +42,31 @@ export function PersonalizationForm({ product, className }: PersonalizationFormP
   // reports when it appears - a ref would be read during render, which React forbids.
   const [mockupSize, setMockupSize] = useState({ widthPx: 0, heightPx: 0 })
 
+  // In Add product the gallery is still filling up, and on the Edit tab the picked photo can be
+  // removed - either way the first image takes over, so the choice never points at a missing image.
+  const mockupUrl = pickedMockupUrl && imageUrls.includes(pickedMockupUrl) ? pickedMockupUrl : (imageUrls[0] ?? "")
+
   const printArea = { widthMm: Number(widthMmValue) || 0, heightMm: Number(heightMmValue) || 0 }
   const isPrintAreaSet = printArea.widthMm > 0 && printArea.heightMm > 0
 
   const aspectDrift = isPrintAreaSet ? getAspectDrift(mockupRect, printArea, mockupSize.widthPx, mockupSize.heightPx) : 0
   const isRectHonest = aspectDrift <= MAX_ASPECT_DRIFT
+
+  // Held in a ref so the effect below never lists a function prop in its deps
+  const onDraftChangeRef = useRef(onDraftChange)
+  useEffect(() => {
+    onDraftChangeRef.current = onDraftChange
+  })
+
+  useEffect(() => {
+    if (!onDraftChangeRef.current) return
+    const mockupImageIndex = imageUrls.indexOf(mockupUrl)
+    onDraftChangeRef.current(
+      isEnabled && mockupImageIndex >= 0 ? { isEnabled: true, mockupImageIndex, printArea, mockupRect } : null,
+    )
+    // printArea is rebuilt every render, so the two typed values stand in for it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageUrls, mockupUrl, isEnabled, widthMmValue, heightMmValue, mockupRect])
 
   function getPointerPct(event: React.PointerEvent<HTMLDivElement>) {
     const box = event.currentTarget.getBoundingClientRect()
@@ -85,6 +109,8 @@ export function PersonalizationForm({ product, className }: PersonalizationFormP
   }
 
   async function updatePersonalization() {
+    if (!productId) return
+
     if (isEnabled && (!isPrintAreaSet || !mockupUrl)) {
       toast.show("warning", t("admin_incomplete_title"), t("admin_incomplete_subtitle"))
       return
@@ -99,12 +125,12 @@ export function PersonalizationForm({ product, className }: PersonalizationFormP
     setIsUpdatingConfig(true)
     try {
       const response = await productsSDK.updateProduct({
-        productId: product.id,
+        productId,
         personalization: isEnabled ? { isEnabled: true, defaultConfig: config } : null,
       })
       // Keeps the admin panel's product row in step with what was written; a no-op on the manage
       // page, where this product is not in the owner products store.
-      replaceProduct(product.id, response.product)
+      replaceProduct(productId, response.product)
       toast.show("success", t("admin_updated_title"), t("admin_updated_subtitle"))
     } catch (error) {
       toast.show("error", t("admin_failed_title"), error instanceof Error ? error.message : String(error))
@@ -165,12 +191,12 @@ export function PersonalizationForm({ product, className }: PersonalizationFormP
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {product.img_url.map(imageUrl => (
+              {imageUrls.map(imageUrl => (
                 <button
                   className={`h-14 w-14 overflow-hidden rounded border ${mockupUrl === imageUrl ? "border-success" : "border-border-color/40"}`}
                   key={imageUrl}
                   type="button"
-                  onClick={() => setMockupUrl(imageUrl)}>
+                  onClick={() => setPickedMockupUrl(imageUrl)}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- thumbnails of the product's own uploads */}
                   <img className="h-full w-full object-cover" src={imageUrl} alt={t("mockup_alt")} />
                 </button>
@@ -216,17 +242,22 @@ export function PersonalizationForm({ product, className }: PersonalizationFormP
               </div>
             )}
 
-            <Button
-              className="mt-1"
-              type="button"
-              variant="success"
-              size="lg"
-              rounded="lg"
-              data-cy="personalization-save"
-              disabled={isUpdatingConfig}
-              onClick={updatePersonalization}>
-              {isUpdatingConfig ? t("admin_updating") : t("admin_update")}
-            </Button>
+            {productId ? (
+              <Button
+                className="mt-1"
+                type="button"
+                variant="success"
+                size="lg"
+                rounded="lg"
+                data-cy="personalization-save"
+                disabled={isUpdatingConfig}
+                onClick={updatePersonalization}>
+                {isUpdatingConfig ? t("admin_updating") : t("admin_update")}
+              </Button>
+            ) : (
+              // Nothing to update yet - "Create product" writes this together with the rest
+              <p className="mt-1 text-xs text-subTitle">{t("admin_draft_hint")}</p>
+            )}
           </div>
         </div>
       )}

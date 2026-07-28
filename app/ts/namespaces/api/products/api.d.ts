@@ -30,6 +30,7 @@ declare namespace API {
     on_stock: number
     img_url: string[]
     variants?: ProductsVariant[] | null
+    personalization?: ProductsPersonalization | null
     category_id?: string | null
   }
 

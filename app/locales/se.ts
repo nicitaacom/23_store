@@ -599,5 +599,6 @@ export default {
   "personalize.admin_failed_title": "Uppdateringen misslyckades",
   "personalize.admin_incomplete_title": "Tryckstorlek saknas",
   "personalize.admin_incomplete_subtitle": "Välj en mockupbild och ange tryckets bredd och höjd i mm.",
-  "personalize.admin_add_product_hint": "Personalisering ställs in efter att produkten finns - öppna Redigera produkt och markera tryckytan där.",
+  "personalize.admin_add_product_hint": "Markera tryckytan nu - den sparas tillsammans med produkten. Du kan ändra den senare i Redigera produkt.",
+  "personalize.admin_draft_hint": "Tryckytan sparas när du trycker på Skapa produkt.",
 } as const

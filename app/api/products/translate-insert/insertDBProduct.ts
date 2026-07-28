@@ -17,6 +17,7 @@ export async function insertDBProduct(
     on_stock: payload.on_stock,
     img_url: payload.img_url,
     variants: payload.variants ?? null,
+    personalization: payload.personalization ?? null,
     translations: createRawProductTranslations(payload.title, payload.description),
     category_id: payload.category_id ?? null,
   })

@@ -1,5 +1,6 @@
 import { ImageListType } from "react-images-uploading"
 
+import { TPersonalizationDraft, TProductPersonalization } from "@/ts/product/TPersonalization"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { getAnonymousId } from "./getAnonymousId"
@@ -8,6 +9,7 @@ import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { getUserId } from "@/utils/getUserId"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useUser from "@/store/user/useUser"
+import { DEFAULT_MIN_DPI } from "@/utils/printMetrics"
 import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 import {
@@ -26,6 +28,7 @@ export type TCreateProductFnInput = {
   onStock?: number
   images?: ImageListType
   variants?: TProductVariantDraft[]
+  personalization?: TPersonalizationDraft | null
   manageLoading?: boolean
   category_id?: string | null
 }
@@ -234,6 +237,29 @@ export async function createStripeProduct(
   return {
     priceId: response.id,
     productId: response.product,
+  }
+}
+
+// Turns what the owner marked out before the product existed into the stored config: the mockup index
+// becomes the uploaded URL. A half-marked config would render a preview that lies about the print size,
+// so anything without a mockup and both mm is dropped to null.
+export function resolveUploadedPersonalization(
+  personalization: TPersonalizationDraft | null | undefined,
+  imageUrls: string[],
+): TProductPersonalization | null {
+  if (!personalization?.isEnabled) return null
+
+  const mockupUrl = imageUrls[personalization.mockupImageIndex]
+  const { widthMm, heightMm } = personalization.printArea
+  if (!mockupUrl || !(widthMm > 0) || !(heightMm > 0)) return null
+
+  return {
+    isEnabled: true,
+    defaultConfig: {
+      mockupUrl,
+      printArea: { widthMm, heightMm, minDpi: personalization.printArea.minDpi ?? DEFAULT_MIN_DPI },
+      mockupRect: personalization.mockupRect,
+    },
   }
 }
 

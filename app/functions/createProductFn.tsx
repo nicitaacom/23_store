@@ -5,6 +5,7 @@ import {
   createStripeProduct,
   resolveProductPrice,
   resolveSourceProductImages,
+  resolveUploadedPersonalization,
   resolveUploadedProductVariants,
   tinifyProductImages,
   uploadProductImages,
@@ -31,7 +32,7 @@ import { useLoading } from "@/store/ui/useLoading"
  */
 export async function createProductFn(t: TI18nFunction, input: TCreateProductFnInput) {
   const { setIsLoading } = useLoading.getState()
-  const { title, description, price, onStock, images, variants, manageLoading = true, category_id } = input
+  const { title, description, price, onStock, images, variants, personalization, manageLoading = true, category_id } = input
 
   if (manageLoading) {
     setIsLoading(true)
@@ -47,6 +48,7 @@ export async function createProductFn(t: TI18nFunction, input: TCreateProductFnI
     }
 
     const resolvedVariants = resolveUploadedProductVariants(variants, uploadedImageUrls)
+    const resolvedPersonalization = resolveUploadedPersonalization(personalization, uploadedImageUrls)
     const resolvedPrice = await resolveProductPrice(title, description, price, resolvedVariants)
     const createStripeProductResp = await createStripeProduct(title, description, resolvedPrice, uploadedImageUrls, t)
     const userId = getUserId()
@@ -60,6 +62,7 @@ export async function createProductFn(t: TI18nFunction, input: TCreateProductFnI
       on_stock: onStock ?? 0,
       img_url: uploadedImageUrls,
       variants: resolvedVariants,
+      personalization: resolvedPersonalization,
       category_id: category_id ?? null,
     })
 
@@ -76,6 +79,7 @@ export async function createProductFn(t: TI18nFunction, input: TCreateProductFnI
       on_stock: onStock ?? 0,
       img_url: uploadedImageUrls,
       variants: resolvedVariants,
+      personalization: resolvedPersonalization,
     } as TProductDB
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)

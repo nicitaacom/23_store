@@ -29,6 +29,18 @@ export type TProductPersonalization = {
   variantConfigs?: Record<string, TPersonalizationConfig>
 }
 
+/**
+ * What the owner marked out while the product is still being created. The mockup is one of the images
+ * queued for upload, so it is held as an index into that queue and turned into a URL by
+ * `resolveUploadedPersonalization` once the upload has run.
+ */
+export type TPersonalizationDraft = {
+  isEnabled: boolean
+  mockupImageIndex: number
+  printArea: TPrintArea
+  mockupRect: TMockupRect
+}
+
 export type TDesignPlacement = {
   scale: number // 1 = the image covers the print area, > 1 = zoomed in
   offsetXPct: number

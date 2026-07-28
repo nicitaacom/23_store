@@ -601,5 +601,6 @@ export default {
   "personalize.admin_failed_title": "Päivitys epäonnistui",
   "personalize.admin_incomplete_title": "Painokoko puuttuu",
   "personalize.admin_incomplete_subtitle": "Valitse mallikuva ja anna painoleveys ja -korkeus millimetreinä.",
-  "personalize.admin_add_product_hint": "Personointi määritetään, kun tuote on olemassa - avaa Muokkaa tuotetta ja merkitse tulostusalue siellä.",
+  "personalize.admin_add_product_hint": "Merkitse tulostusalue nyt - se tallentuu tuotteen mukana. Voit muuttaa sitä myöhemmin kohdassa Muokkaa tuotetta.",
+  "personalize.admin_draft_hint": "Tulostusalue tallentuu, kun painat Luo tuote.",
 } as const

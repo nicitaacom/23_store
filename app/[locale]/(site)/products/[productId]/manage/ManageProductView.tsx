@@ -551,7 +551,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         </section>
 
         {/* Own section with its own update button - the print area is not part of the title/price form */}
-        <PersonalizationForm product={product} />
+        <PersonalizationForm imageUrls={product.img_url} productId={product.id} personalization={product.personalization} />
 
         <section className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
           <div className="flex flex-wrap gap-3">

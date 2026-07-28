@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { HttpResponse, http } from "msw"
-import { expect, waitFor, within } from "storybook/test"
+import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import type { TProductDB } from "@/ts/product/TProductDB"
 import { fixtureCategories, headphonesProduct } from "../fixtures"
@@ -39,7 +39,7 @@ type Story = StoryObj<typeof meta>
 
 // What the owner sees on a product that has no print area yet: one checkbox, nothing else.
 export const NotPersonalizableYet: Story = {
-  render: () => <PersonalizationForm product={headphonesProduct} />,
+  render: () => <PersonalizationForm imageUrls={headphonesProduct.img_url} productId={headphonesProduct.id} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await waitFor(() => expect(canvas.getByText("Buyers can personalize this product")).toBeVisible())
@@ -48,12 +48,31 @@ export const NotPersonalizableYet: Story = {
 }
 
 export const PrintAreaEditor: Story = {
-  render: () => <PersonalizationForm product={configuredProduct} />,
+  render: () => (
+    <PersonalizationForm
+      imageUrls={configuredProduct.img_url}
+      productId={configuredProduct.id}
+      personalization={configuredProduct.personalization}
+    />
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await waitFor(() => expect(canvas.getByText("Print width (mm)")).toBeVisible())
     // The mm the owner typed are echoed back as a physical size, so a typo is visible immediately
     await expect(canvas.getByText(/900 × 400 mm/)).toBeVisible()
+  },
+}
+
+// Before the product exists there is no row to update, so the editor reports what was marked out and
+// the create pipeline stores it - the update button is replaced by a line saying so.
+export const BeforeProductExists: Story = {
+  render: () => <PersonalizationForm imageUrls={headphonesProduct.img_url} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(await waitFor(() => canvas.getByText("Buyers can personalize this product")))
+    await waitFor(() => expect(canvas.getByText("Print width (mm)")).toBeVisible())
+    await expect(canvas.getByText("The print area is stored when you press Create product.")).toBeVisible()
+    await expect(canvas.queryByRole("button", { name: /Update personalization/ })).not.toBeInTheDocument()
   },
 }
 
