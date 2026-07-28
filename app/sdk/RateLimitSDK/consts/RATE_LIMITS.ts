@@ -24,6 +24,11 @@ export const RATE_LIMITS = {
     maxAllowed: 10, // 10 per hour
     key: () => `ai:image`,
   },
+  aiCheckPrintArea: {
+    windowSec: 3600,
+    maxAllowed: 40, // 40 per hour per IP - one per print-area configuration, not per keystroke
+    key: (ip: string) => `ai:printArea:${ip}`,
+  },
   requestBetterPrices: {
     windowSec: 86400,
     maxAllowed: 2, // 2 per day

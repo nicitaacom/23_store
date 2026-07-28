@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { TMockupRect, TPersonalizationConfig, TPersonalizationDraftState, TProductPersonalization } from "@/ts/product/TPersonalization"
+import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { formatPrintSize, getAspectCorrectHeightPct, getAspectDrift, MAX_ASPECT_DRIFT } from "@/utils/printMetrics"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -13,6 +14,8 @@ import { Button } from "@/components/ui/Button"
 
 // productId is absent while the product is still being created - then there is nothing to update yet,
 // so the form reports what was marked out through onDraftChange and the create pipeline stores it.
+// onGeneratedMockup is what turns the AI's replacement photo into a product image; without it the
+// "generate a matching photo" button stays hidden, since there is nowhere to put the result.
 // className lets the admin panel drop the standalone card chrome - the manage page keeps it.
 interface PersonalizationFormProps {
   imageUrls: string[]
@@ -20,12 +23,26 @@ interface PersonalizationFormProps {
   personalization?: TProductPersonalization | null
   className?: string
   onDraftChange?: (draftState: TPersonalizationDraftState) => void
+  onGeneratedMockup?: (mockupFile: File) => Promise<string | null>
 }
 
 const EMPTY_RECT: TMockupRect = { leftPct: 10, topPct: 10, widthPct: 80, heightPct: 40 }
 
+/**
+ * "unchecked" - nothing asked yet, "matching"/"mismatch" - the AI's answer for exactly the print area
+ * below, "failed" - the request itself did not go through, which never blocks the owner.
+ */
+type TPrintAreaVerdict = "unchecked" | "matching" | "mismatch" | "failed"
+
 // http://localhost:6006/?path=/story/admin-personalization--print-area-editor
-export function PersonalizationForm({ imageUrls, productId, personalization, className, onDraftChange }: PersonalizationFormProps) {
+export function PersonalizationForm({
+  imageUrls,
+  productId,
+  personalization,
+  className,
+  onDraftChange,
+  onGeneratedMockup,
+}: PersonalizationFormProps) {
   const t = useScopedI18n("personalize")
   const toast = useToast()
   const { replaceProduct } = useOwnerProductsStore()
@@ -41,6 +58,10 @@ export function PersonalizationForm({ imageUrls, productId, personalization, cla
   // The mockup's own pixel size decides what the drawn percentages mean, so it is state the image
   // reports when it appears - a ref would be read during render, which React forbids.
   const [mockupSize, setMockupSize] = useState({ widthPx: 0, heightPx: 0 })
+  const [verdict, setVerdict] = useState<TPrintAreaVerdict>("unchecked")
+  const [checkedSignature, setCheckedSignature] = useState("")
+  const [isCheckingPrintArea, setIsCheckingPrintArea] = useState(false)
+  const [isGeneratingMockup, setIsGeneratingMockup] = useState(false)
 
   // In Add product the gallery is still filling up, and on the Edit tab the picked photo can be
   // removed - either way the first image takes over, so the choice never points at a missing image.
@@ -52,9 +73,18 @@ export function PersonalizationForm({ imageUrls, productId, personalization, cla
   const aspectDrift = isPrintAreaSet ? getAspectDrift(mockupRect, printArea, mockupSize.widthPx, mockupSize.heightPx) : 0
   const isRectHonest = aspectDrift <= MAX_ASPECT_DRIFT
 
-  // A print area is usable only with a mockup, both mm, and a rectangle shaped like the print size.
-  // Anything less would show the buyer a crop that never reaches the printer, so it blocks the button.
-  const isPrintAreaReady = !isEnabled || (Boolean(mockupUrl) && isPrintAreaSet && isRectHonest)
+  // The arithmetic half: a mockup, both mm, and a rectangle shaped like the print size.
+  const isShapeReady = !isEnabled || (Boolean(mockupUrl) && isPrintAreaSet && isRectHonest)
+
+  // A verdict belongs to one exact configuration. Move the rectangle or retype the mm and it goes back
+  // to "unchecked", so a passed check on an older rectangle never lets a new one through.
+  const printAreaSignature = `${mockupUrl}|${widthMmValue}x${heightMmValue}|${mockupRect.leftPct},${mockupRect.topPct},${mockupRect.widthPct},${mockupRect.heightPct}`
+  const currentVerdict: TPrintAreaVerdict = checkedSignature === printAreaSignature ? verdict : "unchecked"
+
+  // "Fix the shape" only makes the rectangle the right SHAPE - it says nothing about where it sits, so
+  // the AI verdict is part of the gate too. A failed request never blocks: the owner keeps working.
+  const isPrintAreaReady =
+    isShapeReady && (!isEnabled || currentVerdict === "matching" || currentVerdict === "failed")
 
   // Held in a ref so the effect below never lists a function prop in its deps
   const onDraftChangeRef = useRef(onDraftChange)
@@ -104,13 +134,64 @@ export function PersonalizationForm({ imageUrls, productId, personalization, cla
     dragStartRef.current = null
   }
 
+  // Asks the AI where the printable surface actually is and compares it with the marked rectangle. The
+  // rectangle is a parameter so "Fix the shape" can check the snapped one instead of the stale state.
+  async function checkPrintArea(rectToCheck: TMockupRect) {
+    if (!mockupUrl || !isPrintAreaSet) return
+
+    const signatureAtRequest = `${mockupUrl}|${widthMmValue}x${heightMmValue}|${rectToCheck.leftPct},${rectToCheck.topPct},${rectToCheck.widthPct},${rectToCheck.heightPct}`
+    setIsCheckingPrintArea(true)
+
+    try {
+      const checkPrintAreaResp = await aiSDK.checkPrintArea({ mockupUrl, mockupRect: rectToCheck, printArea })
+      if ("error" in checkPrintAreaResp) throw new Error(checkPrintAreaResp.error)
+
+      setVerdict(checkPrintAreaResp.isMatching ? "matching" : "mismatch")
+    } catch (error) {
+      // A check that never ran is not evidence of a bad print area, so it leaves the owner unblocked
+      setVerdict("failed")
+      toast.show("warning", t("admin_ai_failed_title"), error instanceof Error ? error.message : String(error))
+    } finally {
+      setCheckedSignature(signatureAtRequest)
+      setIsCheckingPrintArea(false)
+    }
+  }
+
   // Snaps the height so the drawn rectangle has the proportions of the physical print area - without
-  // it the buyer's preview shows a crop that never reaches the printer.
+  // it the buyer's preview shows a crop that never reaches the printer. The AI check follows, because
+  // the right shape in the wrong place is exactly what the arithmetic alone lets through.
   function snapRectToPrintArea() {
-    setMockupRect(current => ({
-      ...current,
-      heightPct: getAspectCorrectHeightPct(current, printArea, mockupSize.widthPx, mockupSize.heightPx),
-    }))
+    const snappedRect = {
+      ...mockupRect,
+      heightPct: getAspectCorrectHeightPct(mockupRect, printArea, mockupSize.widthPx, mockupSize.heightPx),
+    }
+    setMockupRect(snappedRect)
+    void checkPrintArea(snappedRect)
+  }
+
+  // The AI says the marked area is not the product, so it draws a photo whose printable surface has the
+  // proportions of the print size - marking that one gives a rectangle the buyer's preview can trust.
+  async function generateMatchingMockup() {
+    if (!onGeneratedMockup || !isPrintAreaSet) return
+
+    setIsGeneratingMockup(true)
+    try {
+      const { buffer, contentType } = await aiSDK.generateImageBuffer(
+        `a product whose printable surface measures ${printArea.widthMm} by ${printArea.heightMm} millimetres, photographed straight from above, centred, filling the frame edge to edge on a single-colour background, so the printable surface in the picture has exactly the proportions ${printArea.widthMm}:${printArea.heightMm}`,
+      )
+      const fileExtension = contentType.split("/")[1] || "png"
+      const addedMockupUrl = await onGeneratedMockup(
+        new File([buffer], `print-area-${printArea.widthMm}x${printArea.heightMm}.${fileExtension}`, { type: contentType }),
+      )
+
+      // Picking it moves the signature on, so the verdict goes back to "unchecked" for the new photo
+      if (addedMockupUrl) setPickedMockupUrl(addedMockupUrl)
+      toast.show("success", t("admin_ai_generated_title"), t("admin_ai_generated_subtitle"))
+    } catch (error) {
+      toast.show("error", t("admin_ai_failed_title"), error instanceof Error ? error.message : String(error))
+    } finally {
+      setIsGeneratingMockup(false)
+    }
   }
 
   async function updatePersonalization() {
@@ -253,10 +334,64 @@ export function PersonalizationForm({ imageUrls, productId, personalization, cla
             )}
 
             {/* The one place that says why a half-marked print area blocks the button */}
-            {!isPrintAreaReady && (
+            {!isShapeReady && (
               <p className="rounded border border-warning/40 bg-warning/10 p-2 text-xs text-warning" role="status">
                 {t("admin_dimensions_required")}
               </p>
+            )}
+
+            {/* The AI half: the shape is right, but is the rectangle on the product at all? */}
+            {isEnabled && isShapeReady && (
+              <div className="grid gap-2">
+                <Button
+                  type="button"
+                  variant="secondary-outline"
+                  size="sm"
+                  rounded="sm"
+                  data-cy="personalization-ai-check"
+                  disabled={isCheckingPrintArea}
+                  onClick={() => void checkPrintArea(mockupRect)}>
+                  {isCheckingPrintArea ? t("admin_ai_checking") : t("admin_ai_check")}
+                </Button>
+
+                {currentVerdict === "unchecked" && !isCheckingPrintArea && (
+                  <p className="text-xs text-subTitle" role="status">
+                    {t("admin_ai_unchecked")}
+                  </p>
+                )}
+
+                {currentVerdict === "matching" && (
+                  <p className="text-xs text-success" role="status">
+                    {t("admin_ai_matching")}
+                  </p>
+                )}
+
+                {currentVerdict === "failed" && (
+                  <p className="text-xs text-subTitle" role="status">
+                    {t("admin_ai_unavailable")}
+                  </p>
+                )}
+
+                {currentVerdict === "mismatch" && (
+                  <div className="grid gap-2 rounded border border-danger/40 bg-danger/10 p-2" data-cy="personalization-ai-mismatch">
+                    <p className="text-xs text-danger" role="status">
+                      {t("admin_ai_mismatch")}
+                    </p>
+                    {onGeneratedMockup && (
+                      <Button
+                        type="button"
+                        variant="danger-outline"
+                        size="sm"
+                        rounded="sm"
+                        data-cy="personalization-ai-generate"
+                        disabled={isGeneratingMockup}
+                        onClick={() => void generateMatchingMockup()}>
+                        {isGeneratingMockup ? t("admin_ai_generating") : t("admin_ai_generate")}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
 
             {productId ? (

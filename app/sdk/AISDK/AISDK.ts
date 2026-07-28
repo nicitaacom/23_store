@@ -22,6 +22,13 @@ export class AISDK extends BaseSDK {
     )
   }
 
+  async checkPrintArea(request: API.AICheckPrintAreaRequest) {
+    return this.postJson<API.AICheckPrintAreaRequest, API.AICheckPrintAreaResponse>(
+      "/api/ai/check-print-area",
+      request satisfies API.AICheckPrintAreaRequest,
+    )
+  }
+
   async suggestCategory(request: API.AISuggestCategoryRequest) {
     return this.postJson<API.AISuggestCategoryRequest, API.AISuggestCategoryResponse>(
       "/api/ai/suggest-category",

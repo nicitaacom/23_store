@@ -60,6 +60,46 @@ export function getAspectCorrectHeightPct(
   return (mockupRect.widthPct * mockupNaturalWidthPx) / (getPrintAspect(printArea) * mockupNaturalHeightPx)
 }
 
+// "Fix the shape" only gives the rectangle the proportions of the print size - it says nothing about
+// WHERE the rectangle sits. A box drawn over the desk instead of the mousepad passes that check and
+// still prints nothing like the physical product, so these two numbers compare the marked rectangle
+// with the surface a vision model found in the same photo.
+export const MIN_PRODUCT_SURFACE_COVERAGE = 0.7
+export const MAX_MARKED_AREA_SPILL = 0.2
+
+export type TPrintAreaOverlap = {
+  /** how much of the printable surface the marked rectangle covers, 0-1 */
+  coverage: number
+  /** how much of the marked rectangle falls outside that surface, 0-1 */
+  spill: number
+}
+
+export function getPrintAreaOverlap(markedRect: TMockupRect, productRect: TMockupRect): TPrintAreaOverlap {
+  const overlapWidthPct = Math.max(
+    0,
+    Math.min(markedRect.leftPct + markedRect.widthPct, productRect.leftPct + productRect.widthPct) -
+      Math.max(markedRect.leftPct, productRect.leftPct),
+  )
+  const overlapHeightPct = Math.max(
+    0,
+    Math.min(markedRect.topPct + markedRect.heightPct, productRect.topPct + productRect.heightPct) -
+      Math.max(markedRect.topPct, productRect.topPct),
+  )
+
+  const overlapArea = overlapWidthPct * overlapHeightPct
+  const markedArea = markedRect.widthPct * markedRect.heightPct
+  const productArea = productRect.widthPct * productRect.heightPct
+
+  return {
+    coverage: productArea > 0 ? Math.min(overlapArea / productArea, 1) : 0,
+    spill: markedArea > 0 ? Math.max(0, 1 - overlapArea / markedArea) : 1,
+  }
+}
+
+export function isMarkedAreaOnProduct(overlap: TPrintAreaOverlap) {
+  return overlap.coverage >= MIN_PRODUCT_SURFACE_COVERAGE && overlap.spill <= MAX_MARKED_AREA_SPILL
+}
+
 /** Pixels an upload needs to reach `dpi` over the whole print area. */
 export function getRequiredPixels(printArea: TPrintArea, dpi: number) {
   return {

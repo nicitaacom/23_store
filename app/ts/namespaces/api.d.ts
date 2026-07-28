@@ -26,6 +26,23 @@ declare namespace API {
   type AIRequest = { prompt: string }
   type AIResponse = { aiMessage: string }
 
+  // /api/ai/check-print-area
+  type AIRect = { leftPct: number; topPct: number; widthPct: number; heightPct: number }
+  type AICheckPrintAreaRequest = {
+    mockupUrl: string
+    mockupRect: AIRect
+    printArea: { widthMm: number; heightMm: number }
+  }
+  type AICheckPrintAreaResponse =
+    | {
+        isMatching: boolean
+        /** the printable surface the model found, in % of the mockup - null when it found none */
+        productRect: AIRect | null
+        coveragePct: number
+        spillPct: number
+      }
+    | { error: string }
+
   // /api/rateLimit
   type RateLimitRequest = {
     limiterName: string

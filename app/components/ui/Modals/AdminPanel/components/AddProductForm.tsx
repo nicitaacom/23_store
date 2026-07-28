@@ -135,28 +135,32 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     })
   }
 
+  // One way in for every file that did not come through the uploader's own picker - a Ctrl+V paste and
+  // the AI's generated mockup both get the same limits and the same rejection toast. Returns the data
+  // URL of the first image added, which is how the print-area editor picks the photo it just asked for.
+  const addImageFiles = async (newFiles: File[]) => {
+    const readPastedImagesResp = await readPastedImages(newFiles, images.length)
+
+    if (readPastedImagesResp.images.length) {
+      const nextImages = [...images, ...readPastedImagesResp.images]
+      setImages(nextImages)
+      setActiveImageIndex(nextImages.length - 1)
+    }
+
+    if (Object.keys(readPastedImagesResp.errors).length) {
+      void showToastWarningFn(
+        tGlobal,
+        readPastedImagesResp.errors,
+        { maxNumber: MAX_PRODUCT_IMAGES, maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES, minResolution: MIN_IMAGE_RESOLUTION },
+        readPastedImagesResp.rejectedFiles,
+      )
+    }
+
+    return readPastedImagesResp.images[0]?.data_url ?? null
+  }
+
   // Ctrl+V with a screenshot in the clipboard adds it to the gallery, same limits as the drop zone.
-  usePasteImages(
-    async pastedFiles => {
-      const readPastedImagesResp = await readPastedImages(pastedFiles, images.length)
-
-      if (readPastedImagesResp.images.length) {
-        const nextImages = [...images, ...readPastedImagesResp.images]
-        setImages(nextImages)
-        setActiveImageIndex(nextImages.length - 1)
-      }
-
-      if (Object.keys(readPastedImagesResp.errors).length) {
-        void showToastWarningFn(
-          tGlobal,
-          readPastedImagesResp.errors,
-          { maxNumber: MAX_PRODUCT_IMAGES, maxFileSize: MAX_IMAGE_FILE_SIZE_BYTES, minResolution: MIN_IMAGE_RESOLUTION },
-          readPastedImagesResp.rejectedFiles,
-        )
-      }
-    },
-    { isHookEnabled: !isSubmitting },
-  )
+  usePasteImages(pastedFiles => void addImageFiles(pastedFiles), { isHookEnabled: !isSubmitting })
 
   const {
     register,
@@ -1067,6 +1071,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             imageUrls={imageDataUrls}
             personalization={restoredPersonalization}
             onDraftChange={setPersonalizationState}
+            onGeneratedMockup={mockupFile => addImageFiles([mockupFile])}
           />
         </div>
 
