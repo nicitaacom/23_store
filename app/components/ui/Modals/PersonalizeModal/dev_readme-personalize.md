@@ -123,6 +123,65 @@ not ticked                   → Create product is live, nothing to check
 
 Stories: `Admin/Personalization → BeforeProductExists` and `→ DimensionsBlockTheUpdate`.
 
+### The AI check — right shape, wrong place
+
+`getAspectDrift` only compares **shapes**. A rectangle drawn over the desk instead of the mousepad has
+the right proportions, passes "Fix the shape", and still prints nothing like the physical product. So a
+second, independent check asks where the product actually is:
+
+```
+owner presses "Fix the shape" (or "Check the area with AI")
+  → POST /api/ai/check-print-area   { mockupUrl, mockupRect, printArea }
+      → the model gets the photo and answers ONE thing:
+        {"leftPct":..,"topPct":..,"widthPct":..,"heightPct":..}   the printable surface it found
+      → getPrintAreaOverlap(markedRect, productRect)              app/utils/printMetrics.ts
+            coverage = overlap / product area   must be >= 70%
+            spill    = outside / marked area    must be <= 20%
+  → { isMatching, productRect, coveragePct, spillPct }
+```
+
+The verdict is **arithmetic**, not the model's opinion — the model is only asked to locate an object,
+which is what vision models are good at. The thresholds live next to the math as
+`MIN_PRODUCT_SURFACE_COVERAGE` and `MAX_MARKED_AREA_SPILL`.
+
+```
+marked rectangle over the mousepad     coverage 96%, spill 3%   → matching
+marked rectangle over the whole photo  coverage 100%, spill 71% → mismatch
+marked rectangle over the monitor      coverage 4%,  spill 92%  → mismatch
+```
+
+**A verdict belongs to one exact configuration.** `printAreaSignature` is the mockup URL + the mm + the
+four rectangle percentages; change any of them and the verdict resets to `unchecked` and the button
+blocks again. A passed check on an older rectangle never lets a new one through.
+
+| Verdict | Blocks create/update? | What the owner sees |
+| --- | --- | --- |
+| `unchecked` | yes | `personalize.admin_ai_unchecked` + the check button |
+| `matching` | no | `personalize.admin_ai_matching` |
+| `mismatch` | yes | `personalize.admin_ai_mismatch` + **Generate appropriate image** |
+| `failed` | **no** | `personalize.admin_ai_unavailable` |
+
+`failed` deliberately does not block: a request that never ran is not evidence of a bad print area, and
+an OpenAI outage must not make the store unable to add products.
+
+### Generate appropriate image
+
+The way out of a mismatch. It asks `/api/ai/generate-image` for a photo whose printable surface has the
+proportions of the print size, then the file goes through `AddProductForm.addImageFiles` — the same path
+a Ctrl+V paste takes, so it gets the same size/resolution limits — and is picked as the mockup:
+
+```
+"Generate appropriate image"
+  → aiSDK.generateImageBuffer(prompt built from the mm)
+  → new File(...)  → onGeneratedMockup(file)
+  → AddProductForm.addImageFiles([file])   → returns the new data URL
+  → setPickedMockupUrl(dataUrl)            → the signature moves on, verdict back to "unchecked"
+```
+
+The button only renders where `onGeneratedMockup` is passed, which today is **Add product** only — the
+Edit tab and the manage page show the mismatch message without it. Stories:
+`Admin/Personalization → AIRejectsTheMarkedArea` and `→ AIGeneratesAMatchingMockup`.
+
 ### Each variant wants its own photo
 
 `product.variant_image_matches_hint` sits under every variant image picker (Add product, the Edit tab's
@@ -273,3 +332,11 @@ and PostgREST's `PGRST204` / `PGRST205`, so a missing column and a missing table
 - [ ] Decided AGAINST for now: a private bucket + signed URLs for designs. Every image in this project
       lives in the public bucket; moving only designs would need a signing route and a new policy set.
 - [ ] Decided AGAINST: rotation. It multiplies the crop and DPI math, and nobody asked for it.
+- [ ] **Generate appropriate image only exists in Add product.** The Edit tab and the manage page show
+      the mismatch message but no generate button, because `onGeneratedMockup` needs somewhere to put
+      the file and those two surfaces upload through `FormatImagesForm` instead. Wiring it there means
+      an upload + `updateProduct({ images })` from inside the print-area editor.
+- [ ] **The vision model id is one line.** `app/api/ai/check-print-area/route.ts` sends the photo to
+      `gpt-5-nano`, matching the other GPT routes in this project. If that model has no image input on
+      this account the route answers 500, the verdict becomes `failed`, and the owner is not blocked —
+      change the model id in that one place.

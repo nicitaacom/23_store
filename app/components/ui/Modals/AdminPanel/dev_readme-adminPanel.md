@@ -241,6 +241,12 @@ flow in [dev_readme-personalize.md](../PersonalizeModal/dev_readme-personalize.m
 Every variant image picker shows `product.variant_image_matches_hint` — the print area is measured
 against the picked photo, so a variant showing another variant's photo makes the buyer's preview lie.
 
+**Two independent checks block the product.** `isShapeReady` is the arithmetic one; `currentVerdict` is
+the AI one, from `POST /api/ai/check-print-area` — the model reports where the printable surface is and
+`getPrintAreaOverlap` compares it with the marked rectangle. A rectangle with the right proportions over
+the wrong part of the photo passes the first and fails the second. A failed AI request never blocks.
+Full flow in [dev_readme-personalize.md](../PersonalizeModal/dev_readme-personalize.md).
+
 **A half-marked print area blocks the product.** `isPrintAreaReady` in
 [components/PersonalizationForm.tsx](components/PersonalizationForm.tsx) is one flag over three
 conditions — a mockup, both mm, and a rectangle shaped like the print size — and it blocks at three
