@@ -33,11 +33,9 @@ function normalizeVariantsForDraft(product: TProductDB): TProductVariantDraft[] 
   return (product.variants || []).map(variant => ({
     id: variant.id,
     label: variant.label,
-    imageIndex: Math.max(
-      product.img_url.findIndex(image => image === variant.image_url),
-      0,
-    ),
-    imageDataUrl: variant.image_url,
+    // -1 keeps "this variant has no image of its own" distinct from "it uses the first one"
+    imageIndex: variant.image_url ? product.img_url.findIndex(image => image === variant.image_url) : -1,
+    imageDataUrl: variant.image_url ?? null,
     price: variant.price > 0 ? variant.price : product.price,
     quantity: variant.quantity,
   }))
@@ -87,12 +85,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
   const addVariant = useCallback(() => {
     const normalizedLabel = variantLabelValue.trim()
-    const firstImageUrl = product.img_url[0]
     const normalizedPrice = parseFormattedNumber(variantPriceValue)
-
-    if (!product.img_url.length || !firstImageUrl) {
-      return toast.show("warning", t("manage_upload_image_first_title"), t("manage_upload_image_first_subtitle"))
-    }
 
     if (!normalizedLabel) {
       return toast.show("warning", t("variant_label"), t("manage_variant_label_required"))
@@ -115,15 +108,16 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       {
         id: crypto.randomUUID(),
         label: normalizedLabel,
-        imageIndex: 0,
-        imageDataUrl: firstImageUrl,
+        // A new variant starts with no image - "Assign current image" attaches one when it helps
+        imageIndex: -1,
+        imageDataUrl: null,
         price: normalizedPrice,
         quantity: 0, // new variants start sold out; owner sets stock per row below
       },
     ])
     setVariantLabelValue("")
     setVariantPriceValue("")
-  }, [product.img_url, t, toast, variantLabelValue, variantPriceValue, variants.length])
+  }, [t, toast, variantLabelValue, variantPriceValue, variants.length])
 
   const updateVariantLabel = useCallback((variantId: string, nextLabel: string) => {
     setVariants(currentVariants =>
@@ -181,23 +175,30 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     [product.img_url],
   )
 
+  const clearVariantImage = useCallback((variantId: string) => {
+    setVariants(currentVariants =>
+      currentVariants.map(variant => (variant.id === variantId ? { ...variant, imageIndex: -1, imageDataUrl: null } : variant)),
+    )
+  }, [])
+
   const removeVariant = useCallback((variantId: string) => {
     setVariants(currentVariants => currentVariants.filter(variant => variant.id !== variantId))
   }, [])
 
+  // An image the gallery no longer holds becomes null rather than falling back to the first photo -
+  // the fallback belongs at render time, so replacing the photos later fixes every imageless variant.
   const buildResolvedVariants = useCallback(() => {
     return variants
-      .map(variant => {
-        const imageUrl = product.img_url.find(url => url === variant.imageDataUrl) ?? product.img_url[0]
-        if (!imageUrl || !variant.label.trim()) return null
+      .map((variant): TProductVariant | null => {
+        if (!variant.label.trim()) return null
 
         return {
           id: variant.id,
           label: variant.label.trim(),
-          image_url: imageUrl,
+          image_url: product.img_url.find(url => url === variant.imageDataUrl) ?? null,
           price: variant.price > 0 ? variant.price : product.price,
           quantity: variant.quantity > 0 ? Math.floor(variant.quantity) : 0,
-        } satisfies TProductVariant
+        }
       })
       .filter((variant): variant is TProductVariant => Boolean(variant))
   }, [product.img_url, product.price, variants])
@@ -208,6 +209,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const updateVariantPriceRef = useRef(updateVariantPrice)
   const updateVariantQuantityRef = useRef(updateVariantQuantity)
   const assignFirstImageToVariantRef = useRef(assignFirstImageToVariant)
+  const clearVariantImageRef = useRef(clearVariantImage)
   const removeVariantRef = useRef(removeVariant)
   const buildResolvedVariantsRef = useRef(buildResolvedVariants)
   useEffect(() => {
@@ -215,6 +217,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     updateVariantPriceRef.current = updateVariantPrice
     updateVariantQuantityRef.current = updateVariantQuantity
     assignFirstImageToVariantRef.current = assignFirstImageToVariant
+    clearVariantImageRef.current = clearVariantImage
     removeVariantRef.current = removeVariant
     buildResolvedVariantsRef.current = buildResolvedVariants
   })
@@ -317,7 +320,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const variantCards = useMemo(
     () =>
       variants.map(variant => {
-        const linkedImageUrl = product.img_url.find(url => url === variant.imageDataUrl) ?? product.img_url[0]
+        const linkedImageUrl = product.img_url.find(url => url === variant.imageDataUrl) ?? null
 
         return (
           <div
@@ -370,6 +373,14 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                     onClick={() => assignFirstImageToVariantRef.current(variant.id)}>
                     {t("assign_current_image")}
                   </button>
+                  {linkedImageUrl && (
+                    <button
+                      className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-white/60 transition-colors hover:bg-white/[0.07]"
+                      type="button"
+                      onClick={() => clearVariantImageRef.current(variant.id)}>
+                      {t("variant_no_image")}
+                    </button>
+                  )}
                   <button
                     className="rounded-xl border border-danger/20 bg-danger/8 px-3 py-2 text-xs font-medium text-danger transition-colors hover:bg-danger/12"
                     type="button"

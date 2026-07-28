@@ -310,6 +310,8 @@ export default {
   "product.manage_variant_empty": "No variants yet. Add at least one before updating or creating the product.",
   "product.variant": "Variant",
   "product.selected_variant": "Selected variant",
+  "product.variant_no_image": "No image",
+  "product.variant_image_optional": "Attach an image (optional)",
   "product.out_of_stock_label": "Out of stock",
   "product.units_available": "{count} units available",
   "product.low_stock_hurry": "Only {count} left - grab it!",

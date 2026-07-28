@@ -310,6 +310,8 @@ export default {
   "product.manage_variant_empty": "Variantteja ei ole vielä. Lisää vähintään yksi ennen tuotteen luontia tai tallennusta.",
   "product.variant": "Variantti",
   "product.selected_variant": "Valittu variantti",
+  "product.variant_no_image": "Ei kuvaa",
+  "product.variant_image_optional": "Liitä kuva (valinnainen)",
   "product.out_of_stock_label": "Loppu varastosta",
   "product.units_available": "{count} kpl saatavilla",
   "product.low_stock_hurry": "Vain {count} jäljellä - ota se!",

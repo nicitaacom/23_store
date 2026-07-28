@@ -308,6 +308,8 @@ export default {
   "product.manage_variant_empty": "Вариантов пока нет. Добавьте хотя бы один перед созданием или сохранением товара.",
   "product.variant": "Вариант",
   "product.selected_variant": "Выбранный вариант",
+  "product.variant_no_image": "Без изображения",
+  "product.variant_image_optional": "Прикрепите изображение (необязательно)",
   "product.out_of_stock_label": "Нет в наличии",
   "product.units_available": "Доступно {count} шт.",
   "product.low_stock_hurry": "Осталось только {count} - успей!",

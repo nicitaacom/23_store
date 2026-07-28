@@ -57,15 +57,12 @@ function getInvalidPayloadFields(payload: TProductInsertPayload) {
   if (payload.variants !== undefined && payload.variants !== null && !Array.isArray(payload.variants)) {
     invalidFields.push("variants")
   }
+  // A variant is valid with a label and a price. image_url is optional - size variants (S/M/L) share
+  // the product's photos, and the fallback is applied at render time, not stored on the row.
   if (
     Array.isArray(payload.variants) &&
     payload.variants.some(
-      variant =>
-        !variant.id?.trim() ||
-        !variant.label?.trim() ||
-        !variant.image_url?.trim() ||
-        !Number.isFinite(variant.price) ||
-        variant.price <= 0,
+      variant => !variant.id?.trim() || !variant.label?.trim() || !Number.isFinite(variant.price) || variant.price <= 0,
     )
   ) {
     invalidFields.push("variants")

@@ -237,15 +237,17 @@ export async function createStripeProduct(
   }
 }
 
+// A variant survives on a label and a price. imageIndex -1 (or a draft whose image was removed) means
+// the variant has no image of its own, which is a valid size variant (S/M/L), not a broken row.
 export function resolveUploadedProductVariants(variants: TProductVariantDraft[] | undefined, imageUrls: string[]) {
   return (variants || [])
     .slice(0, MAX_PRODUCT_VARIANTS)
-    .filter(variant => variant.label.trim() && imageUrls[variant.imageIndex] && variant.price > 0)
+    .filter(variant => variant.label.trim() && variant.price > 0)
     .map(
       (variant): TProductVariant => ({
         id: variant.id,
         label: variant.label.trim(),
-        image_url: imageUrls[variant.imageIndex],
+        image_url: imageUrls[variant.imageIndex] ?? null,
         price: variant.price,
         quantity: variant.quantity,
       }),

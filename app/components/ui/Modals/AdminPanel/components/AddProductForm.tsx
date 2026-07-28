@@ -89,6 +89,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [variantLabelValue, setVariantLabelValue] = useState("")
   const [variantPriceValue, setVariantPriceValue] = useState("")
   const [variantQuantityValue, setVariantQuantityValue] = useState("")
+  // Colour variants take the image on screen; size variants (S/M/L) look the same in a photo and take none
+  const [isVariantImageAttached, setIsVariantImageAttached] = useState(true)
   const [variants, setVariants] = useState<TProductVariantDraft[]>([])
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [pendingTranslationsAmount, setPendingTranslationsAmount] = useState(0)
@@ -377,21 +379,21 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         return
       }
 
-      const resolvedVariants = variants
-        .map(variant => ({
-          ...variant,
-          imageIndex: images.findIndex(image => image.data_url === variant.imageDataUrl),
-        }))
-        .filter(variant => variant.imageIndex >= 0)
+      // imageIndex -1 means the variant has no image of its own - valid for a size variant (S/M/L),
+      // which shows as a text chip and uses the product's first photo wherever one is unavoidable
+      const resolvedVariants = variants.map(variant => ({
+        ...variant,
+        imageIndex: variant.imageDataUrl ? images.findIndex(image => image.data_url === variant.imageDataUrl) : -1,
+      }))
       const optimisticVariants = resolvedVariants
         .map(variant => ({
           id: variant.id,
           label: variant.label.trim(),
-          image_url: images[variant.imageIndex]?.data_url || "",
+          image_url: images[variant.imageIndex]?.data_url ?? null,
           price: variant.price,
           quantity: variant.quantity,
         }))
-        .filter(variant => variant.label && variant.image_url)
+        .filter(variant => variant.label)
       const defaultVariantPrice = optimisticVariants[0]?.price
       // Product stock is the accumulated stock of its variants (no separate manual field)
       const formattedOnStock = optimisticVariants.reduce((sum, variant) => sum + variant.quantity, 0)
@@ -491,10 +493,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     const parsedQuantity = parseFormattedNumber(variantQuantityValue)
     const normalizedQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
 
-    if (!images.length) {
-      return showToast("warning", "Upload image first", "Select or upload an image before creating a variant")
-    }
-
     if (variants.length >= MAX_PRODUCT_VARIANTS) {
       return showToast(
         "warning",
@@ -516,8 +514,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       {
         id: crypto.randomUUID(),
         label: normalizedLabel,
-        imageIndex: activeImageIndex,
-        imageDataUrl: images[activeImageIndex]?.data_url || "",
+        imageIndex: isVariantImageAttached ? activeImageIndex : -1,
+        imageDataUrl: isVariantImageAttached ? (images[activeImageIndex]?.data_url ?? null) : null,
         price: normalizedPrice,
         quantity: normalizedQuantity,
       },
@@ -925,10 +923,20 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               className="h-10 rounded border border-success-accent/30 bg-success-accent/10 px-4 text-[13px] font-semibold text-success-accent transition-colors tablet:self-end hover:bg-success-accent/15 disabled:cursor-default disabled:opacity-40"
               type="button"
               onClick={addVariant}
-              disabled={isLoading || !images.length || variants.length >= MAX_PRODUCT_VARIANTS}>
+              disabled={isLoading || variants.length >= MAX_PRODUCT_VARIANTS}>
               {t("add_variant_action")}
             </button>
           </div>
+
+          <label className="flex w-fit items-center gap-2 text-[11px] text-white/50">
+            <input
+              type="checkbox"
+              checked={isVariantImageAttached}
+              onChange={event => setIsVariantImageAttached(event.target.checked)}
+              disabled={isLoading || !images.length}
+            />
+            {t("variant_image_optional")}
+          </label>
 
           <p className="text-[11px] text-white/50">{t("manage_variant_help")}</p>
 
@@ -937,23 +945,24 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               {variants.map(variant => {
                 const variantImage = images.find(image => image.data_url === variant.imageDataUrl)
                 const variantImageIndex = images.findIndex(image => image.data_url === variant.imageDataUrl)
-                if (!variantImage) return null
 
                 return (
                   <div className="flex items-center gap-2 rounded border border-white/8 bg-white/[0.03] p-2" key={variant.id}>
-                    <button
-                      className="relative h-14 w-14 shrink-0 overflow-hidden rounded border border-white/10"
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => variantImageIndex >= 0 && navigateToImage(variantImageIndex)}>
-                      <Image
-                        className="h-full w-full object-cover"
-                        src={variantImage.data_url}
-                        alt={variant.label}
-                        fill
-                        sizes="56px"
-                      />
-                    </button>
+                    {variantImage?.data_url && (
+                      <button
+                        className="relative h-14 w-14 shrink-0 overflow-hidden rounded border border-white/10"
+                        type="button"
+                        tabIndex={-1}
+                        onClick={() => variantImageIndex >= 0 && navigateToImage(variantImageIndex)}>
+                        <Image
+                          className="h-full w-full object-cover"
+                          src={variantImage.data_url}
+                          alt={variant.label}
+                          fill
+                          sizes="56px"
+                        />
+                      </button>
+                    )}
                     <div className="min-w-0 flex-1">
                       <p className="line-clamp-2 text-sm font-medium text-white">{variant.label}</p>
                       <p className="mt-0.5 text-[11px] text-success">{formatCurrency(variant.price)}</p>

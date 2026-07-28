@@ -24,11 +24,12 @@ interface VariantsFormProps {
   price: number
 }
 
-// Local editable copy of a variant — price/quantity kept as formatted input strings while typing
+// Local editable copy of a variant — price/quantity kept as formatted input strings while typing.
+// image_url is null for a size variant that shares the product's photos.
 type VariantDraft = {
   id: string
   label: string
-  image_url: string
+  image_url: string | null
   priceInput: string
   quantityInput: string
 }
@@ -37,7 +38,7 @@ function toDrafts(variants: TProductVariant[] | null): VariantDraft[] {
   return (variants || []).map(variant => ({
     id: variant.id,
     label: variant.label,
-    image_url: variant.image_url,
+    image_url: variant.image_url ?? null,
     priceInput: variant.price > 0 ? formatGroupedNumberInput(String(variant.price)) : "",
     quantityInput: formatGroupedNumberInput(String(variant.quantity)),
   }))
@@ -78,9 +79,6 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
   }, [])
 
   const addDraft = useCallback(() => {
-    if (!imgUrl.length) {
-      return toast.show("warning", t("manage_upload_image_first_title"), t("manage_upload_image_first_subtitle"))
-    }
     if (drafts.length >= MAX_PRODUCT_VARIANTS) {
       return toast.show(
         "warning",
@@ -88,20 +86,21 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
         t("warning.max_variants_subtitle", { maxVariants: MAX_PRODUCT_VARIANTS }),
       )
     }
-    setDrafts(current => [...current, { id: crypto.randomUUID(), label: "", image_url: imgUrl[0], priceInput: "", quantityInput: "0" }])
-  }, [drafts.length, imgUrl, t, toast])
+    setDrafts(current => [...current, { id: crypto.randomUUID(), label: "", image_url: null, priceInput: "", quantityInput: "0" }])
+  }, [drafts.length, t, toast])
 
-  // 2. Resolve drafts → persistable variants (label required; broken image falls back to first product image)
+  // 2. Resolve drafts → persistable variants (label required; an image the gallery no longer holds
+  // becomes null, so the render-time fallback picks the product's first photo)
   const handleSave = useCallback(async () => {
     const resolved: TProductVariant[] = drafts
-      .map(draft => {
+      .map((draft): TProductVariant | null => {
         const label = draft.label.trim()
-        const image_url = imgUrl.includes(draft.image_url) ? draft.image_url : imgUrl[0]
+        const image_url = draft.image_url && imgUrl.includes(draft.image_url) ? draft.image_url : null
         const parsedPrice = parseFormattedNumber(draft.priceInput)
         const variantPrice = Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice : price
         const parsedQuantity = parseFormattedNumber(draft.quantityInput)
         const variantQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
-        if (!label || !image_url) return null
+        if (!label) return null
         return { id: draft.id, label, image_url, price: variantPrice, quantity: variantQuantity }
       })
       .filter((variant): variant is TProductVariant => Boolean(variant))
@@ -125,9 +124,6 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
     }
   }, [drafts, id, imgUrl, price, replaceProduct, setIsLoading, t, toast])
 
-  // 3. Without product images there is nothing to attach a variant to
-  if (!imgUrl.length) return null
-
   return (
     <section className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
@@ -148,8 +144,9 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
       ) : (
         <div className="flex flex-col gap-2">
           {drafts.map(draft => {
-            // 4. A variant whose image is no longer in the gallery is flagged — this is the bug users hit
-            const isImageMissing = !imgUrl.includes(draft.image_url)
+            // 3. A variant pointing at an image the gallery no longer holds is flagged — this is the bug
+            // users hit. A variant with no image at all is a size variant, so it stays unflagged.
+            const isImageMissing = Boolean(draft.image_url) && !imgUrl.includes(draft.image_url as string)
             // Sold out when the typed quantity resolves to 0 — surfaced as a badge so the owner sees it at a glance
             const isSoldOut = !(parseFormattedNumber(draft.quantityInput) > 0)
             return (
@@ -205,12 +202,26 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                   </button>
                 </div>
 
-                {/* 5. Image picker — choose which current product image this variant uses */}
+                {/* 4. Image picker — choose which current product image this variant uses, or none:
+                    size variants (S/M/L) look the same in a photo and show as a text chip */}
                 <div className="mt-2">
                   <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.16em] text-subTitle">
                     {t("selected_variant")}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
+                    <button
+                      className={twMerge(
+                        "h-12 shrink-0 rounded border px-2 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors duration-150",
+                        draft.image_url
+                          ? "border-border-color/30 text-subTitle hover:border-brand/40"
+                          : "border-brand/60 text-title ring-1 ring-brand/40",
+                      )}
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => updateDraft(draft.id, { image_url: null })}
+                      disabled={isLoading}>
+                      {t("variant_no_image")}
+                    </button>
                     {imgUrl.map((url, index) => {
                       const isActive = url === draft.image_url
                       return (

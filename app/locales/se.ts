@@ -308,6 +308,8 @@ export default {
   "product.manage_variant_empty": "Inga varianter ännu. Lägg till minst en innan du skapar eller sparar produkten.",
   "product.variant": "Variant",
   "product.selected_variant": "Vald variant",
+  "product.variant_no_image": "Ingen bild",
+  "product.variant_image_optional": "Bifoga en bild (valfritt)",
   "product.out_of_stock_label": "Slut i lager",
   "product.units_available": "{count} enheter tillgängliga",
   "product.low_stock_hurry": "Bara {count} kvar - ta den!",
