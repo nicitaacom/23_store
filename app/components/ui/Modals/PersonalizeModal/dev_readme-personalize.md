@@ -340,3 +340,8 @@ and PostgREST's `PGRST204` / `PGRST205`, so a missing column and a missing table
       `gpt-5-nano`, matching the other GPT routes in this project. If that model has no image input on
       this account the route answers 500, the verdict becomes `failed`, and the owner is not blocked —
       change the model id in that one place.
+- [ ] **The image model is looked up, not hardcoded.** `app/api/ai/generate-image/route.ts` tries
+      `gpt-image-1`, `gpt-image-1-mini`, `dall-e-3`, `dall-e-2` in that order and keeps the first the
+      account answers on; only a "does not exist" error moves to the next one. Set `OPENAI_IMAGE_MODEL`
+      to skip the search. `style` and `quality: "standard"` are NOT sent — they are dall-e-3-only and
+      the current API answers `400 Unknown parameter: 'style'` for them.
