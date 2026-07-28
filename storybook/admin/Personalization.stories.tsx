@@ -1,9 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
+import { HttpResponse, http } from "msw"
 import { expect, waitFor, within } from "storybook/test"
 
 import type { TProductDB } from "@/ts/product/TProductDB"
-import { headphonesProduct } from "../fixtures"
+import { fixtureCategories, headphonesProduct } from "../fixtures"
+import { EditProductForm } from "@/components/ui/Modals/AdminPanel/components/EditProductForm"
 import { PersonalizationForm } from "@/components/ui/Modals/AdminPanel/components/PersonalizationForm"
+
+// The product row asks for the category list while it is on screen - answering it here keeps the
+// story from failing on an unhandled request.
+const editProductHandlers = [http.get("*/api/categories/select", () => HttpResponse.json({ categories: fixtureCategories }))]
 
 const configuredProduct: TProductDB = {
   ...headphonesProduct,
@@ -47,6 +53,19 @@ export const PrintAreaEditor: Story = {
     const canvas = within(canvasElement)
     await waitFor(() => expect(canvas.getByText("Print width (mm)")).toBeVisible())
     // The mm the owner typed are echoed back as a physical size, so a typo is visible immediately
+    await expect(canvas.getByText(/900 × 400 mm/)).toBeVisible()
+  },
+}
+
+// The reason the editor has two mount points: from the admin panel's Edit product list the owner
+// reaches the print area without ever opening /products/<id>/manage.
+export const InsideAdminPanel: Story = {
+  parameters: { msw: { handlers: editProductHandlers } },
+  render: () => <EditProductForm ownerProducts={[configuredProduct]} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await waitFor(() => expect(canvas.getByText("Personalization")).toBeVisible())
+    await waitFor(() => expect(canvas.getByText("Print width (mm)")).toBeVisible())
     await expect(canvas.getByText(/900 × 400 mm/)).toBeVisible()
   },
 }
