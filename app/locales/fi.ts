@@ -615,7 +615,7 @@ export default {
   "personalize.admin_ai_generate": "Luo sopiva kuva",
   "personalize.admin_ai_generating": "Luodaan...",
   "personalize.admin_ai_generated_title": "Kuva luotu",
-  "personalize.admin_ai_generated_subtitle": "Se lisättiin tuotteen kuviin ja valittiin mallikuvaksi. Merkitse tulostusalue siihen.",
+  "personalize.admin_ai_generated_subtitle": "Se korvasi kuvan, johon tulostusalue oli merkitty. Merkitse alue uudelleen ja tarkista se.",
   "personalize.admin_ai_failed_title": "Tekoälytarkistus epäonnistui",
   "personalize.admin_ai_generate_failed_title": "Kuvan luonti epäonnistui",
 } as const

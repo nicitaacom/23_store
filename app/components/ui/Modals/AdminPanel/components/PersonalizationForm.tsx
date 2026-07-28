@@ -23,7 +23,7 @@ interface PersonalizationFormProps {
   personalization?: TProductPersonalization | null
   className?: string
   onDraftChange?: (draftState: TPersonalizationDraftState) => void
-  onGeneratedMockup?: (mockupFile: File) => Promise<string | null>
+  onGeneratedMockup?: (mockupFile: File, replacedMockupUrl: string) => Promise<string | null>
 }
 
 const EMPTY_RECT: TMockupRect = { leftPct: 10, topPct: 10, widthPct: 80, heightPct: 40 }
@@ -180,12 +180,16 @@ export function PersonalizationForm({
         `a product whose printable surface measures ${printArea.widthMm} by ${printArea.heightMm} millimetres, photographed straight from above, centred, filling the frame edge to edge on a single-colour background, so the printable surface in the picture has exactly the proportions ${printArea.widthMm}:${printArea.heightMm}`,
       )
       const fileExtension = contentType.split("/")[1] || "png"
-      const addedMockupUrl = await onGeneratedMockup(
+      const generatedMockupUrl = await onGeneratedMockup(
         new File([buffer], `print-area-${printArea.widthMm}x${printArea.heightMm}.${fileExtension}`, { type: contentType }),
+        mockupUrl,
       )
 
+      // Reporting success without the swap is what made this look like it worked while nothing changed
+      if (!generatedMockupUrl) return
+
       // Picking it moves the signature on, so the verdict goes back to "unchecked" for the new photo
-      if (addedMockupUrl) setPickedMockupUrl(addedMockupUrl)
+      setPickedMockupUrl(generatedMockupUrl)
       toast.show("success", t("admin_ai_generated_title"), t("admin_ai_generated_subtitle"))
     } catch (error) {
       toast.show("error", t("admin_ai_generate_failed_title"), error instanceof Error ? error.message : String(error))
@@ -231,7 +235,10 @@ export function PersonalizationForm({
         "rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]",
         className,
       )}
-      data-cy="personalization-form">
+      data-cy="personalization-form"
+      // Marking the rectangle redraws this box under the pointer, and the admin panel closes on a
+      // mousedown it reads as outside itself - the same guard its header tabs already use.
+      data-click-outside-ignore>
       <h2 className="text-lg font-semibold text-title">{t("admin_title")}</h2>
       <p className="mt-1 text-sm text-subTitle">{t("admin_subtitle")}</p>
 
@@ -282,10 +289,10 @@ export function PersonalizationForm({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {imageUrls.map(imageUrl => (
+              {imageUrls.map((imageUrl, imageIndex) => (
                 <button
                   className={`h-14 w-14 overflow-hidden rounded border ${mockupUrl === imageUrl ? "border-success" : "border-border-color/40"}`}
-                  key={imageUrl}
+                  key={`${imageUrl}-${imageIndex}`}
                   type="button"
                   onClick={() => setPickedMockupUrl(imageUrl)}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- thumbnails of the product's own uploads */}

@@ -613,7 +613,7 @@ export default {
   "personalize.admin_ai_generate": "Сгенерировать подходящее изображение",
   "personalize.admin_ai_generating": "Генерируем...",
   "personalize.admin_ai_generated_title": "Изображение сгенерировано",
-  "personalize.admin_ai_generated_subtitle": "Оно добавлено к изображениям товара и выбрано как макет. Отметьте на нём область печати.",
+  "personalize.admin_ai_generated_subtitle": "Оно заменило фото, на котором была отмечена область печати. Отметьте область заново и проверьте ещё раз.",
   "personalize.admin_ai_failed_title": "Проверка ИИ не удалась",
   "personalize.admin_ai_generate_failed_title": "Не удалось сгенерировать изображение",
 } as const

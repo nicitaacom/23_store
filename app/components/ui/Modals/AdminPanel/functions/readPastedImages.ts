@@ -10,7 +10,7 @@ interface ReadPastedImagesResult {
 
 // `data_url` has to be a base64 string because that is what the create-product pipeline sends on
 // submit - an object URL would be gone by then.
-async function toDataUrl(file: File) {
+export async function toDataUrl(file: File) {
   const bytes = new Uint8Array(await file.arrayBuffer())
   const chunkSize = 8192
   let binary = ""

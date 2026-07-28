@@ -13,7 +13,7 @@ import { TPersonalizationDraftState } from "@/ts/product/TPersonalization"
 import { TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductDB } from "@/ts/product/TProductDB"
-import { readPastedImages } from "../functions/readPastedImages"
+import { readPastedImages, toDataUrl } from "../functions/readPastedImages"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
 import { CategoryDropdown } from "./CategoryDropdown"
 import { PersonalizationForm } from "./PersonalizationForm"
@@ -133,6 +133,30 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       if (imageList.length === 0) return 0
       return Math.min(current, imageList.length - 1)
     })
+  }
+
+  /**
+   * Swaps the photo the print area was marked on for the one the AI drew. It replaces in place instead
+   * of appending, because the generated image is a correction of that photo, not an extra product image.
+   *
+   * It also skips `readPastedImages`: those limits guard what a person drops in, while this file comes
+   * from our own image route, and a generated PNG is regularly over the 1 MB paste cap - which is why
+   * this used to report success while the image was silently rejected. Tinify still compresses it at
+   * submit, so nothing oversized reaches the bucket.
+   *
+   * Returns the new data URL so the editor can point its mockup at it. Nothing here touches the router
+   * or the modal - only this form's own image list moves.
+   */
+  const replaceMockupImage = async (mockupFile: File, replacedDataUrl: string) => {
+    const nextImage = { file: mockupFile, data_url: await toDataUrl(mockupFile) }
+    const replacedIndex = images.findIndex(image => image.data_url === replacedDataUrl)
+
+    setImages(
+      replacedIndex >= 0 ? images.map((image, index) => (index === replacedIndex ? nextImage : image)) : [...images, nextImage],
+    )
+    setActiveImageIndex(replacedIndex >= 0 ? replacedIndex : images.length)
+
+    return nextImage.data_url
   }
 
   // One way in for every file that did not come through the uploader's own picker - a Ctrl+V paste and
@@ -1071,7 +1095,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             imageUrls={imageDataUrls}
             personalization={restoredPersonalization}
             onDraftChange={setPersonalizationState}
-            onGeneratedMockup={mockupFile => addImageFiles([mockupFile])}
+            onGeneratedMockup={replaceMockupImage}
           />
         </div>
 

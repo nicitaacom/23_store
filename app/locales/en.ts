@@ -615,7 +615,7 @@ export default {
   "personalize.admin_ai_generate": "Generate appropriate image",
   "personalize.admin_ai_generating": "Generating...",
   "personalize.admin_ai_generated_title": "Image generated",
-  "personalize.admin_ai_generated_subtitle": "It was added to the product images and picked as the mockup. Mark the print area on it.",
+  "personalize.admin_ai_generated_subtitle": "It replaced the photo the print area was marked on. Mark the print area on it and check again.",
   "personalize.admin_ai_failed_title": "AI check failed",
   "personalize.admin_ai_generate_failed_title": "Image generation failed",
 } as const

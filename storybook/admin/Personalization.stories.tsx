@@ -1,3 +1,4 @@
+import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { HttpResponse, http } from "msw"
 import { expect, userEvent, waitFor, within } from "storybook/test"
@@ -35,6 +36,31 @@ const configuredProduct: TProductDB = {
       mockupRect: { leftPct: 5, topPct: 30, widthPct: 90, heightPct: 60 },
     },
   },
+}
+
+// Stands in for AddProductForm's image list: it swaps the marked-on photo for the generated one and
+// reports back what the list looks like, so the story asserts the swap instead of an append.
+function GenerateMockupHarness() {
+  const [imageUrls, setImageUrls] = useState(configuredProduct.img_url)
+  const [replacedMockupUrl, setReplacedMockupUrl] = useState("")
+
+  return (
+    <>
+      <p data-image-count>{imageUrls.length}</p>
+      <p data-image-urls>{imageUrls.join(" ")}</p>
+      <p data-replaced-url>{replacedMockupUrl}</p>
+      <PersonalizationForm
+        imageUrls={imageUrls}
+        personalization={configuredProduct.personalization}
+        onGeneratedMockup={async (mockupFile, replacedUrl) => {
+          const generatedUrl = `generated:${mockupFile.name}`
+          setReplacedMockupUrl(replacedUrl)
+          setImageUrls(current => current.map(imageUrl => (imageUrl === replacedUrl ? generatedUrl : imageUrl)))
+          return generatedUrl
+        }}
+      />
+    </>
+  )
 }
 
 const meta = {
@@ -165,18 +191,21 @@ export const AIGeneratesAMatchingMockup: Story = {
       ],
     },
   },
-  render: () => (
-    <PersonalizationForm
-      imageUrls={configuredProduct.img_url}
-      personalization={configuredProduct.personalization}
-      onGeneratedMockup={async () => null}
-    />
-  ),
+  render: () => <GenerateMockupHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.click(await waitFor(() => canvas.getByRole("button", { name: "Fix the shape" })))
     await waitFor(() => expect(canvas.getByText(/does not match the physical dimensions/)).toBeVisible())
-    await expect(canvas.getByRole("button", { name: "Generate appropriate image" })).toBeVisible()
+
+    await userEvent.click(canvas.getByRole("button", { name: "Generate appropriate image" }))
+
+    // The generated photo REPLACES the one the print area was marked on - the gallery does not grow,
+    // and the editor points at the replacement
+    await waitFor(() =>
+      expect(canvasElement.querySelector("[data-replaced-url]")).toHaveTextContent(configuredProduct.img_url[0]),
+    )
+    await expect(canvasElement.querySelector("[data-image-urls]")).toHaveTextContent("generated:")
+    await expect(canvasElement.querySelector("[data-image-count]")).toHaveTextContent("2")
   },
 }
 
