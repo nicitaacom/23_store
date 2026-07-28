@@ -1,25 +1,30 @@
 "use client"
 
 import { useRef, useState } from "react"
+import { twMerge } from "tailwind-merge"
 
 import { TMockupRect, TPersonalizationConfig } from "@/ts/product/TPersonalization"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatPrintSize, getAspectCorrectHeightPct, getAspectDrift, MAX_ASPECT_DRIFT } from "@/utils/printMetrics"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui/Button"
 
+// className lets the admin panel drop the standalone card chrome - the manage page keeps it.
 interface PersonalizationFormProps {
   product: TProductDB
+  className?: string
 }
 
 const EMPTY_RECT: TMockupRect = { leftPct: 10, topPct: 10, widthPct: 80, heightPct: 40 }
 
 // http://localhost:6006/?path=/story/admin-personalization--print-area-editor
-export function PersonalizationForm({ product }: PersonalizationFormProps) {
+export function PersonalizationForm({ product, className }: PersonalizationFormProps) {
   const t = useScopedI18n("personalize")
   const toast = useToast()
+  const { replaceProduct } = useOwnerProductsStore()
   const dragStartRef = useRef<{ xPct: number; yPct: number } | null>(null)
 
   const savedConfig = product.personalization?.defaultConfig ?? null
@@ -93,10 +98,13 @@ export function PersonalizationForm({ product }: PersonalizationFormProps) {
 
     setIsUpdatingConfig(true)
     try {
-      await productsSDK.updateProduct({
+      const response = await productsSDK.updateProduct({
         productId: product.id,
         personalization: isEnabled ? { isEnabled: true, defaultConfig: config } : null,
       })
+      // Keeps the admin panel's product row in step with what was written; a no-op on the manage
+      // page, where this product is not in the owner products store.
+      replaceProduct(product.id, response.product)
       toast.show("success", t("admin_updated_title"), t("admin_updated_subtitle"))
     } catch (error) {
       toast.show("error", t("admin_failed_title"), error instanceof Error ? error.message : String(error))
@@ -106,7 +114,12 @@ export function PersonalizationForm({ product }: PersonalizationFormProps) {
   }
 
   return (
-    <section className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
+    <section
+      className={twMerge(
+        "rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]",
+        className,
+      )}
+      data-cy="personalization-form">
       <h2 className="text-lg font-semibold text-title">{t("admin_title")}</h2>
       <p className="mt-1 text-sm text-subTitle">{t("admin_subtitle")}</p>
 

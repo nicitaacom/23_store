@@ -99,6 +99,7 @@ declare namespace API {
       img_url: string[]
       variants?: ProductsVariant[] | null
       on_stock: number
+      personalization?: ProductsPersonalization | null
     }
   }
 

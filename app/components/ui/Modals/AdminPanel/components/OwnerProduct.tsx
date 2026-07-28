@@ -4,6 +4,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { FormatImagesForm } from "./FormatImagesForm"
 import { OwnerProductHeader } from "./OwnerProductHeader"
 import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
+import { PersonalizationForm } from "./PersonalizationForm"
 import { VariantsForm } from "./VariantsForm"
 import { useCurrentLocale } from "@/locales/client"
 import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
@@ -56,6 +57,11 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
           variants={ownerProduct.variants ?? null}
           price={ownerProduct.price}
         />
+      </div>
+      <div className="border-t border-border-color/35 bg-foreground/[0.02] px-2 py-2 tablet:px-3 tablet:py-3">
+        {/* Same editor as the product's manage page, mounted here so the print area is reachable
+            from Product workspace -> Edit product without leaving the modal */}
+        <PersonalizationForm className="rounded-none border-0 bg-transparent p-0 shadow-none" product={ownerProduct} />
       </div>
     </article>
     )}
