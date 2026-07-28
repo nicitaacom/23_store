@@ -597,4 +597,5 @@ export default {
   "personalize.admin_failed_title": "Не удалось обновить",
   "personalize.admin_incomplete_title": "Не указан размер печати",
   "personalize.admin_incomplete_subtitle": "Выберите изображение-макет и укажите ширину и высоту печати в мм.",
+  "personalize.admin_add_product_hint": "Персонализация настраивается после создания товара - откройте «Редактировать товар» и отметьте область печати.",
 } as const

@@ -979,6 +979,19 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           )}
         </div>
 
+        {/* The print area is stored on the product row, so it needs a product id first — shown here as an
+            unavailable step, then editable from Product workspace → Edit product */}
+        <div className="grid gap-1.5 rounded border border-white/8 bg-white/[0.02] p-3 opacity-60">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">
+            {tGlobal("personalize.admin_title")}
+          </p>
+          <label className="flex w-fit items-center gap-2 text-[13px] text-white/60">
+            <input type="checkbox" disabled />
+            {tGlobal("personalize.admin_enable")}
+          </label>
+          <p className="text-[11px] text-white/50">{tGlobal("personalize.admin_add_product_hint")}</p>
+        </div>
+
         {/* Live preview row — on_stock is the accumulated stock of all variants, not a manual field */}
         <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3 tablet:grid-cols-2">
           <div>

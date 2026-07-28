@@ -599,4 +599,5 @@ export default {
   "personalize.admin_failed_title": "Update failed",
   "personalize.admin_incomplete_title": "Print size is missing",
   "personalize.admin_incomplete_subtitle": "Pick a mockup image and enter the print width and height in mm.",
+  "personalize.admin_add_product_hint": "Personalization is set up after the product exists - open Edit product and mark the print area there.",
 } as const
