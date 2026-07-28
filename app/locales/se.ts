@@ -310,6 +310,7 @@ export default {
   "product.selected_variant": "Vald variant",
   "product.variant_no_image": "Ingen bild",
   "product.variant_image_optional": "Bifoga en bild (valfritt)",
+  "product.variant_image_matches_hint": "Använd en bild som matchar den här varianten - tryckytan mäts mot dess verkliga storlek.",
   "product.out_of_stock_label": "Slut i lager",
   "product.units_available": "{count} enheter tillgängliga",
   "product.low_stock_hurry": "Bara {count} kvar - ta den!",

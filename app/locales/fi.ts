@@ -312,6 +312,7 @@ export default {
   "product.selected_variant": "Valittu variantti",
   "product.variant_no_image": "Ei kuvaa",
   "product.variant_image_optional": "Liitä kuva (valinnainen)",
+  "product.variant_image_matches_hint": "Käytä kuvaa, joka vastaa tätä varianttia - tulostusalue mitataan sen todellisen koon mukaan.",
   "product.out_of_stock_label": "Loppu varastosta",
   "product.units_available": "{count} kpl saatavilla",
   "product.low_stock_hurry": "Vain {count} jäljellä - ota se!",

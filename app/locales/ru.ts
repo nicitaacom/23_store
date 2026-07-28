@@ -310,6 +310,7 @@ export default {
   "product.selected_variant": "Выбранный вариант",
   "product.variant_no_image": "Без изображения",
   "product.variant_image_optional": "Прикрепите изображение (необязательно)",
+  "product.variant_image_matches_hint": "Используйте изображение, которое соответствует этому варианту - область печати измеряется по его реальному размеру.",
   "product.out_of_stock_label": "Нет в наличии",
   "product.units_available": "Доступно {count} шт.",
   "product.low_stock_hurry": "Осталось только {count} - успей!",

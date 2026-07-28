@@ -312,6 +312,7 @@ export default {
   "product.selected_variant": "Selected variant",
   "product.variant_no_image": "No image",
   "product.variant_image_optional": "Attach an image (optional)",
+  "product.variant_image_matches_hint": "Make sure to use an image that matches this variant - the print area is measured against its real size.",
   "product.out_of_stock_label": "Out of stock",
   "product.units_available": "{count} units available",
   "product.low_stock_hurry": "Only {count} left - grab it!",

@@ -388,6 +388,10 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                     {t("remove")}
                   </button>
                 </div>
+
+                {/* The print area is measured against the linked photo, so a variant showing another
+                    variant's photo makes the buyer's preview lie about what gets printed */}
+                <p className="text-[11px] text-subTitle">{t("variant_image_matches_hint")}</p>
               </div>
             </div>
           </div>

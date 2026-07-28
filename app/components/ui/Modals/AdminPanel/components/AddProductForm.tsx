@@ -986,6 +986,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             {t("variant_image_optional")}
           </label>
 
+          {/* The print area is measured against the attached photo, so a variant showing another
+              variant's photo makes the buyer's preview lie about what gets printed */}
+          {isVariantImageAttached && <p className="text-[11px] text-white/50">{t("variant_image_matches_hint")}</p>}
+
           <p className="text-[11px] text-white/50">{t("manage_variant_help")}</p>
 
           {variants.length > 0 ? (

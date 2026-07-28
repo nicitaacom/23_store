@@ -240,6 +240,9 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                       )
                     })}
                   </div>
+                  {/* The print area is measured against the picked photo, so a variant showing another
+                      variant's photo makes the buyer's preview lie about what gets printed */}
+                  <p className="mt-1 text-[11px] text-subTitle">{t("variant_image_matches_hint")}</p>
                   {isImageMissing && <p className="mt-1 text-[11px] text-warning">{t("manage_variant_help")}</p>}
                 </div>
               </div>
