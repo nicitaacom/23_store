@@ -39,8 +39,26 @@ So this feature answers two questions before the order, not after:
 | Entry button | `app/components/ui/Buttons/PersonalizeButton.tsx` |
 | All the math | `app/utils/printMetrics.ts` |
 | Owner's print-area editor | `app/components/ui/Modals/AdminPanel/components/PersonalizationForm.tsx` |
+| Missing-SQL detection | `app/utils/personalizationSchema.ts` |
 | Types | `app/ts/product/TPersonalization.ts` |
 | Route | `app/api/personalized-designs/route.ts` |
+
+### Where the owner finds the editor
+
+```
+Admin panel (?modal=AdminPanel)                     /[locale]/products/<id>/manage
+  └─ Edit product                                     └─ ManageProductView
+       └─ <a product row>  OwnerProduct.tsx                 └─ PersonalizationForm  (card chrome)
+            └─ PersonalizationForm  (chrome removed
+               by the className prop)
+```
+
+One component, two mount points - only the surface classes differ, so the drawing, the mm inputs, the
+aspect guard and the update request have a single implementation. After a successful update the form
+calls `replaceProduct`, which re-syncs the admin panel row and is a no-op on the manage page.
+
+**Add product** shows the same block disabled with `personalize.admin_add_product_hint`: the config is
+stored on the product row, so it needs a product id first.
 
 ### Types
 
@@ -143,14 +161,42 @@ choose/paste image → readPastedImages (size + resolution gate)
 
 <br/>
 
+### The SQL has not been run yet
+
+The two pieces this feature needs are created by hand from the **🖼️ PRODUCT PERSONALIZATION** block in
+`dev_readme-supbase-sql.md`: the `personalization` column on `23_products` and the
+`23_personalized_designs` table. Until that runs, Postgres answers every write with a message that says
+nothing about what to do, so both routes check for it and name the block instead:
+
+```
+owner presses "Update personalization"
+  → POST /api/products/update           column missing → 503 { error: "The \"personalization\" column of
+                                        23_products is missing in the database. Run the 🖼️ PRODUCT
+                                        PERSONALIZATION block in dev_readme-supbase-sql.md, then try again." }
+  → PersonalizationForm catch           → error toast with that sentence
+
+buyer presses "Add to cart" in the modal
+  → POST /api/personalized-designs      table missing → 503, same shape
+  → uploadDesignFn returns the message  → error toast, and the button stops showing "Adding..."
+```
+
+`isMissingSchemaError` in `app/utils/personalizationSchema.ts` matches Postgres codes `42703` / `42P01`
+and PostgREST's `PGRST204` / `PGRST205`, so a missing column and a missing table both land here.
+
+<br/>
+
 ## 4. TODO
 
 - [x] Admin form to set the print size and drag the rectangle on the mockup:
-      `app/components/ui/Modals/AdminPanel/components/PersonalizationForm.tsx`, rendered on the product's
-      manage page (`/[locale]/products/<id>/manage`). Tick "Buyers can personalize this product", pick one
-      of the product's own images as the mockup, type the print size in mm, drag the rectangle over it.
-      The rectangle turns red when its shape drifts from the print size, with a one-click fix.
-      It updates `23_products.personalization` through `productsSDK.updateProduct`.
+      `app/components/ui/Modals/AdminPanel/components/PersonalizationForm.tsx`. Tick "Buyers can
+      personalize this product", pick one of the product's own images as the mockup, type the print size
+      in mm, drag the rectangle over it. The rectangle turns red when its shape drifts from the print
+      size, with a one-click fix. It updates `23_products.personalization` through
+      `productsSDK.updateProduct`.
+- [x] Reachable from the admin panel: **Product workspace → Edit product → a product**, not only from the
+      product's manage page. Stories: `Admin/Personalization → InsideAdminPanel` and `→ PrintAreaEditor`.
+- [x] A missing `personalization` column or `23_personalized_designs` table is reported as "run this SQL
+      block" instead of a raw Postgres message.
 - [ ] Notify the owner on a paid personalized order (design URL + print size + DPI), reusing the
       `requestBetterPrices.tsx` email + Telegram path.
 - [ ] Show the design thumbnail on the personalized line in `app/emails/CheckEmail.tsx`.
