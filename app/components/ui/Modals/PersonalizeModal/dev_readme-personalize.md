@@ -47,18 +47,56 @@ So this feature answers two questions before the order, not after:
 
 ```
 Admin panel (?modal=AdminPanel)                     /[locale]/products/<id>/manage
-  └─ Edit product                                     └─ ManageProductView
-       └─ <a product row>  OwnerProduct.tsx                 └─ PersonalizationForm  (card chrome)
+  ├─ Add product      AddProductForm.tsx              └─ ManageProductView
+  │    └─ PersonalizationForm  (no productId:              └─ PersonalizationForm  (card chrome)
+  │       reports a draft through onDraftChange)
+  └─ Edit product
+       └─ <a product row>  OwnerProduct.tsx
             └─ PersonalizationForm  (chrome removed
                by the className prop)
 ```
 
-One component, two mount points - only the surface classes differ, so the drawing, the mm inputs, the
-aspect guard and the update request have a single implementation. After a successful update the form
-calls `replaceProduct`, which re-syncs the admin panel row and is a no-op on the manage page.
+One component, three mount points - only the surface classes differ, so the drawing, the mm inputs and
+the aspect guard have a single implementation. What changes is where the config goes:
 
-**Add product** shows the same block disabled with `personalize.admin_add_product_hint`: the config is
-stored on the product row, so it needs a product id first.
+| Mount | `productId` | Where the config goes |
+| --- | --- | --- |
+| Add product | absent | `onDraftChange` → `personalizationDraft` → `createProductFn` → the insert |
+| Edit product | present | its own update button → `productsSDK.updateProduct` |
+| Manage page | present | same as Edit product |
+
+With a `productId` the form shows its update button and calls `replaceProduct` afterwards, which
+re-syncs the admin panel row and is a no-op on the manage page. Without one there is no row to update,
+so the button is replaced by `personalize.admin_draft_hint`.
+
+### Marking the print area before the product exists
+
+The mockup is still one of the images queued for upload, so the draft holds an **index** into that
+queue, never a URL:
+
+```
+TPersonalizationDraft { isEnabled, mockupImageIndex, printArea, mockupRect }
+        │
+        │  createProductFn uploads the images
+        ▼
+resolveUploadedPersonalization(draft, uploadedImageUrls)   app/functions/createProductHelpers.ts
+        │  mockupImageIndex 1  →  uploadedImageUrls[1]
+        ▼
+TProductPersonalization { isEnabled, defaultConfig: { mockupUrl, printArea, mockupRect } }
+        │
+        ▼
+POST /api/products/translate-insert  →  23_products.personalization
+```
+
+The same helper runs backwards in the form: a restored draft is turned back into a config so the editor
+re-mounts on what the owner had marked out when a create fails.
+
+### Each variant wants its own photo
+
+`product.variant_image_matches_hint` sits under every variant image picker (Add product, the Edit tab's
+`VariantsForm`, and the manage page): **"Make sure to use an image that matches this variant - the print
+area is measured against its real size."** The print area is in mm and the rectangle is a % of the photo,
+so a variant showing a different variant's photo makes the buyer's preview lie about what gets printed.
 
 ### Types
 

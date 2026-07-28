@@ -212,30 +212,40 @@ replacing the product's photos later fixes every imageless variant at once.
 
 <br/>
 
-## 3f. Personalization editor — two mount points, one component
+## 3f. Personalization editor — three mount points, one component
 
-[components/PersonalizationForm.tsx](components/PersonalizationForm.tsx) renders in both places:
+[components/PersonalizationForm.tsx](components/PersonalizationForm.tsx) renders in all three places:
 
 ```
+Admin panel → Add product                      AddProductForm.tsx
+  <PersonalizationForm imageUrls={imageDataUrls} onDraftChange={setPersonalizationDraft} />
+        │ no productId → no update button, the draft is written by "Create product"
+        ▼
 Admin panel → Edit product → <a product row>   OwnerProduct.tsx
-  <PersonalizationForm className="rounded-none border-0 bg-transparent p-0 shadow-none" product={…} />
+  <PersonalizationForm className="rounded-none border-0 bg-transparent p-0 shadow-none" productId={…} />
         │ (twMerge drops the standalone card chrome)
         ▼
 /[locale]/products/<id>/manage                 ManageProductView.tsx
-  <PersonalizationForm product={…} />          keeps the card chrome
+  <PersonalizationForm productId={…} />        keeps the card chrome
 ```
 
-Only the surface classes differ — the drawing, the mm inputs, the aspect guard and the update request are
-one implementation. After a successful update the form calls `replaceProduct`, which re-syncs the admin
-panel's row and is a no-op on the manage page (that product is not in `ownerProductsStore`).
+The props are `imageUrls` + optional `productId` / `personalization` — never a whole `TProductDB`, since
+Add product has no product row yet, only data URLs waiting to be uploaded.
 
-The Add tab shows the same block **disabled** with `personalize.admin_add_product_hint`: the config lives
-on the product row, so it needs a product id first.
+With a `productId` the form owns its update button and calls `replaceProduct` afterwards, which re-syncs
+the admin panel's row and is a no-op on the manage page (that product is not in `ownerProductsStore`).
+Without one it reports a `TPersonalizationDraft` through `onDraftChange`; the mockup is held as an index
+into the upload queue and `resolveUploadedPersonalization` turns it into a URL after the upload. Full
+flow in [dev_readme-personalize.md](../PersonalizeModal/dev_readme-personalize.md).
 
-If the `personalization` column has not been created yet, `/api/products/update` answers **503** with a
-message naming the 🖼️ PRODUCT PERSONALIZATION block in
-[dev_readme-supbase-sql.md](../../../../../dev_readme-supbase-sql.md); the form shows that message in an
-error toast. `/api/personalized-designs` does the same for a missing `23_personalized_designs` table.
+Every variant image picker shows `product.variant_image_matches_hint` — the print area is measured
+against the picked photo, so a variant showing another variant's photo makes the buyer's preview lie.
+
+If the `personalization` column has not been created yet, `/api/products/update` and
+`/api/products/translate-insert` both answer **503** with a message naming the 🖼️ PRODUCT PERSONALIZATION
+block in [dev_readme-supbase-sql.md](../../../../../dev_readme-supbase-sql.md); the form shows that
+message in an error toast. `/api/personalized-designs` does the same for a missing
+`23_personalized_designs` table.
 
 <br/>
 
