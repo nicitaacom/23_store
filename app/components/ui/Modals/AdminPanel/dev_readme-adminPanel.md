@@ -19,15 +19,16 @@ fixed — see [VariantsForm.tsx](components/VariantsForm.tsx) and the per-varian
 - Add tab — [components/AddProductForm.tsx](components/AddProductForm.tsx)
 - Edit tab — [components/EditProductForm.tsx](components/EditProductForm.tsx) → renders one
   [components/OwnerProduct.tsx](components/OwnerProduct.tsx) per product, which composes the
-  `Format*Form` editors (title / description / price / on-stock / images) **and**
-  [components/VariantsForm.tsx](components/VariantsForm.tsx)
+  `Format*Form` editors (title / description / price / on-stock / images),
+  [components/VariantsForm.tsx](components/VariantsForm.tsx) **and**
+  [components/PersonalizationForm.tsx](components/PersonalizationForm.tsx)
 - Delete tab — [components/DeleteProductForm.tsx](components/DeleteProductForm.tsx) +
   [components/AdminPanelDeleteConfirmDialog.tsx](components/AdminPanelDeleteConfirmDialog.tsx)
 
 ### 1.2 Types
 
 - `TProductDB` — [app/ts/product/TProductDB.ts](../../../../ts/product/TProductDB.ts)
-- `TProductVariant` (`{ id, label, image_url, price, quantity }`) and `TProductVariantDraft`
+- `TProductVariant` (`{ id, label, image_url?, price, quantity }`) and `TProductVariantDraft`
   — [app/ts/product/TProductVariant.ts](../../../../ts/product/TProductVariant.ts)
 - API request/response (`ProductsVariant`, `ProductsUpdateRequest`)
   — [app/ts/namespaces/api/products/api.d.ts](../../../../ts/namespaces/api/products/api.d.ts)
@@ -59,8 +60,8 @@ VariantsForm.handleSave()
 ## 2. Terminology
 
 - **Variant** — a sellable variation of a product (e.g. a colour). Stored in the `variants` JSONB array
-  as `{ id, label, image_url, price, quantity }`. `price` is a per-variant override; `quantity` is
-  per-variant stock.
+  as `{ id, label, image_url?, price, quantity }`. `price` is a per-variant override; `quantity` is
+  per-variant stock. `image_url` is optional (see §3e).
 - **Draft** — the form's local editable copy of a variant while typing. Prices/quantities are kept as
   formatted input strings (`priceInput`, `quantityInput`) and only resolved to numbers on save.
 - **Dirty** — a draft differs from what is persisted. `VariantsForm` compares `signature(drafts)` to the
@@ -182,6 +183,62 @@ reaches its root div. Tabs are flat underline-style with a unified brand accent 
 </article>
 ```
 
+## 3e. A variant without an image
+
+A variant is real with a **label and a price**. An image is a bonus that turns the selector entry into a
+swatch — size variants (S/M/L, 30x40 vs 50x70) look identical in a photo, so they have none.
+
+Where the owner sets it:
+
+| Surface | Control |
+| --- | --- |
+| Add tab | the "Attach an image (optional)" checkbox above the variant list — off means the new variant takes no image |
+| Edit tab → `VariantsForm` | the **No image** chip that sits first in each variant's image picker |
+| Manage page | the **No image** button next to "Assign current image" |
+
+What is stored and what is shown:
+
+```
+stored row                     rendered
+{ label: "50x70" }          →  text chip in the selector, same height as a swatch
+{ label: "Blue",
+  image_url: "https://…" }  →  swatch with a thumbnail (unchanged)
+```
+
+`normalizeProductVariants` coerces `""` to `null`, so "no image" has one shape. At write time an image
+the gallery no longer holds becomes `null` instead of falling back to `img_url[0]` — the fallback belongs
+at render time (`getVariantImageUrl` in [cartProducts.ts](../../../../utils/cartProducts.ts)), so
+replacing the product's photos later fixes every imageless variant at once.
+
+<br/>
+
+## 3f. Personalization editor — two mount points, one component
+
+[components/PersonalizationForm.tsx](components/PersonalizationForm.tsx) renders in both places:
+
+```
+Admin panel → Edit product → <a product row>   OwnerProduct.tsx
+  <PersonalizationForm className="rounded-none border-0 bg-transparent p-0 shadow-none" product={…} />
+        │ (twMerge drops the standalone card chrome)
+        ▼
+/[locale]/products/<id>/manage                 ManageProductView.tsx
+  <PersonalizationForm product={…} />          keeps the card chrome
+```
+
+Only the surface classes differ — the drawing, the mm inputs, the aspect guard and the update request are
+one implementation. After a successful update the form calls `replaceProduct`, which re-syncs the admin
+panel's row and is a no-op on the manage page (that product is not in `ownerProductsStore`).
+
+The Add tab shows the same block **disabled** with `personalize.admin_add_product_hint`: the config lives
+on the product row, so it needs a product id first.
+
+If the `personalization` column has not been created yet, `/api/products/update` answers **503** with a
+message naming the 🖼️ PRODUCT PERSONALIZATION block in
+[dev_readme-supbase-sql.md](../../../../../dev_readme-supbase-sql.md); the form shows that message in an
+error toast. `/api/personalized-designs` does the same for a missing `23_personalized_designs` table.
+
+<br/>
+
 ## 4. TODO / decided against
 
 - **AGAINST: auto-decrement variant stock on purchase.** Chosen manual-only to keep the checkout path
@@ -190,5 +247,9 @@ reaches its root div. Tabs are flat underline-style with a unified brand accent 
   [PayWithClarnaButton.tsx](../CartModal/PaymentButtons/components/PayWithClarnaButton.tsx) on purpose.
 - **AGAINST: hiding sold-out variants.** Soft sold-out — the variant stays visible (dimmed + labelled)
   so the customer can see it exists and use "request replenishment".
+- **AGAINST: a placeholder image for an imageless variant.** A grey box pretending to be a photo is worse
+  than a clean text chip.
+- **AGAINST: a DB migration for the optional variant image.** `variants` is JSONB, so an absent
+  `image_url` key is already valid storage — existing rows keep working untouched.
 - TODO (if ever needed): show remaining stock count next to each in-stock variant in the selector
   (today only the price is shown for in-stock variants).

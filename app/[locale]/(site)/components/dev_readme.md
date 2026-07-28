@@ -24,9 +24,39 @@ Because its 3 different components
 
 Leave it as is without separated components for Product.tsx (exept edit product)
 
+## A variant needs a label and a price — the image is optional
+
+`image_url` is `string | null | undefined` on `TProductVariant`. Colour variants have their own photo
+and render as swatches; **size** variants (S/M/L, 30x40 vs 50x70) look identical in a photo, so the
+owner attaches none and they render as text chips of the same height:
+
+```
+┌──────────┐ ┌──────────┐ ┌───────┐ ┌───────┐
+│ [photo]  │ │ [photo]  │ │  50x70│ │ 30x40 │
+│ Blue     │ │ Black    │ │  9.90 │ │  6.90 │
+└──────────┘ └──────────┘ └───────┘ └───────┘
+   with image                 without image
+```
+
+Both selectors filter on the label alone (`variants.filter(variant => variant.label)` in
+[Product.tsx](Product/Product.tsx) and [ProductDetailView.tsx](../products/[productId]/ProductDetailView.tsx))
+and render the thumbnail only when there is one.
+
+Wherever an image is unavoidable — cart line, Stripe/PayPal line item, order email — one helper answers:
+
+```ts
+getVariantImageUrl(product, variant) // variant image → product's first photo → /no-image-fallback.png
+```
+
+in [cartProducts.ts](../../../utils/cartProducts.ts). It runs at render time and is never written into
+the stored row, so replacing the product's photos fixes every imageless variant at once.
+Story: `Commerce/Product → VariantWithoutImage`.
+
+<br/>
+
 ## Per-variant stock (sold out) in Product.tsx
 
-Each variant has its own `quantity` (`{ id, label, image_url, price, quantity }`). `quantity === 0`
+Each variant has its own `quantity` (`{ id, label, image_url?, price, quantity }`). `quantity === 0`
 means THAT variant is sold out — not the whole product.
 
 What Product.tsx does with it:
