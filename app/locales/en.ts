@@ -604,4 +604,6 @@ export default {
   "personalize.admin_incomplete_subtitle": "Pick a mockup image and enter the print width and height in mm.",
   "personalize.admin_add_product_hint": "Mark the print area now - it is stored together with the product. You can change it later in Edit product.",
   "personalize.admin_draft_hint": "The print area is stored when you press Create product.",
+  "personalize.admin_dimensions_required_title": "Correct print dimensions are required",
+  "personalize.admin_dimensions_required": "In order to avoid refunds and bad reviews from clients you have to provide correct dimensions, so buyers can customize your product with the correct aspect ratio in relation to the physical product dimensions.",
 } as const

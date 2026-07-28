@@ -79,6 +79,37 @@ export const BeforeProductExists: Story = {
     await waitFor(() => expect(canvas.getByText("Print width (mm)")).toBeVisible())
     await expect(canvas.getByText("The print area is stored when you press Create product.")).toBeVisible()
     await expect(canvas.queryByRole("button", { name: /Update personalization/ })).not.toBeInTheDocument()
+    // Ticked but no mm typed yet - the reason the product stays uncreatable is on screen
+    await expect(canvas.getByText(/avoid refunds and bad reviews/)).toBeVisible()
+  },
+}
+
+// A rectangle whose shape drifts from the print size blocks the update button: the buyer's preview would
+// promise an aspect ratio the physical product does not have.
+export const DimensionsBlockTheUpdate: Story = {
+  render: () => (
+    <PersonalizationForm
+      imageUrls={configuredProduct.img_url}
+      productId={configuredProduct.id}
+      personalization={configuredProduct.personalization}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const printWidthInput = await waitFor(() => canvas.getByLabelText("Print width (mm)"))
+
+    // No print width is the plainest way to be unusable, whatever the fixture's rectangle looks like
+    await userEvent.clear(printWidthInput)
+    await waitFor(() => expect(canvas.getByRole("button", { name: "Update personalization" })).toBeDisabled())
+    await expect(canvas.getByText(/avoid refunds and bad reviews/)).toBeVisible()
+
+    // Both mm back, then the one click that makes the rectangle the shape of the print size
+    await userEvent.type(printWidthInput, "900")
+    const fixShapeButton = canvas.queryByRole("button", { name: "Fix the shape" })
+    if (fixShapeButton) await userEvent.click(fixShapeButton)
+
+    await waitFor(() => expect(canvas.getByRole("button", { name: "Update personalization" })).toBeEnabled())
+    await expect(canvas.queryByText(/avoid refunds and bad reviews/)).not.toBeInTheDocument()
   },
 }
 

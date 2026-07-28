@@ -9,7 +9,7 @@ import { ImageListType } from "react-images-uploading"
 import ImageUploading from "react-images-uploading"
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa"
 
-import { TPersonalizationDraft } from "@/ts/product/TPersonalization"
+import { TPersonalizationDraftState } from "@/ts/product/TPersonalization"
 import { TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductDB } from "@/ts/product/TProductDB"
@@ -72,7 +72,7 @@ type PendingFormSnapshot = {
   values: IFormDataAddProduct
   images: ImageListType
   variants: TProductVariantDraft[]
-  personalization: TPersonalizationDraft | null
+  personalization: TPersonalizationDraftState
   activeImageIndex: number
   variantLabel: string
   variantPrice: string
@@ -100,7 +100,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   // Colour variants take the image on screen; size variants (S/M/L) look the same in a photo and take none
   const [isVariantImageAttached, setIsVariantImageAttached] = useState(true)
   const [variants, setVariants] = useState<TProductVariantDraft[]>([])
-  const [personalizationDraft, setPersonalizationDraft] = useState<TPersonalizationDraft | null>(null)
+  const [personalizationState, setPersonalizationState] = useState<TPersonalizationDraftState>({
+    isEnabled: false,
+    draft: null,
+  })
   // Bumped to re-mount the print-area editor when the form is cleared or restored
   const [personalizationFormKey, setPersonalizationFormKey] = useState(0)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
@@ -190,9 +193,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   // re-reporting its draft. The same helper turns a restored draft back into a config for the editor.
   const imageDataUrls = useMemo(() => images.map(image => image.data_url || "").filter(Boolean), [images])
   const restoredPersonalization = useMemo(
-    () => resolveUploadedPersonalization(personalizationDraft, imageDataUrls),
-    [personalizationDraft, imageDataUrls],
+    () => resolveUploadedPersonalization(personalizationState.draft, imageDataUrls),
+    [personalizationState.draft, imageDataUrls],
   )
+  // Personalization was asked for but the print area is not usable yet - the product stays uncreatable
+  // until it is, so buyers never get a preview whose shape disagrees with the physical product.
+  const isPersonalizationIncomplete = personalizationState.isEnabled && !personalizationState.draft
 
   // Shared className applied to every ProductInput — guarantees identical backgrounds
   const inputCn =
@@ -310,7 +316,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     reset(EMPTY_PRODUCT_FORM_VALUES)
     setImages([])
     setVariants([])
-    setPersonalizationDraft(null)
+    setPersonalizationState({ isEnabled: false, draft: null })
     setPersonalizationFormKey(currentKey => currentKey + 1)
     setActiveImageIndex(0)
     previousImageIndexRef.current = 0
@@ -330,7 +336,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setImages(snapshot.images)
     setVariants(snapshot.variants)
     // The editor reads its starting values once, so a new key re-mounts it on the restored config
-    setPersonalizationDraft(snapshot.personalization)
+    setPersonalizationState(snapshot.personalization)
     setPersonalizationFormKey(currentKey => currentKey + 1)
     setActiveImageIndex(snapshot.activeImageIndex)
     previousImageIndexRef.current = snapshot.activeImageIndex
@@ -368,7 +374,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     formattedOnStock: number
     submitImages: ImageListType
     resolvedVariants: TProductVariantDraft[]
-    submittedPersonalization: TPersonalizationDraft | null
+    submittedPersonalization: TPersonalizationDraftState["draft"]
     snapshot: PendingFormSnapshot
     submittedCategoryId: string | null
   }) => {
@@ -407,6 +413,17 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
       if (!images.length) {
         showToast("warning", "Image required", "Please upload at least 1 product image")
+        return
+      }
+
+      // The button is already blocked in this state - this repeats the rule in code, so a submit that
+      // reaches here another way (Enter in a field, a stale render) is refused the same way.
+      if (isPersonalizationIncomplete) {
+        showToast(
+          "warning",
+          tGlobal("personalize.admin_dimensions_required_title"),
+          tGlobal("personalize.admin_dimensions_required"),
+        )
         return
       }
 
@@ -466,7 +483,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         values: data,
         images: [...images],
         variants: [...variants],
-        personalization: personalizationDraft,
+        personalization: personalizationState,
         activeImageIndex,
         variantLabel: variantLabelValue,
         variantPrice: variantPriceValue,
@@ -486,7 +503,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         formattedOnStock,
         submitImages,
         resolvedVariants,
-        submittedPersonalization: personalizationDraft,
+        submittedPersonalization: personalizationState.draft,
         snapshot,
         submittedCategoryId: categoryId,
       })
@@ -1049,7 +1066,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             key={personalizationFormKey}
             imageUrls={imageDataUrls}
             personalization={restoredPersonalization}
-            onDraftChange={setPersonalizationDraft}
+            onDraftChange={setPersonalizationState}
           />
         </div>
 
@@ -1070,12 +1087,19 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           className={twMerge(
             "ml-0.5 mt-auto min-h-[40px] w-[calc(100%-0.25rem)] rounded border border-success-accent/30 bg-success-accent/10 px-4 py-2 text-[14px] font-semibold text-success-accent transition-colors duration-150",
             "hover:bg-success-accent/15",
-            (isLoading || !images.length || variants.length === 0) && "cursor-not-allowed opacity-50",
+            (isLoading || !images.length || variants.length === 0 || isPersonalizationIncomplete) &&
+              "cursor-not-allowed opacity-50",
           )}
           type="submit"
-          disabled={isLoading || !images.length || variants.length === 0}>
+          data-cy="create-product"
+          disabled={isLoading || !images.length || variants.length === 0 || isPersonalizationIncomplete}>
           {t("create_product")}
         </button>
+        {isPersonalizationIncomplete && (
+          <p className="text-[11px] text-warning" role="status">
+            {tGlobal("personalize.admin_dimensions_required")}
+          </p>
+        )}
       </form>
     </div>
   )

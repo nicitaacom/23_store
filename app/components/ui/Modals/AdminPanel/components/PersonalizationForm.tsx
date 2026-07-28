@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
-import { TMockupRect, TPersonalizationConfig, TPersonalizationDraft, TProductPersonalization } from "@/ts/product/TPersonalization"
+import { TMockupRect, TPersonalizationConfig, TPersonalizationDraftState, TProductPersonalization } from "@/ts/product/TPersonalization"
 import { formatPrintSize, getAspectCorrectHeightPct, getAspectDrift, MAX_ASPECT_DRIFT } from "@/utils/printMetrics"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -19,7 +19,7 @@ interface PersonalizationFormProps {
   productId?: string
   personalization?: TProductPersonalization | null
   className?: string
-  onDraftChange?: (draft: TPersonalizationDraft | null) => void
+  onDraftChange?: (draftState: TPersonalizationDraftState) => void
 }
 
 const EMPTY_RECT: TMockupRect = { leftPct: 10, topPct: 10, widthPct: 80, heightPct: 40 }
@@ -52,6 +52,10 @@ export function PersonalizationForm({ imageUrls, productId, personalization, cla
   const aspectDrift = isPrintAreaSet ? getAspectDrift(mockupRect, printArea, mockupSize.widthPx, mockupSize.heightPx) : 0
   const isRectHonest = aspectDrift <= MAX_ASPECT_DRIFT
 
+  // A print area is usable only with a mockup, both mm, and a rectangle shaped like the print size.
+  // Anything less would show the buyer a crop that never reaches the printer, so it blocks the button.
+  const isPrintAreaReady = !isEnabled || (Boolean(mockupUrl) && isPrintAreaSet && isRectHonest)
+
   // Held in a ref so the effect below never lists a function prop in its deps
   const onDraftChangeRef = useRef(onDraftChange)
   useEffect(() => {
@@ -61,12 +65,13 @@ export function PersonalizationForm({ imageUrls, productId, personalization, cla
   useEffect(() => {
     if (!onDraftChangeRef.current) return
     const mockupImageIndex = imageUrls.indexOf(mockupUrl)
-    onDraftChangeRef.current(
-      isEnabled && mockupImageIndex >= 0 ? { isEnabled: true, mockupImageIndex, printArea, mockupRect } : null,
-    )
+    onDraftChangeRef.current({
+      isEnabled,
+      draft: isEnabled && isPrintAreaReady && mockupImageIndex >= 0 ? { isEnabled: true, mockupImageIndex, printArea, mockupRect } : null,
+    })
     // printArea is rebuilt every render, so the two typed values stand in for it
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageUrls, mockupUrl, isEnabled, widthMmValue, heightMmValue, mockupRect])
+  }, [imageUrls, mockupUrl, isEnabled, isPrintAreaReady, widthMmValue, heightMmValue, mockupRect])
 
   function getPointerPct(event: React.PointerEvent<HTMLDivElement>) {
     const box = event.currentTarget.getBoundingClientRect()
@@ -247,6 +252,13 @@ export function PersonalizationForm({ imageUrls, productId, personalization, cla
               </div>
             )}
 
+            {/* The one place that says why a half-marked print area blocks the button */}
+            {!isPrintAreaReady && (
+              <p className="rounded border border-warning/40 bg-warning/10 p-2 text-xs text-warning" role="status">
+                {t("admin_dimensions_required")}
+              </p>
+            )}
+
             {productId ? (
               <Button
                 className="mt-1"
@@ -255,7 +267,7 @@ export function PersonalizationForm({ imageUrls, productId, personalization, cla
                 size="lg"
                 rounded="lg"
                 data-cy="personalization-save"
-                disabled={isUpdatingConfig}
+                disabled={isUpdatingConfig || !isPrintAreaReady}
                 onClick={updatePersonalization}>
                 {isUpdatingConfig ? t("admin_updating") : t("admin_update")}
               </Button>

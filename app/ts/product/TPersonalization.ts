@@ -41,6 +41,16 @@ export type TPersonalizationDraft = {
   mockupRect: TMockupRect
 }
 
+/**
+ * What the print-area editor reports while the product is still being created. `draft` is null until the
+ * print area is usable - no mockup, no mm, or a rectangle whose shape drifts from the print size - so
+ * `isEnabled && !draft` is the one test for "the owner asked for personalization but it is not right yet".
+ */
+export type TPersonalizationDraftState = {
+  isEnabled: boolean
+  draft: TPersonalizationDraft | null
+}
+
 export type TDesignPlacement = {
   scale: number // 1 = the image covers the print area, > 1 = zoomed in
   offsetXPct: number

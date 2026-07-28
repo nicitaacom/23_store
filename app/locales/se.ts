@@ -602,4 +602,6 @@ export default {
   "personalize.admin_incomplete_subtitle": "Välj en mockupbild och ange tryckets bredd och höjd i mm.",
   "personalize.admin_add_product_hint": "Markera tryckytan nu - den sparas tillsammans med produkten. Du kan ändra den senare i Redigera produkt.",
   "personalize.admin_draft_hint": "Tryckytan sparas när du trycker på Skapa produkt.",
+  "personalize.admin_dimensions_required_title": "Rätt tryckmått krävs",
+  "personalize.admin_dimensions_required": "För att undvika återbetalningar och dåliga omdömen från kunder måste du ange rätt mått, så att köpare kan anpassa din produkt med rätt bildförhållande i relation till produktens fysiska mått.",
 } as const

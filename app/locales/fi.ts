@@ -604,4 +604,6 @@ export default {
   "personalize.admin_incomplete_subtitle": "Valitse mallikuva ja anna painoleveys ja -korkeus millimetreinä.",
   "personalize.admin_add_product_hint": "Merkitse tulostusalue nyt - se tallentuu tuotteen mukana. Voit muuttaa sitä myöhemmin kohdassa Muokkaa tuotetta.",
   "personalize.admin_draft_hint": "Tulostusalue tallentuu, kun painat Luo tuote.",
+  "personalize.admin_dimensions_required_title": "Oikeat tulostusmitat vaaditaan",
+  "personalize.admin_dimensions_required": "Palautusten ja huonojen asiakasarvioiden välttämiseksi anna oikeat mitat, jotta ostajat voivat muokata tuotettasi oikeassa kuvasuhteessa tuotteen fyysisiin mittoihin nähden.",
 } as const

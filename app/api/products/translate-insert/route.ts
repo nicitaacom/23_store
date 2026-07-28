@@ -69,6 +69,16 @@ function getInvalidPayloadFields(payload: TProductInsertPayload) {
     invalidFields.push("variants")
   }
 
+  // A print area without a mockup or without both mm in it would show the buyer a preview whose shape
+  // disagrees with the physical product - refused here too, not only by the disabled button.
+  if (payload.personalization?.isEnabled) {
+    const { mockupUrl, printArea } = payload.personalization.defaultConfig ?? {}
+    const hasPrintSize = Number(printArea?.widthMm) > 0 && Number(printArea?.heightMm) > 0
+    if (!mockupUrl?.trim() || !hasPrintSize) {
+      invalidFields.push("personalization")
+    }
+  }
+
   return invalidFields
 }
 /**
