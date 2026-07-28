@@ -179,7 +179,9 @@ export function ProductInput({
           )}
           {...textareaRest}
           id={id}
-          autoComplete={id}
+          // "title"/"subTitle"/"price" are not autocomplete tokens, and axe rejects them. These fields
+          // hold one product's own data, so browser autofill has nothing correct to offer here.
+          autoComplete="off"
           placeholder={placeholder}
           disabled={disabled}
           maxLength={MAX_PRODUCT_DESCRIPTION_LENGTH}
@@ -206,7 +208,9 @@ export function ProductInput({
           onBlur={e => { rest.onBlur?.(e); onBlurProp?.(e) }}
           id={id}
           type={type}
-          autoComplete={id}
+          // "title"/"subTitle"/"price" are not autocomplete tokens, and axe rejects them. These fields
+          // hold one product's own data, so browser autofill has nothing correct to offer here.
+          autoComplete="off"
           placeholder={placeholder}
           disabled={disabled}
           maxLength={id === "title" ? MAX_PRODUCT_TITLE_LENGTH : props.maxLength}
