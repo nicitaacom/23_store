@@ -57,6 +57,10 @@ const previewImageVariants = {
 
 const BEFORE_UNLOAD_MESSAGE = "Translation in progress, are you sure you want to leave?"
 
+// A one- or two-character label is still mid-typing; from the third character the owner has committed
+// to a real variant, so that is when the previous variant's price is offered.
+const VARIANT_LABEL_LENGTH_FOR_PRICE_AUTOFILL = 3
+
 interface AddProductFormProps {
   onCreated?: () => void
 }
@@ -105,6 +109,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const lastSuggestedKeyRef = useRef<string | null>(null)
   const manualCategoryPickRef = useRef(false)
   const lastSuggestedTitleRef = useRef<string | null>(null)
+  // One offer per variant row - once the owner has seen the suggested price, clearing it is their choice
+  const hasOfferedPreviousVariantPriceRef = useRef(false)
 
   const { categories: allCategories, hydrate: hydrateCategories } = useCategories()
   const previousImageIndexRef = useRef(0)
@@ -297,6 +303,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariantLabelValue("")
     setVariantPriceValue("")
     setVariantQuantityValue("")
+    hasOfferedPreviousVariantPriceRef.current = false
     setCategoryId(null)
     setAutoAssignedName(null)
   }
@@ -310,6 +317,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariantLabelValue(snapshot.variantLabel)
     setVariantPriceValue(snapshot.variantPrice)
     setVariantQuantityValue(snapshot.variantQuantity)
+    hasOfferedPreviousVariantPriceRef.current = Boolean(snapshot.variantPrice)
   }
 
   const removePendingCreatedProduct = (optimisticProductId: string) => {
@@ -486,6 +494,19 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setActiveImageIndex(0)
   }
 
+  // The next variant of the same product nearly always costs what the last one costs, so the previous
+  // variant's price is filled in as soon as the label is a real one and the price box is still empty.
+  const changeVariantLabel = (nextLabel: string) => {
+    setVariantLabelValue(nextLabel)
+
+    const previousVariantPrice = variants[variants.length - 1]?.price
+    if (hasOfferedPreviousVariantPriceRef.current || !previousVariantPrice || variantPriceValue) return
+    if (nextLabel.trim().length < VARIANT_LABEL_LENGTH_FOR_PRICE_AUTOFILL) return
+
+    hasOfferedPreviousVariantPriceRef.current = true
+    setVariantPriceValue(formatGroupedNumberInput(String(previousVariantPrice)))
+  }
+
   const addVariant = () => {
     const normalizedLabel = variantLabelValue.trim()
     const normalizedPrice = parseFormattedNumber(variantPriceValue)
@@ -523,6 +544,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariantLabelValue("")
     setVariantPriceValue("")
     setVariantQuantityValue("")
+    // The row is empty again, so the next label earns its own price offer
+    hasOfferedPreviousVariantPriceRef.current = false
   }
 
   const removeVariant = (variantId: string) => {
@@ -888,7 +911,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               <input
                 className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
                 value={variantLabelValue}
-                onChange={event => setVariantLabelValue(event.target.value)}
+                onChange={event => changeVariantLabel(event.target.value)}
                 placeholder={t("variant_label")}
                 disabled={isLoading}
               />
