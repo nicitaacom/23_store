@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { getRunPersonalizationSqlMessage, isMissingSchemaError } from "@/utils/personalizationSchema"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+
+const MISSING_DESIGNS_TABLE = 'The "23_personalized_designs" table'
 
 /**
  * POST - record what a buyer personalized, so the owner has the file, the print size and the DPI when
@@ -45,6 +48,15 @@ export async function POST(req: NextRequest) {
     .select("id")
     .single()
 
+  // The designs table arrives with the hand-run SQL block, so a database without it answers with a
+  // Postgres message the buyer and the owner both have no way to act on - name the block instead.
+  if (isMissingSchemaError(error)) {
+    return NextResponse.json(
+      { error: getRunPersonalizationSqlMessage(MISSING_DESIGNS_TABLE) } satisfies API.PersonalizedDesignsCreateResponse,
+      { status: 503 },
+    )
+  }
+
   if (error) {
     return NextResponse.json({ error: error.message } satisfies API.PersonalizedDesignsCreateResponse, { status: 500 })
   }
@@ -67,6 +79,13 @@ export async function PATCH(req: NextRequest) {
     .update({ status: "ordered" })
     .in("id", designIds)
     .select("id")
+
+  if (isMissingSchemaError(error)) {
+    return NextResponse.json(
+      { error: getRunPersonalizationSqlMessage(MISSING_DESIGNS_TABLE) } satisfies API.PersonalizedDesignsMarkOrderedResponse,
+      { status: 503 },
+    )
+  }
 
   if (error) {
     return NextResponse.json({ error: error.message } satisfies API.PersonalizedDesignsMarkOrderedResponse, { status: 500 })

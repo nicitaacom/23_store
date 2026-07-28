@@ -58,12 +58,16 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
       case 7:
         // Record what was bought (client-side) so the user can rate these products afterwards
         addPurchasedProducts([...new Set(Object.values(cartStore.products).map(product => product.id))])
-        // A paid design stops being a draft - this is what turns it into a print job for the owner
-        void personalizedDesignsSDK.updateDBDesignsToOrdered({
-          design_ids: Object.values(cartStore.products)
-            .map(product => product.designId)
-            .filter((designId): designId is string => Boolean(designId)),
-        })
+        // A paid design stops being a draft - this is what turns it into a print job for the owner.
+        // The payment is already through, so a failure here is reported and the steps continue -
+        // among them the 503 the route answers with when 23_personalized_designs does not exist yet.
+        void personalizedDesignsSDK
+          .updateDBDesignsToOrdered({
+            design_ids: Object.values(cartStore.products)
+              .map(product => product.designId)
+              .filter((designId): designId is string => Boolean(designId)),
+          })
+          .catch(error => console.error("[usePaymentSteps] design status update failed", error))
         substractOnStockFromQuantityFn(cartStore.products, cartStore.clearCart, router, t)
         break
       default:

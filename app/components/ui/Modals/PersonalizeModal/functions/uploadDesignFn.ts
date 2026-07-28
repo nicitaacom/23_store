@@ -47,20 +47,27 @@ export async function uploadDesignFn({
 
   if (typeof uploadImageResp === "string") return uploadImageResp
 
-  const insertDBDesignResp = await personalizedDesignsSDK.insertDBDesign({
-    user_id: userId,
-    product_id: productId,
-    variant_id: variantId,
-    source_url: uploadImageResp.publicUrl,
-    source_width_px: sourceWidthPx,
-    source_height_px: sourceHeightPx,
-    print_width_mm: printArea.widthMm,
-    print_height_mm: printArea.heightMm,
-    placement,
-    effective_dpi: effectiveDpi,
-  })
+  // The SDK throws on any non-ok status - among them the 503 the route answers with when the
+  // 23_personalized_designs table has not been created yet. Returning that message keeps the string
+  // contract above, so the modal shows it in a toast instead of staying stuck on "Adding...".
+  try {
+    const insertDBDesignResp = await personalizedDesignsSDK.insertDBDesign({
+      user_id: userId,
+      product_id: productId,
+      variant_id: variantId,
+      source_url: uploadImageResp.publicUrl,
+      source_width_px: sourceWidthPx,
+      source_height_px: sourceHeightPx,
+      print_width_mm: printArea.widthMm,
+      print_height_mm: printArea.heightMm,
+      placement,
+      effective_dpi: effectiveDpi,
+    })
 
-  if ("error" in insertDBDesignResp) return insertDBDesignResp.error
+    if ("error" in insertDBDesignResp) return insertDBDesignResp.error
 
-  return { designId: insertDBDesignResp.design_id }
+    return { designId: insertDBDesignResp.design_id }
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error)
+  }
 }

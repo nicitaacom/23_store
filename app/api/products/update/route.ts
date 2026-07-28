@@ -4,6 +4,7 @@ import Stripe from "stripe"
 import { TProductPersonalization } from "@/ts/product/TPersonalization"
 import { TProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
+import { getRunPersonalizationSqlMessage, isMissingSchemaError } from "@/utils/personalizationSchema"
 import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 import { normalizeProductImageUrls } from "@/utils/product"
 import { stripe } from "@/libs/stripe"
@@ -234,6 +235,15 @@ export async function POST(req: Request) {
         .from("23_products")
         .update({ personalization: body.personalization ?? null })
         .eq("id", productId)
+
+      // The personalization column arrives with the hand-run SQL block, so a database without it
+      // answers with a Postgres message the owner has no way to act on - name the block instead.
+      if (isMissingSchemaError(updatePersonalizationError)) {
+        return NextResponse.json(
+          { error: getRunPersonalizationSqlMessage('The "personalization" column of 23_products') },
+          { status: 503 },
+        )
+      }
 
       if (updatePersonalizationError)
         throw new Error(
