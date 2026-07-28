@@ -14,14 +14,22 @@ type TProductVariantCandidate = Omit<TProductVariant, "price" | "quantity"> & {
   quantity?: number
 }
 
+// "" and undefined both mean "this variant has no image of its own" — one shape for that state so
+// every reader tests the same thing.
+function resolveVariantImageUrl(rawImageUrl: string | null | undefined) {
+  return typeof rawImageUrl === "string" && rawImageUrl.trim() ? rawImageUrl : null
+}
+
 function isProductVariant(value: unknown): value is TProductVariantCandidate {
   if (!value || typeof value !== "object") return false
 
   const candidate = value as Record<string, unknown>
+  // image_url is optional: a label and a price make a variant real. An absent, null or empty image
+  // means "no swatch", not "not a variant".
   return (
     typeof candidate.id === "string" &&
     typeof candidate.label === "string" &&
-    typeof candidate.image_url === "string" &&
+    (candidate.image_url === undefined || candidate.image_url === null || typeof candidate.image_url === "string") &&
     (candidate.price === undefined ||
       (typeof candidate.price === "number" && Number.isFinite(candidate.price) && candidate.price > 0))
   )
@@ -41,6 +49,7 @@ export function normalizeProductVariants(value: unknown, fallbackPrice = 0, fall
     .filter(isProductVariant)
     .map(variant => ({
       ...variant,
+      image_url: resolveVariantImageUrl(variant.image_url),
       price:
         typeof variant.price === "number" && Number.isFinite(variant.price) && variant.price > 0 ? variant.price : fallbackPrice,
       quantity: resolveVariantQuantity(variant.quantity, fallbackQuantity),

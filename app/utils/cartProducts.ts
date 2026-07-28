@@ -17,6 +17,14 @@ export function getProductPriceForVariant(product: Pick<TProductDB, "price" | "v
   return getProductVariantById(product, variantId)?.price ?? product.price
 }
 
+// The whole fallback chain for "an image is unavoidable here" (cart line, Stripe line item, order
+// email) in one place: the variant's own image, else the product's first photo, else the placeholder.
+// Never written into the stored row - replacing the product's photos then fixes every imageless
+// variant at once.
+export function getVariantImageUrl(product: Pick<TProductDB, "img_url">, variant?: TProductVariant | null) {
+  return variant?.image_url || product.img_url[0] || "/no-image-fallback.png"
+}
+
 // Available stock for the chosen line: a variant uses its own quantity (0 = sold out),
 // a variantless product falls back to product-level on_stock. Single source of truth so
 // the customer UI and the cart guard agree on what "sold out" means.
