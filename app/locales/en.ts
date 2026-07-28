@@ -617,4 +617,5 @@ export default {
   "personalize.admin_ai_generated_title": "Image generated",
   "personalize.admin_ai_generated_subtitle": "It was added to the product images and picked as the mockup. Mark the print area on it.",
   "personalize.admin_ai_failed_title": "AI check failed",
+  "personalize.admin_ai_generate_failed_title": "Image generation failed",
 } as const

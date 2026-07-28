@@ -188,7 +188,7 @@ export function PersonalizationForm({
       if (addedMockupUrl) setPickedMockupUrl(addedMockupUrl)
       toast.show("success", t("admin_ai_generated_title"), t("admin_ai_generated_subtitle"))
     } catch (error) {
-      toast.show("error", t("admin_ai_failed_title"), error instanceof Error ? error.message : String(error))
+      toast.show("error", t("admin_ai_generate_failed_title"), error instanceof Error ? error.message : String(error))
     } finally {
       setIsGeneratingMockup(false)
     }

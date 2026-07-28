@@ -615,4 +615,5 @@ export default {
   "personalize.admin_ai_generated_title": "Bild genererad",
   "personalize.admin_ai_generated_subtitle": "Den lades till produktens bilder och valdes som mockup. Markera tryckytan på den.",
   "personalize.admin_ai_failed_title": "AI-kontrollen misslyckades",
+  "personalize.admin_ai_generate_failed_title": "Bildgenereringen misslyckades",
 } as const
