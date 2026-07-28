@@ -91,6 +91,38 @@ POST /api/products/translate-insert  →  23_products.personalization
 The same helper runs backwards in the form: a restored draft is turned back into a config so the editor
 re-mounts on what the owner had marked out when a create fails.
 
+### A half-marked print area blocks the product
+
+Ticking "Buyers can personalize this product" is a promise to the buyer, so the print area has to be
+usable before the product may exist. Three things make it usable, and all three are one flag:
+
+```ts
+isPrintAreaReady = !isEnabled || (mockupUrl && widthMm > 0 && heightMm > 0 && aspectDrift <= 2%)
+```
+
+What that flag blocks, at three layers:
+
+```
+1. UI         Create product / Update personalization are disabled
+              the reason is printed next to them: personalize.admin_dimensions_required
+2. TypeScript AddProductForm.onSubmit refuses early, so a submit that reaches it another way
+              (Enter in a field, a stale render) shows the same reason in a toast
+3. Server     /api/products/translate-insert lists "personalization" in invalidFields → 400
+```
+
+The reason the owner reads, verbatim: *"In order to avoid refunds and bad reviews from clients you have
+to provide correct dimensions, so buyers can customize your product with the correct aspect ratio in
+relation to the physical product dimensions."*
+
+```
+ticked, no mm typed          → blocked, reason shown
+ticked, mm typed, shape 15% off → blocked, "Fix the shape" is one click away
+ticked, mm typed, shape matches → Create product is live
+not ticked                   → Create product is live, nothing to check
+```
+
+Stories: `Admin/Personalization → BeforeProductExists` and `→ DimensionsBlockTheUpdate`.
+
 ### Each variant wants its own photo
 
 `product.variant_image_matches_hint` sits under every variant image picker (Add product, the Edit tab's

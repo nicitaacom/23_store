@@ -241,6 +241,14 @@ flow in [dev_readme-personalize.md](../PersonalizeModal/dev_readme-personalize.m
 Every variant image picker shows `product.variant_image_matches_hint` — the print area is measured
 against the picked photo, so a variant showing another variant's photo makes the buyer's preview lie.
 
+**A half-marked print area blocks the product.** `isPrintAreaReady` in
+[components/PersonalizationForm.tsx](components/PersonalizationForm.tsx) is one flag over three
+conditions — a mockup, both mm, and a rectangle shaped like the print size — and it blocks at three
+layers: the disabled **Create product** / **Update personalization** buttons, an early return in
+`AddProductForm.onSubmit`, and `getInvalidPayloadFields` in `/api/products/translate-insert`. The owner
+reads `personalize.admin_dimensions_required` next to the blocked button. Details in
+[dev_readme-personalize.md](../PersonalizeModal/dev_readme-personalize.md).
+
 If the `personalization` column has not been created yet, `/api/products/update` and
 `/api/products/translate-insert` both answer **503** with a message naming the 🖼️ PRODUCT PERSONALIZATION
 block in [dev_readme-supbase-sql.md](../../../../../dev_readme-supbase-sql.md); the form shows that
