@@ -12,7 +12,7 @@ import { ProductLikeButton } from "../ProductLikeButton"
 import { ProductQuantity } from "../ProductQuantity"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
-import { getAvailableStock, getProductPriceForVariant } from "@/utils/cartProducts"
+import { getAvailableStock, getProductPriceForVariant, getVariantImageUrl } from "@/utils/cartProducts"
 import { getProductGalleryImages } from "@/utils/product"
 import { resolvePersonalizationConfig } from "@/utils/printMetrics"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
@@ -116,7 +116,7 @@ function Product({ ...product }: Props) {
           {/* Locked variant chip (in cart context) */}
           {variants.length > 0 && isVariantSelectionLocked && (
             <span className="inline-flex items-center gap-1.5 rounded border border-border-color/20 bg-background/55 px-2 py-0.5 text-[11px] text-subTitle">
-              <VariantImage src={selectedVariant?.image_url || "/no-image-fallback.png"} alt={selectedVariant?.label || ""} />
+              <VariantImage src={getVariantImageUrl(product, selectedVariant)} alt={selectedVariant?.label || ""} />
               {selectedVariant?.label}
             </span>
           )}

@@ -5,6 +5,7 @@ import { FaStripeS } from "react-icons/fa"
 import { twMerge } from "tailwind-merge"
 
 import { buildStripeLineName } from "../functions/buildStripeLineName"
+import { getVariantImageUrl } from "@/utils/cartProducts"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
@@ -25,7 +26,7 @@ export function PayWithStripeButton() {
   const stripeProductsQuery = encodeURIComponent(
     JSON.stringify(
       cartStore.productsData.map(product => ({
-        imageUrl: product.selectedVariant?.image_url || product.img_url[0] || null,
+        imageUrl: getVariantImageUrl(product, product.selectedVariant),
         name: buildStripeLineName(product),
         quantity: product.quantity,
         unitAmount: Math.max(1, Math.round(product.price * 100)),

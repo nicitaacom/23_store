@@ -16,6 +16,7 @@ import { twMerge } from "tailwind-merge"
 import { TProductAfterDB } from "../ts/product/TProductAfterDB"
 import { formatCurrency } from "../utils/currencyFormatter"
 import { getURL } from "@/utils/helpers"
+import { getVariantImageUrl } from "@/utils/cartProducts"
 import { toProductLocale } from "@/utils/product"
 
 interface CheckEmailProps {
@@ -115,7 +116,7 @@ export function CheckEmail({
                           <td style={{ width: "120px", verticalAlign: "top", paddingRight: "20px" }}>
                             <Img
                               style={{ objectFit: "cover", borderRadius: "8px", display: "block" }}
-                              src={product.selectedVariant?.image_url || product.img_url[0]}
+                              src={getVariantImageUrl(product, product.selectedVariant)}
                               width="120"
                               height="120"
                               alt={product.selectedVariant?.label || translation.title}
