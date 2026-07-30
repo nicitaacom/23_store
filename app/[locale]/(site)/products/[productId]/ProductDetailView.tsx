@@ -2,11 +2,13 @@
 
 import { useMemo } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { BsShieldCheck, BsStars } from "react-icons/bs"
 import { FiCheckCircle, FiTruck } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
+import type { TCategory } from "@/ts/categories/TCategory"
 import { useProductDetailViewSync } from "./hooks/useProductDetailViewSync"
 import { ManageProductButton } from "../../components/ManageProductButton"
 import { ProductLikeButton } from "../../components/ProductLikeButton"
@@ -25,13 +27,15 @@ import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityBu
 import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
 
 interface ProductDetailViewProps {
+  category: TCategory | null
   product: TProductDB
   isAuthenticated: boolean
 }
 
 // http://localhost:6006/?path=/story/commerce-catalog--search-form
-export function ProductDetailView({ product, isAuthenticated }: ProductDetailViewProps) {
+export function ProductDetailView({ category, product, isAuthenticated }: ProductDetailViewProps) {
   const t = useScopedI18n("product")
+  const tCategory = useScopedI18n("category")
   const locale = useCurrentLocale()
   const { products } = useCartStore()
   const { selectedVariantId, activeImage: storedImage } = useProductDetail()
@@ -63,6 +67,7 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
   const personalizationConfig = resolvePersonalizationConfig(product, selectedVariant?.id)
   const quantity = products?.[createCartProductKey(product.id, selectedVariant?.id)]?.quantity ?? 0
   const subtotal = formatCurrency(quantity * selectedPrice)
+  const categoryHref = category ? `/${locale}?category=${category.id}&page=1` : `/${locale}`
   const availabilityLabel = isOutOfStock
     ? t("out_of_stock_label")
     : t("units_available", { count: formatNumber(product.on_stock ?? 0) })
@@ -215,7 +220,16 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
 
           {/* Title + buy control */}
           <div className="flex items-start justify-between gap-3">
-            <h1 className="text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl">{translation.title}</h1>
+            <div className="min-w-0">
+              <Link
+                className="mb-1 inline-flex max-w-full truncate rounded-[2px] border border-success/25 bg-success/10 px-2 py-1 text-xs font-semibold tracking-wide text-success transition-colors duration-150 hover:border-success/45 hover:bg-success/15"
+                href={categoryHref}>
+                {category?.name ?? tCategory("uncategorized")}
+              </Link>
+              <h1 className="text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl">
+                {translation.title}
+              </h1>
+            </div>
             <div className="flex shrink-0 items-center gap-1">
               {personalizationConfig && !isOutOfStock && (
                 <PersonalizeButton className="h-11 rounded-[2px]" productId={product.id} variantId={selectedVariant?.id} />

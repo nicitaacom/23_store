@@ -4,6 +4,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { BiArrowBack, BiChevronRight } from "react-icons/bi"
 
+import type { TCategory } from "@/ts/categories/TCategory"
 import { ProductDetailView } from "./ProductDetailView"
 import { getScopedI18n } from "@/locales/server"
 import { normalizeProduct } from "@/utils/productVariants"
@@ -32,6 +33,20 @@ const getProductById = cache(async (productId: string) => {
   return normalizeProduct(productResponse.data)
 })
 
+const getCategoryById = cache(async (categoryId: string | null): Promise<TCategory | null> => {
+  if (!categoryId) return null
+
+  const supabase = await supabaseServer()
+  const categoryResponse = await supabase
+    .from("23_categories")
+    .select("id, name, parent_id")
+    .eq("id", categoryId)
+    .maybeSingle()
+
+  if (categoryResponse.error) throw categoryResponse.error
+  return categoryResponse.data as TCategory | null
+})
+
 export async function generateMetadata({ params: paramsPromise }: ProductPageProps): Promise<Metadata> {
   const params = await paramsPromise
   const getProductByIdResp = await getProductById(params.productId)
@@ -48,6 +63,7 @@ export async function generateMetadata({ params: paramsPromise }: ProductPagePro
 export default async function ProductPage({ params: paramsPromise }: ProductPageProps) {
   const params = await paramsPromise
   const t = await getScopedI18n("product")
+  const tCategory = await getScopedI18n("category")
   const supabase = await supabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   const getProductByIdResp = await getProductById(params.productId)
@@ -59,12 +75,17 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
     notFound()
   }
 
+  const getCategoryByIdResp = await getCategoryById(getProductByIdResp.category_id ?? null)
+  const categoryHref = getCategoryByIdResp
+    ? `/${params.locale}?category=${getCategoryByIdResp.id}&page=1`
+    : `/${params.locale}`
+
   return (
     <div className="min-h-[calc(100vh-64px)] w-full px-4 py-6 text-title">
       <section className="flex flex-col gap-5">
         <nav className="flex flex-wrap items-center gap-2 text-sm text-subTitle">
-          <Link className="transition-colors duration-200 hover:text-success" href={`/${params.locale}`}>
-            {t("products")}
+          <Link className="transition-colors duration-200 hover:text-success" href={categoryHref}>
+            {getCategoryByIdResp?.name ?? tCategory("uncategorized")}
           </Link>
           <BiChevronRight className="text-base opacity-60" />
           <span className="max-w-full truncate text-title">{translation?.title}</span>
@@ -77,7 +98,7 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
           {t("back_to_catalog")}
         </Link>
 
-        <ProductDetailView product={getProductByIdResp} isAuthenticated={!!user} />
+        <ProductDetailView category={getCategoryByIdResp} product={getProductByIdResp} isAuthenticated={!!user} />
       </section>
     </div>
   )

@@ -126,7 +126,7 @@ export const Banners: Story = {
 }
 
 export const ProductDetail: Story = {
-  render: () => <ProductDetailView isAuthenticated product={headphonesProduct} />,
+  render: () => <ProductDetailView category={fixtureCategories[1]} isAuthenticated product={headphonesProduct} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const [activeImage] = canvas.getAllByRole("img", { name: "Midnight black" })
@@ -139,6 +139,11 @@ export const ProductDetail: Story = {
 
     firstThumbnail.focus()
     await waitFor(() => expect(decodeURIComponent(activeImage.getAttribute("src") || "")).toContain("/placeholder.jpg"))
+
+    await expect(canvas.getByRole("link", { name: "AUDIO" })).toHaveAttribute(
+      "href",
+      "/en?category=category-audio&page=1",
+    )
   },
 }
 
