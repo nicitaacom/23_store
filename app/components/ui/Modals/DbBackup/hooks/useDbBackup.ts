@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { backupSDK, type TTablesImportResult, type TFilesImportResult } from "@/sdk/BackupSDK/BackupSDK"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
+import type { TTablesImportResult, TFilesImportResult } from "@/sdk/BackupSDK/BackupSDK"
 
 type TTablesExportPhase = "idle" | "exporting" | "done" | "error"
 type TTablesImportPhase = "idle" | "importing" | "done" | "error"
@@ -32,6 +32,7 @@ export function useDbBackup() {
   const [filesExportBytesDone, setFilesExportBytesDone] = useState(0)
   const [filesExportBytesTotal, setFilesExportBytesTotal] = useState(0)
   const [filesExportSpeedBytesPerMs, setFilesExportSpeedBytesPerMs] = useState<number | null>(null)
+  const [filesExportLabel, setFilesExportLabel] = useState("")
   const [filesExportError, setFilesExportError] = useState<string | null>(null)
 
   const [filesImportPhase, setFilesImportPhase] = useState<TFilesImportPhase>("idle")
@@ -47,6 +48,18 @@ export function useDbBackup() {
     tablesImportPhase === "importing" ||
     filesExportPhase === "exporting" ||
     filesImportPhase === "importing"
+
+  useEffect(() => {
+    if (!isBusy) return
+
+    function preventPageClose(event: BeforeUnloadEvent) {
+      event.preventDefault()
+      event.returnValue = ""
+    }
+
+    window.addEventListener("beforeunload", preventPageClose)
+    return () => window.removeEventListener("beforeunload", preventPageClose)
+  }, [isBusy])
 
   const downloadArchiveFile = useCallback((archiveFile: Blob, name: string) => {
     const url = URL.createObjectURL(archiveFile)
@@ -67,6 +80,7 @@ export function useDbBackup() {
     setTablesExportError(null)
 
     try {
+      const { backupSDK } = await import("@/sdk/BackupSDK/BackupSDK")
       const { fileName, archiveFile } = await backupSDK.exportTables((done, total) => {
         setTablesExportProgress(total > 0 ? done / total : 0)
       })
@@ -89,6 +103,7 @@ export function useDbBackup() {
       setTablesImportError(null)
 
       try {
+        const { backupSDK } = await import("@/sdk/BackupSDK/BackupSDK")
         const response = await backupSDK.importTables(files, (done, total, label) => {
           setTablesImportProgress(total > 0 ? done / total : 0)
           setTablesImportLabel(label)
@@ -115,13 +130,16 @@ export function useDbBackup() {
     setFilesExportBytesDone(0)
     setFilesExportBytesTotal(0)
     setFilesExportSpeedBytesPerMs(null)
+    setFilesExportLabel("")
     setFilesExportError(null)
 
     try {
+      const { backupSDK } = await import("@/sdk/BackupSDK/BackupSDK")
       const { fileName, archiveFile } = await backupSDK.exportFiles(progress => {
         setFilesExportBytesDone(progress.bytesDone)
         setFilesExportBytesTotal(progress.bytesTotal)
         setFilesExportSpeedBytesPerMs(progress.speedBytesPerMs)
+        setFilesExportLabel(progress.label)
       })
       downloadArchiveFileRef.current(archiveFile, fileName)
       setFilesExportPhase("done")
@@ -144,6 +162,7 @@ export function useDbBackup() {
       setFilesImportError(null)
 
       try {
+        const { backupSDK } = await import("@/sdk/BackupSDK/BackupSDK")
         const response = await backupSDK.importFiles(file, progress => {
           setFilesImportBytesDone(progress.bytesDone)
           setFilesImportBytesTotal(progress.bytesTotal)
@@ -195,6 +214,7 @@ export function useDbBackup() {
     setFilesExportBytesDone(0)
     setFilesExportBytesTotal(0)
     setFilesExportSpeedBytesPerMs(null)
+    setFilesExportLabel("")
     setFilesExportError(null)
     setFilesImportPhase("idle")
     setFilesImportBytesDone(0)
@@ -224,6 +244,7 @@ export function useDbBackup() {
     filesExportBytesDone,
     filesExportBytesTotal,
     filesExportSpeedBytesPerMs,
+    filesExportLabel,
     filesExportError,
     startExportFiles,
     filesImportPhase,

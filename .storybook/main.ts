@@ -31,6 +31,7 @@ const config: StorybookConfig = {
             currentDirectory,
             "../storybook/mocks/supabaseClient.ts",
           ),
+          "@/sdk/BackupSDK/BackupSDK": path.resolve(currentDirectory, "../storybook/mocks/backupSDK.ts"),
           "@/sdk/SupportSDK/SupportSDK": path.resolve(currentDirectory, "../storybook/mocks/supportSDK.ts"),
           ...viteConfig.resolve?.alias,
           "@": path.resolve(currentDirectory, "../app"),

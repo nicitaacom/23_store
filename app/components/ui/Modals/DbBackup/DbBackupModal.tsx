@@ -3,22 +3,13 @@
 import { useState } from "react"
 import { BiDownload, BiUpload } from "react-icons/bi"
 
-import { useDbBackup } from "./hooks/useDbBackup"
+import { formatBackupBytes, formatBackupSpeed } from "./functions/formatBackupTransfer"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
+import { useDbBackupContext } from "./DbBackupProvider"
 import { useScopedI18n } from "@/locales/client"
 import { Button, ProgressBar } from "@/components/ui"
 
 type TBackupTab = "tables" | "files"
-
-function formatBytes(bytes: number): string {
-  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${bytes} B`
-}
-
-function formatSpeed(bytesPerMs: number): string {
-  return `${formatBytes(bytesPerMs * 1000)}/s`
-}
 
 const TABS: { value: TBackupTab; labelKey: "tab_tables" | "tab_files" }[] = [
   { value: "tables", labelKey: "tab_tables" },
@@ -47,6 +38,7 @@ export function DbBackupModal() {
     filesExportBytesDone,
     filesExportBytesTotal,
     filesExportSpeedBytesPerMs,
+    filesExportLabel,
     filesExportError,
     startExportFiles,
     filesImportPhase,
@@ -58,7 +50,7 @@ export function DbBackupModal() {
     filesImportError,
     handleFilesImportClick,
     handleFilesFileChange,
-  } = useDbBackup()
+  } = useDbBackupContext()
   const [tab, setTab] = useState<TBackupTab>("tables")
 
   const isExportingTables = tablesExportPhase === "exporting"
@@ -157,14 +149,17 @@ export function DbBackupModal() {
           </Button>
           {isExportingFiles && (
             <div className="flex flex-col gap-1">
-              <ProgressBar value={filesExportBytesTotal > 0 ? filesExportBytesDone / filesExportBytesTotal : 0} />
+              <ProgressBar
+                label={filesExportLabel}
+                value={filesExportBytesTotal > 0 ? filesExportBytesDone / filesExportBytesTotal : 0}
+              />
               <div className="flex items-center justify-between text-xs text-subTitle">
                 <span>
-                  {formatBytes(filesExportBytesDone)} / {formatBytes(filesExportBytesTotal)}
+                  {formatBackupBytes(filesExportBytesDone)} / {formatBackupBytes(filesExportBytesTotal)}
                 </span>
                 {filesExportSpeedBytesPerMs !== null && (
                   <span>
-                    {t("speed_label")}: {formatSpeed(filesExportSpeedBytesPerMs)}
+                    {t("speed_label")}: {formatBackupSpeed(filesExportSpeedBytesPerMs)}
                   </span>
                 )}
               </div>
@@ -192,11 +187,11 @@ export function DbBackupModal() {
               />
               <div className="flex items-center justify-between text-xs text-subTitle">
                 <span>
-                  {formatBytes(filesImportBytesDone)} / {formatBytes(filesImportBytesTotal)}
+                  {formatBackupBytes(filesImportBytesDone)} / {formatBackupBytes(filesImportBytesTotal)}
                 </span>
                 {filesImportSpeedBytesPerMs !== null && (
                   <span>
-                    {t("speed_label")}: {formatSpeed(filesImportSpeedBytesPerMs)}
+                    {t("speed_label")}: {formatBackupSpeed(filesImportSpeedBytesPerMs)}
                   </span>
                 )}
               </div>

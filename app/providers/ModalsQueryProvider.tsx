@@ -7,6 +7,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { useI18n } from "@/locales/client"
 import { AdminPanelModalProps } from "@/components/ui/Modals/AdminPanel/AdminPanelModal"
 import { AuthModal } from "@/[locale]/(auth)/AuthModal/AuthModal"
+import { DbBackupProvider } from "@/components/ui/Modals/DbBackup/DbBackupProvider"
 
 type ModalKey = "AdminPanel" | "AuthModal" | "CartModal" | "DbBackup"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- heterogeneous registry of components with different prop shapes
@@ -52,8 +53,7 @@ const DbBackupModal = dynamic(() => import("@/components/ui/Modals/DbBackup/DbBa
 export function ModalsQueryProvider({ ownerProducts, roles, isAuthenticated }: ModalsQueryProviderProps) {
   const searchParams = useSearchParams()
 
-  const modalParams = searchParams?.getAll("modal")
-  if (!modalParams?.length) return null
+  const modalParams = searchParams?.getAll("modal") ?? []
 
   const registry: Partial<Record<ModalKey, ModalEntry>> = {
     AdminPanel: { Component: AdminPanelModal, props: { ownerProducts, roles, isAuthenticated } },
@@ -63,7 +63,7 @@ export function ModalsQueryProvider({ ownerProducts, roles, isAuthenticated }: M
   }
 
   return (
-    <>
+    <DbBackupProvider isModalOpen={modalParams.includes("DbBackup")}>
       {modalParams.map(modal => {
         const entry = registry[modal as ModalKey]
         if (!entry) return null
@@ -71,6 +71,6 @@ export function ModalsQueryProvider({ ownerProducts, roles, isAuthenticated }: M
         const { Component, props } = entry
         return <Component key={modal} {...props} />
       })}
-    </>
+    </DbBackupProvider>
   )
 }
