@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { IoMdClose } from "react-icons/io"
 import { useSwipeable } from "react-swipeable"
@@ -17,6 +17,7 @@ interface ModalQueryContainerProps {
   hideCloseButton?: boolean
   disableDismiss?: boolean
   ignoreInputs?: boolean
+  onVisibilityChange?: (isVisible: boolean) => void
 }
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
@@ -28,6 +29,7 @@ export function ModalQueryContainer({
   hideCloseButton = false,
   disableDismiss = false,
   ignoreInputs = true,
+  onVisibilityChange,
 }: ModalQueryContainerProps) {
   const pathname = usePathname()
   const queryParams = useSearchParams()
@@ -44,6 +46,11 @@ export function ModalQueryContainer({
   if (!isModalInQuery && isDismissed) setIsDismissed(false)
 
   const showModal = isModalInQuery && !isDismissed
+
+  useEffect(() => {
+    onVisibilityChange?.(showModal)
+    return () => onVisibilityChange?.(false)
+  }, [onVisibilityChange, showModal])
 
   // Close modal: animate out, then strip the ?modal param WITHOUT a server roundtrip.
   // history.replaceState (instead of router.push) avoids re-running the server layout

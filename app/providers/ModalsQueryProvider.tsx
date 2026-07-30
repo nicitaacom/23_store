@@ -7,7 +7,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { useI18n } from "@/locales/client"
 import { AdminPanelModalProps } from "@/components/ui/Modals/AdminPanel/AdminPanelModal"
 import { AuthModal } from "@/[locale]/(auth)/AuthModal/AuthModal"
-import { DbBackupProvider } from "@/components/ui/Modals/DbBackup/DbBackupProvider"
+import { DbBackupProgressCard } from "@/components/ui/Modals/DbBackup/DbBackupProgressCard"
 
 type ModalKey = "AdminPanel" | "AuthModal" | "CartModal" | "DbBackup"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- heterogeneous registry of components with different prop shapes
@@ -63,7 +63,7 @@ export function ModalsQueryProvider({ ownerProducts, roles, isAuthenticated }: M
   }
 
   return (
-    <DbBackupProvider isModalOpen={modalParams.includes("DbBackup")}>
+    <>
       {modalParams.map(modal => {
         const entry = registry[modal as ModalKey]
         if (!entry) return null
@@ -71,6 +71,7 @@ export function ModalsQueryProvider({ ownerProducts, roles, isAuthenticated }: M
         const { Component, props } = entry
         return <Component key={modal} {...props} />
       })}
-    </DbBackupProvider>
+      <DbBackupProgressCard />
+    </>
   )
 }

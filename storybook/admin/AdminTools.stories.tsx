@@ -5,7 +5,7 @@ import { expect, userEvent, waitFor, within } from "storybook/test"
 import type { IUTMAggregatedStats } from "@/ts/interfaces/IUTMAggregatedStats"
 import { completeTablesExport } from "../mocks/backupSDK"
 import { DbBackupModal } from "@/components/ui/Modals/DbBackup/DbBackupModal"
-import { DbBackupProvider } from "@/components/ui/Modals/DbBackup/DbBackupProvider"
+import { DbBackupProgressCard } from "@/components/ui/Modals/DbBackup/DbBackupProgressCard"
 import { MemoryDebug } from "@/[locale]/(site)/components/MemoryDebug"
 import { UTMDashboard } from "@/[locale]/(site)/stats/components/UTMDashboard"
 
@@ -62,14 +62,15 @@ function BackupProgressWorkbench() {
   }
 
   return (
-    <DbBackupProvider isModalOpen={isModalOpen}>
+    <>
       {!isModalOpen && (
         <button className="m-3 rounded border border-success/30 px-3 py-2 text-success" type="button" onClick={reopenBackupModal}>
           Reopen backup
         </button>
       )}
       {isModalOpen && <DbBackupModal />}
-    </DbBackupProvider>
+      <DbBackupProgressCard />
+    </>
   )
 }
 
@@ -102,6 +103,7 @@ export const Backup: Story = {
     const canvas = within(canvasElement)
     await userEvent.click(await waitFor(() => canvas.getByRole("button", { name: "Export" })))
     await waitFor(() => expect(canvas.getByRole("button", { name: "Export" })).toBeDisabled())
+    await expect(canvas.queryByRole("status", { name: "Database backup" })).not.toBeInTheDocument()
 
     await waitFor(() => {
       const pageCloseEvent = new Event("beforeunload", { cancelable: true })

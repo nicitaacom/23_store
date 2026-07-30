@@ -4,8 +4,8 @@ import { useState } from "react"
 import { BiDownload, BiUpload } from "react-icons/bi"
 
 import { formatBackupBytes, formatBackupSpeed } from "./functions/formatBackupTransfer"
+import { useDbBackup } from "./hooks/useDbBackup"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
-import { useDbBackupContext } from "./DbBackupProvider"
 import { useScopedI18n } from "@/locales/client"
 import { Button, ProgressBar } from "@/components/ui"
 
@@ -50,7 +50,8 @@ export function DbBackupModal() {
     filesImportError,
     handleFilesImportClick,
     handleFilesFileChange,
-  } = useDbBackupContext()
+    setModalOpen,
+  } = useDbBackup()
   const [tab, setTab] = useState<TBackupTab>("tables")
 
   const isExportingTables = tablesExportPhase === "exporting"
@@ -59,7 +60,11 @@ export function DbBackupModal() {
   const isImportingFiles = filesImportPhase === "importing"
 
   return (
-    <ModalQueryContainer className="flex w-[min(94vw,460px)] flex-col gap-3 p-4" ignoreInputs={false} modalQuery="DbBackup">
+    <ModalQueryContainer
+      className="flex w-[min(94vw,460px)] flex-col gap-3 p-4"
+      ignoreInputs={false}
+      modalQuery="DbBackup"
+      onVisibilityChange={setModalOpen}>
       <div className="flex flex-col gap-1">
         <h1 className="text-lg font-semibold text-title">{t("title")}</h1>
         <p className="text-sm text-subTitle">{t("subtitle")}</p>

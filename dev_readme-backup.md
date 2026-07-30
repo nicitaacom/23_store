@@ -9,7 +9,7 @@ speed-aware chunking to fit the 60s cap — see "Why this design" below.
 
 - Trigger: avatar dropdown → **DB Backup** item, visible only when `roles` includes `"ADMIN"`.
 - Modal: `DbBackupModal` opened via `?modal=DbBackup`, with a Tables / Files tab switch.
-- Active work belongs to the always-mounted `DbBackupProvider`, so closing the modal keeps the
+- Active work belongs to the global Zustand `useDbBackupState`, so closing the modal keeps the
   export/import running and shows the same progress in a fixed card.
 
 <br/>
@@ -86,9 +86,9 @@ storage/23_avatar-images/<...>
 | Rows GET (export) / POST (import, ≤500/batch) | `app/api/backup/rows/route.ts` |
 | Files GET (list, paths only) / POST (signed upload URLs, ≤100/batch) | `app/api/backup/files/route.ts` |
 | Client SDK — 4 methods (export/import × tables/files) + live speed tracker | `app/sdk/BackupSDK/BackupSDK.ts` |
-| Hook (owns state for all 4 flows, toast + i18n) | `app/components/ui/Modals/DbBackup/hooks/useDbBackup.ts` |
-| Always-mounted job owner + page-leave warning | `app/components/ui/Modals/DbBackup/DbBackupProvider.tsx` |
-| Progress shown after the modal closes | `app/components/ui/Modals/DbBackup/DbBackupProgressCard.tsx` |
+| Global state for all 4 flows and modal visibility | `app/store/ui/useDbBackupState.ts` |
+| Hook (starts the SDK work and supplies toast + i18n) | `app/components/ui/Modals/DbBackup/hooks/useDbBackup.ts` |
+| Always-mounted progress card + page-leave warning | `app/components/ui/Modals/DbBackup/DbBackupProgressCard.tsx` |
 | Modal UI (Tables/Files tabs, progress, results) | `app/components/ui/Modals/DbBackup/DbBackupModal.tsx` |
 | Response types | `app/ts/namespaces/api/backup/api.d.ts` |
 
@@ -96,10 +96,10 @@ storage/23_avatar-images/<...>
 
 ## Progress after closing the modal
 
-`ModalsQueryProvider` keeps `DbBackupProvider` mounted even when `?modal=DbBackup` is absent. The
-provider owns the one `useDbBackup()` instance, while `DbBackupModal` only reads that shared state.
+`useDbBackupState` owns the export/import state independently of the modal lifecycle.
+`ModalsQueryProvider` keeps `DbBackupProgressCard` mounted even when `?modal=DbBackup` is absent.
 Closing and reopening the modal therefore reconnects to the same export/import and current
-progress.
+progress without a React context provider.
 
 During active work, closing the modal shows a non-dismissible bottom-right card with the operation,
 progress, current table/file label, transferred bytes, and connection speed where available. A

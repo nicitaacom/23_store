@@ -1,24 +1,35 @@
 "use client"
 
+import { useEffect } from "react"
+
 import { formatBackupBytes, formatBackupSpeed } from "./functions/formatBackupTransfer"
-import type { useDbBackup } from "./hooks/useDbBackup"
+import { selectDbBackupIsBusy, useDbBackupState } from "@/store/ui/useDbBackupState"
 import { useScopedI18n } from "@/locales/client"
 import { ProgressBar } from "@/components/ui"
 
-interface DbBackupProgressCardProps {
-  backup: ReturnType<typeof useDbBackup>
-  isModalOpen: boolean
-}
-
 // http://localhost:6006/?path=/story/admin-admintools--backup
-export function DbBackupProgressCard({ backup, isModalOpen }: DbBackupProgressCardProps) {
+export function DbBackupProgressCard() {
   const t = useScopedI18n("backup")
+  const backup = useDbBackupState()
+  const isBusy = selectDbBackupIsBusy(backup)
   const isExportingTables = backup.tablesExportPhase === "exporting"
   const isImportingTables = backup.tablesImportPhase === "importing"
   const isExportingFiles = backup.filesExportPhase === "exporting"
   const isImportingFiles = backup.filesImportPhase === "importing"
 
-  if (!backup.isBusy || isModalOpen) return null
+  useEffect(() => {
+    if (!isBusy) return
+
+    function preventPageClose(event: BeforeUnloadEvent) {
+      event.preventDefault()
+      event.returnValue = ""
+    }
+
+    window.addEventListener("beforeunload", preventPageClose)
+    return () => window.removeEventListener("beforeunload", preventPageClose)
+  }, [isBusy])
+
+  if (!isBusy || backup.isModalOpen) return null
 
   const progress = isExportingTables
     ? backup.tablesExportProgress

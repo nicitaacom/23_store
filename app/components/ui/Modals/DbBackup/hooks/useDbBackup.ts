@@ -1,65 +1,18 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef } from "react"
 
+import { selectDbBackupIsBusy, useDbBackupState } from "@/store/ui/useDbBackupState"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
-import type { TTablesImportResult, TFilesImportResult } from "@/sdk/BackupSDK/BackupSDK"
-
-type TTablesExportPhase = "idle" | "exporting" | "done" | "error"
-type TTablesImportPhase = "idle" | "importing" | "done" | "error"
-type TFilesExportPhase = "idle" | "exporting" | "done" | "error"
-type TFilesImportPhase = "idle" | "importing" | "done" | "error"
 
 export function useDbBackup() {
   const toast = useToast()
   const t = useScopedI18n("backup")
+  const backup = useDbBackupState()
 
   const tablesInputRef = useRef<HTMLInputElement>(null)
   const filesInputRef = useRef<HTMLInputElement>(null)
-
-  const [tablesExportPhase, setTablesExportPhase] = useState<TTablesExportPhase>("idle")
-  const [tablesExportProgress, setTablesExportProgress] = useState(0) // 0..1
-  const [tablesExportError, setTablesExportError] = useState<string | null>(null)
-
-  const [tablesImportPhase, setTablesImportPhase] = useState<TTablesImportPhase>("idle")
-  const [tablesImportProgress, setTablesImportProgress] = useState(0) // 0..1
-  const [tablesImportLabel, setTablesImportLabel] = useState("")
-  const [tablesImportResult, setTablesImportResult] = useState<TTablesImportResult | null>(null)
-  const [tablesImportError, setTablesImportError] = useState<string | null>(null)
-
-  const [filesExportPhase, setFilesExportPhase] = useState<TFilesExportPhase>("idle")
-  const [filesExportBytesDone, setFilesExportBytesDone] = useState(0)
-  const [filesExportBytesTotal, setFilesExportBytesTotal] = useState(0)
-  const [filesExportSpeedBytesPerMs, setFilesExportSpeedBytesPerMs] = useState<number | null>(null)
-  const [filesExportLabel, setFilesExportLabel] = useState("")
-  const [filesExportError, setFilesExportError] = useState<string | null>(null)
-
-  const [filesImportPhase, setFilesImportPhase] = useState<TFilesImportPhase>("idle")
-  const [filesImportBytesDone, setFilesImportBytesDone] = useState(0)
-  const [filesImportBytesTotal, setFilesImportBytesTotal] = useState(0)
-  const [filesImportSpeedBytesPerMs, setFilesImportSpeedBytesPerMs] = useState<number | null>(null)
-  const [filesImportLabel, setFilesImportLabel] = useState("")
-  const [filesImportResult, setFilesImportResult] = useState<TFilesImportResult | null>(null)
-  const [filesImportError, setFilesImportError] = useState<string | null>(null)
-
-  const isBusy =
-    tablesExportPhase === "exporting" ||
-    tablesImportPhase === "importing" ||
-    filesExportPhase === "exporting" ||
-    filesImportPhase === "importing"
-
-  useEffect(() => {
-    if (!isBusy) return
-
-    function preventPageClose(event: BeforeUnloadEvent) {
-      event.preventDefault()
-      event.returnValue = ""
-    }
-
-    window.addEventListener("beforeunload", preventPageClose)
-    return () => window.removeEventListener("beforeunload", preventPageClose)
-  }, [isBusy])
 
   const downloadArchiveFile = useCallback((archiveFile: Blob, name: string) => {
     const url = URL.createObjectURL(archiveFile)
@@ -75,46 +28,49 @@ export function useDbBackup() {
   })
 
   const startExportTables = useCallback(async () => {
-    setTablesExportPhase("exporting")
-    setTablesExportProgress(0)
-    setTablesExportError(null)
+    useDbBackupState.setState({
+      tablesExportPhase: "exporting",
+      tablesExportProgress: 0,
+      tablesExportError: null,
+    })
 
     try {
       const { backupSDK } = await import("@/sdk/BackupSDK/BackupSDK")
       const { fileName, archiveFile } = await backupSDK.exportTables((done, total) => {
-        setTablesExportProgress(total > 0 ? done / total : 0)
+        useDbBackupState.setState({ tablesExportProgress: total > 0 ? done / total : 0 })
       })
       downloadArchiveFileRef.current(archiveFile, fileName)
-      setTablesExportPhase("done")
+      useDbBackupState.setState({ tablesExportPhase: "done" })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
-      setTablesExportPhase("error")
-      setTablesExportError(message)
+      useDbBackupState.setState({ tablesExportPhase: "error", tablesExportError: message })
       toast.show("error", t("error"), message)
     }
   }, [t, toast])
 
   const startImportTables = useCallback(
     async (files: File[]) => {
-      setTablesImportPhase("importing")
-      setTablesImportProgress(0)
-      setTablesImportLabel("")
-      setTablesImportResult(null)
-      setTablesImportError(null)
+      useDbBackupState.setState({
+        tablesImportPhase: "importing",
+        tablesImportProgress: 0,
+        tablesImportLabel: "",
+        tablesImportResult: null,
+        tablesImportError: null,
+      })
 
       try {
         const { backupSDK } = await import("@/sdk/BackupSDK/BackupSDK")
         const response = await backupSDK.importTables(files, (done, total, label) => {
-          setTablesImportProgress(total > 0 ? done / total : 0)
-          setTablesImportLabel(label)
+          useDbBackupState.setState({
+            tablesImportProgress: total > 0 ? done / total : 0,
+            tablesImportLabel: label,
+          })
         })
-        setTablesImportResult(response)
-        setTablesImportPhase("done")
+        useDbBackupState.setState({ tablesImportResult: response, tablesImportPhase: "done" })
         toast.show("success", t("import_success"), "", 3000)
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
-        setTablesImportPhase("error")
-        setTablesImportError(message)
+        useDbBackupState.setState({ tablesImportPhase: "error", tablesImportError: message })
         toast.show("error", t("error"), message)
       }
     },
@@ -126,56 +82,61 @@ export function useDbBackup() {
   })
 
   const startExportFiles = useCallback(async () => {
-    setFilesExportPhase("exporting")
-    setFilesExportBytesDone(0)
-    setFilesExportBytesTotal(0)
-    setFilesExportSpeedBytesPerMs(null)
-    setFilesExportLabel("")
-    setFilesExportError(null)
+    useDbBackupState.setState({
+      filesExportPhase: "exporting",
+      filesExportBytesDone: 0,
+      filesExportBytesTotal: 0,
+      filesExportSpeedBytesPerMs: null,
+      filesExportLabel: "",
+      filesExportError: null,
+    })
 
     try {
       const { backupSDK } = await import("@/sdk/BackupSDK/BackupSDK")
       const { fileName, archiveFile } = await backupSDK.exportFiles(progress => {
-        setFilesExportBytesDone(progress.bytesDone)
-        setFilesExportBytesTotal(progress.bytesTotal)
-        setFilesExportSpeedBytesPerMs(progress.speedBytesPerMs)
-        setFilesExportLabel(progress.label)
+        useDbBackupState.setState({
+          filesExportBytesDone: progress.bytesDone,
+          filesExportBytesTotal: progress.bytesTotal,
+          filesExportSpeedBytesPerMs: progress.speedBytesPerMs,
+          filesExportLabel: progress.label,
+        })
       })
       downloadArchiveFileRef.current(archiveFile, fileName)
-      setFilesExportPhase("done")
+      useDbBackupState.setState({ filesExportPhase: "done" })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
-      setFilesExportPhase("error")
-      setFilesExportError(message)
+      useDbBackupState.setState({ filesExportPhase: "error", filesExportError: message })
       toast.show("error", t("error"), message)
     }
   }, [t, toast])
 
   const startImportFiles = useCallback(
     async (file: File) => {
-      setFilesImportPhase("importing")
-      setFilesImportBytesDone(0)
-      setFilesImportBytesTotal(0)
-      setFilesImportSpeedBytesPerMs(null)
-      setFilesImportLabel("")
-      setFilesImportResult(null)
-      setFilesImportError(null)
+      useDbBackupState.setState({
+        filesImportPhase: "importing",
+        filesImportBytesDone: 0,
+        filesImportBytesTotal: 0,
+        filesImportSpeedBytesPerMs: null,
+        filesImportLabel: "",
+        filesImportResult: null,
+        filesImportError: null,
+      })
 
       try {
         const { backupSDK } = await import("@/sdk/BackupSDK/BackupSDK")
         const response = await backupSDK.importFiles(file, progress => {
-          setFilesImportBytesDone(progress.bytesDone)
-          setFilesImportBytesTotal(progress.bytesTotal)
-          setFilesImportSpeedBytesPerMs(progress.speedBytesPerMs)
-          setFilesImportLabel(progress.label)
+          useDbBackupState.setState({
+            filesImportBytesDone: progress.bytesDone,
+            filesImportBytesTotal: progress.bytesTotal,
+            filesImportSpeedBytesPerMs: progress.speedBytesPerMs,
+            filesImportLabel: progress.label,
+          })
         })
-        setFilesImportResult(response)
-        setFilesImportPhase("done")
+        useDbBackupState.setState({ filesImportResult: response, filesImportPhase: "done" })
         toast.show("success", t("import_success"), "", 3000)
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
-        setFilesImportPhase("error")
-        setFilesImportError(message)
+        useDbBackupState.setState({ filesImportPhase: "error", filesImportError: message })
         toast.show("error", t("error"), message)
       }
     },
@@ -202,60 +163,41 @@ export function useDbBackup() {
   }, [])
 
   const reset = useCallback(() => {
-    setTablesExportPhase("idle")
-    setTablesExportProgress(0)
-    setTablesExportError(null)
-    setTablesImportPhase("idle")
-    setTablesImportProgress(0)
-    setTablesImportLabel("")
-    setTablesImportResult(null)
-    setTablesImportError(null)
-    setFilesExportPhase("idle")
-    setFilesExportBytesDone(0)
-    setFilesExportBytesTotal(0)
-    setFilesExportSpeedBytesPerMs(null)
-    setFilesExportLabel("")
-    setFilesExportError(null)
-    setFilesImportPhase("idle")
-    setFilesImportBytesDone(0)
-    setFilesImportBytesTotal(0)
-    setFilesImportSpeedBytesPerMs(null)
-    setFilesImportLabel("")
-    setFilesImportResult(null)
-    setFilesImportError(null)
+    useDbBackupState.getState().reset()
   }, [])
 
   return {
-    isBusy,
+    isBusy: selectDbBackupIsBusy(backup),
     tablesInputRef,
     filesInputRef,
-    tablesExportPhase,
-    tablesExportProgress,
-    tablesExportError,
+    tablesExportPhase: backup.tablesExportPhase,
+    tablesExportProgress: backup.tablesExportProgress,
+    tablesExportError: backup.tablesExportError,
     startExportTables,
-    tablesImportPhase,
-    tablesImportProgress,
-    tablesImportLabel,
-    tablesImportResult,
-    tablesImportError,
+    tablesImportPhase: backup.tablesImportPhase,
+    tablesImportProgress: backup.tablesImportProgress,
+    tablesImportLabel: backup.tablesImportLabel,
+    tablesImportResult: backup.tablesImportResult,
+    tablesImportError: backup.tablesImportError,
     handleTablesImportClick,
     handleTablesFileChange,
-    filesExportPhase,
-    filesExportBytesDone,
-    filesExportBytesTotal,
-    filesExportSpeedBytesPerMs,
-    filesExportLabel,
-    filesExportError,
+    filesExportPhase: backup.filesExportPhase,
+    filesExportBytesDone: backup.filesExportBytesDone,
+    filesExportBytesTotal: backup.filesExportBytesTotal,
+    filesExportSpeedBytesPerMs: backup.filesExportSpeedBytesPerMs,
+    filesExportLabel: backup.filesExportLabel,
+    filesExportError: backup.filesExportError,
     startExportFiles,
-    filesImportPhase,
-    filesImportBytesDone,
-    filesImportBytesTotal,
-    filesImportSpeedBytesPerMs,
-    filesImportLabel,
-    filesImportResult,
-    filesImportError,
+    filesImportPhase: backup.filesImportPhase,
+    filesImportBytesDone: backup.filesImportBytesDone,
+    filesImportBytesTotal: backup.filesImportBytesTotal,
+    filesImportSpeedBytesPerMs: backup.filesImportSpeedBytesPerMs,
+    filesImportLabel: backup.filesImportLabel,
+    filesImportResult: backup.filesImportResult,
+    filesImportError: backup.filesImportError,
     handleFilesImportClick,
     handleFilesFileChange,
+    setModalOpen: backup.setModalOpen,
     reset,
   }
 }
