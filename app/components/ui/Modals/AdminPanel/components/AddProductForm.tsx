@@ -10,14 +10,18 @@ import ImageUploading from "react-images-uploading"
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa"
 
 import { TPersonalizationDraftState } from "@/ts/product/TPersonalization"
+import { TSortableProductImage } from "@/ts/product/TSortableProductImage"
 import { TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { readPastedImages, toDataUrl } from "../functions/readPastedImages"
+import { reorderProductImages } from "../functions/reorderProductImages"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
+import { useFocusVariantLabelAfterImageAdded } from "../hooks/useFocusVariantLabelAfterImageAdded"
 import { CategoryDropdown } from "./CategoryDropdown"
 import { PersonalizationForm } from "./PersonalizationForm"
 import { RichTextToolbar } from "./RichTextToolbar"
+import { SortableProductImageStrip } from "./SortableProductImageStrip"
 import { TPendingCreatedProduct, useSubscribeToProductCreated } from "../hooks/useSubscribeToProductCreated"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
@@ -70,7 +74,7 @@ interface AddProductFormProps {
 
 type PendingFormSnapshot = {
   values: IFormDataAddProduct
-  images: ImageListType
+  images: TSortableProductImage[]
   variants: TProductVariantDraft[]
   personalization: TPersonalizationDraftState
   activeImageIndex: number
@@ -85,6 +89,15 @@ const EMPTY_PRODUCT_FORM_VALUES: Partial<IFormDataAddProduct> = {
   onStock: "" as never,
 }
 
+function addSortableImageIds(imageList: ImageListType): TSortableProductImage[] {
+  return imageList.map(image => {
+    const sortableImage = image as Partial<TSortableProductImage>
+    return typeof sortableImage.sortableId === "string"
+      ? (image as TSortableProductImage)
+      : { ...image, sortableId: crypto.randomUUID() }
+  })
+}
+
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function AddProductForm({ onCreated }: AddProductFormProps) {
   const t = useScopedI18n("product")
@@ -93,7 +106,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const { show: showToast, close: closeToast } = useToast()
   const { isDraggingg } = useDragging()
 
-  const [images, setImages] = useState<ImageListType>([])
+  const [images, setImages] = useState<TSortableProductImage[]>([])
   const [variantLabelValue, setVariantLabelValue] = useState("")
   const [variantPriceValue, setVariantPriceValue] = useState("")
   const [variantQuantityValue, setVariantQuantityValue] = useState("")
@@ -112,6 +125,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [categoryId, setCategoryId] = useState<string | null>(null)
   const [autoAssignedName, setAutoAssignedName] = useState<string | null>(null)
   const [isSuggestingCategory, setIsSuggestingCategory] = useState(false)
+  const variantLabelInputRef = useFocusVariantLabelAfterImageAdded(images.length)
   const dragZone = useRef<HTMLButtonElement | null>(null)
   const descriptionRef = useRef<HTMLDivElement | null>(null)
   const wrapRef = useRef<((marker: string) => void) | null>(null)
@@ -128,10 +142,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const pendingCreatedProductsRef = useRef<TPendingCreatedProduct[]>([])
 
   const onChange = (imageList: ImageListType) => {
-    setImages(imageList)
+    const sortableImages = addSortableImageIds(imageList)
+    setImages(sortableImages)
     setActiveImageIndex(current => {
-      if (imageList.length === 0) return 0
-      return Math.min(current, imageList.length - 1)
+      if (sortableImages.length === 0) return 0
+      return Math.min(current, sortableImages.length - 1)
     })
   }
 
@@ -148,8 +163,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
    * or the modal - only this form's own image list moves.
    */
   const replaceMockupImage = async (mockupFile: File, replacedDataUrl: string) => {
-    const nextImage = { file: mockupFile, data_url: await toDataUrl(mockupFile) }
     const replacedIndex = images.findIndex(image => image.data_url === replacedDataUrl)
+    const nextImage: TSortableProductImage = {
+      file: mockupFile,
+      data_url: await toDataUrl(mockupFile),
+      sortableId: images[replacedIndex]?.sortableId ?? crypto.randomUUID(),
+    }
 
     setImages(
       replacedIndex >= 0 ? images.map((image, index) => (index === replacedIndex ? nextImage : image)) : [...images, nextImage],
@@ -166,7 +185,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     const readPastedImagesResp = await readPastedImages(newFiles, images.length)
 
     if (readPastedImagesResp.images.length) {
-      const nextImages = [...images, ...readPastedImagesResp.images]
+      const nextImages = [...images, ...addSortableImageIds(readPastedImagesResp.images)]
       setImages(nextImages)
       setActiveImageIndex(nextImages.length - 1)
     }
@@ -546,22 +565,18 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setActiveImageIndex(currentIndex => (nextIndex === currentIndex ? currentIndex : nextIndex))
   }
 
+  const reorderImages = (sourceId: string, targetId: string) => {
+    const reorderedProductImages = reorderProductImages(images, activeImageIndex, sourceId, targetId)
+    setImages(reorderedProductImages.images)
+    setActiveImageIndex(reorderedProductImages.activeImageIndex)
+  }
+
   const makeImagePrimary = (imageIndex: number) => {
     if (imageIndex <= 0) return
-
-    setImages(currentImages => {
-      if (!currentImages[imageIndex]) return currentImages
-
-      const nextImages = [...currentImages]
-      const [selectedImage] = nextImages.splice(imageIndex, 1)
-
-      if (!selectedImage) return currentImages
-
-      nextImages.unshift(selectedImage)
-      return nextImages
-    })
-
-    setActiveImageIndex(0)
+    const selectedImage = images[imageIndex]
+    const primaryImage = images[0]
+    if (!selectedImage || !primaryImage) return
+    reorderImages(selectedImage.sortableId, primaryImage.sortableId)
   }
 
   // The next variant of the same product nearly always costs what the last one costs, so the previous
@@ -808,31 +823,13 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
               {/* Thumbnail strip */}
               {imageList.length > 1 && (
-                <div className="flex shrink-0 gap-1.5">
-                  {imageList.slice(0, 5).map((image, index) => (
-                    <button
-                      className={twMerge(
-                        "relative h-11 flex-1 overflow-hidden rounded-xl border-2 border-transparent transition-all duration-150",
-                        index === safeActiveImageIndex && "border-success-accent/60",
-                      )}
-                      key={`${image.data_url}-${index}`}
-                      type="button"
-                      onClick={() => navigateToImage(index)}>
-                      <Image
-                        className="h-full w-full object-cover"
-                        src={image.data_url}
-                        alt={`thumb-${index + 1}`}
-                        width={120}
-                        height={80}
-                      />
-                    </button>
-                  ))}
-                  {imageList.length > 5 && (
-                    <div className="flex h-11 min-w-[36px] items-center justify-center rounded bg-white/[0.05] text-[10px] font-medium text-white/50">
-                      +{imageList.length - 5}
-                    </div>
-                  )}
-                </div>
+                <SortableProductImageStrip
+                  activeImageIndex={safeActiveImageIndex}
+                  disabled={isLoading}
+                  images={imageList as TSortableProductImage[]}
+                  onReorder={reorderImages}
+                  onSelect={navigateToImage}
+                />
               )}
 
               {/* Image actions */}
@@ -980,6 +977,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               </span>
               <input
                 className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
+                ref={variantLabelInputRef}
                 value={variantLabelValue}
                 onChange={event => changeVariantLabel(event.target.value)}
                 placeholder={t("variant_label")}
