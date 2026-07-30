@@ -85,7 +85,9 @@ export function ProductDetailView({ product, isAuthenticated }: ProductDetailVie
           )}
           key={`${image}-${index}`}
           type="button"
-          onClick={() => handleSelectImage(image)}>
+          onClick={() => handleSelectImage(image)}
+          onFocus={() => handleSelectImage(image)}
+          onMouseEnter={() => handleSelectImage(image)}>
           <Image className="object-cover" src={image} alt={`${translation.title}-${index + 1}`} fill sizes="80px" />
         </button>
       )),

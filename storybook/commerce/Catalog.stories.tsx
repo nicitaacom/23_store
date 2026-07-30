@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { HttpResponse, http } from "msw"
-import { expect, waitFor, within } from "storybook/test"
+import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { fixtureCategories, headphonesProduct, soldOutProduct } from "../fixtures"
 import { BannersSlider } from "@/[locale]/(site)/popular-products/BannersSlider"
@@ -127,6 +127,19 @@ export const Banners: Story = {
 
 export const ProductDetail: Story = {
   render: () => <ProductDetailView isAuthenticated product={headphonesProduct} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const [activeImage] = canvas.getAllByRole("img", { name: "Midnight black" })
+    const firstThumbnail = canvas.getByRole("button", { name: "Joki wireless headphones-1" })
+    const secondThumbnail = canvas.getByRole("button", { name: "Joki wireless headphones-2" })
+
+    await userEvent.hover(secondThumbnail)
+    await userEvent.unhover(secondThumbnail)
+    await waitFor(() => expect(decodeURIComponent(activeImage.getAttribute("src") || "")).toContain("/projects/J.png"))
+
+    firstThumbnail.focus()
+    await waitFor(() => expect(decodeURIComponent(activeImage.getAttribute("src") || "")).toContain("/placeholder.jpg"))
+  },
 }
 
 export const ManageProduct: Story = {
