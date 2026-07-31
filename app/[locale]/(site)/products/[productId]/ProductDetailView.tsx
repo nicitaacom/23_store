@@ -181,7 +181,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
               <Image
                 className="mx-auto h-auto w-full max-w-[320px]"
                 src="/banners/run-to-grab-discount.gif"
-                alt="Hurry!"
+                alt={t("hurry_alt")}
                 width={800}
                 height={600}
               />

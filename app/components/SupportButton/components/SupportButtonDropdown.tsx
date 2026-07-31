@@ -59,7 +59,7 @@ export default function SupportButtonDropdown() {
             <BiSupport size={18} />
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-success/85">Support</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-success/85">{t("title")}</p>
             <h1 className="text-[16px] font-semibold text-white mobile:text-[18px]">{t("ready_title")}</h1>
             <p className="mt-0.5 text-[11px] text-white/55">{t("response_time", { number: 15 })}</p>
           </div>

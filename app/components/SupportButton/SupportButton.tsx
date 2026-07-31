@@ -7,12 +7,14 @@ import { BiSupport } from "react-icons/bi"
 import { Button } from "../ui"
 import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import { useMessages } from "@/store/ui/useMessages"
+import { useScopedI18n } from "@/locales/client"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import SupportButtonDropdown from "@/components/SupportButton/components/SupportButtonDropdown"
 
 // export feault in order to lazy import this
 // http://localhost:6006/?path=/story/support-supportexample--closed-button
 export default function SupportButton() {
+  const t = useScopedI18n("support")
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { unseenMessagesNumber } = useMessages()
   const { isDropdown, closeDropdown, toggle } = useSupportDropdown()
@@ -42,7 +44,7 @@ export default function SupportButton() {
         rounded="lg"
         onClick={toggle}
         aria-expanded={isDropdown}
-        aria-label="Open support chat">
+        aria-label={t("open_chat")}>
         <BiSupport className="h-6 w-6 text-icon-color desktop:h-7 desktop:w-7" />
         {unseenMessagesNumber > 0 && (
           <span className="absolute -right-0.5 -top-0.5 min-w-[20px] rounded border border-background bg-success px-1.5 py-0.5 text-[10px] font-semibold text-title-foreground">

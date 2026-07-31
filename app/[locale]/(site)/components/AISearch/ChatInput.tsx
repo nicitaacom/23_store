@@ -43,11 +43,11 @@ export function ChatInput({
             rounded="lg"
             onClick={generateImage}
             disabled={isLoading}
-            title="Generate Image">
+            title={t("generate_image")}>
             <HiOutlineSparkles className="text-xl" />
           </Button>
 
-          <Button variant="ghost" size="icon-md" rounded="lg" onClick={addToCart} disabled={isLoading} title="Add to Cart">
+          <Button variant="ghost" size="icon-md" rounded="lg" onClick={addToCart} disabled={isLoading} title={t("add_to_cart")}>
             <BsCart3 className="text-xl" />
           </Button>
 
@@ -77,6 +77,7 @@ export function ChatInput({
         <div className="flex items-center gap-2">
           <div className="hidden laptop:flex items-center gap-1 px-2 py-1 rounded-md bg-background border border-border-color">
             <span className="text-xs font-medium text-subTitle">⌘</span>
+            {/* eslint-disable-next-line local-rules/no-untranslated-ui -- keyboard shortcut glyph, not language-specific text */}
             <span className="text-xs font-medium text-subTitle">K</span>
           </div>
 

@@ -37,6 +37,7 @@ function getAnonymousAvatar(isDarkMode: boolean) {
 export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) {
   const router = useRouter()
   const t = useScopedI18n("backup")
+  const tCommon = useScopedI18n("common")
 
   const avatarDropdownRef = useRef<HTMLDivElement>(null)
   const [isShowDropdown, setIsShowDropdown] = useState(false)
@@ -89,7 +90,7 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
       username={getUserName(user) || "anonymous"}
       icon={
         <span data-cy="user-menu">
-          <Image className="w-[32px] h-[32px] rounded-full object-cover" src={avatarUrl} alt="user logo" width={64} height={64} />
+          <Image className="w-[32px] h-[32px] rounded-full object-cover" src={avatarUrl} alt={tCommon("user_avatar_alt")} width={64} height={64} />
         </span>
       }>
       {roles.includes("SUPPORT") && (

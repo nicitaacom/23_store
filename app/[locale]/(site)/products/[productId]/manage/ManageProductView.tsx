@@ -427,7 +427,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 <Image
                   className="object-contain p-4"
                   src={product.img_url[previewImageIndex]}
-                  alt="product preview"
+                  alt={t("product_preview_alt")}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority

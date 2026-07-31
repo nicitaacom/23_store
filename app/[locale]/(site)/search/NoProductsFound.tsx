@@ -14,7 +14,7 @@ export function NoProductsFound() {
     <div className="min-h-[calc(100vh-64px)] px-8 flex flex-col gap-y-8 justify-center items-center pb-16">
       <Image
         src={isDarkMode ? "/no-products-found-dark.png" : "/no-products-found-light.png"}
-        alt="No products found"
+        alt={t("no_products_found")}
         width={256}
         height={256}
       />

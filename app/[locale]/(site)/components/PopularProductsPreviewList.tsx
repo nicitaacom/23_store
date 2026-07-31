@@ -1,9 +1,12 @@
+"use client"
+
 import Link from "next/link"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getProductPrimaryImageUrl, toProductLocale } from "@/utils/product"
+import { useScopedI18n } from "@/locales/client"
 import { ImageWithFallback } from "@/components/ui"
 
 interface PopularProductsPreviewListProps {
@@ -28,6 +31,7 @@ export function PopularProductsPreviewList({
   hotProductIds = [],
   showPreviewLink = true,
 }: PopularProductsPreviewListProps) {
+  const t = useScopedI18n("popular")
   const productLocale = toProductLocale(locale)
 
   return (
@@ -35,7 +39,7 @@ export function PopularProductsPreviewList({
       {showHeader && (
           <div className="flex flex-col gap-2">
             <div className="inline-flex w-fit items-center rounded-[4px] border border-success/20 bg-success/10 px-3 py-1 text-sm font-medium text-success">
-              Popular products
+              {t("card_badge")}
             </div>
           <h2 className="text-3xl font-semibold text-title">{title}</h2>
           <p className="max-w-2xl text-base text-subTitle">{subtitle}</p>
@@ -66,7 +70,7 @@ export function PopularProductsPreviewList({
                 />
                 {isHotProduct && (
                   <span className="absolute left-2 top-2 inline-flex items-center rounded border border-success/20 bg-background/85 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-success backdrop-blur-sm">
-                    Hot
+                    {t("hot_badge")}
                   </span>
                 )}
               </div>
@@ -86,7 +90,7 @@ export function PopularProductsPreviewList({
                     <Link
                       className="rounded border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-background"
                       href={`/${locale}/popular-products`}>
-                      Preview list
+                      {t("preview_list_link")}
                     </Link>
                   )}
                 </div>

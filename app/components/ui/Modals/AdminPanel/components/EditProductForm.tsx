@@ -62,7 +62,7 @@ export function EditProductForm({ ownerProducts, productSort, onProductSortChang
                 )}>
                 <Image
                   src={isDarkMode ? "/no-products-found-dark.png" : "/no-products-found-light.png"}
-                  alt="no-products-found.png"
+                  alt={t("no_products_found")}
                   width={176}
                   height={176}
                 />
@@ -81,13 +81,13 @@ export function EditProductForm({ ownerProducts, productSort, onProductSortChang
           )}>
           <Image
             src={isDarkMode ? "/no-products-to-edit-dark.png" : "/no-products-to-edit-light.png"}
-            alt="no-products-to-edit.png"
+            alt={t("no_products_to_edit")}
             width={176}
             height={176}
           />
           <div>
             <h1 className="text-xl font-semibold">{t("no_products_to_edit")}</h1>
-            <p className="mt-2 text-sm text-subTitle">Create a product first, then return here to edit it.</p>
+            <p className="mt-2 text-sm text-subTitle">{t("no_products_to_edit_subtitle")}</p>
           </div>
         </div>
       )}

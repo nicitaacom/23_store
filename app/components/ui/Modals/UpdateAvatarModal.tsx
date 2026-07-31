@@ -120,8 +120,8 @@ export function UpdateAvatarModal() {
               <BiImageAdd className="text-title" size={20} />
             </div>
             <div className="flex flex-col">
-              <h2 className="text-xl font-semibold text-title">Update avatar</h2>
-              <p className="text-sm text-subTitle">Set a custom avatar URL or fall back to your provider avatar.</p>
+              <h2 className="text-xl font-semibold text-title">{t("modal.avatar.title")}</h2>
+              <p className="text-sm text-subTitle">{t("modal.avatar.subtitle")}</p>
             </div>
           </div>
         </div>
@@ -130,17 +130,15 @@ export function UpdateAvatarModal() {
           <div className="flex flex-col items-center gap-3 rounded border border-border-color/30 bg-background/70 px-4 py-4 shadow-none">
             <Image
               className="h-20 w-20 rounded object-cover shadow-compact"
-              alt="avatar preview"
+              alt={t("modal.avatar.preview_alt")}
               src={safePreviewAvatarUrl}
               width={512}
               height={512}
               onError={() => setIsPreviewBroken(true)}
             />
             <div className="flex flex-col items-center gap-y-1">
-              <p className="text-sm font-medium text-title">Live preview</p>
-              <p className="text-center text-xs text-subTitle">
-                Leave the field empty to use your provider avatar automatically.
-              </p>
+              <p className="text-sm font-medium text-title">{t("modal.avatar.live_preview")}</p>
+              <p className="text-center text-xs text-subTitle">{t("modal.avatar.empty_field_hint")}</p>
             </div>
           </div>
 
@@ -170,9 +168,9 @@ export function UpdateAvatarModal() {
                     <div className="pointer-events-none flex flex-col items-center text-center">
                       <BiUpload className="mb-3 text-title" size={28} />
                       <h1 className="text-lg font-semibold text-title">
-                        {isDragging ? "Drop avatar here" : "Click or drop avatar here"}
+                        {isDragging ? t("modal.avatar.drop_here") : t("modal.avatar.click_or_drop_here")}
                       </h1>
-                      <p className="mt-2 text-sm text-subTitle">Use drag and drop just like in AdminPanel.</p>
+                      <p className="mt-2 text-sm text-subTitle">{t("modal.avatar.drag_and_drop_hint")}</p>
                     </div>
                   </Button>
                 ) : null}
@@ -185,11 +183,11 @@ export function UpdateAvatarModal() {
                       src={image.data_url}
                       width={512}
                       height={512}
-                      alt="avatar upload"
+                      alt={t("modal.avatar.upload_alt")}
                     />
                     <div className="flex flex-row items-center justify-end gap-2">
                       <Button size="sm" variant="secondary-outline" onClick={() => onImageUpdate(index)} disabled={isLoading}>
-                        Update
+                        {t("modal.avatar.update_action")}
                       </Button>
                       <Button
                         size="sm"
@@ -200,7 +198,7 @@ export function UpdateAvatarModal() {
                           setIsPreviewBroken(false)
                         }}
                         disabled={isLoading}>
-                        Remove
+                        {t("modal.avatar.remove_action")}
                       </Button>
                     </div>
                   </div>
@@ -210,7 +208,7 @@ export function UpdateAvatarModal() {
           </ImageUploading>
 
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-title">Avatar URL</p>
+            <p className="text-sm font-medium text-title">{t("modal.avatar.url_label")}</p>
             <Input
               type="url"
               value={avatarUrl}
@@ -228,10 +226,10 @@ export function UpdateAvatarModal() {
               loading={isLoading}
               leftIcon={<BiRefresh size={18} />}
               onClick={() => submitAvatar("")}>
-              Use provider avatar
+              {t("modal.avatar.use_provider_avatar")}
             </Button>
             <Button fullWidth loading={isLoading} onClick={() => submitAvatar(avatarUrl)}>
-              Save avatar
+              {t("modal.avatar.save_avatar")}
             </Button>
           </div>
         </div>

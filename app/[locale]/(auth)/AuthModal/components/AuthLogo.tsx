@@ -2,6 +2,7 @@ import Image from "next/image"
 import { twMerge } from "tailwind-merge"
 
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import { useScopedI18n } from "@/locales/client"
 
 interface AuthLogoProps {
   isAuthCompleted: boolean
@@ -10,6 +11,7 @@ interface AuthLogoProps {
 
 // http://localhost:6006/?path=/story/authentication-authpieces--headers-per-variant
 export function AuthLogo({ isAuthCompleted, isRecoverCompleted }: AuthLogoProps) {
+  const t = useScopedI18n("common")
   const darkMode = useDarkModeStore()
   return (
     <Image
@@ -27,7 +29,7 @@ export function AuthLogo({ isAuthCompleted, isRecoverCompleted }: AuthLogoProps)
               ? "/logo-dark.png"
               : "/logo-light.png"
       }
-      alt="logo"
+      alt={t("logo_alt")}
       width={64}
       height={64}
     />

@@ -78,8 +78,8 @@ export function PayWithPaypalButton() {
       disabled={isLoading}
       onClick={createPayPalSessionWithStripe}
       rightIcon={<FaPaypal className="text-xl group-hover:scale-110 transition-transform" />}>
-      {/* this does not required translation */}
-      <span className="relative z-10">PayPal</span>
+      {/* PayPal is a brand name, not translated */}
+      <span className="relative z-10">{"PayPal"}</span>
       <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
     </Button>
   )

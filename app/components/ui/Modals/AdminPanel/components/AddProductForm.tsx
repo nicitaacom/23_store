@@ -296,7 +296,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     } else if (showCompletedToast) {
       const subTitle = productId ? (
         <a className="underline underline-offset-2" href={`/${locale}/products/${productId}`} target="_blank" rel="noreferrer">
-          View product
+          {t("view_product")}
         </a>
       ) : (
         "AI translation completed."
@@ -440,7 +440,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     submittedCategoryId: string | null
   }) => {
     try {
-      await createProductFn(t, {
+      await createProductFn(tGlobal, {
         title: normalizedTitle,
         description: normalizedDescription,
         onStock: formattedOnStock,
@@ -766,7 +766,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                             hasPrevImage ? "cursor-pointer hover:bg-black/55" : "cursor-default opacity-30",
                           )}
                           type="button"
-                          aria-label="Previous image"
+                          aria-label={tGlobal("common.previous_image")}
                           onClick={() => hasPrevImage && navigateToImage(safeActiveImageIndex - 1)}
                           disabled={!hasPrevImage}>
                           <FaAngleLeft className="h-6 w-6 text-white" />
@@ -777,7 +777,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                             hasNextImage ? "cursor-pointer hover:bg-black/55" : "cursor-default opacity-30",
                           )}
                           type="button"
-                          aria-label="Next image"
+                          aria-label={tGlobal("common.next_image")}
                           onClick={() => hasNextImage && navigateToImage(safeActiveImageIndex + 1)}
                           disabled={!hasNextImage}>
                           <FaAngleRight className="h-6 w-6 text-white" />
@@ -899,6 +899,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         onSubmit={event => {
           event.preventDefault()
           event.stopPropagation()
+          event.currentTarget.scrollTo({ top: 0, behavior: "smooth" })
           void handleFormSubmit(event)
         }}>
         {/* Title */}
@@ -939,7 +940,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
               {tGlobal("category.edit_category")}
             </label>
-            {isSuggestingCategory && <span className="text-[10px] text-white/40 animate-pulse">AI suggesting...</span>}
+            {isSuggestingCategory && (
+              <span className="text-[10px] text-white/40 animate-pulse">{tGlobal("category.ai_suggesting")}</span>
+            )}
             {!isSuggestingCategory && autoAssignedName && categoryId && (
               <span className="flex items-center gap-1 rounded bg-success/10 px-1.5 py-0.5 text-[10px] text-success">
                 {tGlobal("category.auto_assigned")}: {autoAssignedName}

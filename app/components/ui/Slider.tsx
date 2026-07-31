@@ -7,6 +7,7 @@ import { AiFillCaretRight, AiFillCaretLeft } from "react-icons/ai"
 
 import { TImages } from "@/ts/types/TImages"
 import { ImageWithFallback } from "./ImageWithFallback"
+import { useScopedI18n } from "@/locales/client"
 
 interface SliderProps {
   images: TImages
@@ -49,6 +50,8 @@ function SliderImage({
 
 // http://localhost:6006/?path=/story/ui-controls-selectioncontrols--selection
 export function Slider({ images, width, height, emulateTouch, swipeable, className, containerClassName }: SliderProps) {
+  const t = useScopedI18n("common")
+
   return (
     <figure
       className={twMerge(
@@ -71,7 +74,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
               "absolute z-[88] top-1/2 -translate-y-1/2 left-0 h-full w-[40px] bg-[rgba(0,0,0,0.4)] flex justify-center items-center cursor-pointer duration-500",
               !hasPrev && "opacity-50 cursor-default",
             )}
-            aria-label="Previous image"
+            aria-label={t("previous_image")}
             onClick={clickHandler}
             disabled={!hasPrev}>
             <AiFillCaretLeft className="h-6 w-6 text-white" />
@@ -83,7 +86,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
               "absolute z-[88] top-1/2 -translate-y-1/2 right-0 h-full w-[40px] bg-[rgba(0,0,0,0.4)] flex justify-center items-center cursor-pointer duration-500",
               !hasNext && "opacity-50 cursor-default",
             )}
-            aria-label="Next image"
+            aria-label={t("next_image")}
             onClick={clickHandler}
             disabled={!hasNext}>
             <AiFillCaretRight className="h-6 w-6 text-white" />

@@ -5,10 +5,12 @@ import Link from "next/link"
 import { FiPhoneCall } from "react-icons/fi"
 
 import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
+import { useScopedI18n } from "@/locales/client"
 import { DropdownContainer } from "@/components/ui"
 
 // http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function ContactButton() {
+  const t = useScopedI18n("common")
   const dropDownRef = useRef<HTMLDivElement>(null)
   const [isShowDropdown, setIsShowDropdown] = useState(false)
 
@@ -36,9 +38,10 @@ export function ContactButton() {
             href={process.env.NEXT_PUBLIC_TELEGRAM_URL}
             target="_blank"
             rel="preload">
-            Telegram
+            {/* Telegram is a brand name, not translated */}
+            {"Telegram"}
           </Link>
-          <p className="whitespace-nowrap">(response 8s)</p>
+          <p className="whitespace-nowrap">{t("contact_response_time")}</p>
         </div>
       </div>
     </DropdownContainer>

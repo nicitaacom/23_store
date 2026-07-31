@@ -1,5 +1,9 @@
+"use client"
+
 import { BiChevronLeft, BiChevronRight } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
+
+import { useScopedI18n } from "@/locales/client"
 
 type PaginationItem = number | "ellipsis-left" | "ellipsis-right"
 
@@ -51,6 +55,8 @@ function PaginationControls({
   basePath,
   query,
 }: PaginationControlsProps) {
+  const t = useScopedI18n("common")
+
   const createPageHref = (targetPage: number) => {
     const params = new URLSearchParams({
       page: String(targetPage),
@@ -110,7 +116,7 @@ function PaginationControls({
       </div>
 
       <p className="px-1 text-xs uppercase tracking-[0.18em] text-subTitle">
-        Page {currentPage} of {totalPages}
+        {t("page_of_total", { current: currentPage, total: totalPages })}
       </p>
     </div>
   )

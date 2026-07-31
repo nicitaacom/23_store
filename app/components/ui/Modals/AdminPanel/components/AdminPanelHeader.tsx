@@ -7,6 +7,7 @@ import { CiEdit } from "react-icons/ci"
 import { MdOutlineDelete, MdOutlineCategory, MdPriceChange } from "react-icons/md"
 
 import { TPanelAction } from "@/ts/types/TPanelAction"
+import { useScopedI18n } from "@/locales/client"
 import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 
 export const PANEL_ACTIONS = {
@@ -47,6 +48,8 @@ export function AdminPanelHeader({
   disabled,
   roles,
 }: AdminPanelHeaderProps) {
+  const t = useScopedI18n("product")
+
   return (
     <OrganicCanvasBackground
       // mark the whole header as a non-dismiss zone so clicking empty space (gaps/padding)
@@ -62,7 +65,7 @@ export function AdminPanelHeader({
       verticalOverflow={18}>
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-success/85">Workspace</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-success/85">{t("workspace")}</p>
           <h1 className="mt-px truncate text-[18px] font-semibold leading-none text-white tablet:text-[20px]">{title}</h1>
         </div>
 
@@ -101,7 +104,7 @@ export function AdminPanelHeader({
         )}
         type="button"
         onClick={onClose}
-        aria-label="Close admin panel">
+        aria-label={t("close_admin_panel")}>
         <IoMdClose size={20} />
       </button>
     </OrganicCanvasBackground>

@@ -28,6 +28,7 @@ export function PersonalizeQualityBadge({ metrics, printArea, sourceWidthPx, sou
       <span
         className={`w-fit rounded-full border px-2.5 py-0.5 text-xs font-semibold ${qualityClassName[metrics.quality]}`}
         role="status">
+        {/* eslint-disable-next-line local-rules/no-untranslated-ui -- DPI is an international technical unit, not translated */}
         {t(`quality_${metrics.quality}`)} · {metrics.effectiveDpi} DPI
       </span>
 

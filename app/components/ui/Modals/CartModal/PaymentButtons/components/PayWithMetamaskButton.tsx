@@ -267,7 +267,7 @@ export function PayWithMetamaskButton() {
           rounded="lg"
           disabled={isLoading}
           onClick={() => setShowChainSelector(!showChainSelector)}
-          title="Select network">
+          title={t("payment.select_network")}>
           <span className="text-lg">⚡</span>
         </Button>
       </div>

@@ -80,7 +80,7 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
                 type="button"
                 onClick={handleSave}
                 disabled={isUpdatingCategory}>
-                {isUpdatingCategory ? "Updating..." : "Save"}
+                {isUpdatingCategory ? t("common.updating") : t("common.save")}
               </button>
               <button
                 className="rounded border border-border-color/30 px-2 py-1 text-xs text-subTitle transition-colors duration-150 hover:bg-foreground/10"
@@ -89,7 +89,7 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
                   setIsEditing(false)
                   setSelectedId(category_id ?? null)
                 }}>
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </div>

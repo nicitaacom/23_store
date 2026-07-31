@@ -10,6 +10,7 @@ import { twMerge } from "tailwind-merge"
 import { Button } from "../.."
 import type { ButtonProps } from "../../Button"
 import { useLoading } from "@/store/ui/useLoading"
+import { useScopedI18n } from "@/locales/client"
 
 interface AreYouSureModalContainerProps {
   isOpen: boolean
@@ -93,6 +94,7 @@ export function AreYouSureModalContainer({
   primaryButtonDataCy,
   secondaryButtonDataCy,
 }: AreYouSureModalContainerProps) {
+  const t = useScopedI18n("modal")
   const { isLoading } = useLoading()
   const titleId = useId()
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
@@ -184,7 +186,7 @@ export function AreYouSureModalContainer({
                 closeButtonClassName,
                 isLoading && "opacity-50 cursor-default pointer-events-none",
               )}
-              aria-label="Close confirmation"
+              aria-label={t("close_confirmation")}
               disabled={isLoading}
               onClick={closeModal}
               type="button">

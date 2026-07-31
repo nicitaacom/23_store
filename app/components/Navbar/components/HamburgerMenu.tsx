@@ -12,6 +12,7 @@ import { IoMdClose } from "react-icons/io"
 
 import { useEcosystemHintStore, useSidebar } from "@/store/ui"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
+import { useScopedI18n } from "@/locales/client"
 import { LanguageDropdown } from "@/components/LanguageDropdown"
 
 const menuItems = [
@@ -128,6 +129,7 @@ function HintRing({ radius, isBorderLoading }: { radius: number; isBorderLoading
 
 // http://localhost:6006/?path=/story/navigation-navbar--mobile-menu
 export function HamburgerMenu() {
+  const t = useScopedI18n("navbar")
   const pathname = usePathname()
   const { isSidebar, openSidebar, closeSidebar } = useSidebar()
   const { hintStage, hasHydrated, initializeHint, markMenuOpened, markMusicClicked, setHasHydrated } = useEcosystemHintStore()
@@ -177,7 +179,7 @@ export function HamburgerMenu() {
         <button
           className="flex items-center justify-center rounded-[10px] border border-transparent p-1 transition-colors duration-200 hover:border-border-color/70 hover:bg-foreground"
           type="button"
-          aria-label="Open menu"
+          aria-label={t("open_menu")}
           aria-expanded={isSidebar}
           onClick={() => {
             openSidebar()
@@ -211,18 +213,18 @@ export function HamburgerMenu() {
                 <div className="mb-6 rounded-[18px] border border-border-color/70 bg-background/80 px-4 py-4">
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex flex-col">
-                      <p className="text-xs uppercase tracking-[0.2em] text-subTitle">Menu</p>
-                      <h2 className="text-xl font-semibold text-title">Projects</h2>
+                      <p className="text-xs uppercase tracking-[0.2em] text-subTitle">{t("menu")}</p>
+                      <h2 className="text-xl font-semibold text-title">{t("projects")}</h2>
                     </div>
                     <button
                       className="rounded-[10px] border border-border-color/70 bg-foreground p-1 text-icon-color transition-colors duration-200 hover:bg-foreground-accent/40"
                       type="button"
-                      aria-label="Close menu"
+                      aria-label={t("close_menu")}
                       onClick={closeSidebar}>
                       <IoMdClose size={26} />
                     </button>
                   </div>
-                  <p className="text-sm leading-6 text-subTitle">Quick links to the rest of the Jokik project ecosystem.</p>
+                  <p className="text-sm leading-6 text-subTitle">{t("ecosystem_links")}</p>
                 </div>
 
                 <nav className="flex flex-col gap-2">
@@ -245,7 +247,7 @@ export function HamburgerMenu() {
                             <p className="truncate text-base font-medium text-title">{item.label}</p>
                             {isHintVisible && item.isFeatured && hintStage === "music" && (
                               <span className="shrink-0 rounded-full border border-brand/40 bg-brand/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-brand">
-                                Try it
+                                {t("try_it")}
                               </span>
                             )}
                           </div>
@@ -265,7 +267,7 @@ export function HamburgerMenu() {
 
                 {/* Language picker lives here on mobile (the navbar hides it below tablet) */}
                 <div className="mt-auto border-t border-border-color/40 pt-4 tablet:hidden">
-                  <p className="mb-2 text-xs uppercase tracking-[0.2em] text-subTitle">Language</p>
+                  <p className="mb-2 text-xs uppercase tracking-[0.2em] text-subTitle">{t("language")}</p>
                   <LanguageDropdown className="w-full" isDropUp />
                 </div>
               </div>

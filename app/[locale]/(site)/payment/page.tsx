@@ -44,7 +44,7 @@ export default function Payment() {
         </>
       ) : (
         <>
-          <Image style={{ width: "auto" }} src="/error-checkmark.gif" alt="Error Checkmark" width={256} height={256} priority />
+          <Image style={{ width: "auto" }} src="/error-checkmark.gif" alt={t("error_checkmark")} width={256} height={256} priority />
           <h1 className="text-2xl mb-2">{t("canceled")}</h1>
           <p className="flex flex-row">
             {t("redirecting_to_homepage_in")} <Timer seconds={4} action={() => router.replace("/")} />

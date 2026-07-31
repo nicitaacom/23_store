@@ -130,7 +130,7 @@ export function AuthModal() {
           </div>
         ) : (
           <h1 className="w-full h-[125px] flex justify-center items-center">
-            {t("auth.change_query_params_back_to")} &variant=login :)
+            {t("auth.change_query_params_back_to")}
           </h1>
         )}
       </div>

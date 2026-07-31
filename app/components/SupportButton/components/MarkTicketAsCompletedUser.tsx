@@ -8,6 +8,7 @@ import { FiCheckCircle } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
+import { useScopedI18n } from "@/locales/client"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import { Button } from "@/components/ui"
 
@@ -19,6 +20,7 @@ interface MarkTicketAsCompletedUserProps {
 
 // http://localhost:6006/?path=/story/support-supportexample--closed-button
 export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, messagesLength }: MarkTicketAsCompletedUserProps) {
+  const t = useScopedI18n("support")
   const router = useRouter()
   const { closeDropdown } = useSupportDropdown()
 
@@ -95,14 +97,14 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
 
       <div className={overlayClass(showMarkTicketAsCompleted && !isClosedBySupport, "z-30")}>
         <div className="w-full max-w-[270px] rounded-lg border border-border-color/35 bg-foreground/95 p-4 text-center shadow-compact-lg">
-          <h1 className="text-base font-semibold text-title">Close this ticket?</h1>
-          <p className="mt-2 text-sm text-subTitle">You can rate the conversation right after closing it.</p>
+          <h1 className="text-base font-semibold text-title">{t("close_ticket_confirm_title")}</h1>
+          <p className="mt-2 text-sm text-subTitle">{t("close_ticket_confirm_subtitle")}</p>
           <div className="mt-3 flex justify-center gap-2">
             <Button className="w-fit" variant="success-outline" size="sm" onClick={closeTicket}>
-              Yes
+              {t("yes")}
             </Button>
             <Button className="w-fit" variant="danger-outline" size="sm" onClick={() => setShowMarkTicketAsCompleted(false)}>
-              No
+              {t("no")}
             </Button>
           </div>
         </div>
@@ -110,17 +112,17 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
 
       <div className={overlayClass(showRateThisTicket || isClosedBySupport, "z-40")}>
         <div className="w-full max-w-[290px] rounded-lg border border-border-color/35 bg-foreground/95 p-4 text-center shadow-compact-lg">
-          <h1 className="text-base font-semibold text-title">Please rate this ticket</h1>
+          <h1 className="text-base font-semibold text-title">{t("rate_ticket_title")}</h1>
           <div className="mt-3 flex justify-center gap-1.5">{stars}</div>
           <Button className="mt-3" variant="default-outline" size="sm" onClick={() => rateTicket(null)}>
-            I don&apos;t want
+            {t("rate_ticket_skip")}
           </Button>
         </div>
       </div>
 
       <div className={overlayClass(showThankYou, "z-50")}>
         <div className="w-full max-w-[220px] rounded-lg border border-border-color/35 bg-foreground/95 p-4 text-center shadow-compact-lg">
-          <h1 className="text-lg font-semibold text-title">Thank you</h1>
+          <h1 className="text-lg font-semibold text-title">{t("thank_you")}</h1>
         </div>
       </div>
     </>

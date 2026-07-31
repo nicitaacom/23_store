@@ -6,6 +6,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { PopularProductCard } from "./components/PopularProductCard"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLazyLoading } from "@/hooks/useLazyLoading"
+import { useScopedI18n } from "@/locales/client"
 
 interface PopularProductsLazyFeedProps {
   initialProducts: TProductDB[]
@@ -18,6 +19,7 @@ const WINDOW_SIZE = 48
 
 // http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }: PopularProductsLazyFeedProps) {
+  const t = useScopedI18n("popular")
   const [products, setProducts] = useState(initialProducts)
 
   const selectPopularProducts = useCallback(async (start: number, end: number) => {
@@ -42,8 +44,8 @@ export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }:
   if (products.length === 0 && !isFetching) {
     return (
       <section className="rounded-[28px] border border-border-color/20 bg-background/80 p-8 text-center">
-        <h2 className="text-2xl font-semibold text-title">No popular products yet</h2>
-        <p className="mt-2 text-sm text-subTitle">Once products are added, they will appear here automatically.</p>
+        <h2 className="text-2xl font-semibold text-title">{t("empty_title")}</h2>
+        <p className="mt-2 text-sm text-subTitle">{t("empty_subtitle")}</p>
       </section>
     )
   }
@@ -52,9 +54,9 @@ export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }:
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-border-color/20 bg-background/70 px-4 py-3">
         <div className="text-sm text-subTitle">
-          Loaded {products.length} of {totalItems} products
+          {t("fetched_count", { fetched: products.length, total: totalItems })}
         </div>
-        <div className="text-xs uppercase tracking-[0.24em] text-success">Scroll to load more</div>
+        <div className="text-xs uppercase tracking-[0.24em] text-success">{t("scroll_for_more")}</div>
       </div>
 
       <div className="h-px" ref={topRef} />
@@ -70,13 +72,13 @@ export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }:
       {!hasNoMoreDataToFetch && isFetching && (
         <div className="flex items-center justify-center gap-3 rounded-[24px] border border-success/20 bg-success/5 px-4 py-5 text-sm text-subTitle">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-success/30 border-t-success" />
-          Loading more products...
+          {t("loading_more")}
         </div>
       )}
 
       {hasNoMoreDataToFetch && (
         <div className="rounded-[24px] border border-border-color/20 bg-background/70 px-4 py-4 text-center text-sm text-subTitle">
-          You reached the end of the popular products list.
+          {t("reached_end")}
         </div>
       )}
     </section>

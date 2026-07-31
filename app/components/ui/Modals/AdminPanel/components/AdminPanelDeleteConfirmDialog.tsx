@@ -15,6 +15,7 @@ import useToast from "@/store/ui/useToast"
 type DeleteStatus = "pending" | "deleting" | "done" | "error"
 
 function BulkProgressToast({ items }: { items: { title: string; status: DeleteStatus }[] }) {
+  const t = useScopedI18n("product")
   const done = items.filter(item => item.status === "done").length
   const total = items.length
   const progress = Math.round((done / total) * 100)
@@ -22,9 +23,7 @@ function BulkProgressToast({ items }: { items: { title: string; status: DeleteSt
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs text-subTitle">
-        <span>
-          {done} / {total} deleted
-        </span>
+        <span>{t("delete_progress", { done, total })}</span>
         <span>{progress}%</span>
       </div>
       <div className="h-1 w-full overflow-hidden rounded-full bg-border-color/20">
@@ -166,7 +165,7 @@ export function AdminPanelDeleteConfirmDialog({ product, onClose }: AdminPanelDe
             {isBulk ? (
               <>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">
-                  {products.length} products selected
+                  {tProduct("products_selected", { count: products.length })}
                 </p>
                 <ul className="mt-2 space-y-1.5">
                   {products.map(singleProduct => (

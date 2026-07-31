@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 
 import { useLoading } from "@/store/ui/useLoading"
+import { useScopedI18n } from "@/locales/client"
 
 interface ModalContainerProps {
   isOpen: boolean
@@ -26,6 +27,7 @@ export function ModalContainer({
   label,
   children,
 }: ModalContainerProps) {
+  const t = useScopedI18n("modal")
   const { isLoading } = useLoading()
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null)
@@ -113,7 +115,7 @@ export function ModalContainer({
                   "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
                   isLoading && "opacity-50 cursor-default pointer-events-none",
                 )}
-              aria-label="Close modal"
+              aria-label={t("close_modal")}
               disabled={isLoading}
               onClick={closeModal}
               ref={closeButtonRef}

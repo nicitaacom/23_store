@@ -6,6 +6,7 @@ import { twMerge } from "tailwind-merge"
 
 import { Button } from ".."
 import useCartStore from "@/store/user/cartStore"
+import { useScopedI18n } from "@/locales/client"
 
 type ProductQuantityAction = "increase" | "decrease" | "clear"
 
@@ -18,6 +19,7 @@ interface ProductQuantityButtonProps {
 
 // http://localhost:6006/?path=/story/ui-controls-selectioncontrols--selection
 export function ProductQuantityButton({ className, productId, action, variantId }: ProductQuantityButtonProps) {
+  const t = useScopedI18n("common")
   const { increaseProductQuantity, decreaseProductQuantity, clearProductQuantity } = useCartStore()
 
   // 1. Handle button click based on action type
@@ -61,7 +63,7 @@ export function ProductQuantityButton({ className, productId, action, variantId 
       shadow="sm"
       rightIcon={<MdOutlineDeleteOutline className="text-danger" />}
       onClick={handleClick}>
-      Clear
+      {t("clear")}
     </Button>
   )
 }

@@ -33,6 +33,8 @@ interface CheckEmailProps {
   supportText: string
   feedbackText: string
   allRightsReserved: string
+  variantLabel: string
+  needHelpText: string
 }
 
 // http://localhost:6006/?path=/story/foundations-emails--order-confirmation
@@ -50,6 +52,8 @@ export function CheckEmail({
   supportText,
   feedbackText,
   allRightsReserved,
+  variantLabel,
+  needHelpText,
 }: CheckEmailProps) {
   const productLocale = toProductLocale(locale)
   const totalAmount = products.reduce((total, product) => total + product.price * product.quantity, 0)
@@ -133,7 +137,7 @@ export function CheckEmail({
                             </Text>
                             {product.selectedVariant?.label && (
                               <Text style={{ lineHeight: "1.5", marginBottom: "12px" }} className="m-0 text-[14px] text-subTitle">
-                                Variant: {product.selectedVariant.label}
+                                {variantLabel}: {product.selectedVariant.label}
                               </Text>
                             )}
                             <Text className="m-0 text-[16px] font-medium text-title">
@@ -197,7 +201,7 @@ export function CheckEmail({
 
             {/* FOOTER */}
             <Section style={{ width: "100%", maxWidth: "600px", textAlign: "center", paddingTop: "24px" }}>
-              <Text className="m-0 text-[14px] text-subTitle mb-3">Need help with your order?</Text>
+              <Text className="m-0 text-[14px] text-subTitle mb-3">{needHelpText}</Text>
               <table style={{ width: "100%", textAlign: "center" }}>
                 <tbody>
                   <tr>
@@ -219,7 +223,8 @@ export function CheckEmail({
                 </tbody>
               </table>
               <Text style={{ lineHeight: "1.5" }} className="m-0 mt-6 text-[12px] text-subTitle">
-                © {new Date().getFullYear()} Joki. {allRightsReserved}
+                {/* "Joki" is the brand name, not translated */}©{" "}
+                {new Date().getFullYear()} {"Joki."} {allRightsReserved}
               </Text>
             </Section>
           </Body>

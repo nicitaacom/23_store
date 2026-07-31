@@ -1,15 +1,19 @@
 import Link from "next/link"
 
+import { getScopedI18n } from "@/locales/server"
+
 export default async function JokikMusicPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params
+  const t = await getScopedI18n("placeholder")
   return (
     <section className="flex min-h-[calc(100vh-64px)] items-center justify-center px-6 py-16">
       <div className="w-full max-w-2xl rounded-[18px] border border-border-color bg-foreground px-6 py-8 text-title shadow-[0_24px_80px_rgba(0,0,0,0.18)]">
-        <p className="mb-2 text-xs uppercase tracking-[0.24em] text-subTitle">Project</p>
+        <p className="mb-2 text-xs uppercase tracking-[0.24em] text-subTitle">{t("eyebrow")}</p>
+        {/* eslint-disable-next-line local-rules/no-untranslated-ui -- project brand name, not translated */}
         <h1 className="mb-3 text-4xl font-bold">Jokik Music</h1>
-        <p className="mb-6 text-base text-subTitle">This section is ready and linked from the hamburger menu.</p>
+        <p className="mb-6 text-base text-subTitle">{t("body")}</p>
         <Link className="text-info underline-offset-4 hover:underline" href={`/${locale}`}>
-          Back to home
+          {t("back_home")}
         </Link>
       </div>
     </section>

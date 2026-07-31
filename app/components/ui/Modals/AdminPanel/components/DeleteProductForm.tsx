@@ -115,7 +115,8 @@ export function DeleteProductForm({
                       )
                     }>
                     <BiTrash size={14} />
-                    Delete{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
+                    {t("delete_action")}
+                    {selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
                   </Button>
                   <Button className="shrink-0" size="sm" variant="default-outline" onClick={exitBulkMode}>
                     <MdClose size={15} />
@@ -124,7 +125,7 @@ export function DeleteProductForm({
               ) : (
                 <Button className="shrink-0 gap-1.5" size="sm" variant="default-outline" onClick={() => setIsBulkMode(true)}>
                   <MdChecklist size={15} />
-                  Select
+                  {t("select_action")}
                 </Button>
               )}
             </div>
@@ -148,7 +149,7 @@ export function DeleteProductForm({
               <div className="mx-auto flex w-full max-w-[440px] flex-col items-center justify-center gap-4 rounded px-4 py-5 text-center">
                 <Image
                   src={isDarkMode ? "/no-products-found-dark.png" : "/no-products-found-light.png"}
-                  alt="No products found"
+                  alt={t("no_products_found")}
                   width={176}
                   height={176}
                 />
@@ -164,13 +165,13 @@ export function DeleteProductForm({
         <div className="mx-auto flex w-full max-w-[440px] flex-1 flex-col items-center justify-center gap-4 rounded px-4 py-5 text-center">
           <Image
             src={isDarkMode ? "/no-products-to-delete-dark.png" : "/no-products-to-delete-light.png"}
-            alt="No products to delete"
+            alt={t("no_products_to_delete")}
             width={176}
             height={176}
           />
           <div>
             <h1 className="text-xl font-semibold">{t("no_products_to_delete")}</h1>
-            <p className="mt-2 text-sm text-subTitle">Products show up here only after they are created.</p>
+            <p className="mt-2 text-sm text-subTitle">{t("no_products_to_delete_subtitle")}</p>
           </div>
         </div>
       )}

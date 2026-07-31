@@ -34,6 +34,8 @@ export async function renderEmailFn(
           totalText={t("payment.email.total")}
           trackYourOrder={t("payment.email.track_your_order")}
           allRightsReserved={t("payment.email.all_rights_reserved")}
+          variantLabel={t("payment.email.variant")}
+          needHelpText={t("payment.email.need_help")}
         />,
         {
           pretty: true,
@@ -44,7 +46,7 @@ export async function renderEmailFn(
       setCurrentStep(5)
     } catch (error) {
       if (error instanceof Error) {
-        console.log(47, t("payment.error.render_email_title"), error.message)
+        console.log(49, t("payment.error.render_email_title"), error.message)
       }
     }
   } else {

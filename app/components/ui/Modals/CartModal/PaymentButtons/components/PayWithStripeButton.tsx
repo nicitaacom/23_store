@@ -77,7 +77,8 @@ export function PayWithStripeButton() {
       disabled={isLoading}
       onClick={createCheckoutSession}
       rightIcon={<FaStripeS className="text-xl group-hover:scale-110 transition-transform" />}>
-      <span className="relative z-10">Stripe</span>
+      {/* Stripe is a brand name, not translated */}
+      <span className="relative z-10">{"Stripe"}</span>
       <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
     </Button>
   )

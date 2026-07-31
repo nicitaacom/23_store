@@ -6,6 +6,7 @@ import { LuShoppingCart } from "react-icons/lu"
 
 import useCartStore from "@/store/user/cartStore"
 import { useHasMounted } from "@/hooks/useHasMounted"
+import { useScopedI18n } from "@/locales/client"
 
 interface CartIconProps {
   cart_quantity: number | undefined
@@ -14,6 +15,7 @@ interface CartIconProps {
 
 // http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function CartIcon({ cart_quantity, userId }: CartIconProps) {
+  const t = useScopedI18n("common")
   const pathname = usePathname()
   const updatedPath = pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "CartModal"
   const cartStore = useCartStore()
@@ -31,7 +33,7 @@ export function CartIcon({ cart_quantity, userId }: CartIconProps) {
         }`}
       data-cy="open-cart"
       href={updatedPath}
-      aria-label="cart">
+      aria-label={t("cart")}>
       <LuShoppingCart className="cursor-pointer hover:brightness-75 duration-300" size={28} />
       <div
         className={`absolute min-w-[20px] translate-x-[80%] translate-y-[-175%] laptop:translate-y-[-155%]

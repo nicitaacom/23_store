@@ -1,5 +1,6 @@
 import { BannersSlider } from "./BannersSlider"
 import { PopularProductsLazyFeed } from "./PopularProductsLazyFeed"
+import { getI18n } from "@/locales/server"
 import { selectPopularProducts } from "@/libs/popularProducts"
 
 interface PopularProductsPageProps {
@@ -8,6 +9,7 @@ interface PopularProductsPageProps {
 
 export default async function PopularProductsPage({ params: paramsPromise }: PopularProductsPageProps) {
   const params = await paramsPromise
+  const t = await getI18n()
   const { products, totalItems } = await selectPopularProducts({ limit: 24 })
 
   return (
@@ -16,13 +18,10 @@ export default async function PopularProductsPage({ params: paramsPromise }: Pop
         <div className="mb-4 flex items-start gap-4">
           <div className="flex w-1/2 flex-col justify-center gap-3 px-2">
             <div className="inline-flex w-fit items-center rounded-[4px] border border-success/30 bg-success/10 px-3 py-1 text-sm font-medium text-success">
-              Live catalog preview
+              {t("popular.badge")}
             </div>
-            <h1 className="text-3xl font-semibold tracking-tight text-title laptop:text-4xl">Popular products preview</h1>
-            <p className="text-base leading-7 text-subTitle">
-              Browse the catalog in one continuous feed. New items load automatically as you approach the bottom, so the page
-              feels like a real storefront instead of a paginated admin list.
-            </p>
+            <h1 className="text-3xl font-semibold tracking-tight text-title laptop:text-4xl">{t("popular.title")}</h1>
+            <p className="text-base leading-7 text-subTitle">{t("popular.subtitle")}</p>
           </div>
           <div className="h-[320px] w-1/2">
             <BannersSlider />

@@ -32,6 +32,7 @@ export default function TrackOrderPage() {
               <input
                 className="flex-1 rounded-lg border border-border-color bg-background px-3 py-2 text-sm text-title
                            placeholder:text-subTitle focus:border-success focus:outline-none focus:ring-1 focus:ring-success/30"
+                // eslint-disable-next-line local-rules/no-untranslated-ui -- example order-number format, not language-specific text
                 placeholder="ORD-123456"
                 value={orderNumberValue}
                 disabled
@@ -109,7 +110,7 @@ export default function TrackOrderPage() {
 
           <div className="absolute left-4 top-4 rounded-xl border border-border-color bg-background/95 p-3 backdrop-blur">
             {/* TODO - replace this placeholder with actuall delivery-address */}
-            <p className="text-xs font-medium text-title">📍 Helsinki, Finland</p>
+            <p className="text-xs font-medium text-title">{t("demo_location")}</p>
             <p className="mt-1 text-xs text-subTitle">{t("location_available_after_shipment")}</p>
           </div>
         </div>

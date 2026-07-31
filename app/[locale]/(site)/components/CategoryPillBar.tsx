@@ -9,6 +9,7 @@ import { categoryViewsSDK } from "@/sdk/CategoryViewsSDK/CategoryViewsSDK"
 import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryViewsStore"
 import { useCategoryPreferences } from "@/store/categories/useCategoryPreferences"
 import { useHasMounted } from "@/hooks/useHasMounted"
+import { useScopedI18n } from "@/locales/client"
 import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 import { useSupportPrefilledMessage } from "@/store/ui/useSupportPrefilledMessage"
 
@@ -21,6 +22,7 @@ interface CategoryPillBarProps {
 
 // http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function CategoryPillBar({ categories, isAuthenticated, locale, serverViews }: CategoryPillBarProps) {
+  const t = useScopedI18n("category")
   const router = useRouter()
   const searchParams = useSearchParams()
   const activeCategoryId = searchParams.get("category")
@@ -94,7 +96,7 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
           ref={isAllActive ? activePillRef : null}
           type="button"
           onClick={() => handlePillClick(null)}>
-          All
+          {t("all")}
         </button>
 
         {sortedCategories.map(category => {
@@ -121,7 +123,7 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
         className="h-8 shrink-0 rounded border border-border-color/35 bg-background/55 px-3 text-sm text-subTitle transition-colors duration-150 hover:bg-foreground/10 hover:text-title"
         type="button"
         onClick={handleRequestCategory}>
-        + Request
+        + {t("request")}
       </button>
     </div>
   )

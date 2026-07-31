@@ -3,6 +3,7 @@
 import { twMerge } from "tailwind-merge"
 
 import { useHasMounted } from "@/hooks/useHasMounted"
+import { useScopedI18n } from "@/locales/client"
 
 interface DropdownContainerProps {
   children: React.ReactNode
@@ -34,6 +35,8 @@ export function DropdownContainer({
   onClick,
   dropdownRef,
 }: DropdownContainerProps) {
+  const t = useScopedI18n("common")
+
   const handleClick = () => {
     if (onClick) {
       onClick()
@@ -60,7 +63,9 @@ export function DropdownContainer({
           className,
         )}>
         <div className="overflow-hidden rounded-lg border border-border-color/35 bg-foreground/95 text-sm shadow-compact">
-          {username && hasMounted && <h1 className="border-b border-border-color/30 px-3 py-2 text-center text-title">Hi {username}</h1>}
+          {username && hasMounted && (
+            <h1 className="border-b border-border-color/30 px-3 py-2 text-center text-title">{t("greeting", { username })}</h1>
+          )}
           {list ? <ul>{children}</ul> : children}
         </div>
       </div>

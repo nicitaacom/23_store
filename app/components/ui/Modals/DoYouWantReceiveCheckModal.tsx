@@ -66,6 +66,7 @@ export function DoYouWantReceiveCheckModal() {
         register={register}
         label={t("modal.do_you_want_receive_check.email_placeholder")}
         errors={errors}
+        // eslint-disable-next-line local-rules/no-untranslated-ui -- example email format, not language-specific text
         placeholder="example@gmail.com"
       />
       <Button variant="success-outline" onClick={handleSubmit(onSubmit)}>
@@ -74,7 +75,7 @@ export function DoYouWantReceiveCheckModal() {
       <Button
         variant="danger-outline"
         onClick={() => {
-          if (!recipientAddress) return console.log(77, "No recipient address")
+          if (!recipientAddress) return console.log(78, "No recipient address")
           sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, recipientAddress, t)
           closeModal()
         }}>

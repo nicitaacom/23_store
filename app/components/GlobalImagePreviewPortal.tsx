@@ -8,6 +8,7 @@ import { IoClose } from "react-icons/io5"
 import { OrganicCanvasBackground } from "./OrganicCanvasBackground"
 import { PortalWrapper } from "./PortalWrapper"
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
+import { useScopedI18n } from "@/locales/client"
 
 interface FileImagePreviewProps {
   side: "user" | "support"
@@ -32,6 +33,8 @@ export function FileImagePreview({
   isFullscreen = false,
   onClose,
 }: FileImagePreviewProps) {
+  const t = useScopedI18n("common")
+
   const formatFileSize = (bytes: number) =>
     bytes > 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(2)} MB` : `${(bytes / 1024).toFixed(2)} KB`
 
@@ -83,7 +86,7 @@ export function FileImagePreview({
                   className="h-auto max-h-[calc(100vh-56px)] w-auto max-w-full rounded-[24px] border border-white/10 object-contain shadow-[0_36px_120px_rgba(0,0,0,0.45)]"
                   unoptimized
                   src={imageUrl}
-                  alt="Image preview"
+                  alt={t("image_preview_alt")}
                   width={dimensions?.width ?? 1920}
                   height={dimensions?.height ?? 1080}
                   sizes="100vw"

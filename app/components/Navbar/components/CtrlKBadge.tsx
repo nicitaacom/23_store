@@ -22,5 +22,8 @@ export function CtrlKBadge() {
     return () => document.removeEventListener("keydown", handleKeydown)
   }, [ctrlKModal, ctrlKModal.toggle, params])
 
-  return <div className="bg-foreground-accent rounded inline-block text-title px-[4px]">⌘+K</div>
+  return (
+    // eslint-disable-next-line local-rules/no-untranslated-ui -- keyboard shortcut glyph, not language-specific text
+    <div className="bg-foreground-accent rounded inline-block text-title px-[4px]">⌘+K</div>
+  )
 }

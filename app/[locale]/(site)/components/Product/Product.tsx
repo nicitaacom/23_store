@@ -90,7 +90,7 @@ function Product({ ...product }: Props) {
             {translation.title}
           </Link>
           <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded border border-success/20 bg-success/10 px-2.5 py-1">
-            <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-subTitle">Price</span>
+            <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-subTitle">{t("price")}</span>
             <span className="text-lg font-bold tracking-tight text-success whitespace-nowrap mobile:text-xl">
               {formatCurrency(selectedPrice)}
             </span>

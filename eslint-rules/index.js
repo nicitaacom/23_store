@@ -41,4 +41,5 @@ module.exports = {
   ...require("./no-inner-component"),
   ...require("./arrow-parens-avoid"),
   ...require("./require-storybook-url"),
+  ...require("./no-untranslated-ui-i18n"),
 }

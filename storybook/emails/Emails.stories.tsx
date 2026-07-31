@@ -51,6 +51,7 @@ export const OrderConfirmation: Story = {
           deliveryDate="February 18"
           feedbackText="Feedback"
           locale="en"
+          needHelpText="Need help with your order?"
           orderConfirmed="Your order is confirmed"
           previewText="Your order is confirmed"
           products={[cartHeadphonesProduct]}
@@ -58,6 +59,7 @@ export const OrderConfirmation: Story = {
           supportText="Support"
           totalText="Total"
           trackYourOrder="Track your order"
+          variantLabel="Variant"
           weKeepYouUpdated="We keep you updated at every step."
           willBeDelivered="Your order will be delivered on"
         />

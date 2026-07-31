@@ -42,7 +42,8 @@ export function PayWithKlarnaButton() {
       )}
       variant="info"
       onClick={createKlarnaSession}>
-      Clarna
+      {/* Klarna is a brand name, not translated */}
+      {"Klarna"}
       <SiKlarna />
     </Button>
   )

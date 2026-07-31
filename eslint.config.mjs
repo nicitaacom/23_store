@@ -61,6 +61,7 @@ export default [
       "local-rules/require-absolute-import-for-shared-folders": "warn",
       "local-rules/use-rls-supabase-client": "warn",
       "local-rules/console-log-line-number": "warn",
+      "local-rules/no-untranslated-ui": "warn",
     },
   },
   {
@@ -105,5 +106,30 @@ export default [
   {
     // Ignore eslint-rules directory and config files - these are tool files, not source code
     ignores: ["eslint-rules/**", "eslint.config.mjs"],
+  },
+  {
+    // Surfaces decided to stay English on purpose (see plans/plan-08-i18n-sweep.md §0/audit):
+    // admin-only tools (only Nikita opens them), the support dashboard (support role only),
+    // auth-callback error screens (technical, aimed at support, not buyers), global-error
+    // (renders outside the locale layout - no i18n provider), and the internal support email.
+    // Plus Storybook (dev tooling, never shipped) and the one NODE_ENV-gated debug panel.
+    files: [
+      "storybook/**",
+      "**/*.stories.tsx",
+      "app/\\[locale\\]/(support)/**",
+      "app/\\[locale\\]/error/**",
+      "app/global-error.tsx",
+      "app/emails/RequestBetterPricesEmail.tsx",
+      // Owner/admin notification, not buyer-facing - see the file's own header comment.
+      "app/emails/RequestReplanishmentEmail.tsx",
+      "app/components/ui/Modals/AdminPanel/components/CategoriesForm.tsx",
+      "app/components/ui/Modals/AdminPanel/components/FormatImagesForm.tsx",
+      "app/components/ui/Modals/DbBackup/DbBackupModal.tsx",
+      "app/\\[locale\\]/(site)/stats/components/UTMDashboard.tsx",
+      "app/\\[locale\\]/(site)/components/MemoryDebug.tsx",
+    ],
+    rules: {
+      "local-rules/no-untranslated-ui": "off",
+    },
   },
 ]

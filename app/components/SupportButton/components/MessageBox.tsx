@@ -75,7 +75,7 @@ export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxPr
         <ImageWithFallback
           className="h-8 w-8 shrink-0 rounded border border-border-color/30 bg-background/70 object-cover shadow-compact"
           src={avatar_url}
-          alt="Sender avatar"
+          alt={t("sender_avatar_alt")}
           width={32}
           height={32}
           sizes="32px"
@@ -97,7 +97,7 @@ export function MessageBox({ message, showTimezone, animateEntry }: MessageBoxPr
                 isOpeningImage && "opacity-70",
               )}
               src={message.images[0]}
-              alt="Message attachment"
+              alt={t("message_attachment_alt")}
               width={240}
               height={240}
               sizes="240px"

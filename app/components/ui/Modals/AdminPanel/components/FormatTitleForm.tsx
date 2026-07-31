@@ -23,6 +23,7 @@ interface FormatTitleFormProps {
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const t = useScopedI18n("product")
+  const tCommon = useScopedI18n("common")
   const locale = useCurrentLocale()
   const toast = useToast()
   const [isEditing, setIsEditing] = useState(false)
@@ -131,13 +132,13 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
               className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80"
               type="button"
               onClick={cancelInput}>
-              Cancel
+              {tCommon("cancel")}
             </button>
             <button
               className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50"
               type="submit"
               disabled={isLoading}>
-              Save
+              {tCommon("save")}
             </button>
           </div>
         </form>

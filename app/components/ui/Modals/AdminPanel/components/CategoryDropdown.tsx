@@ -6,6 +6,7 @@ import { twMerge } from "tailwind-merge"
 
 import { TCategory } from "@/ts/categories/TCategory"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
+import { useScopedI18n } from "@/locales/client"
 
 interface CategoryDropdownProps {
   categories: TCategory[]
@@ -17,6 +18,7 @@ interface CategoryDropdownProps {
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function CategoryDropdown({ categories, value, onChange, disabled, uncategorizedLabel }: CategoryDropdownProps) {
+  const t = useScopedI18n("category")
   const [open, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [prevOpen, setPrevOpen] = useState(open)
@@ -88,7 +90,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
         <input
           className="w-full border-b border-white/10 bg-transparent px-3 py-2 text-sm text-white placeholder:text-white/32 focus:outline-none"
           ref={inputRef}
-          placeholder="Search categories..."
+          placeholder={t("search_placeholder")}
           value={searchValue}
           onChange={e => setSearchValue(e.target.value)}
           onClick={e => e.stopPropagation()}
@@ -136,7 +138,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
             )
           })}
 
-          {filteredParents.length === 0 && <p className="px-3 py-3 text-sm text-white/30">No categories found</p>}
+          {filteredParents.length === 0 && <p className="px-3 py-3 text-sm text-white/30">{t("no_categories_found")}</p>}
         </div>
       </div>
     </div>

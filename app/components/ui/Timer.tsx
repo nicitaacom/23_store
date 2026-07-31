@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react"
 
+import { useScopedI18n } from "@/locales/client"
+
 interface TimerProps {
   seconds: number
   children?: React.ReactNode
@@ -12,6 +14,7 @@ interface TimerProps {
 
 // http://localhost:6006/?path=/story/authentication-authexample--sign-in
 export function Timer({ seconds, children, label, labelClassName, action }: TimerProps) {
+  const t = useScopedI18n("common")
   const [countDown, setCountDown] = useState(seconds)
   const timerRef = useRef<NodeJS.Timeout | undefined>()
   const isChildren = countDown <= 0
@@ -37,7 +40,7 @@ export function Timer({ seconds, children, label, labelClassName, action }: Time
       {!isChildren && (
         <>
           <label className={labelClassName}>
-            {label}&nbsp;{countDown}s
+            {label}&nbsp;{t("seconds_short", { count: countDown })}
           </label>
         </>
       )}
