@@ -9,10 +9,10 @@ import { AIInputSearch } from "./components/AISearch/AIInputSearch"
 import { CatalogSearchForm } from "./components/CatalogSearchForm"
 import { CategoryPillBar } from "./components/CategoryPillBar"
 import { SortedProducts } from "./components/SortedProducts"
+import { defaultPerPage, perPage as perPageOptions } from "@/constant/perPage"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import { getScopedI18n } from "@/locales/server"
 import { normalizeProducts } from "@/utils/productVariants"
-import { perPage as perPageOptions } from "@/constant/perPage"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import PaginationControls from "@/components/PaginationControls"
 import ProductsPerPage from "@/components/ProductsPerPage"
@@ -91,7 +91,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
 
   //Logic for pagination
   const requestedPerPage = Number(searchParams["perPage"])
-  const perPage = perPageOptions.includes(requestedPerPage) ? requestedPerPage : perPageOptions[0]
+  const perPage = perPageOptions.includes(requestedPerPage) ? requestedPerPage : defaultPerPage
 
   const totalItems = filteredProducts.length
   const totalPages = Math.max(1, Math.ceil(totalItems / perPage))

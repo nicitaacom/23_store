@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useState } from "react"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import type { IUTMAggregatedStats } from "@/ts/interfaces/IUTMAggregatedStats"
 import { completeTablesExport } from "../mocks/backupSDK"
+import { useDbBackupState } from "@/store/ui/useDbBackupState"
 import { DbBackupModal } from "@/components/ui/Modals/DbBackup/DbBackupModal"
 import { DbBackupProgressCard } from "@/components/ui/Modals/DbBackup/DbBackupProgressCard"
 import { MemoryDebug } from "@/[locale]/(site)/components/MemoryDebug"
+import SupportButton from "@/components/SupportButton/SupportButton"
 import { UTMDashboard } from "@/[locale]/(site)/stats/components/UTMDashboard"
 
 const utmStats: IUTMAggregatedStats = {
@@ -70,7 +72,27 @@ function BackupProgressWorkbench() {
       )}
       {isModalOpen && <DbBackupModal />}
       <DbBackupProgressCard />
+      <SupportButton />
     </>
+  )
+}
+
+function BackupProgressPlacementWorkbench() {
+  useLayoutEffect(() => {
+    useDbBackupState.setState({
+      isModalOpen: false,
+      tablesExportPhase: "exporting",
+      tablesExportProgress: 0.42,
+    })
+    return () => useDbBackupState.getState().reset()
+  }, [])
+
+  return (
+    <div className="min-h-screen bg-background p-4 text-subTitle">
+      <p>Backup progress and support remain independently accessible.</p>
+      <DbBackupProgressCard />
+      <SupportButton />
+    </div>
   )
 }
 
@@ -97,7 +119,10 @@ export const UtmStats: Story = {
 }
 
 export const Backup: Story = {
-  parameters: { nextjs: { navigation: { pathname: "/en/stats", query: { modal: "DbBackup" } } } },
+  parameters: {
+    nextjs: { navigation: { pathname: "/en/stats", query: { modal: "DbBackup" } } },
+    viewport: { defaultViewport: "mobileSmall" },
+  },
   render: () => <BackupProgressWorkbench />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -117,6 +142,20 @@ export const Backup: Story = {
     await expect(backupStatus).toBeVisible()
     await expect(backupStatus).toHaveTextContent("Tables · Export")
     await expect(backupStatus).toHaveTextContent("25%")
+    const supportButton = canvas.getByRole("button", { name: "Open support chat" })
+    const backupStatusBounds = backupStatus.getBoundingClientRect()
+    const supportButtonBounds = supportButton.getBoundingClientRect()
+    await expect(backupStatusBounds.left).toBeGreaterThanOrEqual(16)
+    await expect(backupStatusBounds.width).toBeLessThanOrEqual(420)
+    await expect(backupStatusBounds.right).toBeLessThan(supportButtonBounds.left)
+    await expect(Math.abs(backupStatusBounds.bottom - supportButtonBounds.bottom)).toBeLessThanOrEqual(1)
+    await userEvent.click(supportButton)
+    await waitFor(() => expect(supportButton).toHaveAttribute("aria-expanded", "true"))
+    await expect(Number(getComputedStyle(backupStatus).zIndex)).toBeLessThan(
+      Number(getComputedStyle(supportButton.parentElement as HTMLElement).zIndex),
+    )
+    await userEvent.click(supportButton)
+    await waitFor(() => expect(supportButton).toHaveAttribute("aria-expanded", "false"))
 
     await userEvent.click(canvas.getByRole("button", { name: "Reopen backup" }))
     await waitFor(() => expect(canvas.getByRole("button", { name: "Export" })).toBeDisabled())
@@ -134,6 +173,11 @@ export const Backup: Story = {
       expect(window.dispatchEvent(completedPageCloseEvent)).toBe(true)
     })
   },
+}
+
+export const BackupProgressPlacement: Story = {
+  parameters: { viewport: { defaultViewport: "mobileSmall" } },
+  render: () => <BackupProgressPlacementWorkbench />,
 }
 
 export const SalesAssistantMemory: Story = {

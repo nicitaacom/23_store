@@ -62,7 +62,7 @@ export function DbBackupProgressCard() {
 
   return (
     <aside
-      className="pointer-events-none fixed bottom-4 right-4 z-[1550] flex w-[min(calc(100vw-2rem),420px)] flex-col gap-2 rounded-lg border border-success/25 bg-modal-surface p-3 shadow-compact-lg"
+      className="pointer-events-none fixed bottom-4 right-20 z-[119] flex w-[min(calc(100vw-6rem),420px)] flex-col gap-2 rounded-lg border border-success/25 bg-modal-surface p-3 shadow-compact-lg mobile:bottom-5 mobile:w-[min(calc(100vw-100px),420px)] desktop:right-24 desktop:w-[min(calc(100vw-116px),420px)]"
       aria-label={t("title")}
       aria-live="polite"
       role="status">
