@@ -35,6 +35,9 @@ secondary order is created date, base price, or the visible localized name.
 outside click, and Escape through the same discard dialog; the AdminPanel also covers tab changes,
 links, Back, and browser `beforeunload`.
 
+Submitting **Create product** scrolls the Add tab's details pane back to the top. A successful submit
+therefore opens the cleared form at its title field, while a rejected submit exposes its topmost errors.
+
 ### 1.2 Types
 
 - `TProductDB` — [app/ts/product/TProductDB.ts](../../../../ts/product/TProductDB.ts)

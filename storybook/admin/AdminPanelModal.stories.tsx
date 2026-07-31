@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { HttpResponse, http } from "msw";
-import { expect, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 
 import { fixtureCategories, headphonesProduct } from "../fixtures";
 import { AdminPanelModal } from "@/components/ui/Modals/AdminPanel/AdminPanelModal";
@@ -33,6 +33,23 @@ type Story = StoryObj<typeof meta>;
 export const AddProduct: Story = {};
 export const OwnerWithoutAdminRole: Story = {
   args: { roles: ["OWNER"] },
+};
+
+export const CreateProductReturnsToTop: Story = {
+  parameters: { a11y: { test: "todo" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const findByRoleResp = await canvas.findByRole("button", { name: "Create product" });
+    const form = findByRoleResp.closest("form");
+    if (!form) throw new Error("Create product form not found");
+
+    const scrollTo = fn();
+    Object.defineProperty(form, "scrollTo", { configurable: true, value: scrollTo });
+    findByRoleResp.removeAttribute("disabled");
+    await userEvent.click(findByRoleResp);
+
+    await expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "smooth" });
+  },
 };
 
 export const UnsavedChanges: Story = {
