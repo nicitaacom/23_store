@@ -2,9 +2,10 @@
 
 ## 0. Why this exists
 
-The owner needs ONE place to add a product, edit an existing product, and delete a product — without
+The owner needs ONE place to add, edit, delete, and review price proposals for a product — without
 leaving the page. The Admin Panel is that place. It opens as a query-param modal (`?modal=AdminPanel`)
-so it survives refresh and is shareable, and it is gated to the `admin` role.
+so it survives refresh and is shareable. Product tabs use owner authorization; category management
+remains gated to the `ADMIN` role.
 
 A second reason this doc exists: variants used to render **without images** and there was **no way to
 edit a variant** after creating it (Edit tab had title/price/stock/images but not variants). That is
@@ -24,6 +25,15 @@ fixed — see [VariantsForm.tsx](components/VariantsForm.tsx) and the per-varian
   [components/PersonalizationForm.tsx](components/PersonalizationForm.tsx)
 - Delete tab — [components/DeleteProductForm.tsx](components/DeleteProductForm.tsx) +
   [components/AdminPanelDeleteConfirmDialog.tsx](components/AdminPanelDeleteConfirmDialog.tsx)
+- Pricing tab — [components/PricingForm.tsx](components/PricingForm.tsx); full behavior and UI recipes
+  are in [dev_readme-ui-ai-pricing.md](dev_readme-ui-ai-pricing.md)
+
+Edit and Delete share `TAdminProductSort`. Products without a real image always lead; the selected
+secondary order is created date, base price, or the visible localized name.
+
+`AdminPanelDirtyContext` collects drafts from every tab. `ModalQueryContainer.onCloseRequest` routes X,
+outside click, and Escape through the same discard dialog; the AdminPanel also covers tab changes,
+links, Back, and browser `beforeunload`.
 
 ### 1.2 Types
 

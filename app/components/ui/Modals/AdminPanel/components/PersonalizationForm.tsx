@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { TMockupRect, TPersonalizationConfig, TPersonalizationDraftState, TProductPersonalization } from "@/ts/product/TPersonalization"
+import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { formatPrintSize, getAspectCorrectHeightPct, getAspectDrift, MAX_ASPECT_DRIFT } from "@/utils/printMetrics"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
@@ -79,6 +80,15 @@ export function PersonalizationForm({
   // A verdict belongs to one exact configuration. Move the rectangle or retype the mm and it goes back
   // to "unchecked", so a passed check on an older rectangle never lets a new one through.
   const printAreaSignature = `${mockupUrl}|${widthMmValue}x${heightMmValue}|${mockupRect.leftPct},${mockupRect.topPct},${mockupRect.widthPct},${mockupRect.heightPct}`
+  const savedPrintAreaSignature = savedConfig
+    ? `${savedConfig.mockupUrl}|${savedConfig.printArea.widthMm}x${savedConfig.printArea.heightMm}|${savedConfig.mockupRect.leftPct},${savedConfig.mockupRect.topPct},${savedConfig.mockupRect.widthPct},${savedConfig.mockupRect.heightPct}`
+    : `|x|${EMPTY_RECT.leftPct},${EMPTY_RECT.topPct},${EMPTY_RECT.widthPct},${EMPTY_RECT.heightPct}`
+  const enabledStateChanged = isEnabled !== Boolean(personalization?.isEnabled)
+  const enabledConfigChanged =
+    (isEnabled || Boolean(personalization?.isEnabled)) && printAreaSignature !== savedPrintAreaSignature
+  const isDirty = Boolean(productId) && (enabledStateChanged || enabledConfigChanged)
+
+  useAdminPanelDirty(`edit-product-${productId ?? "new"}-personalization`, isDirty || isUpdatingConfig)
   const currentVerdict: TPrintAreaVerdict = checkedSignature === printAreaSignature ? verdict : "unchecked"
 
   // "Fix the shape" only makes the rectangle the right SHAPE - it says nothing about where it sits, so

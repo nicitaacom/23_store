@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useId, useRef } from "react"
 import { IoMdClose } from "react-icons/io"
 import { IconType } from "react-icons"
 import { useSwipeable } from "react-swipeable"
@@ -94,6 +94,7 @@ export function AreYouSureModalContainer({
   secondaryButtonDataCy,
 }: AreYouSureModalContainerProps) {
   const { isLoading } = useLoading()
+  const titleId = useId()
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null)
 
@@ -171,6 +172,7 @@ export function AreYouSureModalContainer({
             data-click-outside-ignore
             role="dialog"
             aria-modal="true"
+            aria-labelledby={titleId}
             initial={{ y: 12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 8, opacity: 0 }}
@@ -190,7 +192,9 @@ export function AreYouSureModalContainer({
             </button>
             <div className={twMerge("flex max-w-[620px] flex-col gap-4 px-4 pb-4 pt-5 tablet:px-5", contentClassName)}>
               <div className={twMerge("flex flex-col gap-2 pr-10 text-start", titleClassName)}>
-                <div className="font-secondary text-xl font-bold leading-tight text-title">{label}</div>
+                <div className="font-secondary text-xl font-bold leading-tight text-title" id={titleId}>
+                  {label}
+                </div>
                 {subTitle && <div className={twMerge("text-sm leading-6 text-subTitle", subTitleClassName)}>{subTitle}</div>}
               </div>
               <div className={twMerge("flex flex-col-reverse gap-3 tablet:flex-row tablet:justify-end", actionsClassName)}>

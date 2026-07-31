@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { HttpResponse, http } from "msw"
 import { expect, userEvent, waitFor, within } from "storybook/test"
 
+import { ADMIN_PRODUCT_SORTS, TAdminProductSort } from "@/ts/types/TAdminProductSort"
 import type { TProductDB } from "@/ts/product/TProductDB"
 import { fixtureCategories, headphonesProduct } from "../fixtures"
 import { EditProductForm } from "@/components/ui/Modals/AdminPanel/components/EditProductForm"
@@ -60,6 +61,18 @@ function GenerateMockupHarness() {
         }}
       />
     </>
+  )
+}
+
+function EditProductFormHarness() {
+  const [productSort, setProductSort] = useState<TAdminProductSort>(ADMIN_PRODUCT_SORTS.createdDesc)
+
+  return (
+    <EditProductForm
+      ownerProducts={[configuredProduct]}
+      productSort={productSort}
+      onProductSortChange={setProductSort}
+    />
   )
 }
 
@@ -213,7 +226,7 @@ export const AIGeneratesAMatchingMockup: Story = {
 // reaches the print area without ever opening /products/<id>/manage.
 export const InsideAdminPanel: Story = {
   parameters: { msw: { handlers: editProductHandlers } },
-  render: () => <EditProductForm ownerProducts={[configuredProduct]} />,
+  render: () => <EditProductFormHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await waitFor(() => expect(canvas.getByText("Personalization")).toBeVisible())

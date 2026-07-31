@@ -28,6 +28,8 @@ export const BACKUP_TABLE_NAMES = [
   "23_categories",
   "23_category_views",
   "23_products",
+  "23_ai_price_runs",
+  "23_ai_price_proposals",
   "23_personalized_designs",
   "23_tickets",
   "23_messages",
@@ -50,6 +52,7 @@ export type TBackupTableName = (typeof BACKUP_TABLE_NAMES)[number]
 export type TBackupTableConfig = {
   name: TBackupTableName
   onConflict: string
+  optional?: boolean
   numericColumns: string[]
   arrayColumns: string[]
   jsonColumns: string[]
@@ -91,10 +94,28 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
   {
     name: "23_products",
     onConflict: "price_id,owner_id,id",
-    numericColumns: ["on_stock", "price"],
+    numericColumns: ["on_stock", "price", "ai_price_baseline"],
     arrayColumns: ["img_url"],
     jsonColumns: ["translations", "variants"],
     uuidColumns: ["owner_id"],
+  },
+  {
+    name: "23_ai_price_runs",
+    onConflict: "id",
+    optional: true,
+    numericColumns: ["eligible_count", "proposal_count"],
+    arrayColumns: [],
+    jsonColumns: ["sources"],
+    uuidColumns: ["id"],
+  },
+  {
+    name: "23_ai_price_proposals",
+    onConflict: "id",
+    optional: true,
+    numericColumns: ["current_price", "baseline_price", "proposed_price"],
+    arrayColumns: [],
+    jsonColumns: ["proposed_variants"],
+    uuidColumns: ["id", "run_id", "owner_id"],
   },
   {
     name: "23_personalized_designs",

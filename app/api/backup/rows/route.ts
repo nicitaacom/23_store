@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 
 import { requireAdmin } from "../requireAdmin"
 import { BACKUP_TABLES, getTableConfig, filterRowsByUuidColumns } from "../backupTables"
+import { isMissingSchemaError } from "@/utils/personalizationSchema"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
 export const runtime = "nodejs"
@@ -24,6 +25,10 @@ export async function GET() {
     // eslint-disable-next-line local-rules/use-rls-supabase-client -- requireAdmin authorizes this full-database export before the loop.
     const { data, error } = await supabaseAdmin.from(table.name).select("*")
     if (error) {
+      if (table.optional && isMissingSchemaError(error)) {
+        tables[table.name] = []
+        continue
+      }
       return NextResponse.json(
         { error: error.message, code: error.code, details: error.details, hint: error.hint } satisfies API.BackupRowsGetResponse,
         { status: 500 },

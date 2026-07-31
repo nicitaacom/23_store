@@ -132,6 +132,9 @@ export type Database = {
       }
       "23_products": {
         Row: {
+          ai_price_baseline: number | null
+          ai_pricing_enabled: boolean
+          created_at: string
           id: string
           img_url: string[]
           on_stock: number
@@ -145,6 +148,9 @@ export type Database = {
           personalization: Json | null
         }
         Insert: {
+          ai_price_baseline?: number | null
+          ai_pricing_enabled?: boolean
+          created_at?: string
           id: string
           img_url: string[]
           on_stock: number
@@ -158,6 +164,9 @@ export type Database = {
           personalization?: Json | null
         }
         Update: {
+          ai_price_baseline?: number | null
+          ai_pricing_enabled?: boolean
+          created_at?: string
           id?: string
           img_url?: string[]
           on_stock?: number
@@ -169,6 +178,96 @@ export type Database = {
           category_id?: string | null
           replanishment_requests_count?: number
           personalization?: Json | null
+        }
+        Relationships: []
+      }
+      "23_ai_price_proposals": {
+        Row: {
+          baseline_price: number
+          created_at: string
+          current_price: number
+          id: string
+          owner_id: string
+          product_id: string
+          product_name: string
+          proposed_price: number
+          proposed_variants: Json | null
+          reasoning: string
+          reviewed_at: string | null
+          run_id: string
+          status: string
+        }
+        Insert: {
+          baseline_price: number
+          created_at?: string
+          current_price: number
+          id?: string
+          owner_id: string
+          product_id: string
+          product_name: string
+          proposed_price: number
+          proposed_variants?: Json | null
+          reasoning: string
+          reviewed_at?: string | null
+          run_id: string
+          status?: string
+        }
+        Update: {
+          baseline_price?: number
+          created_at?: string
+          current_price?: number
+          id?: string
+          owner_id?: string
+          product_id?: string
+          product_name?: string
+          proposed_price?: number
+          proposed_variants?: Json | null
+          reasoning?: string
+          reviewed_at?: string | null
+          run_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      "23_ai_price_runs": {
+        Row: {
+          completed_at: string | null
+          eligible_count: number
+          error: string | null
+          id: string
+          model: string
+          openai_response_id: string | null
+          proposal_count: number
+          sources: Json
+          started_at: string
+          status: string
+          week_key: string
+        }
+        Insert: {
+          completed_at?: string | null
+          eligible_count?: number
+          error?: string | null
+          id?: string
+          model?: string
+          openai_response_id?: string | null
+          proposal_count?: number
+          sources?: Json
+          started_at?: string
+          status?: string
+          week_key: string
+        }
+        Update: {
+          completed_at?: string | null
+          eligible_count?: number
+          error?: string | null
+          id?: string
+          model?: string
+          openai_response_id?: string | null
+          proposal_count?: number
+          sources?: Json
+          started_at?: string
+          status?: string
+          week_key?: string
         }
         Relationships: []
       }
@@ -207,6 +306,7 @@ export type Database = {
       }
       "23_users": {
         Row: {
+          ai_pricing_enabled: boolean
           avatar_url: string | null
           created_at: string
           email: string
@@ -217,6 +317,7 @@ export type Database = {
           username: string
         }
         Insert: {
+          ai_pricing_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
           email: string
@@ -227,6 +328,7 @@ export type Database = {
           username: string
         }
         Update: {
+          ai_pricing_enabled?: boolean
           avatar_url?: string | null
           created_at?: string
           email?: string
@@ -318,6 +420,13 @@ export type Database = {
       increment_product_replanishment_requests: {
         Args: { p_id: string }
         Returns: number
+      }
+      approve_ai_price_proposal: {
+        Args: {
+          p_new_price_id: string
+          p_proposal_id: string
+        }
+        Returns: Json
       }
     }
     Enums: {

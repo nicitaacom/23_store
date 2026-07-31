@@ -7,6 +7,7 @@ import { BiPlus, BiTrash, BiStar, BiUpload } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
 
 import { showToastWarningFn } from "../functions/showToastWarningFn"
+import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { uploadProductImages } from "@/functions/createProductHelpers"
 import { useLoading } from "@/store/ui/useLoading"
@@ -39,6 +40,10 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
   const pendingUrlsRef = useRef<string[] | null>(null)
   const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const snapshotRef = useRef<string[]>([])
+  useAdminPanelDirty(
+    `edit-product-${id}-images`,
+    newImages.length > 0 || deletingUrls.size > 0 || pendingCount > 0 || isLoading,
+  )
 
   // Warn on navigation while a save is in flight
   useEffect(() => {

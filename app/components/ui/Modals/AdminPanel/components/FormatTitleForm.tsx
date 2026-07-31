@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 
 import { TProductTranslations } from "@/ts/product/TProductDB"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
+import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
@@ -65,8 +66,10 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<IFormDataAddProduct>()
+
+  useAdminPanelDirty(`edit-product-${id}-title`, (isEditing && isDirty) || isLoading)
 
   const onSubmit = (data: IFormDataAddProduct) => {
     updateTitle(data.title)

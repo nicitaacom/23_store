@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { AnimatePresence, motion } from "framer-motion"
 import { useForm, useWatch } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
@@ -17,6 +18,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { readPastedImages, toDataUrl } from "../functions/readPastedImages"
 import { reorderProductImages } from "../functions/reorderProductImages"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
+import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
 import { useFocusVariantLabelAfterImageAdded } from "../hooks/useFocusVariantLabelAfterImageAdded"
 import { CategoryDropdown } from "./CategoryDropdown"
 import { PersonalizationForm } from "./PersonalizationForm"
@@ -62,8 +64,6 @@ const previewImageVariants = {
   }),
 }
 
-const BEFORE_UNLOAD_MESSAGE = "Translation in progress, are you sure you want to leave?"
-
 // A one- or two-character label is still mid-typing; from the third character the owner has committed
 // to a real variant, so that is when the previous variant's price is offered.
 const VARIANT_LABEL_LENGTH_FOR_PRICE_AUTOFILL = 3
@@ -103,6 +103,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()
   const locale = useCurrentLocale()
+  const router = useRouter()
   const { show: showToast, close: closeToast } = useToast()
   const { isDraggingg } = useDragging()
 
@@ -212,7 +213,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     control,
     setValue,
     trigger,
-    formState: { errors },
+    formState: { errors, isDirty: isFormDirty },
   } = useForm<IFormDataAddProduct>({
     defaultValues: EMPTY_PRODUCT_FORM_VALUES,
     mode: "onSubmit",
@@ -221,6 +222,18 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   const titleValue = useWatch({ control, name: "title" })
   const descriptionValue = useWatch({ control, name: "subTitle" })
+  const hasDraft =
+    isFormDirty ||
+    images.length > 0 ||
+    variants.length > 0 ||
+    Boolean(variantLabelValue || variantPriceValue || variantQuantityValue) ||
+    categoryId !== null ||
+    personalizationState.isEnabled ||
+    Boolean(personalizationState.draft) ||
+    !isVariantImageAttached
+
+  useAdminPanelDirty("add-product-draft", hasDraft)
+  useAdminPanelDirty("add-product-pending", pendingTranslationsAmount > 0 || isSubmitting)
 
   // Register subTitle manually since it's no longer backed by a ProductInput/textarea
   useEffect(() => {
@@ -402,6 +415,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   useSubscribeToProductCreated({
     pendingCreatedProductsRef,
     decreasePendingTranslations,
+    onProductCreated: router.refresh,
   })
 
   const createProductInBackgroundFn = async ({
@@ -640,19 +654,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   useEffect(() => {
     previousImageIndexRef.current = activeImageIndex
   }, [activeImageIndex])
-
-  useEffect(() => {
-    if (pendingTranslationsAmount === 0) return
-
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault()
-      event.returnValue = BEFORE_UNLOAD_MESSAGE
-      return BEFORE_UNLOAD_MESSAGE
-    }
-
-    window.addEventListener("beforeunload", handleBeforeUnload)
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
-  }, [pendingTranslationsAmount])
 
   return (
     <div className="mx-auto grid h-full min-h-0 w-full gap-3 tablet:grid-cols-[minmax(0,1fr)_minmax(0,1.45fr)]">

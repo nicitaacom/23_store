@@ -18,6 +18,7 @@ interface ModalQueryContainerProps {
   disableDismiss?: boolean
   ignoreInputs?: boolean
   onVisibilityChange?: (isVisible: boolean) => void
+  onCloseRequest?: (continueClose: () => void) => void
 }
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
@@ -30,6 +31,7 @@ export function ModalQueryContainer({
   disableDismiss = false,
   ignoreInputs = true,
   onVisibilityChange,
+  onCloseRequest,
 }: ModalQueryContainerProps) {
   const pathname = usePathname()
   const queryParams = useSearchParams()
@@ -70,7 +72,17 @@ export function ModalQueryContainer({
     }, 260)
   }, [disableDismiss, pathname])
 
-  useOnEscOrClickOutside(modalRef, closeModal, {
+  const requestClose = useCallback(() => {
+    if (disableDismiss) return
+    if (onCloseRequest) {
+      onCloseRequest(closeModal)
+      return
+    }
+    closeModal()
+    // eslint-disable-next-line local-rules/no-function-in-deps -- requestClose must use the current animated close callback
+  }, [closeModal, disableDismiss, onCloseRequest])
+
+  useOnEscOrClickOutside(modalRef, requestClose, {
     isHookEnabled: showModal && !shouldClose && !disableDismiss,
     ignoreInputs,
   })
@@ -82,7 +94,7 @@ export function ModalQueryContainer({
   const modalBgHandler = useSwipeable({
     onTouchStartOrOnMouseDown: e => {
       if (!disableDismiss && e.event.target === backdropRef.current) {
-        closeModal()
+        requestClose()
       }
     },
     trackMouse: true,
@@ -99,7 +111,7 @@ export function ModalQueryContainer({
     return null
   }
 
-  const content = typeof children === "function" ? children({ closeModal }) : children
+  const content = typeof children === "function" ? children({ closeModal: requestClose }) : children
 
   return (
     <AnimatePresence>
@@ -134,7 +146,7 @@ export function ModalQueryContainer({
                   disableDismiss && "opacity-50 cursor-default pointer-events-none",
                 )}
                 size={22}
-                onClick={closeModal}
+                onClick={requestClose}
               />
             )}
             {content}

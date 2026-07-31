@@ -4,7 +4,7 @@ import { IoMdClose } from "react-icons/io"
 import { twMerge } from "tailwind-merge"
 import { FiPlus } from "react-icons/fi"
 import { CiEdit } from "react-icons/ci"
-import { MdOutlineDelete, MdOutlineCategory } from "react-icons/md"
+import { MdOutlineDelete, MdOutlineCategory, MdPriceChange } from "react-icons/md"
 
 import { TPanelAction } from "@/ts/types/TPanelAction"
 import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
@@ -13,6 +13,7 @@ export const PANEL_ACTIONS = {
   add: "add",
   edit: "edit",
   delete: "delete",
+  pricing: "pricing",
   categories: "categories",
 } as const
 
@@ -31,6 +32,7 @@ const ACTION_ICONS: Record<TPanelAction, typeof FiPlus> = {
   add: FiPlus,
   edit: CiEdit,
   delete: MdOutlineDelete,
+  pricing: MdPriceChange,
   categories: MdOutlineCategory,
 }
 

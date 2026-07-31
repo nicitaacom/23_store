@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { twMerge } from "tailwind-merge"
 
 import { IPendingDeleteProduct } from "@/ts/interfaces/IPendingDeleteProduct"
+import { ADMIN_PRODUCT_SORTS, TAdminProductSort } from "@/ts/types/TAdminProductSort"
 import { TPanelAction } from "@/ts/types/TPanelAction"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { AddProductForm } from "./components/AddProductForm"
@@ -14,6 +15,9 @@ import { CategoriesForm } from "./components/CategoriesForm"
 import { DeleteProductForm } from "./components/DeleteProductForm"
 import { EditProductForm } from "./components/EditProductForm"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
+import { AdminPanelDirtyProvider } from "./AdminPanelDirtyContext"
+import { AdminPanelUnsavedChangesDialog } from "./components/AdminPanelUnsavedChangesDialog"
+import { PricingForm } from "./components/PricingForm"
 import { useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -32,8 +36,148 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
   const hasHydratedOwnerProductsRef = useRef(false)
 
   const [panelAction, setPanelAction] = useState<TPanelAction>(PANEL_ACTIONS.add)
+  const [productSort, setProductSort] = useState<TAdminProductSort>(ADMIN_PRODUCT_SORTS.createdDesc)
   const [pendingDeleteProduct, setPendingDeleteProduct] = useState<IPendingDeleteProduct | IPendingDeleteProduct[] | null>(null)
+  const [dirtySections, setDirtySections] = useState<Record<string, boolean>>({})
+  const [pendingDiscardAction, setPendingDiscardAction] = useState<(() => void) | null>(null)
+  const hasUnsavedChangesRef = useRef(false)
+  const requestGuardedActionRef = useRef<(action: () => void) => void>(() => {})
+  const hasHistoryGuardRef = useRef(false)
+  const ignoreNextPopStateRef = useRef(false)
+  const afterGuardRemovalRef = useRef<(() => void) | null>(null)
   const { isLoading } = useLoading()
+  const hasUnsavedChanges = Object.values(dirtySections).some(Boolean)
+
+  const setSectionDirty = useCallback((section: string, isDirty: boolean) => {
+    setDirtySections(currentSections => {
+      if (currentSections[section] === isDirty) return currentSections
+      if (!isDirty) {
+        const nextSections = { ...currentSections }
+        delete nextSections[section]
+        return nextSections
+      }
+      return { ...currentSections, [section]: true }
+    })
+  }, [])
+
+  const dirtyContextValue = useMemo(() => ({ setSectionDirty }), [setSectionDirty])
+
+  const requestGuardedAction = useCallback(
+    (action: () => void) => {
+      if (!hasUnsavedChanges) {
+        action()
+        return
+      }
+      setPendingDiscardAction(() => action)
+    },
+    [hasUnsavedChanges],
+  )
+  useEffect(() => {
+    hasUnsavedChangesRef.current = hasUnsavedChanges
+    requestGuardedActionRef.current = action => {
+      if (!hasUnsavedChanges) {
+        action()
+        return
+      }
+      setPendingDiscardAction(() => action)
+    }
+  }, [hasUnsavedChanges])
+
+  const handlePanelActionChange = useCallback(
+    (nextAction: TPanelAction) => {
+      if (nextAction === panelAction) return
+      requestGuardedActionRef.current(() => setPanelAction(nextAction))
+    },
+    [panelAction],
+  )
+
+  const handleDiscard = useCallback(() => {
+    const action = pendingDiscardAction
+    hasUnsavedChangesRef.current = false
+    setDirtySections({})
+    setPendingDiscardAction(null)
+
+    if (hasHistoryGuardRef.current) {
+      hasHistoryGuardRef.current = false
+      ignoreNextPopStateRef.current = true
+      afterGuardRemovalRef.current = action
+      window.history.back()
+      return
+    }
+
+    action?.()
+  }, [pendingDiscardAction])
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ""
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [hasUnsavedChanges])
+
+  // A duplicate same-URL history entry keeps the first Back press inside the mounted AdminPanel,
+  // where the application dialog can ask before the real navigation is allowed.
+  useEffect(() => {
+    if (hasUnsavedChanges && !hasHistoryGuardRef.current) {
+      window.history.pushState({ ...window.history.state, adminPanelDirtyGuard: true }, "", window.location.href)
+      hasHistoryGuardRef.current = true
+      return
+    }
+
+    if (!hasUnsavedChanges && hasHistoryGuardRef.current && !pendingDiscardAction) {
+      hasHistoryGuardRef.current = false
+      ignoreNextPopStateRef.current = true
+      window.history.back()
+    }
+  }, [hasUnsavedChanges, pendingDiscardAction])
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (ignoreNextPopStateRef.current) {
+        ignoreNextPopStateRef.current = false
+        const action = afterGuardRemovalRef.current
+        afterGuardRemovalRef.current = null
+        action?.()
+        return
+      }
+
+      if (!hasUnsavedChangesRef.current) return
+
+      // The browser just removed our duplicate entry. Restore it before showing the dialog so
+      // "Keep editing" leaves both the URL and the history position unchanged.
+      window.history.pushState({ ...window.history.state, adminPanelDirtyGuard: true }, "", window.location.href)
+      hasHistoryGuardRef.current = true
+      requestGuardedActionRef.current(() => window.history.back())
+    }
+
+    window.addEventListener("popstate", handlePopState)
+    return () => window.removeEventListener("popstate", handlePopState)
+  }, [])
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return
+
+    const handleLinkClick = (event: MouseEvent) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+      const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null
+      if (!target || target.target === "_blank" || target.hasAttribute("download")) return
+
+      const destination = new URL(target.href, window.location.href)
+      if (destination.href === window.location.href || destination.hash && destination.pathname === window.location.pathname) {
+        return
+      }
+
+      event.preventDefault()
+      event.stopPropagation()
+      requestGuardedActionRef.current(() => window.location.assign(destination.href))
+    }
+
+    document.addEventListener("click", handleLinkClick, true)
+    return () => document.removeEventListener("click", handleLinkClick, true)
+  }, [hasUnsavedChanges])
 
   useEffect(() => {
     if (hasHydratedOwnerProductsRef.current) return
@@ -62,9 +206,10 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
       hideCloseButton
       disableDismiss={!!pendingDeleteProduct}
       ignoreInputs={false}
+      onCloseRequest={requestGuardedAction}
       modalQuery="AdminPanel">
       {({ closeModal }) => (
-        <>
+        <AdminPanelDirtyProvider value={dirtyContextValue}>
           <AdminPanelHeader
             title={t("modal.admin_panel.label")}
             activeAction={panelAction}
@@ -72,11 +217,12 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
               add: t("product.add"),
               edit: t("product.edit"),
               delete: t("product.delete"),
+              pricing: t("pricing.tab"),
               categories: t("modal.admin_panel.categories"),
             }}
-            onActionChange={setPanelAction}
+            onActionChange={handlePanelActionChange}
             onClose={closeModal}
-            disabled={isLoading || !!pendingDeleteProduct}
+            disabled={isLoading || !!pendingDeleteProduct || !!pendingDiscardAction}
             roles={roles}
           />
 
@@ -88,12 +234,26 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
             )}
             {panelAction === PANEL_ACTIONS.edit && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
-                <EditProductForm ownerProducts={hydratedOwnerProducts} />
+                <EditProductForm
+                  ownerProducts={hydratedOwnerProducts}
+                  productSort={productSort}
+                  onProductSortChange={setProductSort}
+                />
               </div>
             )}
             {panelAction === PANEL_ACTIONS.delete && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">
-                <DeleteProductForm ownerProducts={hydratedOwnerProducts} onRequestDelete={setPendingDeleteProduct} />
+                <DeleteProductForm
+                  ownerProducts={hydratedOwnerProducts}
+                  onRequestDelete={setPendingDeleteProduct}
+                  productSort={productSort}
+                  onProductSortChange={setProductSort}
+                />
+              </div>
+            )}
+            {panelAction === PANEL_ACTIONS.pricing && (
+              <div className="panel-scroll h-full overflow-y-auto pr-1">
+                <PricingForm />
               </div>
             )}
             {panelAction === PANEL_ACTIONS.categories && roles.includes("ADMIN") && (
@@ -104,7 +264,12 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
           </div>
 
           <AdminPanelDeleteConfirmDialog product={pendingDeleteProduct} onClose={() => setPendingDeleteProduct(null)} />
-        </>
+          <AdminPanelUnsavedChangesDialog
+            isOpen={!!pendingDiscardAction}
+            onDiscard={handleDiscard}
+            onKeepEditing={() => setPendingDiscardAction(null)}
+          />
+        </AdminPanelDirtyProvider>
       )}
     </ModalQueryContainer>
   )

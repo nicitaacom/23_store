@@ -5,6 +5,7 @@ import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 
 import { TProductTranslations } from "@/ts/product/TProductDB"
+import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
 import { RichTextToolbar } from "./RichTextToolbar"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
@@ -36,6 +37,8 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   const wrapRef = useRef<((marker: string) => void) | null>(null)
   const editorContainerRef = useRef<HTMLDivElement | null>(null)
   const valueRef = useRef(value)
+  const isDirty = isEditing && value.trim() !== (currentTranslation.description ?? "").trim()
+  useAdminPanelDirty(`edit-product-${id}-description`, isDirty || isLoading)
   useEffect(() => {
     valueRef.current = value
   }, [value])

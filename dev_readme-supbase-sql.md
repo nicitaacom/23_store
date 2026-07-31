@@ -234,6 +234,7 @@ CREATE TABLE IF NOT EXISTS public."23_products" (
   rating_sum INTEGER NOT NULL DEFAULT 0,
   rating_count INTEGER NOT NULL DEFAULT 0, -- avg = rating_sum / rating_count
   category_id UUID NULL REFERENCES public."23_categories"(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY (price_id, owner_id, id)
 );
 
@@ -626,6 +627,217 @@ $$);
 ```
 
 </details>
+
+## AI price proposals
+
+Run this block before enabling the Pricing tab. Replace the two placeholder Vault values before scheduling the job.
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+CREATE EXTENSION IF NOT EXISTS pg_net;
+CREATE EXTENSION IF NOT EXISTS supabase_vault CASCADE;
+
+ALTER TABLE public."23_users"
+  ADD COLUMN IF NOT EXISTS ai_pricing_enabled BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE public."23_products"
+  ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  ADD COLUMN IF NOT EXISTS ai_pricing_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS ai_price_baseline NUMERIC(12, 2);
+
+ALTER TABLE public."23_products"
+  DROP CONSTRAINT IF EXISTS products_ai_price_baseline_positive;
+ALTER TABLE public."23_products"
+  ADD CONSTRAINT products_ai_price_baseline_positive
+  CHECK (ai_price_baseline IS NULL OR ai_price_baseline > 0);
+
+CREATE TABLE IF NOT EXISTS public."23_ai_price_runs" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  week_key DATE NOT NULL UNIQUE,
+  status TEXT NOT NULL DEFAULT 'running'
+    CHECK (status IN ('running', 'completed', 'skipped', 'failed')),
+  model TEXT NOT NULL DEFAULT 'gpt-5.4-mini',
+  openai_response_id TEXT,
+  sources JSONB NOT NULL DEFAULT '[]'::JSONB,
+  eligible_count INTEGER NOT NULL DEFAULT 0 CHECK (eligible_count >= 0),
+  proposal_count INTEGER NOT NULL DEFAULT 0 CHECK (proposal_count >= 0),
+  error TEXT,
+  started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  completed_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS public."23_ai_price_proposals" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  run_id UUID NOT NULL REFERENCES public."23_ai_price_runs"(id) ON DELETE CASCADE,
+  product_id TEXT NOT NULL,
+  owner_id UUID NOT NULL,
+  product_name TEXT NOT NULL,
+  current_price NUMERIC(12, 2) NOT NULL CHECK (current_price > 0),
+  baseline_price NUMERIC(12, 2) NOT NULL CHECK (baseline_price > 0),
+  proposed_price NUMERIC(12, 2) NOT NULL CHECK (proposed_price > 0),
+  proposed_variants JSONB,
+  reasoning VARCHAR(300) NOT NULL CHECK (char_length(trim(reasoning)) BETWEEN 1 AND 300),
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'approved', 'rejected', 'expired')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  reviewed_at TIMESTAMPTZ,
+  UNIQUE (run_id, product_id),
+  CHECK (
+    proposed_price BETWEEN round(baseline_price * 0.875, 2)
+    AND round(baseline_price * 1.125, 2)
+  )
+);
+
+CREATE INDEX IF NOT EXISTS ai_price_proposals_owner_status_created_idx
+  ON public."23_ai_price_proposals" (owner_id, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS ai_price_proposals_product_status_idx
+  ON public."23_ai_price_proposals" (product_id, status);
+
+ALTER TABLE public."23_ai_price_runs" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public."23_ai_price_proposals" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS ai_price_runs_select_owner ON public."23_ai_price_runs";
+CREATE POLICY ai_price_runs_select_owner
+  ON public."23_ai_price_runs"
+  FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public."23_ai_price_proposals" proposal
+      WHERE proposal.run_id = "23_ai_price_runs".id
+        AND proposal.owner_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS ai_price_proposals_select_owner ON public."23_ai_price_proposals";
+CREATE POLICY ai_price_proposals_select_owner
+  ON public."23_ai_price_proposals"
+  FOR SELECT
+  TO authenticated
+  USING (owner_id = auth.uid());
+
+DROP POLICY IF EXISTS ai_pricing_update_own_user ON public."23_users";
+CREATE POLICY ai_pricing_update_own_user
+  ON public."23_users"
+  FOR UPDATE
+  TO authenticated
+  USING (id = auth.uid())
+  WITH CHECK (id = auth.uid());
+
+CREATE OR REPLACE FUNCTION public.approve_ai_price_proposal(
+  p_proposal_id UUID,
+  p_new_price_id TEXT
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  proposal public."23_ai_price_proposals"%ROWTYPE;
+  product public."23_products"%ROWTYPE;
+BEGIN
+  SELECT *
+  INTO proposal
+  FROM public."23_ai_price_proposals"
+  WHERE id = p_proposal_id
+  FOR UPDATE;
+
+  IF proposal.id IS NULL THEN
+    RAISE EXCEPTION 'Price proposal not found';
+  END IF;
+  IF auth.uid() IS NULL OR proposal.owner_id <> auth.uid() THEN
+    RAISE EXCEPTION 'Forbidden';
+  END IF;
+  IF proposal.status <> 'pending' THEN
+    RAISE EXCEPTION 'Price proposal is no longer pending';
+  END IF;
+
+  SELECT *
+  INTO product
+  FROM public."23_products"
+  WHERE id = proposal.product_id
+  FOR UPDATE;
+
+  IF product.id IS NULL OR product.owner_id <> proposal.owner_id THEN
+    RAISE EXCEPTION 'Product not found';
+  END IF;
+  IF product.price <> proposal.current_price
+    OR product.ai_price_baseline IS DISTINCT FROM proposal.baseline_price THEN
+    RAISE EXCEPTION 'Product price changed after this proposal was created';
+  END IF;
+  IF proposal.proposed_price NOT BETWEEN round(proposal.baseline_price * 0.875, 2)
+    AND round(proposal.baseline_price * 1.125, 2) THEN
+    RAISE EXCEPTION 'Proposed price is outside the baseline band';
+  END IF;
+
+  UPDATE public."23_products"
+  SET price = proposal.proposed_price,
+      price_id = p_new_price_id,
+      variants = proposal.proposed_variants
+  WHERE id = product.id;
+
+  UPDATE public."23_ai_price_proposals"
+  SET status = 'approved', reviewed_at = NOW()
+  WHERE id = proposal.id;
+
+  UPDATE public."23_ai_price_proposals"
+  SET status = 'expired', reviewed_at = NOW()
+  WHERE product_id = product.id
+    AND id <> proposal.id
+    AND status = 'pending';
+
+  RETURN jsonb_build_object(
+    'product_id', product.id,
+    'old_price_id', product.price_id,
+    'price', proposal.proposed_price
+  );
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.approve_ai_price_proposal(UUID, TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.approve_ai_price_proposal(UUID, TEXT) TO authenticated;
+
+-- Replace the placeholders before the first run. Existing named secrets are preserved on reruns.
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM vault.secrets WHERE name = 'price_webhook_base_url') THEN
+    PERFORM vault.create_secret('https://YOUR_PRODUCTION_DOMAIN', 'price_webhook_base_url');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM vault.secrets WHERE name = 'price_webhook_secret') THEN
+    PERFORM vault.create_secret('REPLACE_WITH_A_LONG_RANDOM_SECRET', 'price_webhook_secret');
+  END IF;
+END;
+$$;
+
+SELECT cron.unschedule('weekly_ai_price_proposals')
+WHERE EXISTS (
+  SELECT 1 FROM cron.job WHERE jobname = 'weekly_ai_price_proposals'
+);
+
+SELECT cron.schedule('weekly_ai_price_proposals', '0 3 * * 1', $$
+  SELECT net.http_post(
+    url := (
+      SELECT decrypted_secret
+      FROM vault.decrypted_secrets
+      WHERE name = 'price_webhook_base_url'
+    ) || '/api/webhooks/prices',
+    headers := jsonb_build_object(
+      'Authorization',
+      'Bearer ' || (
+        SELECT decrypted_secret
+        FROM vault.decrypted_secrets
+        WHERE name = 'price_webhook_secret'
+      ),
+      'Content-Type',
+      'application/json'
+    ),
+    body := '{}'::JSONB,
+    timeout_milliseconds := 300000
+  );
+$$);
+```
 
 For other templates the same - jsut change text `Verify your email on jokik` and `Verify email`
 

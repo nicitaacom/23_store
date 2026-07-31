@@ -23,4 +23,6 @@ export type TProductDB = {
   replanishment_requests_count?: number
   // Print area + mockup config - null/absent means the product has no Personalize button.
   personalization?: TProductPersonalization | null
+  ai_pricing_enabled?: boolean
+  ai_price_baseline?: number | null
 }

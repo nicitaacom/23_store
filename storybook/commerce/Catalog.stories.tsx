@@ -1,3 +1,4 @@
+import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { HttpResponse, http } from "msw"
 import { expect, userEvent, waitFor, within } from "storybook/test"
@@ -17,6 +18,27 @@ import { SortedProducts } from "@/[locale]/(site)/components/SortedProducts"
 
 const products = [headphonesProduct, soldOutProduct]
 const serverViews = { [headphonesProduct.id]: 12, [soldOutProduct.id]: 3 }
+const newlyCreatedProduct = {
+  ...soldOutProduct,
+  id: "newly-created-product",
+  translations: {
+    ...soldOutProduct.translations,
+    en: { ...soldOutProduct.translations.en, title: "Newly created product" },
+  },
+}
+
+function ProductGridRefreshHarness() {
+  const [visibleProducts, setVisibleProducts] = useState([headphonesProduct])
+
+  return (
+    <div className="p-3">
+      <button type="button" onClick={() => setVisibleProducts([newlyCreatedProduct])}>
+        Show newly created product
+      </button>
+      <SortedProducts products={visibleProducts} serverViews={{}} />
+    </div>
+  )
+}
 
 // The catalog surfaces talk to the category-view endpoints while they are on screen - answering them
 // here keeps a story from failing on an unhandled request.
@@ -75,6 +97,15 @@ export const ProductGrid: Story = {
       <SortedProducts products={products} serverViews={serverViews} />
     </div>
   ),
+}
+
+export const ProductGridAfterCreation: Story = {
+  render: () => <ProductGridRefreshHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole("button", { name: "Show newly created product" }))
+    await expect(await canvas.findByRole("link", { name: "Newly created product" })).toBeVisible()
+  },
 }
 
 export const ProductGridWithoutMatches: Story = {

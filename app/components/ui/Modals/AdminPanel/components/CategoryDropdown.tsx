@@ -23,7 +23,11 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useOnEscOrClickOutside(containerRef, () => setOpen(false), { isHookEnabled: open })
+  useOnEscOrClickOutside(containerRef, () => setOpen(false), {
+    isHookEnabled: open,
+    isInner: true,
+    ignoreInputs: true,
+  })
 
   if (open !== prevOpen) {
     setPrevOpen(open)

@@ -6,31 +6,42 @@ import { BiTrash } from "react-icons/bi"
 import { MdChecklist, MdClose } from "react-icons/md"
 
 import { IPendingDeleteProduct } from "@/ts/interfaces/IPendingDeleteProduct"
+import { TAdminProductSort } from "@/ts/types/TAdminProductSort"
 import { TProductDB } from "@/ts/product/TProductDB"
+import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
 import { AdminPanelProductSearch } from "./AdminPanelProductSearch"
+import { AdminPanelProductSort } from "./AdminPanelProductSort"
 import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
+import { sortAdminProducts } from "@/utils/adminProductSort"
+import { toProductLocale } from "@/utils/product"
+import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
-import { useScopedI18n } from "@/locales/client"
 import { Button } from "@/components/ui"
 
 interface DeleteProductForm {
   ownerProducts: TProductDB[]
   onRequestDelete: (products: IPendingDeleteProduct | IPendingDeleteProduct[]) => void
+  productSort: TAdminProductSort
+  onProductSortChange: (sort: TAdminProductSort) => void
 }
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
-export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProductForm) {
+export function DeleteProductForm({
+  ownerProducts,
+  onRequestDelete,
+  productSort,
+  onProductSortChange,
+}: DeleteProductForm) {
   const t = useScopedI18n("product")
+  const locale = toProductLocale(useCurrentLocale())
   const isDarkMode = useDarkModeStore().isDarkMode
   const [searchQuery, setSearchQuery] = useState("")
   const [isBulkMode, setIsBulkMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
-  const sortedProducts = [...ownerProducts].sort((productA, productB) =>
-    (productB.created_at ?? "").localeCompare(productA.created_at ?? ""),
-  )
-  const filteredProducts = searchQuery.trim() ? filterProductsBySearchQuery(sortedProducts, searchQuery) : sortedProducts
+  const matchingProducts = searchQuery.trim() ? filterProductsBySearchQuery(ownerProducts, searchQuery) : ownerProducts
+  const filteredProducts = sortAdminProducts(matchingProducts, productSort, locale)
 
   function toggleSelect(id: string) {
     setSelectedIds(prev => {
@@ -57,6 +68,7 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
   const selectedProducts = ownerProducts.filter(product => selectedIds.has(product.id))
   const allSelected = filteredProducts.length > 0 && selectedIds.size === filteredProducts.length
   const someSelected = selectedIds.size > 0 && !allSelected
+  useAdminPanelDirty("delete-product-selection", selectedIds.size > 0)
 
   return (
     <div className="mx-auto flex min-h-full w-full max-w-[1080px] flex-col">
@@ -86,6 +98,7 @@ export function DeleteProductForm({ ownerProducts, onRequestDelete }: DeleteProd
                   totalCount={ownerProducts.length}
                 />
               </div>
+              <AdminPanelProductSort value={productSort} onChange={onProductSortChange} />
               {isBulkMode ? (
                 <>
                   <Button

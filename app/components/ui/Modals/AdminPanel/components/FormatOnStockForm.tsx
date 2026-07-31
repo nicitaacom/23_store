@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form"
 import { twMerge } from "tailwind-merge"
 
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
+import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
 import { formatNumber, parseFormattedNumber } from "@/utils/numberFormatter"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLoading } from "@/store/ui/useLoading"
@@ -60,8 +61,10 @@ export function FormatOnStockForm({ id, onStock, isDerivedFromVariants = false }
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<IFormDataAddProduct>()
+
+  useAdminPanelDirty(`edit-product-${id}-stock`, (isEditing && isDirty) || isLoading)
 
   const onSubmit = (data: IFormDataAddProduct) => {
     updateOnStock(parseFormattedNumber(data.onStock))

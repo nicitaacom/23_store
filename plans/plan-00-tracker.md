@@ -31,6 +31,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 13 | [STORYBOOK-PLAN.md](../STORYBOOK-PLAN.md) | P1 | Opus · high | in progress | plan-12 |
 | 14 | [plan-14-optional-variant-image.md](plan-14-optional-variant-image.md) | P2 | Sonnet · medium | done - all 5 steps; `Commerce/Product → VariantWithoutImage` covers the mixed row | — |
 | 15 | personalization phase 3 - owner notification on a paid design (see `app/components/ui/Modals/PersonalizeModal/dev_readme-personalize.md` §4) | P2 | Sonnet · medium | waiting | — |
+| 16 | [plan-16-ai-price-proposals-admin-workspace.md](plan-16-ai-price-proposals-admin-workspace.md) | P1 | GPT-5 · high | done - AI pricing SQL waits for Nikita to run it | — |
 
 Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screenshot rule (2 = P1, 3+ = P0) sets nothing — P1 here means "blocks users or is the main asked-for work".
 

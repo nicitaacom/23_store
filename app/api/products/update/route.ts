@@ -8,6 +8,7 @@ import { getRunPersonalizationSqlMessage, isMissingSchemaError } from "@/utils/p
 import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 import { normalizeProductImageUrls } from "@/utils/product"
 import { stripe } from "@/libs/stripe"
+import { supabaseAdmin } from "@/libs/supabase/supabaseAdmin"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
@@ -176,56 +177,75 @@ export async function POST(req: Request) {
 
     /* UPDATE PRICE */
     if (typeof price === "number") {
-      //Updating price on stripe its another process - first you archive this product
-      //then you create new product with updated price - BS - lmao
+      if (!Number.isFinite(price) || price <= 0) {
+        return NextResponse.json({ error: "Price must be greater than zero" }, { status: 400 })
+      }
 
-      // Create new product on stripe
-      if (normalizedExistingProduct) {
-        const canonicalTranslation = normalizedExistingProduct.translations.fi
-        const canonicalTitle = canonicalTranslation.title.trim()
+      const priceResponse = await stripe.prices.create({
+        product: productId,
+        unit_amount: Math.round(price * 100),
+        currency: "usd",
+      })
+      let databaseCommitted = false
 
-        if (!canonicalTitle) {
-          throw new Error("Title is required")
-        }
+      try {
+        await stripe.products.update(productId, { default_price: priceResponse.id })
 
-        if (canonicalTitle.length < MIN_PRODUCT_TITLE_LENGTH) {
-          throw new Error(`Title is too short - minimum ${MIN_PRODUCT_TITLE_LENGTH} characters`)
-        }
-
-        if (canonicalTitle.length > MAX_PRODUCT_TITLE_LENGTH) {
-          throw new Error(`Title is too long - maximum ${MAX_PRODUCT_TITLE_LENGTH} characters`)
-        }
-
-        const productResponse = await stripe.products.create({
-          name: canonicalTitle,
-          ...getStripeDescriptionPayload(canonicalTranslation.description),
-          images: normalizedExistingProduct.img_url?.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
-        })
-
-        // Active product if it not active
-        if (!productResponse.active) {
-          await stripe.products.update(productResponse.id, { active: true })
-        }
-
-        // Create price for created product on stripe
-        const priceResponse = await stripe.prices.create({
-          product: productResponse.id,
-          unit_amount: price * 100,
-          currency: "usd",
-        })
-
-        // Archive current product on stripe
-        await stripe.products.update(productId, { active: false })
-
-        // Update id and price_id in DB to associate new product on stripe with product in DB
-        await supabase
+        const { error: updatePriceError } = await supabase
           .from("23_products")
-          .update({ id: productResponse.id, price_id: priceResponse.id, price: price })
+          .update({
+            price,
+            price_id: priceResponse.id,
+            // A deliberate owner edit is the new anchor. AI approvals never touch this column.
+            ai_price_baseline: price,
+          })
           .eq("id", productId)
 
-        return getUpdatedProductResponse(productResponse.id)
-      } else {
-        throw new Error(`Update price\n Product with id ${productId} not found in DB\n`)
+        if (isMissingSchemaError(updatePriceError)) {
+          const { error: legacyUpdatePriceError } = await supabase
+            .from("23_products")
+            .update({ price, price_id: priceResponse.id })
+            .eq("id", productId)
+          if (legacyUpdatePriceError) throw legacyUpdatePriceError
+        } else if (updatePriceError) {
+          throw updatePriceError
+        }
+        databaseCommitted = true
+
+        // eslint-disable-next-line local-rules/use-rls-supabase-client -- owner was verified above; only the server may expire proposal state
+        await supabaseAdmin
+          .from("23_ai_price_proposals")
+          .update({ status: "expired", reviewed_at: new Date().toISOString() })
+          .eq("product_id", productId)
+          .eq("owner_id", user.id)
+          .eq("status", "pending")
+
+        try {
+          await stripe.prices.update(existingProduct.price_id, { active: false })
+        } catch (error) {
+          console.error("[products/update] old Stripe price stayed active", {
+            priceId: existingProduct.price_id,
+            error: error instanceof Error ? error.message : String(error),
+          })
+        }
+
+        return getUpdatedProductResponse(productId)
+      } catch (error) {
+        if (!databaseCommitted) {
+          const { data: latestProduct } = await supabase
+            .from("23_products")
+            .select("price_id")
+            .eq("id", productId)
+            .maybeSingle()
+
+          if (latestProduct?.price_id !== priceResponse.id) {
+            try {
+              await stripe.products.update(productId, { default_price: latestProduct?.price_id ?? existingProduct.price_id })
+              await stripe.prices.update(priceResponse.id, { active: false })
+            } catch {}
+          }
+        }
+        throw error
       }
     }
 

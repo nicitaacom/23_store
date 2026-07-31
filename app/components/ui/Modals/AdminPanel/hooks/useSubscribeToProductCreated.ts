@@ -59,15 +59,19 @@ function matchPendingCreatedProduct(
 export function useSubscribeToProductCreated({
   pendingCreatedProductsRef,
   decreasePendingTranslations,
+  onProductCreated,
 }: {
   pendingCreatedProductsRef: MutableRefObject<TPendingCreatedProduct[]>
   decreasePendingTranslations: (showCompletedToast?: boolean, productId?: string) => void
+  onProductCreated?: () => void
 }) {
   const decreasePendingTranslationsRef = useRef(decreasePendingTranslations)
+  const onProductCreatedRef = useRef(onProductCreated)
 
   useEffect(() => {
     decreasePendingTranslationsRef.current = decreasePendingTranslations
-  }, [decreasePendingTranslations])
+    onProductCreatedRef.current = onProductCreated
+  }, [decreasePendingTranslations, onProductCreated])
 
   useEffect(() => {
     const pusherClient = getPusherClient()
@@ -88,6 +92,7 @@ export function useSubscribeToProductCreated({
         on_stock: payload.on_stock,
         img_url: matchedPendingProduct?.img_url?.length ? matchedPendingProduct.img_url : ["/placeholder.jpg"],
         variants: matchedPendingProduct?.variants ?? null,
+        created_at: new Date().toISOString(),
       }
 
       console.info("[products] received product:created", {
@@ -103,6 +108,7 @@ export function useSubscribeToProductCreated({
 
       useOwnerProductsStore.getState().setError(null)
       decreasePendingTranslationsRef.current(true, payload.id)
+      onProductCreatedRef.current?.()
     }
 
     subscribePusherChannel(channelName)
