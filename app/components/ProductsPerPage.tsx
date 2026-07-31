@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { BiUpArrow } from "react-icons/bi"
 
-import { perPage } from "@/constant/perPage"
+import { defaultPerPage, perPage } from "@/constant/perPage"
 import { useScopedI18n } from "@/locales/client"
 
 // http://localhost:6006/?path=/story/commerce-catalog--search-form
@@ -13,7 +13,7 @@ export default function ProductsPerPage({ className }: { className?: string }) {
   const [showDropdown, setShowDropdown] = useState(false)
   const searchParams = useSearchParams()
   const pathname = usePathname()
-  const selectedPerPage = Number(searchParams?.get("perPage") || 5)
+  const selectedPerPage = Number(searchParams?.get("perPage") || defaultPerPage)
   const selectedQuery = searchParams?.get("query")?.trim() || ""
 
   /* for close on clicking outside */
