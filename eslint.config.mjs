@@ -112,10 +112,8 @@ export default [
     // admin-only tools (only Nikita opens them), the support dashboard (support role only),
     // auth-callback error screens (technical, aimed at support, not buyers), global-error
     // (renders outside the locale layout - no i18n provider), and the internal support email.
-    // Plus Storybook (dev tooling, never shipped) and the one NODE_ENV-gated debug panel.
+    // Plus the one NODE_ENV-gated debug panel.
     files: [
-      "storybook/**",
-      "**/*.stories.tsx",
       "app/\\[locale\\]/(support)/**",
       "app/\\[locale\\]/error/**",
       "app/global-error.tsx",
@@ -128,6 +126,13 @@ export default [
       "app/\\[locale\\]/(site)/stats/components/UTMDashboard.tsx",
       "app/\\[locale\\]/(site)/components/MemoryDebug.tsx",
     ],
+    rules: {
+      "local-rules/no-untranslated-ui": "off",
+    },
+  },
+  {
+    // Storybook is dev tooling, never shipped - no buyer ever sees untranslated text in a story.
+    files: ["storybook/**", "**/*.stories.tsx"],
     rules: {
       "local-rules/no-untranslated-ui": "off",
     },
