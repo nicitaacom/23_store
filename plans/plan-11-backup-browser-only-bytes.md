@@ -39,40 +39,41 @@ string error or null) — this plan reuses it as-is, it does not need replacing.
 
 ## §1 Where it lives (target state)
 
-| Piece | File | Status |
-| --- | --- | --- |
-| Project-specific config (tables/buckets/column classification/public URL) | `app/api/backup/backupConfig.ts` | **new** |
-| Pure tar + browser gzip (no Node `zlib`, safe in client bundle) | `app/api/backup/tarClient.ts` | **new** |
-| Pure CSV read/write (RFC 4180) | `app/api/backup/csvClient.ts` | **new** |
-| Stable re-export shim (routes + SDK import from here) | `app/api/backup/backupTables.ts` | **rewrite** |
-| ADMIN gate (string error or null) | `app/api/backup/requireAdmin.ts` | unchanged, reused |
-| Rows GET (export) / POST (import, ≤500/batch) | `app/api/backup/rows/route.ts` | **new** |
-| Files GET (list, paths only) / POST (signed upload URLs, ≤100/batch) | `app/api/backup/files/route.ts` | **new** |
-| Old combined-archive routes | `app/api/backup/manifest/route.ts`, `export/route.ts`, `import/route.ts` | **deleted** |
-| Client SDK (4 methods: export/import × tables/files) | `app/sdk/BackupSDK/BackupSDK.ts` | **rewrite** |
-| Hook (owns state for 4 flows, toast + i18n) | `app/components/ui/Modals/DbBackup/hooks/useDbBackup.ts` | **rewrite** |
-| Modal UI (Tables/Files tab switch, mirrors spotify's `DbBackupModal.tsx` shape) | `app/components/ui/Modals/DbBackup/DbBackupModal.tsx` | **rewrite** |
-| Response types | `app/ts/namespaces/api/backup/api.d.ts` | **rewrite** |
-| i18n copy (4 locale files, same line numbers each) | `app/locales/en.ts` + 3 others | **update** |
-| Feature doc | `dev_readme-backup.md` | **rewrite** |
+| Piece                                                                           | File                                                                     | Status            |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ----------------- |
+| Project-specific config (tables/buckets/column classification/public URL)       | `app/api/backup/backupConfig.ts`                                         | **new**           |
+| Pure tar + browser gzip (no Node `zlib`, safe in client bundle)                 | `app/api/backup/tarClient.ts`                                            | **new**           |
+| Pure CSV read/write (RFC 4180)                                                  | `app/api/backup/csvClient.ts`                                            | **new**           |
+| Stable re-export shim (routes + SDK import from here)                           | `app/api/backup/backupTables.ts`                                         | **rewrite**       |
+| ADMIN gate (string error or null)                                               | `app/api/backup/requireAdmin.ts`                                         | unchanged, reused |
+| Rows GET (export) / POST (import, ≤500/batch)                                   | `app/api/backup/rows/route.ts`                                           | **new**           |
+| Files GET (list, paths only) / POST (signed upload URLs, ≤100/batch)            | `app/api/backup/files/route.ts`                                          | **new**           |
+| Old combined-archive routes                                                     | `app/api/backup/manifest/route.ts`, `export/route.ts`, `import/route.ts` | **deleted**       |
+| Client SDK (4 methods: export/import × tables/files)                            | `app/sdk/BackupSDK/BackupSDK.ts`                                         | **rewrite**       |
+| Hook (owns state for 4 flows, toast + i18n)                                     | `app/components/ui/Modals/DbBackup/hooks/useDbBackup.ts`                 | **rewrite**       |
+| Modal UI (Tables/Files tab switch, mirrors spotify's `DbBackupModal.tsx` shape) | `app/components/ui/Modals/DbBackup/DbBackupModal.tsx`                    | **rewrite**       |
+| Response types                                                                  | `app/ts/namespaces/api/backup/api.d.ts`                                  | **rewrite**       |
+| i18n copy (4 locale files, same line numbers each)                              | `app/locales/en.ts` + 3 others                                           | **update**        |
+| Feature doc                                                                     | `dev_readme-backup.md`                                                   | **rewrite**       |
 
 <br/>
 
 ## §2 23_store's `backupConfig.ts` values (derived from `app/ts/types_db.ts`, not the current doc —
+
 the doc has a known stale claim, see plan-00-tracker's inconsistency audit)
 
 FK-safe order, `EXCLUDED_FROM_BACKUP = ["utm_stats"]` (shared across 14/23/28/29), same
 compile-time exhaustiveness check the current `backupTables.ts` already has — keep that pattern.
 
-| Table | onConflict | numericColumns | arrayColumns | jsonColumns |
-| --- | --- | --- | --- | --- |
-| `23_users` | `id` | — | `providers`, `roles` | — |
-| `23_users_cart` | `id` | — | — | `cart_products` |
-| `23_categories` | `id` | — | — | — |
-| `23_category_views` | `user_id,category_id` | `view_count` | — | — |
-| `23_products` | `price_id,owner_id,id` | `on_stock`, `price` | `img_url` | `translations`, `variants` |
-| `23_tickets` | `id` | `rate` | — | — |
-| `23_messages` | `id` | — | `images` | — |
+| Table               | onConflict             | numericColumns      | arrayColumns         | jsonColumns                |
+| ------------------- | ---------------------- | ------------------- | -------------------- | -------------------------- |
+| `23_users`          | `id`                   | —                   | `providers`, `roles` | —                          |
+| `23_users_cart`     | `id`                   | —                   | —                    | `cart_products`            |
+| `23_categories`     | `id`                   | —                   | —                    | —                          |
+| `23_category_views` | `user_id,category_id`  | `view_count`        | —                    | —                          |
+| `23_products`       | `price_id,owner_id,id` | `on_stock`, `price` | `img_url`            | `translations`, `variants` |
+| `23_tickets`        | `id`                   | `rate`              | —                    | —                          |
+| `23_messages`       | `id`                   | —                   | `images`             | —                          |
 
 Buckets: `23_public-images`, `23_avatar-images` (mirrors `app/ts/types/TBuckets.ts`, unchanged from
 today).
@@ -236,7 +237,7 @@ files progress: N / M files                   files progress: 23 MB / 230 MB (by
   `error` severity — this is the one that can hard-fail `pnpm lint`), #15 (no functions in deps).
 - `good-bad-examples.md` — `<fnName>Resp` / `response` naming, no vague `results` in hook/store
   state, ref pattern for any function that would otherwise sit in a `useCallback` deps array.
-- `eslint-local-rules/type-naming-prefix.js` — every new exported `type` needs a `T` prefix (no
+- `eslint-rules/type-naming-prefix.js` — every new exported `type` needs a `T` prefix (no
   `interface`s in this feature, matching the existing `backupTables.ts` style).
 - Read `19_spotify-clone/app/features/backup/dev_readme-backup.md` for the architecture reference —
   it already documents a 3rd, similarly-shaped port (`26_hot-delivery`, admin-gated, no per-row

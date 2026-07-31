@@ -2,18 +2,11 @@ import nextConfig from "eslint-config-next"
 import typescriptEslint from "@typescript-eslint/eslint-plugin"
 import typescriptParser from "@typescript-eslint/parser"
 import unicorn from "eslint-plugin-unicorn"
-import localRules from "./eslint-local-rules/index.js"
+import localRules from "./eslint-rules/index.js"
 
 export default [
   {
-    ignores: [
-      ".cache/**",
-      ".home/**",
-      ".open-next/**",
-      ".pnpm-store/**",
-      "public/mockServiceWorker.js",
-      "storybook-static/**",
-    ],
+    ignores: [".cache/**", ".home/**", ".open-next/**", ".pnpm-store/**", "public/mockServiceWorker.js", "storybook-static/**"],
   },
   ...nextConfig,
   {
@@ -110,7 +103,7 @@ export default [
     },
   },
   {
-    // Ignore eslint-local-rules directory and config files - these are tool files, not source code
-    ignores: ["eslint-local-rules/**", "eslint.config.mjs"],
+    // Ignore eslint-rules directory and config files - these are tool files, not source code
+    ignores: ["eslint-rules/**", "eslint.config.mjs"],
   },
 ]
