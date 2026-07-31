@@ -834,7 +834,7 @@ SELECT cron.schedule('weekly_ai_price_proposals', '0 3 * * 1', $$
       'application/json'
     ),
     body := '{}'::JSONB,
-    timeout_milliseconds := 300000
+    timeout_milliseconds := 60000
   );
 $$);
 ```

@@ -14,7 +14,7 @@ import { normalizeProduct } from "@/utils/productVariants"
 import { AI_PRICE_MAX_REASONING_LENGTH, AI_PRICING_MODEL } from "@/constants/aiPricing"
 import { Json } from "@/ts/types_db"
 
-export const maxDuration = 300
+export const maxDuration = 60
 
 function authorizeWebhook(request: Request) {
   const secret = process.env.PRICE_WEBHOOK_SECRET
