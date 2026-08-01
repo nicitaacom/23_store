@@ -533,6 +533,7 @@ export default {
     "Försök senare. Det har inget att göra med support eller dig — CoinMarketCap krånglar. Om det upprepas, be supporten skapa en fallback.",
   "payment.error.transaction_title": "Transaktionsfel",
   "payment.error.transaction_subtitle": "Användaren nekade transaktionssignatur",
+  "payment.error.transaction_failed_title": "Transaktionen misslyckades",
   "payment.error.failed_to_pay_with_metamask": "Misslyckades betala med Metamask",
   "payment.email.thank_you_for_your_purchase": "Tack för ditt köp",
   "payment.email.order_confirmed": "Order bekräftad ✓",

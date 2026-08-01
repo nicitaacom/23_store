@@ -535,6 +535,7 @@ export default {
     "Try again later. It's nothing to do with support or you it's just coinmarketcap is playing today. If it repeats ask support to create a fallback.",
   "payment.error.transaction_title": "Transaction error",
   "payment.error.transaction_subtitle": "User denied transaction signature",
+  "payment.error.transaction_failed_title": "Transaction failed",
   "payment.error.failed_to_pay_with_metamask": "Failed to pay with metamask",
   "payment.email.thank_you_for_your_purchase": "Thank you for your purchase",
   "payment.email.order_confirmed": "Order Confirmed ✓",

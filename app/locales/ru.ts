@@ -533,6 +533,7 @@ export default {
     "Попробуйте позже. Это не связано с поддержкой — просто CoinMarketCap сейчас нестабилен. Если повторится, попросите поддержку настроить резервный механизм.",
   "payment.error.transaction_title": "Ошибка транзакции",
   "payment.error.transaction_subtitle": "Пользователь отклонил подпись транзакции",
+  "payment.error.transaction_failed_title": "Транзакция не выполнена",
   "payment.error.failed_to_pay_with_metamask": "Не удалось оплатить через Metamask",
   "payment.email.thank_you_for_your_purchase": "Спасибо за покупку",
   "payment.email.order_confirmed": "Заказ подтверждён ✓",

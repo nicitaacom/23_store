@@ -535,6 +535,7 @@ export default {
     "Yritä myöhemmin. Tämä ei liity tukeen tai sinuun – CoinMarketCap temppuilee. Jos toistuu, pyydä tukea luomaan varajärjestelmä.",
   "payment.error.transaction_title": "Transaktiovirhe",
   "payment.error.transaction_subtitle": "Käyttäjä hylkäsi transaktion allekirjoituksen",
+  "payment.error.transaction_failed_title": "Transaktio epäonnistui",
   "payment.error.failed_to_pay_with_metamask": "Maksu Metamaskilla epäonnistui",
   "payment.email.thank_you_for_your_purchase": "Kiitos ostoksestasi",
   "payment.email.order_confirmed": "Tilaus vahvistettu ✓",

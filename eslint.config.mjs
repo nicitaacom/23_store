@@ -62,6 +62,7 @@ export default [
       "local-rules/use-rls-supabase-client": "warn",
       "local-rules/console-log-line-number": "warn",
       "local-rules/no-untranslated-ui": "warn",
+      "local-rules/no-vague-error-msg": "warn",
     },
   },
   {

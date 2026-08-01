@@ -64,7 +64,7 @@ function ProductCreationWorkbench({ initialState, onCreate }: ProductCreationWor
     const parsedPrice = Number(price)
     const parsedStock = Number(stock)
     if (!title.trim() || !description.trim() || !(parsedPrice > 0) || !image.trim() || !variant.trim()) {
-      setErrorMessage("Complete title, description, price, image, and variant before creating the product.")
+      setErrorMessage("Enter title, description, price, image, and variant before creating the product.")
       return
     }
 
@@ -214,7 +214,7 @@ export const ValidationErrors: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     await userEvent.click(await canvas.findByRole("button", { name: "Create product" }))
-    await expect(await canvas.findByRole("alert")).toHaveTextContent("Complete title")
+    await expect(await canvas.findByRole("alert")).toHaveTextContent("Enter title")
   },
 }
 

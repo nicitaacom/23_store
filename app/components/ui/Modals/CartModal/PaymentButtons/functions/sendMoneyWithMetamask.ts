@@ -130,7 +130,7 @@ export async function sendMoneyWithMetamask(
           if (error.message.includes("MetaMask Tx Signature: User denied transaction signature.")) {
             toast.show("error", t("payment.error.transaction_title"), t("payment.error.transaction_subtitle"))
           } else {
-            toast.show("error", "Unknown error", error.message)
+            toast.show("error", t("payment.error.transaction_failed_title"), error.message)
           }
           setIsLoading(false)
         })
