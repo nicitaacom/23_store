@@ -11,11 +11,13 @@
 //   setErrorMessage("Internet connection lost. DNC results not fetched. Please retry or contact support")
 //   toast.show("error", "Internet connection lost", "Emails not fetched - please retry or contact support")
 //
-// Fires on the 2 places a user actually reads an error in this codebase:
+// Fires on the 3 places a user actually reads an error in this codebase:
 //   1. the 5-states error state - setError / setErrorMessage / setLocalError / setPhoneError (any
 //      set<Something>Error<Something> name), see require-5-states
 //   2. toast.show("error", title, description) - the toast renders both halves at once, so they are
 //      read as ONE message here: a next step in either half counts for the whole thing
+//   3. JSX styled className="text-danger" - <p className="text-danger">Something went wrong</p>,
+//      including a {message ? message : "..."} fallback the way NoCodeFoundError.tsx reads it
 //
 // 3 checks, reported highest-priority-first so one call site produces one message, never three:
 //   1. fillerMessage  - the whole message is filler ("something went wrong", "unknown error")
@@ -167,6 +169,13 @@ const SYSTEM_ACTION_PHRASE = /\b(?:failed|fails|failure|unable|error|errors)\s+(
 // setAccountSidError. The name is what makes this an error the user reads, not the file it sits in.
 const ERROR_SETTER_NAME = /^set[A-Za-z0-9]*Error[A-Za-z0-9]*$/
 
+// The 3rd place a user reads an error, next to the setter state and the toast: JSX painted in the
+// error color. `text-danger` is this codebase's own convention for it - EmailLinkInvalidOrExpired.tsx,
+// AuthNotCompleted.tsx, NoCodeFoundError.tsx, ExchangeCookiesError.tsx, global-error.tsx all use it for
+// exactly this and nothing else. A className check, not a component-name check, because the text sits
+// directly in a <p>/<div>/<h1> - there is no dedicated ErrorMessage component in this codebase.
+const TEXT_DANGER_CLASS = /\btext-danger\b/
+
 // A string this rule can actually read at lint time: a string literal, or a template literal with
 // zero `${}` in it (same text, backticks only for the newlines).
 function getStaticText(node) {
@@ -216,6 +225,79 @@ function forReport(text) {
   return text.length > 70 ? `${text.slice(0, 70)}...` : text
 }
 
+// className="text-danger text-center" (a Literal) or className={`... ${x} ...`} (a template literal,
+// dynamic classes and all - a name check only needs the parts that don't move).
+function getClassNameText(jsxOpeningElement) {
+  const classNameAttribute = jsxOpeningElement.attributes.find(
+    attribute => attribute.type === "JSXAttribute" && attribute.name.name === "className",
+  )
+  if (!classNameAttribute || !classNameAttribute.value) return ""
+  const { value } = classNameAttribute
+  if (value.type === "Literal" && typeof value.value === "string") return value.value
+  if (value.type === "JSXExpressionContainer" && value.expression.type === "TemplateLiteral") {
+    return value.expression.quasis.map(quasi => quasi.value.cooked).join(" ")
+  }
+  return ""
+}
+
+// The static text a JSXElement's own children hold - a bare JSXText node, or one string side of a
+// {message ? message : "No code found to exchange cookies for session"} fallback (NoCodeFoundError.tsx,
+// ExchangeCookiesError.tsx both read this way: a prop when there is one, a hardcoded message when there
+// isn't). Anything else in a JSXExpressionContainer (a prop by itself, {t(...)}, {error.message}) is a
+// runtime value this rule has no way to read, same as a variable argument to a setter or a toast.
+function getJSXStaticParts(jsxElement) {
+  const staticParts = []
+  let hasRuntimePart = false
+  for (const child of jsxElement.children) {
+    if (child.type === "JSXText") {
+      if (child.value.trim().length > 0) staticParts.push({ node: child, text: child.value.trim() })
+      continue
+    }
+    if (child.type !== "JSXExpressionContainer") continue
+    const { expression } = child
+    if (expression.type === "ConditionalExpression") {
+      const consequentText = getStaticText(expression.consequent)
+      const alternateText = getStaticText(expression.alternate)
+      if (consequentText !== null) staticParts.push({ node: expression.consequent, text: consequentText.trim() })
+      else hasRuntimePart = true
+      if (alternateText !== null) staticParts.push({ node: expression.alternate, text: alternateText.trim() })
+      else hasRuntimePart = true
+      continue
+    }
+    const staticText = getStaticText(expression)
+    if (staticText !== null) staticParts.push({ node: expression, text: staticText.trim() })
+    else hasRuntimePart = true
+  }
+  return { staticParts: staticParts.filter(part => part.text.length > 0), hasRuntimePart }
+}
+
+// The 3 checks (filler/developer-term/no-next-step), reported highest-priority-first, shared by every
+// place a user reads an error - a setter call, a toast call, or text-danger JSX.
+function checkStaticParts(context, staticParts, hasRuntimePart) {
+  if (staticParts.length === 0) return
+
+  const text = staticParts.map(part => part.text).join(" ")
+  const lowercasedText = text.toLowerCase()
+  const reportNode = staticParts[0].node
+
+  const isWholeMessageFiller = FILLER_WHOLE_MESSAGES.has(lowercasedText.replace(/[.!\s]+$/, ""))
+  if (isWholeMessageFiller || FILLER_PHRASES.some(phrase => phrase.test(lowercasedText))) {
+    return context.report({ node: reportNode, messageId: "fillerMessage", data: { text: forReport(text) } })
+  }
+
+  const developerTerm = findDeveloperTerm(lowercasedText, text)
+  if (developerTerm) {
+    return context.report({ node: reportNode, messageId: "developerTerm", data: { text: forReport(text), term: developerTerm } })
+  }
+
+  // The next-step check needs the WHOLE message in hand - when part of it is a runtime value, the
+  // step out could be sitting in the part this rule never gets to read.
+  if (hasRuntimePart) return
+  if (!hasNextStep(lowercasedText)) {
+    context.report({ node: reportNode, messageId: "noNextStep", data: { text: forReport(text) } })
+  }
+}
+
 module.exports = {
   "no-vague-error-msg": {
     meta: {
@@ -249,28 +331,18 @@ module.exports = {
             if (staticText === null) hasRuntimePart = true
             else if (staticText.trim().length > 0) staticParts.push({ node: messageArgument, text: staticText.trim() })
           }
-          if (staticParts.length === 0) return
+          checkStaticParts(context, staticParts, hasRuntimePart)
+        },
 
-          const text = staticParts.map(part => part.text).join(" ")
-          const lowercasedText = text.toLowerCase()
-          const reportNode = staticParts[0].node
-
-          const isWholeMessageFiller = FILLER_WHOLE_MESSAGES.has(lowercasedText.replace(/[.!\s]+$/, ""))
-          if (isWholeMessageFiller || FILLER_PHRASES.some(phrase => phrase.test(lowercasedText))) {
-            return context.report({ node: reportNode, messageId: "fillerMessage", data: { text: forReport(text) } })
-          }
-
-          const developerTerm = findDeveloperTerm(lowercasedText, text)
-          if (developerTerm) {
-            return context.report({ node: reportNode, messageId: "developerTerm", data: { text: forReport(text), term: developerTerm } })
-          }
-
-          // The next-step check needs the WHOLE message in hand - when half of it is a runtime
-          // value, the step out could be sitting in the half this rule never gets to read.
-          if (hasRuntimePart) return
-          if (!hasNextStep(lowercasedText)) {
-            context.report({ node: reportNode, messageId: "noNextStep", data: { text: forReport(text) } })
-          }
+        // <p className="text-danger">Something went wrong</p> - the 3rd place a user reads an error,
+        // next to the setter state and the toast. Only the element's OWN text children are read, not
+        // nested elements' text - a <p className="text-danger"><Link>retry</Link></p> would otherwise
+        // get the child's text checked twice, once here and once at the child's own JSXOpeningElement.
+        JSXOpeningElement(node) {
+          if (!TEXT_DANGER_CLASS.test(getClassNameText(node))) return
+          const jsxElement = node.parent
+          const { staticParts, hasRuntimePart } = getJSXStaticParts(jsxElement)
+          checkStaticParts(context, staticParts, hasRuntimePart)
         },
       }
     },
