@@ -224,19 +224,19 @@ export function HalloweenScene() {
 
   return (
     <motion.div
-      ref={sceneRef}
       className="halloween-scene absolute inset-[0]"
+      ref={sceneRef}
       initial={false}
       animate={{ opacity: 1 }}
       transition={reducedMotion ? { duration: 0 } : { duration: 0.5 }}>
       <canvas
-        ref={canvasRef}
         className="halloween-ambient-canvas absolute inset-[0] h-full w-full"
+        ref={canvasRef}
         aria-hidden="true"
       />
       <svg
-        aria-hidden="true"
         className="halloween-graveyard-svg absolute inset-[0] h-full w-full"
+        aria-hidden="true"
         viewBox="0 0 1440 900"
         preserveAspectRatio="xMidYMax slice"
         fill="none">
@@ -276,10 +276,10 @@ export function HalloweenScene() {
           strokeLinecap="round"
         />
 
-        <g data-halloween-bat="near" className="halloween-scene-bat" transform="translate(180 214)">
+        <g className="halloween-scene-bat" data-halloween-bat="near" transform="translate(180 214)">
           <path d="M0 10C17-6 39-2 52 14C65-5 89-8 106 8C84 13 71 29 52 48C34 29 22 17 0 10Z" fill="#050407" />
         </g>
-        <g data-halloween-bat="far" className="halloween-scene-bat" transform="translate(1210 308) scale(.65)">
+        <g className="halloween-scene-bat" data-halloween-bat="far" transform="translate(1210 308) scale(.65)">
           <path d="M0 10C17-6 39-2 52 14C65-5 89-8 106 8C84 13 71 29 52 48C34 29 22 17 0 10Z" fill="#07060A" />
         </g>
 

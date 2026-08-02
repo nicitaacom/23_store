@@ -531,14 +531,14 @@ export function NewYearScene() {
 
   return (
     <motion.div
-      ref={sceneRef}
       className="new-year-scene absolute inset-[0]"
+      ref={sceneRef}
       initial={false}
       animate={{ opacity: 1 }}
       transition={reducedMotion ? { duration: 0 } : { duration: 0.5 }}>
       <svg
-        aria-hidden="true"
         className="new-year-interior-svg absolute inset-[0] h-full w-full"
+        aria-hidden="true"
         viewBox="0 0 1440 900"
         preserveAspectRatio="xMidYMax slice"
         fill="none">
@@ -691,7 +691,7 @@ export function NewYearScene() {
 
         <rect width="1440" height="900" fill="url(#new-year-vignette)" />
       </svg>
-      <canvas ref={canvasRef} className="new-year-snow-canvas absolute inset-[0] h-full w-full" aria-hidden="true" />
+      <canvas className="new-year-snow-canvas absolute inset-[0] h-full w-full" ref={canvasRef} aria-hidden="true" />
     </motion.div>
   )
 }
