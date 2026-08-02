@@ -67,9 +67,9 @@ export const SortableImages: Story = {
   render: () => <SortableImagesWorkbench />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const firstImage = await canvas.findByRole("button", { name: /Product image 1/ })
+    const findByRoleResp = await canvas.findByRole("button", { name: /Product image 1/ })
 
-    firstImage.focus()
+    findByRoleResp.focus()
     await userEvent.keyboard(" ")
     await userEvent.keyboard("{ArrowRight}")
     await userEvent.keyboard(" ")
