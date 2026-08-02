@@ -24,6 +24,8 @@ module.exports = {
   ...require("./imports-order"),
   // file name differs from the rule id ("envs-order") on purpose - see the header of vars-order.js
   ...require("./vars-order"),
+  // same here - the rule id is "no-unused-envs", see the header of unused-declared-vars.js
+  ...require("./unused-declared-vars"),
   ...require("./no-high-level-import"),
   ...require("./check-importers"),
   ...require("./no-cross-route-group-absolute-import"),
