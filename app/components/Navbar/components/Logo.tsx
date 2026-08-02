@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 
@@ -7,7 +9,7 @@ import { useScopedI18n } from "@/locales/client"
 // http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function Logo() {
   const t = useScopedI18n("common")
-  const darkMode = useDarkModeStore.getState().isDarkMode
+  const { isDarkMode: darkMode } = useDarkModeStore()
 
   return (
     <Link href="/">
