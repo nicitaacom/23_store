@@ -50,10 +50,10 @@ beforeEach(() => {
 })
 
 describe("the account layer keys", () => {
-  it("reads and writes utm:device-id:by-user-id:<account uuid>", async () => {
+  it("reads and writes utm:23:device-id:by-user-id:<account uuid>", async () => {
     await setRedisDeviceIdByUserId(USER_ID, DEVICE_ID)
 
-    expect(redisState.setCalls[0].key).toBe(`utm:device-id:by-user-id:${USER_ID}`)
+    expect(redisState.setCalls[0].key).toBe(`utm:23:device-id:by-user-id:${USER_ID}`)
     expect(redisState.setCalls[0].value).toBe(DEVICE_ID)
     expect(await getRedisDeviceIdByUserId(USER_ID)).toBe(DEVICE_ID)
   })
@@ -78,10 +78,10 @@ describe("the account layer keys", () => {
 })
 
 describe("the device owner keys", () => {
-  it("reads and writes utm:device-id:owner:<deviceId>", async () => {
+  it("reads and writes utm:23:device-id:owner:<deviceId>", async () => {
     await setRedisDeviceIdOwner(DEVICE_ID, USER_ID)
 
-    expect(redisState.setCalls[0].key).toBe(`utm:device-id:owner:${DEVICE_ID}`)
+    expect(redisState.setCalls[0].key).toBe(`utm:23:device-id:owner:${DEVICE_ID}`)
     expect(redisState.setCalls[0].value).toBe(USER_ID)
     expect(await getRedisDeviceIdOwner(DEVICE_ID)).toBe(USER_ID)
   })
@@ -98,13 +98,13 @@ describe("the device owner keys", () => {
 })
 
 describe("the IP layer keys", () => {
-  it("reads and writes utm:device-id:by-ip:<ip>", async () => {
+  it("reads and writes utm:23:device-id:by-ip:<ip>", async () => {
     await setRedisDeviceIdByIp(IP, DEVICE_ID, new Date("2026-08-02T21:00:00.000Z"))
 
-    expect(redisState.setCalls[0].key).toBe(`utm:device-id:by-ip:${IP}`)
+    expect(redisState.setCalls[0].key).toBe(`utm:23:device-id:by-ip:${IP}`)
     expect(redisState.setCalls[0].value).toBe(DEVICE_ID)
     expect(await getRedisDeviceIdByIp(IP)).toBe(DEVICE_ID)
-    expect(redisState.getKeys).toContain(`utm:device-id:by-ip:${IP}`)
+    expect(redisState.getKeys).toContain(`utm:23:device-id:by-ip:${IP}`)
   })
 
   it("expires at the visitor's midnight, as whole unix seconds", async () => {
@@ -118,7 +118,7 @@ describe("the IP layer keys", () => {
   it("keeps ipv6 addresses in the key as they arrive", async () => {
     await setRedisDeviceIdByIp("2001:14ba:1f00::1", DEVICE_ID, new Date())
 
-    expect(redisState.setCalls[0].key).toBe("utm:device-id:by-ip:2001:14ba:1f00::1")
+    expect(redisState.setCalls[0].key).toBe("utm:23:device-id:by-ip:2001:14ba:1f00::1")
   })
 
   it("answers null for an address nobody has visited from", async () => {
@@ -127,10 +127,10 @@ describe("the IP layer keys", () => {
 })
 
 describe("the fingerprint layer keys", () => {
-  it("reads and writes utm:device-id:by-fingerprint:<sha256>", async () => {
+  it("reads and writes utm:23:device-id:by-fingerprint:<sha256>", async () => {
     await setRedisDeviceIdByFingerprint(FINGERPRINT, DEVICE_ID)
 
-    expect(redisState.setCalls[0].key).toBe(`utm:device-id:by-fingerprint:${FINGERPRINT}`)
+    expect(redisState.setCalls[0].key).toBe(`utm:23:device-id:by-fingerprint:${FINGERPRINT}`)
     expect(await getRedisDeviceIdByFingerprint(FINGERPRINT)).toBe(DEVICE_ID)
   })
 
@@ -158,7 +158,7 @@ describe("a value that is not a sha256 digest never becomes a key", () => {
     ["a sentence", "not a fingerprint at all"],
     ["json", '{"fingerprint":"a"}'],
     ["a megabyte of text", "b".repeat(1024 * 1024)],
-    ["a key-injection attempt", `${"a".repeat(64)}\nutm:device-id:by-ip:81.175.200.14`],
+    ["a key-injection attempt", `${"a".repeat(64)}\nutm:23:device-id:by-ip:81.175.200.14`],
   ] as const
 
   for (const [label, wrongShape] of wrongShapes) {
