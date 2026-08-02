@@ -7,7 +7,7 @@ import { getPrintAreaOverlap, isMarkedAreaOnProduct } from "@/utils/printMetrics
 import openai from "@/libs/openai"
 import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
 
-const redis = Redis.fromEnv()
+const redis = new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN })
 const limiter = new Ratelimit({
   redis,
   limiter: Ratelimit.fixedWindow(RATE_LIMITS.aiCheckPrintArea.maxAllowed, `${RATE_LIMITS.aiCheckPrintArea.windowSec} s`),

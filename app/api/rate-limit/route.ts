@@ -13,7 +13,7 @@ import { TRateLimiterName } from "@/sdk/RateLimitSDK/types/TRateLimiterName"
 import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
 
 const limiterCache = new Map<string, Ratelimit>()
-const redis = Redis.fromEnv()
+const redis = new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN })
 
 export async function POST(req: Request) {
   const { limiterName, action, userTimezone, userId } = (await req.json()) as API.RateLimitRequest

@@ -18,22 +18,22 @@ const redisState = vi.hoisted(() => ({
   clientCount: 0,
 }))
 
+// deviceIdRedis builds its client with `new Redis({ url, token })` now, so the double has to be
+// constructible - a function returning an object hands `new` that object back.
 vi.mock("@upstash/redis", () => ({
-  Redis: {
-    fromEnv: () => {
-      redisState.clientCount += 1
+  Redis: function RedisDouble() {
+    redisState.clientCount += 1
 
-      return {
-        async get(key: string) {
-          redisState.getKeys.push(key)
-          return redisState.store.get(key) ?? null
-        },
-        async set(key: string, value: string, options: { ex?: number; exat?: number }) {
-          redisState.setCalls.push({ key, value, options })
-          redisState.store.set(key, value)
-        },
-      }
-    },
+    return {
+      async get(key: string) {
+        redisState.getKeys.push(key)
+        return redisState.store.get(key) ?? null
+      },
+      async set(key: string, value: string, options: { ex?: number; exat?: number }) {
+        redisState.setCalls.push({ key, value, options })
+        redisState.store.set(key, value)
+      },
+    }
   },
 }))
 

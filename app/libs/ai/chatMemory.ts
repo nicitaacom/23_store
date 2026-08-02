@@ -387,7 +387,8 @@ function normalizeWorkingMemory(memory: string): string {
 
 // eslint-disable-next-line local-rules/db-redis-verb-naming -- factory/client getter (like getSupabaseServer), not a redis read
 function getRedisClient(): Redis {
-  if (!redisClient) redisClient = Redis.fromEnv()
+  if (!redisClient)
+    redisClient = new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN })
   return redisClient
 }
 
