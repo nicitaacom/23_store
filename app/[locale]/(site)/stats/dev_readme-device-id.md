@@ -78,7 +78,7 @@ wrote `utm_stats` rows under any id you liked.
 | [visitorDayBounds.ts](../../../utils/visitorDayBounds.ts)                                 | midnight behind / ahead of the visitor, in their own timezone |
 | [requestIp.ts](../../../utils/requestIp.ts)                                               | layer 3 — reading the IP and deciding it is usable            |
 | [computeFingerprint.ts](../../../utils/computeFingerprint.ts)                              | layer 4 — the signal list and the sha256                      |
-| [deviceIdRedis.ts](../../../libs/deviceIdRedis.ts)                                        | layers 0 + 3 + 4 — the three Redis key shapes and their expiry |
+| [deviceIdRedis.ts](../../../libs/deviceIdRedis.ts)                                        | layers 0 + 3 + 4 — the four Redis key shapes and their expiry |
 | [getUser.ts](../../../actions/getUser.ts)                                                 | layer 0 — the account uuid, read from the verified session    |
 | [trackVisitAction.ts](../../../actions/trackVisitAction.ts)                                | resolve order, write-back, the daily dedup, the row insert    |
 | [UTMTracker.tsx](../../UTMTracker.tsx)                                                     | the two-phase call and the URL cleanup                        |
@@ -194,6 +194,38 @@ their identity, which is exactly the hole the old `anonymousId` cookie left open
 30 days, refreshed on every visit, because an account is exact rather than a guess. The IP gets one
 visitor day and the fingerprint 10 minutes, because both are guesses.
 
+#### One device belongs to one account
+
+Redis `utm:device-id:owner:<deviceId>` → the account uuid that claimed it, same 30 days.
+
+Layer 0 is written back on every signed-in visit, and that write is what needed a guard. Two people
+signing in on one shared laptop both resolve the **same** deviceId through layer 1 — which is right,
+a machine is one visitor. Without the guard, the second account was mapped to that deviceId too, and
+then carried it to their own phone through layer 0.
+
+```
+  shared family laptop, no owner check          shared family laptop, with the owner check
+  ────────────────────────────────────          ──────────────────────────────────────────
+  A signs in  ─► layer 1 gives X                A signs in  ─► layer 1 gives X
+                 account A → X                                 owner of X = A,  account A → X
+                                                               ✅ one visitor for the laptop
+  B signs in  ─► layer 1 gives X                B signs in  ─► layer 1 gives X
+                 account B → X                                 owner of X is A, so nothing is mapped
+                 ✅ laptop is one visitor                       ✅ laptop is still one visitor
+                                                               ✅ account B keeps no mapping
+  B on their own phone
+              ─► layer 0 gives X                B on their own phone
+                 ❌ B's phone reports as A                  ─► layer 0 misses
+                                                               ─► their own layers answer
+                                                               ✅ B's phone is B
+```
+
+`claimDeviceIdForAccount` writes the owner key and the account mapping only when the device is
+unclaimed, or already claimed by this same account.
+
+The owner key expires 30 days after the owner's last visit, so a laptop the first person stopped
+using becomes claimable by whoever actually uses it. Nothing has to be cleaned up by hand.
+
 ### Layer 1 — localStorage
 
 `useDeviceIdStore`, a zustand store with `persist`, localStorage key `deviceIdStore`.
@@ -301,7 +333,9 @@ than inferred — an inferred union gives the first shape an optional `storedDev
 
 Once an id is resolved, `syncDeviceIdLayers` re-points every layer at it:
 
-- account key → deviceId, `ex` 30 days (skipped for a signed-out visitor)
+- account key → deviceId, `ex` 30 days (skipped for a signed-out visitor, and for a device another
+  account already claimed — see "One device belongs to one account" above)
+- owner key → the account uuid, `ex` 30 days (written on the same condition)
 - IP key → deviceId, `exat` midnight in the visitor's timezone (skipped for an untrustworthy IP)
 - fingerprint key → deviceId, `ex` 600 (skipped when no fingerprint was sent — i.e. on every hit path)
 - cookie re-set, but only when the existing one decrypts to a different id
@@ -330,6 +364,16 @@ query params with `history.replaceState` so a refresh does not re-attribute the 
 - **Against layer 0 being anywhere but first.** It was tempting to try localStorage first as the
   cheapest read. But then a person who clears site data every visit, or signs in on a borrowed
   machine, gets a new id even though the server already knew exactly who they were.
+
+- **Against minting a fresh deviceId for the second account on a shared browser.** That was the first
+  shape of the owner check, and it splits one laptop into two visitors — which contradicts the whole
+  point of layer 4, where one machine is one visitor whatever browser it runs. Claiming only when the
+  device is unclaimed keeps the laptop at one visitor and still stops the id spreading to the second
+  person's own devices.
+
+- **Against a reverse index of every device an account has used.** One owner per device answers the
+  only question being asked — "may this account map itself to this device" — in one Redis read. A
+  full account → devices set would need pruning and answers nothing extra.
 
 - **Against trusting a `userId` argument from the browser.** It is read from the verified session
   inside the action, through `getUser()`. As a client argument, anyone could type someone else's uuid

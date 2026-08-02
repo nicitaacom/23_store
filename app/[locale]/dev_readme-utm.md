@@ -186,7 +186,7 @@ shared with projects 14/28/29. A row written with no `url` is stored but never c
 
 ### Unit — `pnpm test:unit` (vitest "unit" project, node)
 
-167 tests over 7 files. They exercise the real crypto, the real IP parsing and the real timezone
+176 tests over 7 files. They exercise the real crypto, the real IP parsing and the real timezone
 arithmetic; only Supabase, Redis, `next/headers` and the cookie store are replaced with recorders.
 
 | File                                                                          | Covers                                                                                  |
@@ -240,7 +240,7 @@ first assertion while every page still renders.
 
 ### What has actually been run
 
-- ✅ `pnpm test:unit` — 167 passed
+- ✅ `pnpm test:unit` — 176 passed
 - ✅ `pnpm type-check`, `pnpm lint` — clean
 - ✅ **all 9 scenarios above, in headless chromium against the dev server on 3023** — 42 checks passed,
   and the cleanup deleted 9 distinct deviceIds, which is what proves each scenario was a separate visitor
