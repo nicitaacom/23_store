@@ -1,16 +1,20 @@
 import { Redis } from "@upstash/redis"
 
 /**
- * Layers 3 and 4 of the visitor identity:
+ * Layers 0, 3 and 4 of the visitor identity:
  *
+ *   utm:device-id:by-user-id:<account uuid>  -> deviceId, expiring 30 days after the last visit
  *   utm:device-id:by-ip:<ip>                 -> deviceId, expiring at midnight in the visitor's timezone
  *   utm:device-id:by-fingerprint:<sha256>    -> deviceId, expiring 10 minutes after it was written
  *
- * The IP layer gets the day-long expiry because an address is stronger evidence than a fingerprint
- * match, which is a probability - a different browser on similar hardware tells the server nothing
- * definite, so 10 minutes means a coincidental match bridges one short session rather than claiming
- * someone else's deviceId for the rest of the day.
+ * Each expiry matches how much the key proves. A signed-in account is exact - the session already
+ * said who this is - so the link stays good for a month and is refreshed on every visit. An address
+ * is weaker (everyone behind one router shares it) so it lasts the visitor's day. A fingerprint match
+ * is a probability - a different browser on similar hardware tells the server nothing definite - so
+ * 10 minutes means a coincidental match bridges one short session rather than claiming someone
+ * else's deviceId for the rest of the day.
  */
+const USER_ID_TTL_SECONDS = 60 * 60 * 24 * 30
 const FINGERPRINT_TTL_SECONDS = 600
 const FINGERPRINT_PATTERN = /^[0-9a-f]{64}$/
 
@@ -22,12 +26,32 @@ function getRedisClient(): Redis {
   return redisClient
 }
 
+function getDeviceIdByUserIdKey(userId: string): string {
+  return `utm:device-id:by-user-id:${userId}`
+}
+
 function getDeviceIdByIpKey(ip: string): string {
   return `utm:device-id:by-ip:${ip}`
 }
 
 function getDeviceIdByFingerprintKey(fingerprint: string): string {
   return `utm:device-id:by-fingerprint:${fingerprint}`
+}
+
+/**
+ * Layer 0 - the strongest link there is, because the account id is read from the verified Supabase
+ * session server-side rather than sent by the browser. No shape check for that reason: unlike the
+ * fingerprint and the IP headers, nothing a visitor can type reaches this key.
+ */
+export async function getRedisDeviceIdByUserId(userId: string): Promise<string | null> {
+  const redis = getRedisClient()
+
+  return redis.get<string>(getDeviceIdByUserIdKey(userId))
+}
+
+export async function setRedisDeviceIdByUserId(userId: string, deviceId: string): Promise<void> {
+  const redis = getRedisClient()
+  await redis.set(getDeviceIdByUserIdKey(userId), deviceId, { ex: USER_ID_TTL_SECONDS })
 }
 
 export async function getRedisDeviceIdByIp(ip: string): Promise<string | null> {
