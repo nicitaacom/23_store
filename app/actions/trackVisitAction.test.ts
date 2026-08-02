@@ -18,6 +18,7 @@ const actionState = vi.hoisted(() => ({
   cookieValue: undefined as string | undefined,
   sessionUserId: null as string | null,
   redisByUserId: new Map<string, string>(),
+  redisDeviceIdOwner: new Map<string, string>(),
   redisByIp: new Map<string, string>(),
   redisByFingerprint: new Map<string, string>(),
   userIdReads: [] as string[],
@@ -56,6 +57,10 @@ vi.mock("@/libs/deviceIdRedis", () => ({
   setRedisDeviceIdByUserId: async (userId: string, deviceId: string) => {
     actionState.userIdWrites.push({ userId, deviceId })
     actionState.redisByUserId.set(userId, deviceId)
+  },
+  getRedisDeviceIdOwner: async (deviceId: string) => actionState.redisDeviceIdOwner.get(deviceId) ?? null,
+  setRedisDeviceIdOwner: async (deviceId: string, userId: string) => {
+    actionState.redisDeviceIdOwner.set(deviceId, userId)
   },
   getRedisDeviceIdByIp: async (ip: string) => {
     actionState.ipReads.push(ip)
@@ -128,6 +133,7 @@ beforeEach(() => {
   actionState.cookieValue = undefined
   actionState.sessionUserId = null
   actionState.redisByUserId.clear()
+  actionState.redisDeviceIdOwner.clear()
   actionState.redisByIp.clear()
   actionState.redisByFingerprint.clear()
   actionState.userIdReads.length = 0
@@ -234,6 +240,76 @@ describe("layer 0 — the signed-in account", () => {
 
     expect(resolveStoredDeviceId(signedInResp)).toBe(storedDeviceId)
     expect(actionState.insertedVisits).toHaveLength(1)
+  })
+})
+
+describe("one device belongs to one account — the shared browser", () => {
+  const OTHER_USER_ID = "11111111-2222-3333-4444-555555555555"
+
+  it("keeps the shared machine as one visitor, so both accounts get the same row id", async () => {
+    const deviceId = createDeviceId()
+    actionState.sessionUserId = USER_ID
+    await trackVisitAction(encodeDeviceId(deviceId), {}, "http://localhost:3023/en", HELSINKI)
+
+    actionState.sessionUserId = OTHER_USER_ID
+    const secondPersonResp = await trackVisitAction(encodeDeviceId(deviceId), {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(resolveDeviceId(secondPersonResp)).toBe(deviceId)
+  })
+
+  it("maps only the account that claimed the device, not the second one", async () => {
+    const deviceId = createDeviceId()
+    actionState.sessionUserId = USER_ID
+    await trackVisitAction(encodeDeviceId(deviceId), {}, "http://localhost:3023/en", HELSINKI)
+
+    actionState.sessionUserId = OTHER_USER_ID
+    await trackVisitAction(encodeDeviceId(deviceId), {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(actionState.redisByUserId.get(USER_ID)).toBe(deviceId)
+    expect(actionState.redisByUserId.has(OTHER_USER_ID)).toBe(false)
+  })
+
+  it("gives the second person their own id on their own machine", async () => {
+    const sharedDeviceId = createDeviceId()
+    actionState.sessionUserId = USER_ID
+    await trackVisitAction(encodeDeviceId(sharedDeviceId), {}, "http://localhost:3023/en", HELSINKI)
+
+    // the second person signs in on the shared browser, then visits from their own phone
+    actionState.sessionUserId = OTHER_USER_ID
+    await trackVisitAction(encodeDeviceId(sharedDeviceId), {}, "http://localhost:3023/en", HELSINKI)
+
+    actionState.cookieValue = undefined
+    actionState.requestHeaders = { "x-real-ip": "203.0.113.9" }
+    const ownMachineResp = await trackVisitAction(null, {}, "http://localhost:3023/en", HELSINKI, "")
+
+    expect(resolveDeviceId(ownMachineResp)).not.toBe(sharedDeviceId)
+    expect(isValidDeviceId(resolveDeviceId(ownMachineResp))).toBe(true)
+  })
+
+  it("lets the owner keep re-claiming its own device", async () => {
+    const deviceId = createDeviceId()
+    actionState.sessionUserId = USER_ID
+    await trackVisitAction(encodeDeviceId(deviceId), {}, "http://localhost:3023/en", HELSINKI)
+    await trackVisitAction(encodeDeviceId(deviceId), {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(actionState.userIdWrites).toEqual([
+      { userId: USER_ID, deviceId },
+      { userId: USER_ID, deviceId },
+    ])
+  })
+
+  it("claims a device nobody owns yet", async () => {
+    const deviceId = createDeviceId()
+    actionState.sessionUserId = USER_ID
+    await trackVisitAction(encodeDeviceId(deviceId), {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(actionState.redisDeviceIdOwner.get(deviceId)).toBe(USER_ID)
+  })
+
+  it("writes no owner key for a signed-out visitor", async () => {
+    await trackVisitAction(encodeDeviceId(createDeviceId()), {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(actionState.redisDeviceIdOwner.size).toBe(0)
   })
 })
 

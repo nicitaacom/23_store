@@ -4,9 +4,11 @@ import {
   getRedisDeviceIdByFingerprint,
   getRedisDeviceIdByIp,
   getRedisDeviceIdByUserId,
+  getRedisDeviceIdOwner,
   setRedisDeviceIdByFingerprint,
   setRedisDeviceIdByIp,
   setRedisDeviceIdByUserId,
+  setRedisDeviceIdOwner,
 } from "./deviceIdRedis"
 
 const redisState = vi.hoisted(() => ({
@@ -72,6 +74,26 @@ describe("the account layer keys", () => {
 
     expect(await getRedisDeviceIdByUserId(USER_ID)).toBe(DEVICE_ID)
     expect(await getRedisDeviceIdByUserId("other-account")).toBe("23-aaaaaaaaaaaaaaaaaaaaa-AAAAAAAA")
+  })
+})
+
+describe("the device owner keys", () => {
+  it("reads and writes utm:device-id:owner:<deviceId>", async () => {
+    await setRedisDeviceIdOwner(DEVICE_ID, USER_ID)
+
+    expect(redisState.setCalls[0].key).toBe(`utm:device-id:owner:${DEVICE_ID}`)
+    expect(redisState.setCalls[0].value).toBe(USER_ID)
+    expect(await getRedisDeviceIdOwner(DEVICE_ID)).toBe(USER_ID)
+  })
+
+  it("expires on the same 30 days as the account mapping", async () => {
+    await setRedisDeviceIdOwner(DEVICE_ID, USER_ID)
+
+    expect(redisState.setCalls[0].options).toEqual({ ex: THIRTY_DAYS_IN_SECONDS })
+  })
+
+  it("answers null for a device nobody has claimed", async () => {
+    expect(await getRedisDeviceIdOwner("23-aaaaaaaaaaaaaaaaaaaaa-AAAAAAAA")).toBeNull()
   })
 })
 
