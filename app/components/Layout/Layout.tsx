@@ -5,6 +5,7 @@ import { User } from "@supabase/supabase-js"
 
 import { useSetUser } from "./hooks/useSetUser"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
+import { SeasonalBackdrop } from "@/components/SeasonalBackdrop"
 
 // http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export default function Layout({ children, user }: { children: React.ReactNode; user: User | null }) {
@@ -28,11 +29,14 @@ export default function Layout({ children, user }: { children: React.ReactNode; 
   }, [darkMode.isDarkMode])
 
   return (
-    <main
-      className="flex min-h-screen w-full flex-col overflow-x-clip
-      bg-background text-title
-      transition-colors duration-300">
-      {children}
-    </main>
+    <>
+      <SeasonalBackdrop />
+      <main
+        className="relative z-10 flex min-h-screen w-full flex-col overflow-x-clip
+        bg-background text-title
+        transition-colors duration-300">
+        {children}
+      </main>
+    </>
   )
 }
