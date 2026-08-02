@@ -1,4 +1,4 @@
-# Visitor identity — the 4 layers behind one `utm_stats` row
+# Visitor identity — the 5 layers behind one `utm_stats` row
 
 > Companion to [dev_readme-utm.md](dev_readme-utm.md). That doc covers the dashboard at
 > `/[locale]/stats`; this one covers **who** a visit gets attributed to.
@@ -15,15 +15,20 @@ window, switches from Chrome to Firefox on the same machine, or comes back after
 Each of those wipes a different subset of what identifies them, so **one** storage mechanism is never
 enough.
 
-So identity is resolved through 4 layers, tried in order, each one surviving a failure the one above
+So identity is resolved through 5 layers, tried in order, each one surviving a failure the one above
 it does not. The first layer that answers wins and the rest are skipped.
 
-| Layer | Where it lives                     | Survives                        | Gone when                         |
-| ----- | ---------------------------------- | ------------------------------- | --------------------------------- |
-| 1     | localStorage (`deviceIdStore`)     | cookie expiry, IP change        | site data cleared, private window |
-| 2     | httpOnly cookie (`23_did`)         | localStorage cleared by page JS | end of day, site data cleared     |
-| 3     | Redis, keyed by IP                 | all browser storage cleared     | IP changes, next day              |
-| 4     | Redis, keyed by device fingerprint | a switch to a different browser | 10 minutes, different machine     |
+| Layer | Where it lives                     | Survives                              | Gone when                         |
+| ----- | ---------------------------------- | ------------------------------------- | --------------------------------- |
+| 0     | Redis, keyed by the account uuid   | everything below, on any machine      | signed out, 30 days since a visit |
+| 1     | localStorage (`deviceIdStore`)     | cookie expiry, IP change              | site data cleared, private window |
+| 2     | httpOnly cookie (`23_did`)         | localStorage cleared by page JS       | end of day, site data cleared     |
+| 3     | Redis, keyed by IP                 | all browser storage cleared           | IP changes, next day              |
+| 4     | Redis, keyed by device fingerprint | a switch to a different browser       | 10 minutes, different machine     |
+
+**Layer 0 is the only exact one.** Layers 1-4 each guess: they read something the visitor's machine
+happens to still hold. The Supabase session already proved who this is, so when someone is signed in
+their account decides the answer and the four guesses below are skipped.
 
 **Before this existed:** `UTMTracker` sent `userId || getCookie("anonymousId") || setAnonymousId()`.
 The `anonymousId` cookie is written by page JS, readable and editable in devtools, and 7 days long —
@@ -40,15 +45,18 @@ wrote `utm_stats` rows under any id you liked.
   BROWSER                                    SERVER (trackVisitAction)          REDIS / SUPABASE
   ─────────────────────────────────────      ────────────────────────────       ────────────────────────────────
 
+  layer 0  supabase session  ─────────────► getSessionUserId ───────────────► utm:device-id:by-user-id:<uuid>
+           (read server-side, never sent)          │                            ex = 30 days
+                                                   │
   layer 1  localStorage "deviceIdStore"  ──► storedDeviceId ─┐
            { storedDeviceId: "<transport>" }                 │
-                                                            ├─ resolveDeviceIdFromStorageAndIp
+                                                            ├─ resolveDeviceIdBeforeFingerprint
   layer 2  cookie "23_did"  (httpOnly)  ───► decryptDeviceId ─┤
            aes-256-gcm(deviceId)                             │
                                                             └─► redis.get ──► utm:device-id:by-ip:<ip>
   layer 3  request IP  (x-real-ip)  ──────► getRequestIp ────────────────────    exat = midnight, visitor's tz
 
-           ── all three missed → server answers { needsFingerprint: true } ──
+           ── all four missed → server answers { needsFingerprint: true } ──
 
   layer 4  computeFingerprint()  ─────────► resolveDeviceIdFromFingerprint
            sha256 of machine signals              └─► redis.get ──────────────► utm:device-id:by-fingerprint:<sha256>
@@ -70,7 +78,8 @@ wrote `utm_stats` rows under any id you liked.
 | [visitorDayBounds.ts](../../../utils/visitorDayBounds.ts)                                 | midnight behind / ahead of the visitor, in their own timezone |
 | [requestIp.ts](../../../utils/requestIp.ts)                                               | layer 3 — reading the IP and deciding it is usable            |
 | [computeFingerprint.ts](../../../utils/computeFingerprint.ts)                              | layer 4 — the signal list and the sha256                      |
-| [deviceIdRedis.ts](../../../libs/deviceIdRedis.ts)                                        | layers 3 + 4 — the two Redis key shapes and their expiry      |
+| [deviceIdRedis.ts](../../../libs/deviceIdRedis.ts)                                        | layers 0 + 3 + 4 — the three Redis key shapes and their expiry |
+| [getUser.ts](../../../actions/getUser.ts)                                                 | layer 0 — the account uuid, read from the verified session    |
 | [trackVisitAction.ts](../../../actions/trackVisitAction.ts)                                | resolve order, write-back, the daily dedup, the row insert    |
 | [UTMTracker.tsx](../../UTMTracker.tsx)                                                     | the two-phase call and the URL cleanup                        |
 
@@ -93,6 +102,7 @@ without it no visit is tracked (see the decisions below).
 
 | Term             | Means                                                                                   |
 | ---------------- | --------------------------------------------------------------------------------------- |
+| `userId`         | the Supabase account uuid, read from the verified session. Layer 0.                     |
 | `deviceId`       | `23-<body>-<check>`. The identity itself, signed — see section 3.                        |
 | `storedDeviceId` | the transport form of that id — the only shape localStorage and the browser see.         |
 | `clientDeviceId` | what layer 1 sent this request, decoded. `null` when localStorage was empty.             |
@@ -160,6 +170,29 @@ only shape `useDeviceIdStore` ever holds.
 **The step and the reversal are a fixed pair — two sample ids give them away.** They hide the
 structure so there is nothing obvious to copy; they are not what makes an id unforgeable. The keyed
 check is still the thing that accepts or refuses.
+
+### Layer 0 — the signed-in account
+
+Redis `utm:device-id:by-user-id:<account uuid>` → deviceId, `ex` 30 days, refreshed on every visit.
+
+This layer goes **first** because it is the only exact signal here: the Supabase session already
+proved who this is, while localStorage, the cookie, the IP and the fingerprint each only suggest it.
+
+```
+  someone clears site data on every single visit, but stays signed in
+    layer 0 HIT every time ──► the same deviceId, one row per day, forever
+
+  the same account signs in on a laptop it has never used
+    layer 1 miss, layer 2 miss, layer 3 miss (a new address)
+    layer 0 HIT ──► the same deviceId — not a second visitor
+```
+
+The account uuid is read server-side inside the action, through `getUser()`. It is never an argument
+the browser sends — otherwise anyone could type someone else's uuid and write `utm_stats` rows under
+their identity, which is exactly the hole the old `anonymousId` cookie left open.
+
+30 days, refreshed on every visit, because an account is exact rather than a guess. The IP gets one
+visitor day and the fingerprint 10 minutes, because both are guesses.
 
 ### Layer 1 — localStorage
 
@@ -235,15 +268,15 @@ shape check a caller sends a megabyte of text and has it written to Redis as a k
 
 ### The two-phase request
 
-The browser has no way to tell whether layers 2 and 3 hit: the cookie is `httpOnly` and the IP
-mapping sits in Redis. So the server asks for the fingerprint only when it needs one.
+The browser has no way to tell whether layers 0, 2 and 3 hit: the account and IP mappings sit in
+Redis and the cookie is `httpOnly`. So the server asks for the fingerprint only when it needs one.
 
 ```
   visit
     │
     ├─ 1. trackVisitAction(storedDeviceId, params, url, timezone)   ← fingerprint arg omitted → null
     │        │
-    │        ├─ layer 1/2/3 hit ──► { storedDeviceId }  ─────────► done, one round trip
+    │        ├─ layer 0/1/2/3 hit ► { storedDeviceId }  ─────────► done, one round trip
     │        │
     │        └─ all missed ──────► { needsFingerprint: true }
     │                                     │
@@ -268,6 +301,7 @@ than inferred — an inferred union gives the first shape an optional `storedDev
 
 Once an id is resolved, `syncDeviceIdLayers` re-points every layer at it:
 
+- account key → deviceId, `ex` 30 days (skipped for a signed-out visitor)
 - IP key → deviceId, `exat` midnight in the visitor's timezone (skipped for an untrustworthy IP)
 - fingerprint key → deviceId, `ex` 600 (skipped when no fingerprint was sent — i.e. on every hit path)
 - cookie re-set, but only when the existing one decrypts to a different id
@@ -283,11 +317,23 @@ query params with `history.replaceState` so a refresh does not re-attribute the 
 
 ## 4. Decisions made AGAINST
 
-- **Against keying rows on the logged-in `user_id`.** `utm_stats.user_id` now always holds a
-  deviceId, so the dashboard's "Unique Users" card counts **devices**, not accounts: one person on a
-  phone and a laptop is 2, and a logged-in visitor is the same visitor as before they signed in.
-  Attributing to the account instead would count the same person twice the moment they visit signed
-  out, which is the more common case for a store.
+- **Against putting the account uuid in `utm_stats.user_id`.** The account resolves *which deviceId*
+  the visit belongs to (layer 0); the column keeps holding a signed deviceId. Writing the uuid there
+  instead would count one person twice — once signed out, once signed in — and the uuid fails
+  `isValidDeviceId`, so every layer would refuse it on the next visit and churn a fresh id each time.
+  One id shape means the keyed check still guards the column.
+
+  Consequence, unchanged: the dashboard's "Unique Users" card counts **devices**, not accounts — one
+  person on a phone and a laptop is 2 while they are signed out. Once they sign in on both, layer 0
+  merges them onto one deviceId and they become 1.
+
+- **Against layer 0 being anywhere but first.** It was tempting to try localStorage first as the
+  cheapest read. But then a person who clears site data every visit, or signs in on a borrowed
+  machine, gets a new id even though the server already knew exactly who they were.
+
+- **Against trusting a `userId` argument from the browser.** It is read from the verified session
+  inside the action, through `getUser()`. As a client argument, anyone could type someone else's uuid
+  and write rows under it.
 
 - **Against sending the fingerprint on every visit.** Canvas and WebGL reads cost real time on the
   main thread, and a returning visitor resolves on layer 1 without the value ever being read. It is
@@ -360,11 +406,15 @@ query params with `history.replaceState` so a refresh does not re-attribute the 
 ## 5. Reproduction steps
 
 ```
-  A. returning visitor
+  A0. signed in, on any machine, in any browser, with any storage state
+     layer 0 HIT ──► the deviceId the account was last mapped to ──► 1 round trip
+     the mapping is refreshed to 30 days on every visit
+
+  A. returning visitor, signed out
      localStorage has storedDeviceId ──► layer 1 ──► 1 round trip, no fingerprint computed
      utm_stats: no new row if one already exists for this visitor day
 
-  B. cleared site data, same IP, same day
+  B. cleared site data, same IP, same day, signed out
      layer 1 miss (localStorage gone)
      layer 2 miss (cookie gone)
      layer 3 HIT  (utm:device-id:by-ip:<ip> still set until midnight in the visitor's timezone)

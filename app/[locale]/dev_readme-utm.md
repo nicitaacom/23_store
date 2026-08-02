@@ -52,7 +52,7 @@ disappearing from the address bar a moment after the page appears.
          │
          │  trackVisitAction(storedDeviceId, params, pageUrl, timezone)
          ▼
-                                     resolve the deviceId (4 layers)
+                                     resolve the deviceId (5 layers, account first)
                                      syncDeviceIdLayers  → cookie + Redis
                                      insertDBVisitOncePerDay
                                        ├─ row for this device since local midnight? ──► SELECT utm_stats
@@ -118,7 +118,7 @@ shared with projects 14/28/29. A row written with no `url` is stored but never c
 | **organic / direct** | what a visit with no utm params is recorded as.                                           |
 | **landing URL**    | `location.href` as it arrived, utm params included — the `url` column.                      |
 | **visitor day**    | midnight-to-midnight in the visitor's own timezone, not UTC.                                |
-| **phase 1 / 2**    | the two `trackVisitAction` calls. Phase 2 happens only when layers 1-3 all missed.          |
+| **phase 1 / 2**    | the two `trackVisitAction` calls. Phase 2 happens only when layers 0-3 all missed.          |
 | **write-back**     | `syncDeviceIdLayers` — every identity layer is re-pointed at the winning deviceId.          |
 | **the cleanup**    | `history.replaceState` stripping the 5 utm params, keeping every other query param.         |
 
@@ -186,7 +186,7 @@ shared with projects 14/28/29. A row written with no `url` is stored but never c
 
 ### Unit — `pnpm test:unit` (vitest "unit" project, node)
 
-154 tests over 7 files. They exercise the real crypto, the real IP parsing and the real timezone
+167 tests over 7 files. They exercise the real crypto, the real IP parsing and the real timezone
 arithmetic; only Supabase, Redis, `next/headers` and the cookie store are replaced with recorders.
 
 | File                                                                          | Covers                                                                                  |
@@ -196,8 +196,8 @@ arithmetic; only Supabase, Redis, `next/headers` and the cookie store are replac
 | [deviceIdCookie.test.ts](../utils/deviceIdCookie.test.ts)                     | round trip, a flipped bit in iv / auth tag / ciphertext, a cookie from another key       |
 | [requestIp.test.ts](../utils/requestIp.test.ts)                               | header order, forwarded chains, every private range, unparseable values                  |
 | [visitorDayBounds.test.ts](../utils/visitorDayBounds.test.ts)                 | 6 timezones incl. 30/45-minute offsets, unknown zones, both summer-time transitions      |
-| [deviceIdRedis.test.ts](../libs/deviceIdRedis.test.ts)                        | both key shapes, `exat` / `ex 600`, 9 values refused before becoming a key               |
-| [trackVisitAction.test.ts](../actions/trackVisitAction.test.ts)               | layer order, phase 1 writing nothing, dedup, cookie flags, organic/direct, params        |
+| [deviceIdRedis.test.ts](../libs/deviceIdRedis.test.ts)                        | all three key shapes, `ex 30d` / `exat` / `ex 600`, 9 values refused before becoming a key |
+| [trackVisitAction.test.ts](../actions/trackVisitAction.test.ts)               | layer 0-4 order, phase 1 writing nothing, dedup, cookie flags, organic/direct, params    |
 
 ### End to end — `pnpm test:e2e`
 
@@ -240,7 +240,7 @@ first assertion while every page still renders.
 
 ### What has actually been run
 
-- ✅ `pnpm test:unit` — 154 passed
+- ✅ `pnpm test:unit` — 167 passed
 - ✅ `pnpm type-check`, `pnpm lint` — clean
 - ✅ **all 9 scenarios above, in headless chromium against the dev server on 3023** — 42 checks passed,
   and the cleanup deleted 9 distinct deviceIds, which is what proves each scenario was a separate visitor
