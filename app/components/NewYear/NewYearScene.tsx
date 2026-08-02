@@ -471,10 +471,10 @@ export function NewYearScene() {
         const matrix = bauble.ball.ownerSVGElement?.getScreenCTM()
         if (!matrix) return
 
-        const x = bauble.ball.cx.baseVal.value
-        const y = bauble.ball.cy.baseVal.value
-        bauble.centerX = matrix.a * x + matrix.c * y + matrix.e
-        bauble.centerY = matrix.b * x + matrix.d * y + matrix.f
+        const localX = bauble.ball.cx.baseVal.value
+        const localY = bauble.ball.cy.baseVal.value
+        bauble.centerX = matrix.a * localX + matrix.c * localY + matrix.e
+        bauble.centerY = matrix.b * localX + matrix.d * localY + matrix.f
         bauble.radius = bauble.ball.r.baseVal.value * matrix.a
       })
     }
