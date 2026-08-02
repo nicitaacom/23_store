@@ -3,8 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import {
   getRedisDeviceIdByFingerprint,
   getRedisDeviceIdByIp,
+  getRedisDeviceIdByUserId,
   setRedisDeviceIdByFingerprint,
   setRedisDeviceIdByIp,
+  setRedisDeviceIdByUserId,
 } from "./deviceIdRedis"
 
 const redisState = vi.hoisted(() => ({
@@ -36,11 +38,41 @@ vi.mock("@upstash/redis", () => ({
 const DEVICE_ID = "23-Xk29vBq7mTz4LpR8nWc1s-7QF3KMBH"
 const FINGERPRINT = "a".repeat(64)
 const IP = "81.175.200.14"
+const USER_ID = "6f9619ff-8b86-d011-b42d-00c04fc964ff"
+const THIRTY_DAYS_IN_SECONDS = 60 * 60 * 24 * 30
 
 beforeEach(() => {
   redisState.store.clear()
   redisState.getKeys.length = 0
   redisState.setCalls.length = 0
+})
+
+describe("the account layer keys", () => {
+  it("reads and writes utm:device-id:by-user-id:<account uuid>", async () => {
+    await setRedisDeviceIdByUserId(USER_ID, DEVICE_ID)
+
+    expect(redisState.setCalls[0].key).toBe(`utm:device-id:by-user-id:${USER_ID}`)
+    expect(redisState.setCalls[0].value).toBe(DEVICE_ID)
+    expect(await getRedisDeviceIdByUserId(USER_ID)).toBe(DEVICE_ID)
+  })
+
+  it("expires 30 days after the last visit, the longest of the three", async () => {
+    await setRedisDeviceIdByUserId(USER_ID, DEVICE_ID)
+
+    expect(redisState.setCalls[0].options).toEqual({ ex: THIRTY_DAYS_IN_SECONDS })
+  })
+
+  it("answers null for an account that has never visited", async () => {
+    expect(await getRedisDeviceIdByUserId("11111111-2222-3333-4444-555555555555")).toBeNull()
+  })
+
+  it("keeps two accounts on two different deviceIds", async () => {
+    await setRedisDeviceIdByUserId(USER_ID, DEVICE_ID)
+    await setRedisDeviceIdByUserId("other-account", "23-aaaaaaaaaaaaaaaaaaaaa-AAAAAAAA")
+
+    expect(await getRedisDeviceIdByUserId(USER_ID)).toBe(DEVICE_ID)
+    expect(await getRedisDeviceIdByUserId("other-account")).toBe("23-aaaaaaaaaaaaaaaaaaaaa-AAAAAAAA")
+  })
 })
 
 describe("the IP layer keys", () => {
@@ -121,6 +153,8 @@ describe("a value that is not a sha256 digest never becomes a key", () => {
 
 describe("the client itself", () => {
   it("is built once and reused by every layer", async () => {
+    await getRedisDeviceIdByUserId(USER_ID)
+    await setRedisDeviceIdByUserId(USER_ID, DEVICE_ID)
     await getRedisDeviceIdByIp(IP)
     await setRedisDeviceIdByIp(IP, DEVICE_ID, new Date())
     await getRedisDeviceIdByFingerprint(FINGERPRINT)

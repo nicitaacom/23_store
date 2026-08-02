@@ -11,14 +11,19 @@ const PUBLIC_IP = "81.175.200.14"
 const FINGERPRINT = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 const OTHER_FINGERPRINT = "f".repeat(64)
 const HELSINKI = "Europe/Helsinki"
+const USER_ID = "6f9619ff-8b86-d011-b42d-00c04fc964ff"
 
 const actionState = vi.hoisted(() => ({
   requestHeaders: {} as Record<string, string>,
   cookieValue: undefined as string | undefined,
+  sessionUserId: null as string | null,
+  redisByUserId: new Map<string, string>(),
   redisByIp: new Map<string, string>(),
   redisByFingerprint: new Map<string, string>(),
+  userIdReads: [] as string[],
   ipReads: [] as string[],
   fingerprintReads: [] as string[],
+  userIdWrites: [] as { userId: string; deviceId: string }[],
   ipWrites: [] as { ip: string; deviceId: string; visitorDayEnd: Date }[],
   fingerprintWrites: [] as { fingerprint: string; deviceId: string }[],
   cookieWrites: [] as { name: string; value: string; options: Record<string, unknown> }[],
@@ -39,7 +44,19 @@ vi.mock("@/utils/helpersSSR", () => ({
   },
 }))
 
+vi.mock("@/actions/getUser", () => ({
+  getUser: async () => (actionState.sessionUserId ? { id: actionState.sessionUserId } : null),
+}))
+
 vi.mock("@/libs/deviceIdRedis", () => ({
+  getRedisDeviceIdByUserId: async (userId: string) => {
+    actionState.userIdReads.push(userId)
+    return actionState.redisByUserId.get(userId) ?? null
+  },
+  setRedisDeviceIdByUserId: async (userId: string, deviceId: string) => {
+    actionState.userIdWrites.push({ userId, deviceId })
+    actionState.redisByUserId.set(userId, deviceId)
+  },
   getRedisDeviceIdByIp: async (ip: string) => {
     actionState.ipReads.push(ip)
     return actionState.redisByIp.get(ip) ?? null
@@ -109,10 +126,14 @@ function resolveDeviceId(trackVisitResp: Awaited<ReturnType<typeof trackVisitAct
 beforeEach(() => {
   actionState.requestHeaders = { "x-real-ip": PUBLIC_IP, "user-agent": "vitest-unit" }
   actionState.cookieValue = undefined
+  actionState.sessionUserId = null
+  actionState.redisByUserId.clear()
   actionState.redisByIp.clear()
   actionState.redisByFingerprint.clear()
+  actionState.userIdReads.length = 0
   actionState.ipReads.length = 0
   actionState.fingerprintReads.length = 0
+  actionState.userIdWrites.length = 0
   actionState.ipWrites.length = 0
   actionState.fingerprintWrites.length = 0
   actionState.cookieWrites.length = 0
@@ -123,6 +144,97 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers()
+})
+
+describe("layer 0 — the signed-in account", () => {
+  it("resolves the deviceId the account is mapped to", async () => {
+    const deviceId = createDeviceId()
+    actionState.sessionUserId = USER_ID
+    actionState.redisByUserId.set(USER_ID, deviceId)
+    const trackVisitResp = await trackVisitAction(null, {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(resolveDeviceId(trackVisitResp)).toBe(deviceId)
+    expect(actionState.userIdReads).toEqual([USER_ID])
+  })
+
+  it("wins over localStorage, the cookie and the IP, since the session already proved who this is", async () => {
+    const accountDeviceId = createDeviceId()
+    actionState.sessionUserId = USER_ID
+    actionState.redisByUserId.set(USER_ID, accountDeviceId)
+    actionState.cookieValue = encryptDeviceId(createDeviceId())
+    actionState.redisByIp.set(PUBLIC_IP, createDeviceId())
+    const trackVisitResp = await trackVisitAction(encodeDeviceId(createDeviceId()), {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(resolveDeviceId(trackVisitResp)).toBe(accountDeviceId)
+  })
+
+  it("never reads the account key for a signed-out visitor", async () => {
+    await trackVisitAction(encodeDeviceId(createDeviceId()), {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(actionState.userIdReads).toHaveLength(0)
+    expect(actionState.userIdWrites).toHaveLength(0)
+  })
+
+  it("maps the account to the winning id on the first signed-in visit", async () => {
+    const deviceId = createDeviceId()
+    actionState.sessionUserId = USER_ID
+    await trackVisitAction(encodeDeviceId(deviceId), {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(actionState.userIdWrites).toEqual([{ userId: USER_ID, deviceId }])
+  })
+
+  it("hands the same id to the same account on a machine it has never used", async () => {
+    actionState.sessionUserId = USER_ID
+    const firstVisitResp = await trackVisitAction(encodeDeviceId(createDeviceId()), {}, "http://localhost:3023/en", HELSINKI)
+
+    // a different machine: no localStorage, no cookie, an address nobody has visited from
+    actionState.cookieValue = undefined
+    actionState.requestHeaders = { "x-real-ip": "203.0.113.9" }
+    const secondVisitResp = await trackVisitAction(null, {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(resolveDeviceId(secondVisitResp)).toBe(resolveDeviceId(firstVisitResp))
+  })
+
+  it("refuses an account mapping that does not pass the check, and falls through", async () => {
+    actionState.sessionUserId = USER_ID
+    actionState.redisByUserId.set(USER_ID, "23-someone-typed-this")
+    const cookieDeviceId = createDeviceId()
+    actionState.cookieValue = encryptDeviceId(cookieDeviceId)
+
+    expect(resolveDeviceId(await trackVisitAction(null, {}, "http://localhost:3023/en", HELSINKI))).toBe(cookieDeviceId)
+  })
+
+  it("never writes the account id itself into utm_stats", async () => {
+    actionState.sessionUserId = USER_ID
+    const trackVisitResp = await trackVisitAction(null, {}, "http://localhost:3023/en", HELSINKI, "")
+
+    expect(actionState.insertedVisits[0].userId).not.toBe(USER_ID)
+    expect(isValidDeviceId(resolveDeviceId(trackVisitResp))).toBe(true)
+  })
+
+  it("keeps two accounts on two different deviceIds", async () => {
+    actionState.sessionUserId = USER_ID
+    const firstVisitResp = await trackVisitAction(null, {}, "http://localhost:3023/en", HELSINKI, "")
+
+    actionState.sessionUserId = "another-account"
+    actionState.cookieValue = undefined
+    actionState.requestHeaders = { "x-real-ip": "127.0.0.1" }
+    const secondVisitResp = await trackVisitAction(null, {}, "http://localhost:3023/en", HELSINKI, "")
+
+    expect(resolveDeviceId(secondVisitResp)).not.toBe(resolveDeviceId(firstVisitResp))
+  })
+
+  it("keeps the same id for one person before and after they sign in", async () => {
+    const signedOutResp = await trackVisitAction(null, {}, "http://localhost:3023/en", HELSINKI, "")
+    const storedDeviceId = resolveStoredDeviceId(signedOutResp)
+
+    actionState.sessionUserId = USER_ID
+    actionState.existingVisit = { id: "row-from-the-signed-out-visit" }
+    const signedInResp = await trackVisitAction(storedDeviceId, {}, "http://localhost:3023/en", HELSINKI)
+
+    expect(resolveStoredDeviceId(signedInResp)).toBe(storedDeviceId)
+    expect(actionState.insertedVisits).toHaveLength(1)
+  })
 })
 
 describe("layer 1 — what localStorage sent", () => {
@@ -424,9 +536,11 @@ describe("one row per device per visitor day", () => {
 
   it("still re-points every layer when the row already exists", async () => {
     actionState.existingVisit = { id: "existing-row" }
+    actionState.sessionUserId = USER_ID
     const deviceId = createDeviceId()
     await trackVisitAction(encodeDeviceId(deviceId), {}, "http://localhost:3023/en", HELSINKI)
 
+    expect(actionState.userIdWrites).toHaveLength(1)
     expect(actionState.ipWrites).toHaveLength(1)
     expect(actionState.cookieWrites).toHaveLength(1)
   })
