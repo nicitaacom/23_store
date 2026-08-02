@@ -37,6 +37,11 @@ const nextConfig = {
         hostname: "pbs.twimg.com",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        port: "",
+      },
     ],
   },
 }
