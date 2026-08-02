@@ -106,9 +106,14 @@ export const CookieExchangeFailed: Story = {
     await userEvent.click(reportToSupportButton)
 
     await waitFor(() => expect(canvas.getByRole("button", { name: /report sent/i })).toBeVisible())
+    await expect(storybookServices.email).toHaveBeenCalledTimes(1)
     await expect(storybookServices.email).toHaveBeenCalledWith(
       expect.objectContaining({ html: expect.stringContaining("No user found when exchanging cookies") }),
     )
+
+    // Must stay clickable after a successful send, not silently keep showing "sent" forever.
+    await userEvent.click(canvas.getByRole("button", { name: /report sent/i }))
+    await waitFor(() => expect(storybookServices.email).toHaveBeenCalledTimes(2))
   },
 }
 

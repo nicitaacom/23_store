@@ -52,11 +52,25 @@ export const RenderCrash: Story = {
     await userEvent.click(reportToSupportButton)
 
     await waitFor(() => expect(canvas.getByRole("button", { name: /report sent/i })).toBeVisible())
+    await expect(storybookServices.email).toHaveBeenCalledTimes(1)
     await expect(storybookServices.email).toHaveBeenCalledWith(
       expect.objectContaining({
         html: expect.stringContaining("story-example-digest"),
       }),
     )
+
+    // The button must stay clickable after a successful send - clicking it again has to fire a
+    // genuine second request, not just keep showing the stale "sent" label with nothing behind it.
+    await userEvent.click(canvas.getByRole("button", { name: /report sent/i }))
+    await waitFor(() => expect(storybookServices.email).toHaveBeenCalledTimes(2))
+
+    const writeTextSpy = fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, "clipboard", { value: { writeText: writeTextSpy }, configurable: true })
+
+    const copyButton = await canvas.findByRole("button", { name: /copy/i })
+    await userEvent.click(copyButton)
+    await expect(writeTextSpy).toHaveBeenCalledWith(expect.stringContaining("story-example-digest"))
+    await waitFor(() => expect(canvas.getByRole("button", { name: /copied/i })).toBeVisible())
   },
 }
 

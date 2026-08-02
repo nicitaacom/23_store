@@ -223,6 +223,8 @@ export default {
   "common.report_sent": "Rapport skickad - tack",
   "common.report_failed": "Kunde inte skicka automatiskt. Mejla {email} och beskriv vad som hände.",
   "common.error_details": "Felinformation - inkluderas automatiskt i rapporten",
+  "common.copy_error_details": "Kopiera",
+  "common.copied": "Kopierat",
   "common.user_avatar_alt": "Användaravatar",
   "common.cart": "Kundvagn",
   "common.contact_response_time": "(svar 8s)",

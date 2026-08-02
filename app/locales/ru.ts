@@ -224,6 +224,8 @@ export default {
   "common.report_sent": "Сообщение отправлено - спасибо",
   "common.report_failed": "Не удалось отправить автоматически. Напишите на {email} и опишите, что произошло.",
   "common.error_details": "Детали ошибки - будут включены в сообщение автоматически",
+  "common.copy_error_details": "Копировать",
+  "common.copied": "Скопировано",
   "common.user_avatar_alt": "Аватар пользователя",
   "common.cart": "Корзина",
   "common.contact_response_time": "(ответ за 8с)",

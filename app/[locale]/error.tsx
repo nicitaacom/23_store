@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { FiRefreshCw } from "react-icons/fi"
-import { MdCheck, MdOutlineEmail } from "react-icons/md"
+import { MdCheck, MdContentCopy, MdOutlineEmail } from "react-icons/md"
 
 import { reportErrorToSupport } from "@/functions/support/reportErrorToSupport"
 import { useI18n, useScopedI18n } from "@/locales/client"
@@ -25,6 +25,7 @@ export default function LocaleError({ error, reset }: ErrorBoundaryProps) {
   const isOnline = useIsOnline()
   const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL
   const [reportStatus, setReportStatus] = useState<TReportStatus>("idle")
+  const [isCopied, setIsCopied] = useState(false)
 
   useEffect(() => {
     console.error("[LocaleError]", error)
@@ -40,6 +41,12 @@ export default function LocaleError({ error, reset }: ErrorBoundaryProps) {
     setReportStatus(reportErrorToSupportResp.success ? "sent" : "failed")
   }
 
+  async function handleCopyErrorDetails() {
+    await navigator.clipboard.writeText(errorDetails)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
+  }
+
   return (
     <main className="grid min-h-[60vh] place-items-center p-6">
       <div className="flex flex-col items-center gap-3 text-center">
@@ -48,8 +55,18 @@ export default function LocaleError({ error, reset }: ErrorBoundaryProps) {
 
         {errorDetails && (
           <div className="flex w-full max-w-lg flex-col gap-1 text-left">
-            <span className="text-xs text-subTitle">{t("error_details")}</span>
-            <pre className="max-w-full select-all whitespace-pre-wrap break-words rounded border border-border-color/35 bg-foreground/35 p-3 text-xs text-title">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-subTitle">{t("error_details")}</span>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={handleCopyErrorDetails}
+                aria-label={t("copy_error_details")}
+                title={isCopied ? t("copied") : t("copy_error_details")}>
+                {isCopied ? <MdCheck className="text-sm" /> : <MdContentCopy className="text-sm" />}
+              </Button>
+            </div>
+            <pre className="max-w-full whitespace-pre-wrap break-words rounded border border-border-color/35 bg-foreground/35 p-3 text-xs text-title">
               {errorDetails}
             </pre>
           </div>
@@ -71,7 +88,6 @@ export default function LocaleError({ error, reset }: ErrorBoundaryProps) {
             size="md"
             rounded="lg"
             onClick={handleReportToSupport}
-            disabled={reportStatus === "sent"}
             loading={reportStatus === "sending"}
             loadingText={t("reporting_to_support")}
             rightIcon={reportStatus === "sent" ? <MdCheck className="text-sm" /> : <MdOutlineEmail className="text-sm" />}>

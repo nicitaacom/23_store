@@ -223,6 +223,8 @@ export default {
   "common.report_sent": "Ilmoitus lähetetty - kiitos",
   "common.report_failed": "Automaattinen lähetys epäonnistui. Lähetä sähköpostia osoitteeseen {email} ja kerro mitä tapahtui.",
   "common.error_details": "Virheen tiedot - sisältyvät ilmoitukseen automaattisesti",
+  "common.copy_error_details": "Kopioi",
+  "common.copied": "Kopioitu",
   "common.user_avatar_alt": "Käyttäjän avatar",
   "common.cart": "Ostoskori",
   "common.contact_response_time": "(vastaus 8s)",

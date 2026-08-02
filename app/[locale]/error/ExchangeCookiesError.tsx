@@ -45,7 +45,6 @@ export function ExchangeCookiesError({ message }: { message?: string }) {
       <Button
         variant="link"
         onClick={handleReportToSupport}
-        disabled={reportStatus === "sent"}
         loading={reportStatus === "sending"}
         loadingText="Sending report..."
         rightIcon={reportStatus === "sent" ? <MdCheck className="text-sm" /> : <MdOutlineEmail className="text-sm" />}>

@@ -223,6 +223,8 @@ export default {
   "common.report_sent": "Report sent - thank you",
   "common.report_failed": "Couldn't send automatically. Please email {email} with what happened.",
   "common.error_details": "Error details - included automatically in the report",
+  "common.copy_error_details": "Copy",
+  "common.copied": "Copied",
   "common.user_avatar_alt": "User avatar",
   "common.cart": "Cart",
   "common.contact_response_time": "(response 8s)",
