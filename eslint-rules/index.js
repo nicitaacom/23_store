@@ -22,6 +22,8 @@ module.exports = {
   ...require("./one-liner-component-props-interface"),
   ...require("./no-type-export-in-action-or-component"),
   ...require("./imports-order"),
+  // file name differs from the rule id ("envs-order") on purpose - see the header of vars-order.js
+  ...require("./vars-order"),
   ...require("./no-high-level-import"),
   ...require("./check-importers"),
   ...require("./no-cross-route-group-absolute-import"),
