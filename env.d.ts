@@ -18,7 +18,6 @@ declare global {
       PUSHER_APP_ID: string
       NEXT_PUBLIC_PUSHER_APP_KEY: string
       PUSHER_SECRET: string
-
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string
       NEXT_STRIPE_SECRET_KEY: string
 
@@ -55,7 +54,6 @@ declare global {
 
       CHROMATIC_PROJECT_TOKEN: string
 
-      /** 64 hex characters (32 bytes) - encrypts the 23_did cookie and signs the deviceId itself */
       DEVICE_ID_ENCRYPTION_KEY: string
 
       NEXT_PUBLIC_IS_DEBUG: string
