@@ -40,6 +40,18 @@ export default defineConfig({
   test: {
     projects: [
       {
+        // Node unit tests for the pure server helpers (deviceId, cookie crypto, IP, visitor day,
+        // the Redis key shapes and the trackVisitAction resolve order). No browser, no storybook.
+        test: {
+          name: "unit",
+          environment: "node",
+          include: ["app/**/*.test.ts"],
+        },
+        resolve: {
+          alias: { "@": path.join(currentDirectory, "app") },
+        },
+      },
+      {
         extends: true,
         plugins: [
           storybookTest({

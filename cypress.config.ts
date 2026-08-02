@@ -2,9 +2,26 @@ import { config as readEnvironment } from "dotenv"
 import { defineConfig } from "cypress"
 import { createClient, User } from "@supabase/supabase-js"
 
+import { decodeDeviceId, isValidDeviceId } from "./app/utils/deviceId"
 import type { Database, Json } from "./app/ts/types_db"
 
 readEnvironment({ path: ".env.local" })
+
+const LOCAL_DEV_URL = "http://localhost:3023"
+
+// The target the whole suite runs against. Same source the app uses for its own URL in
+// app/[locale]/layout.tsx: the deployed URL comes from NEXT_PUBLIC_PRODUCTION_URL, and a local run
+// targets the port package.json's `dev` script serves on.
+// Read through a function so the value is typed `string` everywhere: on TS 5.2 an outer-scope
+// `if (!value) throw` still leaves the type `string | undefined` inside the task functions below.
+function getE2EBaseUrl(): string {
+  const baseUrl = process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_PRODUCTION_URL : LOCAL_DEV_URL
+  if (!baseUrl) throw new Error("Cypress requires NEXT_PUBLIC_PRODUCTION_URL when NODE_ENV is production")
+
+  return baseUrl
+}
+
+const E2E_BASE_URL = getE2EBaseUrl()
 
 const TEST_PASSWORD = "CypressTest1#Secure"
 const PRODUCT_PREFIX = "cypress-e2e-"
@@ -109,6 +126,67 @@ async function ensureAccount(account: (typeof accounts)[keyof typeof accounts]) 
   return { id: user.id, email: account.email, password: TEST_PASSWORD }
 }
 
+// The browser only ever holds the transport form of a deviceId, so a spec hands that value over and
+// this side decodes it to the signed id that `utm_stats.user_id` actually holds.
+async function readUTMVisits(storedDeviceId: string) {
+  const deviceId = decodeDeviceId(storedDeviceId)
+  if (!deviceId) return { deviceId: null, isValidDeviceId: false, visits: [] }
+
+  const supabase = getSupabaseTestClient()
+  const { data, error } = await supabase
+    .from("utm_stats")
+    .select("*")
+    .eq("user_id", deviceId)
+    .order("created_at", { ascending: false })
+  if (error) throw error
+
+  return { deviceId, isValidDeviceId: isValidDeviceId(deviceId), visits: data ?? [] }
+}
+
+async function readUTMVisitsForUserId(userId: string) {
+  const supabase = getSupabaseTestClient()
+  const { data, error } = await supabase.from("utm_stats").select("*").eq("user_id", userId)
+  if (error) throw error
+
+  return data ?? []
+}
+
+/**
+ * Every test in one run shares a machine, so it shares a fingerprint, so layer 4 hands each test the same
+ * deviceId - correct behaviour, but the once-per-day dedup then refuses the row a later test is looking
+ * for, and that test reads the previous test's row instead. Emptying the day is what makes each test
+ * independent: with no row for today, the device writes a fresh one whatever id it resolves to.
+ *
+ * The host comes from E2E_BASE_URL, and the guard below keeps this to a loopback target: pointing the
+ * suite at a deployed URL would otherwise let a bulk delete reach real visit rows.
+ */
+async function deleteVisitsFromTodayForTestTarget() {
+  const { hostname, host } = new URL(E2E_BASE_URL)
+  if (hostname !== "localhost" && hostname !== "127.0.0.1")
+    throw new Error(`This task deletes rows in bulk, so it only runs against a loopback E2E_BASE_URL - got ${host}`)
+
+  const supabase = getSupabaseTestClient()
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+  const { data, error } = await supabase
+    .from("utm_stats")
+    .delete()
+    .ilike("url", `%${host}%`)
+    .gte("created_at", oneDayAgo)
+    .select("id")
+  if (error) throw error
+
+  return data?.length ?? 0
+}
+
+// utm_stats is shared with projects 14/28/29, so a spec deletes exactly the ids it created
+async function deleteUTMVisitsForUserId(userId: string) {
+  const supabase = getSupabaseTestClient()
+  const { error } = await supabase.from("utm_stats").delete().eq("user_id", userId)
+  if (error) throw error
+
+  return null
+}
+
 function getTranslations(label: string): Json {
   return {
     en: { title: `${label} EN`, description: `${label} description EN` },
@@ -160,7 +238,7 @@ async function prepareFixtures() {
 export default defineConfig({
   allowCypressEnv: false,
   e2e: {
-    baseUrl: "http://localhost:3023",
+    baseUrl: E2E_BASE_URL,
     experimentalWebKitSupport: true,
     specPattern: "cypress/e2e/**/*.cy.{ts,tsx}",
     supportFile: "cypress/support/e2e.ts",
@@ -172,6 +250,10 @@ export default defineConfig({
     setupNodeEvents(on, cypressConfig) {
       on("task", {
         prepareFixtures,
+        readUTMVisits,
+        readUTMVisitsForUserId,
+        deleteUTMVisitsForUserId,
+        deleteVisitsFromTodayForTestTarget,
         async insertProductWithRls({
           account,
           product,

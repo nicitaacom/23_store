@@ -12,6 +12,7 @@
     "test:eslint-rules": "node --test eslint-rules/*.test.js",
     "storybook": "HOME=.home XDG_CACHE_HOME=.cache storybook dev -p 6006",
     "build-storybook": "HOME=.home XDG_CACHE_HOME=.cache storybook build",
+    "test:unit": "vitest run --project=unit",
     "test:storybook": "HOME=.home XDG_CACHE_HOME=.cache PLAYWRIGHT_BROWSERS_PATH=.cache/ms-playwright vitest run --project=storybook",
     "chromatic": "HOME=.home XDG_CACHE_HOME=.cache chromatic",
     "cypress:open": "XDG_CONFIG_HOME=.cache/config CYPRESS_CACHE_FOLDER=.cache/Cypress PLAYWRIGHT_BROWSERS_PATH=.cache/ms-playwright cypress open",
