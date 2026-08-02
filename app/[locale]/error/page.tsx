@@ -2,16 +2,22 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
+import { MdCheck, MdOutlineEmail } from "react-icons/md"
 
 import { AuthNotCompleted } from "./AuthNotCompleted"
 import { BackToMainButton } from "./components/BackToMainButton"
 import { EmailLinkInvalidOrExpired } from "./EmailLinkInvalidOrExpired"
 import { ExchangeCookiesError } from "./ExchangeCookiesError"
 import { NoCodeFoundError } from "./NoCodeFoundError"
+import { reportErrorToSupport } from "@/functions/support/reportErrorToSupport"
+import { useI18n } from "@/locales/client"
 import { useOAuthDebugStore } from "@/store/ui/useOAuthDebugStore"
+import { Button } from "@/components/ui"
 
 const AUTH_ERROR_STORAGE_KEY = "auth:lastErrorDescription"
 const AUTH_ERROR_TTL_MS = 5 * 60 * 1000
+
+type TReportStatus = "idle" | "sending" | "sent" | "failed"
 
 type TOAuthAttempt = {
   provider: string
@@ -77,6 +83,15 @@ export default function Error() {
   }
 
   const error_description = liveErrorDescription ?? persistedErrorDescription
+  const tGlobal = useI18n()
+  const [reportStatus, setReportStatus] = useState<TReportStatus>("idle")
+  const fallbackErrorMessage = error_description ?? "No error details were provided - report what you were doing to support"
+
+  async function handleReportToSupport() {
+    setReportStatus("sending")
+    const reportErrorToSupportResp = await reportErrorToSupport(tGlobal, fallbackErrorMessage)
+    setReportStatus(reportErrorToSupportResp.success ? "sent" : "failed")
+  }
 
   const expectedSupabaseCallbackUrl = useMemo(() => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, "")
@@ -153,12 +168,21 @@ export default function Error() {
   return (
     <div className="min-h-screen flex flex-col gap-y-4 items-center justify-center">
       <div className="flex flex-col justify-center items-center">
-        {error_description ? (
-          <p className="text-danger">{error_description}</p>
-        ) : (
-          <p className="text-danger">No error details were provided - contact support with what you were doing</p>
+        <p className="text-danger">{fallbackErrorMessage}</p>
+        <Button
+          variant="link"
+          onClick={handleReportToSupport}
+          disabled={reportStatus === "sent"}
+          loading={reportStatus === "sending"}
+          loadingText="Sending report..."
+          rightIcon={reportStatus === "sent" ? <MdCheck className="text-sm" /> : <MdOutlineEmail className="text-sm" />}>
+          {reportStatus === "sent" ? "Report sent - thank you" : "Report to support"}
+        </Button>
+        {reportStatus === "failed" && (
+          <p className="text-xs text-danger">
+            Couldn&apos;t send automatically. Please email {process.env.NEXT_PUBLIC_SUPPORT_EMAIL} with what happened.
+          </p>
         )}
-        <p>Please let us know how you got this error here - {process.env.NEXT_PUBLIC_SUPPORT_EMAIL}</p>
       </div>
       <BackToMainButton />
     </div>

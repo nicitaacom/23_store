@@ -119,6 +119,9 @@ export default [
       "app/\\[locale\\]/error/**",
       "app/global-error.tsx",
       "app/emails/RequestBetterPricesEmail.tsx",
+      // Support-facing notification (same reasoning as RequestBetterPricesEmail below) - see the
+      // file's own header comment.
+      "app/emails/ErrorReportEmail.tsx",
       // Owner/admin notification, not buyer-facing - see the file's own header comment.
       "app/emails/RequestReplanishmentEmail.tsx",
       "app/components/ui/Modals/AdminPanel/components/CategoriesForm.tsx",

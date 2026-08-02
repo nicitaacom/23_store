@@ -1,6 +1,8 @@
+import { HttpResponse, http } from "msw"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
-import { expect, waitFor, within } from "storybook/test"
+import { expect, userEvent, waitFor, within } from "storybook/test"
 
+import { storybookServices } from "../mocks/services"
 import { useI18n } from "@/locales/client"
 import { AuthLogo } from "@/[locale]/(auth)/AuthModal/components/AuthLogo"
 import { AuthNotCompleted } from "@/[locale]/error/AuthNotCompleted"
@@ -84,12 +86,45 @@ export const EmailLinkExpired: Story = {
   render: () => <EmailLinkInvalidOrExpired />,
 }
 
+// Reporting the error must actually SEND it through /api/send-email, not open a mailto: link (see
+// app/functions/support/reportErrorToSupport.tsx) - a mailto does nothing when the machine has no
+// mail client configured.
+const successfulReportHandlers = [
+  http.post("/api/rate-limit", () => HttpResponse.json({ allowed: true, remaining: 4 })),
+  http.post("/api/send-email", async ({ request }) => {
+    storybookServices.email(await request.json())
+    return HttpResponse.json({ status: 200 })
+  }),
+]
+
 export const CookieExchangeFailed: Story = {
   render: () => <ExchangeCookiesError message="No user found when exchanging cookies" />,
+  parameters: { msw: { handlers: successfulReportHandlers } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const reportToSupportButton = await canvas.findByRole("button", { name: /report to support/i })
+    await userEvent.click(reportToSupportButton)
+
+    await waitFor(() => expect(canvas.getByRole("button", { name: /report sent/i })).toBeVisible())
+    await expect(storybookServices.email).toHaveBeenCalledWith(
+      expect.objectContaining({ html: expect.stringContaining("No user found when exchanging cookies") }),
+    )
+  },
 }
 
 export const NoCodeInTheLink: Story = {
   render: () => <NoCodeFoundError message="No code found in the callback URL" />,
+  parameters: { msw: { handlers: successfulReportHandlers } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const reportToSupportButton = await canvas.findByRole("button", { name: /report to support/i })
+    await userEvent.click(reportToSupportButton)
+
+    await waitFor(() => expect(canvas.getByRole("button", { name: /report sent/i })).toBeVisible())
+    await expect(storybookServices.email).toHaveBeenCalledWith(
+      expect.objectContaining({ html: expect.stringContaining("No code found in the callback URL") }),
+    )
+  },
 }
 
 export const HumanCheck: Story = {

@@ -34,6 +34,11 @@ export const RATE_LIMITS = {
     maxAllowed: 2, // 2 per day
     key: () => `request:betterPrices`,
   },
+  reportError: {
+    windowSec: 3600,
+    maxAllowed: 5, // 5 per hour - generous enough for repeated "Try again" clicks on the same crash
+    key: () => `report:error`,
+  },
   utmVisit: {
     windowSec: 86400,
     maxAllowed: 1, // 1 tracked visit per UTC day per user/anonymousId

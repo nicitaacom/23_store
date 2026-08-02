@@ -12,6 +12,11 @@
 const READ_VERB_PATTERN = /^(select|get|fetch|hgetall|find)[A-Z]/
 const WRITE_VERB_PATTERN = /^(insert|update|upd|delete|del|set|create|add|hadd|hdel|hupd|push|remove|increase|decrease|toggle|upload|download|import|export)[A-Z]/
 
+// Testing Library queries (getByRole, findByRole, getAllByText, findAllByTestId, ...) - same
+// reasoning as the getSupabaseServer/getI18n exclusions below: the result is already named for what
+// it holds (the matched element), not for the read verb the query happens to start with.
+const TESTING_LIBRARY_QUERY_PATTERN = /^(get|find)(All)?By[A-Z]/
+
 // Names that are never an acceptable awaited-result name regardless of the read/write suggestion -
 // these are the generic placeholders being specifically banned (result, data, res, something, etc.)
 const ALWAYS_VAGUE_NAMES = new Set(["result", "results", "data", "res", "something", "output", "value", "response2"])
@@ -55,7 +60,7 @@ module.exports = {
           if (awaited.type !== "CallExpression") return
 
           const fnName = getCalleeMethodName(awaited.callee)
-          if (!fnName || EXCLUDED_METHOD_NAMES.has(fnName)) return
+          if (!fnName || EXCLUDED_METHOD_NAMES.has(fnName) || TESTING_LIBRARY_QUERY_PATTERN.test(fnName)) return
           const name = node.id.name
           const suggested = fnName + "Resp"
 
