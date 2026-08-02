@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 
+import { parseTinifyApiKeys } from "@/utils/parseTinifyApiKeys"
+
 export const runtime = "nodejs"
 
 const TINIFY_SHRINK_URL = "https://api.tinify.com/shrink"
@@ -11,24 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "TINIFY_API_KEY_ARR is not configured" }, { status: 500 })
     }
 
-    let apiKeys: string[] = []
-
-    try {
-      const parsedValue = JSON.parse(rawApiKeys) as unknown
-      if (Array.isArray(parsedValue)) {
-        apiKeys = parsedValue.map(value => String(value).trim()).filter(Boolean)
-      } else {
-        apiKeys = rawApiKeys
-          .split(/[,\n]/)
-          .map(value => value.trim())
-          .filter(Boolean)
-      }
-    } catch {
-      apiKeys = rawApiKeys
-        .split(/[,\n]/)
-        .map(value => value.trim())
-        .filter(Boolean)
-    }
+    const apiKeys = parseTinifyApiKeys(rawApiKeys)
 
     if (!apiKeys.length) {
       return NextResponse.json({ error: "TINIFY_API_KEY_ARR is not configured" }, { status: 500 })
