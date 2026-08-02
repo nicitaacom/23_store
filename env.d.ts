@@ -10,9 +10,6 @@ declare global {
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string
       NEXT_STRIPE_SECRET_KEY: string
 
-      /** 64 hex characters (32 bytes) - encrypts the deviceId cookie and signs the deviceId itself */
-      DEVICE_ID_ENCRYPTION_KEY: string
-
       UPSTASH_REDIS_REST_URL: string
       UPSTASH_REDIS_REST_TOKEN: string
       UPSTASH_REDIS_URL: string
@@ -56,6 +53,7 @@ declare global {
 
       CHROMATIC_PROJECT_TOKEN: string
 
+      /** 64 hex characters (32 bytes) - encrypts the 23_did cookie and signs the deviceId itself */
       DEVICE_ID_ENCRYPTION_KEY: string
 
       NEXT_PUBLIC_IS_DEBUG: string

@@ -54,7 +54,7 @@ export const VisitTracking: Story = {
   },
   render: () => (
     <div className="p-3 text-title">
-      <UTMTracker userId="storybook-user" />
+      <UTMTracker />
       <p>UTMTracker renders nothing - it reads the utm_* query params, sends the visit and cleans the URL.</p>
     </div>
   ),
