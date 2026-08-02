@@ -11,17 +11,19 @@ We want to answer one question without paying for an external analytics SaaS:
 
 > **"When someone lands on the store, where did they come from, and from where in the world?"**
 
-Every page view by a logged-in user is recorded once per day with its UTM params
+Every page view is recorded once per day with its UTM params
 (`utm_source` / `utm_medium` / `utm_campaign`), the page URL, and geo info derived from
 edge headers. The dashboard aggregates those rows into the cards + charts you see in the
 screenshots (Total Visits, Traffic Sources, Traffic Medium, Countries, Daily Visits).
 
-Plain words: **it's our own tiny, self-hosted Google-Analytics-for-UTM, backed by one Supabase table.**
+Said simply: **it's our own tiny, self-hosted Google-Analytics-for-UTM, backed by one Supabase table.**
 
 What it is **not**:
 
-- not anonymous — we only track rows that have a `user_id` (see [trackVisitAction.ts](actions/trackVisitAction.ts) line `if (!userId) return`).
-- not real-time — one row per user per day (dedupe), so counts are "unique-ish visits per day", not raw hits.
+- not account-based — `user_id` holds a **deviceId**, so signed-out visitors count too and the
+  "Unique Users" card counts devices. Who a visit belongs to is resolved through 4 identity layers:
+  [dev_readme-device-id.md](dev_readme-device-id.md).
+- not real-time — one row per deviceId per visitor day (dedupe), so counts are "unique-ish visits per day", not raw hits.
 
 <br/>
 
@@ -29,13 +31,14 @@ What it is **not**:
 
 ## 1. Where the data lives
 
-There is exactly **one** store: **Supabase** (Postgres table `utm_stats`).
-No Redis, no Elasticbeanstalk, no Zustand for this feature — the dashboard is a server
-component that reads once and hands an aggregated object to a client component.
+Exactly one store holds **visit rows**: **Supabase** (Postgres table `utm_stats`). No Elasticbeanstalk,
+and no Zustand for the dashboard — it is a server component that reads once and hands an aggregated
+object to a client component.
 
-> NOTE: the docs structure template asks for Redis/EB/Zustand screenshots. They are intentionally
-> absent here — **section 2 explains why we decided against them.** Keep this section honest:
-> only Supabase holds UTM data.
+> NOTE: Redis and a zustand store DO take part, but only in deciding **which deviceId** a visit
+> belongs to — never in holding visit rows. Those two key shapes plus the localStorage store are
+> documented in [dev_readme-device-id.md](dev_readme-device-id.md); **section 2 explains why no Redis
+> caching sits in front of the dashboard read.** Keep this section honest: only Supabase holds UTM data.
 
 ### Terminology (read this before the ASCII below)
 
@@ -43,7 +46,7 @@ component that reads once and hands an aggregated object to a client component.
 
 | Term                 | Meaning                                                                                |
 | -------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------- |
-| **visit**            | one row in `utm_stats`. Deduped to max 1 per `user_id` per calendar day.               |
+| **visit**            | one row in `utm_stats`. Deduped to max 1 per `user_id` per visitor day.                |
 | **UTM params**       | `utm_source`, `utm_medium`, `utm_campaign` read from the URL query string.             |
 | **organic / direct** | fallback values when the URL has no UTM params (`source=organic`, `medium=direct`).    |
 | **visit metadata**   | geo + user-agent JSON: `{ userAgent, countryCode, country, region, city }`.            |
@@ -57,15 +60,16 @@ component that reads once and hands an aggregated object to a client component.
 
 ### Types
 
-- [IUTMVisitMetadata](../../../../utils/utmVisitMetadata.ts) — the geo/UA blob stored per row.
-- [IUTMAggregatedStats](../../../../ts/interfaces/IUTMAggregatedStats.ts) — what the dashboard consumes.
+- [IUTMVisitMetadata](../../../utils/utmVisitMetadata.ts) — the geo/UA blob stored per row.
+- [IUTMAggregatedStats](../../../ts/interfaces/IUTMAggregatedStats.ts) — what the dashboard consumes.
 
 ### The `utm_stats` table (Supabase)
 
 ```
 utm_stats
 ├─ id          uuid
-├─ user_id     uuid        -- who; used for daily dedupe + uniqueUsers
+├─ user_id     text        -- who: a deviceId like 23-<body>-<check>; daily dedupe + uniqueUsers
+│                            (older rows still hold account uuids / anonymousId_<uuid> values)
 ├─ created_at  timestamptz -- when; drives the period filter + chartData
 ├─ source      text        -- utm_source  (or "organic")
 ├─ medium      text        -- utm_medium  (or "direct")
@@ -82,10 +86,11 @@ utm_stats
 
 | Stage                     | File                                                                           |
 | ------------------------- | ------------------------------------------------------------------------------ |
-| Capture (client)          | [UTMTracker.tsx](./UTMTracker.tsx) — mounted in [layout.tsx](../../layout.tsx) |
-| Capture (server)          | [trackVisitAction.ts](actions/trackVisitAction.ts)                             |
-| Write to DB               | [insertDBUTMVisitAction.ts](../../../../actions/insertDBUTMVisitAction.ts)     |
-| Geo/UA serialize+parse    | [utmVisitMetadata.ts](../../../../utils/utmVisitMetadata.ts)                   |
+| Capture (client)          | [UTMTracker.tsx](../../UTMTracker.tsx) — mounted in [layout.tsx](../../layout.tsx) |
+| Capture (server)          | [trackVisitAction.ts](../../../actions/trackVisitAction.ts)                     |
+| Who the visit belongs to  | 4 identity layers — [dev_readme-device-id.md](dev_readme-device-id.md)         |
+| Write to DB               | [insertDBUTMVisitAction.ts](../../../actions/insertDBUTMVisitAction.ts)     |
+| Geo/UA serialize+parse    | [utmVisitMetadata.ts](../../../utils/utmVisitMetadata.ts)                   |
 | Read + aggregate (server) | [selectDBUTMStatsAction.ts](actions/selectDBUTMStatsAction.ts)                 |
 | Render (UI)               | [UTMDashboard.tsx](components/UTMDashboard.tsx) via [page.tsx](page.tsx)       |
 
@@ -122,17 +127,21 @@ utm_stats
 
 ### Decisions made against (and why)
 
-- **❌ Did not add a Redis cache layer.** Read volume is tiny (one admin viewing a dashboard).
-  Caching would add an invalidation problem for ~zero latency win. Revisit only if the table
-  grows huge and the full-table aggregate scan gets slow.
+- **❌ Did not put Redis in front of the dashboard read.** Read volume is tiny (one admin viewing a
+  dashboard). Keeping a second copy of the aggregate in Redis would add an invalidation problem for
+  ~zero latency win. Revisit only if the table grows huge and the full-table aggregate scan gets slow.
+  Redis does hold the two deviceId lookups on the **write** path — that is identity resolution, not a
+  copy of visit rows.
 - **❌ Did not add a Zustand store for the data.** Server component already has the data; a
   global store would just duplicate it and risk going stale. Period selection is local UI state.
 - **❌ Did not add a dedicated geo columns (`country`, `city`, …).** Geo is packed as JSON into
   the **`user_agent`** column (see ⚠️ in section 1). This was a deliberate shortcut to avoid a
   migration — `serializeUTMVisitMetadata` writes JSON in, `parseUTMVisitMetadata` reads it out.
   Cost while it lasted: no `WHERE country = 'FI'` in SQL. The geo columns below now allow it.
-- **❌ Did not track anonymous visitors.** `trackVisitAction` returns early without a `userId`.
-  Keeps rows attributable + dedupable, at the cost of missing logged-out traffic.
+- **✅ Reversed: signed-out visitors ARE tracked now.** `trackVisitAction` used to return early
+  without a `userId`, which missed every logged-out visit. It now resolves a signed `deviceId` through
+  4 layers, so rows stay attributable + dedupable without an account —
+  [dev_readme-device-id.md](dev_readme-device-id.md) holds the layers and what was decided against.
 - **❌ Mock data is NOT shown when real data exists.** `getMockData` in `UTMDashboard` is only a
   fallback for an empty DB (`totalVisits === 0`). Never mix mock + real.
 
@@ -191,15 +200,18 @@ FIRST_YEAR = 2023, today = 2026
 years = [2026, 2025, 2024, 2023]      ✅ no 2020 (site didn't exist), 2026 included
 ```
 
-### Dedupe (one visit per user per day)
+### Dedupe (one visit per deviceId per visitor day)
 
 ```
-user A visits 3× on 2026-06-18:
+device A visits 3× on 2026-06-18, local time in the visitor's own timezone:
   09:00 ──▶ INSERT row   ✅ (first today)
   13:00 ──▶ found today  ⏭️  skip
   21:00 ──▶ found today  ⏭️  skip
 next day 2026-06-19:
   08:00 ──▶ INSERT row   ✅ (new day)
+
+the window is [getVisitorDayStart(timezone), now] - midnight where the VISITOR is, not UTC midnight,
+so a visitor in Helsinki gets one row per Helsinki day
 ```
 
 ### Fallback params (no UTM in URL = organic/direct)
@@ -228,8 +240,10 @@ visit /fi?utm_source=ig
   ▼
 UTMTracker (useEffect)
   reads ?utm_source=ig
-  │  trackVisitAction(userId, params)
+  │  trackVisitAction(storedDeviceId, params, url, timezone)
   ▼
+                    resolve the deviceId through layers 1-4  (dev_readme-device-id.md)
+                    syncDeviceIdLayers → writes it back to every layer
                     extractUTMParams → {source:"ig"}
                     getVisitMetadata → reads edge headers
                        x-vercel-ip-country = FI
