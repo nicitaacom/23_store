@@ -7,12 +7,20 @@ declare global {
       NEXT_PUBLIC_SUPABASE_ANON_KEY: string
       SUPABASE_SERVICE_ROLE_KEY: string
 
-      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string
-      NEXT_STRIPE_SECRET_KEY: string
-
       UPSTASH_REDIS_REST_URL: string
       UPSTASH_REDIS_REST_TOKEN: string
       UPSTASH_REDIS_URL: string
+
+      AWS_ACCESS_KEY_ID: string
+      AWS_SECRET_ACCESS_KEY: string
+      NEXT_PUBLIC_AWS_REGION: string
+
+      PUSHER_APP_ID: string
+      NEXT_PUBLIC_PUSHER_APP_KEY: string
+      PUSHER_SECRET: string
+
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string
+      NEXT_STRIPE_SECRET_KEY: string
 
       NEXT_RESEND_SECRET: string
       NEXT_PUBLIC_SUPPORT_EMAIL: string
@@ -29,25 +37,19 @@ declare global {
       PINECONE_ENVIRONMENT: string
       PINECONE_API_KEY: string
 
+      NEXT_PUBLIC_METAMASK_ADRESS: string
       NEXT_PUBLIC_METAMASK_ADRESS_ETH: string
       NEXT_PUBLIC_METAMASK_ADRESS_BNB: string
       NEXT_PUBLIC_METAMASK_ADRESS_MATIC: string
 
       OPENAI_API_KEY: string
+      PRICE_WEBHOOK_SECRET: string
 
       NEXT_COINMARKETCAP_SECRET: string
-
-      PUSHER_APP_ID: string
-      NEXT_PUBLIC_PUSHER_APP_KEY: string
-      PUSHER_SECRET: string
 
       TELEGRAM_BOT_TOKEN: string
       TELEGRAM_CHAT_ID: string
       NEXT_PUBLIC_TELEGRAM_URL: string
-
-      NEXT_PUBLIC_AWS_REGION: string
-      AWS_ACCESS_KEY_ID: string
-      AWS_SECRET_ACCESS_KEY: string
 
       TINIFY_API_KEY_ARR: string
 
