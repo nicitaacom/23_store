@@ -29,6 +29,7 @@ function isAmbientMotionPaused(reducedMotion: boolean | null) {
   return Boolean(reducedMotion) || document.hidden || document.body.classList.contains("modal-open")
 }
 
+// http://localhost:6006/?path=/story/foundations-design-tokens--colors
 export function HalloweenScene() {
   const theme = useSiteTheme()
   const reducedMotion = useReducedMotion()

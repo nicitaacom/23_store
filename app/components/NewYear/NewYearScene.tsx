@@ -222,6 +222,7 @@ function createLayers(): SnowLayer[] {
   }))
 }
 
+// http://localhost:6006/?path=/story/foundations-design-tokens--colors
 export function NewYearScene() {
   const theme = useSiteTheme()
   const reducedMotion = useReducedMotion()

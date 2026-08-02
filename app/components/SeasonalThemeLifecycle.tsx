@@ -9,6 +9,7 @@ function syncThemeWithLocalMonth() {
   document.documentElement.dataset.theme = resolveSeasonalTheme(localMonth)
 }
 
+// http://localhost:6006/?path=/story/foundations-design-tokens--colors
 export function SeasonalThemeLifecycle() {
   useEffect(() => {
     let midnightTimer: ReturnType<typeof setTimeout>
