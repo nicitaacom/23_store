@@ -53,7 +53,7 @@ export function AuthNotCompleted() {
         </div>
       )}
       {/* Use className="text-danger" for styling instead of inline style */}
-      <p className="text-danger">You auth flow not completed</p>
+      <p className="text-danger">Your auth flow wasn&apos;t completed - close this page</p>
       {/* Add line breaks directly in the JSX */}
       <p className="text-center px-4">
         You got this error because you entered the URL in the search bar that needs to show a success message if the

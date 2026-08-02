@@ -65,8 +65,8 @@ function PendingAndFailure() {
         <Button className="mt-2" loading loadingText="Updating price">Update price</Button>
       </div>
       <div className="rounded border border-danger bg-danger/10 p-3" role="alert">
-        <h2 className="text-sm font-semibold text-danger">Request failed</h2>
-        <p className="mt-1 text-sm text-subTitle">The confirmed value is still shown. Try again.</p>
+        <h2 className="text-sm font-semibold text-danger">Price update failed - try again</h2>
+        <p className="mt-1 text-sm text-subTitle">The confirmed value is still shown.</p>
       </div>
     </div>
   );

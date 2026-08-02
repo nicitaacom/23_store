@@ -115,7 +115,9 @@ export default function Error() {
     return (
       <div className="min-h-screen flex flex-col gap-y-5 items-center justify-center px-4">
         <div className="max-w-2xl flex flex-col gap-y-3 rounded-[20px] border border-danger/30 bg-background p-6 text-center">
-          <p className="text-danger text-2xl font-semibold">Google auth failed before your app received a session</p>
+          <p className="text-danger text-2xl font-semibold">
+            Google auth failed before your app received a session - check the Google provider config below
+          </p>
           <p>
             Supabase received Google&apos;s authorization code, but could not exchange it for tokens. This is usually a provider
             configuration problem, not a route-rendering problem in the app.
@@ -154,7 +156,7 @@ export default function Error() {
         {error_description ? (
           <p className="text-danger">{error_description}</p>
         ) : (
-          <p className="text-danger">Unknown error occurred</p>
+          <p className="text-danger">No error details were provided - contact support with what you were doing</p>
         )}
         <p>Please let us know how you got this error here - {process.env.NEXT_PUBLIC_SUPPORT_EMAIL}</p>
       </div>
