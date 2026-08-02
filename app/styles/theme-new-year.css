@@ -1,0 +1,61 @@
+/* New Year — December and January. Palette ported from
+   14_portfolio/app/styles/theme-new-year.css and re-written onto this repo's token names.
+   Cold blue night outside, warm pine room inside. Crimson is the action colour. */
+
+:root[data-theme="new-year"] {
+  --brand: 354deg 78% 48%;
+  --background: 164deg 46% 4%;
+  --foreground: 162deg 40% 13%;
+  --foreground-accent: 162deg 30% 18%;
+  --foreground-hover: 162deg 30% 22%;
+  --title: 40deg 30% 96%;
+  --title-foreground: 162deg 54% 8%;
+  --subTitle: 150deg 12% 74%;
+
+  --border-color: 154deg 14% 58%;
+  --icon-color: 40deg 30% 96%;
+
+  /* Midnight-blue glass, sampled from #0f1e30 */
+  --modal-surface: 213deg 52% 12%;
+
+  --info: 196deg 46% 70%;
+  --warning: 38deg 94% 66%;
+  --danger: 354deg 86% 76%;
+  --success: 150deg 48% 58%;
+  --success-accent: 150deg 52% 46%;
+
+  /* Read by .new-year-scene only */
+  --new-year-room: #0f1e30;
+}
+
+:root[data-theme="new-year"] body,
+:root[data-theme="new-year"] main {
+  background-color: transparent;
+}
+
+/* ── Window scene — verbatim from 14_portfolio/app/styles/theme-new-year.css:168-195 */
+
+.new-year-scene {
+  background: var(--new-year-room);
+  inset: 0;
+  isolation: isolate;
+  overflow: clip;
+  position: absolute;
+}
+
+.new-year-interior-svg {
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* NewYearScene measures this circle itself to start a bauble swing, so the swing does not wait
+   for the pointer event to reach the element */
+.new-year-scene-bauble-hit {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Snow falls in front of the room, so the canvas sits over the SVG */
+.new-year-snow-canvas {
+  z-index: 2;
+}

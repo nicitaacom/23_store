@@ -1,4 +1,6 @@
 import "../globals.css"
+import "../styles/theme-halloween.css"
+import "../styles/theme-new-year.css"
 import React, { lazy, Suspense } from "react"
 import type { Metadata } from "next"
 
@@ -9,6 +11,7 @@ import supabaseServer from "@/libs/supabase/supabaseServer"
 import { I18nProviderClient } from "@/locales/client"
 import { Layout, OfflineBanner } from "@/components"
 import { ModalsProvider, ModalsQueryProvider } from "@/providers"
+import { SeasonalThemeLifecycle } from "@/components/SeasonalThemeLifecycle"
 
 const ToastProvider = lazy(() => import("@/providers/ToastProvider"))
 
@@ -54,12 +57,12 @@ export default async function RootLayout({
     const { data } = await supabase.from("23_users").select("roles").eq("id", normalizedUser.id).single()
     roles = data?.roles ?? []
   }
-  const [anonymousId, darkMode] = await Promise.all([getCookie("anonymousId"), getCookie("darkMode")])
-  const userId = normalizedUser?.id ?? anonymousId
+  const darkMode = await getCookie("darkMode")
 
   return (
-    <html className={darkMode ?? "dark"} lang={locale}>
+    <html className={darkMode ?? "dark"} lang={locale} data-theme="default" suppressHydrationWarning>
       <body>
+        <SeasonalThemeLifecycle />
         <I18nProviderClient locale={locale}>
           <Layout user={normalizedUser}>{children}</Layout>
           <Suspense>
@@ -68,7 +71,7 @@ export default async function RootLayout({
           <ModalsProvider />
           <ToastProvider />
           <OfflineBanner />
-          <UTMTracker userId={userId} />
+          <UTMTracker />
         </I18nProviderClient>
       </body>
     </html>

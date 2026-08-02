@@ -651,7 +651,7 @@ Repo rules this plan already accounts for, so do not "fix" them back:
 - **AGAINST copying the two CSS files whole.** 4200 lines, and the selectors under the token block target `.plaque` / `.navbar-plate` / `.workbench-board` / `.project-more-info-modal`, none of which exist in this repo. Tokens plus the scene block are the parts that do something.
 - **AGAINST porting the storm, the fireworks and the audio in this plan.** They are ~1700 more lines across `HalloweenGraveEvent.tsx`, `NewYearFireworksEvent.tsx` and `NewYearJazzPlayer.tsx`, plus 4 MP3 files, and the jazz player comes with embed terms that keep it visible on screen. Separate plan when Nikita wants it.
 - **AGAINST `next/image` for the seasonal cutouts** when a later plan wires them. The portfolio measured the optimiser skipping 3 of 6 fixed decorative images inside skewed clipped panels; a direct tag with an eslint-disable and the reason above it is the shipped answer there.
-- **Halloween runs October and November**, new-year December and January. The portfolio has halloween on November only. October is the shopping month for a store, so `themeMonths.ts` gets `[10, 11]`. One line to change if Nikita wants otherwise.
+- **Halloween runs November only**, new-year December and January. `themeMonths.ts` gets `halloween: [11]`. (Originally this plan proposed `[10, 11]` for the store's shopping month; Nikita reopened it during Step 3 review and confirmed November only, matching the portfolio.)
 - **A seasonal theme replaces light and dark both.** `:root[data-theme]` outranks `.dark`. The switch keeps working the rest of the year.
 
 ---

@@ -1,0 +1,77 @@
+/* Halloween — October and November. Palette ported from
+   14_portfolio/app/styles/theme-halloween.css and re-written onto this repo's token names.
+   Orange means action. Purple holds the frame. Bone is text. */
+
+:root[data-theme="halloween"] {
+  --brand: 25deg 100% 55%;
+  --background: 273deg 37% 4%;
+  --foreground: 268deg 24% 12%;
+  --foreground-accent: 267deg 27% 20%;
+  --foreground-hover: 267deg 27% 24%;
+  --title: 43deg 23% 88%;
+  --title-foreground: 270deg 28% 7%;
+  --subTitle: 270deg 10% 70%;
+
+  --border-color: 269deg 20% 46%;
+  --icon-color: 43deg 23% 88%;
+
+  --modal-surface: 270deg 26% 9%;
+
+  --info: 264deg 62% 76%;
+  --warning: 36deg 100% 54%;
+  --danger: 0deg 100% 69%;
+  --success: 116deg 34% 58%;
+  --success-accent: 116deg 40% 46%;
+
+  /* Read by .halloween-scene only */
+  --halloween-room: #070509;
+}
+
+/* The scene sits behind the page, so the two opaque surfaces above it step aside */
+:root[data-theme="halloween"] body,
+:root[data-theme="halloween"] main {
+  background-color: transparent;
+}
+
+/* ── Graveyard scene — verbatim from 14_portfolio/app/styles/theme-halloween.css:101-122,228-244 */
+
+.halloween-scene {
+  background: var(--halloween-room);
+  inset: 0;
+  isolation: isolate;
+  overflow: clip;
+  position: absolute;
+}
+
+.halloween-ambient-canvas {
+  z-index: 2;
+}
+
+.halloween-graveyard-svg {
+  overflow: hidden;
+  z-index: 1;
+}
+
+.halloween-scene-vignette {
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.08), transparent 24%, rgb(0 0 0 / 0.18)),
+    radial-gradient(ellipse at center, transparent 36%, rgb(0 0 0 / 0.74) 100%);
+  z-index: 3;
+}
+
+.halloween-scene-bat {
+  opacity: 0.72;
+  will-change: transform;
+}
+
+.halloween-tree {
+  filter: drop-shadow(0 18px 20px rgb(0 0 0 / 0.72));
+}
+
+.halloween-graves {
+  filter: drop-shadow(0 11px 8px rgb(0 0 0 / 0.72));
+}
+
+.halloween-candles,
+.halloween-scene-pumpkin {
+  filter: drop-shadow(0 0 13px rgb(255 120 25 / 0.22));
+}
