@@ -10,6 +10,7 @@ import { DoYouWantReceiveCheckModal } from "@/components/ui/Modals/DoYouWantRece
 import { PayWithKlarnaButton } from "@/components/ui/Modals/CartModal/PaymentButtons/components/PayWithClarnaButton"
 import { PayWithMetamaskButton } from "@/components/ui/Modals/CartModal/PaymentButtons/components/PayWithMetamaskButton"
 import { PayWithPaypalButton } from "@/components/ui/Modals/CartModal/PaymentButtons/components/PayWithPaypalButton"
+import { PayWithSolanaButton } from "@/components/ui/Modals/CartModal/PaymentButtons/components/PayWithSolanaButton"
 import { PayWithStripeButton } from "@/components/ui/Modals/CartModal/PaymentButtons/components/PayWithStripeButton"
 import { PaymentButtons } from "@/components/ui/Modals/CartModal/PaymentButtons/PaymentButtons"
 
@@ -82,6 +83,7 @@ export const PaymentMethodsOneByOne: Story = {
       <PayWithPaypalButton />
       <PayWithKlarnaButton />
       <PayWithMetamaskButton />
+      <PayWithSolanaButton />
     </div>
   ),
   play: async ({ canvasElement }) => {
