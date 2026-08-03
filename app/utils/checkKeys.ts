@@ -290,6 +290,7 @@ async function checkPineconeApiKey(apiKey: string): Promise<string | null> {
   return status === 200 ? null : describeStatus(status, body)
 }
 
+/** PINECONE_ENVIRONMENT holds the index host, so this asks that host for its own stats. */
 async function checkPineconeHost(hostUrl: string): Promise<string | null> {
   const apiKey = readKey("PINECONE_API_KEY")
   if (!apiKey) return "needs PINECONE_API_KEY"
@@ -433,10 +434,9 @@ export const KEY_PROBES: TKeyProbe[] = [
   { name: "TURNSTILE_SECRET_KEY", tier: "live", check: checkTurnstileSecretKey },
 
   { name: "PINECONE_INDEX", tier: "skip" },
-  // getPineconeHost in app/libs/ai/chatMemory.ts reads PINECONE_HOST || PINECONE_ENVIRONMENT, so one
-  // of the two being empty is how the project is set up. Both empty is the failure.
-  { name: "PINECONE_HOST", tier: "live", optionalWhen: "PINECONE_ENVIRONMENT", check: checkPineconeHost },
-  { name: "PINECONE_ENVIRONMENT", tier: "skip", optionalWhen: "PINECONE_HOST" },
+  // getPineconeHost in app/libs/ai/chatMemory.ts reads PINECONE_HOST || PINECONE_ENVIRONMENT, and
+  // PINECONE_HOST is no longer declared, so PINECONE_ENVIRONMENT is the one that has to hold a value.
+  { name: "PINECONE_ENVIRONMENT", tier: "live", check: checkPineconeHost },
   { name: "PINECONE_API_KEY", tier: "live", check: checkPineconeApiKey },
 
   { name: "NEXT_PUBLIC_METAMASK_ADRESS_ETH", tier: "shape", check: checkHexAddress },
