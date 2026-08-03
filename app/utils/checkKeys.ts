@@ -154,20 +154,6 @@ async function checkStripeSecretKey(secretKey: string): Promise<string | null> {
   return status === 200 ? null : describeStatus(status, body)
 }
 
-/**
- * Creating a token is the one thing a publishable key is allowed to do, so that is what this asks for.
- * Reading a token answers `403 secret_key_required` even for a good key, which is why the retrieve
- * request was the wrong question to ask.
- */
-async function checkStripePublishableKey(publishableKey: string): Promise<string | null> {
-  const { status, body } = await requestKey("https://api.stripe.com/v1/tokens", {
-    method: "POST",
-    headers: { Authorization: basicAuth(publishableKey, ""), "Content-Type": "application/x-www-form-urlencoded" },
-  })
-
-  return passUnlessRejected(status, body)
-}
-
 /** One signed request proves PUSHER_APP_ID, NEXT_PUBLIC_PUSHER_APP_KEY and PUSHER_SECRET together. */
 async function checkPusherSecret(pusherSecret: string): Promise<string | null> {
   const appId = readKey("PUSHER_APP_ID")
@@ -383,14 +369,13 @@ export const KEY_PROBES: TKeyProbe[] = [
   { name: "NEXT_PUBLIC_PUSHER_APP_KEY", tier: "skip" },
   { name: "PUSHER_SECRET", tier: "live", check: checkPusherSecret },
 
-  { name: "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY", tier: "live", check: checkStripePublishableKey },
   { name: "NEXT_STRIPE_SECRET_KEY", tier: "live", check: checkStripeSecretKey },
 
   { name: "NEXT_RESEND_SECRET", tier: "live", check: checkResendSecret },
   { name: "NEXT_PUBLIC_SUPPORT_EMAIL", tier: "shape", check: checkEmail },
   { name: "NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL", tier: "shape", check: checkEmail },
 
-  { name: "NEXT_PUBLIC_CLOUDFLARE_SITE_KEY", tier: "shape", check: value => checkPrefix(value, "0x") },
+  { name: "NEXT_PUBLIC_TURNSTILE_SITE_KEY", tier: "shape", check: value => checkPrefix(value, "0x") },
   { name: "TURNSTILE_SECRET_KEY", tier: "live", check: checkTurnstileSecretKey },
 
   { name: "PINECONE_INDEX", tier: "skip" },
