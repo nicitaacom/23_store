@@ -281,6 +281,7 @@ first assertion while every page still renders.
 - **Against tracking every page view.** One row per device per visitor day answers "where did this
   person come from", which is the question. Raw hit counts would need a different table and a different
   dashboard.
+- Per-click stats live in `23_buying_flow_events`; the one-row-per-day rule still applies to `utm_stats` itself.
 - **Against sending the tracker's own fetch.** It is a server action, so there is no API route to
   protect, no CORS and no client-side Supabase key.
 - **Against `utm_term` / `utm_content` columns.** They are extracted and passed to the insert, and the

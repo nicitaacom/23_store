@@ -73,6 +73,41 @@ ALTER TABLE public.utm_stats FORCE ROW LEVEL SECURITY;
 
 ```
 
+### 📊🗄️ 23_buying_flow_events table
+
+Each row records one visitor action. The table belongs only to `23_store`.
+
+```sql
+CREATE TABLE "23_buying_flow_events" (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  user_id text NOT NULL,
+  session_id text NOT NULL,
+  event text NOT NULL,
+  product_id text,
+  checkout_kind text,
+  search_query text,
+  results_count int,
+  url text NOT NULL,
+  locale text
+);
+CREATE INDEX "23_buying_flow_events_created_at_idx" ON "23_buying_flow_events" (created_at DESC);
+CREATE INDEX "23_buying_flow_events_event_idx" ON "23_buying_flow_events" (event);
+CREATE INDEX "23_buying_flow_events_user_id_idx" ON "23_buying_flow_events" (user_id);
+ALTER TABLE "23_buying_flow_events" ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = '23_buying_flow_events' AND policyname = 'Allow select for everyone') THEN
+        CREATE POLICY "Allow select for everyone" ON public."23_buying_flow_events" FOR SELECT USING (true);
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = '23_buying_flow_events' AND policyname = 'Allow insert for everyone') THEN
+        CREATE POLICY "Allow insert for everyone" ON public."23_buying_flow_events" FOR INSERT WITH CHECK (true);
+    END IF;
+END
+$$;
+```
+
 ### SQL query: `tables` + `RLS` + `indexes`
 
 ```sql
