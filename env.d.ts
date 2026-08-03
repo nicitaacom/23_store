@@ -29,7 +29,6 @@ declare global {
       TURNSTILE_SECRET_KEY: string
 
       PINECONE_INDEX: string
-      PINECONE_HOST: string
       PINECONE_ENVIRONMENT: string
       PINECONE_API_KEY: string
 
