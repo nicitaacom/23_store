@@ -5,6 +5,12 @@ Refer to `./docs` - there you find code patterns
 
 3. NEVER EVER tell me or use patterns like "can't" - think outside of the box
 
+4. EVERY commit description opens with a `🚨 TODO` block, then numbered CHAIN steps - see
+   [commit-patterns.md](commit-patterns.md). Each item names WHERE to go, WHAT to do there and HOW
+   you know it worked: `1. open dev_readme-supbase-sql.md:878 -> copy the block -> open the Supabase
+   SQL editor -> run it`. Never a bare command. Nothing to do is still a description:
+   `1. nothing - applied and verified here`. This is a hard rule, not a preference.
+
 ### Docs structure:
 
 0. why this exists (problem it solves, in plain words)

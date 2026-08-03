@@ -4,7 +4,7 @@ Before coding, read:
 
 - `app/plans/`
 - `dev_readme-eslint.md`
-- `commit-naming.md`
+- `commit-patterns.md`
 
 Treat all three as mandatory project instructions.
 

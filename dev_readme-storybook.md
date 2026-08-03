@@ -128,7 +128,7 @@ CodeRabbit reviews draft PRs and every incremental push using `.coderabbit.yaml`
 guidelines. Resolve every finding before moving to the next subtask. Each Storybook plan subtask has
 one named commit. If review changes a completed subtask, amend that commit and push with
 `--force-with-lease`; do not create a fixup commit. Commit subjects and the squash PR title must follow
-`commit-naming.md`.
+`commit-patterns.md`.
 
 ## Responsibility boundary
 

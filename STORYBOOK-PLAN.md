@@ -8,7 +8,7 @@
 - Do not create a duplicate `plans/plan-13-storybook.md`.
 - Before implementation, read:
   - `AGENTS.md`
-  - `commit-naming.md`
+  - `commit-patterns.md`
   - `dev_readme-code-patterns.md`
   - `dev_readme-eslint.md`
   - `good-bad-examples.md`
@@ -34,7 +34,7 @@ Workflow for each subtask:
    - Push the amended branch using `git push --force-with-lease`.
 10. Start the next subtask only after the amended commit passes its checks and review.
 
-All subjects must follow `commit-naming.md`:
+All subjects must follow `commit-patterns.md`:
 
 - One line.
 - `type: lowercase message`.
@@ -65,7 +65,7 @@ All subjects must follow `commit-naming.md`:
 | 16 | Chromatic publishing and visual-review gate | `chore: chromatic publishing` |
 | 17 | Final documentation and completed tracker status | `docs: storybook` |
 
-The commit list is fixed. A subject may change only if `commit-naming.md` requires it, and that change must be approved before committing.
+The commit list is fixed. A subject may change only if `commit-patterns.md` requires it, and that change must be approved before committing.
 
 ## 1. Branch and root plan
 
@@ -108,7 +108,7 @@ Add `.coderabbit.yaml` with:
 
 Configure these existing files as CodeRabbit guidelines:
 
-- `commit-naming.md`
+- `commit-patterns.md`
 - `dev_readme-code-patterns.md`
 - `dev_readme-eslint.md`
 - `good-bad-examples.md`
@@ -118,7 +118,7 @@ Configure these existing files as CodeRabbit guidelines:
 Add blocking AI checks for:
 
 - Changed code compliance with the project code patterns.
-- Commit subjects against `commit-naming.md`.
+- Commit subjects against `commit-patterns.md`.
 - Meaningful test assertions.
 - No weakening of tests to accommodate production changes.
 - Story isolation from live services.
@@ -143,7 +143,7 @@ The validator checks:
 - No scopes.
 - No multiline body.
 - No trailing period.
-- Lowercase message according to `commit-naming.md`.
+- Lowercase message according to `commit-patterns.md`.
 
 It must not fail on historical commits outside the PR range.
 
@@ -486,7 +486,7 @@ Commit: `docs: storybook`
 - The complete plan exists at `/STORYBOOK-PLAN.md`.
 - Exactly one commit exists for every listed subtask.
 - Review corrections are amended into the relevant subtask commit.
-- All commits and the PR title follow `commit-naming.md`.
+- All commits and the PR title follow `commit-patterns.md`.
 - Every changed line follows `dev_readme-code-patterns.md`.
 - CodeRabbit uses the repository documents as review criteria.
 - Storybook contains meaningful states and interactions, not generated examples.
