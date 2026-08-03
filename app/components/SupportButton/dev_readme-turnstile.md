@@ -19,7 +19,7 @@ Hostname Management — every hostname the widget is allowed to run on must be l
 
 ![hostname](/public/docs/turnstile/hostname.png)
 
-Widget Keys — Site key maps to `NEXT_PUBLIC_CLOUDFLARE_SITE_KEY`, Secret key maps to `TURNSTILE_SECRET_KEY`:
+Widget Keys — Site key maps to `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, Secret key maps to `TURNSTILE_SECRET_KEY`:
 
 ![widget-keys](/public/docs/turnstile/widget-keys.png)
 
@@ -68,7 +68,7 @@ export const useVerifyHuman = (turnstileRef: RefObject<HTMLDivElement>) => {
     if (turnstileRef.current) {
       // @ts-ignore
       window.turnstile.render(turnstileRef.current, {
-        sitekey: process.env.NEXT_PUBLIC_CLOUDFLARE_SITE_KEY,
+        sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
         callback: (token: string) => {
           setIsVerified(true) // Set verification status to true
         },

@@ -29,7 +29,7 @@ export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps
       }
 
       widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
-        sitekey: process.env.NEXT_PUBLIC_CLOUDFLARE_SITE_KEY,
+        sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
         theme: "auto",
         callback: async (token: string) => {
           setStatus("verifying")

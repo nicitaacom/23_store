@@ -90,7 +90,7 @@ function isHumanCheckPath(pathname: string) {
 }
 
 function isTurnstileEnabled() {
-  return Boolean(process.env.NEXT_PUBLIC_CLOUDFLARE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY)
+  return Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET_KEY)
 }
 
 async function enforceLocalePageRateLimit(request: NextRequest, hasVerifiedTurnstile: boolean) {
