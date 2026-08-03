@@ -15,7 +15,7 @@ interface CartStore {
   products: TRecordCartProduct
   productsData: TProductAfterDB[]
   keepExistingProductsRecord: (food: TRecordCartProduct) => Promise<TRecordCartProduct> // for case I user delete some food
-  selectProductsData: () => Promise<void>
+  selectProductsData: () => Promise<TProductAfterDB[]>
   getCartQuantity: () => number
   increaseProductQuantity: (id: string, variantId?: string | null, designId?: string | null) => void
   decreaseProductQuantity: (id: string, variantId?: string | null) => void
@@ -38,11 +38,9 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
       set(() => ({
         productsData: [],
       }))
-      return
+      return []
     }
 
-    // fetch products data only if some products in cart
-    // otherwise everytime I fetch data I neeed to check is some products in reacord to featch
     logFn("products - ", products)
     const keepExistingProductsRecord = get().keepExistingProductsRecord
     const productsRecord = get().products
@@ -54,19 +52,21 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
           .filter(Boolean),
       ),
     ]
-    const cart_products_data_response = await supabaseClient.from("23_products").select().in("id", ids)
-    const cart_products = normalizeProducts(cart_products_data_response.data ?? []) // get data from DB product with ids
-    const productMap = new Map(cart_products.map(product => [product.id, product]))
+    const productsResponse = await supabaseClient.from("23_products").select().in("id", ids)
+    if (productsResponse.error) throw productsResponse.error
 
-    const cart_products_with_quantity = Object.entries(existingProductsRecord).reduce<TProductAfterDB[]>(
-      (accum, [cartKey, cartProduct]) => {
+    const selectedProducts = normalizeProducts(productsResponse.data ?? [])
+    const productMap = new Map(selectedProducts.map(product => [product.id, product]))
+
+    const productsWithQuantity = Object.entries(existingProductsRecord).reduce<TProductAfterDB[]>(
+      (productsData, [cartKey, cartProduct]) => {
         const productData = productMap.get(cartProduct.id)
-        if (!productData) return accum
+        if (!productData) return productsData
 
         const selectedVariant = getProductVariantById(productData, cartProduct.variantId)
         const linePrice = selectedVariant?.price ?? productData.price
 
-        accum.push({
+        productsData.push({
           ...productData,
           basePrice: productData.price,
           cartKey,
@@ -77,15 +77,17 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
           designId: cartProduct.designId ?? null,
         })
 
-        return accum
+        return productsData
       },
       [],
     )
 
     set(() => ({
       products: existingProductsRecord,
-      productsData: cart_products_with_quantity,
+      productsData: productsWithQuantity,
     }))
+
+    return productsWithQuantity
   },
   getCartQuantity() {
     //I check get().products because when I authenticated I got error
@@ -198,9 +200,14 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
           .filter(Boolean),
       ),
     ]
-    const { data: existing_ids_response } = await supabaseClient.from("23_products").select("id").in("id", ids)
-    const existing_ids = existing_ids_response ?? [] // array with existing objects id in DB [{id:'prod_id'}]
-    const updatedIds = existing_ids.map(productData => productData.id) // string[] ['id']
+    const { data: existingProductsResponse, error: existingProductsError } = await supabaseClient
+      .from("23_products")
+      .select("id")
+      .in("id", ids)
+    if (existingProductsError) throw existingProductsError
+
+    const existingProducts = existingProductsResponse ?? []
+    const updatedIds = existingProducts.map(productData => productData.id)
 
     const filtered_products = Object.entries(products).reduce<TRecordCartProduct>((accum, [cartKey, cartProduct]) => {
       if (updatedIds.includes(cartProduct.id)) {

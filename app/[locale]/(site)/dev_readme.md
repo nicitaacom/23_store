@@ -25,12 +25,16 @@ But now I figured it out and use next-international instead of "i18n" for i18n
 
 ## Usage for payment route
 
-After user payed for something I:
+After a successful checkout, the payment route runs these receipt steps in order:
 
-1. Redirect user to this route and show him 'green-checkmark.gif'
-2. Clear user's cart
-3. Send check about payment to user's email
-4. Redirect user back to / after 5 seconds with `router.replace('/')`
+1. Read the customer email from the verified checkout session.
+2. Wait for cart initialization, then select the purchased product data.
+3. Render the receipt email only after both customer and product data exist.
+4. Verify the session is paid, send the receipt, record purchased products, and subtract stock.
+5. Clear the cart and redirect to `/`.
+
+Keep product selection inside `usePaymentSteps`. Do not add another `useEffect` that changes the step
+when cart initialization finishes because that skips the customer and product steps.
 
 ## Usage for search route
 

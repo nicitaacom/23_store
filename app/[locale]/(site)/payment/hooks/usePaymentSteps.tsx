@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
+import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
 import { getCustomerEmailFn } from "../functions/getCustomerEmailFn"
 import { renderEmailFn } from "../functions/renderEmailFn"
-import { selectProductsDataFromDBFn } from "../functions/fetchProductsDataFn"
+import { selectProductsDataForReceipt } from "../functions/selectProductsDataForReceipt"
 import { sendEmailFn } from "../functions/sendEmailFn"
 import { substractOnStockFromQuantityFn } from "../functions/substractOnStockFromQuantityFn"
-import { useFetchProductsData } from "./useFetchProductsData"
 import { verifySessionIdFn } from "../functions/verifySessionIdFn"
 import { formatDeliveryDate } from "@/utils/formatDeliveryDate"
 import { personalizedDesignsSDK } from "@/sdk/PersonalizedDesignsSDK/PersonalizedDesignsSDK"
@@ -16,7 +16,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import usePurchasedProductsStore from "@/store/user/usePurchasedProductsStore"
 import useUser from "@/store/user/useUser"
 
-export const usePaymentSteps = (status: string | null, session_id: string | null) => {
+export const usePaymentSteps = (status: string | null, sessionId: string | null) => {
   const router = useRouter()
   const cartStore = useCartStore()
   const { user } = useUser()
@@ -25,6 +25,7 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
   const [html, setHtml] = useState("")
   const [currentStep, setCurrentStep] = useState(() => (status === "success" ? 2 : 0))
   const [customerEmail, setCustomerEmail] = useState<string | null>(null)
+  const [receiptProducts, setReceiptProducts] = useState<TProductAfterDB[]>([])
   const deliveryDate = formatDeliveryDate()
   const t = useI18n()
   const locale = useCurrentLocale()
@@ -36,21 +37,26 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
     html: html,
   }
 
-  useFetchProductsData(currentStep, setCurrentStep)
-
   useEffect(() => {
     switch (currentStep) {
       case 2:
-        getCustomerEmailFn(t, user?.email || null, session_id, setCustomerEmail, setCurrentStep)
+        getCustomerEmailFn(t, user?.email || null, sessionId, setCustomerEmail, setCurrentStep)
         break
       case 3:
-        selectProductsDataFromDBFn(hasCartStoreInitialized, currentStep, setCurrentStep, cartStore.selectProductsData, t)
+        selectProductsDataForReceipt(
+          hasCartStoreInitialized,
+          currentStep,
+          setCurrentStep,
+          cartStore.selectProductsData,
+          setReceiptProducts,
+          t,
+        )
         break
       case 4:
-        renderEmailFn(cartStore.productsData, locale, deliveryDate, setHtml, setCurrentStep, t)
+        renderEmailFn(receiptProducts, locale, deliveryDate, setHtml, setCurrentStep, t)
         break
       case 5:
-        verifySessionIdFn(session_id, setCurrentStep, t)
+        verifySessionIdFn(sessionId, setCurrentStep, t)
         break
       case 6:
         sendEmailFn(emailData, setCurrentStep, t)
@@ -74,7 +80,7 @@ export const usePaymentSteps = (status: string | null, session_id: string | null
         break
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep])
+  }, [currentStep, hasCartStoreInitialized])
 
   return { currentStep, cartStore }
 }
