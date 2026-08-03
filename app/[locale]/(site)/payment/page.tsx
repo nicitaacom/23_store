@@ -11,8 +11,8 @@ import { Timer } from "@/components/ui"
 export default function Payment() {
   const router = useRouter()
   const status = useSearchParams()?.get("status") ?? null
-  const session_id = useSearchParams()?.get("session_id") ?? null
-  const { cartStore } = usePaymentSteps(status, session_id)
+  const sessionId = useSearchParams()?.get("session_id") ?? null
+  const { cartStore } = usePaymentSteps(status, sessionId)
   const t = useScopedI18n("payment")
 
   useNoProductsRedirect()
@@ -36,7 +36,9 @@ export default function Payment() {
             height={256}
             priority
           />
-          <h1 className="text-2xl mb-2">{t("successfull")}</h1>
+          <h1 className="text-2xl mb-2">
+            {process.env.NODE_ENV === "development" ? `Test ${t("successfull")}` : t("successfull")}
+          </h1>
           <p>{t("check_sent_to_your_email")}</p>
           <p className="flex flex-row">
             {t("redirecting_to_homepage_in")} <Timer seconds={4} action={() => router.replace("/")} />
@@ -44,7 +46,14 @@ export default function Payment() {
         </>
       ) : (
         <>
-          <Image style={{ width: "auto" }} src="/error-checkmark.gif" alt={t("error_checkmark")} width={256} height={256} priority />
+          <Image
+            style={{ width: "auto" }}
+            src="/error-checkmark.gif"
+            alt={t("error_checkmark")}
+            width={256}
+            height={256}
+            priority
+          />
           <h1 className="text-2xl mb-2">{t("canceled")}</h1>
           <p className="flex flex-row">
             {t("redirecting_to_homepage_in")} <Timer seconds={4} action={() => router.replace("/")} />

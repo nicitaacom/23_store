@@ -15,6 +15,7 @@ function openPaymentOptions(product: TFixtureProduct) {
   }
 
   cy.visit("/")
+  cy.contains(/Selaa koko katalogia|Browse the full catalog/).should("be.visible")
   cy.window().invoke("localStorage.setItem", "cart", JSON.stringify({ state: { products: cartRecord }, version: 0 }))
   cy.visit("/?modal=CartModal")
   cy.get('[data-cy="cart-quantity"]').should("contain", "1")
@@ -79,6 +80,7 @@ describe("checkout", () => {
 
     cy.get('[data-cy="pay-with-stripe"]').click()
 
+    cy.contains(/Test (Maksu onnistui|Your payment is successful)/).should("be.visible")
     cy.wait(["@createProviderSession", "@selectCustomerEmail", "@verifyPayment", "@sendReceipt", "@completePayment"])
   })
 
@@ -101,6 +103,7 @@ describe("checkout", () => {
 
     cy.get('[data-cy="pay-with-paypal"]').click()
 
+    cy.contains(/Test (Maksu onnistui|Your payment is successful)/).should("be.visible")
     cy.wait(["@createProviderSession", "@selectCustomerEmail", "@verifyPayment", "@sendReceipt", "@completePayment"])
   })
 

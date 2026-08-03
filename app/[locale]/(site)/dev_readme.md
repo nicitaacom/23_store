@@ -33,6 +33,9 @@ After a successful checkout, the payment route runs these receipt steps in order
 4. Verify the session is paid, send the receipt, record purchased products, and subtract stock.
 5. Clear the cart and redirect to `/`.
 
+Development shows `Test` before the successful-payment heading. Production uses only the translated
+heading.
+
 Keep product selection inside `usePaymentSteps`. Do not add another `useEffect` that changes the step
 when cart initialization finishes because that skips the customer and product steps.
 
