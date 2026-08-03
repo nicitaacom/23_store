@@ -37,12 +37,18 @@ const accounts = {
     username: "cypress_other",
     roles: ["USER"],
   },
+  buyingFlowAdmin: {
+    email: "cypress-buying-flow-admin@joki.example",
+    username: "cypress_buying_flow_admin",
+    roles: ["ADMIN"],
+  },
 }
 
 let preparedAccountsPromise: Promise<{
   owner: Awaited<ReturnType<typeof ensureAccount>>
   other: Awaited<ReturnType<typeof ensureAccount>>
 }> | null = null
+let preparedBuyingFlowFixturesPromise: Promise<Awaited<ReturnType<typeof prepareBuyingFlowFixtures>>> | null = null
 
 function getSupabaseTestClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -187,6 +193,26 @@ async function deleteUTMVisitsForUserId(userId: string) {
   return null
 }
 
+async function readBuyingFlowEventsForSession(sessionId: string) {
+  const supabase = getSupabaseTestClient()
+  const { data, error } = await supabase
+    .from("23_buying_flow_events")
+    .select("id, event, checkout_kind, search_query, results_count, session_id")
+    .eq("session_id", sessionId)
+    .order("created_at", { ascending: true })
+  if (error) throw error
+
+  return data ?? []
+}
+
+async function deleteBuyingFlowEventsForSession(sessionId: string) {
+  const supabase = getSupabaseTestClient()
+  const { error } = await supabase.from("23_buying_flow_events").delete().eq("session_id", sessionId)
+  if (error) throw error
+
+  return null
+}
+
 function getTranslations(label: string): Json {
   return {
     en: { title: `${label} EN`, description: `${label} description EN` },
@@ -235,6 +261,34 @@ async function prepareFixtures() {
   return { owner, other, ownerProduct, otherProduct }
 }
 
+async function prepareBuyingFlowFixtures() {
+  const supabase = getSupabaseTestClient()
+  const admin = await ensureAccount(accounts.buyingFlowAdmin)
+  const product = {
+    id: `${PRODUCT_PREFIX}buying-flow-product`,
+    price_id: `${PRODUCT_PREFIX}buying-flow-price`,
+    owner_id: admin.id,
+    translations: getTranslations("Cypress buying flow product"),
+    price: 137,
+    img_url: ["/placeholder.jpg"],
+    on_stock: 8,
+    variants: null,
+    category_id: null,
+  }
+
+  const { error: deleteProductError } = await supabase.from("23_products").delete().eq("id", product.id)
+  if (deleteProductError) throw deleteProductError
+  const { error: insertProductError } = await supabase.from("23_products").insert(product)
+  if (insertProductError) throw insertProductError
+
+  return { admin, product }
+}
+
+async function getBuyingFlowFixtures() {
+  preparedBuyingFlowFixturesPromise ??= prepareBuyingFlowFixtures()
+  return preparedBuyingFlowFixturesPromise
+}
+
 export default defineConfig({
   allowCypressEnv: false,
   e2e: {
@@ -254,6 +308,9 @@ export default defineConfig({
         readUTMVisitsForUserId,
         deleteUTMVisitsForUserId,
         deleteVisitsFromTodayForTestTarget,
+        readBuyingFlowEventsForSession,
+        deleteBuyingFlowEventsForSession,
+        prepareBuyingFlowFixtures: getBuyingFlowFixtures,
         async insertProductWithRls({
           account,
           product,
