@@ -39,6 +39,10 @@ export default [
 
       "unicorn/catch-error-name": ["warn", { name: "error" }],
 
+      "local-rules/envs-order": "warn",
+      "local-rules/no-defined-unused-envs": "warn",
+      "local-rules/no-undefined-used-envs": "warn",
+
       "local-rules/no-export-const-classname": "warn",
       "local-rules/no-localstorage-direct": "warn",
       "local-rules/no-banned-words": "error",
@@ -60,9 +64,6 @@ export default [
       "local-rules/one-liner-component-props-interface": "warn",
       "local-rules/no-type-export-in-action-or-component": "warn",
       "local-rules/imports-order": "warn",
-      "local-rules/envs-order": "warn",
-      "local-rules/no-unused-envs": "warn",
-      "local-rules/no-undeclared-envs": "warn",
       "local-rules/no-high-level-import": "warn",
       "local-rules/check-importers": "warn",
       "local-rules/no-cross-route-group-absolute-import": "warn",
