@@ -45,7 +45,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 16 | [plan-16-ai-price-proposals-admin-workspace.md](plan-16-ai-price-proposals-admin-workspace.md) | P1 | GPT-5 · high | done - AI pricing SQL waits for Nikita to run it | — |
 | 17 | [plan-17-seasonal-themes-halloween-new-year.md](plan-17-seasonal-themes-halloween-new-year.md) | P2 | Sonnet · low | waiting | — |
 | 18 | [plan-18-solana-payments.md](plan-18-solana-payments.md) | P1 | Sonnet · medium | done - steps 2-5 + 7; step 6 skipped by decision 4 (no server check, same trust model as MetaMask). Devnet path not run against a real Phantom wallet yet - see CartModal dev_readme §5.7 | — |
-| 19 | [plan-19-checkout-request-prices-primary.md](plan-19-checkout-request-prices-primary.md) | P1 | Sonnet · medium | waiting - 4 open questions, all with a recommended letter | plan-18 |
+| 19 | [plan-19-checkout-request-prices-primary.md](plan-19-checkout-request-prices-primary.md) | P1 | Sonnet · medium | done - tasks 2-6; Stripe + PayPal open checkout.stripe.com, PayPal webhook sends verified events to Telegram | plan-18 |
 
 Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screenshot rule (2 = P1, 3+ = P0) sets nothing — P1 here means "blocks users or is the main asked-for work".
 

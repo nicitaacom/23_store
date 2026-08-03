@@ -131,10 +131,14 @@ declare namespace API {
     email: string | null | undefined
   }
 
+  type ProductsCreateCheckoutSessionResponse = { url: string }
+
   type ProductsCreatePayPalSessionRequest = {
     payPalProductsQuery: string
     email: string | null | undefined
   }
+
+  type ProductsCreatePayPalSessionResponse = { url: string }
 
   type ProductsCreateKlarnaSessionResponse = Record<string, unknown>
 

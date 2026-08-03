@@ -47,23 +47,24 @@ export function PayWithPaypalButton() {
           </p>,
           10000,
         )
-      } else {
-        // redirect user to session.url on client side to avoid 'blocked by CORS' error
-        router.push(
-          await productsSDK.createPayPalSession({
-            payPalProductsQuery,
-            email: user?.email || null,
-          }),
-        )
+        return
       }
+
+      // redirect user to session.url on client side to avoid 'blocked by CORS' error
+      const response = await productsSDK.createPayPalSession({
+        payPalProductsQuery,
+        email: user?.email || null,
+      })
+      router.push(response)
     } catch (error) {
       toast.show(
         "error",
         t("error.creating_provider_session", { provider: "paypal" }),
         error instanceof Error ? error.message : String(error),
       )
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   return (

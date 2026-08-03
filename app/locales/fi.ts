@@ -463,6 +463,7 @@ export default {
   "product.empty_cart": "Ostoskori on tyhjä",
   "product.order_summary": "Tilausyhteenveto",
   "product.request_better_prices": "Pyydä parempia hintoja",
+  "product.other_ways_to_pay": "Muut maksutavat",
   "product.clear_cart": "Tyhjennä ostoskori",
   "product.per_page": "per sivu",
   "product.error.failed_to_create_product_on_stripe": "Tuotteen luonti Stripeen epäonnistui – tuotetunnus puuttuu",

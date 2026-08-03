@@ -463,6 +463,7 @@ export default {
   "product.empty_cart": "Cart is empty",
   "product.order_summary": "Order Summary",
   "product.request_better_prices": "Request Better Prices",
+  "product.other_ways_to_pay": "Other ways to pay",
   "product.clear_cart": "Clear cart",
   "product.per_page": "per page",
   "product.error.failed_to_create_product_on_stripe": "Failed to create product on Stripe - missing product ID",

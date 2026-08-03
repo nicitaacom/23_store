@@ -461,6 +461,7 @@ export default {
   "product.empty_cart": "Kundvagnen är tom",
   "product.order_summary": "Orderöversikt",
   "product.request_better_prices": "Begär bättre priser",
+  "product.other_ways_to_pay": "Andra betalningssätt",
   "product.clear_cart": "Töm kundvagnen",
   "product.per_page": "per sida",
   "product.error.failed_to_create_product_on_stripe": "Misslyckades skapa produkt i Stripe – saknar produkt-ID",

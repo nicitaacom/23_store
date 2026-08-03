@@ -21,6 +21,18 @@ Checkout offers 4 ways to pay:
 ![23_users_cart DB](../../../../../public/docs/cart/db-23_users_cart.png)
 `public/docs/cart/db-23_users_cart.png` — Supabase `23_users_cart` table
 
+The order summary aside leads with one action and keeps payment choices optional:
+
+```
+Request Better Prices        <- filled success button, always visible
+Other ways to pay            <- toggle
+  MetaMask                   <- visible while the toggle is open
+  Solana
+  PayPal
+  Stripe
+Clear cart                   <- always last
+```
+
 ---
 
 ## 2. Where data lives
@@ -96,6 +108,9 @@ All 3 are deleted. The working button signs through the wallet extension, so no 
 ### 5.4 How one click pays
 
 ```
+click "Other ways to pay"  (ProductsInCart.tsx)
+  |
+  v
 click "Solana"  (PayWithSolanaButton.tsx)
   |
   |-- window.solana?.isPhantom missing -> toast "Phantom not detected" + install link -> STOP
@@ -152,3 +167,56 @@ Flipping to real money is a value change on `NEXT_PUBLIC_SOLANA_CLUSTER`, not a 
 - Fix: that modal has to know which wallet asked for it.
 - **Screenshot missing.** Add `public/docs/cart/solana-button.png` and link it in §1.
 - **Untested against a real wallet.** The devnet path has not been run end to end with Phantom installed.
+
+---
+
+## 6. Stripe and PayPal checkout redirects
+
+Both checkout routes return JSON with the same shape:
+
+```ts
+{
+  url: "https://checkout.stripe.com/..."
+}
+```
+
+`ProductsSDK` reads that JSON through `postJson` and returns its `url`. The Stripe and PayPal
+buttons then pass the absolute address to `router.push`. Returning the address as a JSON string and
+reading it with `response.text()` left quote characters around it, which Next treated as a relative
+path such as `localhost:3023/%22https:/checkout.stripe.com/...%22`.
+
+Guest checkout sends `email: null`; the routes convert that absence to `undefined` before calling
+Stripe. On 2026-08-03, both buttons were tested from the cart with a $1.37 item: Stripe and PayPal
+each returned HTTP 200 and opened `checkout.stripe.com`. Stripe accepted PayPal for this account.
+
+## 7. PayPal webhook notifications
+
+PayPal sends the configured checkout events to `POST /api/webhooks/paypal`. The route:
+
+1. selects sandbox credentials outside production and live credentials in production;
+2. gets an OAuth access token from PayPal;
+3. posts the event, webhook ID, and `PAYPAL-*` delivery headers to PayPal's
+   `/v1/notifications/verify-webhook-signature` endpoint;
+4. rejects an invalid signature before any notification is sent;
+5. sends one Telegram message for each configured checkout event.
+
+The configured events are:
+
+```
+CHECKOUT.CHECKOUT.BUYER-APPROVED
+CHECKOUT.ORDER.APPROVED
+CHECKOUT.ORDER.COMPLETED
+CHECKOUT.ORDER.DECLINED
+CHECKOUT.ORDER.SAVED
+CHECKOUT.ORDER.VOIDED
+CHECKOUT.PAYMENT-RESOURCE.CREATED
+CHECKOUT.PAYMENT-RESOURCE.DELETED
+CHECKOUT.PAYMENT-RESOURCE.PAYMENT-COMPLETED
+CHECKOUT.PAYMENT-RESOURCE.PAYMENT-ON-HOLD
+CHECKOUT.PAYMENT-RESOURCE.UPDATED
+```
+
+The live Developer Dashboard webhook is `https://www.jokik.fi/api/webhooks/paypal`, ID
+`7LS69024SX626411J`. Set `PAYPAL_WEBHOOK_ID_TEST` for sandbox testing. The
+`origin-processor-webhook-receiver-prod.production.braintree-api.com` entry is PayPal/Braintree's
+managed receiver, not this app's route.

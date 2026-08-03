@@ -17,6 +17,14 @@ declare global {
       PUSHER_APP_ID: string
       NEXT_PUBLIC_PUSHER_APP_KEY: string
       PUSHER_SECRET: string
+
+      NEXT_PUBLIC_PAYPAL_CLIENT_ID_TEST: string
+      PAYPAL_CLIENT_SECRET_TEST: string
+      PAYPAL_WEBHOOK_ID_TEST: string
+      NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE: string
+      PAYPAL_CLIENT_SECRET_LIVE: string
+      PAYPAL_WEBHOOK_ID_LIVE: string
+
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string
       NEXT_STRIPE_SECRET_KEY: string
 

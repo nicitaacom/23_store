@@ -87,17 +87,19 @@ export class ProductsSDK extends BaseSDK {
   }
 
   async createCheckoutSession(request: API.ProductsCreateCheckoutSessionRequest) {
-    return this.postText<API.ProductsCreateCheckoutSessionRequest>(
+    const respJson = await this.postJson<API.ProductsCreateCheckoutSessionRequest, API.ProductsCreateCheckoutSessionResponse>(
       "/api/create-checkout-session",
       request satisfies API.ProductsCreateCheckoutSessionRequest,
     )
+    return respJson.url
   }
 
   async createPayPalSession(request: API.ProductsCreatePayPalSessionRequest) {
-    return this.postText<API.ProductsCreatePayPalSessionRequest>(
+    const respJson = await this.postJson<API.ProductsCreatePayPalSessionRequest, API.ProductsCreatePayPalSessionResponse>(
       "/api/create-paypal-session",
       request satisfies API.ProductsCreatePayPalSessionRequest,
     )
+    return respJson.url
   }
 
   async createKlarnaSession() {

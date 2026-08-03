@@ -1,5 +1,8 @@
 "use client"
 
+import { useState } from "react"
+import { FiChevronDown } from "react-icons/fi"
+
 import { requestBetterPrices } from "./functions/requestBetterPrices"
 import { Button } from "../.."
 import { PaymentButtons } from "./PaymentButtons/PaymentButtons"
@@ -14,6 +17,7 @@ import { Product } from "@/[locale]/(site)/components"
 
 // http://localhost:6006/?path=/story/commerce-cartcomposition--empty
 export function ProductsInCart() {
+  const [arePaymentOptionsOpen, setArePaymentOptionsOpen] = useState(false)
   const t = useI18n()
   const locale = useCurrentLocale()
   const cartStore = useCartStore()
@@ -69,20 +73,31 @@ export function ProductsInCart() {
           </div>
         </div>
 
-        {/* 4. Pay — MetaMask, Solana, PayPal, Stripe */}
-        <PaymentButtons />
-
-        {/* 5. Actions — primary first, destructive as ghost */}
+        {/* 4. Actions — primary first, optional payments second, destructive last */}
         <div className="flex flex-col gap-2 laptop:mt-auto">
           <Button
-            className="w-full border-success/40 bg-success/10 text-success hover:bg-success/20"
+            className="w-full border-success bg-success text-black hover:bg-success/90"
             data-cy="request-better-prices"
-            variant="default-outline"
+            variant="success"
             size="md"
             disabled={isLoading}
             onClick={handleRequestBetterPrices}>
             {t("product.request_better_prices")}
           </Button>
+
+          <Button
+            className="w-full"
+            variant="secondary-outline"
+            size="md"
+            aria-expanded={arePaymentOptionsOpen}
+            onClick={() => setArePaymentOptionsOpen(isOpen => !isOpen)}
+            rightIcon={
+              <FiChevronDown className={arePaymentOptionsOpen ? "rotate-180 transition-transform" : "transition-transform"} />
+            }>
+            {t("product.other_ways_to_pay")}
+          </Button>
+
+          {arePaymentOptionsOpen && <PaymentButtons />}
 
           <Button className="w-full" variant="danger-outline" size="md" onClick={areYouSureClearCartModal.openModal}>
             {t("product.clear_cart")}

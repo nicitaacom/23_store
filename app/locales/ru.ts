@@ -462,6 +462,7 @@ export default {
   "product.empty_cart": "Корзина пуста",
   "product.order_summary": "Сводка заказа",
   "product.request_better_prices": "Запросить лучшие цены",
+  "product.other_ways_to_pay": "Другие способы оплаты",
   "product.clear_cart": "Очистить корзину",
   "product.per_page": "на странице",
   "product.error.failed_to_create_product_on_stripe": "Не удалось создать продукт в Stripe — отсутствует ID продукта",

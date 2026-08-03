@@ -47,19 +47,21 @@ export function PayWithStripeButton() {
           </p>,
           10000,
         )
-      } else {
-        //redirect user to session.url on client side to avoid 'blocked by CORS' error
-        router.push(
-          await productsSDK.createCheckoutSession({
-            stripeProductsQuery,
-            email: user?.email || null,
-          }),
-        )
+        return
       }
+
+      //redirect user to session.url on client side to avoid 'blocked by CORS' error
+      const response = await productsSDK.createCheckoutSession({
+        stripeProductsQuery,
+        email: user?.email || null,
+      })
+      router.push(response)
     } catch (error) {
-      if (error instanceof Error) {
-        toast.show("error", t("error.creating_provider_session", { provider: "stripe" }), error.message)
-      }
+      toast.show(
+        "error",
+        t("error.creating_provider_session", { provider: "stripe" }),
+        error instanceof Error ? error.message : String(error),
+      )
     } finally {
       setIsLoading(false)
     }

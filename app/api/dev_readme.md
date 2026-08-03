@@ -212,6 +212,13 @@ So user may pay with klarna - this doen't work
 To create paypal session with stripe
 So user may pay with paypal through stripe
 
+### Usage for PayPal webhook route
+
+`POST /api/webhooks/paypal` verifies each delivery with PayPal's
+`/v1/notifications/verify-webhook-signature` API before sending a Telegram notification. It uses
+the test client, secret, and webhook ID outside production, and the live values in production. The
+checkout flow and full event list are documented in `app/components/ui/Modals/CartModal/dev_readme.md` §7.
+
 ### Usage for customer route
 
 I use this API route to return customer email after customer paid for somethig

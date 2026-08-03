@@ -11,11 +11,11 @@ type StripeCheckoutLineItem = {
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as { stripeProductsQuery: string; email: string | undefined }
+  const body = (await request.json()) as API.ProductsCreateCheckoutSessionRequest
 
   try {
     const productsJsonArray = JSON.parse(decodeURIComponent(body.stripeProductsQuery)) as StripeCheckoutLineItem[]
-    const line_items = productsJsonArray.map(product => ({
+    const lineItems = productsJsonArray.map(product => ({
       price_data: {
         currency: "usd",
         product_data: {
@@ -29,9 +29,9 @@ export async function POST(request: Request) {
 
     const session = await stripe.checkout.sessions.create({
       billing_address_collection: "required",
-      line_items,
+      line_items: lineItems,
       mode: "payment",
-      customer_email: body.email,
+      customer_email: body.email || undefined,
       success_url: `${getURL()}payment/?status=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${getURL()}payment/?status=canceled`,
       shipping_address_collection: {
@@ -39,11 +39,10 @@ export async function POST(request: Request) {
       },
     })
 
-    if (session.url) {
-      return NextResponse.json(decodeURIComponent(session.url))
-    } else {
-      return new NextResponse("No session url - please check create-checkout-session route", { status: 500 })
-    }
+    if (session.url)
+      return NextResponse.json({ url: decodeURIComponent(session.url) } satisfies API.ProductsCreateCheckoutSessionResponse)
+
+    return new NextResponse("No session url - please check create-checkout-session route", { status: 500 })
   } catch (error) {
     return new NextResponse(`CREATE_CHECKOUT_SESSION ROUTE ERROR ${error}`, { status: 400 })
   }
