@@ -290,10 +290,18 @@ async function checkPineconeApiKey(apiKey: string): Promise<string | null> {
   return status === 200 ? null : describeStatus(status, body)
 }
 
-/** PINECONE_ENVIRONMENT holds the index host, so this asks that host for its own stats. */
+/**
+ * PINECONE_ENVIRONMENT holds the index host, because `getPineconeHost` in
+ * `app/libs/ai/chatMemory.ts` passes whatever it holds straight to the client as `host`.
+ *
+ * The dot check is first so a legacy region name (`us-east-1-aws`, `gcp-starter`) is named for what it
+ * is straight away, instead of after a 20 second wait for DNS to fail on a hostname that never existed.
+ */
 async function checkPineconeHost(hostUrl: string): Promise<string | null> {
   const apiKey = readKey("PINECONE_API_KEY")
   if (!apiKey) return "needs PINECONE_API_KEY"
+  if (!hostUrl.includes("."))
+    return `"${hostUrl}" is a legacy region name, not an index host - chat memory needs the *.pinecone.io host`
 
   const address = hostUrl.startsWith("http") ? hostUrl : `https://${hostUrl}`
   const { status, body } = await requestKey(`${address}/describe_index_stats`, {
