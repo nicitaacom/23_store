@@ -40,7 +40,10 @@ export async function GET(request: Request) {
 
   if (code) {
     // 2. Exchange cookies for session (to get session data)
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore as unknown as ReturnType<typeof cookies> })
+    const supabase = createRouteHandlerClient(
+      { cookies: () => cookieStore as unknown as ReturnType<typeof cookies> },
+      { supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
+    )
     const response = await supabase.auth.exchangeCodeForSession(code)
     console.log("[auth:oauth][route] exchangeCodeForSession completed", {
       provider,

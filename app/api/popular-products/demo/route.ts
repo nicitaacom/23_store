@@ -84,7 +84,10 @@ async function fetchFakeShopProducts() {
 }
 
 async function resolveOwnerId() {
-  const supabase = createRouteHandlerClient({ cookies })
+  const supabase = createRouteHandlerClient(
+    { cookies },
+    { supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
+  )
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -99,7 +102,10 @@ export async function GET() {
     return NextResponse.json({ error: "Missing authenticated user" }, { status: 401 })
   }
 
-  const supabase = createRouteHandlerClient({ cookies })
+  const supabase = createRouteHandlerClient(
+    { cookies },
+    { supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
+  )
   const ownerFragment = ownerId.replace(/-/g, "").slice(0, 12)
   const response = await supabase
     .from("23_products")
@@ -134,7 +140,10 @@ export async function POST(req: Request) {
     return formatFakeProductSeed(sourceProduct, index, ownerId)
   })
 
-  const supabase = createRouteHandlerClient({ cookies })
+  const supabase = createRouteHandlerClient(
+    { cookies },
+    { supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
+  )
   const response = await supabase.from("23_products").insert(products).select("id")
 
   if (response.error) {

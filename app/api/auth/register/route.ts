@@ -14,7 +14,10 @@ export type TAPIAuthRegister = {
 
 export async function POST(req: Request) {
   const { username, email, password }: TAPIAuthRegister = await req.json()
-  const supabase = createRouteHandlerClient({ cookies })
+  const supabase = createRouteHandlerClient(
+    { cookies },
+    { supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
+  )
   const requestUrl = new URL(req.url)
   const normalizedEmail = normalizeAuthEmail(email)
 

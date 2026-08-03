@@ -11,7 +11,10 @@ export async function POST(req: Request) {
     requestBody = (await req.json()) as API.AISalesAssistantMemoryRequest
     const { userPrompt, assistantReply, memory } = requestBody
 
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = createRouteHandlerClient(
+      { cookies },
+      { supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
+    )
     const {
       data: { user },
     } = await supabase.auth.getUser()

@@ -20,7 +20,10 @@ export async function GET(request: Request) {
   /* Exchange code for cookies - update row that user confirmed email */
   if (code) {
     // Exchange code to get cookies session
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = createRouteHandlerClient(
+      { cookies },
+      { supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
+    )
     const response = await supabase.auth.exchangeCodeForSession(code)
     if (response.error) {
       return NextResponse.redirect(getAuthErrorRedirectUrl(requestUrl, response.error.message))

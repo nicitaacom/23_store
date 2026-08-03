@@ -19,7 +19,10 @@ export async function POST(request: Request) {
   const avatarUrl = sanitizeAvatarUrl(body.avatarUrl)
 
   const cookieStore = await cookies()
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore as unknown as ReturnType<typeof cookies> })
+  const supabase = createRouteHandlerClient(
+    { cookies: () => cookieStore as unknown as ReturnType<typeof cookies> },
+    { supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
+  )
   const {
     data: { user },
   } = await supabase.auth.getUser()

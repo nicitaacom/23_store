@@ -17,7 +17,10 @@ export async function GET(request: Request) {
   }
   if (code) {
     // 2. Exchange cookies to set session and get session data
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = createRouteHandlerClient(
+      { cookies },
+      { supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY },
+    )
     const response = await supabase.auth.exchangeCodeForSession(code)
     if (response.error) {
       return NextResponse.redirect(getAuthErrorRedirectUrl(requestUrl, response.error.message))
