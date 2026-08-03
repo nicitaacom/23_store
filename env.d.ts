@@ -56,6 +56,7 @@ declare global {
 
       TINIFY_API_KEY_ARR: string
 
+      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read via process.env[name] in checkKeys.ts
       CHROMATIC_PROJECT_TOKEN: string
 
       DEVICE_ID_ENCRYPTION_KEY: string
