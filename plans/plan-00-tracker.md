@@ -46,6 +46,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 17 | [plan-17-seasonal-themes-halloween-new-year.md](plan-17-seasonal-themes-halloween-new-year.md) | P2 | Sonnet · low | waiting | — |
 | 18 | [plan-18-solana-payments.md](plan-18-solana-payments.md) | P1 | Sonnet · medium | done - steps 2-5 + 7; step 6 skipped by decision 4 (no server check, same trust model as MetaMask). Devnet path not run against a real Phantom wallet yet - see CartModal dev_readme §5.7 | — |
 | 19 | [plan-19-checkout-request-prices-primary.md](plan-19-checkout-request-prices-primary.md) | P1 | Sonnet · medium | done - tasks 2-6; checkout redirects, verified PayPal webhook, and ordered receipt email steps | plan-18 |
+| 20 | [plan-20-buying-flow-stats.md](plan-20-buying-flow-stats.md) | P1 | Opus · high | waiting - 6 open questions need Nikita's letters | plan-19 (reads its buttons) |
 
 Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screenshot rule (2 = P1, 3+ = P0) sets nothing — P1 here means "blocks users or is the main asked-for work".
 
