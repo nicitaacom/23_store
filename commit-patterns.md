@@ -31,7 +31,7 @@ Description: **required** — see the 🚨 TODO block below.
 - `chore: err -> error`
 - `chore: eslint fix imports-order`
 
-## 🚨 TODO — every description opens with this
+## 🚨 TODO — when something is waiting for me
 
 A commit that only says what changed leaves me opening the diff to find out whether a manual step is
 waiting. The description answers that first.
@@ -51,13 +51,20 @@ chore: check envs are valid
 is rejected: it says nothing about where to run it, what it changes, or how to tell it worked. An
 item names WHERE to go, WHAT to do there, and HOW you know it worked.
 
-**Nothing to do is still a description:**
+**Nothing waiting? Then there is NO block.** Write the why on its own:
 
 ```
-🚨 TODO
+chore: drop unused deps
 
-1. nothing - applied and verified here
+- removed 15 packages nothing in the repo imports
+- tsc clean, 197 tests still pass
 ```
+
+A filler `1. nothing - applied and verified here` is **rejected**. A block that keeps saying nothing
+trains me to skip every one of them, and then the one that matters gets skipped too.
+
+**The block is required whenever the commit touches** `.env*`, `env.d.ts`, a migration, a `.sql`
+file, or a `dev_readme*sql*` doc — those always leave a variable to set or SQL to run.
 
 ### Enforced, not remembered — two layers
 

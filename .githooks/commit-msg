@@ -54,16 +54,26 @@ TEMPLATE
 
 first_line=$(printf '%s\n' "$body" | head -1)
 case "$first_line" in
-  🚨*) ;;
-  *) fail "the description does not open with \"🚨 TODO\" - it opens with \"${first_line:0:60}\"" ;;
+  🚨*) has_todo=1 ;;
+  *) has_todo=0 ;;
 esac
+
+# Touching any of these means a human step is waiting - a variable to set, SQL to run, a migration
+# to apply - so the block is required. This is the case that started the rule: a commit added
+# NEXT_PUBLIC_SOLANA_ADDRESS to .env.example and never said to set it anywhere.
+triggers=$(git diff --cached --name-only | grep -iE '(^|/)\.env|(^|/)env\.d\.ts$|migrations?/|supabase|dev_readme.*sql|\.sql$' || true)
+
+if [ "$has_todo" = 0 ]; then
+  [ -z "$triggers" ] || fail "this commit touches $(printf '%s' "$triggers" | head -1) - a human step is waiting, so the description must open with a 🚨 TODO block"
+  exit 0
+fi
 
 items=$(printf '%s\n' "$body" | grep -cE '^[[:space:]]*[0-9]+[.)][[:space:]]*[^[:space:]]' || true)
 [ "$items" -gt 0 ] || fail "🚨 TODO has no numbered items - write 1. 2. 3., one step each"
 
-# "1. nothing - ..." as the only item is a complete answer
-if [ "$items" -eq 1 ] && printf '%s\n' "$body" | grep -qiE '^[[:space:]]*1[.)].*\bnothing\b'; then
-  exit 0
+# A filler item is worse than no block: it trains him to stop reading every one of them.
+if printf '%s\n' "$body" | grep -qiE '^[[:space:]]*[0-9]+[.)].*\b(nothing|none|n/?a|no action|already (done|applied))\b'; then
+  fail "filler TODO - an item says there is nothing to do. Then drop the block entirely and write the why on its own"
 fi
 
 if ! printf '%s\n' "$body" | grep -qE '\->|→'; then
