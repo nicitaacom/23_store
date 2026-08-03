@@ -33,7 +33,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 15 | personalization phase 3 - owner notification on a paid design (see `app/components/ui/Modals/PersonalizeModal/dev_readme-personalize.md` §4) | P2 | Sonnet · medium | waiting | — |
 | 16 | [plan-16-ai-price-proposals-admin-workspace.md](plan-16-ai-price-proposals-admin-workspace.md) | P1 | GPT-5 · high | done - AI pricing SQL waits for Nikita to run it | — |
 | 17 | [plan-17-seasonal-themes-halloween-new-year.md](plan-17-seasonal-themes-halloween-new-year.md) | P2 | Sonnet · low | waiting | — |
-| 18 | [plan-18-solana-payments.md](plan-18-solana-payments.md) | P1 | Sonnet · medium | in progress - step 2 done (SOLANA const + case + commented Keypair block deleted, `TWallet.secret` deleted); step 6 skipped by decision 4 | — |
+| 18 | [plan-18-solana-payments.md](plan-18-solana-payments.md) | P1 | Sonnet · medium | in progress - steps 2-3 done (defects deleted; `sendMoneyWithSolana.ts` + `TSolanaProvider.ts` written); step 6 skipped by decision 4 | — |
 
 Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screenshot rule (2 = P1, 3+ = P0) sets nothing — P1 here means "blocks users or is the main asked-for work".
 

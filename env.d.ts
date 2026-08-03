@@ -35,6 +35,9 @@ declare global {
       NEXT_PUBLIC_METAMASK_ADRESS_BNB: string
       NEXT_PUBLIC_METAMASK_ADRESS_MATIC: string
 
+      NEXT_PUBLIC_SOLANA_ADDRESS: string
+      NEXT_PUBLIC_SOLANA_CLUSTER: string
+
       OPENAI_API_KEY: string
       PRICE_WEBHOOK_SECRET: string
 
@@ -67,9 +70,19 @@ interface TEthereumProvider {
   removeListener(event: "chainChanged", handler: (chainId: string) => void): void
 }
 
+/* for phantom detecting */
+
+interface TSolanaProvider {
+  isPhantom?: boolean
+  publicKey: import("@solana/web3.js").PublicKey | null
+  connect: () => Promise<{ publicKey: import("@solana/web3.js").PublicKey }>
+  signAndSendTransaction: (transaction: import("@solana/web3.js").Transaction) => Promise<{ signature: string }>
+}
+
 declare global {
   interface Window {
     ethereum: TEthereumProvider
+    solana: TSolanaProvider
     turnstile?: {
       render: (
         container: HTMLElement,
