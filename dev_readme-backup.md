@@ -86,6 +86,8 @@ storage/23_avatar-images/<...>
 | Pure CSV read/write (RFC 4180) | `app/api/backup/csvClient.ts` |
 | Stable re-export shim (routes + SDK import from here) | `app/api/backup/backupTables.ts` |
 | ADMIN gate (string error or null) | `app/api/backup/requireAdmin.ts` |
+| Auth-account preparation + source/target UUID map | `app/api/backup/auth-users/route.ts` |
+| Pure source-user validation and row remapping | `app/api/backup/backupAuthRestore.ts` |
 | Rows GET (export) / POST (import, ≤500/batch) | `app/api/backup/rows/route.ts` |
 | Files GET (list, paths only) / POST (signed upload URLs, ≤100/batch) | `app/api/backup/files/route.ts` |
 | Client SDK — 4 methods (export/import × tables/files) + live speed tracker | `app/sdk/BackupSDK/BackupSDK.ts` |
@@ -136,12 +138,12 @@ the `size` of each file as its download completes, against `bytesTotal` from the
 
 ## Import flow (upsert — NOT override)
 
-**Tables:** upload a `.tar.gz` (from export) or loose `.csv` files. The browser parses CSV locally,
-coerces columns per `backupConfig.ts` (`numericColumns` → number, `arrayColumns`/`jsonColumns` →
-`JSON.parse`), and POSTs `≤500` rows per table per batch to `/api/backup/rows`. The server upserts
-on each table's primary key (`onConflict`). Rows with an empty/invalid uuid column are dropped
-before the upsert (`filterRowsByUuidColumns`) and reported as `skipped`, so one bad row is never
-able to fail an entire batch with a `22P02` (text = uuid) error.
+**Tables:** upload a `.tar.gz` (from export) or loose `.csv` files. The browser parses and validates
+all CSVs locally, coerces columns per `backupConfig.ts`, automatically prepares/reuses target Auth
+users, remaps source user UUIDs, and only then POSTs `≤500` rows per table per batch to
+`/api/backup/rows`. The server upserts on each table's primary key (`onConflict`). Rows with an
+empty/invalid uuid column are dropped before the upsert (`filterRowsByUuidColumns`) and reported as
+`skipped`, so one bad row cannot fail an entire batch with a `22P02` (text = uuid) error.
 
 **Files:** upload one `.tar.gz` (from export). The browser decompresses and parses it locally (the
 server never sees the archive bytes), asks `/api/backup/files` for a signed upload URL per file
@@ -166,14 +168,26 @@ tables tab (`3 / 10 tables`) — CSV rows are not large enough for byte progress
 
 <br/>
 
-## Cross-DB restore caveat
+## Cross-DB restore — Auth users are prepared automatically during Tables import
 
-`23_users.id`, `23_users_cart.id`, `23_products.owner_id` are UUID with FK to `auth.users`.
-Importing a backup into a **different/fresh** Supabase project whose `auth.users` is empty fails
-those rows on the FK — but the FK error is caught per-row: `filterRowsByUuidColumns` only drops a
-row whose uuid column is *empty/malformed text*, not one that fails a foreign-key check (Postgres
-still enforces the FK on upsert), so a genuine FK violation still surfaces as a batch-level
-`error` in the table's result, not a skip.
+There is no separate Auth-import button or manual account step. After the admin selects the Tables
+archive, `BackupSDK.importTables()` parses and validates every CSV first, then calls the ADMIN-only
+`POST /api/backup/auth-users` before the first public-table upsert. That route reuses a target Auth
+user by UUID/email or creates a passwordless Auth user, and returns a source UUID → target UUID
+map. The SDK applies that map to users, carts, products, AI proposals, personalized designs,
+category views, tickets, and messages before restoring them in FK-safe order.
+
+The archive never contains passwords or password hashes. A newly created user whose archived
+`providers` includes `credentials` gets `23_users.password_reset_required = true`; password login
+is blocked with a recovery action until `/api/auth/reset` changes the password and clears the
+marker. Google-only accounts are created with their archived confirmation state, and Supabase
+links the Google identity when the user next signs in with the same verified email. Existing target
+accounts (including the bootstrap admin) are reused and keep the union of their roles/providers.
+
+Preparation is retry-safe: Auth users created before a later failure hold the source id in Auth
+app metadata, so another import reuses them and retains the recovery requirement. A partial table
+import without `23_users.csv` still works when every referenced UUID already exists in target Auth;
+otherwise it stops before table writes and requests the missing profile CSV.
 
 `23_tickets.owner_id` is TEXT with no auth FK, confirmed live — those rows always restore.
 `23_messages.sender_id` is **settled: TEXT, no FK**. Nikita read the live constraints (plan-02 task 1)

@@ -87,6 +87,7 @@ export function DbBackupModal() {
       {tab === "tables" && (
         <div className="flex flex-col gap-3 rounded border border-border-color/35 bg-foreground/5 p-3">
           <p className="text-xs text-subTitle">{t("tables_subtitle")}</p>
+          <p className="text-xs text-warning">{t("tables_import_notice")}</p>
 
           <Button
             className="w-fit"
@@ -125,6 +126,22 @@ export function DbBackupModal() {
 
           {tablesImportResult && tablesImportPhase === "done" && (
             <ul className="flex flex-col gap-0.5 border-t border-border-color/35 pt-2">
+              <li className="flex items-center justify-between text-xs text-subTitle">
+                <span>{t("accounts_label")}</span>
+                <span>
+                  {t("accounts_result", {
+                    created: tablesImportResult.accounts.created,
+                    reused: tablesImportResult.accounts.reused,
+                  })}
+                </span>
+              </li>
+              {tablesImportResult.accounts.passwordResetRequired > 0 && (
+                <li className="text-xs text-warning">
+                  {t("password_recovery_result", {
+                    count: tablesImportResult.accounts.passwordResetRequired,
+                  })}
+                </li>
+              )}
               {tablesImportResult.tables.map(table => (
                 <li className="flex items-center justify-between text-xs text-subTitle" key={table.table}>
                   <span>{table.table}</span>

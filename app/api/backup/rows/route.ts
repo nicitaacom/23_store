@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 
 import { requireAdmin } from "../requireAdmin"
 import { BACKUP_TABLES, getTableConfig, filterRowsByUuidColumns } from "../backupTables"
+import { mergeBackupPublicUserRows } from "../backupAuthRestore"
 import { isMissingSchemaError } from "@/utils/personalizationSchema"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
@@ -65,7 +66,17 @@ export async function POST(request: Request) {
   const adminError = await requireAdmin()
   if (adminError) return NextResponse.json({ error: adminError }, { status: adminError === "Unauthorized" ? 401 : 403 })
 
-  const { rows: keptRows, skipped } = filterRowsByUuidColumns(config, rows)
+  const { rows: uuidValidRows, skipped } = filterRowsByUuidColumns(config, rows)
+  let keptRows = uuidValidRows
+  if (config.name === "23_users" && uuidValidRows.length > 0) {
+    const userIds = uuidValidRows.flatMap(row => (typeof row.id === "string" ? [row.id] : []))
+    // eslint-disable-next-line local-rules/use-rls-supabase-client -- requireAdmin authorizes preserving target roles during the full-database import.
+    const { data: existingRows, error: selectUsersError } = await supabaseAdmin.from("23_users").select("*").in("id", userIds)
+    if (selectUsersError) {
+      return NextResponse.json({ error: selectUsersError.message } satisfies API.BackupRowsPostResponse, { status: 500 })
+    }
+    keptRows = mergeBackupPublicUserRows(uuidValidRows, existingRows ?? [])
+  }
   if (keptRows.length === 0) return NextResponse.json({ rows: 0, skipped } satisfies API.BackupRowsPostResponse)
 
   // eslint-disable-next-line local-rules/use-rls-supabase-client -- requireAdmin authorizes this validated backup-table import before the upsert.

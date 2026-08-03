@@ -25,6 +25,18 @@ export async function signInWithPassword(
   try {
     // Check is user with this email doesn't exist and return providers and username
     const existingUserData = await accountSDK.signInWithEmail(email)
+    if (existingUserData.passwordResetRequired) {
+      displayResponseMessage(
+        <div className="flex flex-col items-center gap-2 text-danger">
+          <p>{t("auth.migration.password_reset_required")}</p>
+          <Button href={`/${locale}?modal=AuthModal&variant=recover`} variant="link">
+            {t("auth.forgot.password")}
+          </Button>
+        </div>,
+      )
+      return
+    }
+
     const { data: user, error: signInError } = await supabaseClient.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
       password: password,

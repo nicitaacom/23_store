@@ -88,8 +88,15 @@ CREATE TABLE IF NOT EXISTS public."23_users" (
   -- roles is TEXT[] so a user can hold multiple roles simultaneously e.g. ["ADMIN","SUPPORT"]
   roles TEXT[] NOT NULL DEFAULT '{"USER"}',
   email_confirmed_at TIMESTAMPTZ NULL,
-  providers TEXT[] NULL DEFAULT '{}'
+  providers TEXT[] NULL DEFAULT '{}',
+  -- Set automatically by a cross-project Tables import for recreated credentials accounts. The
+  -- login UI sends these users through password recovery once; /api/auth/reset clears the flag.
+  password_reset_required BOOLEAN NOT NULL DEFAULT false
 );
+
+-- Existing projects: run once before using cross-project Tables import.
+ALTER TABLE public."23_users"
+  ADD COLUMN IF NOT EXISTS password_reset_required BOOLEAN NOT NULL DEFAULT false;
 
 -- 🔐 RLS Policies for Users
 ALTER TABLE public."23_users" ENABLE ROW LEVEL SECURITY;

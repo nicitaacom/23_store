@@ -12,7 +12,7 @@ export const backupSDK = {
     tablesExportDeferred = createDeferred<TArchiveDownload>();
     return tablesExportDeferred.promise;
   }),
-  importTables: fn(async () => ({ tables: [] })),
+  importTables: fn(async () => ({ accounts: { created: 0, reused: 0, passwordResetRequired: 0 }, tables: [] })),
   exportFiles: fn(async (onProgress: (progress: {
     bytesDone: number;
     bytesTotal: number;

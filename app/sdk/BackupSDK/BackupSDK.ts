@@ -9,6 +9,9 @@ import {
   toCsv,
   parseCsv,
   getPublicUrl,
+  selectBackupSourceUsers,
+  selectReferencedAuthUserIds,
+  remapAuthUserIds,
   type TBackupTableConfig,
   type TBackupFileRef,
 } from "@/api/backup/backupTables"
@@ -23,7 +26,10 @@ const ROW_BATCH_SIZE = 500
 const URL_BATCH_SIZE = 100
 const DOWNLOAD_CONCURRENCY = 5
 
-export type TTablesImportResult = { tables: { table: string; rows: number; skipped: number }[] }
+export type TTablesImportResult = {
+  accounts: { created: number; reused: number; passwordResetRequired: number }
+  tables: { table: string; rows: number; skipped: number }[]
+}
 export type TFilesImportResult = { buckets: { bucket: string; files: number; failed: number }[] }
 
 // Progress shape shared by the files flow (export + import) — bytes, not just a file count, plus
@@ -214,19 +220,51 @@ export class BackupSDK extends BaseSDK {
       throw new Error(`No table CSV files found — expected files like ${example}.csv, either loose or inside a .tar.gz archive.`)
     }
 
-    const result: TTablesImportResult = { tables: [] }
-    let done = 0
-    onProgress(done, tablesToImport.length, "Restoring tables…")
-
-    for (const table of tablesToImport) {
-      onProgress(done, tablesToImport.length, `Restoring ${table.name}…`)
-
-      let rows: Record<string, unknown>[]
+    // Parse every supplied table before creating Auth users or writing any rows. A malformed later
+    // CSV must not leave the target with an avoidable partial restore.
+    const parsedTables = tablesToImport.map(table => {
       try {
-        rows = coerceRowsForImport(table, parseCsv(csvByTable[table.name]))
+        return { config: table, rows: coerceRowsForImport(table, parseCsv(csvByTable[table.name])) }
       } catch (error) {
         throw new Error(`Failed to parse ${table.name}.csv: ${error instanceof Error ? error.message : String(error)}`)
       }
+    })
+
+    const usersTable = parsedTables.find(table => table.config.name === "23_users")
+    const sourceUsers = selectBackupSourceUsers(usersTable?.rows ?? [])
+    const referencedUserIds = selectReferencedAuthUserIds(parsedTables)
+    const shouldPrepareAccounts = sourceUsers.length > 0 || referencedUserIds.length > 0
+    const totalSteps = tablesToImport.length + (shouldPrepareAccounts ? 1 : 0)
+
+    const result: TTablesImportResult = {
+      accounts: { created: 0, reused: 0, passwordResetRequired: 0 },
+      tables: [],
+    }
+    let done = 0
+    onProgress(done, totalSteps, "Restoring tables…")
+
+    let authMappings: API.BackupAuthMapping[] = []
+    if (shouldPrepareAccounts) {
+      onProgress(done, totalSteps, "Preparing user accounts…")
+      const prepareAuthResp = await this.postJson<API.BackupAuthPrepareRequest, API.BackupAuthPrepareResponse>(
+        "/api/backup/auth-users",
+        { users: sourceUsers, referencedUserIds } satisfies API.BackupAuthPrepareRequest,
+      )
+      if ("error" in prepareAuthResp) throw new Error(`Failed to prepare user accounts: ${prepareAuthResp.error}`)
+
+      authMappings = prepareAuthResp.mappings
+      result.accounts = {
+        created: prepareAuthResp.created,
+        reused: prepareAuthResp.reused,
+        passwordResetRequired: prepareAuthResp.passwordResetRequired,
+      }
+      done++
+      onProgress(done, totalSteps, "User accounts prepared")
+    }
+
+    for (const table of parsedTables) {
+      onProgress(done, totalSteps, `Restoring ${table.config.name}…`)
+      const rows = remapAuthUserIds(table.config, table.rows, authMappings)
 
       let importedRows = 0
       let skippedRows = 0
@@ -235,16 +273,16 @@ export class BackupSDK extends BaseSDK {
         const batch = rows.slice(start, start + ROW_BATCH_SIZE)
         const postResp = await this.postJson<{ table: string; rows: Record<string, unknown>[] }, API.BackupRowsPostResponse>(
           "/api/backup/rows",
-          { table: table.name, rows: batch },
+          { table: table.config.name, rows: batch },
         )
-        if ("error" in postResp) throw new Error(`Failed to import ${table.name}: ${postResp.error}`)
+        if ("error" in postResp) throw new Error(`Failed to import ${table.config.name}: ${postResp.error}`)
         importedRows += postResp.rows
         skippedRows += postResp.skipped
       }
 
-      result.tables.push({ table: table.name, rows: importedRows, skipped: skippedRows })
+      result.tables.push({ table: table.config.name, rows: importedRows, skipped: skippedRows })
       done++
-      onProgress(done, tablesToImport.length, `Restored ${table.name}`)
+      onProgress(done, totalSteps, `Restored ${table.config.name}`)
     }
 
     return result

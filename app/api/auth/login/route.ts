@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     // eslint-disable-next-line local-rules/use-rls-supabase-client -- This pre-authentication lookup is restricted to the normalized login email and non-sensitive confirmation fields.
     const { data: publicUsers, error: emailSelectError } = await supabaseAdmin
       .from("23_users")
-      .select("email,email_confirmed_at,providers")
+      .select("email,email_confirmed_at,providers,password_reset_required")
       .eq("email", normalizedEmail)
       .order("created_at", { ascending: true })
     const email = publicUsers?.[0]?.email
@@ -46,7 +46,10 @@ export async function POST(req: Request) {
     // 3. Return info about providers to show error like 'You already have account with google - continue with google?'
     const providers = Array.from(new Set((publicUsers || []).flatMap(user => user.providers || [])))
 
-    return NextResponse.json({ providers: providers })
+    return NextResponse.json({
+      providers,
+      passwordResetRequired: (publicUsers || []).some(user => user.password_reset_required),
+    } satisfies API.AccountSignInResponse)
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 })

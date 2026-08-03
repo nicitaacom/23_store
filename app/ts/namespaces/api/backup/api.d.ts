@@ -9,6 +9,35 @@ declare namespace API {
   // rows dropped because a uuid column held an empty/invalid value.
   type BackupRowsPostResponse = { rows: number; skipped: number } | { error: string; code?: string; details?: string; hint?: string }
 
+  type BackupAuthSourceUser = {
+    id: string
+    email: string
+    emailConfirmedAt: string | null
+    username: string
+    avatarUrl: string | null
+    providers: string[] | null
+  }
+
+  // POST /api/backup/auth-users — called automatically by table import before the first row
+  // upsert. It creates/reuses target Auth users and returns source-id -> target-id mappings.
+  type BackupAuthPrepareRequest = {
+    users: BackupAuthSourceUser[]
+    referencedUserIds: string[]
+  }
+  type BackupAuthMapping = {
+    sourceUserId: string
+    targetUserId: string
+    passwordResetRequired: boolean
+  }
+  type BackupAuthPrepareResponse =
+    | {
+        mappings: BackupAuthMapping[]
+        created: number
+        reused: number
+        passwordResetRequired: number
+      }
+    | { error: string }
+
   // One storage file's location + size + mime type — no bytes. Returned by the files list so the
   // browser knows what to download (export) and how big the whole set is (byte progress).
   type BackupFileRef = { bucket: string; path: string; size: number; contentType: string }

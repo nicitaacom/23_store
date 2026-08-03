@@ -83,6 +83,8 @@ export default {
   // Links
   "auth.remember.me": "Muista minut",
   "auth.forgot.password": "Unohditko salasanasi?",
+  "auth.migration.password_reset_required":
+    "Tämä tili siirrettiin uuteen tietokantaan. Palauta salasana kerran ennen kirjautumista sähköpostilla ja salasanalla.",
   "auth.no.account": "Ei tiliä?",
   "auth.have.account": "Onko sinulla jo tili?",
   "auth.sign.up": "Rekisteröidy",
@@ -178,6 +180,11 @@ export default {
   "backup.tab_tables": "Taulut",
   "backup.tab_files": "Tiedostot",
   "backup.tables_subtitle": "Käyttäjät, tuotteet, tiketit ja viestit CSV-muodossa.",
+  "backup.tables_import_notice":
+    "Tuonti valmistelee Auth-tilit ensin automaattisesti. Siirrettyjen sähköposti- ja salasanakäyttäjien on palautettava salasana kerran.",
+  "backup.accounts_label": "Auth-tilit",
+  "backup.accounts_result": "{created} luotu, {reused} käytetty uudelleen",
+  "backup.password_recovery_result": "{count} sähköposti- ja salasanatiliä tarvitsee salasanan palautuksen ennen kirjautumista.",
   "backup.files_subtitle": "Jokainen tiedosto kansioissa 23_public-images ja 23_avatar-images .tar.gz-arkistona.",
   "backup.export_button": "Vie",
   "backup.import_button": "Tuo",

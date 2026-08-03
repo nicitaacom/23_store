@@ -12,5 +12,8 @@ export {
 } from "./backupConfig"
 export type { TBackupTableName, TBackupTableConfig, TBackupBucket, TBackupFileRef } from "./backupConfig"
 
+export { selectBackupSourceUsers, selectReferencedAuthUserIds, remapAuthUserIds, mergeBackupPublicUserRows } from "./backupAuthRestore"
+export type { TBackupSourceUser, TBackupAuthMapping } from "./backupAuthRestore"
+
 export { addTarEntry, finalizeTar, parseTar, gzipBufferClient, gunzipBufferClient } from "./tarClient"
 export { toCsv, parseCsv } from "./csvClient"

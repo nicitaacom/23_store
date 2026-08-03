@@ -60,6 +60,11 @@ export type TBackupTableConfig = {
   // dropped before upsert instead of failing the whole batch with a 22P02 (text = uuid) error —
   // see filterRowsByUuidColumns below.
   uuidColumns: string[]
+  // Columns which can contain an authenticated user's id. Cross-project imports replace source
+  // auth ids in these columns with the target project's ids before any public-table upsert. Text
+  // columns can also contain anonymous ids; only exact ids returned by the Auth preparation route
+  // are replaced.
+  authUserIdColumns: string[]
 }
 
 // Column classification derived from app/ts/types_db.ts (not from prose docs, which have drifted
@@ -73,6 +78,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: ["providers", "roles"],
     jsonColumns: [],
     uuidColumns: ["id"],
+    authUserIdColumns: ["id"],
   },
   {
     name: "23_users_cart",
@@ -81,8 +87,17 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: [],
     jsonColumns: ["cart_products"],
     uuidColumns: ["id"],
+    authUserIdColumns: ["id"],
   },
-  { name: "23_categories", onConflict: "id", numericColumns: [], arrayColumns: [], jsonColumns: [], uuidColumns: ["id"] },
+  {
+    name: "23_categories",
+    onConflict: "id",
+    numericColumns: [],
+    arrayColumns: [],
+    jsonColumns: [],
+    uuidColumns: ["id"],
+    authUserIdColumns: [],
+  },
   {
     name: "23_category_views",
     onConflict: "user_id,category_id",
@@ -90,6 +105,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: [],
     jsonColumns: [],
     uuidColumns: ["id", "category_id"],
+    authUserIdColumns: ["user_id"],
   },
   {
     name: "23_products",
@@ -98,6 +114,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: ["img_url"],
     jsonColumns: ["translations", "variants"],
     uuidColumns: ["owner_id"],
+    authUserIdColumns: ["owner_id"],
   },
   {
     name: "23_ai_price_runs",
@@ -107,6 +124,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: [],
     jsonColumns: ["sources"],
     uuidColumns: ["id"],
+    authUserIdColumns: [],
   },
   {
     name: "23_ai_price_proposals",
@@ -116,6 +134,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: [],
     jsonColumns: ["proposed_variants"],
     uuidColumns: ["id", "run_id", "owner_id"],
+    authUserIdColumns: ["owner_id"],
   },
   {
     name: "23_personalized_designs",
@@ -124,6 +143,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: [],
     jsonColumns: ["placement"],
     uuidColumns: ["id", "owner_id"],
+    authUserIdColumns: ["user_id", "owner_id"],
   },
   {
     name: "23_tickets",
@@ -132,6 +152,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: [],
     jsonColumns: [],
     uuidColumns: [],
+    authUserIdColumns: ["owner_id"],
   },
   {
     name: "23_messages",
@@ -140,6 +161,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: ["images"],
     jsonColumns: [],
     uuidColumns: ["id"],
+    authUserIdColumns: ["sender_id"],
   },
 ]
 

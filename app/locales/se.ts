@@ -83,6 +83,8 @@ export default {
   // Links
   "auth.remember.me": "Kom ihåg mig",
   "auth.forgot.password": "Glömt lösenord?",
+  "auth.migration.password_reset_required":
+    "Det här kontot flyttades till en ny databas. Återställ lösenordet en gång innan du loggar in med e-post och lösenord.",
   "auth.no.account": "Inget konto?",
   "auth.have.account": "Har du redan ett konto?",
   "auth.sign.up": "Registrera dig",
@@ -178,6 +180,11 @@ export default {
   "backup.tab_tables": "Tabeller",
   "backup.tab_files": "Filer",
   "backup.tables_subtitle": "Användare, produkter, ärenden och meddelanden som CSV.",
+  "backup.tables_import_notice":
+    "Importen förbereder Auth-konton automatiskt först. Flyttade e-post- och lösenordsanvändare måste återställa lösenordet en gång.",
+  "backup.accounts_label": "Auth-konton",
+  "backup.accounts_result": "{created} skapade, {reused} återanvända",
+  "backup.password_recovery_result": "{count} e-post- och lösenordskonton måste återställa lösenordet före inloggning.",
   "backup.files_subtitle": "Varje fil i 23_public-images och 23_avatar-images som en .tar.gz-arkiv.",
   "backup.export_button": "Exportera",
   "backup.import_button": "Importera",

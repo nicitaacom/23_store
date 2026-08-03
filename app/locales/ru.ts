@@ -83,6 +83,8 @@ export default {
   // Links
   "auth.remember.me": "Запомнить меня",
   "auth.forgot.password": "Забыли пароль?",
+  "auth.migration.password_reset_required":
+    "Эта учётная запись перенесена в новую базу данных. Один раз сбросьте пароль перед входом по email и паролю.",
   "auth.no.account": "Нет аккаунта?",
   "auth.have.account": "Уже есть аккаунт?",
   "auth.sign.up": "Зарегистрироваться",
@@ -178,6 +180,11 @@ export default {
   "backup.tab_tables": "Таблицы",
   "backup.tab_files": "Файлы",
   "backup.tables_subtitle": "Пользователи, товары, тикеты и сообщения в формате CSV.",
+  "backup.tables_import_notice":
+    "При импорте сначала автоматически подготавливаются учётные записи Auth. Перенесённым пользователям с email и паролем потребуется один раз сбросить пароль.",
+  "backup.accounts_label": "Учётные записи Auth",
+  "backup.accounts_result": "Создано: {created}, использовано существующих: {reused}",
+  "backup.password_recovery_result": "Пользователям с email и паролем ({count}) необходимо восстановить пароль перед входом.",
   "backup.files_subtitle": "Каждый файл в 23_public-images и 23_avatar-images в виде архива .tar.gz.",
   "backup.export_button": "Экспорт",
   "backup.import_button": "Импорт",

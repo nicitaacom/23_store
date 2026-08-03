@@ -83,6 +83,8 @@ export default {
   // Links
   "auth.remember.me": "Remember me",
   "auth.forgot.password": "Forgot Password?",
+  "auth.migration.password_reset_required":
+    "This account was moved to a new database. Reset your password once before signing in with email and password.",
   "auth.no.account": "Don't have an account?",
   "auth.have.account": "Already have an account?",
   "auth.sign.up": "Sign Up",
@@ -178,6 +180,11 @@ export default {
   "backup.tab_tables": "Tables",
   "backup.tab_files": "Files",
   "backup.tables_subtitle": "Users, products, tickets, and messages as CSV.",
+  "backup.tables_import_notice":
+    "Import automatically prepares Auth accounts first. Migrated email/password users must reset their password once.",
+  "backup.accounts_label": "Auth accounts",
+  "backup.accounts_result": "{created} created, {reused} reused",
+  "backup.password_recovery_result": "{count} email/password account(s) must recover their password before signing in.",
   "backup.files_subtitle": "Every file in 23_public-images and 23_avatar-images as a .tar.gz archive.",
   "backup.export_button": "Export",
   "backup.import_button": "Import",

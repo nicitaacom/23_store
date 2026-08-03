@@ -7,6 +7,7 @@ declare namespace API {
 
   type AccountSignInResponse = {
     providers?: string[] | null
+    passwordResetRequired?: boolean
   }
 
   type AccountSignUpRequest = {
