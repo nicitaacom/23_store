@@ -443,6 +443,7 @@ export default {
   "product.warning.add_file_extension_subtitle": "Пожалуйста, добавьте расширение, например .jpg, .png, .avif или .webp",
   "product.warning.max_file_size_title": "Максимальный размер файла {maxFileSize}",
   "product.warning.max_file_size_subtitle": "Пожалуйста, загрузите изображение размером не больше {maxFileSize}.",
+  "product.warning.max_file_size_details": "{fileName} ({resolution}) — {fileSize}.\nМаксимум {maxFileSize} — используйте {compressionUrl}",
   "product.warning.max_images_title": "Максимум {maxImages} изображений",
   "product.warning.max_images_subtitle": "Пожалуйста, используйте не более {maxImages} изображений для товара",
   "product.warning.max_variants_title": "Максимум {maxVariants} вариантов",

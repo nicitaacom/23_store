@@ -442,6 +442,7 @@ export default {
   "product.warning.add_file_extension_subtitle": "Lägg till filändelse som .jpg, .png, .avif eller .webp",
   "product.warning.max_file_size_title": "Max filstorlek är {maxFileSize}",
   "product.warning.max_file_size_subtitle": "Ladda upp en bild som är {maxFileSize} eller mindre.",
+  "product.warning.max_file_size_details": "{fileName} ({resolution}) är {fileSize}.\nMax är {maxFileSize} - använd {compressionUrl}",
   "product.warning.max_images_title": "Max {maxImages} bilder",
   "product.warning.max_images_subtitle": "Använd max {maxImages} produktbilder",
   "product.warning.max_variants_title": "Max {maxVariants} varianter",

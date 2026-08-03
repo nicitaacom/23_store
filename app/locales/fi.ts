@@ -444,6 +444,7 @@ export default {
   "product.warning.add_file_extension_subtitle": "Lisää tiedostopääte, kuten .jpg, .png, .avif tai .webp",
   "product.warning.max_file_size_title": "Maksimikoko on {maxFileSize}",
   "product.warning.max_file_size_subtitle": "Lataa kuva, jonka koko on enintaan {maxFileSize}.",
+  "product.warning.max_file_size_details": "{fileName} ({resolution}) on {fileSize}.\nEnintään {maxFileSize} - käytä {compressionUrl}",
   "product.warning.max_images_title": "Enintään {maxImages} kuvaa",
   "product.warning.max_images_subtitle": "Käytä enintään {maxImages} tuotekuvaa",
   "product.warning.max_variants_title": "Enintään {maxVariants} varianttia",

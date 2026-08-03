@@ -196,7 +196,13 @@ reaches its root div. Tabs are flat underline-style with a unified brand accent 
 </article>
 ```
 
-## 3e. A variant without an image
+## 3e. Oversized image warning
+
+The Add, Edit, avatar, and support image pickers share the 1MB limit. When an image exceeds it, the
+warning shows the filename, pixel dimensions, actual size, and maximum size. PNG files point to
+`https://tinypng.com/`; JPG and other accepted image formats point to `https://tinyjpg.com/`.
+
+## 3f. A variant without an image
 
 A variant is real with a **label and a price**. An image is a bonus that turns the selector entry into a
 swatch — size variants (S/M/L, 30x40 vs 50x70) look identical in a photo, so they have none.

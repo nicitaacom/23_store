@@ -444,6 +444,7 @@ export default {
   "product.warning.add_file_extension_subtitle": "Please add file.extention like .jpg or .png or .avif or .webp",
   "product.warning.max_file_size_title": "Max file size is {maxFileSize}",
   "product.warning.max_file_size_subtitle": "Please upload an image that is {maxFileSize} or smaller.",
+  "product.warning.max_file_size_details": "{fileName} ({resolution}) is {fileSize}.\nMax is {maxFileSize} - use {compressionUrl}",
   "product.warning.max_images_title": "Max {maxImages} images",
   "product.warning.max_images_subtitle": "Please use max {maxImages} product images",
   "product.warning.max_variants_title": "Max {maxVariants} variants",

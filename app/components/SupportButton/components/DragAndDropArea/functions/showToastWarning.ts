@@ -1,8 +1,14 @@
 import { ErrorsType, ImageListType } from "react-images-uploading"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { formatUploadFileSize, formatUploadResolution, MAX_IMAGE_FILE_SIZE_BYTES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
+import {
+  formatUploadFileSize,
+  formatUploadResolution,
+  MAX_IMAGE_FILE_SIZE_BYTES,
+  MIN_IMAGE_RESOLUTION,
+} from "@/constants/uploadLimits"
 import { getInvalidUploadedImageResolution } from "@/utils/getUploadedImageResolution"
+import { getOversizedImageWarningValues } from "@/utils/getOversizedImageWarningValues"
 import useToast from "@/store/ui/useToast"
 
 interface ShowToastWarningOptions {
@@ -26,16 +32,20 @@ export async function showToastWarningFn(
   const toast = useToast.getState()
 
   const maxImages = options.maxNumber ?? 5
-  const maxFileSize = formatUploadFileSize(options.maxFileSize ?? MAX_IMAGE_FILE_SIZE_BYTES)
+  const maxFileSizeBytes = options.maxFileSize ?? MAX_IMAGE_FILE_SIZE_BYTES
+  const maxFileSize = formatUploadFileSize(maxFileSizeBytes)
   const minResolution = formatUploadResolution(options.minResolution ?? MIN_IMAGE_RESOLUTION)
 
   if (errors?.acceptType) {
     return toast.show("warning", t("product.warning.add_file_extension_title"), t("product.warning.add_file_extension_subtitle"))
   } else if (errors?.maxFileSize) {
+    const getOversizedImageWarningValuesResp = await getOversizedImageWarningValues(files, maxFileSizeBytes)
     return toast.show(
       "warning",
       t("product.warning.max_file_size_title", { maxFileSize }),
-      t("product.warning.max_file_size_subtitle", { maxFileSize }),
+      getOversizedImageWarningValuesResp
+        ? t("product.warning.max_file_size_details", getOversizedImageWarningValuesResp)
+        : t("product.warning.max_file_size_subtitle", { maxFileSize }),
     )
   } else if (errors?.maxNumber) {
     return toast.show(
