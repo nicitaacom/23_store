@@ -74,6 +74,7 @@ export function PayWithStripeButton() {
         "border-0 text-white font-semibold shadow-lg shadow-purple-600/30 hover:shadow-xl hover:shadow-purple-600/40 transition-all",
         isLoading && "opacity-50 cursor-not-allowed",
       )}
+      data-cy="pay-with-stripe"
       size="lg"
       rounded="lg"
       disabled={isLoading}

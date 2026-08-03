@@ -87,6 +87,7 @@ export function ProductsInCart() {
 
           <Button
             className="w-full"
+            data-cy="other-ways-to-pay"
             variant="secondary-outline"
             size="md"
             aria-expanded={arePaymentOptionsOpen}

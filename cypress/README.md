@@ -9,6 +9,8 @@ The suite tests customer and owner outcomes rather than page visibility alone. I
 - optimistic deletion and failure rollback;
 - locale key parity, currency formatting, and language persistence;
 - horizontal overflow at six supported viewport widths.
+- Stripe and PayPal success paths through receipt sending, plus visible provider reasons when
+  checkout session creation fails.
 
 ## Setup
 

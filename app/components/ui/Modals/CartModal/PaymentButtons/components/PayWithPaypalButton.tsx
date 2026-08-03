@@ -74,6 +74,7 @@ export function PayWithPaypalButton() {
         "hover:to-blue-800 border-0 text-white font-semibold shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all",
         isLoading && "opacity-50 cursor-not-allowed",
       )}
+      data-cy="pay-with-paypal"
       size="lg"
       rounded="lg"
       disabled={isLoading}
