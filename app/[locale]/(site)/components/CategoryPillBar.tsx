@@ -20,6 +20,15 @@ interface CategoryPillBarProps {
   serverViews: Record<string, number>
 }
 
+function getCategoryButtonClassName(isActive: boolean) {
+  return twMerge(
+    "inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md border px-3.5 text-sm font-medium shadow-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/45",
+    isActive
+      ? "border-success/55 bg-success/15 text-success shadow-success/10"
+      : "border-border-color/45 bg-background/70 text-subTitle shadow-background/40 hover:border-success/40 hover:bg-success/5 hover:text-title",
+  )
+}
+
 // http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function CategoryPillBar({ categories, isAuthenticated, locale, serverViews }: CategoryPillBarProps) {
   const t = useScopedI18n("category")
@@ -84,15 +93,10 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
   const isAllActive = !activeCategoryId
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex flex-1 gap-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="flex w-full items-center gap-2">
+      <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto py-1 pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <button
-          className={twMerge(
-            "h-8 shrink-0 rounded border px-3 text-sm transition-colors duration-150",
-            isAllActive
-              ? "border-success/40 bg-success/10 font-medium text-success"
-              : "border-border-color/35 bg-background/55 text-subTitle hover:border-border-color hover:bg-foreground/10 hover:text-title",
-          )}
+          className={getCategoryButtonClassName(isAllActive)}
           ref={isAllActive ? activePillRef : null}
           type="button"
           onClick={() => handlePillClick(null)}>
@@ -103,12 +107,7 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
           const isActive = activeCategoryId === category.id
           return (
             <button
-              className={twMerge(
-                "h-8 shrink-0 rounded border px-3 text-sm transition-colors duration-150",
-                isActive
-                  ? "border-success/40 bg-success/10 font-medium text-success"
-                  : "border-border-color/35 bg-background/55 text-subTitle hover:border-border-color hover:bg-foreground/10 hover:text-title",
-              )}
+              className={getCategoryButtonClassName(isActive)}
               key={category.id}
               ref={isActive ? activePillRef : null}
               type="button"
@@ -120,10 +119,13 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
       </div>
 
       <button
-        className="h-8 shrink-0 rounded border border-border-color/35 bg-background/55 px-3 text-sm text-subTitle transition-colors duration-150 hover:bg-foreground/10 hover:text-title"
+        className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-success/35 bg-success/5 px-3.5 text-sm font-medium text-title shadow-sm shadow-success/5 transition-colors duration-150 hover:border-success/60 hover:bg-success/15 hover:text-success focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/45"
         type="button"
         onClick={handleRequestCategory}>
-        + {t("request")}
+        <span className="text-base leading-none text-success" aria-hidden="true">
+          +
+        </span>
+        {t("request")}
       </button>
     </div>
   )

@@ -1,6 +1,7 @@
 # Categories System
 
 ## Style references
+
 - Code patterns: `public/docs/AI_readme_code-sytle-patterns.md`
 - UI tokens + breakpoints: `public/docs/UI_PROJECT_STYLE.md` and `tailwind.config.ts`
 - Only token colors: `background`, `foreground`, `title`, `subTitle`, `border-color`, `success`, `success-accent`
@@ -24,6 +25,12 @@ Products had no grouping. Buyers could not browse by type. The categories system
 - **Admin CRUD**: `app/components/ui/Modals/AdminPanel/components/CategoriesForm.tsx`
 - **Per-product edit**: `app/components/ui/Modals/AdminPanel/components/FormatCategoryForm.tsx`
 - **Add product AI assign**: `app/components/ui/Modals/AdminPanel/components/AddProductForm.tsx`
+
+The catalog category buttons and the request-category button share a 36px height, medium text,
+rounded corners, and the same focus ring. The selected category uses the success color. Other
+categories stay muted until hover, while the request button keeps a light success border so it is
+visually separate from filters. The category list scrolls horizontally and the request button stays
+visible at the right edge.
 
 ### 1.2 Types
 
@@ -81,6 +88,7 @@ useCategoriesStore (in-memory, no persistence)
 ## 3. ASCII flow
 
 ### Catalog browse
+
 ```
 User clicks "Beauty & Health" pill
 → router.push(?category=<beautyId>)
@@ -91,6 +99,7 @@ User clicks "Beauty & Health" pill
 ```
 
 ### Product creation (AI auto-assign)
+
 ```
 Admin types title (≥10 chars, debounced 800ms)
 → aiSDK.suggestCategory({ title, description })
@@ -105,6 +114,7 @@ Admin types title (≥10 chars, debounced 800ms)
 ```
 
 ### Admin CRUD
+
 ```
 AdminPanel → Categories tab → CategoriesForm
   Add:    POST /api/categories/insert → useCategoriesStore.addCategory()
@@ -118,6 +128,7 @@ AdminPanel → Categories tab → CategoriesForm
 ```
 
 ### Backfill (one-time)
+
 ```
 Admin opens Categories tab → sees "X products have no category"
 → clicks "Assign categories" button
@@ -148,6 +159,7 @@ Admin opens Categories tab → sees "X products have no category"
 ---
 
 ## 5. TODO
+
 - [ ] **You**: add screenshots for section 1.1 (CategoryPillBar UI) and 1.4 (Supabase 23_categories rows, Zustand devtools)
 - [ ] After backfill run: delete `app/api/admin/backfill-categories/route.ts` and the backfill button in `CategoriesForm.tsx`
 - [ ] If a subcategory needs multiple parents, migrate to a many-to-many join table (name UNIQUE constraint prevents this now)
