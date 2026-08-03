@@ -5,11 +5,15 @@ Refer to `./docs` - there you find code patterns
 
 3. NEVER EVER tell me or use patterns like "can't" - think outside of the box
 
-4. EVERY commit description opens with a `🚨 TODO` block, then numbered CHAIN steps - see
-   [commit-patterns.md](commit-patterns.md). Each item names WHERE to go, WHAT to do there and HOW
-   you know it worked: `1. open dev_readme-supbase-sql.md:878 -> copy the block -> open the Supabase
-   SQL editor -> run it`. Never a bare command. Nothing to do is still a description:
-   `1. nothing - applied and verified here`. This is a hard rule, not a preference.
+4. EVERY commit has a description. A `🚨 TODO` block at the top of it ONLY when a step is waiting
+   that YOU have no way to do - the Supabase SQL editor, a Vercel/Cloudflare/Stripe/PayPal dashboard,
+   an env var or secret, DNS, an OAuth screen, my inbox, `git push`. Anything you run or edit
+   yourself - pnpm, cypress, playwright, vitest, eslint, tsc, a build, a file change - is NOT a TODO:
+   do it now and report the result as a fact in the body. Each item is a chain naming WHERE to go,
+   WHAT to do there and HOW you know it worked: `1. open dev_readme-supbase-sql.md:878 -> copy the
+   block -> open the Supabase SQL editor -> run it`. Never a bare command, never `1. nothing`. A
+   block on a commit that holds nothing for me trains me to skip every block, and then I miss the one
+   that matters. See [commit-patterns.md](commit-patterns.md).
 
 ### Docs structure:
 
