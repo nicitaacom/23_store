@@ -26,6 +26,9 @@ module.exports = {
   ...require("./vars-order"),
   // same here - the rule id is "no-unused-envs", see the header of unused-declared-vars.js
   ...require("./unused-declared-vars"),
+  // runs on package.json through ./json-processor.js, which is registered separately in the config
+  // because it exports processors rather than rules
+  ...require("./no-unused-dependencies"),
   ...require("./no-undeclared-envs"),
   ...require("./no-high-level-import"),
   ...require("./check-importers"),

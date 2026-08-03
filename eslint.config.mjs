@@ -3,6 +3,11 @@ import typescriptEslint from "@typescript-eslint/eslint-plugin"
 import typescriptParser from "@typescript-eslint/parser"
 import unicorn from "eslint-plugin-unicorn"
 import localRules from "./eslint-rules/index.js"
+import jsonProcessors from "./eslint-rules/json-processor.js"
+
+// One plugin object, reused by every block below. eslint 9.17 rejects a second block that
+// redefines "local-rules" with a different object, so the identity has to be shared.
+const localPlugin = { rules: localRules, processors: jsonProcessors }
 
 export default [
   {
@@ -13,7 +18,7 @@ export default [
     files: ["**/*.ts", "**/*.tsx"],
     plugins: {
       unicorn,
-      "local-rules": { rules: localRules },
+      "local-rules": localPlugin,
     },
     languageOptions: {
       parser: typescriptParser,
@@ -142,6 +147,29 @@ export default [
     files: ["storybook/**", "**/*.stories.tsx"],
     rules: {
       "local-rules/no-untranslated-ui": "off",
+    },
+  },
+  {
+    // package.json is not JavaScript, so the local `json` processor puts it in parentheses first -
+    // that makes it one object expression espree reads, with every line number unchanged. Only the
+    // root package.json is linted; a nested one belongs to a package this repo does not own.
+    files: ["package.json"],
+    plugins: {
+      "local-rules": localPlugin,
+    },
+    processor: "local-rules/json",
+  },
+  {
+    // A processor hands eslint its output as a virtual file named "package.json/0.js", and config is
+    // resolved by THAT name - so the rule has to be switched on here, not on the entry above. Getting
+    // this wrong is silent: eslint reports the file as linted with zero messages and the rule never
+    // runs at all.
+    files: ["**/package.json/*.js"],
+    plugins: {
+      "local-rules": localPlugin,
+    },
+    rules: {
+      "local-rules/no-unused-dependencies": "warn",
     },
   },
 ]
