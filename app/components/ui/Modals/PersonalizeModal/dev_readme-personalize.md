@@ -30,18 +30,18 @@ So this feature answers two questions before the order, not after:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-| Piece | File |
-| --- | --- |
-| Modal shell, upload, zoom, add to cart | `PersonalizeModal.tsx` |
-| Mockup + print-area overlay + drag | `components/PersonalizePreview.tsx` |
-| DPI badge + required-pixel line | `components/PersonalizeQualityBadge.tsx` |
-| Upload + design row | `functions/uploadDesignFn.ts` |
-| Entry button | `app/components/ui/Buttons/PersonalizeButton.tsx` |
-| All the math | `app/utils/printMetrics.ts` |
-| Owner's print-area editor | `app/components/ui/Modals/AdminPanel/components/PersonalizationForm.tsx` |
-| Missing-SQL detection | `app/utils/personalizationSchema.ts` |
-| Types | `app/ts/product/TPersonalization.ts` |
-| Route | `app/api/personalized-designs/route.ts` |
+| Piece                                  | File                                                                     |
+| -------------------------------------- | ------------------------------------------------------------------------ |
+| Modal shell, upload, zoom, add to cart | `PersonalizeModal.tsx`                                                   |
+| Mockup + print-area overlay + drag     | `components/PersonalizePreview.tsx`                                      |
+| DPI badge + required-pixel line        | `components/PersonalizeQualityBadge.tsx`                                 |
+| Upload + design row                    | `functions/uploadDesignFn.ts`                                            |
+| Entry button                           | `app/components/ui/Buttons/PersonalizeButton.tsx`                        |
+| All the math                           | `app/utils/printMetrics.ts`                                              |
+| Owner's print-area editor              | `app/components/ui/Modals/AdminPanel/components/PersonalizationForm.tsx` |
+| Missing-SQL detection                  | `app/utils/personalizationSchema.ts`                                     |
+| Types                                  | `app/ts/product/TPersonalization.ts`                                     |
+| Route                                  | `app/api/personalized-designs/route.ts`                                  |
 
 ### Where the owner finds the editor
 
@@ -59,11 +59,11 @@ Admin panel (?modal=AdminPanel)                     /[locale]/products/<id>/mana
 One component, three mount points - only the surface classes differ, so the drawing, the mm inputs and
 the aspect guard have a single implementation. What changes is where the config goes:
 
-| Mount | `productId` | Where the config goes |
-| --- | --- | --- |
-| Add product | absent | `onDraftChange` → `personalizationDraft` → `createProductFn` → the insert |
-| Edit product | present | its own update button → `productsSDK.updateProduct` |
-| Manage page | present | same as Edit product |
+| Mount        | `productId` | Where the config goes                                                     |
+| ------------ | ----------- | ------------------------------------------------------------------------- |
+| Add product  | absent      | `onDraftChange` → `personalizationDraft` → `createProductFn` → the insert |
+| Edit product | present     | its own update button → `productsSDK.updateProduct`                       |
+| Manage page  | present     | same as Edit product                                                      |
 
 With a `productId` the form shows its update button and calls `replaceProduct` afterwards, which
 re-syncs the admin panel row and is a no-op on the manage page. Without one there is no row to update,
@@ -110,9 +110,9 @@ What that flag blocks, at three layers:
 3. Server     /api/products/translate-insert lists "personalization" in invalidFields → 400
 ```
 
-The reason the owner reads, verbatim: *"In order to avoid refunds and bad reviews from clients you have
+The reason the owner reads, verbatim: _"In order to avoid refunds and bad reviews from clients you have
 to provide correct dimensions, so buyers can customize your product with the correct aspect ratio in
-relation to the physical product dimensions."*
+relation to the physical product dimensions."_
 
 ```
 ticked, no mm typed          → blocked, reason shown
@@ -154,12 +154,12 @@ marked rectangle over the monitor      coverage 4%,  spill 92%  → mismatch
 four rectangle percentages; change any of them and the verdict resets to `unchecked` and the button
 blocks again. A passed check on an older rectangle never lets a new one through.
 
-| Verdict | Blocks create/update? | What the owner sees |
-| --- | --- | --- |
-| `unchecked` | yes | `personalize.admin_ai_unchecked` + the check button |
-| `matching` | no | `personalize.admin_ai_matching` |
-| `mismatch` | yes | `personalize.admin_ai_mismatch` + **Generate appropriate image** |
-| `failed` | **no** | `personalize.admin_ai_unavailable` |
+| Verdict     | Blocks create/update? | What the owner sees                                              |
+| ----------- | --------------------- | ---------------------------------------------------------------- |
+| `unchecked` | yes                   | `personalize.admin_ai_unchecked` + the check button              |
+| `matching`  | no                    | `personalize.admin_ai_matching`                                  |
+| `mismatch`  | yes                   | `personalize.admin_ai_mismatch` + **Generate appropriate image** |
+| `failed`    | **no**                | `personalize.admin_ai_unavailable`                               |
 
 `failed` deliberately does not block: a request that never ran is not evidence of a bad print area, and
 an OpenAI outage must not make the store unable to add products.
@@ -241,14 +241,14 @@ cart line (localStorage "cart" / 23_users_cart.cart_products)
 
 ## 2. Terminology
 
-| Term | Meaning |
-| --- | --- |
-| **print area** | the physical rectangle that gets printed, in mm. Not a pixel size |
-| **mockup** | the photo of the product the preview is drawn on |
-| **mockup rect** | where the print area sits on that photo, in % of the photo |
-| **placement** | the buyer's zoom + drag inside the print area |
-| **effective DPI** | dots per inch of the part of the upload that reaches the print area |
-| **design** | one row in `23_personalized_designs` - one buyer's image for one product |
+| Term              | Meaning                                                                  |
+| ----------------- | ------------------------------------------------------------------------ |
+| **print area**    | the physical rectangle that gets printed, in mm. Not a pixel size        |
+| **mockup**        | the photo of the product the preview is drawn on                         |
+| **mockup rect**   | where the print area sits on that photo, in % of the photo               |
+| **placement**     | the buyer's zoom + drag inside the print area                            |
+| **effective DPI** | dots per inch of the part of the upload that reaches the print area      |
+| **design**        | one row in `23_personalized_designs` - one buyer's image for one product |
 
 <br/>
 
@@ -362,6 +362,5 @@ and PostgREST's `PGRST204` / `PGRST205`, so a missing column and a missing table
       change the model id in that one place.
 - [ ] **The image model is looked up, not hardcoded.** `app/api/ai/generate-image/route.ts` tries
       `gpt-image-1`, `gpt-image-1-mini`, `dall-e-3`, `dall-e-2` in that order and keeps the first the
-      account answers on; only a "does not exist" error moves to the next one. Set `OPENAI_IMAGE_MODEL`
-      to skip the search. `style` and `quality: "standard"` are NOT sent — they are dall-e-3-only and
+      account answers on; only a "does not exist" error moves to the next one. `style` and `quality: "standard"` are NOT sent — they are dall-e-3-only and
       the current API answers `400 Unknown parameter: 'style'` for them.

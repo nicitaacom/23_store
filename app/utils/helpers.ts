@@ -4,7 +4,7 @@ export function getURL() {
   let url =
     process.env.NODE_ENV === "development"
       ? "http://localhost:3023"
-      : (process.env.NEXT_PUBLIC_PRODUCTION_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_VERCEL_URL)
+      : process.env.NEXT_PUBLIC_PRODUCTION_URL
 
   url = url.includes("http") ? url : `https://${url}`
   url = url.charAt(url.length - 1) === "/" ? url : `${url}/`

@@ -14,7 +14,7 @@ export type TKeyProbe = {
   /**
    * The name of the variable the app reads instead when this one is empty, for a pair where the code
    * takes either. An empty value passes while the partner holds one, and both empty fails on both.
-   * Only for a fallback the code really has - see `getPineconeHost` in `app/libs/ai/chatMemory.ts`.
+   * Only for a fallback the code really has.
    */
   optionalWhen?: string
   /** Returns null when the key is good, or a short reason naming what the service answered. */

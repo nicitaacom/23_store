@@ -291,8 +291,8 @@ async function checkPineconeApiKey(apiKey: string): Promise<string | null> {
 }
 
 /**
- * PINECONE_ENVIRONMENT holds the index host, because `getPineconeHost` in
- * `app/libs/ai/chatMemory.ts` passes whatever it holds straight to the client as `host`.
+ * PINECONE_ENVIRONMENT holds the index host - `getPineconeIndex` in `app/libs/ai/chatMemory.ts` passes
+ * it straight to the client as `host`.
  *
  * The dot check is first so a legacy region name (`us-east-1-aws`, `gcp-starter`) is named for what it
  * is straight away, instead of after a 20 second wait for DNS to fail on a hostname that never existed.
@@ -442,8 +442,6 @@ export const KEY_PROBES: TKeyProbe[] = [
   { name: "TURNSTILE_SECRET_KEY", tier: "live", check: checkTurnstileSecretKey },
 
   { name: "PINECONE_INDEX", tier: "skip" },
-  // getPineconeHost in app/libs/ai/chatMemory.ts reads PINECONE_HOST || PINECONE_ENVIRONMENT, and
-  // PINECONE_HOST is no longer declared, so PINECONE_ENVIRONMENT is the one that has to hold a value.
   { name: "PINECONE_ENVIRONMENT", tier: "live", check: checkPineconeHost },
   { name: "PINECONE_API_KEY", tier: "live", check: checkPineconeApiKey },
 

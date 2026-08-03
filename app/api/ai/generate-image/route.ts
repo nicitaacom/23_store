@@ -6,7 +6,6 @@ export const runtime = "nodejs"
 
 // Which image model an account has differs, and asking for one it does not have answers
 // "The model 'x' does not exist". So the first candidate that answers wins, newest first.
-// Set OPENAI_IMAGE_MODEL to pin one and skip the search.
 const IMAGE_MODEL_CANDIDATES = ["gpt-image-1", "gpt-image-1-mini", "dall-e-3", "dall-e-2"]
 
 function isMissingModelError(error: unknown) {
@@ -19,8 +18,7 @@ function isMissingModelError(error: unknown) {
  * refused prompt is thrown straight away, because repeating it against three more models helps nobody.
  */
 async function generateWithAvailableModel(prompt: string) {
-  const pinnedModel = process.env.OPENAI_IMAGE_MODEL
-  const candidates = pinnedModel ? [pinnedModel] : IMAGE_MODEL_CANDIDATES
+  const candidates = IMAGE_MODEL_CANDIDATES
 
   for (const model of candidates) {
     try {
@@ -33,10 +31,7 @@ async function generateWithAvailableModel(prompt: string) {
   }
 
   // Every candidate was missing, so the message names them all - the owner reads it in the toast and
-  // knows exactly what to put in OPENAI_IMAGE_MODEL.
-  throw new Error(
-    `No image model on this account. Tried ${candidates.join(", ")} - set OPENAI_IMAGE_MODEL to the one you have.`,
-  )
+  throw new Error(`No image model on this account. Tried ${candidates.join(", ")}`)
 }
 
 export async function POST(req: NextRequest) {

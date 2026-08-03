@@ -402,21 +402,15 @@ function getPineconeClient(): Pinecone {
   return pineconeClient
 }
 
-function getPineconeHost(): string | undefined {
-  return process.env.PINECONE_HOST || process.env.PINECONE_ENVIRONMENT
-}
-
 function getPineconeIndex(): Index<MemoryRecordMetadata> {
   if (pineconeIndex) return pineconeIndex
 
   const indexOptions: { host?: string; name?: string } = {}
-  const host = getPineconeHost()
-
-  if (host) indexOptions.host = host
+  if (process.env.PINECONE_ENVIRONMENT) indexOptions.host = process.env.PINECONE_ENVIRONMENT
   if (process.env.PINECONE_INDEX) indexOptions.name = process.env.PINECONE_INDEX
 
   if (!indexOptions.host && !indexOptions.name) {
-    throw new Error("Missing Pinecone index configuration. Set PINECONE_HOST or PINECONE_ENVIRONMENT and PINECONE_INDEX.")
+    throw new Error("Missing Pinecone index configuration. Set PINECONE_ENVIRONMENT and PINECONE_INDEX.")
   }
 
   pineconeIndex = getPineconeClient().index<MemoryRecordMetadata>(indexOptions)
