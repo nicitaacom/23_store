@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Checks every API key in .env.local, at most once every PUSH_CHECK_EVERY_DAYS days.
+# The number lives in app/utils/checkKeys.ts, not here, so there is one place to change it.
+#
+# Always exits 0. A revoked key is worth telling you about; it is not worth blocking a push over.
+# See app/api/webhooks/check-envs/dev_readme-check-env.md.
+set -uo pipefail
+
+cd "$(git rev-parse --show-toplevel)" || exit 0
+
+node \
+  --disable-warning=MODULE_TYPELESS_PACKAGE_JSON \
+  --import ./tests/alias-hook.mjs \
+  --env-file-if-exists=.env.local \
+  tests/pushKeyCheck.mjs
+
+exit 0

@@ -10,6 +10,7 @@
     "type-check": "tsc -p tsconfig.json --noEmit",
     "test:commit-naming": "node --test .github/scripts/validate-commit-naming.test.mjs",
     "test:eslint-rules": "node --test eslint-rules/*.test.js",
+    "test:keys": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./tests/alias-hook.mjs --env-file=.env.local --test tests/keys.test.mjs",
     "storybook": "HOME=.home XDG_CACHE_HOME=.cache storybook dev -p 6006",
     "build-storybook": "HOME=.home XDG_CACHE_HOME=.cache storybook build",
     "test:unit": "vitest run --project=unit",

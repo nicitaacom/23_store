@@ -872,3 +872,125 @@ https://www.jokik.fi/**
 ```
 
 </details>
+
+<br/>
+
+## Keys check cron
+
+### 0. Why this exists
+
+A third party revokes an API key — a Tinify quota reset, a Stripe rotation, a Google project
+suspension — and nothing tells you. The first report is a buyer hitting a 500.
+
+`.githooks/pre-push` catches it locally every 3 days, but that only reads the local dotenv file.
+Vercel holds a separate copy of every variable, and the two drift. This cron is what checks **prod**.
+
+### 1. What it does
+
+```
+pg_cron 'keys_check'  '0 4 * * *'   (fires daily, the const in code decides)
+  │
+  └─ pg_net → POST https://<prod domain>/api/webhooks/check-envs
+                Authorization: Bearer <CRON_SECRET from the Vault>
+                │
+                └─ app/api/webhooks/check-envs/route.ts
+                     ├─ last run newer than PROD_CHECK_EVERY_DAYS? → 200 {"skipped":true}
+                     └─ otherwise run every probe, then on a failure:
+                          Telegram message + email to NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL
+```
+
+**The schedule is daily on purpose.** `PROD_CHECK_EVERY_DAYS` in `app/utils/checkKeys.ts` is the real
+gate, so moving from weekly to daily later is changing `7` to `1` in one TypeScript file — no SQL edit,
+no re-scheduling, and no chance of the cron and the code disagreeing about the cadence.
+
+### 2. Run this once
+
+Replace both placeholder Vault values before scheduling the job. `keys_webhook_secret` must equal
+`CRON_SECRET` in Vercel exactly, or every run answers 401.
+
+```sql
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+CREATE EXTENSION IF NOT EXISTS pg_net;
+CREATE EXTENSION IF NOT EXISTS supabase_vault CASCADE;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM vault.secrets WHERE name = 'keys_webhook_base_url') THEN
+    PERFORM vault.create_secret('https://YOUR_PRODUCTION_DOMAIN', 'keys_webhook_base_url');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM vault.secrets WHERE name = 'keys_webhook_secret') THEN
+    PERFORM vault.create_secret('REPLACE_WITH_THE_SAME_VALUE_AS_CRON_SECRET', 'keys_webhook_secret');
+  END IF;
+END;
+$$;
+
+SELECT cron.unschedule('keys_check')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'keys_check');
+
+-- 04:00 UTC, an hour after weekly_ai_price_proposals, so the two never overlap
+SELECT cron.schedule('keys_check', '0 4 * * *', $$
+  SELECT net.http_post(
+    url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'keys_webhook_base_url')
+           || '/api/webhooks/check-envs',
+    headers := jsonb_build_object(
+      'Authorization',
+      'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'keys_webhook_secret'),
+      'Content-Type',
+      'application/json'
+    ),
+    body := '{}'::JSONB,
+    timeout_milliseconds := 60000
+  );
+$$);
+```
+
+### 3. Check it worked
+
+```sql
+-- the job exists and is switched on
+SELECT jobid, jobname, schedule, active FROM cron.job WHERE jobname = 'keys_check';
+
+-- what the last few runs answered - 200 with {"ok":true} or {"skipped":true} is healthy
+SELECT status, content, created FROM net._http_response ORDER BY created DESC LIMIT 5;
+
+-- when pg_cron last fired it, and whether the SQL itself succeeded
+SELECT status, return_message, start_time
+FROM cron.job_run_details
+WHERE jobid = (SELECT jobid FROM cron.job WHERE jobname = 'keys_check')
+ORDER BY start_time DESC
+LIMIT 5;
+```
+
+Or skip the wait and send the request yourself:
+
+```bash
+curl -s -X POST https://YOUR_PRODUCTION_DOMAIN/api/webhooks/check-envs \
+  -H "Authorization: Bearer YOUR_CRON_SECRET" | jq
+```
+
+| Answer | Meaning |
+| --- | --- |
+| `{"ok":true,"checked":38}` | every name is good |
+| `{"skipped":true,"daysSinceLastRun":0}` | already ran inside `PROD_CHECK_EVERY_DAYS` — the gate works |
+| `{"ok":false,"failures":[...],"alerted":true}` | Telegram and the email went out |
+| `{"ok":false,"alerted":false,"reason":"same names as last alert"}` | quiet on purpose, nothing new |
+| `{"error":"Unauthorized"}` | the Vault secret and `CRON_SECRET` in Vercel differ |
+| `{"error":"CRON_SECRET is not configured"}` | the variable is missing from Vercel Production |
+
+### 4. Where the state lives
+
+Not in Postgres — in Upstash, so there is no table and no `types_db.ts` edit:
+
+```
+keys-check:23:last-run     ISO timestamp   the PROD_CHECK_EVERY_DAYS gate reads this
+keys-check:23:last-report  the report      the last answer, readable without a run
+keys-check:23:last-alert   names + sentAt  what was already reported, so it stays quiet
+```
+
+`23` is in every key because projects 14/19/23/28/29 share one Upstash database — the same reason
+`utm:23:device-id` has it. See `app/libs/keysCheckRedis.ts`.
+
+### 5. Decision made AGAINST
+
+**A weekly `'0 4 * * 1'` schedule.** Then the cadence lives in two places — the cron string and
+`PROD_CHECK_EVERY_DAYS` — and they drift apart the first time one is changed without the other.

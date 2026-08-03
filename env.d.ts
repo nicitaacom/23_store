@@ -25,9 +25,6 @@ declare global {
       NEXT_PUBLIC_SUPPORT_EMAIL: string
       NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL: string
 
-      NEXT_PAYPAL_PUBLIC: string
-      NEXT_PAYPAL_SECRET: string
-
       NEXT_PUBLIC_CLOUDFLARE_SITE_KEY: string
       TURNSTILE_SECRET_KEY: string
 
@@ -36,7 +33,6 @@ declare global {
       PINECONE_ENVIRONMENT: string
       PINECONE_API_KEY: string
 
-      NEXT_PUBLIC_METAMASK_ADRESS: string
       NEXT_PUBLIC_METAMASK_ADRESS_ETH: string
       NEXT_PUBLIC_METAMASK_ADRESS_BNB: string
       NEXT_PUBLIC_METAMASK_ADRESS_MATIC: string
@@ -55,6 +51,8 @@ declare global {
       CHROMATIC_PROJECT_TOKEN: string
 
       DEVICE_ID_ENCRYPTION_KEY: string
+
+      CRON_SECRET: string
 
       NEXT_PUBLIC_IS_DEBUG: string
     }

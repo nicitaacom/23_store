@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Blocks any Claude/Anthropic co-author trailer. Standing rule (never a project default,
+# reinforced by Nikita more than once) - see memory/feedback_commit_naming.md:
+# "Never include a Claude/Anthropic co-author trailer in any commit."
+#
+# It moved here from .git/hooks/ on 2026-08-02 so it is tracked by git. In .git/hooks it was wiped by
+# every OS reinstall and every fresh clone, silently. `git config core.hooksPath .githooks` points git
+# at this folder, and that setting is the only thing a fresh clone has to redo.
+set -euo pipefail
+
+msg_file="$1"
+
+if grep -qiE '^Co-Authored-By:.*(claude|anthropic)' "$msg_file"; then
+  echo "commit-msg: remove the Claude/Anthropic co-author trailer - never included in this repo's commits." >&2
+  exit 1
+fi
