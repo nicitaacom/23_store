@@ -57,6 +57,7 @@ export default [
       "local-rules/imports-order": "warn",
       "local-rules/envs-order": "warn",
       "local-rules/no-unused-envs": "warn",
+      "local-rules/no-undeclared-envs": "warn",
       "local-rules/no-high-level-import": "warn",
       "local-rules/check-importers": "warn",
       "local-rules/no-cross-route-group-absolute-import": "warn",
