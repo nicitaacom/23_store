@@ -1,5 +1,4 @@
 import { createHash, createHmac } from "node:crypto"
-import { connect } from "node:tls"
 
 import type { TKeyCheckReport } from "@/ts/types/TKeyCheckReport"
 import type { TKeyProbe } from "@/ts/types/TKeyProbe"
@@ -145,52 +144,6 @@ async function checkUpstashRestToken(restToken: string): Promise<string | null> 
   if (status !== 200) return describeStatus(status, body)
 
   return body.includes("PONG") ? null : `answered ${body.slice(0, 60)} instead of PONG`
-}
-
-/**
- * UPSTASH_REDIS_URL is the TCP address, so the REST ping above proves nothing about it. This opens a
- * TLS socket and speaks the two RESP commands by hand, which needs no package: `ioredis` is not a
- * dependency of this project, and the REST client only speaks HTTP.
- */
-async function checkUpstashTcpUrl(tcpUrl: string): Promise<string | null> {
-  let address: URL
-  try {
-    address = new URL(tcpUrl)
-  } catch {
-    return "is not a redis url"
-  }
-
-  if (!address.hostname || !address.password) return "has no host or password part"
-
-  return new Promise<string | null>(resolve => {
-    const socket = connect({
-      host: address.hostname,
-      port: Number(address.port) || 6379,
-      servername: address.hostname,
-    })
-    let answered = false
-
-    const finish = (reason: string | null) => {
-      if (answered) return
-      answered = true
-      socket.destroy()
-      resolve(reason)
-    }
-
-    // socket.setTimeout only counts idle time once there is a socket, so a connect that never lands
-    // slips past it. This timer is the one that always fires. unref keeps it from holding node open.
-    setTimeout(() => finish(`no answer within ${PROBE_TIMEOUT_MS / 1000}s`), PROBE_TIMEOUT_MS).unref()
-    socket.setTimeout(PROBE_TIMEOUT_MS, () => finish(`no answer within ${PROBE_TIMEOUT_MS / 1000}s`))
-    socket.on("secureConnect", () =>
-      socket.write(`AUTH ${address.username || "default"} ${address.password}\r\nPING\r\n`),
-    )
-    socket.on("error", error => finish(error.message))
-    socket.on("data", chunk => {
-      const answer = chunk.toString()
-      if (answer.includes("+PONG")) return finish(null)
-      if (answer.startsWith("-")) return finish(answer.split("\r\n")[0].slice(1))
-    })
-  })
 }
 
 async function checkStripeSecretKey(secretKey: string): Promise<string | null> {
@@ -421,7 +374,6 @@ export const KEY_PROBES: TKeyProbe[] = [
 
   { name: "UPSTASH_REDIS_REST_URL", tier: "shape", check: checkUrl },
   { name: "UPSTASH_REDIS_REST_TOKEN", tier: "live", check: checkUpstashRestToken },
-  { name: "UPSTASH_REDIS_URL", tier: "live", check: checkUpstashTcpUrl },
 
   { name: "AWS_ACCESS_KEY_ID", tier: "shape", check: value => checkPrefix(value, "AKIA") },
   { name: "AWS_SECRET_ACCESS_KEY", tier: "live", check: checkAwsSecretAccessKey },

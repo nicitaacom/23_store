@@ -9,7 +9,6 @@ declare global {
 
       UPSTASH_REDIS_REST_URL: string
       UPSTASH_REDIS_REST_TOKEN: string
-      UPSTASH_REDIS_URL: string
 
       AWS_ACCESS_KEY_ID: string
       AWS_SECRET_ACCESS_KEY: string
