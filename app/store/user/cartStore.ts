@@ -10,6 +10,7 @@ import { logFn } from "@/utils/logFn"
 import { normalizeProducts } from "@/utils/productVariants"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import { Json } from "@/ts/types_db"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 interface CartStore {
   products: TRecordCartProduct
@@ -128,6 +129,7 @@ const cartStore = (set: SetState, get: GetState): CartStore => ({
         //no sence to create logic because I don't add product in cart
         //I can add prodcut in store
       }
+      trackBuyingFlowEvent({ event: "add_to_cart", productId: id })
     }
 
     set(() => ({

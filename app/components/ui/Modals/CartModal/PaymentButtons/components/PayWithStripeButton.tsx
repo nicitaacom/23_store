@@ -13,6 +13,7 @@ import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 // http://localhost:6006/?path=/story/commerce-checkout--cart
 export function PayWithStripeButton() {
@@ -35,6 +36,7 @@ export function PayWithStripeButton() {
   )
 
   async function createCheckoutSession() {
+    trackBuyingFlowEvent({ event: "checkout_click", checkoutKind: "stripe" })
     setIsLoading(true)
     try {
       if (cartStore.getProductsPrice() > 999999) {

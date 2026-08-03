@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 
 import { NoProductsFound } from "./NoProductsFound"
+import { SearchTracker } from "./SearchTracker"
 import { Products } from "../components"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import { getI18n } from "@/locales/server"
@@ -34,11 +35,17 @@ export default async function SearchPage({ searchParams: searchParamsPromise }: 
   const products = filterProductsBySearchQuery(normalizeProducts(products_response.data), query)
 
   if (products.length === 0) {
-    return <NoProductsFound />
+    return (
+      <>
+        <SearchTracker query={query} resultsCount={products.length} />
+        <NoProductsFound />
+      </>
+    )
   }
 
   return (
     <div className="max-w-[1024px] text-2xl text-white flex flex-col gap-y-8 justify-between items-center py-12 min-h-[calc(100vh-4rem)] mx-auto">
+      <SearchTracker query={query} resultsCount={products.length} />
       <section className="flex flex-col gap-y-4">
         <Products products={products} />
       </section>

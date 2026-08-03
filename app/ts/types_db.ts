@@ -361,6 +361,48 @@ export type Database = {
         }
         Relationships: []
       }
+      "23_buying_flow_events": {
+        Row: {
+          checkout_kind: string | null
+          created_at: string
+          event: string
+          id: string
+          locale: string | null
+          product_id: string | null
+          results_count: number | null
+          search_query: string | null
+          session_id: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          checkout_kind?: string | null
+          created_at?: string
+          event: string
+          id?: string
+          locale?: string | null
+          product_id?: string | null
+          results_count?: number | null
+          search_query?: string | null
+          session_id: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          checkout_kind?: string | null
+          created_at?: string
+          event?: string
+          id?: string
+          locale?: string | null
+          product_id?: string | null
+          results_count?: number | null
+          search_query?: string | null
+          session_id?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       utm_stats: {
         Row: {
           id: string

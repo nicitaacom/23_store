@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { BsShieldCheck, BsStars } from "react-icons/bs"
@@ -25,6 +25,7 @@ import { PersonalizeButton } from "@/components/ui/Buttons/PersonalizeButton"
 import { PersonalizeModal } from "@/components/ui/Modals/PersonalizeModal/PersonalizeModal"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
 import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 interface ProductDetailViewProps {
   category: TCategory | null
@@ -39,6 +40,10 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
   const locale = useCurrentLocale()
   const { products } = useCartStore()
   const { selectedVariantId, activeImage: storedImage } = useProductDetail()
+
+  useEffect(() => {
+    trackBuyingFlowEvent({ event: "product_view", productId: product.id })
+  }, [product.id])
 
   // A label is all a variant needs to be real - size variants (S/M/L) look identical in a photo, so
   // they have no image of their own and show as a text chip instead of a swatch.

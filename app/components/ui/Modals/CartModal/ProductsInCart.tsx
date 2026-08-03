@@ -14,6 +14,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
 import { Product } from "@/[locale]/(site)/components"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 // http://localhost:6006/?path=/story/commerce-cartcomposition--empty
 export function ProductsInCart() {
@@ -27,6 +28,7 @@ export function ProductsInCart() {
   const { user } = useUser()
 
   async function handleRequestBetterPrices() {
+    trackBuyingFlowEvent({ event: "checkout_click", checkoutKind: "request_better_prices" })
     setIsLoading(true)
     const response = await requestBetterPrices(t, cartStore.productsData, cartStore.getProductsPrice(), user?.email || null)
     setIsLoading(false)

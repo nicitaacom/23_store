@@ -8,6 +8,7 @@ import { useI18n, useScopedI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui/Button"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 // Solana is not an EVM chain - this is a base58 public key, not a 0x address
 const SOLANA_ADDRESS = process.env.NEXT_PUBLIC_SOLANA_ADDRESS
@@ -30,6 +31,7 @@ export function PayWithSolanaButton() {
   const { isLoading, setIsLoading } = useLoading()
 
   const handlePayWithSolana = async () => {
+    trackBuyingFlowEvent({ event: "checkout_click", checkoutKind: "solana" })
     setIsLoading(true)
 
     // 1. the extension has to be installed before it can sign anything - read it at click time,

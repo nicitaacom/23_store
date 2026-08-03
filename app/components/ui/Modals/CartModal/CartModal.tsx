@@ -9,6 +9,7 @@ import { ProductsInCart } from "./ProductsInCart"
 import useCartStore from "@/store/user/cartStore"
 import { useI18n } from "@/locales/client"
 import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 // http://localhost:6006/?path=/story/commerce-checkout--cart
 export function CartModal() {
@@ -18,6 +19,7 @@ export function CartModal() {
   const [isSkeleton, setIsSkeleton] = useState(true)
 
   useEffect(() => {
+    trackBuyingFlowEvent({ event: "cart_open" })
     async function selectProductsData() {
       try {
         await cartStore.selectProductsData()

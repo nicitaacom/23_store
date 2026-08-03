@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -7,6 +8,7 @@ import { useNoProductsRedirect } from "./hooks/useNoProductsRedirect"
 import { usePaymentSteps } from "./hooks/usePaymentSteps"
 import { useScopedI18n } from "@/locales/client"
 import { Timer } from "@/components/ui"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 export default function Payment() {
   const router = useRouter()
@@ -16,6 +18,10 @@ export default function Payment() {
   const t = useScopedI18n("payment")
 
   useNoProductsRedirect()
+
+  useEffect(() => {
+    if (status === "success") trackBuyingFlowEvent({ event: "order_placed" })
+  }, [status])
 
   if (!cartStore.products || Object.keys(cartStore.products).length === 0) {
     return null

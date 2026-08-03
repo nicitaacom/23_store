@@ -59,4 +59,9 @@ export const RATE_LIMITS = {
     maxAllowed: 60, // 60 increments/min per user — 34 pills × 2 = 68 max, generous
     key: (userId: string) => `category-view:increment:${userId}`,
   },
+  buyingFlowEvent: {
+    windowSec: 60,
+    maxAllowed: 60, // 60 events/min per visitor — a fast human browses ~1 click/sec
+    key: (userId: string) => `buying-flow:event:${userId}`,
+  },
 } as const

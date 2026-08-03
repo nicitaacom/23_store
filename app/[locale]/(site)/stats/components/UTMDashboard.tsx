@@ -19,6 +19,7 @@ import {
 import { IoChevronDown, IoCalendar, IoTrendingUp, IoGlobeOutline, IoLocationOutline } from "react-icons/io5"
 
 import { IUTMAggregatedStats, IUTMCountryStat, IUTMLocationStat } from "@/ts/interfaces/IUTMAggregatedStats"
+import { BuyingFlow } from "./BuyingFlow"
 import { selectDBUTMStatsAction } from "../actions/selectDBUTMStatsAction"
 
 const CHART_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"]
@@ -579,6 +580,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
             </motion.div>
           ))}
         </motion.div>
+
+        <BuyingFlow year={selectedYear} month={selectedMonth} />
 
         {/* Charts Grid */}
         <motion.div className="grid grid-cols-1 laptop:grid-cols-2 gap-6 mobile:gap-8">

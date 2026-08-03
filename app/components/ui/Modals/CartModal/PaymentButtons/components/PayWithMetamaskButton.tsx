@@ -13,6 +13,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui/Button"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 // Only EVM-compatible chains work with MetaMask
 const WALLET_ADDRESSES = {
@@ -114,6 +115,7 @@ export function PayWithMetamaskButton() {
   }, [])
 
   async function sendMoneyWithMetamaskFunction() {
+    trackBuyingFlowEvent({ event: "checkout_click", checkoutKind: "metamask" })
     setIsLoading(true)
     const recipientAddress = WALLET_ADDRESSES[selectedChain]
 
