@@ -17,7 +17,7 @@ type AllTables = keyof Database["public"]["Tables"]
 // Tables intentionally left out of the backup archive. Any table added to types_db.ts that is
 // neither here nor in BACKUP_TABLE_NAMES fails the exhaustiveness check below at compile time.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used only as a type below
-const EXCLUDED_FROM_BACKUP = ["utm_stats"] as const satisfies readonly AllTables[]
+const EXCLUDED_FROM_BACKUP = ["utm_stats", "23_buying_flow_events"] as const satisfies readonly AllTables[]
 
 // Table names only, in FK-safe restore order — kept separate from BACKUP_TABLES so `as const
 // satisfies` gives each name its exact literal type, and .from(name) typechecks without a cast
