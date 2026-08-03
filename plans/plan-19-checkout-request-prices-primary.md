@@ -35,17 +35,17 @@ Prices is the action he wants pressed. The payment options stay reachable, not f
 
 ## §1 Where it lives / what changes
 
-| Piece | File | Change |
-| --- | --- | --- |
-| Stripe route | `app/api/create-checkout-session/route.ts:43` | stop wrapping the url in JSON quotes |
-| PayPal route | `app/api/create-paypal-session/route.ts:49` | same |
-| Response types | `app/ts/namespaces/api.d.ts` | add the response type the two routes now return |
-| SDK | `app/sdk/ProductsSDK/ProductsSDK.ts:89-101` | read the url the way the route sends it |
-| Stripe button | `PaymentButtons/components/PayWithStripeButton.tsx:52` | push a real absolute url |
-| PayPal button | `PaymentButtons/components/PayWithPaypalButton.tsx:52` | same |
-| Cart aside | `CartModal/ProductsInCart.tsx:71-90` | Request Better Prices first, payment options second |
-| Copy | `app/locales/en.ts` / `fi.ts` / `ru.ts` / `se.ts` | any new label the grouping needs |
-| Docs | `CartModal/dev_readme.md` | §1 order of the aside, §5.4 flow, new TODO entries |
+| Piece          | File                                                   | Change                                              |
+| -------------- | ------------------------------------------------------ | --------------------------------------------------- |
+| Stripe route   | `app/api/create-checkout-session/route.ts:43`          | stop wrapping the url in JSON quotes                |
+| PayPal route   | `app/api/create-paypal-session/route.ts:49`            | same                                                |
+| Response types | `app/ts/namespaces/api.d.ts`                           | add the response type the two routes now return     |
+| SDK            | `app/sdk/ProductsSDK/ProductsSDK.ts:89-101`            | read the url the way the route sends it             |
+| Stripe button  | `PaymentButtons/components/PayWithStripeButton.tsx:52` | push a real absolute url                            |
+| PayPal button  | `PaymentButtons/components/PayWithPaypalButton.tsx:52` | same                                                |
+| Cart aside     | `CartModal/ProductsInCart.tsx:71-90`                   | Request Better Prices first, payment options second |
+| Copy           | `app/locales/en.ts` / `fi.ts` / `ru.ts` / `se.ts`      | any new label the grouping needs                    |
+| Docs           | `CartModal/dev_readme.md`                              | §1 order of the aside, §5.4 flow, new TODO entries  |
 
 ## §2 Terminology
 
@@ -80,25 +80,25 @@ cart aside (ProductsInCart.tsx)             cart aside (ProductsInCart.tsx)
 
 ## §4 Steps
 
-> ONE TASK AT A TIME. Do task N, then STOP — show Nikita the diff and wait for his review. Review
-> phrase: "approved - continue".
+> This whole plan is ONE tracker TODO row — run tasks 2-6 in one go and show the full diff at the
+> end. The only stop is task 1, which needs Nikita's 4 letters before any code is written.
 
 1. **Unblock.** Wait for the answers to the Open Questions below. They decide how the routes send the
-   url, what "optional" means in the aside, and whether the PayPal button stays. STOP — no diff.
+   url, what "optional" means in the aside, and whether the PayPal button stays. No diff in this task.
 2. **Fix the quoted url.** Both routes, the two `api.d.ts` types, both SDK methods, both buttons.
    Reproduce first: add a product, press Stripe, confirm the `%22` address. Then confirm the fix
-   lands on `checkout.stripe.com`. STOP.
-3. **PayPal retest.** With step 2 in, press PayPal. If Stripe rejects `payment_method_types:
-   ["paypal"]` for this account, the existing `payment.error.creating_provider_session` toast has to
-   show the real reason instead of a silent failure. Write down what Stripe answered. STOP.
+   lands on `checkout.stripe.com`.
+3. **PayPal retest.** With task 2 in, press PayPal. Stripe may reject the paypal entry in
+   `payment_method_types` for this account. If it does, the existing
+   `payment.error.creating_provider_session` toast has to show the real reason instead of failing
+   quietly. Write down what Stripe answered.
 4. **Aside layout.** Request Better Prices becomes the filled primary at the top of the actions
    block. The 4 payment buttons move behind whatever Open Question 2 picked. Clear cart stays last.
-   STOP.
 5. **Copy.** Any new label goes into all 4 locale files, one line per key, same relative position.
    Do NOT run prettier on `app/locales/*.ts` — all 4 already fail `prettier --check` at HEAD on
-   purpose, because the same-line-count rule in their header beats prettier's wrapping. STOP.
+   purpose, because the same-line-count rule in their header beats prettier's wrapping.
 6. **Document it.** `CartModal/dev_readme.md` — update §1 to describe the new aside order, §5.4 for
-   the Solana entry point, and close the matching TODO lines. STOP.
+   the Solana entry point, and close the matching TODO lines.
 
 ## Open Questions
 

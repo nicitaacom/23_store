@@ -4,7 +4,18 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 
 ## Rules (apply to EVERY plan)
 
-1. **ONE TASK AT A TIME.** Do task N, then STOP — show Nikita the diff and wait for his review. Do not start task N+1 until he approves. Review phrase from Nikita: **"approved - continue"**.
+1. **ONE TASK AT A TIME.** The levels, so they never get confused:
+
+   ```
+   this tracker   ->  TODO   (one row per plan/feature)
+     plan-NN-*.md ->  tasks  (the numbered steps in its §4)
+       a big task ->  sub-tasks
+   ```
+
+   The rule gates **TODO rows**: one plan per chat, never wander into a different feature. Inside one
+   plan, run every task and sub-task in one go and show the full diff at the end. Stop mid-plan only
+   for a real blocking decision. A side quest that is a different feature gets its own chat and a
+   hand-off prompt.
 2. **Recommended model + thinking effort** are in each plan's header — start the implementing chat with that model.
 3. **Every plan follows the code patterns**: read `dev_readme-code-patterns.md` (all 15 rules, incl. the banned-words list) + `good-bad-examples.md` BEFORE coding; validate the diff against them line-by-line before saying done; where a touched file drifts from the patterns, rewrite it to match.
 4. **Deleted screenshot = done.** If a screenshot referenced by a plan is removed from `TODO/`, that task is finished — drop it without asking.
