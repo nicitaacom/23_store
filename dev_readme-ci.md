@@ -12,7 +12,7 @@ CI performs:
 - the responsive and internationalization smoke set in Chrome, Firefox, and WebKit;
 - serial fixture access so two runs do not delete each other's `cypress-e2e-` Supabase rows.
 
-## 👉 TODO — GitHub Actions values
+## 🚨 TODO — GitHub Actions values
 
 Open **Settings → Secrets and variables → Actions** and add these as repository **Variables**
 (preferred because they are browser-visible values) or repository **Secrets** using the matching
@@ -39,7 +39,7 @@ Chromatic workflow receives only `CHROMATIC_PROJECT_TOKEN`.
 `cypress.config.ts` then read that same dotenv file. No token, public key, or service-role key is
 hardcoded in a workflow.
 
-## 👉 TODO — Import branch protection
+## 🚨 TODO — Import branch protection
 
 Workflow YAML creates status checks, but GitHub repository rules decide whether a direct push or a
 failed merge is rejected. After this workflow has run once:
