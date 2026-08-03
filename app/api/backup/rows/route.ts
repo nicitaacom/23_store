@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server"
 
+import { mergeBackupPublicUserRows, selectMissingBackupPublicUsers, selectReferencedAuthUserIds } from "../backupAuthRestore"
 import { requireAdmin } from "../requireAdmin"
+import { selectAllAuthUsers } from "../selectAllAuthUsers"
 import { BACKUP_TABLES, getTableConfig, filterRowsByUuidColumns } from "../backupTables"
-import { mergeBackupPublicUserRows } from "../backupAuthRestore"
 import { isMissingSchemaError } from "@/utils/personalizationSchema"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
@@ -36,6 +37,30 @@ export async function GET() {
       )
     }
     tables[table.name] = data ?? []
+  }
+
+  try {
+    const configuredTables = BACKUP_TABLES.map(config => ({
+      config,
+      rows: (tables[config.name] ?? []) as Record<string, unknown>[],
+    }))
+    const referencedUserIds = selectReferencedAuthUserIds(configuredTables)
+    const publicUsers = (tables["23_users"] ?? []) as Record<string, unknown>[]
+    const publicUserIds = new Set(publicUsers.flatMap(user => (typeof user.id === "string" ? [user.id] : [])))
+    const hasMissingPublicUsers = referencedUserIds.some(userId => !publicUserIds.has(userId))
+
+    if (hasMissingPublicUsers) {
+      const selectAllAuthUsersResp = await selectAllAuthUsers()
+      tables["23_users"] = [
+        ...publicUsers,
+        ...selectMissingBackupPublicUsers(publicUsers, referencedUserIds, selectAllAuthUsersResp),
+      ]
+    }
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : String(error) } satisfies API.BackupRowsGetResponse,
+      { status: 500 },
+    )
   }
 
   return NextResponse.json({ tables } satisfies API.BackupRowsGetResponse)

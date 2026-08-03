@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest"
+import type { User } from "@supabase/supabase-js"
 
-import { BACKUP_TABLES } from "./backupConfig"
 import {
   mergeBackupPublicUserRows,
   remapAuthUserIds,
   selectBackupSourceUsers,
+  selectMissingBackupPublicUsers,
   selectReferencedAuthUserIds,
 } from "./backupAuthRestore"
+import { BACKUP_TABLES } from "./backupConfig"
 
 const SOURCE_USER_ID = "11111111-1111-4111-8111-111111111111"
 const TARGET_USER_ID = "22222222-2222-4222-8222-222222222222"
@@ -104,5 +106,33 @@ describe("backup Auth restore helpers", () => {
       "23_tickets": ["owner_id"],
       "23_messages": ["sender_id"],
     })
+  })
+
+  it("creates missing public backup profiles from referenced Auth users", () => {
+    const authUser = {
+      id: SOURCE_USER_ID,
+      aud: "authenticated",
+      email: "OWNER@Example.com",
+      created_at: "2023-11-28T11:33:11Z",
+      email_confirmed_at: "2023-11-28T11:33:09Z",
+      app_metadata: { providers: ["google", "email"] },
+      user_metadata: { full_name: "Nikita", avatar_url: "https://example.com/avatar.png" },
+      identities: [],
+    } as User
+
+    expect(selectMissingBackupPublicUsers([], [SOURCE_USER_ID], [authUser])).toEqual([
+      {
+        id: SOURCE_USER_ID,
+        created_at: "2023-11-28T11:33:11Z",
+        username: "Nikita",
+        email: "owner@example.com",
+        avatar_url: "https://example.com/avatar.png",
+        roles: ["USER"],
+        email_confirmed_at: "2023-11-28T11:33:09Z",
+        providers: ["google", "credentials"],
+        password_reset_required: false,
+        ai_pricing_enabled: false,
+      },
+    ])
   })
 })

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server"
 import type { User } from "@supabase/supabase-js"
 
-import { requireAdmin } from "../requireAdmin"
 import { isBackupUuid } from "../backupAuthRestore"
+import { requireAdmin } from "../requireAdmin"
+import { selectAllAuthUsers } from "../selectAllAuthUsers"
 import { normalizeAuthEmail } from "@/utils/publicUserSync"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
@@ -10,22 +11,8 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
-const AUTH_USERS_PAGE_SIZE = 1000
 const BACKUP_SOURCE_ID_KEY = "backup_source_user_id"
 const BACKUP_PASSWORD_RESET_KEY = "backup_password_reset_required"
-
-async function selectAllAuthUsers(): Promise<User[]> {
-  const users: User[] = []
-
-  for (let page = 1; ; page++) {
-    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: AUTH_USERS_PAGE_SIZE })
-    if (error) throw error
-    users.push(...data.users)
-    if (!data.nextPage) break
-  }
-
-  return users
-}
 
 function hasBackupPasswordResetMarker(user: User, sourceUserId: string): boolean {
   return (
@@ -69,10 +56,10 @@ export async function POST(request: Request) {
       if (!isBackupUuid(sourceUserId)) throw new Error(`Invalid referenced Auth user id: ${sourceUserId}`)
     }
 
-    const targetAuthUsers = await selectAllAuthUsers()
-    const targetUserById = new Map(targetAuthUsers.map(user => [user.id, user]))
+    const selectAllAuthUsersResp = await selectAllAuthUsers()
+    const targetUserById = new Map(selectAllAuthUsersResp.map(user => [user.id, user]))
     const targetUserByEmail = new Map(
-      targetAuthUsers.flatMap(user => {
+      selectAllAuthUsersResp.flatMap(user => {
         const email = normalizeAuthEmail(user.email)
         return email ? [[email, user] as const] : []
       }),

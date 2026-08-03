@@ -24,6 +24,7 @@ export async function POST(req: Request) {
       throw new Error(error.message)
     }
 
+    // eslint-disable-next-line local-rules/use-rls-supabase-client -- 23_users has no UPDATE policy for this recovery marker; the authenticated reset succeeded above and service role clears only that user's flag.
     const { error: clearPublicMarkerError } = await supabaseAdmin
       .from("23_users")
       .update({ password_reset_required: false })

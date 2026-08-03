@@ -126,8 +126,12 @@ change. See the **DB BACKUP FUNCTION** section in `dev_readme-supbase-sql.md` if
 
 ## Export flow
 
-**Tables:** `GET /api/backup/rows` returns every table's rows as JSON (small, no Storage bytes) →
-the browser converts each table to CSV (`toCsv`) → packs a `.tar.gz` locally → downloads it.
+**Tables:** `GET /api/backup/rows` returns every table's rows as JSON (small, no Storage bytes). If
+an exported cart/product/design/etc. references an Auth user whose public `23_users` profile is
+missing, export reads that specific account from Supabase Auth and adds a safe `USER` profile to
+`23_users` in the archive. The browser then converts each table to CSV (`toCsv`), packs a
+`.tar.gz` locally, and downloads it. This makes one-click Export self-contained for one-click
+Import without permanently inserting the synthesized profile into the source database.
 
 **Files:** `GET /api/backup/files` returns every stored file's bucket/path/size/contentType (no
 bytes) → the browser downloads each file directly from Supabase's public CDN (5 concurrent
@@ -188,6 +192,9 @@ Preparation is retry-safe: Auth users created before a later failure hold the so
 app metadata, so another import reuses them and retains the recovery requirement. A partial table
 import without `23_users.csv` still works when every referenced UUID already exists in target Auth;
 otherwise it stops before table writes and requests the missing profile CSV.
+
+An archive exported before missing-profile completion was added must be exported again; changing
+the importer cannot recover an email that is absent from the old archive.
 
 `23_tickets.owner_id` is TEXT with no auth FK, confirmed live — those rows always restore.
 `23_messages.sender_id` is **settled: TEXT, no FK**. Nikita read the live constraints (plan-02 task 1)

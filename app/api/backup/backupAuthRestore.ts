@@ -1,3 +1,5 @@
+import type { User } from "@supabase/supabase-js"
+
 import type { TBackupTableConfig } from "./backupConfig"
 
 export type TBackupSourceUser = {
@@ -106,6 +108,63 @@ export function mergeBackupPublicUserRows(
       ...row,
       roles: mergeStringArrays(existingRow.roles, row.roles),
       providers: mergeStringArrays(existingRow.providers, row.providers),
+    }
+  })
+}
+
+function selectAuthMetadataString(metadata: User["user_metadata"], keys: string[]): string | null {
+  for (const key of keys) {
+    const value = metadata?.[key]
+    if (typeof value === "string" && value.trim()) return value.trim()
+  }
+  return null
+}
+
+function normalizeBackupProvider(provider: string): string {
+  return provider === "email" ? "credentials" : provider
+}
+
+export function selectMissingBackupPublicUsers(
+  publicUsers: Record<string, unknown>[],
+  referencedUserIds: string[],
+  authUsers: User[],
+): Record<string, unknown>[] {
+  const publicUserIds = new Set(publicUsers.flatMap(user => (isBackupUuid(user.id) ? [user.id] : [])))
+  const authUserById = new Map(authUsers.map(user => [user.id, user]))
+  const missingUserIds = referencedUserIds.filter(userId => !publicUserIds.has(userId))
+
+  return missingUserIds.map(userId => {
+    const authUser = authUserById.get(userId)
+    if (!authUser?.email) {
+      throw new Error(`Cannot export Auth user ${userId}: it has referenced data but no email-backed Auth account`)
+    }
+
+    const providers = Array.from(
+      new Set(
+        [
+          ...(Array.isArray(authUser.app_metadata?.providers) ? authUser.app_metadata.providers : []),
+          ...(typeof authUser.app_metadata?.provider === "string" ? [authUser.app_metadata.provider] : []),
+          ...(authUser.identities ?? []).map(identity => identity.provider),
+        ]
+          .filter((provider): provider is string => typeof provider === "string" && Boolean(provider))
+          .map(normalizeBackupProvider),
+      ),
+    )
+    const username =
+      selectAuthMetadataString(authUser.user_metadata, ["username", "user_name", "full_name", "name"]) ??
+      authUser.email.split("@")[0]
+
+    return {
+      id: authUser.id,
+      created_at: authUser.created_at,
+      username,
+      email: authUser.email.trim().toLowerCase(),
+      avatar_url: selectAuthMetadataString(authUser.user_metadata, ["avatar_url", "picture"]),
+      roles: ["USER"],
+      email_confirmed_at: authUser.email_confirmed_at ?? null,
+      providers,
+      password_reset_required: false,
+      ai_pricing_enabled: false,
     }
   })
 }
