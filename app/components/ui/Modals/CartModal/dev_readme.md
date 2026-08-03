@@ -43,7 +43,7 @@ Zustand cartStore  (app/store/ui/cartStore.ts)
 app/components/ui/Modals/CartModal/
   CartModal.tsx        <- shell: empty state vs product list
   EmptyCart.tsx        <- empty state illustration
-  ProductsInCart.tsx   <- list of cart items with quantity controls
+  ProductsInCart.tsx   <- cart items + the order summary aside that renders <PaymentButtons />
   PaymentButtons/      <- MetaMask + Solana + PayPal + Stripe checkout buttons
   functions/           <- cart helpers (add, remove, clear, upsert to DB)
 ```
@@ -91,6 +91,7 @@ All 3 are deleted. The working button signs through the wallet extension, so no 
 | Icon                | `public/solana.png`                                                     |
 | Copy                | `app/locales/en.ts` / `fi.ts` / `ru.ts` / `se.ts`, `payment.error.*`    |
 | Story               | `storybook/commerce/Checkout.stories.tsx`                               |
+| Rendered by         | `ProductsInCart.tsx` — the order summary aside                          |
 
 ### 5.4 How one click pays
 

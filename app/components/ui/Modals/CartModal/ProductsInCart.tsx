@@ -2,6 +2,7 @@
 
 import { requestBetterPrices } from "./functions/requestBetterPrices"
 import { Button } from "../.."
+import { PaymentButtons } from "./PaymentButtons/PaymentButtons"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 import useCartStore from "@/store/user/cartStore"
@@ -68,7 +69,10 @@ export function ProductsInCart() {
           </div>
         </div>
 
-        {/* 4. Actions — primary first, destructive as ghost */}
+        {/* 4. Pay — MetaMask, Solana, PayPal, Stripe */}
+        <PaymentButtons />
+
+        {/* 5. Actions — primary first, destructive as ghost */}
         <div className="flex flex-col gap-2 laptop:mt-auto">
           <Button
             className="w-full border-success/40 bg-success/10 text-success hover:bg-success/20"
