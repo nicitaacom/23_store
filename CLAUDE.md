@@ -10,8 +10,10 @@ Refer to `./docs` - there you find code patterns
    an env var or secret, DNS, an OAuth screen, my inbox, `git push`. Anything you run or edit
    yourself - pnpm, cypress, playwright, vitest, eslint, tsc, a build, a file change - is NOT a TODO:
    do it now and report the result as a fact in the body. Each item is a chain naming WHERE to go,
-   WHAT to do there and HOW you know it worked: `1. open dev_readme-supbase-sql.md:878 -> copy the
-   block -> open the Supabase SQL editor -> run it`. Never a bare command, never `1. nothing`. A
+   WHAT to do there and HOW you know it worked. **SQL goes IN the body**, the runnable statement
+   itself - never `open <doc>:97 -> copy the ALTER TABLE block`, because that doc holds a
+   `CREATE TABLE IF NOT EXISTS` next to the real `ALTER` and I read the no-op as the whole step. I
+   paste from the commit, not from a file I have to search. Never a bare command, never `1. nothing`. A
    block on a commit that holds nothing for me trains me to skip every block, and then I miss the one
    that matters. See [commit-patterns.md](commit-patterns.md).
 
