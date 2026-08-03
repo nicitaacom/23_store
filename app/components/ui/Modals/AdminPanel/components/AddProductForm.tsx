@@ -121,7 +121,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   // Bumped to re-mount the print-area editor when the form is cleared or restored
   const [personalizationFormKey, setPersonalizationFormKey] = useState(0)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
-  const [pendingTranslationsAmount, setPendingTranslationsAmount] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [categoryId, setCategoryId] = useState<string | null>(null)
   const [autoAssignedName, setAutoAssignedName] = useState<string | null>(null)
@@ -233,7 +232,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     !isVariantImageAttached
 
   useAdminPanelDirty("add-product-draft", hasDraft)
-  useAdminPanelDirty("add-product-pending", pendingTranslationsAmount > 0 || isSubmitting)
 
   // Register subTitle manually since it's no longer backed by a ProductInput/textarea
   useEffect(() => {
@@ -282,14 +280,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const increasePendingTranslations = () => {
     const nextPendingTranslationsAmount = pendingTranslationsAmountRef.current + 1
     pendingTranslationsAmountRef.current = nextPendingTranslationsAmount
-    setPendingTranslationsAmount(nextPendingTranslationsAmount)
     updateBackgroundToast(nextPendingTranslationsAmount)
   }
 
   const decreasePendingTranslations = (showCompletedToast = false, productId?: string) => {
     const nextPendingTranslationsAmount = Math.max(0, pendingTranslationsAmountRef.current - 1)
     pendingTranslationsAmountRef.current = nextPendingTranslationsAmount
-    setPendingTranslationsAmount(nextPendingTranslationsAmount)
 
     if (nextPendingTranslationsAmount > 0) {
       updateBackgroundToast(nextPendingTranslationsAmount)

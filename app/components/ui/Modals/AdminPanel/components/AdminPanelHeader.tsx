@@ -102,6 +102,7 @@ export function AdminPanelHeader({
           "flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/16 bg-white/8 text-white transition-colors duration-150 hover:bg-white/14",
           disabled && "pointer-events-none opacity-50",
         )}
+        data-cy="admin-panel-close"
         type="button"
         onClick={onClose}
         aria-label={t("close_admin_panel")}>

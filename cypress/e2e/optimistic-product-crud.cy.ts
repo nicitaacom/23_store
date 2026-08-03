@@ -75,6 +75,24 @@ describe("optimistic product CRUD", () => {
     cy.get(productSelector).find('[data-cy="product-price"]').should("contain", String(fixtures.ownerProduct.price))
   })
 
+  it("switches tabs without a discard prompt and guards closing a real draft", () => {
+    cy.signIn(fixtures.owner)
+    cy.intercept("GET", "/api/categories/select").as("selectCategories")
+    cy.visit("/?modal=AdminPanel")
+    cy.wait("@selectCategories")
+
+    cy.get("#title").type("Unsaved tab draft")
+    cy.get('[data-cy="admin-action-delete"]').click()
+    cy.get('[role="dialog"]').should("not.exist")
+    cy.get('[data-cy="admin-action-delete"]').should("have.class", "text-brand")
+
+    cy.get('[data-cy="admin-action-add"]').click()
+    cy.get("#title").type("Unsaved close draft")
+    cy.get('[data-cy="admin-panel-close"]').click()
+
+    cy.get('[role="dialog"]').should("be.visible")
+  })
+
   it("removes a product immediately and restores it after deletion fails", () => {
     openOwnerProduct(fixtures, "delete")
 

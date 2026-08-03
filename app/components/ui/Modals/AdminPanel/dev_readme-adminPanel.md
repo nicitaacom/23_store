@@ -156,6 +156,11 @@ space between the underline tabs doesn't trip the modal's click-outside handler 
 [OrganicCanvasBackground](../../../OrganicCanvasBackground.tsx), which now forwards DOM props so the attribute
 reaches its root div. Tabs are flat underline-style with a unified brand accent + `FiPlus` on Add.
 
+Tabs are workspace navigation, not modal dismissal. They call `setPanelAction` directly, so moving from
+Add to Delete never opens the discard dialog. The dialog belongs to the workspace close path and appears
+only when a mounted form reports a real draft, such as typed text or an uploaded image. A submitted product
+that is still translating in the background is no longer a draft and does not keep the close guard active.
+
 ## 3b. FormatTitleForm — inline edit pattern
 
 [components/FormatTitleForm.tsx](components/FormatTitleForm.tsx)

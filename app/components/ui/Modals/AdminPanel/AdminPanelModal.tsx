@@ -86,7 +86,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
   const handlePanelActionChange = useCallback(
     (nextAction: TPanelAction) => {
       if (nextAction === panelAction) return
-      requestGuardedActionRef.current(() => setPanelAction(nextAction))
+      setPanelAction(nextAction)
     },
     [panelAction],
   )
@@ -166,7 +166,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
       if (!target || target.target === "_blank" || target.hasAttribute("download")) return
 
       const destination = new URL(target.href, window.location.href)
-      if (destination.href === window.location.href || destination.hash && destination.pathname === window.location.pathname) {
+      if (destination.href === window.location.href || (destination.hash && destination.pathname === window.location.pathname)) {
         return
       }
 
