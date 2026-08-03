@@ -44,7 +44,7 @@ describe("backup Auth restore helpers", () => {
     ])
   })
 
-  it("collects UUID Auth references and ignores anonymous text ids", () => {
+  it("collects only required Auth FK references and ignores historical text ids", () => {
     expect(
       selectReferencedAuthUserIds([
         {
@@ -105,6 +105,18 @@ describe("backup Auth restore helpers", () => {
       "23_personalized_designs": ["user_id", "owner_id"],
       "23_tickets": ["owner_id"],
       "23_messages": ["sender_id"],
+    })
+    expect(Object.fromEntries(BACKUP_TABLES.map(table => [table.name, table.requiredAuthUserIdColumns]))).toEqual({
+      "23_users": ["id"],
+      "23_users_cart": ["id"],
+      "23_categories": [],
+      "23_category_views": [],
+      "23_products": ["owner_id"],
+      "23_ai_price_runs": [],
+      "23_ai_price_proposals": [],
+      "23_personalized_designs": ["owner_id"],
+      "23_tickets": [],
+      "23_messages": [],
     })
   })
 

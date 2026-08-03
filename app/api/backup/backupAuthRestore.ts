@@ -54,7 +54,7 @@ export function selectReferencedAuthUserIds(
 
   for (const table of tables) {
     for (const row of table.rows) {
-      for (const column of table.config.authUserIdColumns) {
+      for (const column of table.config.requiredAuthUserIdColumns) {
         const columnValue = row[column]
         if (isBackupUuid(columnValue)) referencedUserIds.add(columnValue)
       }

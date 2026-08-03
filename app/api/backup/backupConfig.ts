@@ -65,6 +65,9 @@ export type TBackupTableConfig = {
   // columns can also contain anonymous ids; only exact ids returned by the Auth preparation route
   // are replaced.
   authUserIdColumns: string[]
+  // Subset backed by a real FK to auth.users. Missing profiles for these ids must be completed on
+  // export/import; UUID-looking values in the other text columns can be historical/deleted users.
+  requiredAuthUserIdColumns: string[]
 }
 
 // Column classification derived from app/ts/types_db.ts (not from prose docs, which have drifted
@@ -79,6 +82,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     jsonColumns: [],
     uuidColumns: ["id"],
     authUserIdColumns: ["id"],
+    requiredAuthUserIdColumns: ["id"],
   },
   {
     name: "23_users_cart",
@@ -88,6 +92,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     jsonColumns: ["cart_products"],
     uuidColumns: ["id"],
     authUserIdColumns: ["id"],
+    requiredAuthUserIdColumns: ["id"],
   },
   {
     name: "23_categories",
@@ -97,6 +102,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     jsonColumns: [],
     uuidColumns: ["id"],
     authUserIdColumns: [],
+    requiredAuthUserIdColumns: [],
   },
   {
     name: "23_category_views",
@@ -106,6 +112,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     jsonColumns: [],
     uuidColumns: ["id", "category_id"],
     authUserIdColumns: ["user_id"],
+    requiredAuthUserIdColumns: [],
   },
   {
     name: "23_products",
@@ -115,6 +122,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     jsonColumns: ["translations", "variants"],
     uuidColumns: ["owner_id"],
     authUserIdColumns: ["owner_id"],
+    requiredAuthUserIdColumns: ["owner_id"],
   },
   {
     name: "23_ai_price_runs",
@@ -125,6 +133,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     jsonColumns: ["sources"],
     uuidColumns: ["id"],
     authUserIdColumns: [],
+    requiredAuthUserIdColumns: [],
   },
   {
     name: "23_ai_price_proposals",
@@ -135,6 +144,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     jsonColumns: ["proposed_variants"],
     uuidColumns: ["id", "run_id", "owner_id"],
     authUserIdColumns: ["owner_id"],
+    requiredAuthUserIdColumns: [],
   },
   {
     name: "23_personalized_designs",
@@ -144,6 +154,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     jsonColumns: ["placement"],
     uuidColumns: ["id", "owner_id"],
     authUserIdColumns: ["user_id", "owner_id"],
+    requiredAuthUserIdColumns: ["owner_id"],
   },
   {
     name: "23_tickets",
@@ -153,6 +164,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     jsonColumns: [],
     uuidColumns: [],
     authUserIdColumns: ["owner_id"],
+    requiredAuthUserIdColumns: [],
   },
   {
     name: "23_messages",
@@ -162,6 +174,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     jsonColumns: [],
     uuidColumns: ["id"],
     authUserIdColumns: ["sender_id"],
+    requiredAuthUserIdColumns: [],
   },
 ]
 

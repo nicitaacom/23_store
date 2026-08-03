@@ -127,11 +127,13 @@ change. See the **DB BACKUP FUNCTION** section in `dev_readme-supbase-sql.md` if
 ## Export flow
 
 **Tables:** `GET /api/backup/rows` returns every table's rows as JSON (small, no Storage bytes). If
-an exported cart/product/design/etc. references an Auth user whose public `23_users` profile is
-missing, export reads that specific account from Supabase Auth and adds a safe `USER` profile to
+an exported cart/product/design references an Auth user through a real FK whose public `23_users`
+profile is missing, export reads that specific account from Supabase Auth and adds a safe `USER` profile to
 `23_users` in the archive. The browser then converts each table to CSV (`toCsv`), packs a
 `.tar.gz` locally, and downloads it. This makes one-click Export self-contained for one-click
 Import without permanently inserting the synthesized profile into the source database.
+UUID-looking ids in historical TEXT columns (tickets, messages, category views) are preserved as
+history and do not require a still-existing Auth account.
 
 **Files:** `GET /api/backup/files` returns every stored file's bucket/path/size/contentType (no
 bytes) → the browser downloads each file directly from Supabase's public CDN (5 concurrent
