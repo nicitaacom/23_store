@@ -33,31 +33,47 @@ function authorizeWebhook(request: Request) {
   return null
 }
 
+async function sendAlertEmail(report: TKeyCheckReport, message: string): Promise<boolean> {
+  const notificationEmail = process.env.NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL
+  if (!notificationEmail) return false
+
+  const { error } = await resend.emails.send({
+    from: process.env.NEXT_PUBLIC_SUPPORT_EMAIL,
+    to: notificationEmail,
+    subject: `${PROJECT_NAME} — ${report.failures.length} API keys need you`,
+    html: `<pre style="font:14px/1.6 ui-monospace,monospace">${message}</pre>`,
+  })
+
+  return !error
+}
+
+/**
+ * Telegram first, and the email only when Telegram did not land.
+ *
+ * One broken key is worth one notification. Sending both every time means a second copy of a message
+ * already read, and two channels saying the same thing is what teaches you to stop opening either.
+ * The email stays as the way through for the case Telegram itself is the thing that is down.
+ *
+ * Nothing throws out of here. A failed send must not answer the cron with a 500, because the run
+ * itself succeeded and its result is already written to Redis.
+ */
 async function alertOwner(report: TKeyCheckReport) {
   const message = formatKeyCheckReport(PROJECT_NAME, report)
-  const notificationEmail = process.env.NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL
 
-  const [telegramResult, emailResult] = await Promise.allSettled([
-    sendTelegramMessage(message),
-    notificationEmail
-      ? resend.emails.send({
-          from: process.env.NEXT_PUBLIC_SUPPORT_EMAIL,
-          to: notificationEmail,
-          subject: `${PROJECT_NAME} — ${report.failures.length} API keys need you`,
-          html: `<pre style="font:14px/1.6 ui-monospace,monospace">${message}</pre>`,
-        })
-      : Promise.resolve(null),
-  ])
+  try {
+    const telegramResp = await sendTelegramMessage(message)
+    if (telegramResp.ok) return { telegramSent: true, emailSent: false }
+    console.error(59, "[check-envs] telegram refused the alert, sending the email", telegramResp.description)
+  } catch (error) {
+    console.error(61, "[check-envs] telegram alert failed, sending the email", error)
+  }
 
-  // Never throw out of here. A Telegram outage must not lose the email, and neither one failing is a
-  // reason to answer the cron with a 500 and forget the run happened.
-  if (telegramResult.status === "rejected")
-    console.error(55, "[check-envs] telegram alert failed", telegramResult.reason)
-  if (emailResult.status === "rejected") console.error(56, "[check-envs] email alert failed", emailResult.reason)
+  try {
+    return { telegramSent: false, emailSent: await sendAlertEmail(report, message) }
+  } catch (error) {
+    console.error(66, "[check-envs] email alert failed too, nothing was sent", error)
 
-  return {
-    telegramSent: telegramResult.status === "fulfilled" && telegramResult.value.ok,
-    emailSent: emailResult.status === "fulfilled" && Boolean(emailResult.value),
+    return { telegramSent: false, emailSent: false }
   }
 }
 

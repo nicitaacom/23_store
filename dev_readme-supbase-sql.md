@@ -896,7 +896,7 @@ pg_cron 'keys_check'  '0 4 * * *'   (fires daily, the const in code decides)
                 └─ app/api/webhooks/check-envs/route.ts
                      ├─ last run newer than PROD_CHECK_EVERY_DAYS? → 200 {"skipped":true}
                      └─ otherwise run every probe, then on a failure:
-                          Telegram message + email to NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL
+                          a Telegram message, and an email only if Telegram did not land
 ```
 
 **The schedule is daily on purpose.** `PROD_CHECK_EVERY_DAYS` in `app/utils/checkKeys.ts` is the real
@@ -972,7 +972,8 @@ curl -s -X POST https://YOUR_PRODUCTION_DOMAIN/api/webhooks/check-envs \
 | --- | --- |
 | `{"ok":true,"checked":38}` | every name is good |
 | `{"skipped":true,"daysSinceLastRun":0}` | already ran inside `PROD_CHECK_EVERY_DAYS` — the gate works |
-| `{"ok":false,"failures":[...],"alerted":true}` | Telegram and the email went out |
+| `{"ok":false,...,"alerted":true,"telegramSent":true}` | the Telegram message went out, no email sent |
+| `{"ok":false,...,"alerted":true,"emailSent":true}` | Telegram did not land, so the email went instead |
 | `{"ok":false,"alerted":false,"reason":"same names as last alert"}` | quiet on purpose, nothing new |
 | `{"error":"Unauthorized"}` | the Vault secret and `CRON_SECRET` in Vercel differ |
 | `{"error":"CRON_SECRET is not configured"}` | the variable is missing from Vercel Production |

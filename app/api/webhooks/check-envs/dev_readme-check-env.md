@@ -105,10 +105,12 @@ and never set on Vercel.
 
 - **live per index** — `TINIFY_API_KEY_ARR` holds several keys, and the report names the failing one:
   `TINIFY_API_KEY_ARR[2] — 401`.
-- **`optionalWhen`** — for a pair where the code reads either one. `PINECONE_HOST` and
-  `PINECONE_ENVIRONMENT` point at each other because `getPineconeHost` in
-  [app/libs/ai/chatMemory.ts](../../../libs/ai/chatMemory.ts) reads `PINECONE_HOST || PINECONE_ENVIRONMENT`.
-  One empty passes. Both empty fails on both lines.
+- **`optionalWhen`** — for a pair where the code reads either one: an empty value passes while its
+  partner holds one, and both empty fails on both lines. **No name uses it today.** It was written for
+  `PINECONE_HOST` / `PINECONE_ENVIRONMENT`, since `getPineconeHost` in
+  [app/libs/ai/chatMemory.ts](../../../libs/ai/chatMemory.ts) reads `PINECONE_HOST || PINECONE_ENVIRONMENT`,
+  and then `PINECONE_HOST` was dropped from `env.d.ts` so `PINECONE_ENVIRONMENT` is simply required.
+  The field and its two test cases stay for the next such pair — delete them if none turns up.
 
 ## 3. How it works
 
@@ -168,10 +170,30 @@ failing names            last alert                       →  what happens
 Without the second row, one revoked key sends a message every single week until you fix it, and a
 report you have already read teaches you to ignore the next one.
 
-An alert goes to **both** channels, and neither one failing loses the other:
+### One notification, not two
+
+An alert goes to **Telegram first, and to email only when Telegram did not land**:
+
+```
+alertOwner()
+  │
+  ├─ sendTelegramMessage()  →  ok        →  done, no email  { telegramSent: true,  emailSent: false }
+  │                            refused   ─┐
+  │                            threw     ─┤
+  │                                       │
+  └─ resend.emails.send() ────────────────┘  →  sent      { telegramSent: false, emailSent: true  }
+                                              →  failed   { telegramSent: false, emailSent: false }
+```
 
 - Telegram, via `sendTelegramMessage` in [app/utils/sendTelegramMessage.ts](../../../utils/sendTelegramMessage.ts)
 - email to `NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL`, sent from `NEXT_PUBLIC_SUPPORT_EMAIL`
+
+**Why not both.** One broken key is worth one notification. A second copy of a message you already
+read is noise, and two channels saying the same thing is what teaches you to stop opening either. The
+email is not a duplicate — it is the way through for the case Telegram itself is the thing that is down.
+
+Nothing throws out of `alertOwner`. A failed send must not answer the cron with a 500, because the run
+itself succeeded and its result is already in Redis. The JSON answer reports which channel was used.
 
 ### The drift triangle
 
