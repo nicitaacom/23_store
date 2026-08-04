@@ -90,7 +90,9 @@ storage/23_avatar-images/<...>
 | Pure source-user validation and row remapping | `app/api/backup/backupAuthRestore.ts` |
 | Rows GET (export) / POST (import, ≤500/batch) | `app/api/backup/rows/route.ts` |
 | Files GET (list, paths only) / POST (signed upload URLs, ≤100/batch) | `app/api/backup/files/route.ts` |
-| Client SDK — 4 methods (export/import × tables/files) + live speed tracker | `app/sdk/BackupSDK/BackupSDK.ts` |
+| Storage URL relink POST (scan target paths, update rows/Auth metadata) | `app/api/backup/relink-storage-urls/route.ts` |
+| Pure recursive Storage URL parser/relinker | `app/api/backup/backupStorageRelink.ts` |
+| Client SDK — export/import × tables/files, relink finalizer + live speed tracker | `app/sdk/BackupSDK/BackupSDK.ts` |
 | Global state for all 4 flows and modal visibility | `app/store/ui/useDbBackupState.ts` |
 | Hook (starts the SDK work and supplies toast + i18n) | `app/components/ui/Modals/DbBackup/hooks/useDbBackup.ts` |
 | Always-mounted progress card + page-leave warning | `app/components/ui/Modals/DbBackup/DbBackupProgressCard.tsx` |
@@ -160,6 +162,33 @@ server never sees the archive bytes), asks `/api/backup/files` for a signed uplo
 owner column), then PUTs each file's bytes directly to the signed URL with
 `upsert: true` baked into the token, so a re-import overwrites the existing object.
 
+**Storage URL relinking:** both Tables import and Files import finish by calling the ADMIN-only
+`POST /api/backup/relink-storage-urls`. Calling it from both flows makes the restore order
+independent: a Tables-first restore reports paths that are not uploaded yet, and the later Files
+import resolves them; a Files-first restore resolves them when Tables are imported. The route
+lists the objects currently present in `23_public-images` and `23_avatar-images`, then recursively
+checks only the configured URL-bearing columns:
+
+- `23_users.avatar_url`
+- `23_products.img_url`, `variants`, and `personalization`
+- `23_ai_price_proposals.proposed_variants`
+- `23_personalized_designs.source_url`
+- `23_tickets.owner_avatar_url`
+- `23_messages.images` and `sender_avatar_url`
+- Supabase Auth `user_metadata.avatar_url`
+
+An old public URL is rewritten to `NEXT_PUBLIC_SUPABASE_URL` only when its exact `bucket/path`
+exists in target Storage. Current-project URLs, external/invalid/data URLs, and URLs whose object
+is missing remain unchanged. Missing references and unique paths are returned as an unresolved
+warning in the modal; they do not fail an otherwise successful import. Re-running the finalizer is
+safe and idempotent. After it succeeds, the client refreshes the current route so server-rendered
+image data is fetched again.
+
+For the 2026-08-03 migration archive, 861 of 1,071 database Storage URL references match the
+current files archive. The remaining 210 references (170 unique paths) point to files absent from
+that archive and intentionally stay unchanged. No SQL or environment change is required: the two
+existing public buckets and `NEXT_PUBLIC_SUPABASE_URL` are sufficient.
+
 Progress on both flows is byte-accurate on the files tab (`23 MB / 230 MB`) and count-based on the
 tables tab (`3 / 10 tables`) — CSV rows are not large enough for byte progress to be meaningful.
 
@@ -167,7 +196,7 @@ tables tab (`3 / 10 tables`) — CSV rows are not large enough for byte progress
 
 ## Security
 
-- Both routes (`rows`, `files`) are gated by the existing `requireAdmin()` — returns 401
+- All backup routes (`rows`, `files`, `auth-users`, `relink-storage-urls`) are gated by the existing `requireAdmin()` — returns 401
   (unauthenticated) or 403 (not ADMIN). Non-admins hitting the routes directly are rejected.
 - All DB/Storage access uses `supabaseAdmin` (service role), which bypasses RLS — bucket policies
   do not affect export/import.

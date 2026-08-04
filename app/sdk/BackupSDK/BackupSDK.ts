@@ -29,8 +29,12 @@ const DOWNLOAD_CONCURRENCY = 5
 export type TTablesImportResult = {
   accounts: { created: number; reused: number; passwordResetRequired: number }
   tables: { table: string; rows: number; skipped: number }[]
+  relink: API.BackupStorageRelinkResult
 }
-export type TFilesImportResult = { buckets: { bucket: string; files: number; failed: number }[] }
+export type TFilesImportResult = {
+  buckets: { bucket: string; files: number; failed: number }[]
+  relink: API.BackupStorageRelinkResult
+}
 
 // Progress shape shared by the files flow (export + import) — bytes, not just a file count, plus
 // the measured connection speed once known.
@@ -172,6 +176,12 @@ function createSpeedTracker() {
 }
 
 export class BackupSDK extends BaseSDK {
+  async relinkStorageUrls(): Promise<API.BackupStorageRelinkResult> {
+    const response = await this.postJson<Record<string, never>, API.BackupStorageRelinkResponse>("/api/backup/relink-storage-urls", {})
+    if ("error" in response) throw new Error(`Failed to relink Storage URLs: ${response.error}`)
+    return response
+  }
+
   /**
    * Export table rows only (no storage files) as one .tar.gz containing a .csv per table. Kept
    * separate from file export so a table-only backup never has to touch Storage or wait on file
@@ -234,9 +244,9 @@ export class BackupSDK extends BaseSDK {
     const sourceUsers = selectBackupSourceUsers(usersTable?.rows ?? [])
     const referencedUserIds = selectReferencedAuthUserIds(parsedTables)
     const shouldPrepareAccounts = sourceUsers.length > 0 || referencedUserIds.length > 0
-    const totalSteps = tablesToImport.length + (shouldPrepareAccounts ? 1 : 0)
+    const totalSteps = tablesToImport.length + (shouldPrepareAccounts ? 1 : 0) + 1
 
-    const result: TTablesImportResult = {
+    const result: Omit<TTablesImportResult, "relink"> = {
       accounts: { created: 0, reused: 0, passwordResetRequired: 0 },
       tables: [],
     }
@@ -285,7 +295,12 @@ export class BackupSDK extends BaseSDK {
       onProgress(done, totalSteps, `Restored ${table.config.name}`)
     }
 
-    return result
+    onProgress(done, totalSteps, "Relinking image URLs…")
+    const relink = await this.relinkStorageUrls()
+    done++
+    onProgress(done, totalSteps, "Image URLs relinked")
+
+    return { ...result, relink }
   }
 
   /**
@@ -449,8 +464,10 @@ export class BackupSDK extends BaseSDK {
       throw new Error(firstError ?? "No files were uploaded — every path was skipped.")
     }
 
+    onProgress({ bytesDone: bytesTotal, bytesTotal, label: "Relinking image URLs…", speedBytesPerMs: speedTracker.sample(bytesTotal) })
+    const relink = await this.relinkStorageUrls()
     onProgress({ bytesDone: bytesTotal, bytesTotal, label: "Done", speedBytesPerMs: speedTracker.sample(bytesTotal) })
-    return { buckets: Object.entries(bucketStats).map(([bucket, stat]) => ({ bucket, ...stat })) }
+    return { buckets: Object.entries(bucketStats).map(([bucket, stat]) => ({ bucket, ...stat })), relink }
   }
 }
 

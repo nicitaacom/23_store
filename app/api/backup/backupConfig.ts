@@ -56,6 +56,9 @@ export type TBackupTableConfig = {
   numericColumns: string[]
   arrayColumns: string[]
   jsonColumns: string[]
+  // Columns whose scalar/array/JSON values can contain public URLs for BACKUP_BUCKETS. The relink
+  // route walks only these columns, so unrelated URLs and text never change during restore.
+  storageUrlColumns?: string[]
   // NOT NULL text columns whose database default is an empty string. Archives exported before
   // quoted empty CSV fields were added represent both null and "" as an unquoted empty field.
   emptyStringDefaultColumns?: string[]
@@ -83,6 +86,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     numericColumns: [],
     arrayColumns: ["providers", "roles"],
     jsonColumns: [],
+    storageUrlColumns: ["avatar_url"],
     uuidColumns: ["id"],
     authUserIdColumns: ["id"],
     requiredAuthUserIdColumns: ["id"],
@@ -122,7 +126,8 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     onConflict: "price_id,owner_id,id",
     numericColumns: ["on_stock", "price", "ai_price_baseline"],
     arrayColumns: ["img_url"],
-    jsonColumns: ["translations", "variants"],
+    jsonColumns: ["translations", "variants", "personalization"],
+    storageUrlColumns: ["img_url", "variants", "personalization"],
     uuidColumns: ["owner_id"],
     authUserIdColumns: ["owner_id"],
     requiredAuthUserIdColumns: ["owner_id"],
@@ -145,6 +150,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     numericColumns: ["current_price", "baseline_price", "proposed_price"],
     arrayColumns: [],
     jsonColumns: ["proposed_variants"],
+    storageUrlColumns: ["proposed_variants"],
     uuidColumns: ["id", "run_id", "owner_id"],
     authUserIdColumns: ["owner_id"],
     requiredAuthUserIdColumns: [],
@@ -155,6 +161,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     numericColumns: ["source_width_px", "source_height_px", "print_width_mm", "print_height_mm", "effective_dpi"],
     arrayColumns: [],
     jsonColumns: ["placement"],
+    storageUrlColumns: ["source_url"],
     uuidColumns: ["id", "owner_id"],
     authUserIdColumns: ["user_id", "owner_id"],
     requiredAuthUserIdColumns: ["owner_id"],
@@ -165,6 +172,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     numericColumns: ["rate"],
     arrayColumns: [],
     jsonColumns: [],
+    storageUrlColumns: ["owner_avatar_url"],
     emptyStringDefaultColumns: ["last_message_body"],
     uuidColumns: [],
     authUserIdColumns: ["owner_id"],
@@ -176,6 +184,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     numericColumns: [],
     arrayColumns: ["images"],
     jsonColumns: [],
+    storageUrlColumns: ["images", "sender_avatar_url"],
     uuidColumns: ["id"],
     authUserIdColumns: ["sender_id"],
     requiredAuthUserIdColumns: [],
@@ -286,8 +295,8 @@ export async function listFiles(admin: TStorageClient): Promise<TBackupFileRef[]
 // ── public URL ──────────────────────────────────────────────────────────────
 //
 // Builds the public CDN URL the browser downloads each stored file from during a files export.
-export function getPublicUrl(bucket: string, path: string): string {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+export function getPublicUrl(bucket: string, path: string, suppliedSupabaseUrl?: string): string {
+  const supabaseUrl = suppliedSupabaseUrl ?? process.env.NEXT_PUBLIC_SUPABASE_URL
   if (!supabaseUrl) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set — public file URLs require it")
   const base = supabaseUrl.endsWith("/") ? supabaseUrl.slice(0, -1) : supabaseUrl
   return `${base}/storage/v1/object/public/${bucket}/${path}`

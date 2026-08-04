@@ -16,6 +16,31 @@ const TABS: { value: TBackupTab; labelKey: "tab_tables" | "tab_files" }[] = [
   { value: "files", labelKey: "tab_files" },
 ]
 
+function StorageRelinkResult({ result }: { result: API.BackupStorageRelinkResult }) {
+  const t = useScopedI18n("backup")
+  const tableResults = result.tables.filter(table => table.urlsUpdated > 0 || table.unresolvedReferences > 0)
+
+  return (
+    <div className="flex flex-col gap-0.5 border-t border-border-color/35 pt-2">
+      <p className="text-xs text-success">{t("relink_result", { count: result.urlsUpdated })}</p>
+      {result.unresolvedReferences > 0 && (
+        <p className="text-xs text-warning">
+          {t("unresolved_result", {
+            references: result.unresolvedReferences,
+            paths: result.unresolvedPaths,
+          })}
+        </p>
+      )}
+      {tableResults.map(table => (
+        <div className="flex items-center justify-between gap-2 text-xs text-subTitle" key={table.table}>
+          <span>{table.table}</span>
+          <span>{t("relink_table_result", { updated: table.urlsUpdated, unresolved: table.unresolvedReferences })}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // http://localhost:6006/?path=/story/admin-admintools--utm-stats
 export function DbBackupModal() {
   const t = useScopedI18n("backup")
@@ -125,32 +150,35 @@ export function DbBackupModal() {
           {tablesImportPhase === "error" && <p className="text-xs text-danger">{tablesImportError}</p>}
 
           {tablesImportResult && tablesImportPhase === "done" && (
-            <ul className="flex flex-col gap-0.5 border-t border-border-color/35 pt-2">
-              <li className="flex items-center justify-between text-xs text-subTitle">
-                <span>{t("accounts_label")}</span>
-                <span>
-                  {t("accounts_result", {
-                    created: tablesImportResult.accounts.created,
-                    reused: tablesImportResult.accounts.reused,
-                  })}
-                </span>
-              </li>
-              {tablesImportResult.accounts.passwordResetRequired > 0 && (
-                <li className="text-xs text-warning">
-                  {t("password_recovery_result", {
-                    count: tablesImportResult.accounts.passwordResetRequired,
-                  })}
-                </li>
-              )}
-              {tablesImportResult.tables.map(table => (
-                <li className="flex items-center justify-between text-xs text-subTitle" key={table.table}>
-                  <span>{table.table}</span>
+            <div className="flex flex-col gap-2">
+              <ul className="flex flex-col gap-0.5 border-t border-border-color/35 pt-2">
+                <li className="flex items-center justify-between text-xs text-subTitle">
+                  <span>{t("accounts_label")}</span>
                   <span>
-                    {table.rows} rows{table.skipped > 0 ? ` (${table.skipped} skipped)` : ""}
+                    {t("accounts_result", {
+                      created: tablesImportResult.accounts.created,
+                      reused: tablesImportResult.accounts.reused,
+                    })}
                   </span>
                 </li>
-              ))}
-            </ul>
+                {tablesImportResult.accounts.passwordResetRequired > 0 && (
+                  <li className="text-xs text-warning">
+                    {t("password_recovery_result", {
+                      count: tablesImportResult.accounts.passwordResetRequired,
+                    })}
+                  </li>
+                )}
+                {tablesImportResult.tables.map(table => (
+                  <li className="flex items-center justify-between text-xs text-subTitle" key={table.table}>
+                    <span>{table.table}</span>
+                    <span>
+                      {table.rows} rows{table.skipped > 0 ? ` (${table.skipped} skipped)` : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <StorageRelinkResult result={tablesImportResult.relink} />
+            </div>
           )}
         </div>
       )}
@@ -222,16 +250,19 @@ export function DbBackupModal() {
           {filesImportPhase === "error" && <p className="text-xs text-danger">{filesImportError}</p>}
 
           {filesImportResult && filesImportPhase === "done" && (
-            <ul className="flex flex-col gap-0.5 border-t border-border-color/35 pt-2">
-              {filesImportResult.buckets.map(bucket => (
-                <li className="flex items-center justify-between text-xs text-subTitle" key={bucket.bucket}>
-                  <span>{bucket.bucket}</span>
-                  <span>
-                    {bucket.files} files{bucket.failed > 0 ? ` (${bucket.failed} failed)` : ""}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <div className="flex flex-col gap-2">
+              <ul className="flex flex-col gap-0.5 border-t border-border-color/35 pt-2">
+                {filesImportResult.buckets.map(bucket => (
+                  <li className="flex items-center justify-between text-xs text-subTitle" key={bucket.bucket}>
+                    <span>{bucket.bucket}</span>
+                    <span>
+                      {bucket.files} files{bucket.failed > 0 ? ` (${bucket.failed} failed)` : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <StorageRelinkResult result={filesImportResult.relink} />
+            </div>
           )}
         </div>
       )}

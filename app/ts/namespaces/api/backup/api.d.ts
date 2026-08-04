@@ -53,4 +53,23 @@ declare namespace API {
     | { bucket: string; path: string; signedUrl: string }
     | { bucket: string; path: string; skipped: true; reason: string }
   type BackupFilesPostResponse = { results: BackupUploadTarget[] } | { error: string }
+
+  type BackupStorageRelinkTableResult = {
+    table: string
+    rowsUpdated: number
+    urlsUpdated: number
+    unresolvedReferences: number
+    unresolvedPaths: number
+  }
+  type BackupStorageRelinkResult = {
+    rowsUpdated: number
+    urlsUpdated: number
+    authUsersUpdated: number
+    unresolvedReferences: number
+    unresolvedPaths: number
+    tables: BackupStorageRelinkTableResult[]
+  }
+  type BackupStorageRelinkResponse =
+    | BackupStorageRelinkResult
+    | { error: string; code?: string; details?: string; hint?: string }
 }

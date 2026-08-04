@@ -118,6 +118,19 @@ describe("backup Auth restore helpers", () => {
       "23_tickets": [],
       "23_messages": [],
     })
+    expect(Object.fromEntries(BACKUP_TABLES.map(table => [table.name, table.storageUrlColumns ?? []]))).toEqual({
+      "23_users": ["avatar_url"],
+      "23_users_cart": [],
+      "23_categories": [],
+      "23_category_views": [],
+      "23_products": ["img_url", "variants", "personalization"],
+      "23_ai_price_runs": [],
+      "23_ai_price_proposals": ["proposed_variants"],
+      "23_personalized_designs": ["source_url"],
+      "23_tickets": ["owner_avatar_url"],
+      "23_messages": ["images", "sender_avatar_url"],
+    })
+    expect(BACKUP_TABLES.find(table => table.name === "23_products")?.jsonColumns).toContain("personalization")
   })
 
   it("creates missing public backup profiles from referenced Auth users", () => {

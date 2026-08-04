@@ -1,12 +1,14 @@
 "use client"
 
 import { useCallback, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 
 import { selectDbBackupIsBusy, useDbBackupState } from "@/store/ui/useDbBackupState"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 
 export function useDbBackup() {
+  const router = useRouter()
   const toast = useToast()
   const t = useScopedI18n("backup")
   const backup = useDbBackupState()
@@ -67,14 +69,26 @@ export function useDbBackup() {
           })
         })
         useDbBackupState.setState({ tablesImportResult: response, tablesImportPhase: "done" })
-        toast.show("success", t("import_success"), "", 3000)
+        router.refresh()
+        const hasUnresolvedImages = response.relink.unresolvedReferences > 0
+        toast.show(
+          hasUnresolvedImages ? "warning" : "success",
+          t(hasUnresolvedImages ? "import_partial" : "import_success"),
+          hasUnresolvedImages
+            ? t("unresolved_result", {
+                references: response.relink.unresolvedReferences,
+                paths: response.relink.unresolvedPaths,
+              })
+            : "",
+          4000,
+        )
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         useDbBackupState.setState({ tablesImportPhase: "error", tablesImportError: message })
         toast.show("error", t("error"), message)
       }
     },
-    [t, toast],
+    [router, t, toast],
   )
   const startImportTablesRef = useRef(startImportTables)
   useEffect(() => {
@@ -133,14 +147,26 @@ export function useDbBackup() {
           })
         })
         useDbBackupState.setState({ filesImportResult: response, filesImportPhase: "done" })
-        toast.show("success", t("import_success"), "", 3000)
+        router.refresh()
+        const hasUnresolvedImages = response.relink.unresolvedReferences > 0
+        toast.show(
+          hasUnresolvedImages ? "warning" : "success",
+          t(hasUnresolvedImages ? "import_partial" : "import_success"),
+          hasUnresolvedImages
+            ? t("unresolved_result", {
+                references: response.relink.unresolvedReferences,
+                paths: response.relink.unresolvedPaths,
+              })
+            : "",
+          4000,
+        )
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         useDbBackupState.setState({ filesImportPhase: "error", filesImportError: message })
         toast.show("error", t("error"), message)
       }
     },
-    [t, toast],
+    [router, t, toast],
   )
   const startImportFilesRef = useRef(startImportFiles)
   useEffect(() => {
