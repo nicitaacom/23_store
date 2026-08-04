@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import { mergeBackupPublicUserRows, selectMissingBackupPublicUsers, selectReferencedAuthUserIds } from "../backupAuthRestore"
 import { requireAdmin } from "../requireAdmin"
 import { selectAllAuthUsers } from "../selectAllAuthUsers"
-import { BACKUP_TABLES, getTableConfig, filterRowsByUuidColumns } from "../backupTables"
+import { BACKUP_TABLES, getTableConfig, filterRowsByUuidColumns, applyBackupImportDefaults } from "../backupTables"
 import { isMissingSchemaError } from "@/utils/personalizationSchema"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
   if (adminError) return NextResponse.json({ error: adminError }, { status: adminError === "Unauthorized" ? 401 : 403 })
 
   const { rows: uuidValidRows, skipped } = filterRowsByUuidColumns(config, rows)
-  let keptRows = uuidValidRows
+  let keptRows = applyBackupImportDefaults(config, uuidValidRows)
   if (config.name === "23_users" && uuidValidRows.length > 0) {
     const userIds = uuidValidRows.flatMap(row => (typeof row.id === "string" ? [row.id] : []))
     // eslint-disable-next-line local-rules/use-rls-supabase-client -- requireAdmin authorizes preserving target roles during the full-database import.

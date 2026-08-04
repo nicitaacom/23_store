@@ -5,6 +5,7 @@ function needsQuoting(value: string): boolean {
 }
 
 function quoteField(value: string): string {
+  if (value === "") return '""'
   return needsQuoting(value) ? `"${value.replace(/"/g, "\"\"")}"` : value
 }
 
@@ -33,10 +34,13 @@ export function toCsv(rows: Record<string, unknown>[]): string {
   return lines.join("\r\n")
 }
 
-function parseCsvLine(line: string): string[] {
-  const fields: string[] = []
+type TCsvField = { value: string; wasQuoted: boolean }
+
+function parseCsvLine(line: string): TCsvField[] {
+  const fields: TCsvField[] = []
   let field = ""
   let inQuotes = false
+  let wasQuoted = false
 
   for (let index = 0; index < line.length; index++) {
     const char = line[index]
@@ -52,15 +56,17 @@ function parseCsvLine(line: string): string[] {
       }
     } else if (char === "\"") {
       inQuotes = true
+      wasQuoted = true
     } else if (char === ",") {
-      fields.push(field)
+      fields.push({ value: field, wasQuoted })
       field = ""
+      wasQuoted = false
     } else {
       field += char
     }
   }
 
-  fields.push(field)
+  fields.push({ value: field, wasQuoted })
   return fields
 }
 
@@ -92,15 +98,15 @@ export function parseCsv(text: string): Record<string, string | null>[] {
   const records = splitCsvRecords(text)
   if (records.length === 0) return []
 
-  const columns = parseCsvLine(records[0])
+  const columns = parseCsvLine(records[0]).map(field => field.value)
   const rows: Record<string, string | null>[] = []
 
   for (let recordIndex = 1; recordIndex < records.length; recordIndex++) {
     const fields = parseCsvLine(records[recordIndex])
     const row: Record<string, string | null> = {}
     columns.forEach((column, columnIndex) => {
-      const value = fields[columnIndex]
-      row[column] = value === undefined || value === "" ? null : value
+      const field = fields[columnIndex]
+      row[column] = !field || (field.value === "" && !field.wasQuoted) ? null : field.value
     })
     rows.push(row)
   }

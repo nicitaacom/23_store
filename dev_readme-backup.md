@@ -150,6 +150,9 @@ users, remaps source user UUIDs, and only then POSTs `≤500` rows per table per
 `/api/backup/rows`. The server upserts on each table's primary key (`onConflict`). Rows with an
 empty/invalid uuid column are dropped before the upsert (`filterRowsByUuidColumns`) and reported as
 `skipped`, so one bad row cannot fail an entire batch with a `22P02` (text = uuid) error.
+CSV keeps `null` as an unquoted empty field and `""` as a quoted empty field, so empty text survives
+the round trip. For older archives where both forms were unquoted, import restores a null
+`23_tickets.last_message_body` to its database default (`""`) before upsert.
 
 **Files:** upload one `.tar.gz` (from export). The browser decompresses and parses it locally (the
 server never sees the archive bytes), asks `/api/backup/files` for a signed upload URL per file

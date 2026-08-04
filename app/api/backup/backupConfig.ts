@@ -56,6 +56,9 @@ export type TBackupTableConfig = {
   numericColumns: string[]
   arrayColumns: string[]
   jsonColumns: string[]
+  // NOT NULL text columns whose database default is an empty string. Archives exported before
+  // quoted empty CSV fields were added represent both null and "" as an unquoted empty field.
+  emptyStringDefaultColumns?: string[]
   // Columns whose Postgres type is uuid. A row with an empty/invalid value in one of these is
   // dropped before upsert instead of failing the whole batch with a 22P02 (text = uuid) error —
   // see filterRowsByUuidColumns below.
@@ -162,6 +165,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     numericColumns: ["rate"],
     arrayColumns: [],
     jsonColumns: [],
+    emptyStringDefaultColumns: ["last_message_body"],
     uuidColumns: [],
     authUserIdColumns: ["owner_id"],
     requiredAuthUserIdColumns: [],
@@ -191,6 +195,18 @@ export function filterRowsByUuidColumns(config: TBackupTableConfig, rows: Record
 
   const kept = rows.filter(row => config.uuidColumns.every(column => typeof row[column] === "string" && UUID_REGEX.test(row[column] as string)))
   return { rows: kept, skipped: rows.length - kept.length }
+}
+
+export function applyBackupImportDefaults(config: TBackupTableConfig, rows: Record<string, unknown>[]) {
+  if (!config.emptyStringDefaultColumns?.length) return rows
+
+  return rows.map(row => {
+    const restoredRow = { ...row }
+    for (const column of config.emptyStringDefaultColumns ?? []) {
+      if (restoredRow[column] === null) restoredRow[column] = ""
+    }
+    return restoredRow
+  })
 }
 
 // ── buckets ───────────────────────────────────────────────────────────────────

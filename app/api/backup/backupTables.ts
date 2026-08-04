@@ -7,6 +7,7 @@ export {
   getTableConfig,
   isBackupBucket,
   filterRowsByUuidColumns,
+  applyBackupImportDefaults,
   getPublicUrl,
   listFiles,
 } from "./backupConfig"
