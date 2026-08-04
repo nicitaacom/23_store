@@ -94,7 +94,7 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
 
   return (
     <div className="flex w-full items-center gap-2">
-      <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto py-1 pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex min-w-0 items-center gap-2 overflow-x-auto py-1 pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <button
           className={getCategoryButtonClassName(isAllActive)}
           ref={isAllActive ? activePillRef : null}
