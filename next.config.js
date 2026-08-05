@@ -18,7 +18,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "sckioxanzluozlghvnts.supabase.co",
+        hostname: "bzzhychzmepvozeosdkq.supabase.co",
         port: "",
       },
       // old - will be deleted
