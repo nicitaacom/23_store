@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Area,
@@ -21,6 +21,7 @@ import { IoChevronDown, IoCalendar, IoTrendingUp, IoGlobeOutline, IoLocationOutl
 import { IUTMAggregatedStats, IUTMCountryStat, IUTMLocationStat } from "@/ts/interfaces/IUTMAggregatedStats"
 import { BuyingFlow } from "./BuyingFlow"
 import { selectDBUTMStatsAction } from "../actions/selectDBUTMStatsAction"
+import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
 const CHART_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"]
 const FIRST_YEAR = 2023 // year the store launched — don't offer years before this
@@ -383,6 +384,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
   const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear())
   const [selectedMonth, setSelectedMonth] = useState(0) // 0 = "Entire Year"
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
+  const datePickerRef = useRef<HTMLDivElement>(null)
+  useOnEscOrClickOutside(datePickerRef, () => setIsDatePickerOpen(false), { isHookEnabled: isDatePickerOpen })
   const [isAnimating, setIsAnimating] = useState(false)
   // Seed with the all-time prop so the dashboard renders immediately; the period effect then
   // replaces it with data filtered to the selected month/year.
@@ -469,7 +472,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
               </p>
             </div>
 
-            <div className="relative">
+            <div className="relative" ref={datePickerRef}>
               <motion.button
                 className="bg-brand text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow"
                 whileHover={{ scale: 1.05 }}
