@@ -106,6 +106,7 @@ These files exist on disk but have no `src` reference in `.tsx` / `.ts` files. S
 | `docs/products/db-23_products.png` | dev_readme for create-product — DB screenshot |
 | `docs/support/db-23_messages.png` | dev_readme for support — DB messages screenshot |
 | `docs/support/db-23_tickets.png` | dev_readme for support — DB tickets screenshot |
+| `docs/support/support-image-upload-workflow.png` | `dev_readme-supbase-sql.md` — support chat images bucket/folder diagram, AI-generated from plan-22 §5 prompt 1 |
 | `docs/customer/how-to-install-metamask/step-1.png` | MetaMask install guide step 1 |
 | `docs/customer/how-to-install-metamask/step-2.jpg` | MetaMask install guide step 2 |
 | `projects/AI.png` | Portfolio project card — AI project |

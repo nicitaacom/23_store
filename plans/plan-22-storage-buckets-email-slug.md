@@ -439,34 +439,25 @@ filler — every box and arrow maps to a real step named in plan-22."
 
 ### 2. Product images
 
-> A top-to-bottom technical sequence diagram on a deep dark-green background, slightly rounded
-> corners on every box, with two side callouts on the right.
+> A 4-step vertical flow diagram. Deep dark-green background, slightly rounded corners, no icons —
+> text only, monospace for every path.
 >
-> Box 1: "the owner types a product title", smaller line: "AddProductForm — the Finnish translation
-> is the source text".
+> Title: "Product image → its path".
 >
-> Box 2: "the title is slugified", showing `сливки 30%` → `slivki-30pct`, smaller line: "lowercase,
-> single '-' runs, nothing left needing URL escaping". A callout connected to this box on the right:
-> "% becomes 'pct', so 30% and 30 stay two different names" and "letters outside a–z are
-> transliterated".
+> Box 1: `title: "сливки 30%"`.
 >
-> Box 3: "createStripeProduct runs first", smaller line: "it returns the productId, and the
-> productId IS the folder".
+> Box 2: `slug: "slivki-30pct"` — small side note: "% → pct, cyrillic → latin".
 >
-> Box 4: `23_product-images` as its title, then the path shape
-> `slugifyEmail(email) / productId / slug(title)-N.ext`, then "every image of one product in exactly
-> one folder".
+> Box 3: `Stripe → productId: "prod_T1IRAxDEq5VtEmno"`.
 >
-> Box 5, monospace, the worked example:
-> `nicitaacomgmailcom/prod_T1IRAxDEq5VtEmno/slivki-30pct-1.jpg`. A callout connected to this box on
-> the right: "deleting a product deletes this one folder — no search through a folder holding every
-> product".
+> Box 4, one wide highlighted box, the result:
+> `23_product-images/nicitaacomgmailcom/prod_T1IRAxDEq5VtEmno/slivki-30pct-1.jpg`. Under box 4,
+> three short labels pointing up at the three parts of that path: "owner email, slugged" ·
+> "productId — delete this folder, delete the product" · "title slug + position".
 >
-> Box 6: "adding an image later continues the numbering", then "the highest -N already in the folder
-> decides the next one", then "a removed image keeps its file, so the count of URLs is not enough".
->
-> Deep dark-green background, slightly rounded corners, readable in both a light and dark viewer
-> theme, no decorative filler — every box and arrow maps to a real step named in plan-22.
+> Every label under 6 words. No decorative filler. Deep dark-green background, slightly rounded
+> corners, readable in both a light and dark viewer theme, no decorative filler — every box and
+> arrow maps to a real step named in plan-22.
 
 ---
 
@@ -518,3 +509,29 @@ filler — every box and arrow maps to a real step named in plan-22."
 >
 > Deep dark-green background, slightly rounded corners, readable in both a light and dark viewer
 > theme, no decorative filler — every box and arrow maps to a real step named in plan-22.
+
+---
+
+## 6. Finishing the docs — embedding the 4 images
+
+Each of §5's 4 prompts is generated one at a time (image-generator limit), then embedded by hand
+into the doc that already documents that workflow. Not a Stage — nothing here touches app code.
+
+| # | Prompt | Status | Embeds into |
+| --- | --- | --- | --- |
+| 1 | Support chat images | **Done** — `public/docs/support/support-image-upload-workflow.png`, embedded in `dev_readme-supbase-sql.md` above the bucket table | `dev_readme-supbase-sql.md`, "SQL query for buckets + policies" |
+| 2 | Product images | Prompt rewritten shorter/text-first (§5 above) — image not generated yet | `app/functions/dev_readme-create-product.md`, §1 "How does it look", next to `Products.png` |
+| 3 | Avatar URL | Not generated yet | `dev_readme-supbase-sql.md`, "SQL query for buckets + policies", next to image 1 |
+| 4 | Backup import / export | Not generated yet | `dev_readme-backup.md`, above "Export flow" |
+
+For each of 2–4, once Nikita pastes the generated PNG:
+
+1. Save it at `public/docs/<feature>/<name>.png` (kebab-case, matches the existing screenshots
+   already in that folder).
+2. Add a row to `public/docs/public-assets.md` under "Used images — subfolders".
+3. Embed it with `![alt](public/docs/<feature>/<name>.png)` + the path line under it, into the doc
+   named in the row above — same pattern image 1 already uses.
+
+🚨 TODO
+1. Generate images 2–4 from the §5 prompts (image 2's prompt is already the updated, shorter one) —
+   image-generator dashboard, not something run from this repo.

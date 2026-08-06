@@ -345,6 +345,10 @@ ALTER TABLE utm_stats ENABLE ROW LEVEL SECURITY;
 
 ### SQL query for buckets + policies
 
+![Support chat images — bucket + folder split](public/docs/support/support-image-upload-workflow.png)
+`public/docs/support/support-image-upload-workflow.png` — signed-in vs guest bucket, folder, and
+weekly sweep for support-chat images (prompt 1 of 4, [plan-22 §5](plans/plan-22-storage-buckets-email-slug.md#5-image-prompts))
+
 One bucket per purpose, and the folder inside it is keyed on the uploader's slugified email
 (`nicitaacom@gmail.com` → `nicitaacomgmailcom`) or, for a visitor who is not signed in, on their
 `deviceId`. `auth.users.id` is never a folder name: it is rewritten to a new uuid whenever a
