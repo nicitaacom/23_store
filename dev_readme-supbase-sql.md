@@ -670,6 +670,72 @@ $$);
 
 <br/>
 
+## GUEST SUPPORT IMAGES CLEANUP
+
+A visitor who is not signed in can still paste an image into the chat window. That image goes to
+`23_support-guest-images`, under a folder named after the visitor's `deviceId` (see
+`app/functions/uploadImageFolder.ts` and `app/[locale]/(site)/stats/dev_readme-device-id.md`) — one
+folder per visitor, so "show me this guest's images" is a single folder listing.
+
+Nothing else ever removes those files. A guest's ticket is deleted by the daily
+`cleanup_anonymous_tickets` job above after a month of no activity, and that cascades to
+`23_messages` — the row holding the image URL goes, the file in Storage stays. A weekly `pg_cron`
+job closes that gap: every Sunday at 03:00 UTC it deletes any object in `23_support-guest-images`
+that no `23_messages.images` entry still points at.
+
+The match is on the object's name, so the URL stored on the message is cut back to the part after
+`/23_support-guest-images/` before it is compared — a restored row's URL still names another
+project's host, and only the path after the bucket name is the same on both sides.
+
+An object younger than 1 hour is left alone. The image is uploaded first and the message row is
+inserted a moment later, so a brand-new file is unreferenced for that moment by design.
+
+Sunday 03:00 UTC is deliberately not when any other job fires: `cleanup_anonymous_tickets` is daily
+03:00 and `weekly_ai_price_proposals` is Monday 03:00.
+
+Run this on a fresh Supabase project (or run only the first query to see what would be deleted right
+now — SELECT only, deletes nothing):
+
+```sql
+-- =================================== 🧹 GUEST SUPPORT IMAGES CLEANUP ===================================
+
+-- Test first, by hand: which objects in 23_support-guest-images would be deleted right now?
+SELECT storage.objects.name, storage.objects.created_at
+FROM storage.objects
+WHERE storage.objects.bucket_id = '23_support-guest-images'
+  AND storage.objects.created_at < NOW() - INTERVAL '1 hour'
+  AND NOT EXISTS (
+    SELECT 1 FROM public."23_messages" message
+    WHERE message.images IS NOT NULL
+      AND storage.objects.name = ANY (
+        SELECT regexp_replace(image_url, '^.*/23_support-guest-images/', '')
+        FROM unnest(message.images) AS image_url
+      )
+  );
+
+-- Schedule the weekly cleanup job (idempotent — safe to re-run)
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+SELECT cron.unschedule('cleanup_guest_support_images')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'cleanup_guest_support_images');
+
+SELECT cron.schedule('cleanup_guest_support_images', '0 3 * * 0', $$
+  DELETE FROM storage.objects
+  WHERE storage.objects.bucket_id = '23_support-guest-images'
+    AND storage.objects.created_at < NOW() - INTERVAL '1 hour'
+    AND NOT EXISTS (
+      SELECT 1 FROM public."23_messages" message
+      WHERE message.images IS NOT NULL
+        AND storage.objects.name = ANY (
+          SELECT regexp_replace(image_url, '^.*/23_support-guest-images/', '')
+          FROM unnest(message.images) AS image_url
+        )
+    );
+$$);
+```
+
+<br/>
+
 ## Email templates
 
 <details> <summary><b>Verify your email</b></summary>
