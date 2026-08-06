@@ -430,6 +430,12 @@ reference left the repo with plan-22 stage 1). The block below stays here becaus
 still in it until they are moved by hand into the 6 buckets above — run it only on a project that
 still has to read those old files.
 
+One place still reads these two names: `RETIRED_BACKUP_BUCKETS` in `app/api/backup/backupConfig.ts`.
+A row exported before the split holds `…/23_public-images/<old auth id>/image.avif` in its
+`img_url`, and relink has to recognize that path to report it, or to point it at the file's folder
+in `23_product-images` (see `dev_readme-backup.md`, **Matching by the row's own folder**). Nothing
+is ever exported from, or written back into, a retired bucket.
+
 ```sql
 -- =================================== RETIRED STORAGE BUCKETS ===================================
 
@@ -596,7 +602,7 @@ END $$;
 --   SET personalization = jsonb_build_object(
 --     'isEnabled', true,
 --     'defaultConfig', jsonb_build_object(
---       'mockupUrl',  'https://<project>.supabase.co/storage/v1/object/public/23_public-images/mockups/mousepad.png',
+--       'mockupUrl',  'https://<project>.supabase.co/storage/v1/object/public/23_product-images/mockups/mousepad.png',
 --       'printArea',  jsonb_build_object('widthMm', 900, 'heightMm', 400, 'minDpi', 150),
 --       'mockupRect', jsonb_build_object('leftPct', 6.2, 'topPct', 12.4, 'widthPct', 87.6, 'heightPct', 39.0)
 --     )

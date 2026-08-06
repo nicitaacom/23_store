@@ -60,20 +60,32 @@ they were needed for the timeout problem:
 23_messages.csv
 ```
 
-**Files archive** (`23_backup-files-<date>.tar.gz`) — every object in both buckets, plus a mime-type
+**Files archive** (`23_backup-files-<date>.tar.gz`) — every object in all 6 buckets, plus a mime-type
 map so import restores the right `contentType`:
 
 ```
 storage-content-types.json
-storage/23_public-images/<...>
-storage/23_avatar-images/<...>
+storage/23_product-images/<emailSlug>/<productId>/<titleSlug>-1.jpg
+storage/23_ai-product-images/<emailSlug or deviceId>/<...>
+storage/23_avatar-images/<emailSlug>/avatar.png
+storage/23_support-images/<emailSlug>/2026-07-29_at_22-19-54.png
+storage/23_support-guest-images/<deviceId>/2026-07-29_at_22-20-11.png
+storage/23_product-personalization-images/<emailSlug>/<productId>/my-kovrik.jpg
 ```
 
 - **Tables** (`BACKUP_TABLES`, FK-safe order, in `app/api/backup/backupConfig.ts`):
   `23_users → 23_users_cart → 23_categories → 23_category_views → 23_products → 23_ai_price_runs → 23_ai_price_proposals → 23_personalized_designs → 23_tickets → 23_messages`.
   The two AI-pricing tables export as empty CSVs until their manual SQL block has been run.
   `utm_stats` is **excluded** — it is shared across projects 14/23/28/29.
-- **Buckets** (`BACKUP_BUCKETS`, mirrors `app/ts/types/TBuckets.ts`): `23_public-images`, `23_avatar-images`.
+- **Buckets** (`BACKUP_BUCKETS`, mirrors `app/ts/types/TBuckets.ts`), one per purpose since plan-22:
+  `23_product-images`, `23_ai-product-images`, `23_avatar-images`, `23_support-images`,
+  `23_support-guest-images`, `23_product-personalization-images`. The retired `23_public-images` held
+  all of them at once and is not exported — relink still reads a path out of an old URL naming it,
+  see **Storage URL relinking** below.
+- **Folder names are keyed on the slugified email**, never on `auth.users.id`: `nicitaacom@gmail.com`
+  becomes `nicitaacomgmailcom`. A restore gives the same person a new `auth.users.id` in project B
+  (see **Cross-DB restore** below), so a folder named after that id would be left behind after every
+  restore, while the account's email never changes.
 
 <br/>
 
@@ -166,7 +178,7 @@ owner column), then PUTs each file's bytes directly to the signed URL with
 `POST /api/backup/relink-storage-urls`. Calling it from both flows makes the restore order
 independent: a Tables-first restore reports paths that are not uploaded yet, and the later Files
 import resolves them; a Files-first restore resolves them when Tables are imported. The route
-lists the objects currently present in `23_public-images` and `23_avatar-images`, then recursively
+lists the objects currently present in all 6 buckets, then recursively
 checks only the configured URL-bearing columns:
 
 - `23_users.avatar_url`
@@ -177,17 +189,44 @@ checks only the configured URL-bearing columns:
 - `23_messages.images` and `sender_avatar_url`
 - Supabase Auth `user_metadata.avatar_url`
 
-An old public URL is rewritten to `NEXT_PUBLIC_SUPABASE_URL` only when its exact `bucket/path`
-exists in target Storage. Current-project URLs, external/invalid/data URLs, and URLs whose object
-is missing remain unchanged. Missing references and unique paths are returned as an unresolved
-warning in the modal; they do not fail an otherwise successful import. Re-running the finalizer is
-safe and idempotent. After it succeeds, the client refreshes the current route so server-rendered
-image data is fetched again.
+An old public URL is rewritten to `NEXT_PUBLIC_SUPABASE_URL` when its exact `bucket/path` exists in
+project B's Storage — and, since plan-22, also when the row's own folder holds the file under a
+different name. Current-project URLs, external/invalid/data URLs, and URLs with neither an exact
+match nor a folder match remain unchanged. Missing references and unique paths are returned as an
+unresolved warning in the modal; they do not fail an otherwise successful import. Re-running the
+finalizer is safe and idempotent. After it succeeds, the client refreshes the current route so
+server-rendered image data is fetched again.
+
+**Matching by the row's own folder** (`selectStorageFolder` in `backupConfig.ts`,
+`selectRelinkedPathsByFolder` in `backupStorageRelink.ts`). An exact string match alone leaves every
+pre-plan-22 row unresolved: those URLs name `23_public-images/<old auth id>/…`, a bucket and a
+folder nothing answers to any more. The restored row itself still says where its images belong now:
+
+| Table | Folder built from the row | Example |
+| --- | --- | --- |
+| `23_users.avatar_url` | `23_avatar-images/<slugifyEmail(email)>` | `23_avatar-images/nicitaacomgmailcom` |
+| `23_products.img_url` (+ `variants`, `personalization`) | `23_product-images/<slugifyEmail(owner email)>/<id>` | `23_product-images/nicitaacomgmailcom/prod_T1IRAxDEq5VtEmno` |
+| `23_personalized_designs.source_url` | `23_product-personalization-images/<slugifyEmail(buyer email)>/<product_id>` | `…/nicitaacomgmailcom/prod_T1IRAxDEq5VtEmno` |
+
+The email is read from `23_users.email`, keyed by the row's `owner_id` — except for
+`23_personalized_designs`, which is keyed on `user_id`: the design file was uploaded by the buyer,
+while `owner_id` on that table is the shop owner of the product.
+
+Every stored file is indexed once by `bucket/folder` and sorted numerically inside it, so
+`slug-2.jpg` comes before `slug-10.jpg`. A row's unresolved URLs are then paired with that folder's
+files in order — 1st unresolved URL to `slug-1.jpg`, 2nd to `slug-2.jpg` — and the pairing is applied
+to every URL column of the row, so a variant URL stays equal to the `img_url` entry it points at. A
+row holding more unresolved URLs than the folder has files leaves the extra ones in the unresolved
+count.
 
 For the 2026-08-03 migration archive, 861 of 1,071 database Storage URL references match the
 current files archive. The remaining 210 references (170 unique paths) point to files absent from
-that archive and intentionally stay unchanged. No SQL or environment change is required: the two
-existing public buckets and `NEXT_PUBLIC_SUPABASE_URL` are sufficient.
+that export and intentionally stay unchanged. That run predates plan-22, so it was measured on
+exact-string matching alone, against the 2 buckets of the time.
+
+Since plan-22, a restore needs the 6 buckets to exist in project B first — the **SQL query for
+buckets + policies** section of `dev_readme-supbase-sql.md`, run in the Supabase SQL Editor. No
+environment change beyond `NEXT_PUBLIC_SUPABASE_URL`, which is already set.
 
 Progress on both flows is byte-accurate on the files tab (`23 MB / 230 MB`) and count-based on the
 tables tab (`3 / 10 tables`) — CSV rows are not large enough for byte progress to be meaningful.
@@ -207,6 +246,45 @@ tables tab (`3 / 10 tables`) — CSV rows are not large enough for byte progress
 <br/>
 
 ## Cross-DB restore — Auth users are prepared automatically during Tables import
+
+### `auth.users` is never exported or imported — only `public.23_users.csv` is
+
+`auth.users` is Supabase-managed and read-only from this app — it is never exported or imported
+directly. What gets exported is `public.23_users.csv`, and each row's `id` there is the account's OLD
+uuid from project A (Supabase A's own `auth.users`). Importing into a fresh project B, B's
+`auth.users` has no row for any of these people yet, so `POST /api/backup/auth-users` creates a
+brand-new B-side account with a brand-new uuid for each one. `23_users.id` is then rewritten from the
+old project-A uuid to that new project-B uuid before the row is upserted — required by
+`23_users.id REFERENCES auth.users(id)`: inserting the old project-A uuid into project B would fail
+the foreign key, since no `auth.users` row with that uuid exists there.
+
+Every FK column pointing at a person (`owner_id`, `sender_id`, `user_id`, …) is rewritten the same
+way. This is exactly why a Storage folder is named after the email and not the id: the id the person
+holds after a restore is a different one, the email is the same one.
+
+```
+Supabase A: user.id lives in auth.users, exported into 23_users.csv as row.id
+        │
+        ▼
+23_users.csv imported into Supabase B — that row.id is still Supabase A's uuid
+        │
+        ▼
+Supabase B's auth.users has no row under that uuid (this person never signed up here)
+        │
+        ▼
+POST /api/backup/auth-users creates one — a brand-new Supabase B auth.users row, brand-new uuid
+        │
+        ▼
+23_users.id (and every FK: owner_id, sender_id, ...) gets rewritten from the
+Supabase A uuid to the new Supabase B uuid, so 23_users.id matches Supabase B's
+own auth.users.id — required by 23_users.id REFERENCES auth.users(id)
+        │
+        ▼
+the account's email never changed through any of this
+        │
+        ▼
+slugifyEmail(email) → same Storage folder as before the restore
+```
 
 There is no separate Auth-import button or manual account step. After the admin selects the Tables
 archive, `BackupSDK.importTables()` parses and validates every CSV first, then calls the ADMIN-only
