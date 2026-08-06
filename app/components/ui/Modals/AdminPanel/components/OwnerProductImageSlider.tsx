@@ -10,22 +10,31 @@ interface OwnerProductImageSliderProps {
   images: string[]
   title: string
   onClickSlide?: (e: React.MouseEvent) => void
+  selectedIndex?: number
+  onSelect?: (index: number) => void
 }
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
-export function OwnerProductImageSlider({ images, title, onClickSlide }: OwnerProductImageSliderProps) {
-  const [slideIndex, setSlideIndex] = useState(0)
+export function OwnerProductImageSlider({ images, title, onClickSlide, selectedIndex, onSelect }: OwnerProductImageSliderProps) {
+  const [internalIndex, setInternalIndex] = useState(0)
+  const slideIndex = selectedIndex ?? internalIndex
   const hasMultiple = images.length > 1
-  const safeIndex = Math.min(slideIndex, images.length - 1)
+  const safeIndex = Math.max(0, Math.min(slideIndex, images.length - 1))
+
+  const goTo = (index: number) => {
+    const clamped = Math.max(0, Math.min(images.length - 1, index))
+    if (onSelect) onSelect(clamped)
+    else setInternalIndex(clamped)
+  }
 
   const prev = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setSlideIndex(prevIndex => Math.max(0, prevIndex - 1))
+    goTo(safeIndex - 1)
   }
 
   const next = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setSlideIndex(prevIndex => Math.min(images.length - 1, prevIndex + 1))
+    goTo(safeIndex + 1)
   }
 
   return (

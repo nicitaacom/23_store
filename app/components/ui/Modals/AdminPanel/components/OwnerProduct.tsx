@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+
 import { TProductDB } from "@/ts/product/TProductDB"
 import { FormatImagesForm } from "./FormatImagesForm"
 import { OwnerProductHeader } from "./OwnerProductHeader"
@@ -14,6 +16,7 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
   const locale = useCurrentLocale()
   const translation = ownerProduct.translations[locale] ?? ownerProduct.translations.fi
   const { ref, isVisible } = useLazyVisible()
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
   return (
     <div ref={ref}>
@@ -29,6 +32,8 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
           <OwnerProductImageSlider
             images={ownerProduct.img_url}
             title={translation.title}
+            selectedIndex={selectedImageIndex}
+            onSelect={setSelectedImageIndex}
           />
         </div>
         <div className="min-w-0 flex-1 px-3 py-3 tablet:px-4 tablet:py-4">
@@ -47,6 +52,8 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
           id={ownerProduct.id}
           title={ownerProduct.translations.fi.title}
           imgUrl={ownerProduct.img_url}
+          selectedIndex={selectedImageIndex}
+          onSelect={setSelectedImageIndex}
         />
       </div>
       <div className="border-t border-border-color/35 bg-foreground/[0.02] px-2 py-2 tablet:px-3 tablet:py-3">
