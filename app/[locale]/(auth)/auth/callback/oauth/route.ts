@@ -7,35 +7,34 @@ import { syncPublicUserRecord } from "@/utils/publicUserSync"
 
 export async function GET(request: Request) {
   // get data about code to exchange this code to cookies session
-  const requestUrl = new URL(request.url)
-  const code = requestUrl.searchParams.get("code")
+  const url = new URL(request.url)
+  const code = url.searchParams.get("code")
+  const origin = process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_PRODUCTION_URL?.replace(/\/$/, "") : url.origin
 
   // get data about provider to save it in DB to throw error like
   // 'You already have signed in account with google - continue with google?'
-  const provider = requestUrl.searchParams.get("provider")
+  const provider = url.searchParams.get("provider")
   const cookieStore = await cookies()
-  const cookieNames = cookieStore
-    .getAll()
-    .map(cookie => cookie.name)
+  const cookieNames = cookieStore.getAll().map(cookie => cookie.name)
 
   console.log("[auth:oauth][route] callback received", {
-    pathname: requestUrl.pathname,
+    pathname: url.pathname,
     provider,
     hasCode: Boolean(code),
     codeLength: code?.length ?? 0,
-    errorDescription: requestUrl.searchParams.get("error_description"),
+    errorDescription: url.searchParams.get("error_description"),
     cookieNames,
   })
 
   // 1. If supabase put something in error_description - show it on error page
-  const error_description = requestUrl.searchParams.get("error_description")
+  const error_description = url.searchParams.get("error_description")
   if (error_description) {
     console.error("[auth:oauth][route] provider returned error before code exchange", {
       provider,
-      pathname: requestUrl.pathname,
+      pathname: url.pathname,
       errorDescription: error_description,
     })
-    return NextResponse.redirect(getAuthErrorRedirectUrl(requestUrl, error_description))
+    return NextResponse.redirect(getAuthErrorRedirectUrl(url, error_description))
   }
 
   if (code) {
@@ -57,7 +56,7 @@ export async function GET(request: Request) {
         provider,
         error: response.error.message,
       })
-      return NextResponse.redirect(getAuthErrorRedirectUrl(requestUrl, response.error.message))
+      return NextResponse.redirect(getAuthErrorRedirectUrl(url, response.error.message))
     }
 
     if (response.data.user && response.data.user.email) {
@@ -65,7 +64,7 @@ export async function GET(request: Request) {
       const email = response.data.user.email
       const syncedUser = await syncPublicUserRecord(response.data.user, { provider })
 
-      const redirectTarget = getLocalizedAppUrl(requestUrl)
+      const redirectTarget = getLocalizedAppUrl(url)
       console.log("[auth:oauth][route] authentication succeeded", {
         userId: user_id,
         email,
@@ -74,7 +73,7 @@ export async function GET(request: Request) {
         avatarUrlFound: Boolean(syncedUser.avatarUrl),
       })
 
-      const redirectResponse = NextResponse.redirect(redirectTarget)
+      const redirectResponse = NextResponse.redirect(origin)
 
       if (syncedUser.avatarUrl) redirectResponse.cookies.set("avatarUrl", syncedUser.avatarUrl, { path: "/" })
       else redirectResponse.cookies.delete("avatarUrl")
@@ -84,13 +83,13 @@ export async function GET(request: Request) {
       console.error("[auth:oauth][route] exchange returned no user", {
         provider,
       })
-      return NextResponse.redirect(getAuthErrorRedirectUrl(requestUrl, "No user found after exchanging cookies for registration"))
+      return NextResponse.redirect(getAuthErrorRedirectUrl(url, "No user found after exchanging cookies for registration"))
     }
   } else {
     console.error("[auth:oauth][route] callback missing code", {
       provider,
-      pathname: requestUrl.pathname,
+      pathname: url.pathname,
     })
-    return NextResponse.redirect(getAuthErrorRedirectUrl(requestUrl, "No code found to exchange cookies for session"))
+    return NextResponse.redirect(getAuthErrorRedirectUrl(url, "No code found to exchange cookies for session"))
   }
 }
