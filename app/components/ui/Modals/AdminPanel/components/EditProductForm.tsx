@@ -77,7 +77,7 @@ export function EditProductForm({ ownerProducts, productSort, onProductSortChang
       ) : (
         <div
           className={twMerge(
-            "mx-auto flex w-full max-w-[440px] flex-1 flex-col items-center justify-center gap-4 rounded border border-border-color/35 bg-background/35 px-4 py-5 text-center",
+            "mx-auto flex w-full max-w-[440px] flex-1 flex-col items-center justify-center gap-4 rounded bg-background/35 px-4 py-5 text-center",
           )}>
           <Image
             src={isDarkMode ? "/no-products-to-edit-dark.png" : "/no-products-to-edit-light.png"}
