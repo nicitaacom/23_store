@@ -174,3 +174,18 @@ Every store that have similar to hook functionality should have key word
 <br/>
 
 [dev_readme-supbase-sql](./dev_readme-supbase-sql.md)
+
+<hr/>
+
+<br/>
+
+<details> <summary><b>⚠️🖼️ Vercel Image Optimization quota (402 on every image)</b></summary>
+
+Free tier caps `Image Optimization - Transformations` at 5K/month.<br/>
+Once exceeded, `/_next/image` returns `402` (`x-vercel-error: OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED`) for **every** image site-wide, not just one broken URL.<br/>
+Looks like a broken remote pattern or a missing storage file - it's neither; `next.config.js` and Supabase Storage can both be correct and this still fires.
+
+**Check:** Vercel dashboard → project → Usage → `Image Optimization - Transformations` row.<br/>
+**Fix:** wait for the monthly reset, upgrade the plan, or set `images.unoptimized: true` (globally or per `<Image>`) to skip Vercel's optimizer and serve straight from Supabase's own CDN.
+
+</details>
