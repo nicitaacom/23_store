@@ -439,6 +439,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         <div className="mt-3">
           <FormatImagesForm
             id={product.id}
+            title={product.translations.fi.title}
             imgUrl={product.img_url}
             selectedIndex={selectedImageIndex}
             onSelect={index => {

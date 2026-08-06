@@ -21,11 +21,16 @@ import { useLoading } from "@/store/ui/useLoading"
  * Steps:
  * 1. Validate and resolve the uploaded source images.
  * 2. Tinify every image and fail if compression fails.
- * 3. Upload all tinified images and fail if upload fails.
- * 4. Resolve variants against uploaded images.
- * 5. Resolve a base product price, preferring the first variant price.
- * 6. Create the Stripe product and price with uploaded images.
+ * 3. Resolve a base product price, preferring the first variant price.
+ * 4. Create the Stripe product and price, which is what mints the productId.
+ * 5. Upload all tinified images into that productId's folder and fail if upload fails.
+ * 6. Resolve variants against uploaded images.
  * 7. Insert the product into Supabase immediately and hand translation off to Lambda.
+ * 8. Put the uploaded URLs on the Stripe product, which had none when step 4 created it.
+ *
+ * Stripe runs before the upload because the productId it returns IS the image folder - building the
+ * folder from anything else would leave a product's images spread over a folder shared with every
+ * other product. See plan-22 and app/functions/dev_readme-create-product.md.
  *
  * We use Lambda for translation because Vercel server functions can time out
  * around 60 seconds, while the translation job may take 3-5 minutes.
@@ -41,7 +46,11 @@ export async function createProductFn(t: TI18nFunction, input: TCreateProductFnI
   try {
     const sourceImageFiles = await resolveSourceProductImages(images)
     const tinifiedImageFiles = await tinifyProductImages(sourceImageFiles)
-    const uploadedImageUrls = normalizeProductImageUrls(await uploadProductImages(tinifiedImageFiles, t))
+    const resolvedPrice = await resolveProductPrice(title, description, price, variants)
+    const createStripeProductResp = await createStripeProduct(title, description, resolvedPrice, t)
+    const uploadedImageUrls = normalizeProductImageUrls(
+      await uploadProductImages(tinifiedImageFiles, t, createStripeProductResp.productId, title),
+    )
 
     if (!uploadedImageUrls.length) {
       throw new Error("No images available for product")
@@ -49,8 +58,6 @@ export async function createProductFn(t: TI18nFunction, input: TCreateProductFnI
 
     const resolvedVariants = resolveUploadedProductVariants(variants, uploadedImageUrls)
     const resolvedPersonalization = resolveUploadedPersonalization(personalization, uploadedImageUrls)
-    const resolvedPrice = await resolveProductPrice(title, description, price, resolvedVariants)
-    const createStripeProductResp = await createStripeProduct(title, description, resolvedPrice, uploadedImageUrls, t)
     const userId = getUserId()
 
     const createProductResponse = await productsSDK.translateAndInsertInDB({
@@ -68,6 +75,15 @@ export async function createProductFn(t: TI18nFunction, input: TCreateProductFnI
 
     if (!createProductResponse.ok) {
       throw new Error(createProductResponse.error || t("product.error.db_insert_failed"))
+    }
+
+    // Stripe's product was created before the images existed, so its gallery is filled in here. The
+    // shop itself reads 23_products.img_url, which the insert above already holds, so a failure at
+    // this point leaves only Stripe's own preview behind - reported, not thrown over a live product.
+    try {
+      await productsSDK.updateProduct({ productId: createStripeProductResp.productId, images: uploadedImageUrls })
+    } catch (error) {
+      console.error("createProductFn: product images did not reach Stripe", error instanceof Error ? error.message : error)
     }
 
     return {

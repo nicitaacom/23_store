@@ -45,6 +45,7 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
       <div className="border-t border-border-color/35 bg-foreground/[0.02] px-2 py-2 tablet:px-3 tablet:py-3">
         <FormatImagesForm
           id={ownerProduct.id}
+          title={ownerProduct.translations.fi.title}
           imgUrl={ownerProduct.img_url}
         />
       </div>

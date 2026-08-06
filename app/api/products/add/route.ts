@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
 
-import { normalizeProductImageUrls } from "@/utils/product"
 import { stripe } from "@/libs/stripe"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 import { MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
-import { STRIPE_MAX_PRODUCT_IMAGES } from "@/constants/uploadLimits"
 
 export async function POST(req: Request) {
   const body = await req.json()
@@ -21,7 +19,6 @@ export async function POST(req: Request) {
   const title = String(body.title ?? "").trim()
   const description = String(body.description ?? "").trim()
   const price = Number(body.price)
-  const images = normalizeProductImageUrls(body.images)
 
   try {
     if (!title) {
@@ -40,15 +37,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Price must be a positive integer amount in cents" }, { status: 400 })
     }
 
-    if (!images.length) {
-      return NextResponse.json({ error: "At least 1 image is required" }, { status: 400 })
-    }
-
+    // No images yet, on purpose: the productId this call returns is the Storage folder they upload
+    // into, so they exist only after it. /api/products/update puts them on the product right after.
     const productResponse = await stripe.products.create({
       name: title,
       ...(description ? { description } : {}),
       active: true,
-      images: images.slice(0, STRIPE_MAX_PRODUCT_IMAGES),
     })
 
     const priceResponse = await stripe.prices.create({

@@ -53,7 +53,6 @@ declare namespace API {
     title: string
     description?: string
     price: number
-    images: string[]
   }
 
   type ProductsAddResponse = {

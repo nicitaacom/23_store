@@ -6,6 +6,9 @@ import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { uploadImageFn } from "./uploadImageFn"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { slugify, slugifyEmail } from "@/utils/slugify"
+import supabaseClient from "@/libs/supabase/supabaseClient"
+import useUser from "@/store/user/useUser"
 import { DEFAULT_MIN_DPI } from "@/utils/printMetrics"
 import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
@@ -141,20 +144,52 @@ export async function tinifyProductImages(imageFiles: File[]) {
     .map(result => result.value)
 }
 
-export async function uploadProductImages(imageFiles: File[], t: TI18nFunction) {
-  // A product's images live under their own random folder, never the uploading admin's user id -
-  // that id changes on re-auth (e.g. switching to Google sign-in), which would leave every image
-  // folder created under the old id unreferenced. See dev_readme-backup.md relink section.
-  const uploadFolder = crypto.randomUUID()
+const PRODUCT_IMAGES_BUCKET = "23_product-images"
+const TRAILING_INDEX_REGEX = /-(\d+)\.[^.]+$/
+
+// Every image of one product sits in one folder, so numbering continues from what is already there
+// instead of restarting at 1 and overwriting the first images the next time the owner adds one.
+// A removed image keeps its file (only the row's img_url is rewritten), so the count of URLs on the
+// row is not enough - the highest number actually present in the folder is.
+async function resolveHighestProductImageIndex(uploadFolder: string) {
+  const { data: existingFiles } = await supabaseClient.storage.from(PRODUCT_IMAGES_BUCKET).list(uploadFolder)
+
+  return (existingFiles ?? []).reduce((highestIndex, existingFile) => {
+    const trailingIndex = TRAILING_INDEX_REGEX.exec(existingFile.name)
+    return trailingIndex ? Math.max(highestIndex, Number(trailingIndex[1])) : highestIndex
+  }, 0)
+}
+
+/**
+ * Uploads to `slugifyEmail(email)/productId/slug(title)-{index}.ext`.
+ *
+ * The folder is keyed on the owner's email, never on the uploading admin's user id: that id is
+ * minted again whenever a 23_users row is restored into another Supabase project, and every folder
+ * created under the old one would stay behind. The productId level makes a product's images one
+ * folder to delete, instead of a search through a folder holding every product the owner has.
+ *
+ * The name comes from the product title, never from the file's own name: a pasted image always
+ * arrives as image.png, so 10 pasted images would all be the same name.
+ */
+export async function uploadProductImages(imageFiles: File[], t: TI18nFunction, productId: string, title: string) {
+  const ownerEmail = useUser.getState().user?.email
+  if (!ownerEmail) {
+    throw new Error("Sign in to upload product images")
+  }
+
+  const uploadFolder = `${slugifyEmail(ownerEmail)}/${productId}`
+  const titleSlug = slugify(title) || "product"
+  const highestExistingIndex = await resolveHighestProductImageIndex(uploadFolder)
 
   const uploadResults = await Promise.all(
     imageFiles.map(async (imageFile, index) => {
+      const fileExtension = getFileExtensionFromContentType(imageFile.type, imageFile.name)
       const response = await uploadImageFn({
         t,
         imageFile,
-        bucket: "23_product-images",
+        bucket: PRODUCT_IMAGES_BUCKET,
         folder: uploadFolder,
-        suffix: `${index + 1}`,
+        fileName: `${titleSlug}-${highestExistingIndex + index + 1}.${fileExtension}`,
         upsert: true,
       })
 
@@ -173,11 +208,14 @@ export async function uploadProductImages(imageFiles: File[], t: TI18nFunction) 
   return uploadResults
 }
 
+/**
+ * Runs BEFORE any image is uploaded, because the returned productId is the folder those images go
+ * into. Stripe's own product gallery is set afterwards, once the URLs exist.
+ */
 export async function createStripeProduct(
   title: string,
   description: string,
   price: number,
-  images: string[],
   t: TI18nFunction,
 ): Promise<TStripeProductDraft> {
   const trimmedTitle = title.trim()
@@ -225,7 +263,6 @@ export async function createStripeProduct(
     title: trimmedTitle,
     ...(trimmedDescription ? { description: trimmedDescription } : {}),
     price: stripeAmount,
-    images,
   })
 
   if (!response.id || !response.product) {

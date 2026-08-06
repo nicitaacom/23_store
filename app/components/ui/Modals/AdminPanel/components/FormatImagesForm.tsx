@@ -18,6 +18,9 @@ import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MIN_IMAGE_RESOLUTION } f
 
 interface FormatImagesFormProps {
   id: string
+  // The Finnish translation, which is where the source text the owner typed is kept. Every locale
+  // would otherwise slug to a different file name for the same product.
+  title: string
   imgUrl: string[]
   selectedIndex?: number
   onSelect?: (index: number) => void
@@ -25,7 +28,7 @@ interface FormatImagesFormProps {
 }
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
-export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover }: FormatImagesFormProps) {
+export function FormatImagesForm({ id, title, imgUrl, selectedIndex, onSelect, onHover }: FormatImagesFormProps) {
   const t = useScopedI18n("product")
   const tGlobal = useI18n()
   const toast = useToast()
@@ -103,7 +106,7 @@ export function FormatImagesForm({ id, imgUrl, selectedIndex, onSelect, onHover 
         const files = filesToUpload
           .map(img => img.file)
           .filter((file): file is File => file instanceof File)
-        uploadedUrls = await uploadProductImages(files, tGlobal)
+        uploadedUrls = await uploadProductImages(files, tGlobal, id, title)
       }
 
       let uploadIndex = 0

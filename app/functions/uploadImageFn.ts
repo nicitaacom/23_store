@@ -9,6 +9,7 @@ interface UploadImageParams {
   bucket: TBuckets
   folder?: string
   suffix?: string
+  fileName?: string
   upsert?: boolean
 }
 
@@ -16,7 +17,11 @@ interface UploadImageParams {
  *
  * @param imageFile - File type (make sure it exist and not undefined - if so - return string (error message))
  * @param folder - folder (category) e.g Main dishes
- * @param suffix - something after file name e.g fileName_price_id_d4rg3f2d
+ * @param suffix - something after file name e.g fileName-price-id-d4rg3f2d
+ * @param fileName - the whole name to store the file under, already slugged, when the file's own
+ *   name says nothing about it: a product image is named after the product title
+ *   (slivki-30pct-1.jpg) and a pasted chat image after the moment it arrived
+ *   (2026-07-29_at_22-19-54.png), because a paste always arrives as image.png
  * @returns - publicUrl for image
  * NOTE: To avoid "Only serializable objects, and a few built-ins, can be passed to Server Actions" error - make sure that it is NOT server action
  * Because as I undertand it don't like that fact that I pass File here
@@ -27,11 +32,12 @@ export async function uploadImageFn({
   bucket,
   folder,
   suffix,
+  fileName,
   upsert = false,
 }: UploadImageParams): Promise<string | { publicUrl: string }> {
   if (!imageFile) return "Image file is missing"
 
-  const cleanedFileName = slugifyFileNameForBucket(t, imageFile.name, suffix)
+  const cleanedFileName = fileName ? [fileName] : slugifyFileNameForBucket(t, imageFile.name, suffix)
   if (typeof cleanedFileName === "string") return cleanedFileName
 
   // 1. Extract folder path & filename parts
