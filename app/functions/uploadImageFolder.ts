@@ -25,9 +25,14 @@ function selectGuestFolder(): string {
   return useDeviceIdStore.getState().storedDeviceId ?? getUserId()
 }
 
-/** The folder for an upload any visitor may make - signed in or not, one bucket either way. */
-export function getUploadFolder(): string {
-  return selectSignedInEmailSlug() ?? selectGuestFolder()
+/**
+ * The folder an AI shopping assistant image goes into. There is no guest branch here: both ways
+ * into that chat - the prompt box and the generate image button - return early for a visitor who
+ * is not signed in (`isSignedIn` in AISearch/hooks/useAIChat.ts), so every image it writes
+ * belongs to an account. Returns null only if that gate is ever removed.
+ */
+export function getAiImageFolder(): string | null {
+  return selectSignedInEmailSlug()
 }
 
 /**

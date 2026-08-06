@@ -11,10 +11,8 @@
  *         ├── slivki-30pct-1.jpg            name = slug(fi title)-N, never the pasted file's name
  *         └── slivki-30pct-2.jpg
  *
- * 23_ai-product-images/
- * ├── nicitaacomgmailcom/                   signed in: slugifyEmail(email)
- * │   └── generated-image.png
- * └── Q5UUMP4MX0LbwF0Eekm3JIeIBwqWeDX0-/    not signed in: the deviceId, transport form
+ * 23_ai-product-images/                     (AI chat is behind a sign-in, so no guest folder)
+ * └── nicitaacomgmailcom/
  *     └── generated-image.png
  *
  * 23_avatar-images/

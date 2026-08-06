@@ -113,11 +113,11 @@ Quoted verbatim, in the order Nikita gave them:
   cart.
 - **Correction: these images are per-user too, not folder-less** — "should be per user, from our
   experience use slugified user email like useremailexamplecom in order to create folder name."
-  `aiFunctionHandlers.tsx`/`useAIChat.ts` have no login gate (any visitor can use AI shopping
-  chat), so this follows the same signed-in/anonymous split as support images: `folder:
-slugifyEmail(email)` when signed in, `folder: deviceId` (same `useDeviceIdStore` reuse as the
-  guest-images correction above) when not — flag if a single bucket with no signed-in/anonymous
-  distinction was intended instead.
+  `folder: slugifyEmail(email)`, and **no guest folder at all**: "I think I have logic that
+  require to login before chatting with AI so it's no sense from that folder." Confirmed in code —
+  `handleSubmit` in `useAIChat.ts` returns early with a toast + the AuthModal for a visitor who is
+  not signed in. The ✨ generate-image button in `ChatInput.tsx` was NOT behind that gate, so the
+  guest branch was reachable through it; both ways in now share one `isSignedIn()` check.
 - **Personalized designs get their own bucket, `23_product-personalization-images`** [spelling as
   given — flag if this is a typo before Stage 1 runs the create-bucket SQL, a bucket id has no
   in-place rename once files exist in it], path `email/productId/filename.ext` — e.g.
@@ -161,7 +161,7 @@ code diff against that list too, not only this document.
 | `app/components/ui/Modals/AdminPanel/components/FormatImagesForm.tsx`                                     | Calls `uploadProductImages(files, tGlobal)`, no title passed                                            | Passes the product's own title + `id` (already in scope) through                                                                                                                               |
 | `app/components/ui/Modals/UpdateAvatarModal.tsx`                                                          | `folder: user.id`, bucket `23_avatar-images`                                                            | `folder: slugifyEmail(user.email)`, bucket unchanged                                                                                                                                           |
 | `app/components/ui/Modals/PersonalizeModal/functions/uploadDesignFn.ts`                                   | `folder: \`personalized/${userId}\``(uuid from`getUserId()`), bucket `23_public-images`                 | bucket `23_product-personalization-images`, `folder: \`${slugifyEmail(email)}/${productId}\``, filename = the buyer's own uploaded file name, slugified (not the `crypto.randomUUID()` suffix) |
-| `app/[locale]/(site)/components/AISearch/utils/aiFunctionHandlers.tsx`, `.../AISearch/hooks/useAIChat.ts` | `bucket: "23_public-images"`, no folder                                                                 | `bucket: "23_ai-product-images"`, `folder: slugifyEmail(email)` signed in, `folder: deviceId` anonymous                                                                                        |
+| `app/[locale]/(site)/components/AISearch/utils/aiFunctionHandlers.tsx`, `.../AISearch/hooks/useAIChat.ts` | `bucket: "23_public-images"`, no folder                                                                 | `bucket: "23_ai-product-images"`, `folder: slugifyEmail(email)` - that chat needs a sign-in, so no guest folder                                                                                        |
 | `app/functions/support/uploadImagesAndSendMessage.ts`, `.../MessagesFooter.tsx`                           | No folder, no bucket split — every file lands loose at bucket root                                      | Signed-in: `23_support-images`, `folder: slugifyEmail(email)`. Anonymous: `23_support-guest-images`, `folder: deviceId` from `useDeviceIdStore.getState().storedDeviceId`                      |
 | `app/api/products/delete/route.ts`                                                                        | Hardcoded `"storage/v1/object/public/23_public-images/"` prefix and `.storage.from("23_public-images")` | `23_product-images`                                                                                                                                                                            |
 | `app/api/backup/backupConfig.ts` (`BACKUP_BUCKETS`)                                                       | 2 buckets                                                                                               | 6 buckets                                                                                                                                                                                      |
@@ -228,10 +228,8 @@ visitor still lands in the same folder on every visit:
     └── 2026-07-29_at_22-20-11.png             (swept weekly if no message still references it)
 
 23_ai-product-images/
-├── nicitaacomgmailcom/
-│   └── generated_image.png                    (signed-in: slugifyEmail(email))
-└── Q5UUMP4MX0LbwF0Eekm3JIeIBwqWeDX0-/
-    └── generated_image.png                    (anonymous: deviceId, same reuse as guest images)
+└── nicitaacomgmailcom/
+    └── generated_image.png                    (AI chat needs a sign-in - no guest folder)
 
 23_product-personalization-images/
 └── nicitaacomgmailcom/

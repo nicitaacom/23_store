@@ -354,7 +354,7 @@ old uuid would stay behind. See [plan-22](plans/plan-22-storage-buckets-email-sl
 | Bucket | Holds | Path inside it |
 | --- | --- | --- |
 | `23_product-images` | catalog images of a product | `emailSlug/productId/titleSlug-1.jpg` |
-| `23_ai-product-images` | images the AI shopping assistant generates | `emailSlug/…` or `deviceId/…` |
+| `23_ai-product-images` | images the AI shopping assistant generates (that chat needs a sign-in) | `emailSlug/…` |
 | `23_avatar-images` | one avatar per account | `emailSlug/avatar.png` |
 | `23_support-images` | support-chat images from a signed-in sender | `emailSlug/2026-07-29_at_22-19-54.png` |
 | `23_support-guest-images` | support-chat images from a visitor who is not signed in | `deviceId/2026-07-29_at_22-19-54.png` |

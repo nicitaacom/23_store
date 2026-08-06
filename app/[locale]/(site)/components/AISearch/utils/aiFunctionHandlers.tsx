@@ -4,7 +4,7 @@ import type { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 // src/utils/aiFunctionHandlers.ts
 import { createProductFn } from "@/functions/createProductFn"
-import { getUploadFolder } from "@/functions/uploadImageFolder"
+import { getAiImageFolder } from "@/functions/uploadImageFolder"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import useCartStore from "@/store/user/cartStore"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
@@ -77,11 +77,14 @@ async function generateImageHandler(args: HandlerArgs): Promise<FunctionResult> 
       type: generatedImage.contentType,
     })
 
+    const aiImageFolder = getAiImageFolder()
+    if (!aiImageFolder) return { success: false, message: i18n("toast.please_login_title") }
+
     const response = await uploadImageFn({
       t: i18n,
       imageFile,
       bucket: "23_ai-product-images",
-      folder: getUploadFolder(),
+      folder: aiImageFolder,
     })
     if (!response || typeof response === "string") {
       return { success: false, message: `Image upload failed: ${response ?? "unknown"}` }

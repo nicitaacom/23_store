@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation"
 import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
-import { getUploadFolder } from "@/functions/uploadImageFolder"
+import { getAiImageFolder } from "@/functions/uploadImageFolder"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useAIChatStore } from "@/components/Navbar/stores/useAIChatStore"
 import { useI18n } from "@/locales/client"
@@ -64,15 +64,22 @@ export function useAIChat() {
     }
   }
 
+  /**
+   * The AI shopping assistant is behind a sign-in, both ways in: the prompt box and the generate
+   * image button. Every image it writes therefore belongs to an account, which is what lets
+   * 23_ai-product-images be foldered by the owner's email with no guest folder at all.
+   */
+  const isSignedIn = () => {
+    if (useUser.getState().user?.id) return true
+
+    toast.show("warning", t("toast.please_login_title"), t("toast.please_login_subtitle"))
+    router.push(pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "AuthModal&variant=login")
+    return false
+  }
+
   const handleSubmit = async (prompt?: string) => {
     if ((!prompt && !promptValue.trim()) || isLoading) return
-
-    const { user } = useUser.getState()
-    if (!user?.id) {
-      toast.show("warning", t("toast.please_login_title"), t("toast.please_login_subtitle"))
-      router.push(pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "AuthModal&variant=login")
-      return
-    }
+    if (!isSignedIn()) return
 
     const userMessage = prompt || promptValue.trim()
     const newConversation: TAIChatMessage[] = [...conversation, { role: "user", text: userMessage }]
@@ -166,6 +173,7 @@ export function useAIChat() {
 
   const generateImage = async () => {
     if (isLoading) return
+    if (!isSignedIn()) return
 
     setIsLoading(true)
 
@@ -178,7 +186,10 @@ export function useAIChat() {
         type: generatedImage.contentType,
       })
 
-      const response = await uploadImageFn({ t, imageFile, bucket: "23_ai-product-images", folder: getUploadFolder() })
+      const aiImageFolder = getAiImageFolder()
+      if (!aiImageFolder) throw new Error(t("toast.please_login_title"))
+
+      const response = await uploadImageFn({ t, imageFile, bucket: "23_ai-product-images", folder: aiImageFolder })
       if (typeof response === "string") {
         throw new Error(`Image upload failed: ${response}`)
       }

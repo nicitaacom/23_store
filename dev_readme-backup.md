@@ -66,7 +66,7 @@ map so import restores the right `contentType`:
 ```
 storage-content-types.json
 storage/23_product-images/<emailSlug>/<productId>/<titleSlug>-1.jpg
-storage/23_ai-product-images/<emailSlug or deviceId>/<...>
+storage/23_ai-product-images/<emailSlug>/generated-image.png
 storage/23_avatar-images/<emailSlug>/avatar.png
 storage/23_support-images/<emailSlug>/2026-07-29_at_22-19-54.png
 storage/23_support-guest-images/<deviceId>/2026-07-29_at_22-20-11.png
