@@ -461,7 +461,7 @@ filler — every box and arrow maps to a real step named in plan-22."
 
 ---
 
-### 3. Avatar URL
+### 3. Avatar URL (done)
 
 > A deliberately simple two-panel diagram on a deep dark-green background, slightly rounded corners.
 > It is the simplest of the four and should say so: put the note "single file per account, always an
@@ -481,7 +481,7 @@ filler — every box and arrow maps to a real step named in plan-22."
 
 ---
 
-### 4. Backup import / export
+### 4. Backup import / export (done)
 
 > A two-column technical diagram on a deep dark-green background, slightly rounded corners on every
 > box, joined by one labelled arrow between the columns.
@@ -521,18 +521,13 @@ into the doc that already documents that workflow. Not a Stage — nothing here 
 | --- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | 1   | Support chat images    | **Done** — `public/docs/support/support-image-upload-workflow.png`, embedded in `dev_readme-supbase-sql.md` above the bucket table | `dev_readme-supbase-sql.md`, "SQL query for buckets + policies"                             |
 | 2   | Product images         | **Done** — no generated image; embedded as an ASCII diagram instead (§5 prompt below kept as history, not used)                                                           | `app/functions/dev_readme-create-product.md`, §1 "How does it look", next to `Products.png` |
-| 3   | Avatar URL             | Not generated yet                                                                                                                  | `dev_readme-supbase-sql.md`, "SQL query for buckets + policies", next to image 1            |
-| 4   | Backup import / export | Not generated yet                                                                                                                  | `dev_readme-backup.md`, above "Export flow"                                                 |
+| 3   | Avatar URL             | **Done** — `public/docs/auth/avatar-url-workflow.png`, embedded in `dev_readme-supbase-sql.md` next to image 1                    | `dev_readme-supbase-sql.md`, "SQL query for buckets + policies", next to image 1            |
+| 4   | Backup import / export | **Done** — `public/docs/backup/backup-import-export-workflow.png`, embedded in `dev_readme-backup.md` above "Export flow"        | `dev_readme-backup.md`, above "Export flow"                                                 |
 
-For each of 2–4, once Nikita pastes the generated PNG:
+All 4 images are placed. For reference, once a PNG is pasted for a future doc image the steps are:
 
 1. Save it at `public/docs/<feature>/<name>.png` (kebab-case, matches the existing screenshots
    already in that folder).
 2. Add a row to `public/docs/public-assets.md` under "Used images — subfolders".
 3. Embed it with `![alt](public/docs/<feature>/<name>.png)` + the path line under it, into the doc
    named in the row above — same pattern image 1 already uses.
-
-🚨 TODO
-
-1. Generate images 3–4 from the §5 prompts — image-generator dashboard, not something run from this
-   repo. Image 2 (Product images) is done as an ASCII diagram instead, no generated image needed.

@@ -99,7 +99,9 @@ These files exist on disk but have no `src` reference in `.tsx` / `.ts` files. S
 | `docs/AdminPanel/AddProduct.png` | dev_readme for admin panel add tab |
 | `docs/AdminPanel/DeleteProduct.png` | dev_readme for admin panel delete tab |
 | `docs/AdminPanel/EditProduct.png` | dev_readme for admin panel edit tab |
+| `docs/auth/avatar-url-workflow.png` | `dev_readme-supbase-sql.md` — avatar URL upload/overwrite/restore diagram, AI-generated from plan-22 §5 prompt 3 |
 | `docs/auth/db-23_users.png` | dev_readme for auth — DB screenshot |
+| `docs/backup/backup-import-export-workflow.png` | `dev_readme-backup.md` — export/import + storage URL relink diagram, AI-generated from plan-22 §5 prompt 4 |
 | `docs/cart/CartModal.png` | dev_readme for CartModal — UI screenshot |
 | `docs/cart/db-23_users_cart.png` | dev_readme for cart — DB screenshot |
 | `docs/products/Products.png` | dev_readme for create-product — products UI screenshot |

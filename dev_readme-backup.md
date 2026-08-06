@@ -138,6 +138,10 @@ change. See the **DB BACKUP FUNCTION** section in `dev_readme-supbase-sql.md` if
 
 <br/>
 
+![Backup import / export — export project A, import project B, FK remap, storage URL relink](public/docs/backup/backup-import-export-workflow.png)
+`public/docs/backup/backup-import-export-workflow.png` — export/import + storage URL relink
+(prompt 4 of 4, [plan-22 §5](plans/plan-22-storage-buckets-email-slug.md#5-image-prompts))
+
 ## Export flow
 
 **Tables:** `GET /api/backup/rows` returns every table's rows as JSON (small, no Storage bytes). If
