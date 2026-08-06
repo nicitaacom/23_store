@@ -30,7 +30,11 @@ export function ContactButton() {
       toggle={toggleDropdown}
       dropdownRef={dropDownRef}
       classNameDropdownContainer="hidden mobile:flex"
-      icon={<FiPhoneCall size={28} />}>
+      icon={
+        <span data-cy="contact-trigger">
+          <FiPhoneCall size={28} />
+        </span>
+      }>
       <div className="flex flex-col gap-y-2 justify-center items-center px-4 py-2">
         <div className="flex flex-col justify-center items-center">
           <Link

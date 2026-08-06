@@ -118,6 +118,19 @@ export const UtmStats: Story = {
   },
 }
 
+export const UtmDatePickerClosesOnOutsideClick: Story = {
+  render: () => <UTMDashboard utmStatsResponse={utmStats} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const trigger = await waitFor(() => canvas.getByRole("button", { name: /Entire Year/ }))
+    await userEvent.click(trigger)
+    await waitFor(() => expect(canvas.getByText("Year")).toBeVisible())
+
+    await userEvent.click(await canvas.findByText(/Track your marketing campaign performance/))
+    await waitFor(() => expect(canvas.queryByText("Year")).not.toBeInTheDocument())
+  },
+}
+
 export const Backup: Story = {
   parameters: {
     nextjs: { navigation: { pathname: "/en/stats", query: { modal: "DbBackup" } } },

@@ -83,6 +83,47 @@ export const OwnerAndAdminLinks: Story = {
   },
 }
 
+export const AvatarDropdownClosesOnOutsideClick: Story = {
+  args: { cartQuantity: 4, roles: ["OWNER", "ADMIN", "SUPPORT"], user: ownerUser },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const trigger = await waitFor(() => canvasElement.querySelector('[data-cy="user-menu"]'))
+    await userEvent.click((trigger as HTMLElement).parentElement as HTMLElement)
+    const manageProducts = await waitFor(() => canvas.getByText("Manage products"))
+    await waitFor(() => expect(manageProducts).toBeVisible())
+
+    await userEvent.click(canvas.getByText(/remains fixed while this content scrolls/))
+    await waitFor(() => expect(manageProducts).not.toBeVisible())
+  },
+}
+
+export const LanguageDropdownClosesOnOutsideClick: Story = {
+  parameters: { viewport: { defaultViewport: "laptop" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const trigger = (await waitFor(() => canvasElement.querySelector('[data-cy="language-trigger"]'))) as HTMLElement
+    await userEvent.click(trigger)
+    await waitFor(() => expect(trigger).toHaveAttribute("aria-expanded", "true"))
+
+    await userEvent.click(canvas.getByText(/remains fixed while this content scrolls/))
+    await waitFor(() => expect(trigger).toHaveAttribute("aria-expanded", "false"))
+  },
+}
+
+export const ContactButtonClosesOnOutsideClick: Story = {
+  parameters: { viewport: { defaultViewport: "laptop" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const trigger = (await waitFor(() => canvasElement.querySelector('[data-cy="contact-trigger"]'))) as HTMLElement
+    await userEvent.click(trigger)
+    const telegramLink = await waitFor(() => canvas.getByText("Telegram"))
+    await waitFor(() => expect(telegramLink).toBeVisible())
+
+    await userEvent.click(canvas.getByText(/remains fixed while this content scrolls/))
+    await waitFor(() => expect(telegramLink).not.toBeVisible())
+  },
+}
+
 export const CartCount: Story = {
   args: { cartQuantity: 7, user: customerUser },
   play: async ({ canvasElement }) => {

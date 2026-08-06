@@ -92,6 +92,23 @@ export const PaymentMethodsOneByOne: Story = {
   },
 }
 
+export const MetamaskChainSelectorClosesOnOutsideClick: Story = {
+  render: () => (
+    <div className="grid max-w-md gap-2 p-3">
+      <PayWithMetamaskButton />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const trigger = await waitFor(() => canvas.getByTitle("Select network"))
+    await userEvent.click(trigger)
+    await waitFor(() => expect(canvas.getByText("BNB Chain")).toBeVisible())
+
+    await userEvent.click(canvasElement.ownerDocument.body)
+    await waitFor(() => expect(canvas.queryByText("BNB Chain")).not.toBeInTheDocument())
+  },
+}
+
 export const CheckRequest: Story = {
   render: () => <CheckRequestExample />,
 }
