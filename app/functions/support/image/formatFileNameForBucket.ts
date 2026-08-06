@@ -1,11 +1,6 @@
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 
-export function formatFileNameForBucket(
-  t: TI18nFunction,
-  fileName: string,
-  folder_?: string,
-  suffix_?: string,
-): string | [string] {
+export function formatFileNameForBucket(t: TI18nFunction, fileName: string, suffix_?: string): string | [string] {
   // Ensure to keep the file extension intact to avoid issues when downloading .zip files from Supabase
   // (files may not have extensions), leading to errors when dragging and dropping them.
 
@@ -26,11 +21,10 @@ export function formatFileNameForBucket(
     .replace(/^./, firstChar => firstChar.toUpperCase()) // Capitalize first letter only - allow other words to be capitalized e.g Pizza margherita Italy edition
     .trim() // ✂️ Remove leading/trailing spaces
 
-  const folder = `${folder_ ? `${folder_}/` : ""}`
   const suffix = `${suffix_ ? `_${suffix_}` : ""}`
 
   // Construct final file name e.g Hello world 2023 30.png
-  const finalFileName = `${folder}${cleanedBaseName}${suffix}.${extension.toLowerCase()}`
+  const finalFileName = `${cleanedBaseName}${suffix}.${extension.toLowerCase()}`
 
   return [finalFileName]
 }

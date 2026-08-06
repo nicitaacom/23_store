@@ -31,9 +31,7 @@ export async function uploadImageFn({
 }: UploadImageParams): Promise<string | { publicUrl: string }> {
   if (!imageFile) return "Image file is missing"
 
-  // console.log("🔍 DEBUG - side parameter:", side)
-
-  let cleanedFileName = formatFileNameForBucket(t, imageFile.name, folder, suffix)
+  let cleanedFileName = formatFileNameForBucket(t, imageFile.name, suffix)
   if (typeof cleanedFileName === "string") return cleanedFileName
 
   // 1. Extract folder path & filename parts
