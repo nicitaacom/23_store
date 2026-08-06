@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { IBuyingFlowEventInput } from "@/ts/interfaces/IBuyingFlowEventInput"
+import { trackBuyingFlowEventAction } from "./trackBuyingFlowEventAction"
 import { createDeviceId, encodeDeviceId } from "@/utils/deviceId"
 import { encryptDeviceId } from "@/utils/deviceIdCookie"
-import { trackBuyingFlowEventAction } from "./trackBuyingFlowEventAction"
 
 process.env.DEVICE_ID_ENCRYPTION_KEY = "c1c47798479b34c3848fe8e89362e2e27bd2a3e6093db4b07799b6831241db45"
 

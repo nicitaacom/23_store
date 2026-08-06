@@ -138,6 +138,7 @@ export default [
       "app/components/ui/Modals/AdminPanel/components/FormatImagesForm.tsx",
       "app/components/ui/Modals/DbBackup/DbBackupModal.tsx",
       "app/\\[locale\\]/(site)/stats/components/UTMDashboard.tsx",
+      "app/\\[locale\\]/(site)/stats/components/BuyingFlow.tsx",
       "app/\\[locale\\]/(site)/components/MemoryDebug.tsx",
     ],
     rules: {

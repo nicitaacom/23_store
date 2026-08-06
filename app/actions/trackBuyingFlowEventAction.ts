@@ -5,12 +5,12 @@ import { Ratelimit } from "@upstash/ratelimit"
 
 import { IBuyingFlowEventInput } from "@/ts/interfaces/IBuyingFlowEventInput"
 import { TBuyingFlowEvent } from "@/ts/types/TBuyingFlowEvent"
-import { BUYING_FLOW_CAPS, CHECKOUT_KINDS, TCheckoutKind } from "@/config/buyingFlowConfig"
 import { decodeDeviceId, isValidDeviceId } from "@/utils/deviceId"
 import { decryptDeviceId, DEVICE_ID_COOKIE_NAME } from "@/utils/deviceIdCookie"
 import { getCookie } from "@/utils/helpersSSR"
-import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
 import supabaseServer from "@/libs/supabase/supabaseServer"
+import { BUYING_FLOW_CAPS, CHECKOUT_KINDS, TCheckoutKind } from "@/config/buyingFlowConfig"
+import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
 
 const BUYING_FLOW_EVENTS: TBuyingFlowEvent[] = [
   "product_view",

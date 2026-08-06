@@ -7,6 +7,7 @@ import { requestBetterPrices } from "./functions/requestBetterPrices"
 import { Button } from "../.."
 import { PaymentButtons } from "./PaymentButtons/PaymentButtons"
 import { formatCurrency } from "@/utils/currencyFormatter"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 import useCartStore from "@/store/user/cartStore"
 import { useCurrentLocale, useI18n } from "@/locales/client"
@@ -14,7 +15,6 @@ import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
 import { Product } from "@/[locale]/(site)/components"
-import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 // http://localhost:6006/?path=/story/commerce-cartcomposition--empty
 export function ProductsInCart() {

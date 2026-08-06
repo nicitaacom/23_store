@@ -1,8 +1,8 @@
 import { Metadata } from "next"
 
 import { NoProductsFound } from "./NoProductsFound"
-import { SearchTracker } from "./SearchTracker"
 import { Products } from "../components"
+import { SearchTracker } from "./SearchTracker"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import { getI18n } from "@/locales/server"
 import { normalizeProducts } from "@/utils/productVariants"

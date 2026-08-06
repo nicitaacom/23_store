@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation"
 import EmptyCart from "./EmptyCart"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { ProductsInCart } from "./ProductsInCart"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import useCartStore from "@/store/user/cartStore"
 import { useI18n } from "@/locales/client"
 import { ProductsSkeleton } from "@/components/Skeletons/InitialPageLoading/ProductsSkeleton"
-import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 // http://localhost:6006/?path=/story/commerce-checkout--cart
 export function CartModal() {

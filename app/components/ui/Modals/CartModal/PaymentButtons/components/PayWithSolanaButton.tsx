@@ -3,12 +3,12 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 
 import { sendMoneyWithSolana } from "../functions/sendMoneyWithSolana"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import useCartStore from "@/store/user/cartStore"
 import { useI18n, useScopedI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui/Button"
-import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 // Solana is not an EVM chain - this is a base58 public key, not a 0x address
 const SOLANA_ADDRESS = process.env.NEXT_PUBLIC_SOLANA_ADDRESS

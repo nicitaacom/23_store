@@ -6,9 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation"
 
 import { useNoProductsRedirect } from "./hooks/useNoProductsRedirect"
 import { usePaymentSteps } from "./hooks/usePaymentSteps"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import { useScopedI18n } from "@/locales/client"
 import { Timer } from "@/components/ui"
-import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 export default function Payment() {
   const router = useRouter()

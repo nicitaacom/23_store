@@ -16,6 +16,7 @@ import { createCartProductKey, getProductPriceForVariant } from "@/utils/cartPro
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { resolvePersonalizationConfig } from "@/utils/printMetrics"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import useCartStore from "@/store/user/cartStore"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { useProductDetail } from "@/store/ui/useProductDetail"
@@ -25,7 +26,6 @@ import { PersonalizeButton } from "@/components/ui/Buttons/PersonalizeButton"
 import { PersonalizeModal } from "@/components/ui/Modals/PersonalizeModal/PersonalizeModal"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
 import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
-import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 interface ProductDetailViewProps {
   category: TCategory | null

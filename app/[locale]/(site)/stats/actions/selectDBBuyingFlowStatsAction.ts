@@ -1,10 +1,10 @@
 "use server"
 
 import { IBuyingFlowStats } from "@/ts/interfaces/IBuyingFlowStats"
-import { Database } from "@/ts/types_db"
-import { BUYING_FLOW_STAGES, CHECKOUT_KINDS, TCheckoutKind } from "@/config/buyingFlowConfig"
 import { selectDBUTMStatsAction } from "./selectDBUTMStatsAction"
 import supabaseServer from "@/libs/supabase/supabaseServer"
+import { BUYING_FLOW_STAGES, CHECKOUT_KINDS, TCheckoutKind } from "@/config/buyingFlowConfig"
+import { Database } from "@/ts/types_db"
 
 type BuyingFlowEventRow = Pick<
   Database["public"]["Tables"]["23_buying_flow_events"]["Row"],

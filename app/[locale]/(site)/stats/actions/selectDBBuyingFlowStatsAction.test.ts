@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { Database } from "@/ts/types_db"
 import { selectDBBuyingFlowStatsAction } from "./selectDBBuyingFlowStatsAction"
+import { Database } from "@/ts/types_db"
 
 type BuyingFlowEventRow = Pick<
   Database["public"]["Tables"]["23_buying_flow_events"]["Row"],
@@ -58,9 +58,9 @@ describe("selectDBBuyingFlowStatsAction aggregation", () => {
       row({ event: "product_view", user_id: "visitor-2" }),
       row({ event: "add_to_cart" }),
     ]
-    const stats = await selectDBBuyingFlowStatsAction()
+    const selectDBBuyingFlowStatsActionResp = await selectDBBuyingFlowStatsAction()
 
-    expect(typeof stats === "string" ? [] : stats.stages.map(stage => stage.visitors)).toEqual([4, 2, 1, 0, 0])
+    expect(typeof selectDBBuyingFlowStatsActionResp === "string" ? [] : selectDBBuyingFlowStatsActionResp.stages.map(stage => stage.visitors)).toEqual([4, 2, 1, 0, 0])
   })
 
   it("groups every checkout kind and keeps request better prices first", async () => {
@@ -70,9 +70,9 @@ describe("selectDBBuyingFlowStatsAction aggregation", () => {
       row({ event: "checkout_click", checkout_kind: "stripe" }),
       row({ event: "checkout_click", checkout_kind: "request_better_prices" }),
     ]
-    const stats = await selectDBBuyingFlowStatsAction()
+    const selectDBBuyingFlowStatsActionResp = await selectDBBuyingFlowStatsAction()
 
-    expect(typeof stats === "string" ? [] : stats.checkoutKinds).toEqual([
+    expect(typeof selectDBBuyingFlowStatsActionResp === "string" ? [] : selectDBBuyingFlowStatsActionResp.checkoutKinds).toEqual([
       { kind: "request_better_prices", clicks: 1 },
       { kind: "stripe", clicks: 2 },
       { kind: "paypal", clicks: 0 },
@@ -92,13 +92,13 @@ describe("selectDBBuyingFlowStatsAction aggregation", () => {
       }),
     )
     readState.rows.push(row({ event: "search", search_query: "SHOES", results_count: 0 }))
-    const stats = await selectDBBuyingFlowStatsAction()
+    const selectDBBuyingFlowStatsActionResp = await selectDBBuyingFlowStatsAction()
 
-    if (typeof stats === "string") throw new Error(stats)
-    expect(stats.searchMisses[0]).toEqual({ query: "shoes", count: 2 })
-    expect(stats.searchMisses.every(search => search.query === "shoes" || Number(search.query.split("-")[1]) % 2 === 0)).toBe(
+    if (typeof selectDBBuyingFlowStatsActionResp === "string") throw new Error(selectDBBuyingFlowStatsActionResp)
+    expect(selectDBBuyingFlowStatsActionResp.searchMisses[0]).toEqual({ query: "shoes", count: 2 })
+    expect(selectDBBuyingFlowStatsActionResp.searchMisses.every(search => search.query === "shoes" || Number(search.query.split("-")[1]) % 2 === 0)).toBe(
       true,
     )
-    expect(stats.topSearches).toHaveLength(10)
+    expect(selectDBBuyingFlowStatsActionResp.topSearches).toHaveLength(10)
   })
 })

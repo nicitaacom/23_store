@@ -1,8 +1,8 @@
 "use client"
 
 import { IBuyingFlowEventInput } from "@/ts/interfaces/IBuyingFlowEventInput"
-import { useDeviceIdStore } from "@/store/user/useDeviceIdStore"
 import { trackBuyingFlowEventAction } from "@/actions/trackBuyingFlowEventAction"
+import { useDeviceIdStore } from "@/store/user/useDeviceIdStore"
 
 const SESSION_ID_KEY = "buying-flow:session-id"
 

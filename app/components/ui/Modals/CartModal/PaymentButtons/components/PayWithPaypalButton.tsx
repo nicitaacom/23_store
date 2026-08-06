@@ -7,13 +7,13 @@ import { twMerge } from "tailwind-merge"
 import { buildStripeLineName } from "../functions/buildStripeLineName"
 import { getVariantImageUrl } from "@/utils/cartProducts"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import useCartStore from "@/store/user/cartStore"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui"
-import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 // http://localhost:6006/?path=/story/commerce-checkout--cart
 export function PayWithPaypalButton() {
