@@ -58,6 +58,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isDirty },
   } = useForm<IFormDataAddProduct>()
 
@@ -70,6 +71,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
 
   const enableInput = () => {
+    reset({ price })
     isEditingRef.current = true
     setIsEditing(true)
     requestAnimationFrame(() => containerRef.current?.querySelector("input")?.focus())

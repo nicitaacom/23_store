@@ -67,6 +67,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isDirty },
   } = useForm<IFormDataAddProduct>()
 
@@ -80,6 +81,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const enableInput = () => {
+    reset({ title: currentTranslation.title })
     isEditingRef.current = true
     setIsEditing(true)
     requestAnimationFrame(() => containerRef.current?.querySelector("input")?.focus())
