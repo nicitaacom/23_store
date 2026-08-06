@@ -345,8 +345,93 @@ ALTER TABLE utm_stats ENABLE ROW LEVEL SECURITY;
 
 ### SQL query for buckets + policies
 
+One bucket per purpose, and the folder inside it is keyed on the uploader's slugified email
+(`nicitaacom@gmail.com` → `nicitaacomgmailcom`) or, for a visitor who is not signed in, on their
+`deviceId`. `auth.users.id` is never a folder name: it is rewritten to a new uuid whenever a
+`23_users` row is restored into a different Supabase project, and every folder created under the
+old uuid would stay behind. See [plan-22](plans/plan-22-storage-buckets-email-slug.md).
+
+| Bucket | Holds | Path inside it |
+| --- | --- | --- |
+| `23_product-images` | catalog images of a product | `emailSlug/productId/titleSlug-1.jpg` |
+| `23_ai-product-images` | images the AI shopping assistant generates | `emailSlug/…` or `deviceId/…` |
+| `23_avatar-images` | one avatar per account | `emailSlug/avatar.png` |
+| `23_support-images` | support-chat images from a signed-in sender | `emailSlug/2026-07-29_at_22-19-54.png` |
+| `23_support-guest-images` | support-chat images from a visitor who is not signed in | `deviceId/2026-07-29_at_22-19-54.png` |
+| `23_product-personalozation-images` | the design a buyer uploads for a personalized product | `emailSlug/productId/my-kovrik.jpg` |
+
 ```sql
 -- =================================== STORAGE BUCKETS ===================================
+-- 23_product-images, 23_ai-product-images: never upsert, INSERT+SELECT only
+-- 23_avatar-images, 23_support-images, 23_support-guest-images, 23_product-personalozation-images:
+--   upload with upsert:true, so each also needs its own UPDATE policy
+DO $$
+DECLARE
+  bucket_id TEXT;
+BEGIN
+  FOREACH bucket_id IN ARRAY ARRAY[
+    '23_product-images', '23_ai-product-images', '23_avatar-images',
+    '23_support-images', '23_support-guest-images', '23_product-personalozation-images'
+  ]
+  LOOP
+    INSERT INTO storage.buckets (id, name, public)
+    VALUES (bucket_id, bucket_id, true)
+    ON CONFLICT (id) DO UPDATE SET public = true;
+
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_policies
+      WHERE schemaname = 'storage' AND tablename = 'objects'
+        AND policyname = 'allow_insert_for_everyone_' || bucket_id
+    ) THEN
+      EXECUTE format(
+        'CREATE POLICY %I ON storage.objects FOR INSERT WITH CHECK (bucket_id = %L)',
+        'allow_insert_for_everyone_' || bucket_id, bucket_id
+      );
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_policies
+      WHERE schemaname = 'storage' AND tablename = 'objects'
+        AND policyname = 'allow_select_for_everyone_' || bucket_id
+    ) THEN
+      EXECUTE format(
+        'CREATE POLICY %I ON storage.objects FOR SELECT USING (bucket_id = %L)',
+        'allow_select_for_everyone_' || bucket_id, bucket_id
+      );
+    END IF;
+  END LOOP;
+
+  FOREACH bucket_id IN ARRAY ARRAY[
+    '23_avatar-images', '23_support-images',
+    '23_support-guest-images', '23_product-personalozation-images'
+  ]
+  LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_policies
+      WHERE schemaname = 'storage' AND tablename = 'objects'
+        AND policyname = 'allow_update_for_everyone_' || bucket_id
+    ) THEN
+      EXECUTE format(
+        'CREATE POLICY %I ON storage.objects FOR UPDATE USING (bucket_id = %L)',
+        'allow_update_for_everyone_' || bucket_id, bucket_id
+      );
+    END IF;
+  END LOOP;
+END $$;
+```
+
+<br/>
+
+### Retired buckets — `23_public-images` and `23_public`
+
+`23_public-images` held products, personalized designs, support-chat images and AI-generated
+images together, under a name that describes none of them. No code writes to it any more (its last
+reference left the repo with plan-22 stage 1). The block below stays here because the files are
+still in it until they are moved by hand into the 6 buckets above — run it only on a project that
+still has to read those old files.
+
+```sql
+-- =================================== RETIRED STORAGE BUCKETS ===================================
 
 -- Create 23_public-images bucket
 INSERT INTO storage.buckets (id, name, public)
@@ -364,30 +449,6 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'allow_select_for_everyone_23_public_images') THEN
     CREATE POLICY "allow_select_for_everyone_23_public_images" ON storage.objects
     FOR SELECT USING (bucket_id = '23_public-images');
-  END IF;
-END $$;
-
--- Create 23_avatar-images bucket
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('23_avatar-images', '23_avatar-images', true)
-ON CONFLICT (id) DO UPDATE SET public = true;
-
--- Storage Policies for 23_avatar-images bucket
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'allow_insert_for_everyone_23_avatar_images') THEN
-    CREATE POLICY "allow_insert_for_everyone_23_avatar_images" ON storage.objects
-    FOR INSERT WITH CHECK (bucket_id = '23_avatar-images');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'allow_select_for_everyone_23_avatar_images') THEN
-    CREATE POLICY "allow_select_for_everyone_23_avatar_images" ON storage.objects
-    FOR SELECT USING (bucket_id = '23_avatar-images');
-  END IF;
-
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'allow_update_for_everyone_23_avatar_images') THEN
-    CREATE POLICY "allow_update_for_everyone_23_avatar_images" ON storage.objects
-    FOR UPDATE USING (bucket_id = '23_avatar-images');
   END IF;
 END $$;
 
