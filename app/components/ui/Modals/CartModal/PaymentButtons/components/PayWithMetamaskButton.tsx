@@ -1,19 +1,20 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import detectEthereumProvider from "@metamask/detect-provider"
 
 import { sendMoneyWithMetamask } from "../functions/sendMoneyWithMetamask"
 import { formatBalance } from "@/utils/formatMetamaskBalance"
+import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import useCartStore from "@/store/user/cartStore"
 import { useDoYouWantRecieveCheckModal } from "@/store/ui/useDoYouWantRecieveCheckModal"
 import { useI18n, useScopedI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
+import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui/Button"
-import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 
 // Only EVM-compatible chains work with MetaMask
 const WALLET_ADDRESSES = {
@@ -63,6 +64,11 @@ export function PayWithMetamaskButton() {
   const [hasProvider, setHasProvider] = useState<boolean | null>(null)
   const [selectedChain, setSelectedChain] = useState<SupportedChain>("ETH")
   const [showChainSelector, setShowChainSelector] = useState(false)
+  const chainSelectorRef = useRef<HTMLDivElement>(null)
+  useOnEscOrClickOutside(chainSelectorRef, () => setShowChainSelector(false), {
+    isHookEnabled: showChainSelector,
+    isInner: true,
+  })
   const initialState = { accounts: [], balance: "", chainId: "" }
   const { isLoading, setIsLoading } = useLoading()
 
@@ -217,7 +223,7 @@ export function PayWithMetamaskButton() {
   const config = CHAIN_CONFIG[selectedChain]
 
   return (
-    <div className="relative">
+    <div className="relative" ref={chainSelectorRef}>
       {showChainSelector && (
         <div className="absolute bottom-full left-0 right-0 mb-2 bg-background border border-border-color rounded-lg shadow-xl overflow-hidden z-10">
           {(Object.keys(CHAIN_CONFIG) as SupportedChain[]).map(chain => {
