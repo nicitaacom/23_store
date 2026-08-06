@@ -1,6 +1,6 @@
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { TBuckets } from "@/ts/types/TBuckets"
-import { formatFileNameForBucket } from "./support/image/formatFileNameForBucket"
+import { slugifyFileNameForBucket } from "./support/image/slugifyFileNameForBucket"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 
 interface UploadImageParams {
@@ -31,7 +31,7 @@ export async function uploadImageFn({
 }: UploadImageParams): Promise<string | { publicUrl: string }> {
   if (!imageFile) return "Image file is missing"
 
-  let cleanedFileName = formatFileNameForBucket(t, imageFile.name, suffix)
+  const cleanedFileName = slugifyFileNameForBucket(t, imageFile.name, suffix)
   if (typeof cleanedFileName === "string") return cleanedFileName
 
   // 1. Extract folder path & filename parts
