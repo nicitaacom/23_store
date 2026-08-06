@@ -62,7 +62,7 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
         aria-expanded={showDropdown}>
         {currentLocale ? (
           <Image
-            className="rounded-sm object-cover"
+            className="w-[18px] h-[13px] rounded-sm object-cover"
             src={currentLocale.flag}
             alt={currentLocale.name}
             width={18}
@@ -96,7 +96,7 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
             href={getLocaleHref(localeOption.code)}
             onClick={() => setShowDropdown(false)}>
             <Image
-              className="rounded-sm object-cover"
+              className="w-[18px] h-[13px] rounded-sm object-cover"
               src={localeOption.flag}
               alt={localeOption.name}
               width={18}

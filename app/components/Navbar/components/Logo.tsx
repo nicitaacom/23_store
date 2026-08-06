@@ -14,7 +14,7 @@ export function Logo() {
   return (
     <Link href="/">
       <Image
-        className="cursor-pointer hidden mobile:flex"
+        className="w-[135px] h-[32px] cursor-pointer hidden mobile:flex"
         src={darkMode ? "/joki-dark.png" : "/joki-light.png"}
         alt={t("logo_alt")}
         width={135}
@@ -22,7 +22,7 @@ export function Logo() {
         priority
       />
       <Image
-        className="cursor-pointer flex mobile:hidden"
+        className="w-[60px] h-[44px] cursor-pointer flex mobile:hidden"
         src={darkMode ? "/logo-dark.png" : "/logo-light.png"}
         alt={t("logo_alt")}
         width={60}
