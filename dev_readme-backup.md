@@ -219,6 +219,23 @@ to every URL column of the row, so a variant URL stays equal to the `img_url` en
 row holding more unresolved URLs than the folder has files leaves the extra ones in the unresolved
 count.
 
+**Matching by file name — how the files got into those folders in the first place.** The folder
+match above finds a row's images only once the files already sit in the new folder, and the
+2026-08-06 move is what put them there. That move could use neither matching mode: the export was
+flattened by hand into a folder that matches neither the path the objects had nor the path they were
+going to, so the stored path was useless on both sides.
+
+The **file name** was the one surviving link. All 1092 exported objects have distinct names, so the
+tail of the URL a row still held identified the file on disk exactly, and the position in `img_url`
+gave the order the folder match needs. The new name was rebuilt from the row — `slug(fi title)-N` —
+never copied from the old one, which is how `1pc-of-beard-bib-7_price_1TIRAxDEq5VtEmnoKqCekBvA.avif`
+became `1pc-of-beard-bib-7.avif`. The `_price_<priceId>` tail was read only as a check: a file naming
+a different price than the product row it landed on was reported, not uploaded.
+
+That move ran from `backup.ts` at the repo root, written to be deleted once the shop showed its
+images, so this paragraph is the record of it. A later restore needs none of it — every file written
+since plan-22 already sits at the path its row names.
+
 For the 2026-08-03 migration archive, 861 of 1,071 database Storage URL references match the
 current files archive. The remaining 210 references (170 unique paths) point to files absent from
 that export and intentionally stay unchanged. That run predates plan-22, so it was measured on
