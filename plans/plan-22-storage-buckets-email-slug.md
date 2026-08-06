@@ -161,7 +161,7 @@ code diff against that list too, not only this document.
 | `app/components/ui/Modals/AdminPanel/components/FormatImagesForm.tsx`                                     | Calls `uploadProductImages(files, tGlobal)`, no title passed                                            | Passes the product's own title + `id` (already in scope) through                                                                                                                               |
 | `app/components/ui/Modals/UpdateAvatarModal.tsx`                                                          | `folder: user.id`, bucket `23_avatar-images`                                                            | `folder: slugifyEmail(user.email)`, bucket unchanged                                                                                                                                           |
 | `app/components/ui/Modals/PersonalizeModal/functions/uploadDesignFn.ts`                                   | `folder: \`personalized/${userId}\``(uuid from`getUserId()`), bucket `23_public-images`                 | bucket `23_product-personalization-images`, `folder: \`${slugifyEmail(email)}/${productId}\``, filename = the buyer's own uploaded file name, slugified (not the `crypto.randomUUID()` suffix) |
-| `app/[locale]/(site)/components/AISearch/utils/aiFunctionHandlers.tsx`, `.../AISearch/hooks/useAIChat.ts` | `bucket: "23_public-images"`, no folder                                                                 | `bucket: "23_ai-product-images"`, `folder: slugifyEmail(email)` - that chat needs a sign-in, so no guest folder                                                                                        |
+| `app/[locale]/(site)/components/AISearch/utils/aiFunctionHandlers.tsx`, `.../AISearch/hooks/useAIChat.ts` | `bucket: "23_public-images"`, no folder                                                                 | `bucket: "23_ai-product-images"`, `folder: slugifyEmail(email)` - that chat needs a sign-in, so no guest folder                                                                                |
 | `app/functions/support/uploadImagesAndSendMessage.ts`, `.../MessagesFooter.tsx`                           | No folder, no bucket split — every file lands loose at bucket root                                      | Signed-in: `23_support-images`, `folder: slugifyEmail(email)`. Anonymous: `23_support-guest-images`, `folder: deviceId` from `useDeviceIdStore.getState().storedDeviceId`                      |
 | `app/api/products/delete/route.ts`                                                                        | Hardcoded `"storage/v1/object/public/23_public-images/"` prefix and `.storage.from("23_public-images")` | `23_product-images`                                                                                                                                                                            |
 | `app/api/backup/backupConfig.ts` (`BACKUP_BUCKETS`)                                                       | 2 buckets                                                                                               | 6 buckets                                                                                                                                                                                      |
@@ -406,7 +406,7 @@ filler — every box and arrow maps to a real step named in plan-22."
 
 ---
 
-### 1. Support chat images
+### 1. Support chat images (done)
 
 > A technical flow diagram on a deep dark-green background, slightly rounded corners on every box.
 >
@@ -517,12 +517,12 @@ filler — every box and arrow maps to a real step named in plan-22."
 Each of §5's 4 prompts is generated one at a time (image-generator limit), then embedded by hand
 into the doc that already documents that workflow. Not a Stage — nothing here touches app code.
 
-| # | Prompt | Status | Embeds into |
-| --- | --- | --- | --- |
-| 1 | Support chat images | **Done** — `public/docs/support/support-image-upload-workflow.png`, embedded in `dev_readme-supbase-sql.md` above the bucket table | `dev_readme-supbase-sql.md`, "SQL query for buckets + policies" |
-| 2 | Product images | Prompt rewritten shorter/text-first (§5 above) — image not generated yet | `app/functions/dev_readme-create-product.md`, §1 "How does it look", next to `Products.png` |
-| 3 | Avatar URL | Not generated yet | `dev_readme-supbase-sql.md`, "SQL query for buckets + policies", next to image 1 |
-| 4 | Backup import / export | Not generated yet | `dev_readme-backup.md`, above "Export flow" |
+| #   | Prompt                 | Status                                                                                                                             | Embeds into                                                                                 |
+| --- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 1   | Support chat images    | **Done** — `public/docs/support/support-image-upload-workflow.png`, embedded in `dev_readme-supbase-sql.md` above the bucket table | `dev_readme-supbase-sql.md`, "SQL query for buckets + policies"                             |
+| 2   | Product images         | **Done** — no generated image; embedded as an ASCII diagram instead (§5 prompt below kept as history, not used)                                                           | `app/functions/dev_readme-create-product.md`, §1 "How does it look", next to `Products.png` |
+| 3   | Avatar URL             | Not generated yet                                                                                                                  | `dev_readme-supbase-sql.md`, "SQL query for buckets + policies", next to image 1            |
+| 4   | Backup import / export | Not generated yet                                                                                                                  | `dev_readme-backup.md`, above "Export flow"                                                 |
 
 For each of 2–4, once Nikita pastes the generated PNG:
 
@@ -533,5 +533,6 @@ For each of 2–4, once Nikita pastes the generated PNG:
    named in the row above — same pattern image 1 already uses.
 
 🚨 TODO
-1. Generate images 2–4 from the §5 prompts (image 2's prompt is already the updated, shorter one) —
-   image-generator dashboard, not something run from this repo.
+
+1. Generate images 3–4 from the §5 prompts — image-generator dashboard, not something run from this
+   repo. Image 2 (Product images) is done as an ASCII diagram instead, no generated image needed.

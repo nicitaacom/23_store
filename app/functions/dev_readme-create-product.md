@@ -14,6 +14,29 @@ Creating a product is non-trivial: images must be compressed (Tinify), uploaded 
 ![23_products DB](../../public/docs/products/db-23_products.png)
 `public/docs/products/db-23_products.png` — Supabase `23_products` table
 
+Product image → its path:
+
+```text
+  title:  "сливки 30%"
+              │
+              │  slugify: % → pct, cyrillic → latin
+              ▼
+  slug:   "slivki-30pct"
+              │
+              │  Stripe creates the product
+              ▼
+  productId:  "prod_T1IRAxDEq5VtEmno"
+              │
+              ▼
+  ┌────────────────────────────────────────────────────────────┐
+  │ 23_product-images/nicitaacomgmailcom/prod_T1IRAxDEq5VtEmno/│
+  │ slivki-30pct-1.jpg                                         │
+  └────────────────────────────────────────────────────────────┘
+    ├─ nicitaacomgmailcom      → owner email, slugged
+    ├─ prod_T1IRAxDEq5VtEmno   → productId — delete this folder, delete the product
+    └─ slivki-30pct-1.jpg      → title slug + position
+```
+
 ---
 
 ## 2. Where data lives
