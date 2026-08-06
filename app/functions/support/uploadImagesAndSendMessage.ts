@@ -26,7 +26,7 @@ export async function uploadImagesAndSendMessage(
       t,
       imageFile: image,
       ...getSupportImageBucketAndFolder(),
-      fileName: getTimestampFileName(image),
+      fileName: getTimestampFileName(image.name),
     })
     if (response === undefined) return
     if (typeof response === "string") return toast.show("error", t("support.error.uploading_image"), response)

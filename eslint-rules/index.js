@@ -3,6 +3,7 @@
 module.exports = {
   ...require("./no-export-const-classname"),
   ...require("./no-localstorage-direct"),
+  ...require("./no-generic-image-file-name"),
   ...require("./no-banned-words"),
   ...require("./no-function-in-deps"),
   ...require("./no-vague-names"),

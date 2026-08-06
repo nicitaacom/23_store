@@ -2,6 +2,7 @@ Refer to `./docs` - there you find code patterns
 
 1. Follow DRY SOLID KISS best practices.
 2. Follow this code patterns ![good-bad-patterns](good-bad-examples.md) and ![code-patterns](dev_readme-code-patterns.md)
+   and run the checks in ![AI-lint](AI-lint.md) - the ones eslint has no way to make, so you make them by reading the code
 
 3. NEVER EVER tell me or use patterns like "can't" - think outside of the box
 

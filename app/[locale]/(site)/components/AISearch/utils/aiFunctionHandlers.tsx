@@ -5,6 +5,7 @@ import { aiSDK } from "@/sdk/AISDK/AISDK"
 // src/utils/aiFunctionHandlers.ts
 import { createProductFn } from "@/functions/createProductFn"
 import { getAiImageFolder } from "@/functions/uploadImageFolder"
+import { getTimestampFileName } from "@/functions/support/image/getTimestampFileName"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import useCartStore from "@/store/user/cartStore"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
@@ -73,7 +74,10 @@ async function generateImageHandler(args: HandlerArgs): Promise<FunctionResult> 
 
     const generatedImage = await aiSDK.generateImageBuffer(fullPrompt)
 
-    const imageFile = new File([generatedImage.buffer], "generated_image.png", {
+    // The assistant hands back bytes and a content type, no name - so the name is the moment it
+    // arrived, the same rule a pasted chat image follows.
+    const generatedImageName = getTimestampFileName(generatedImage.contentType.replace("/", "."))
+    const imageFile = new File([generatedImage.buffer], generatedImageName, {
       type: generatedImage.contentType,
     })
 

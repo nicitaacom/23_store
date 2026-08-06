@@ -45,6 +45,7 @@ export default [
 
       "local-rules/no-export-const-classname": "warn",
       "local-rules/no-localstorage-direct": "warn",
+      "local-rules/no-generic-image-file-name": "warn",
       "local-rules/no-banned-words": "error",
       "local-rules/no-function-in-deps": "warn",
       "local-rules/no-vague-names": "warn",
@@ -159,6 +160,14 @@ export default [
       "local-rules": localPlugin,
     },
     processor: "local-rules/json",
+  },
+  {
+    // A fixture called Image.png is the point of the test - it stands for what a real paste arrives
+    // as. The rule is about a name our own upload code invents, so it is off inside tests.
+    files: ["**/*.test.ts", "**/*.test.tsx"],
+    rules: {
+      "local-rules/no-generic-image-file-name": "off",
+    },
   },
   {
     // A processor hands eslint its output as a virtual file named "package.json/0.js", and config is

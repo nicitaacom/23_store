@@ -5,6 +5,7 @@ import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { getAiImageFolder } from "@/functions/uploadImageFolder"
+import { getTimestampFileName } from "@/functions/support/image/getTimestampFileName"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useAIChatStore } from "@/components/Navbar/stores/useAIChatStore"
 import { useI18n } from "@/locales/client"
@@ -182,7 +183,10 @@ export function useAIChat() {
 
       const generatedImage = await aiSDK.generateImageBuffer(`${memory} - generate image for this product`)
 
-      const imageFile = new File([generatedImage.buffer], "generated_image.png", {
+      // The assistant hands back bytes and a content type, no name - so the name is the moment it
+      // arrived, the same rule a pasted chat image follows.
+      const generatedImageName = getTimestampFileName(generatedImage.contentType.replace("/", "."))
+      const imageFile = new File([generatedImage.buffer], generatedImageName, {
         type: generatedImage.contentType,
       })
 

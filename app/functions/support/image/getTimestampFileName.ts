@@ -12,8 +12,8 @@ const FALLBACK_EXTENSION = "png"
  * Europe/Berlin, the same zone `sendMessageFn` stamps a message's created_at with, so a file name
  * and the message it belongs to read as the same clock.
  */
-export function getTimestampFileName(imageFile: File): string {
-  const extension = slugify(imageFile.name.split(".").pop() ?? "") || FALLBACK_EXTENSION
+export function getTimestampFileName(fileName: string): string {
+  const extension = slugify(fileName.split(".").pop() ?? "") || FALLBACK_EXTENSION
 
   return `${moment().tz("Europe/Berlin").format("YYYY-MM-DD_[at]_HH-mm-ss")}.${extension}`
 }

@@ -42,7 +42,7 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
         t,
         imageFile: image,
         ...getSupportImageBucketAndFolder(),
-        fileName: getTimestampFileName(image),
+        fileName: getTimestampFileName(image.name),
       })
       if (typeof uploadImageResp === "string") return toast.show("error", t("support.error.uploading_image"), uploadImageResp)
       images = [uploadImageResp.publicUrl]
