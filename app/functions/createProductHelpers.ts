@@ -3,12 +3,9 @@ import { ImageListType } from "react-images-uploading"
 import { TPersonalizationDraft, TProductPersonalization } from "@/ts/product/TPersonalization"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
-import { getAnonymousId } from "./getAnonymousId"
 import { uploadImageFn } from "./uploadImageFn"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
-import { getUserId } from "@/utils/getUserId"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
-import useUser from "@/store/user/useUser"
 import { DEFAULT_MIN_DPI } from "@/utils/printMetrics"
 import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
 import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
@@ -145,9 +142,10 @@ export async function tinifyProductImages(imageFiles: File[]) {
 }
 
 export async function uploadProductImages(imageFiles: File[], t: TI18nFunction) {
-  const userStore = useUser.getState()
-  const uploadFolder = userStore.user?.id || getAnonymousId() || getUserId()
-  const uploadBatchId = crypto.randomUUID()
+  // A product's images live under their own random folder, never the uploading admin's user id -
+  // that id changes on re-auth (e.g. switching to Google sign-in), which would leave every image
+  // folder created under the old id unreferenced. See dev_readme-backup.md relink section.
+  const uploadFolder = crypto.randomUUID()
 
   const uploadResults = await Promise.all(
     imageFiles.map(async (imageFile, index) => {
@@ -156,7 +154,7 @@ export async function uploadProductImages(imageFiles: File[], t: TI18nFunction) 
         imageFile,
         bucket: "23_public-images",
         folder: uploadFolder,
-        suffix: `${uploadBatchId}_${index + 1}`,
+        suffix: `${index + 1}`,
         upsert: true,
       })
 
