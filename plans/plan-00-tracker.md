@@ -48,6 +48,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 19 | [plan-19-checkout-request-prices-primary.md](plan-19-checkout-request-prices-primary.md) | P1 | Sonnet · medium | done - tasks 2-6; checkout redirects, verified PayPal webhook, and ordered receipt email steps | plan-18 |
 | 20 | [plan-20-buying-flow-stats.md](plan-20-buying-flow-stats.md) | P1 | Opus · high | done - tasks 1-8; SQL is in the commit body; local Playwright reached all 5 capture stages, and rows + search toggle wait for that table | plan-19 (reads its buttons) |
 | 21 | [plan-21-backup-storage-url-relink.md](plan-21-backup-storage-url-relink.md) | P1 | GPT-5 · high | done | plan-11 |
+| 22 | [plan-22-storage-buckets-email-slug.md](plan-22-storage-buckets-email-slug.md) | P1 | Opus · high | waiting - all §1 decisions resolved, ready for a new chat to implement | plan-21 |
 
 Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screenshot rule (2 = P1, 3+ = P0) sets nothing — P1 here means "blocks users or is the main asked-for work".
 
