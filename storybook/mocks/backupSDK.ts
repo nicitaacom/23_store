@@ -19,7 +19,7 @@ export const backupSDK = {
     label: string;
     speedBytesPerMs: number | null;
   }) => void) => {
-    onProgress({ bytesDone: 1024, bytesTotal: 4096, label: "23_public-images/example.png", speedBytesPerMs: 2 });
+    onProgress({ bytesDone: 1024, bytesTotal: 4096, label: "23_product-images/example.png", speedBytesPerMs: 2 });
     return { fileName: "files.tar.gz", archiveFile: new Blob([], { type: "application/gzip" }) };
   }),
   importFiles: fn(async () => ({ buckets: [] })),

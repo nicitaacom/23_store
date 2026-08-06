@@ -185,7 +185,7 @@ export default {
   "backup.accounts_label": "Auth accounts",
   "backup.accounts_result": "{created} created, {reused} reused",
   "backup.password_recovery_result": "{count} email/password account(s) must recover their password before signing in.",
-  "backup.files_subtitle": "Every file in 23_public-images and 23_avatar-images as a .tar.gz archive.",
+  "backup.files_subtitle": "Every file in all 6 storage buckets as a .tar.gz archive.",
   "backup.export_button": "Export",
   "backup.import_button": "Import",
   "backup.speed_label": "Connection speed",

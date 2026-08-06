@@ -185,7 +185,7 @@ export default {
   "backup.accounts_label": "Учётные записи Auth",
   "backup.accounts_result": "Создано: {created}, использовано существующих: {reused}",
   "backup.password_recovery_result": "Пользователям с email и паролем ({count}) необходимо восстановить пароль перед входом.",
-  "backup.files_subtitle": "Каждый файл в 23_public-images и 23_avatar-images в виде архива .tar.gz.",
+  "backup.files_subtitle": "Каждый файл из всех 6 хранилищ в виде архива .tar.gz.",
   "backup.export_button": "Экспорт",
   "backup.import_button": "Импорт",
   "backup.speed_label": "Скорость соединения",

@@ -36,7 +36,7 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   async function handleSend(messageBody: string, image: File | null) {
     let images: string[] | undefined = undefined
     if (image) {
-      const uploadImageResp = await uploadImageFn({ t, imageFile: image, bucket: "23_public-images" })
+      const uploadImageResp = await uploadImageFn({ t, imageFile: image, bucket: "23_support-images" })
       if (typeof uploadImageResp === "string") return toast.show("error", t("support.error.uploading_image"), uploadImageResp)
       images = [uploadImageResp.publicUrl]
     }

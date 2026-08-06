@@ -152,7 +152,7 @@ export async function uploadProductImages(imageFiles: File[], t: TI18nFunction) 
       const response = await uploadImageFn({
         t,
         imageFile,
-        bucket: "23_public-images",
+        bucket: "23_product-images",
         folder: uploadFolder,
         suffix: `${index + 1}`,
         upsert: true,

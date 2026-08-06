@@ -185,7 +185,7 @@ export default {
   "backup.accounts_label": "Auth-tilit",
   "backup.accounts_result": "{created} luotu, {reused} käytetty uudelleen",
   "backup.password_recovery_result": "{count} sähköposti- ja salasanatiliä tarvitsee salasanan palautuksen ennen kirjautumista.",
-  "backup.files_subtitle": "Jokainen tiedosto kansioissa 23_public-images ja 23_avatar-images .tar.gz-arkistona.",
+  "backup.files_subtitle": "Jokainen tiedosto kaikista 6 tallennusalueesta .tar.gz-arkistona.",
   "backup.export_button": "Vie",
   "backup.import_button": "Tuo",
   "backup.speed_label": "Yhteysnopeus",

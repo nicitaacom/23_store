@@ -401,7 +401,7 @@ export class BackupSDK extends BaseSDK {
     }
 
     if (archiveFiles.length === 0) {
-      throw new Error("No storage files found in the archive — expected storage/23_public-images/… or storage/23_avatar-images/… entries.")
+      throw new Error("No storage files found in the archive — expected storage/23_product-images/… or storage/23_avatar-images/… entries.")
     }
 
     const byPath = new Map(archiveFiles.map(archiveFile => [`${archiveFile.bucket}/${archiveFile.path}`, archiveFile]))

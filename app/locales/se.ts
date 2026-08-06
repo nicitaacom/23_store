@@ -185,7 +185,7 @@ export default {
   "backup.accounts_label": "Auth-konton",
   "backup.accounts_result": "{created} skapade, {reused} återanvända",
   "backup.password_recovery_result": "{count} e-post- och lösenordskonton måste återställa lösenordet före inloggning.",
-  "backup.files_subtitle": "Varje fil i 23_public-images och 23_avatar-images som en .tar.gz-arkiv.",
+  "backup.files_subtitle": "Varje fil i alla 6 lagringshinkar som en .tar.gz-arkiv.",
   "backup.export_button": "Exportera",
   "backup.import_button": "Importera",
   "backup.speed_label": "Anslutningshastighet",

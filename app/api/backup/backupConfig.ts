@@ -223,7 +223,14 @@ export function applyBackupImportDefaults(config: TBackupTableConfig, rows: Reco
 //
 // Mirrors app/ts/types/TBuckets.ts. Table rows only hold image URLs/paths; the actual files live
 // here, so a real backup must include these objects.
-export const BACKUP_BUCKETS = ["23_public-images", "23_avatar-images"] as const
+export const BACKUP_BUCKETS = [
+  "23_product-images",
+  "23_ai-product-images",
+  "23_avatar-images",
+  "23_support-images",
+  "23_support-guest-images",
+  "23_product-personalozation-images",
+] as const
 export type TBackupBucket = (typeof BACKUP_BUCKETS)[number]
 
 export function isBackupBucket(value: string): value is TBackupBucket {

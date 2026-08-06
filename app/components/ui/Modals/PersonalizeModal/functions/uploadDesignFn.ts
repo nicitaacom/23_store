@@ -39,7 +39,7 @@ export async function uploadDesignFn({
   const uploadImageResp = await uploadImageFn({
     t,
     imageFile: designFile,
-    bucket: "23_public-images",
+    bucket: "23_product-personalozation-images",
     folder: `personalized/${userId}`,
     suffix: crypto.randomUUID(),
     upsert: true,

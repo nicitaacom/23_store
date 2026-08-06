@@ -23,7 +23,7 @@ export async function uploadImagesAndSendMessage(
     const response = await uploadImageFn({
       t,
       imageFile: image,
-      bucket: "23_public-images",
+      bucket: "23_support-images",
     })
     if (response === undefined) return
     if (typeof response === "string") return toast.show("error", t("support.error.uploading_image"), response)

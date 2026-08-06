@@ -177,7 +177,7 @@ export function useAIChat() {
         type: generatedImage.contentType,
       })
 
-      const response = await uploadImageFn({ t, imageFile, bucket: "23_public-images" })
+      const response = await uploadImageFn({ t, imageFile, bucket: "23_ai-product-images" })
       if (typeof response === "string") {
         throw new Error(`Image upload failed: ${response}`)
       }
