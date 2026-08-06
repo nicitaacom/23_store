@@ -13,9 +13,9 @@ interface OwnerProductImageProps {
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function OwnerProductImage({ imgUrl, className, alt }: OwnerProductImageProps) {
   return (
-    <figure className={twMerge("relative w-full overflow-hidden bg-foreground/[0.06]", className)}>
+    <figure className={twMerge("relative aspect-[4/3] w-full overflow-hidden bg-foreground/[0.06]", className)}>
       <ImageWithFallback
-        className="h-auto w-full max-w-full object-contain"
+        className="h-full w-full object-contain"
         key={imgUrl}
         showLabel
         fallbackWrapperClassName="absolute inset-0 flex flex-col items-center justify-center gap-1.5"
