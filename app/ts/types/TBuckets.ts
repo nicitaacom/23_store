@@ -26,7 +26,7 @@
  *     └── 2026-07-29_at_22-19-54.png        a paste has no name worth keeping, so the moment it
  *                                           arrived is the name (Europe/Berlin)
  *
- * 23_support-guest-images/                  the one bucket with an expiry, see the pg_cron job below
+ * 23_support-guest-images/                  (weekly cron dels imgs no message links)
  * └── Q5UUMP4MX0LbwF0Eekm3JIeIBwqWeDX0-/    same visitor, same folder, every visit
  *     └── 2026-07-29_at_22-20-11.png
  *
@@ -36,11 +36,7 @@
  *         └── my-kovrik.jpg                 the buyer picked this file, so its own name is kept
  * ```
  *
- * `23_support-guest-images` is swept every week - the `cleanup_guest_support_images` pg_cron job,
- * Sunday 03:00 UTC, deletes every object in it that no `23_messages.images` entry still points at
- * and that is older than 1 hour. A guest's ticket is deleted after a month of silence and that
- * cascades to `23_messages`, so without the sweep the file would stay behind for good. No other
- * bucket is swept. See dev_readme-supbase-sql.md "GUEST SUPPORT IMAGES CLEANUP".
+ * cleanup_guest_support_images - Sunday 03:00 UTC, dev_readme-supbase-sql.md.
  */
 export type TBuckets =
   | "23_support-guest-images"
