@@ -42,7 +42,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 13 | [STORYBOOK-PLAN.md](../STORYBOOK-PLAN.md) | P1 | Opus · high | in progress | plan-12 |
 | 14 | [plan-14-optional-variant-image.md](plan-14-optional-variant-image.md) | P2 | Sonnet · medium | done - all 5 steps; `Commerce/Product → VariantWithoutImage` covers the mixed row | — |
 | 15 | personalization phase 3 - owner notification on a paid design (see `app/components/ui/Modals/PersonalizeModal/dev_readme-personalize.md` §4) | P2 | Sonnet · medium | waiting | — |
-| 16 | [plan-16-ai-price-proposals-admin-workspace.md](plan-16-ai-price-proposals-admin-workspace.md) | P1 | GPT-5 · high | done - AI pricing SQL waits for Nikita to run it | — |
+| 16 | [plan-16-ai-price-proposals-admin-workspace.md](plan-16-ai-price-proposals-admin-workspace.md) | P1 | GPT-5 · high | done | — |
 | 17 | [plan-17-seasonal-themes-halloween-new-year.md](plan-17-seasonal-themes-halloween-new-year.md) | P2 | Sonnet · low | waiting | — |
 | 18 | [plan-18-solana-payments.md](plan-18-solana-payments.md) | P1 | Sonnet · medium | done - steps 2-5 + 7; step 6 skipped by decision 4 (no server check, same trust model as MetaMask). Devnet path not run against a real Phantom wallet yet - see CartModal dev_readme §5.7 | — |
 | 19 | [plan-19-checkout-request-prices-primary.md](plan-19-checkout-request-prices-primary.md) | P1 | Sonnet · medium | done - tasks 2-6; checkout redirects, verified PayPal webhook, and ordered receipt email steps | plan-18 |
