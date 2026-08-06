@@ -57,6 +57,9 @@ dist-ssr
 # dependencies
 /.react-email
 
+# the Storage export backup.ts migrates from - 86 MB of image files, never committed
+23-files
+
 # env
 .env
 .env.local
