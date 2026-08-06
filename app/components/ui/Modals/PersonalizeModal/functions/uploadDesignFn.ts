@@ -47,7 +47,7 @@ export async function uploadDesignFn({
   const uploadImageResp = await uploadImageFn({
     t,
     imageFile: designFile,
-    bucket: "23_product-personalozation-images",
+    bucket: "23_product-personalization-images",
     folder: `${slugifyEmail(buyerEmail)}/${productId}`,
     upsert: true,
   })

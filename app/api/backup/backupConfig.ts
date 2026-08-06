@@ -229,7 +229,7 @@ export const BACKUP_BUCKETS = [
   "23_avatar-images",
   "23_support-images",
   "23_support-guest-images",
-  "23_product-personalozation-images",
+  "23_product-personalization-images",
 ] as const
 export type TBackupBucket = (typeof BACKUP_BUCKETS)[number]
 

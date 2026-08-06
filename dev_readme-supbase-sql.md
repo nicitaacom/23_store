@@ -358,12 +358,12 @@ old uuid would stay behind. See [plan-22](plans/plan-22-storage-buckets-email-sl
 | `23_avatar-images` | one avatar per account | `emailSlug/avatar.png` |
 | `23_support-images` | support-chat images from a signed-in sender | `emailSlug/2026-07-29_at_22-19-54.png` |
 | `23_support-guest-images` | support-chat images from a visitor who is not signed in | `deviceId/2026-07-29_at_22-19-54.png` |
-| `23_product-personalozation-images` | the design a buyer uploads for a personalized product | `emailSlug/productId/my-kovrik.jpg` |
+| `23_product-personalization-images` | the design a buyer uploads for a personalized product | `emailSlug/productId/my-kovrik.jpg` |
 
 ```sql
 -- =================================== STORAGE BUCKETS ===================================
 -- 23_product-images, 23_ai-product-images: never upsert, INSERT+SELECT only
--- 23_avatar-images, 23_support-images, 23_support-guest-images, 23_product-personalozation-images:
+-- 23_avatar-images, 23_support-images, 23_support-guest-images, 23_product-personalization-images:
 --   upload with upsert:true, so each also needs its own UPDATE policy
 DO $$
 DECLARE
@@ -371,7 +371,7 @@ DECLARE
 BEGIN
   FOREACH bucket_id IN ARRAY ARRAY[
     '23_product-images', '23_ai-product-images', '23_avatar-images',
-    '23_support-images', '23_support-guest-images', '23_product-personalozation-images'
+    '23_support-images', '23_support-guest-images', '23_product-personalization-images'
   ]
   LOOP
     INSERT INTO storage.buckets (id, name, public)
@@ -403,7 +403,7 @@ BEGIN
 
   FOREACH bucket_id IN ARRAY ARRAY[
     '23_avatar-images', '23_support-images',
-    '23_support-guest-images', '23_product-personalozation-images'
+    '23_support-guest-images', '23_product-personalization-images'
   ]
   LOOP
     IF NOT EXISTS (

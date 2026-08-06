@@ -8,4 +8,4 @@ export type TBuckets =
   | "23_avatar-images"
   | "23_product-images"
   | "23_ai-product-images"
-  | "23_product-personalozation-images"
+  | "23_product-personalization-images"

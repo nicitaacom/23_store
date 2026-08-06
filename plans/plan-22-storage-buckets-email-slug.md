@@ -94,7 +94,7 @@ Quoted verbatim, in the order Nikita gave them:
     | "23_avatar-images"
     | "23_product-images"
     | "23_ai-product-images"
-    | "23_product-personalozation-images"
+    | "23_product-personalization-images"
   ```
 - **Two build stages**: "PLAN STAGE 1 — update all usage of all buckets everywhere... then PLAN
   STAGE 2 is to fix import export of tables and files."
@@ -116,7 +116,7 @@ Quoted verbatim, in the order Nikita gave them:
 slugifyEmail(email)` when signed in, `folder: deviceId` (same `useDeviceIdStore` reuse as the
   guest-images correction above) when not — flag if a single bucket with no signed-in/anonymous
   distinction was intended instead.
-- **Personalized designs get their own bucket, `23_product-personalozation-images`** [spelling as
+- **Personalized designs get their own bucket, `23_product-personalization-images`** [spelling as
   given — flag if this is a typo before Stage 1 runs the create-bucket SQL, a bucket id has no
   in-place rename once files exist in it], path `email/productId/filename.ext` — e.g.
   `useremailexamplecom/productid/my-kovrik.jpg`. The filename is the buyer's own uploaded file
@@ -158,7 +158,7 @@ code diff against that list too, not only this document.
 | `app/functions/createProductFn.tsx`                                                                       | Uploads images, then creates the Stripe product                                                         | Creates the Stripe product first so `productId` exists before the image folder is built                                                                                                        |
 | `app/components/ui/Modals/AdminPanel/components/FormatImagesForm.tsx`                                     | Calls `uploadProductImages(files, tGlobal)`, no title passed                                            | Passes the product's own title + `id` (already in scope) through                                                                                                                               |
 | `app/components/ui/Modals/UpdateAvatarModal.tsx`                                                          | `folder: user.id`, bucket `23_avatar-images`                                                            | `folder: slugifyEmail(user.email)`, bucket unchanged                                                                                                                                           |
-| `app/components/ui/Modals/PersonalizeModal/functions/uploadDesignFn.ts`                                   | `folder: \`personalized/${userId}\``(uuid from`getUserId()`), bucket `23_public-images`                 | bucket `23_product-personalozation-images`, `folder: \`${slugifyEmail(email)}/${productId}\``, filename = the buyer's own uploaded file name, slugified (not the `crypto.randomUUID()` suffix) |
+| `app/components/ui/Modals/PersonalizeModal/functions/uploadDesignFn.ts`                                   | `folder: \`personalized/${userId}\``(uuid from`getUserId()`), bucket `23_public-images`                 | bucket `23_product-personalization-images`, `folder: \`${slugifyEmail(email)}/${productId}\``, filename = the buyer's own uploaded file name, slugified (not the `crypto.randomUUID()` suffix) |
 | `app/[locale]/(site)/components/AISearch/utils/aiFunctionHandlers.tsx`, `.../AISearch/hooks/useAIChat.ts` | `bucket: "23_public-images"`, no folder                                                                 | `bucket: "23_ai-product-images"`, `folder: slugifyEmail(email)` signed in, `folder: deviceId` anonymous                                                                                        |
 | `app/functions/support/uploadImagesAndSendMessage.ts`, `.../MessagesFooter.tsx`                           | No folder, no bucket split — every file lands loose at bucket root                                      | Signed-in: `23_support-images`, `folder: slugifyEmail(email)`. Anonymous: `23_support-guest-images`, `folder: deviceId` from `useDeviceIdStore.getState().storedDeviceId`                      |
 | `app/api/products/delete/route.ts`                                                                        | Hardcoded `"storage/v1/object/public/23_public-images/"` prefix and `.storage.from("23_public-images")` | `23_product-images`                                                                                                                                                                            |
@@ -228,7 +228,7 @@ code diff against that list too, not only this document.
 └── 23-a1b2c3d4.../
     └── generated_image.png                    (anonymous: deviceId, same reuse as guest images)
 
-23_product-personalozation-images/
+23_product-personalization-images/
 └── nicitaacomgmailcom/
     └── prod_T1IRAxDEq5VtEmno/
         └── my-kovrik.jpg                       (buyer's own uploaded file name, slugified)
@@ -272,7 +272,7 @@ reviewer reading the commit log should see the same steps as this plan, in order
    section's `23_public-images`/`23_avatar-images` blocks with all 6 buckets from §1's
    `TBuckets` union, then run it in the Supabase SQL Editor (🚨 manual step, SQL in the commit —
    `23_avatar-images`, `23_support-images`, `23_support-guest-images` and
-   `23_product-personalozation-images` all upload with `upsert: true`, so each needs its own
+   `23_product-personalization-images` all upload with `upsert: true`, so each needs its own
    UPDATE policy the same way `23_avatar-images` already does; `23_product-images` and
    `23_ai-product-images` never upsert, so INSERT+SELECT is enough, matching today's
    `23_public-images` block):
@@ -280,7 +280,7 @@ reviewer reading the commit log should see the same steps as this plan, in order
    ```sql
    -- =================================== STORAGE BUCKETS ===================================
    -- 23_product-images, 23_ai-product-images: never upsert, INSERT+SELECT only
-   -- 23_avatar-images, 23_support-images, 23_support-guest-images, 23_product-personalozation-images:
+   -- 23_avatar-images, 23_support-images, 23_support-guest-images, 23_product-personalization-images:
    --   upload with upsert:true, so each also needs its own UPDATE policy
    DO $$
    DECLARE
@@ -288,7 +288,7 @@ reviewer reading the commit log should see the same steps as this plan, in order
    BEGIN
      FOREACH bucket_id IN ARRAY ARRAY[
        '23_product-images', '23_ai-product-images', '23_avatar-images',
-       '23_support-images', '23_support-guest-images', '23_product-personalozation-images'
+       '23_support-images', '23_support-guest-images', '23_product-personalization-images'
      ]
      LOOP
        INSERT INTO storage.buckets (id, name, public)
@@ -304,7 +304,7 @@ reviewer reading the commit log should see the same steps as this plan, in order
      END LOOP;
 
      FOREACH bucket_id IN ARRAY ARRAY[
-       '23_avatar-images', '23_support-images', '23_support-guest-images', '23_product-personalozation-images'
+       '23_avatar-images', '23_support-images', '23_support-guest-images', '23_product-personalization-images'
      ]
      LOOP
        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'allow_update_for_everyone_' || bucket_id) THEN
@@ -319,7 +319,7 @@ reviewer reading the commit log should see the same steps as this plan, in order
 
 2. Update every `bucket:` argument and hardcoded bucket-name string listed in §2's table,
    including the 2 buckets added by §1's resolved questions (`23_ai-product-images`,
-   `23_product-personalozation-images`).
+   `23_product-personalization-images`).
 3. `pnpm tsc --noEmit -p .`, `pnpm vitest run app/api/backup`, `pnpm eslint` on every touched
    file — all clean before Stage 1 is done.
 
