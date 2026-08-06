@@ -163,36 +163,34 @@ export function PayWithMetamaskButton() {
       toast.show(
         "error",
         st("error.metamask_not_detected"),
-        <span className="inline">
-          {st("error.please_install_metamask")}&nbsp;
-          <Button
-            className="inline w-fit text-info"
-            variant="link"
-            active="active"
-            target="_blank"
-            href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=ext_app_menu">
-            {st("error.here")}
-          </Button>
-          {st("error.or_using")}&nbsp;
-          <Button
-            className="inline w-fit text-info"
-            variant="link"
-            active="active"
-            target="_blank"
-            href={`${location.origin}/docs/customer/how-to-install-metamask`}>
-            {st("error.this")}&nbsp;
-          </Button>
-          {st("error.guide")}
-          <br />
-          {st("error.or_enable_metamask")}
-          <Button
-            className="inline w-fit text-info"
-            onClick={() => window.location.reload()}
-            variant="link"
-            active="active"
-            target="_blank">
-            {st("error.reload_page")}&nbsp;
-          </Button>
+        <span className="flex flex-col gap-1">
+          <span className="flex flex-wrap items-center gap-x-1">
+            {st("error.please_install_metamask")}
+            <Button
+              className="inline-block text-info"
+              variant="link"
+              active="active"
+              target="_blank"
+              href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?utm_source=ext_app_menu">
+              {st("error.here")}
+            </Button>
+            {st("error.or_using")}
+            <Button
+              className="inline-block text-info"
+              variant="link"
+              active="active"
+              target="_blank"
+              href={`${location.origin}/docs/customer/how-to-install-metamask`}>
+              {st("error.this")}
+            </Button>
+            {st("error.guide")}
+          </span>
+          <span className="flex flex-wrap items-center gap-x-1">
+            {st("error.or_enable_metamask")}
+            <Button className="inline-block text-info" onClick={() => window.location.reload()} variant="link" active="active">
+              {st("error.reload_page")}
+            </Button>
+          </span>
         </span>,
         10000,
       )
