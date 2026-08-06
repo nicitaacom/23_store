@@ -7,6 +7,7 @@ import { useLoading } from "@/store/ui/useLoading";
 import { AreYouSureModalContainer } from "@/components/ui/Modals/ModalContainers/AreYouSureModalContainer";
 import { Button } from "@/components/ui/Button";
 import { ModalContainer } from "@/components/ui/Modals/ModalContainers/ModalContainer";
+import { ModalQueryContainer } from "@/components/ui/Modals/ModalContainers/ModalQueryContainer";
 
 interface IModalExampleProps {
   initialOpen?: boolean;
@@ -56,6 +57,14 @@ function ConfirmationExample({ onCancel, onConfirm }: { onCancel: () => void; on
       primaryButtonVariant="danger"
       secondaryButtonAction={cancelConfirmation}
       secondaryButtonLabel="Cancel" />
+  );
+}
+
+function QueryModalExample() {
+  return (
+    <ModalQueryContainer modalQuery="storybook-example">
+      <p className="text-sm text-subTitle">Modal content remains isolated from application services.</p>
+    </ModalQueryContainer>
   );
 }
 
@@ -111,5 +120,61 @@ export const DestructiveConfirmation: Story = {
     await waitFor(() => expect(deleteButton).toHaveFocus());
     await userEvent.keyboard("{Enter}");
     await waitFor(() => expect(canvas.queryByRole("dialog")).not.toBeInTheDocument());
+  },
+};
+
+export const ConfirmationClosesOnEscape: Story = {
+  render: function RenderConfirmation() {
+    return <ConfirmationExample onCancel={fn()} onConfirm={fn()} />;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(canvas.getByRole("dialog")).toBeVisible());
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(canvas.queryByRole("dialog")).not.toBeInTheDocument());
+  },
+};
+
+export const ConfirmationClosesOnOutsideClick: Story = {
+  render: function RenderConfirmation() {
+    return <ConfirmationExample onCancel={fn()} onConfirm={fn()} />;
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = await waitFor(() => canvas.getByRole("dialog"));
+    const backdrop = dialog.parentElement;
+    if (!backdrop) throw new Error("Modal backdrop was not rendered");
+    await userEvent.click(backdrop);
+    await waitFor(() => expect(canvas.queryByRole("dialog")).not.toBeInTheDocument());
+  },
+};
+
+const queryModalParameters = { nextjs: { navigation: { pathname: "/en", query: { modal: "storybook-example" } } } };
+
+export const QueryModalClosesOnEscape: Story = {
+  render: QueryModalExample,
+  parameters: queryModalParameters,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(canvas.getByText(/Modal content remains isolated/)).toBeVisible());
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(canvas.queryByText(/Modal content remains isolated/)).not.toBeInTheDocument(), {
+      timeout: 3000,
+    });
+  },
+};
+
+export const QueryModalClosesOnOutsideClick: Story = {
+  render: QueryModalExample,
+  parameters: queryModalParameters,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const content = await waitFor(() => canvas.getByText(/Modal content remains isolated/));
+    const backdrop = content.closest(".fixed.inset-0");
+    if (!backdrop) throw new Error("Modal backdrop was not rendered");
+    await userEvent.click(backdrop);
+    await waitFor(() => expect(canvas.queryByText(/Modal content remains isolated/)).not.toBeInTheDocument(), {
+      timeout: 3000,
+    });
   },
 };
