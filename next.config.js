@@ -21,17 +21,6 @@ const nextConfig = {
         hostname: "bzzhychzmepvozeosdkq.supabase.co",
         port: "",
       },
-      // old - will be deleted
-      {
-        protocol: "https",
-        hostname: "zvpzoumubcidrtkgxwqx.supabase.co",
-        port: "",
-      },
-      {
-        protocol: "https",
-        hostname: "sckioxanzluozlghvnts.supabase.co",
-        port: "",
-      },
       {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
