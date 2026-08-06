@@ -185,6 +185,7 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     arrayColumns: ["images"],
     jsonColumns: [],
     storageUrlColumns: ["images", "sender_avatar_url"],
+    emptyStringDefaultColumns: ["body"],
     uuidColumns: ["id"],
     authUserIdColumns: ["sender_id"],
     requiredAuthUserIdColumns: [],
