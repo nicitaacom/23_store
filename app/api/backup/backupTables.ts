@@ -24,5 +24,14 @@ export type { TBackupSourceUser, TBackupAuthMapping } from "./backupAuthRestore"
 
 export { addTarEntry, finalizeTar, parseTar, gzipBufferClient, gunzipBufferClient } from "./tarClient"
 export { toCsv, parseCsv } from "./csvClient"
-export { selectBackupStoragePath, relinkBackupStorageValue } from "./backupStorageRelink"
-export type { TBackupStoragePath, TBackupStorageValueRelinkResult } from "./backupStorageRelink"
+export {
+  selectBackupStoragePath,
+  relinkBackupStorageValue,
+  selectBackupPathsByFolder,
+  selectRelinkedPathsByFolder,
+} from "./backupStorageRelink"
+export type {
+  TBackupStoragePath,
+  TBackupStorageValueRelinkResult,
+  TBackupStoragePathsByFolder,
+} from "./backupStorageRelink"

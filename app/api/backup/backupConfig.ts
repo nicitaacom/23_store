@@ -6,6 +6,7 @@
 // access boundary, checked once per route. There is no per-row/per-file ownership to scope by.
 import type { SupabaseClient } from "@supabase/supabase-js"
 
+import { slugifyEmail } from "@/utils/slugify"
 import { Database } from "@/ts/types_db"
 
 // File backup only needs the Storage API. Limiting the parameter to that API avoids threading
@@ -74,6 +75,18 @@ export type TBackupTableConfig = {
   // Subset backed by a real FK to auth.users. Missing profiles for these ids must be completed on
   // export/import; UUID-looking values in the other text columns can be historical/deleted users.
   requiredAuthUserIdColumns: string[]
+  // Where this row's images sit in Storage TODAY, built from the row itself: `bucket/folder`, with
+  // no file name. Relink uses it to find a restored row's images by folder when the exported URL
+  // still names the old project's path — see selectRelinkedPathsByFolder. Only tables whose folder
+  // is computable from their own columns have one; the rest return null and relink by URL only.
+  selectStorageFolder?: (row: Record<string, unknown>, emailByUserId: ReadonlyMap<string, string>) => string | null
+}
+
+// The one identity a Storage folder is keyed on. 23_users.id is minted again for the same person
+// on every restore, so the owner's email is read out of 23_users by that id instead.
+function selectOwnerEmailSlug(row: Record<string, unknown>, emailByUserId: ReadonlyMap<string, string>): string | null {
+  const ownerEmail = typeof row.owner_id === "string" ? emailByUserId.get(row.owner_id) : undefined
+  return ownerEmail ? slugifyEmail(ownerEmail) : null
 }
 
 // Column classification derived from app/ts/types_db.ts (not from prose docs, which have drifted
@@ -90,6 +103,9 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     uuidColumns: ["id"],
     authUserIdColumns: ["id"],
     requiredAuthUserIdColumns: ["id"],
+    // The account's own email is right on the row - app/components/ui/Modals/UpdateAvatarModal.tsx
+    // writes one file per account into exactly this folder.
+    selectStorageFolder: row => (typeof row.email === "string" ? `23_avatar-images/${slugifyEmail(row.email)}` : null),
   },
   {
     name: "23_users_cart",
@@ -131,6 +147,12 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     uuidColumns: ["owner_id"],
     authUserIdColumns: ["owner_id"],
     requiredAuthUserIdColumns: ["owner_id"],
+    // 23_products.id IS the Stripe product id, which is the folder every image of this product was
+    // uploaded into by app/functions/createProductHelpers.ts (uploadProductImages).
+    selectStorageFolder: (row, emailByUserId) => {
+      const ownerEmailSlug = selectOwnerEmailSlug(row, emailByUserId)
+      return ownerEmailSlug && typeof row.id === "string" ? `23_product-images/${ownerEmailSlug}/${row.id}` : null
+    },
   },
   {
     name: "23_ai_price_runs",
@@ -165,6 +187,15 @@ export const BACKUP_TABLES: TBackupTableConfig[] = [
     uuidColumns: ["id", "owner_id"],
     authUserIdColumns: ["user_id", "owner_id"],
     requiredAuthUserIdColumns: ["owner_id"],
+    // Same two levels as a product image, but keyed on user_id: the design was uploaded by the
+    // BUYER (uploadDesignFn uses the signed-in buyer's email), while owner_id on this table is the
+    // shop owner the product belongs to - see app/api/personalized-designs/route.ts.
+    selectStorageFolder: (row, emailByUserId) => {
+      const buyerEmail = typeof row.user_id === "string" ? emailByUserId.get(row.user_id) : undefined
+      return buyerEmail && typeof row.product_id === "string"
+        ? `23_product-personalization-images/${slugifyEmail(buyerEmail)}/${row.product_id}`
+        : null
+    },
   },
   {
     name: "23_tickets",
@@ -235,6 +266,16 @@ export type TBackupBucket = (typeof BACKUP_BUCKETS)[number]
 
 export function isBackupBucket(value: string): value is TBackupBucket {
   return (BACKUP_BUCKETS as readonly string[]).includes(value)
+}
+
+// Buckets no code writes to any more (dev_readme-supbase-sql.md, "Retired buckets"). A row exported
+// before the 6-bucket split still holds a URL into one of them, so relink has to recognize the path
+// to report it or to point it at the file's new folder. Nothing is ever exported or written back
+// into these - they are read from an old URL only.
+export const RETIRED_BACKUP_BUCKETS = ["23_public-images", "23_public"] as const
+
+export function isRelinkSourceBucket(value: string): boolean {
+  return isBackupBucket(value) || (RETIRED_BACKUP_BUCKETS as readonly string[]).includes(value)
 }
 
 export type TBackupFileRef = { bucket: string; path: string; size: number; contentType: string }
