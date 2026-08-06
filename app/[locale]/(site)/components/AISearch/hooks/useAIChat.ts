@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation"
 import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
 import { handleAIFunctionCall } from "../utils/aiFunctionHandlers"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
+import { getUploadFolder } from "@/functions/uploadImageFolder"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useAIChatStore } from "@/components/Navbar/stores/useAIChatStore"
 import { useI18n } from "@/locales/client"
@@ -177,7 +178,7 @@ export function useAIChat() {
         type: generatedImage.contentType,
       })
 
-      const response = await uploadImageFn({ t, imageFile, bucket: "23_ai-product-images" })
+      const response = await uploadImageFn({ t, imageFile, bucket: "23_ai-product-images", folder: getUploadFolder() })
       if (typeof response === "string") {
         throw new Error(`Image upload failed: ${response}`)
       }

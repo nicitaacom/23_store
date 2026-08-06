@@ -2,6 +2,8 @@
 
 import { useEffect } from "react"
 
+import { getSupportImageBucketAndFolder } from "@/functions/uploadImageFolder"
+import { getTimestampFileName } from "@/functions/support/image/getTimestampFileName"
 import { getUserAvatarUrl, getUserName } from "@/utils/user"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { uploadImageFn } from "@/functions/uploadImageFn"
@@ -36,7 +38,12 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
   async function handleSend(messageBody: string, image: File | null) {
     let images: string[] | undefined = undefined
     if (image) {
-      const uploadImageResp = await uploadImageFn({ t, imageFile: image, bucket: "23_support-images" })
+      const uploadImageResp = await uploadImageFn({
+        t,
+        imageFile: image,
+        ...getSupportImageBucketAndFolder(),
+        fileName: getTimestampFileName(image),
+      })
       if (typeof uploadImageResp === "string") return toast.show("error", t("support.error.uploading_image"), uploadImageResp)
       images = [uploadImageResp.publicUrl]
     }

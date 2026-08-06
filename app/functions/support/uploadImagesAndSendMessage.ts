@@ -1,6 +1,8 @@
 import { Dispatch, RefObject, SetStateAction } from "react"
 
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { getSupportImageBucketAndFolder } from "../uploadImageFolder"
+import { getTimestampFileName } from "./image/getTimestampFileName"
 import { sendMessageFn } from "./sendMessageFn"
 import { uploadImageFn } from "../uploadImageFn"
 import { useMessages } from "@/store/ui/useMessages"
@@ -23,7 +25,8 @@ export async function uploadImagesAndSendMessage(
     const response = await uploadImageFn({
       t,
       imageFile: image,
-      bucket: "23_support-images",
+      ...getSupportImageBucketAndFolder(),
+      fileName: getTimestampFileName(image),
     })
     if (response === undefined) return
     if (typeof response === "string") return toast.show("error", t("support.error.uploading_image"), response)
