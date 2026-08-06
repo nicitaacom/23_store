@@ -98,9 +98,11 @@ Quoted verbatim, in the order Nikita gave them:
   ```
 - **Two build stages**: "PLAN STAGE 1 — update all usage of all buckets everywhere... then PLAN
   STAGE 2 is to fix import export of tables and files."
-- **One diagram per workflow**, delivered as Artifacts, "deep dark-green background, slightly
-  rounded corners": support images, product images, avatar URL, and the backup import/export
-  workflow.
+- **One diagram per workflow**, "deep dark-green background, slightly rounded corners": support
+  images, product images, avatar URL, and the backup import/export workflow.
+- **Correction: the deliverable is the image prompt, not a generated page** — "I need a prompts
+  for images not artifact." The 4 finished prompts are §5; Nikita runs them through an image
+  generator himself.
 
 ### Resolved — the 3 questions above, answered
 
@@ -201,7 +203,10 @@ code diff against that list too, not only this document.
 └── <auth-user-id>/avatar.png
 ```
 
-**Storage tree, after (both stages complete):**
+**Storage tree, after (both stages complete)** — the guest folder is the deviceId in its transport
+form, the string `useDeviceIdStore` holds, not the `23-…` signed id. Decoding one needs
+`node:crypto`, which is server-only, and the transport form is 1:1 with the signed id, so the same
+visitor still lands in the same folder on every visit:
 
 ```
 23_product-images/
@@ -219,13 +224,13 @@ code diff against that list too, not only this document.
     └── 2026-07-29_at_22-19-54.png             (signed-in sender)
 
 23_support-guest-images/
-└── 23-a1b2c3d4.../                             (deviceId — same visitor, same folder every visit)
+└── Q5UUMP4MX0LbwF0Eekm3JIeIBwqWeDX0-/          (deviceId — same visitor, same folder every visit)
     └── 2026-07-29_at_22-20-11.png             (swept weekly if no message still references it)
 
 23_ai-product-images/
 ├── nicitaacomgmailcom/
 │   └── generated_image.png                    (signed-in: slugifyEmail(email))
-└── 23-a1b2c3d4.../
+└── Q5UUMP4MX0LbwF0Eekm3JIeIBwqWeDX0-/
     └── generated_image.png                    (anonymous: deviceId, same reuse as guest images)
 
 23_product-personalization-images/
@@ -384,8 +389,9 @@ reviewer reading the commit log should see the same steps as this plan, in order
    is, and its `id` column is rewritten from the old project-A uuid to a new project-B uuid
    before the upsert. This exact point caused real confusion while writing this plan — the
    shipped doc has to state it unambiguously, not just "accounts are prepared."
-8. Build the 4 Artifact diagrams (support images, product images, avatar URL, backup
-   import/export) using the prompts in §5, deep dark-green background, slightly rounded corners.
+8. Write the 4 image prompts (support images, product images, avatar URL, backup import/export)
+   into §5, ready to paste into an image generator — the prompts are the deliverable, not a
+   generated page. Deep dark-green background, slightly rounded corners.
 9. `pnpm vitest run`, `pnpm tsc --noEmit -p .`, `pnpm eslint` on every touched file — all clean
    before Stage 2 is done.
 10. Once both stages are fully done, one repo-wide `pnpm lint` — not per task, not per stage, the
@@ -393,74 +399,124 @@ reviewer reading the commit log should see the same steps as this plan, in order
 
 ## 5. Image prompts
 
-One prompt per workflow, all sharing the same style line so the 4 read as one set. Each is
-ready to hand to the diagram build step in Stage 2 task 8.
+Four prompts, one per workflow, written against what actually shipped — paste one into an image
+generator as it stands, no editing needed. They share the same style line so the 4 read as one set.
 
-**Shared style line** (repeat in all 4): "Deep dark-green background, slightly rounded corners,
-readable in both a light and dark viewer theme, no decorative filler — every box and arrow maps
-to a real step named in plan-22."
-
----
-
-**1. Support images workflow**
-
-> Diagram the support-chat image upload path. Two parallel lanes, side by side: "Signed-in
-> sender" and "Anonymous sender." Both start at "buyer pastes an image in the chat window" (the
-> file always arrives as a generic name, e.g. `image.png` — show this explicitly, it's why the
-> filename step below ignores it). Both lanes go through the same "filename = upload timestamp,
-> e.g. `2026-07-29_at_22-19-54.png`" box. Then they diverge: the signed-in lane writes to bucket
-> `23_support-images`, folder `slugifyEmail(email)`; the anonymous lane writes to bucket
-> `23_support-guest-images`, folder = the visitor's `deviceId` (reused from the UTM identity
-> system, `useDeviceIdStore` — same visitor, same folder, every visit). Below the anonymous lane,
-> add a dashed box: "weekly pg_cron sweep — deletes any guest-bucket object no longer referenced
-> by `23_messages.images`." Deep dark-green background, slightly rounded corners, readable in both
-> a light and dark viewer theme, no decorative filler — every box and arrow maps to a real step
-> named in plan-22.
+**Shared style line** (already repeated at the end of each prompt below): "Deep dark-green
+background, slightly rounded corners, readable in both a light and dark viewer theme, no decorative
+filler — every box and arrow maps to a real step named in plan-22."
 
 ---
 
-**2. Product images workflow**
+### 1. Support chat images
 
-> Diagram the product-creation image path as a straight top-to-bottom sequence: "Admin enters
-> product title in AddProductForm" → "title is slugified: 'сливки 30%' → 'slivki-30pct'"
-> (show the transliteration + the `%`→`pct` rule as its own small callout) → "createStripeProduct
-> runs first, returns productId" → "images upload to bucket `23_product-images`, path
-> `slugifyEmail(email)/productId/slug(title)-{index}.ext`" → "e.g.
-> `nicitaacomgmailcom/prod_T1IRAxDEq5VtEmno/slivki-30pct-1.jpg`." Add a side note connected to
-> the `productId` folder box: "deleting a product deletes this one folder — no scanning a flat
-> folder for its images." Deep dark-green background, slightly rounded corners, readable in both
-> a light and dark viewer theme, no decorative filler — every box and arrow maps to a real step
-> named in plan-22.
+> A technical flow diagram on a deep dark-green background, slightly rounded corners on every box.
+>
+> One box at the top, centred: "buyer pastes an image in the chat window", with a smaller line under
+> it: "the file arrives as image.png — always". An arrow down, labelled "uploadImageFn", to a second
+> centred box: "file name = the moment it arrived", showing `2026-07-29_at_22-19-54.png` in
+> monospace, and under it: "Europe/Berlin — the zone a message created_at is stamped in".
+>
+> Below that box the flow splits into two lanes. The left arm is labelled "signed in", the right arm
+> "not signed in".
+>
+> Left lane box: `23_support-images` as its title, then "folder = slugifyEmail(email)", then the
+> monospace path `nicitaacomgmailcom/2026-07-29_at_22-19-54.png`, then "one folder per account, for
+> good". Under it, a quiet outlined box: "nothing sweeps this bucket — the images belong to an
+> account that stays".
+>
+> Right lane box: `23_support-guest-images` as its title, then "folder = deviceId, transport form",
+> then the monospace path `Q5UUMP4MX0LbwF0Eekm3JIeIBwqWeDX0-/2026-07-29_at_22-20-11.png`, then "same
+> visitor, same folder, every visit". A dashed arrow leaves it downward, labelled "Sunday 03:00
+> UTC", into a dashed box: "weekly pg_cron sweep — cleanup_guest_support_images — deletes any object
+> in this bucket that no 23_messages.images entry points at; an object younger than 1 hour is
+> skipped".
+>
+> Use one colour for the signed-in lane and a different one for the guest lane, and keep those two
+> colours consistent through their whole lane. Deep dark-green background, slightly rounded corners,
+> readable in both a light and dark viewer theme, no decorative filler — every box and arrow maps to
+> a real step named in plan-22.
 
 ---
 
-**3. Avatar URL workflow**
+### 2. Product images
 
-> Diagram the avatar upload path, deliberately simple (it is the simplest of the 4 — say so in
-> the diagram itself with a small "single file per account, always an intentional overwrite"
-> note). Sequence: "user picks a new avatar image" → "folder = `slugifyEmail(user.email)`" →
-> "uploads to bucket `23_avatar-images`, `upsert: true`" → "old avatar at that exact path is
-> replaced." Add a second, smaller panel below showing why this stays correct after a Google
-> re-auth: "auth.users.id can change (backup restore, account merge) → email does not → same
-> folder every time." Deep dark-green background, slightly rounded corners, readable in both a
-> light and dark viewer theme, no decorative filler — every box and arrow maps to a real step
-> named in plan-22.
+> A top-to-bottom technical sequence diagram on a deep dark-green background, slightly rounded
+> corners on every box, with two side callouts on the right.
+>
+> Box 1: "the owner types a product title", smaller line: "AddProductForm — the Finnish translation
+> is the source text".
+>
+> Box 2: "the title is slugified", showing `сливки 30%` → `slivki-30pct`, smaller line: "lowercase,
+> single '-' runs, nothing left needing URL escaping". A callout connected to this box on the right:
+> "% becomes 'pct', so 30% and 30 stay two different names" and "letters outside a–z are
+> transliterated".
+>
+> Box 3: "createStripeProduct runs first", smaller line: "it returns the productId, and the
+> productId IS the folder".
+>
+> Box 4: `23_product-images` as its title, then the path shape
+> `slugifyEmail(email) / productId / slug(title)-N.ext`, then "every image of one product in exactly
+> one folder".
+>
+> Box 5, monospace, the worked example:
+> `nicitaacomgmailcom/prod_T1IRAxDEq5VtEmno/slivki-30pct-1.jpg`. A callout connected to this box on
+> the right: "deleting a product deletes this one folder — no search through a folder holding every
+> product".
+>
+> Box 6: "adding an image later continues the numbering", then "the highest -N already in the folder
+> decides the next one", then "a removed image keeps its file, so the count of URLs is not enough".
+>
+> Deep dark-green background, slightly rounded corners, readable in both a light and dark viewer
+> theme, no decorative filler — every box and arrow maps to a real step named in plan-22.
 
 ---
 
-**4. Backup import/export workflow**
+### 3. Avatar URL
 
-> Diagram the full Supabase A → Supabase B flow as two columns joined by a labeled arrow.
-> Column A ("Export"): "GET /api/backup/rows → CSV per table → tar.gz" and "GET
-> /api/backup/files → bucket/path/size list → browser downloads every file → tar.gz." Arrow
-> between columns: "admin uploads both exported .tar.gz files to project B." Column B
-> ("Import"): "POST /api/backup/auth-users — reuse the matching project-B account by uuid or
-> email, else create a new one" → "FK columns (owner_id, sender_id, ...) remapped to that
-> project-B uuid, rows upserted" → "POST /api/backup/files — signed upload URL per path, bytes
-> PUT directly to Supabase" → "POST /api/backup/relink-storage-urls — rewrites a restored URL's
-> host once the exact file is confirmed present, reports what's still unresolved." Add one
-> callout box connected to the relink step: "with email+slug paths, the expected path is
-> computable from the row's current owner + title — relink no longer depends only on the
-> exported file's literal string matching."
+> A deliberately simple two-panel diagram on a deep dark-green background, slightly rounded corners.
+> It is the simplest of the four and should say so: put the note "single file per account, always an
+> intentional overwrite" above the top panel.
+>
+> Top panel, four boxes left to right joined by arrows: "user picks a new avatar image" → "folder =
+> slugifyEmail(user.email)", showing `nicitaacomgmailcom` in monospace → "upload to
+> `23_avatar-images` with `upsert: true`" → "the old avatar at that exact path is replaced".
+>
+> Bottom panel, titled "why the folder still holds after a restore", four smaller boxes left to
+> right joined by arrows: "auth.users.id can change — a restore, a Google re-auth" → "23_users.id is
+> rewritten to the new project's uuid" → "the email never changes" → "slugifyEmail(email) → the same
+> folder as before".
+>
+> Deep dark-green background, slightly rounded corners, readable in both a light and dark viewer
+> theme, no decorative filler — every box and arrow maps to a real step named in plan-22.
+
+---
+
+### 4. Backup import / export
+
+> A two-column technical diagram on a deep dark-green background, slightly rounded corners on every
+> box, joined by one labelled arrow between the columns.
+>
+> Left column, headed "Export — project A", two boxes that are independent flows, not a sequence:
+> "GET /api/backup/rows — one CSV per table, packed into a .tar.gz in the browser" and "GET
+> /api/backup/files — bucket/path/size list, no bytes; the browser downloads every file straight
+> from Supabase and packs a second .tar.gz".
+>
+> The arrow between the columns is labelled "the admin uploads both exported .tar.gz files to
+> project B".
+>
+> Right column, headed "Import — project B", four boxes top to bottom joined by arrows: "POST
+> /api/backup/auth-users — reuse the matching project-B account by uuid or email, else create a new
+> one" → "every FK column (owner_id, sender_id, user_id) is remapped to that project-B uuid, then
+> the rows are upserted" → "POST /api/backup/files — a signed upload URL per path, bytes PUT
+> straight to Supabase" → "POST /api/backup/relink-storage-urls — rewrites a restored URL once the
+> file is confirmed present, and reports what is still unresolved".
+>
+> One wide callout box below both columns, connected to the relink box: "the expected path is
+> computable from the row itself — 23_products.id plus slugifyEmail(owner email) gives
+> `23_product-images/nicitaacomgmailcom/prod_T1IRAxDEq5VtEmno`; the files in that folder pair with
+> the row's unresolved URLs in order, so relink no longer depends on the exported URL's literal
+> string matching".
+>
 > Deep dark-green background, slightly rounded corners, readable in both a light and dark viewer
 > theme, no decorative filler — every box and arrow maps to a real step named in plan-22.
