@@ -736,6 +736,7 @@ export default {
   "personalize.upload_rejected_title": "That file did not work",
   "personalize.upload_rejected_subtitle": "Pick a JPEG, PNG, WEBP or AVIF image.",
   "personalize.upload_failed_title": "Upload failed",
+  "personalize.sign_in_required": "Sign in to upload your image.",
   "personalize.added_title": "Added to cart",
   "personalize.added_subtitle": "Your personalized product is in the cart.",
   "personalize.button": "Personalize",

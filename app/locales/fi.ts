@@ -736,6 +736,7 @@ export default {
   "personalize.upload_rejected_title": "Tiedosto ei kelvannut",
   "personalize.upload_rejected_subtitle": "Valitse JPEG-, PNG-, WEBP- tai AVIF-kuva.",
   "personalize.upload_failed_title": "Lataus epäonnistui",
+  "personalize.sign_in_required": "Kirjaudu sisään ladataksesi kuvasi.",
   "personalize.added_title": "Lisätty ostoskoriin",
   "personalize.added_subtitle": "Personoitu tuotteesi on ostoskorissa.",
   "personalize.button": "Personoi",

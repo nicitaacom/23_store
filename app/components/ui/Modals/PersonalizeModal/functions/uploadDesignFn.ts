@@ -2,7 +2,9 @@ import { TDesignPlacement, TPrintArea } from "@/ts/product/TPersonalization"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { getUserId } from "@/utils/getUserId"
 import { personalizedDesignsSDK } from "@/sdk/PersonalizedDesignsSDK/PersonalizedDesignsSDK"
+import { slugifyEmail } from "@/utils/slugify"
 import { uploadImageFn } from "@/functions/uploadImageFn"
+import useUser from "@/store/user/useUser"
 
 interface UploadDesignParams {
   t: TI18nFunction
@@ -34,14 +36,19 @@ export async function uploadDesignFn({
   sourceHeightPx,
   effectiveDpi,
 }: UploadDesignParams): Promise<string | { designId: string }> {
+  const buyerEmail = useUser.getState().user?.email
+  if (!buyerEmail) return t("personalize.sign_in_required")
+
   const userId = getUserId()
 
+  // slugifyEmail(email)/productId, and the file keeps the name the buyer picked, slugged. Unlike a
+  // chat paste, a file-picker upload has a real name worth keeping, so the design stays
+  // recognizable in Storage instead of being a uuid.
   const uploadImageResp = await uploadImageFn({
     t,
     imageFile: designFile,
     bucket: "23_product-personalozation-images",
-    folder: `personalized/${userId}`,
-    suffix: crypto.randomUUID(),
+    folder: `${slugifyEmail(buyerEmail)}/${productId}`,
     upsert: true,
   })
 

@@ -734,6 +734,7 @@ export default {
   "personalize.upload_rejected_title": "Filen fungerade inte",
   "personalize.upload_rejected_subtitle": "Välj en JPEG-, PNG-, WEBP- eller AVIF-bild.",
   "personalize.upload_failed_title": "Uppladdningen misslyckades",
+  "personalize.sign_in_required": "Logga in för att ladda upp din bild.",
   "personalize.added_title": "Tillagd i varukorgen",
   "personalize.added_subtitle": "Din personaliserade produkt ligger i varukorgen.",
   "personalize.button": "Personalisera",

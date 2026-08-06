@@ -16,10 +16,6 @@ describe("slugifyFileNameForBucket", () => {
     expect(slugifyFileNameForBucket(translate, "image.dep.png")).toEqual(["image-dep.png"])
   })
 
-  it("joins a suffix with the same - separator the rest of the name uses", () => {
-    expect(slugifyFileNameForBucket(translate, "mousepad.avif", "2")).toEqual(["mousepad-2.avif"])
-  })
-
   it("falls back to image when nothing of the base name survives", () => {
     expect(slugifyFileNameForBucket(translate, "🙂.png")).toEqual(["image.png"])
   })

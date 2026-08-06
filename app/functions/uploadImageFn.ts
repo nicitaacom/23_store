@@ -8,7 +8,6 @@ interface UploadImageParams {
   imageFile: File
   bucket: TBuckets
   folder?: string
-  suffix?: string
   fileName?: string
   upsert?: boolean
 }
@@ -17,7 +16,6 @@ interface UploadImageParams {
  *
  * @param imageFile - File type (make sure it exist and not undefined - if so - return string (error message))
  * @param folder - folder (category) e.g Main dishes
- * @param suffix - something after file name e.g fileName-price-id-d4rg3f2d
  * @param fileName - the whole name to store the file under, already slugged, when the file's own
  *   name says nothing about it: a product image is named after the product title
  *   (slivki-30pct-1.jpg) and a pasted chat image after the moment it arrived
@@ -31,13 +29,12 @@ export async function uploadImageFn({
   imageFile,
   bucket,
   folder,
-  suffix,
   fileName,
   upsert = false,
 }: UploadImageParams): Promise<string | { publicUrl: string }> {
   if (!imageFile) return "Image file is missing"
 
-  const cleanedFileName = fileName ? [fileName] : slugifyFileNameForBucket(t, imageFile.name, suffix)
+  const cleanedFileName = fileName ? [fileName] : slugifyFileNameForBucket(t, imageFile.name)
   if (typeof cleanedFileName === "string") return cleanedFileName
 
   // 1. Extract folder path & filename parts

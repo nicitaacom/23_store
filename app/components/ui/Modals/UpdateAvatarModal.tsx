@@ -13,6 +13,7 @@ import { Input } from "../Inputs"
 import { ModalContainer } from "./ModalContainers"
 import { delCookie, setCookie } from "@/utils/helpersCSR"
 import { getUserAvatarUrl, sanitizeAvatarUrl } from "@/utils/user"
+import { slugifyEmail } from "@/utils/slugify"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import { useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
@@ -58,7 +59,7 @@ export function UpdateAvatarModal() {
     setIsPreviewBroken(false)
 
     const imageFile = imageList[0]?.file
-    if (!imageFile || !user?.id) return
+    if (!imageFile || !user?.email) return
 
     try {
       setIsLoading(true)
@@ -66,11 +67,14 @@ export function UpdateAvatarModal() {
       const fileExtension = imageFile.name.split(".").pop()?.toLowerCase() || "png"
       const avatarFile = new File([imageFile], `avatar.${fileExtension}`, { type: imageFile.type })
 
+      // One file per account, always an intentional overwrite. The folder is the slugified email
+      // and not user.id, so a Google re-auth or a restore into another Supabase project - both of
+      // which give the account a new auth.users.id - still finds the avatar where it was written.
       const response = await uploadImageFn({
         t,
         imageFile: avatarFile,
         bucket: "23_avatar-images",
-        folder: user.id,
+        folder: slugifyEmail(user.email),
         upsert: true,
       })
 

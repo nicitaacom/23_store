@@ -735,6 +735,7 @@ export default {
   "personalize.upload_rejected_title": "Файл не подошёл",
   "personalize.upload_rejected_subtitle": "Выберите изображение JPEG, PNG, WEBP или AVIF.",
   "personalize.upload_failed_title": "Не удалось загрузить",
+  "personalize.sign_in_required": "Войдите в аккаунт, чтобы загрузить изображение.",
   "personalize.added_title": "Добавлено в корзину",
   "personalize.added_subtitle": "Ваш персонализированный товар в корзине.",
   "personalize.button": "Персонализировать",

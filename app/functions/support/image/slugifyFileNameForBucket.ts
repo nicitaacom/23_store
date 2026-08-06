@@ -15,7 +15,7 @@ const FALLBACK_BASE_NAME = "image"
  * Returns the name inside a 1-item array, or a string with the error - the caller separates the two
  * with `typeof`.
  */
-export function slugifyFileNameForBucket(t: TI18nFunction, fileName: string, suffix?: string): string | [string] {
+export function slugifyFileNameForBucket(t: TI18nFunction, fileName: string): string | [string] {
   const lastDot = fileName.lastIndexOf(".")
   if (lastDot < 1) return t("support.error.filename_must_contain_dot") // it allows image.dep.png
 
@@ -24,5 +24,5 @@ export function slugifyFileNameForBucket(t: TI18nFunction, fileName: string, suf
 
   const baseName = slugify(fileName.slice(0, lastDot)) || FALLBACK_BASE_NAME
 
-  return [`${baseName}${suffix ? `-${slugify(suffix)}` : ""}.${extension}`]
+  return [`${baseName}.${extension}`]
 }
