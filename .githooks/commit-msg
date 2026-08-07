@@ -83,6 +83,52 @@ esac
 # for a refactor that changed nothing on his side - the trigger itself was breeding make-work TODOs.
 triggers=$(git diff --cached --name-only | grep -iE '(^|/)\.env|(^|/)env\.d\.ts$|(^|/)migrations?/|(^|/)supabase/|dev_readme.*sql|\.sql$' || true)
 
+# env.d.ts and dev_readme*sql* also fire on a diff that adds nothing manual - a comment or doc line
+# renaming an identifier it already mentioned. checkKeys.ts -> checkEnvs.ts is the case that surfaced
+# this: env.d.ts's only change was `...in checkKeys.ts` -> `...in checkEnvs.ts` inside an existing
+# eslint-disable comment, dev_readme-supbase-sql.md's only change was the same rename inside a doc
+# sentence - zero new declarations, zero new SQL, nothing waiting on his side. `.env*`, migrations/
+# and supabase/ stay pure path triggers - those are live credential/schema files where a partial diff
+# read is the wrong place to guess "safe". A file drops out of triggers here only when every added
+# line in its staged diff pairs with a removed line holding the same token count - a pure rename on
+# an already-existing line, never a wholly new line (a real new declaration or ALTER TABLE has no
+# removed counterpart to pair against, so it keeps the trigger).
+is_pure_rename() {
+  local path="$1"
+  local diff removed added removed_count added_count i old new old_tokens new_tokens
+  diff=$(git diff --cached -U0 -- "$path")
+  removed=$(printf '%s\n' "$diff" | grep -E '^-[^-]' | sed 's/^-//')
+  added=$(printf '%s\n' "$diff" | grep -E '^\+[^+]' | sed 's/^+//')
+  removed_count=$(printf '%s\n' "$removed" | grep -c '.' || true)
+  added_count=$(printf '%s\n' "$added" | grep -c '.' || true)
+  [ "$removed_count" -gt 0 ] && [ "$removed_count" = "$added_count" ] || return 1
+
+  for i in $(seq 1 "$removed_count"); do
+    old=$(printf '%s\n' "$removed" | sed -n "${i}p")
+    new=$(printf '%s\n' "$added" | sed -n "${i}p")
+    [ "$old" != "$new" ] || return 1
+    old_tokens=$(printf '%s' "$old" | grep -oE '[A-Za-z_][A-Za-z0-9_]*' | wc -l)
+    new_tokens=$(printf '%s' "$new" | grep -oE '[A-Za-z_][A-Za-z0-9_]*' | wc -l)
+    [ "$old_tokens" = "$new_tokens" ] || return 1
+  done
+  return 0
+}
+
+filtered_triggers=""
+while IFS= read -r trigger; do
+  [ -n "$trigger" ] || continue
+  case "$trigger" in
+    */env.d.ts|env.d.ts|*dev_readme*sql*)
+      is_pure_rename "$trigger" && continue
+      ;;
+  esac
+  filtered_triggers="${filtered_triggers}${trigger}
+"
+done <<EOF
+$triggers
+EOF
+triggers=$(printf '%s' "$filtered_triggers" | sed '/^[[:space:]]*$/d')
+
 if [ "$has_todo" = 0 ]; then
   [ -z "$triggers" ] || fail "this commit touches $(printf '%s' "$triggers" | head -1) - a human step is waiting, so the description must open with a 🚨 TODO block"
   exit 0
