@@ -398,7 +398,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
   useEffect(() => {
     let cancelled = false
 
-    async function loadStats() {
+    async function fetchStats() {
       const response = await selectDBUTMStatsAction({ year: selectedYear, month: selectedMonth })
       if (cancelled) return
 
@@ -410,7 +410,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
       setForceRender(prev => prev + 1)
     }
 
-    loadStats()
+    fetchStats()
     return () => {
       cancelled = true
     }

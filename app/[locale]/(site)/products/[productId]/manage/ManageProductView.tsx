@@ -204,7 +204,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   }, [product.img_url, product.price, variants])
 
   // Held in refs so other hooks below can call the latest version without listing these
-  // useCallback-wrapped functions in their own deps arrays.
+  // useCallback-created functions in their own deps arrays.
   const updateVariantLabelRef = useRef(updateVariantLabel)
   const updateVariantPriceRef = useRef(updateVariantPrice)
   const updateVariantQuantityRef = useRef(updateVariantQuantity)

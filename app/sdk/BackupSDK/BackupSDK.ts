@@ -439,9 +439,9 @@ export class BackupSDK extends BaseSDK {
           label: `${target.bucket}/${target.path}`,
           speedBytesPerMs: speedTracker.sample(bytesUploadedSoFar),
         })
-        const uploadBlob = new Blob([archiveFile.bytes], { type: archiveFile.contentType })
+        const uploadFileData = new Blob([archiveFile.bytes], { type: archiveFile.contentType })
         try {
-          await uploadToSignedUrlWithProgress(target.signedUrl, uploadBlob, loaded =>
+          await uploadToSignedUrlWithProgress(target.signedUrl, uploadFileData, loaded =>
             onProgress({
               bytesDone: bytesUploadedSoFar + loaded,
               bytesTotal,

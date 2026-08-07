@@ -275,7 +275,7 @@ export default {
   //                   aichat
   // =================        =================
   "aichat.error": "Service error. Try again then contact support",
-  "aichat.error.with_reason": 'Oops, "{message}". Try again.',
+  "aichat.error.with_reason": 'Error: "{message}". Try again.',
   "aichat.error.no_reply_data": "It's no choices?.[0]?.message?.content - contact support",
   "aichat.generate_image": "Generate image",
   "aichat.generate_image_completed": "Here you go",

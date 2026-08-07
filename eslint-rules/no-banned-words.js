@@ -84,6 +84,10 @@ function stripAllowedSenses(text) {
     text
       .replace(/text\/plain/gi, "") // real MIME type
       .replace(/consumer (?:domains?|emails?(?: providers?)?)/gi, "") // Gmail/Outlook, the retail sense
+      .replace(/:\s*Blob\b/gi, "") // TypeScript type annotation `: Blob` (Web API built-in)
+      .replace(/\bnew\s+Blob\s*\(/gi, "") // Blob() constructor (Web API built-in)
+      .replace(/\(\s*[^)]*:\s*Blob\b/gi, "") // function parameter type `: Blob`
+      .replace(/\bdownload\s+Blob\b/gi, "") // established function name downloadBlob (split form)
       .replace(/\.blob\s*\(/gi, "") // Response.blob() / toBlob() method call
       .replace(/github\.com\/.*?\/blob\//gi, "") // GitHub's own "view this file" URL segment
       // stdlib deserialize methods literally named load - json.load, yaml.load, torch.load. Only a
@@ -93,6 +97,8 @@ function stripAllowedSenses(text) {
       .replace(/\beslint-rules\b/gi, "") // folder name, not the word "rules"
       // fetch()'s real RequestInit.cache field + its literal values
       .replace(/\bcache:\s*["'](?:no-cache|no-store|reload|default|force-cache|only-if-cached)["']/gi, "")
+      // HTTP standard header names (Cache-Control, etc.) - third-party spec we don't get to rename
+      .replace(/["']Cache-Control["']/gi, "")
       // React's real named export react.cache()
       .replace(/import\s*\{\s*cache\s*\}\s*from\s*["']react["']/gi, "")
       .replace(/\b(?:React|ReactModule)\.cache\s*\(/g, "")

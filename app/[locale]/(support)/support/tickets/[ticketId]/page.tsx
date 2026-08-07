@@ -19,8 +19,8 @@ export const dynamic = "force-dynamic"
 // every 5 seconds revalidate ticketId to make it SSG (statically prerendered page) with ISR (so it work faster)
 export const revalidate = 5
 
-//I cache data to don't fetch data from DB twice
-const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
+//I use userRedis to don't fetch data from DB twice
+const getInitialMessagesByTicketId = cache(async (ticketId: string) => {
   const supabase = await supabaseServer()
   const { data: messages_by_id_response, error: messages_by_id_error } = await supabase
     .from("23_messages")
@@ -32,8 +32,8 @@ const getInitialMessagesByTicketIdCache = cache(async (ticketId: string) => {
   return messages_by_id_response as TMessageDB[]
 })
 
-// cache ticket meta (is_open + created_at) because the current product rule keeps closed tickets closed
-const getTicketMetaCache = cache(async (ticketId: string) => {
+// use userRedis for ticket meta (is_open + created_at) because the current product rule keeps closed tickets closed
+const getTicketMeta = cache(async (ticketId: string) => {
   const supabase = await supabaseServer()
   const { data: ticket_meta } = await supabase.from("23_tickets").select("is_open, created_at").eq("id", ticketId).single()
   return ticket_meta
@@ -45,7 +45,7 @@ export function generateStaticParams(): { ticketId: string }[] {
 
 export async function generateMetadata({ params: paramsPromise }: ChatPageProps): Promise<Metadata> {
   const { ticketId } = await paramsPromise
-  const getInitialMessagesByTicketIdCacheResp = await getInitialMessagesByTicketIdCache(ticketId)
+  const getInitialMessagesByTicketIdResp = await getInitialMessagesByTicketId(ticketId)
   const firstMessage = getInitialMessagesByTicketIdCacheResp[0]
 
   if (!firstMessage?.sender_username) {
@@ -62,7 +62,7 @@ export async function generateMetadata({ params: paramsPromise }: ChatPageProps)
   return {
     title: `Support chat with ${firstMessage.sender_username}`,
     description:
-      getInitialMessagesByTicketIdCacheResp.length === 1
+      getInitialMessagesByTicketIdResp.length === 1
         ? "message"
         : `messages - chat with ${firstMessage.sender_username} - Joki`,
     openGraph: {
@@ -74,24 +74,24 @@ export async function generateMetadata({ params: paramsPromise }: ChatPageProps)
 
 export default async function ChatPage({ params: paramsPromise }: ChatPageProps) {
   const { ticketId } = await paramsPromise
-  const getInitialMessagesByTicketIdCacheResp = await getInitialMessagesByTicketIdCache(ticketId)
-  const getTicketMetaCacheResp = await getTicketMetaCache(ticketId)
+  const getInitialMessagesByTicketIdResp = await getInitialMessagesByTicketId(ticketId)
+  const getTicketMetaResp = await getTicketMeta(ticketId)
   const firstMessage = getInitialMessagesByTicketIdCacheResp[0]
 
-  if (!getInitialMessagesByTicketIdCacheResp || !getTicketMetaCacheResp?.is_open) {
+  if (!getInitialMessagesByTicketIdResp || !getTicketMetaResp?.is_open) {
     return <ThisTicketIsCompleted ticketId={ticketId} />
-  } else if (getInitialMessagesByTicketIdCacheResp.length > 0 && firstMessage?.ticket_id && firstMessage.sender_username) {
+  } else if (getInitialMessagesByTicketIdResp.length > 0 && firstMessage?.ticket_id && firstMessage.sender_username) {
     return (
       <main className="relative flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border-color/35 bg-foreground/35">
         <MessagesHeader
-          is_open={getTicketMetaCacheResp.is_open}
+          is_open={getTicketMetaResp.is_open}
           owner_avatar_url={firstMessage.sender_avatar_url || ""}
           owner_id={firstMessage.sender_id}
           owner_username={firstMessage.sender_username}
-          ticket_created_at={getTicketMetaCacheResp.created_at}
+          ticket_created_at={getTicketMetaResp.created_at}
           ticket_id={firstMessage.ticket_id}
         />
-        <MessagesBody ticket_id={firstMessage.ticket_id} initialMessages={getInitialMessagesByTicketIdCacheResp ?? []} />
+        <MessagesBody ticket_id={firstMessage.ticket_id} initialMessages={getInitialMessagesByTicketIdResp ?? []} />
         <MessagesFooter ticket_id={firstMessage.ticket_id} />
         <DragAndDropArea />
       </main>
