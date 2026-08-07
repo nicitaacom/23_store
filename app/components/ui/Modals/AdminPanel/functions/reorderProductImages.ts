@@ -6,14 +6,14 @@ export function reorderProductImages(
   images: TSortableProductImage[],
   activeImageIndex: number,
   sourceId: string,
-  targetId: string,
+  destinationId: string,
 ) {
   const sourceIndex = images.findIndex(image => image.sortableId === sourceId)
-  const targetIndex = images.findIndex(image => image.sortableId === targetId)
-  if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex) return { images, activeImageIndex }
+  const destinationIndex = images.findIndex(image => image.sortableId === destinationId)
+  if (sourceIndex < 0 || destinationIndex < 0 || sourceIndex === destinationIndex) return { images, activeImageIndex }
 
   const activeImageId = images[activeImageIndex]?.sortableId
-  const reorderedImages = arrayMove(images, sourceIndex, targetIndex)
+  const reorderedImages = arrayMove(images, sourceIndex, destinationIndex)
   const reorderedActiveImageIndex = activeImageId
     ? reorderedImages.findIndex(image => image.sortableId === activeImageId)
     : Math.min(activeImageIndex, reorderedImages.length - 1)

@@ -13,7 +13,7 @@ export type TBackupSourceUser = {
 
 export type TBackupAuthMapping = {
   sourceUserId: string
-  targetUserId: string
+  destinationUserId: string
   passwordResetRequired: boolean
 }
 
@@ -77,7 +77,7 @@ export function remapAuthUserIds(
       const sourceUserId = row[column]
       if (typeof sourceUserId !== "string") continue
       const mapping = mappingBySourceId.get(sourceUserId)
-      if (mapping) remappedRow[column] = mapping.targetUserId
+      if (mapping) remappedRow[column] = mapping.destinationUserId
     }
 
     if (config.name === "23_users" && typeof row.id === "string") {

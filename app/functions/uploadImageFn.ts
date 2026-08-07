@@ -65,12 +65,12 @@ export async function uploadImageFn({
       .replace(/\s+/g, " ")
       .trim()
 
-  const normalizedTarget = normalize(baseName)
+  const normalizedBaseName = normalize(baseName)
 
   // 4. Filter matching files
   const matching = (existingFiles ?? []).filter(file => {
     const [existingBase] = file.name.split(/\.(?=[^\.]+$)/)
-    return normalize(existingBase).startsWith(normalizedTarget)
+    return normalize(existingBase).startsWith(normalizedBaseName)
   })
 
   // 5. Determine unique suffix

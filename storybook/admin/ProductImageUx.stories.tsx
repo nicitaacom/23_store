@@ -19,8 +19,8 @@ function SortableImagesWorkbench() {
   const [images, setImages] = useState(PRODUCT_IMAGES)
   const [activeImageIndex, setActiveImageIndex] = useState(1)
 
-  function reorderImages(sourceId: string, targetId: string) {
-    const reorderedProductImages = reorderProductImages(images, activeImageIndex, sourceId, targetId)
+  function reorderImages(sourceId: string, destinationId: string) {
+    const reorderedProductImages = reorderProductImages(images, activeImageIndex, sourceId, destinationId)
     setImages(reorderedProductImages.images as TStoryProductImage[])
     setActiveImageIndex(reorderedProductImages.activeImageIndex)
   }

@@ -89,7 +89,7 @@ export function ModalQueryContainer({
 
   /* Close only when the interaction starts on the backdrop itself, not when
      a touch/drag begins inside the modal and the pointer ends up outside.
-     Checking e.event.target === backdropRef.current prevents bubbled events
+     Comparing e.event's clicked element to backdropRef.current prevents bubbled events
      from modal content triggering close on tablets. */
   const modalBgHandler = useSwipeable({
     onTouchStartOrOnMouseDown: e => {

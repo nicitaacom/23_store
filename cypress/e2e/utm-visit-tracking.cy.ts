@@ -77,7 +77,7 @@ describe("UTM visit tracking", () => {
   // the machine keeps its fingerprint, so layer 4 hands every test the same deviceId and the once-per-day
   // dedup then refuses the row this test is looking for. Emptying the day is what makes them independent.
   beforeEach(() => {
-    cy.task("deleteVisitsFromTodayForTestTarget")
+    cy.task("deleteVisitsFromTodayForTestHost")
   })
 
   afterEach(() => {

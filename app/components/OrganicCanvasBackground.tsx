@@ -34,7 +34,7 @@ class Particle {
   hideDelay: number = 0
   maxHideTime: number = 0
   scale: number = 0
-  targetScale: number = 1
+  goalScale: number = 1
   scaleSpeed: number = 0
 
   constructor(canvas: ParticleCanvas) {
@@ -63,7 +63,7 @@ class Particle {
 
     // Scaling animation setup
     this.scale = this.isVisible ? 1 : 0
-    this.targetScale = this.isVisible ? 1 : 0
+    this.goalScale = this.isVisible ? 1 : 0
     this.scaleSpeed = 0.02 + Math.random() * 0.03 // Random speed between 0.02-0.05
   }
 
@@ -115,7 +115,7 @@ class Particle {
 
     if (this.isVisible && this.hideTimer > this.hideDelay) {
       // Start disappearing
-      this.targetScale = 0
+      this.goalScale = 0
       if (this.scale <= 0.05) {
         this.isVisible = 0
         this.hideTimer = 0
@@ -124,14 +124,14 @@ class Particle {
     } else if (!this.isVisible && this.hideTimer > this.maxHideTime) {
       // Start appearing
       this.isVisible = 1
-      this.targetScale = 1
+      this.goalScale = 1
       this.hideTimer = 0
       this.hideDelay = Math.random() * 2400 + 1800 // 30-70 seconds
       this.maxHideTime = Math.random() * 900 + 600 // 10-25 seconds hidden
     }
 
     // 3. smooth scaling animation with ease-in-out
-    const scaleDiff = this.targetScale - this.scale
+    const scaleDiff = this.goalScale - this.scale
     const scalingFactor = this.easeInOut(Math.abs(scaleDiff))
     this.scale += scaleDiff * this.scaleSpeed * (1 + scalingFactor)
     this.scale = Math.max(0, Math.min(1, this.scale))
@@ -287,7 +287,7 @@ export function OrganicCanvasBackground({
       if (visibleCount < 2) {
         particlesRef.current.forEach((particle, index) => {
           if (particle.scale <= 0.1 && index < 3) {
-            particle.targetScale = 1
+            particle.goalScale = 1
             particle.isVisible = 1
           }
         })

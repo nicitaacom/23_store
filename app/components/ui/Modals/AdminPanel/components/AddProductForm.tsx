@@ -575,8 +575,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setActiveImageIndex(currentIndex => (nextIndex === currentIndex ? currentIndex : nextIndex))
   }
 
-  const reorderImages = (sourceId: string, targetId: string) => {
-    const reorderedProductImages = reorderProductImages(images, activeImageIndex, sourceId, targetId)
+  const reorderImages = (sourceId: string, destinationId: string) => {
+    const reorderedProductImages = reorderProductImages(images, activeImageIndex, sourceId, destinationId)
     setImages(reorderedProductImages.images)
     setActiveImageIndex(reorderedProductImages.activeImageIndex)
   }

@@ -231,7 +231,7 @@ export class BackupSDK extends BaseSDK {
     }
 
     // Parse every supplied table before creating Auth users or writing any rows. A malformed later
-    // CSV must not leave the target with an avoidable partial restore.
+    // CSV must not leave the destination project with an avoidable partial restore.
     const parsedTables = tablesToImport.map(table => {
       try {
         return { config: table, rows: coerceRowsForImport(table, parseCsv(csvByTable[table.name])) }
@@ -424,11 +424,11 @@ export class BackupSDK extends BaseSDK {
       })
       if ("error" in postResp) throw new Error(`Failed to prepare file upload: ${postResp.error}`)
 
-      for (const target of postResp.results) {
-        const archiveFile = byPath.get(`${target.bucket}/${target.path}`)
+      for (const destination of postResp.results) {
+        const archiveFile = byPath.get(`${destination.bucket}/${destination.path}`)
 
-        if ("skipped" in target || !archiveFile) {
-          bumpStat(target.bucket, "failed")
+        if ("skipped" in destination || !archiveFile) {
+          bumpStat(destination.bucket, "failed")
           if (archiveFile) bytesUploadedSoFar += archiveFile.bytes.length
           continue
         }
@@ -436,23 +436,23 @@ export class BackupSDK extends BaseSDK {
         onProgress({
           bytesDone: bytesUploadedSoFar,
           bytesTotal,
-          label: `${target.bucket}/${target.path}`,
+          label: `${destination.bucket}/${destination.path}`,
           speedBytesPerMs: speedTracker.sample(bytesUploadedSoFar),
         })
         const uploadFileData = new Blob([archiveFile.bytes], { type: archiveFile.contentType })
         try {
-          await uploadToSignedUrlWithProgress(target.signedUrl, uploadFileData, loaded =>
+          await uploadToSignedUrlWithProgress(destination.signedUrl, uploadFileData, loaded =>
             onProgress({
               bytesDone: bytesUploadedSoFar + loaded,
               bytesTotal,
-              label: `${target.bucket}/${target.path}`,
+              label: `${destination.bucket}/${destination.path}`,
               speedBytesPerMs: speedTracker.sample(bytesUploadedSoFar + loaded),
             }),
           )
-          bumpStat(target.bucket, "files")
+          bumpStat(destination.bucket, "files")
         } catch (error) {
-          bumpStat(target.bucket, "failed")
-          if (!firstErrorByBucket[target.bucket]) firstErrorByBucket[target.bucket] = error instanceof Error ? error.message : String(error)
+          bumpStat(destination.bucket, "failed")
+          if (!firstErrorByBucket[destination.bucket]) firstErrorByBucket[destination.bucket] = error instanceof Error ? error.message : String(error)
         }
         bytesUploadedSoFar += archiveFile.bytes.length
       }

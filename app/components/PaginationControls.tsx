@@ -57,9 +57,9 @@ function PaginationControls({
 }: PaginationControlsProps) {
   const t = useScopedI18n("common")
 
-  const createPageHref = (targetPage: number) => {
+  const createPageHref = (pageNumber: number) => {
     const params = new URLSearchParams({
-      page: String(targetPage),
+      page: String(pageNumber),
       perPage: String(perPage),
     })
 

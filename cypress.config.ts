@@ -9,9 +9,9 @@ readEnvironment({ path: ".env.local" })
 
 const LOCAL_DEV_URL = "http://localhost:3023"
 
-// The target the whole suite runs against. Same source the app uses for its own URL in
+// The URL the whole suite runs against. Same source the app uses for its own URL in
 // app/[locale]/layout.tsx: the deployed URL comes from NEXT_PUBLIC_PRODUCTION_URL, and a local run
-// targets the port package.json's `dev` script serves on.
+// uses the port package.json's `dev` script serves on.
 // Read through a function so the value is typed `string` everywhere: on TS 5.2 an outer-scope
 // `if (!value) throw` still leaves the type `string | undefined` inside the task functions below.
 function getE2EBaseUrl(): string {
@@ -163,10 +163,10 @@ async function readUTMVisitsForUserId(userId: string) {
  * for, and that test reads the previous test's row instead. Emptying the day is what makes each test
  * independent: with no row for today, the device writes a fresh one whatever id it resolves to.
  *
- * The host comes from E2E_BASE_URL, and the guard below keeps this to a loopback target: pointing the
+ * The host comes from E2E_BASE_URL, and the guard below keeps this to a loopback host: pointing the
  * suite at a deployed URL would otherwise let a bulk delete reach real visit rows.
  */
-async function deleteVisitsFromTodayForTestTarget() {
+async function deleteVisitsFromTodayForTestHost() {
   const { hostname, host } = new URL(E2E_BASE_URL)
   if (hostname !== "localhost" && hostname !== "127.0.0.1")
     throw new Error(`This task deletes rows in bulk, so it only runs against a loopback E2E_BASE_URL - got ${host}`)
@@ -307,7 +307,7 @@ export default defineConfig({
         readUTMVisits,
         readUTMVisitsForUserId,
         deleteUTMVisitsForUserId,
-        deleteVisitsFromTodayForTestTarget,
+        deleteVisitsFromTodayForTestHost,
         readBuyingFlowEventsForSession,
         deleteBuyingFlowEventsForSession,
         prepareBuyingFlowFixtures: getBuyingFlowFixtures,

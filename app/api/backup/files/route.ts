@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   const adminError = await requireAdmin()
   if (adminError) return NextResponse.json({ error: adminError }, { status: adminError === "Unauthorized" ? 401 : 403 })
 
-  const results: API.BackupUploadTarget[] = []
+  const results: API.BackupUploadDestination[] = []
   for (const file of files) {
     const bucket = file.bucket
     const path = file.path

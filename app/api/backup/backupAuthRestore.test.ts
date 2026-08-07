@@ -11,7 +11,7 @@ import {
 import { BACKUP_TABLES } from "./backupConfig"
 
 const SOURCE_USER_ID = "11111111-1111-4111-8111-111111111111"
-const TARGET_USER_ID = "22222222-2222-4222-8222-222222222222"
+const DESTINATION_USER_ID = "22222222-2222-4222-8222-222222222222"
 
 function selectConfig(name: (typeof BACKUP_TABLES)[number]["name"]) {
   const config = BACKUP_TABLES.find(table => table.name === name)
@@ -60,10 +60,10 @@ describe("backup Auth restore helpers", () => {
   })
 
   it("remaps every configured user reference and marks credential recovery", () => {
-    const mapping = [{ sourceUserId: SOURCE_USER_ID, targetUserId: TARGET_USER_ID, passwordResetRequired: true }]
+    const mapping = [{ sourceUserId: SOURCE_USER_ID, destinationUserId: DESTINATION_USER_ID, passwordResetRequired: true }]
 
     expect(remapAuthUserIds(selectConfig("23_users"), [{ id: SOURCE_USER_ID }], mapping)).toEqual([
-      { id: TARGET_USER_ID, password_reset_required: true },
+      { id: DESTINATION_USER_ID, password_reset_required: true },
     ])
     expect(
       remapAuthUserIds(
@@ -71,21 +71,21 @@ describe("backup Auth restore helpers", () => {
         [{ owner_id: SOURCE_USER_ID, user_id: SOURCE_USER_ID }],
         mapping,
       ),
-    ).toEqual([{ owner_id: TARGET_USER_ID, user_id: TARGET_USER_ID }])
+    ).toEqual([{ owner_id: DESTINATION_USER_ID, user_id: DESTINATION_USER_ID }])
     expect(remapAuthUserIds(selectConfig("23_tickets"), [{ owner_id: "anonymousId_example" }], mapping)).toEqual([
       { owner_id: "anonymousId_example" },
     ])
   })
 
-  it("preserves target roles and providers while restoring profile fields", () => {
+  it("preserves destination roles and providers while restoring profile fields", () => {
     expect(
       mergeBackupPublicUserRows(
-        [{ id: TARGET_USER_ID, username: "Backup", roles: ["USER"], providers: ["credentials"] }],
-        [{ id: TARGET_USER_ID, username: "Target", roles: ["ADMIN"], providers: ["google"] }],
+        [{ id: DESTINATION_USER_ID, username: "Backup", roles: ["USER"], providers: ["credentials"] }],
+        [{ id: DESTINATION_USER_ID, username: "Destination", roles: ["ADMIN"], providers: ["google"] }],
       ),
     ).toEqual([
       {
-        id: TARGET_USER_ID,
+        id: DESTINATION_USER_ID,
         username: "Backup",
         roles: ["ADMIN", "USER"],
         providers: ["google", "credentials"],

@@ -81,7 +81,7 @@ export const PastedImageThumbnail: Story = {
   ),
 }
 
-export const PortalTarget: Story = {
+export const PortalDestination: Story = {
   render: () => (
     <PortalWrapper>
       <p className="fixed bottom-4 right-4 rounded border border-border-color bg-foreground p-3 text-title">

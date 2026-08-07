@@ -49,22 +49,22 @@ function toCartRecord(cartProducts: Json | null | undefined): TRecordCartProduct
   return cartProducts as unknown as TRecordCartProduct
 }
 
-function mergeCartProducts(targetCartProducts: TRecordCartProduct, sourceCartProducts: TRecordCartProduct): TRecordCartProduct {
-  const mergedCartProducts = { ...targetCartProducts }
+function mergeCartProducts(survivorCartProducts: TRecordCartProduct, sourceCartProducts: TRecordCartProduct): TRecordCartProduct {
+  const mergedCartProducts = { ...survivorCartProducts }
 
   for (const [productKey, sourceProduct] of Object.entries(sourceCartProducts)) {
-    const targetProduct = mergedCartProducts[productKey]
+    const survivorProduct = mergedCartProducts[productKey]
 
-    if (!targetProduct) {
+    if (!survivorProduct) {
       mergedCartProducts[productKey] = sourceProduct
       continue
     }
 
     mergedCartProducts[productKey] = {
-      ...targetProduct,
+      ...survivorProduct,
       ...sourceProduct,
-      quantity: (targetProduct.quantity || 0) + (sourceProduct.quantity || 0),
-      variantId: targetProduct.variantId ?? sourceProduct.variantId ?? null,
+      quantity: (survivorProduct.quantity || 0) + (sourceProduct.quantity || 0),
+      variantId: survivorProduct.variantId ?? sourceProduct.variantId ?? null,
     }
   }
 
@@ -96,40 +96,40 @@ async function ensureUserCart(userId: string) {
   await upsertUserCart(userId, await getCartProducts(userId))
 }
 
-async function mergeCartIntoTarget(sourceUserId: string, targetUserId: string) {
-  if (sourceUserId === targetUserId) return
+async function mergeCartIntoSurvivor(sourceUserId: string, survivorUserId: string) {
+  if (sourceUserId === survivorUserId) return
 
-  const [sourceCartProducts, targetCartProducts] = await Promise.all([getCartProducts(sourceUserId), getCartProducts(targetUserId)])
-  const mergedCartProducts = mergeCartProducts(targetCartProducts, sourceCartProducts)
+  const [sourceCartProducts, survivorCartProducts] = await Promise.all([getCartProducts(sourceUserId), getCartProducts(survivorUserId)])
+  const mergedCartProducts = mergeCartProducts(survivorCartProducts, sourceCartProducts)
 
   if (Object.keys(mergedCartProducts).length > 0) {
-    await upsertUserCart(targetUserId, mergedCartProducts)
+    await upsertUserCart(survivorUserId, mergedCartProducts)
   }
 
   const { error: deleteCartError } = await supabaseAdmin.from("23_users_cart").delete().eq("id", sourceUserId)
   if (deleteCartError) throw deleteCartError
 }
 
-async function reassignAuthScopedRows(sourceUserId: string, targetUserId: string) {
-  if (sourceUserId === targetUserId) return
+async function reassignAuthScopedRows(sourceUserId: string, survivorUserId: string) {
+  if (sourceUserId === survivorUserId) return
 
   const [{ error: updateProductsError }, { error: updateTicketsError }] = await Promise.all([
-    supabaseAdmin.from("23_products").update({ owner_id: targetUserId }).eq("owner_id", sourceUserId),
-    supabaseAdmin.from("23_tickets").update({ owner_id: targetUserId }).eq("owner_id", sourceUserId),
+    supabaseAdmin.from("23_products").update({ owner_id: survivorUserId }).eq("owner_id", sourceUserId),
+    supabaseAdmin.from("23_tickets").update({ owner_id: survivorUserId }).eq("owner_id", sourceUserId),
   ])
 
   if (updateProductsError) throw updateProductsError
   if (updateTicketsError) throw updateTicketsError
 
-  await mergeCartIntoTarget(sourceUserId, targetUserId)
+  await mergeCartIntoSurvivor(sourceUserId, survivorUserId)
 }
 
-async function reassignPublicScopedRows(sourceUserId: string, targetUserId: string) {
-  if (sourceUserId === targetUserId) return
+async function reassignPublicScopedRows(sourceUserId: string, survivorUserId: string) {
+  if (sourceUserId === survivorUserId) return
 
   const { error: updateMessagesError } = await supabaseAdmin
     .from("23_messages")
-    .update({ sender_id: targetUserId })
+    .update({ sender_id: survivorUserId })
     .eq("sender_id", sourceUserId)
 
   if (updateMessagesError) throw updateMessagesError

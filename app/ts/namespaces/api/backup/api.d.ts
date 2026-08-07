@@ -19,14 +19,14 @@ declare namespace API {
   }
 
   // POST /api/backup/auth-users — called automatically by table import before the first row
-  // upsert. It creates/reuses target Auth users and returns source-id -> target-id mappings.
+  // upsert. It creates/reuses destination Auth users and returns source-id -> destination-id mappings.
   type BackupAuthPrepareRequest = {
     users: BackupAuthSourceUser[]
     referencedUserIds: string[]
   }
   type BackupAuthMapping = {
     sourceUserId: string
-    targetUserId: string
+    destinationUserId: string
     passwordResetRequired: boolean
   }
   type BackupAuthPrepareResponse =
@@ -49,10 +49,10 @@ declare namespace API {
   // POST /api/backup/files { files: [{ bucket, path }] } — asks for a signed upload URL per file.
   // The browser has already decompressed the archive locally; bytes are PUT straight to Supabase
   // from there, never through this route.
-  type BackupUploadTarget =
+  type BackupUploadDestination =
     | { bucket: string; path: string; signedUrl: string }
     | { bucket: string; path: string; skipped: true; reason: string }
-  type BackupFilesPostResponse = { results: BackupUploadTarget[] } | { error: string }
+  type BackupFilesPostResponse = { results: BackupUploadDestination[] } | { error: string }
 
   type BackupStorageRelinkTableResult = {
     table: string

@@ -95,7 +95,7 @@ export async function POST(request: Request) {
   let keptRows = applyBackupImportDefaults(config, uuidValidRows)
   if (config.name === "23_users" && uuidValidRows.length > 0) {
     const userIds = uuidValidRows.flatMap(row => (typeof row.id === "string" ? [row.id] : []))
-    // eslint-disable-next-line local-rules/use-rls-supabase-client -- requireAdmin authorizes preserving target roles during the full-database import.
+    // eslint-disable-next-line local-rules/use-rls-supabase-client -- requireAdmin authorizes preserving destination roles during the full-database import.
     const { data: existingRows, error: selectUsersError } = await supabaseAdmin.from("23_users").select("*").in("id", userIds)
     if (selectUsersError) {
       return NextResponse.json({ error: selectUsersError.message } satisfies API.BackupRowsPostResponse, { status: 500 })

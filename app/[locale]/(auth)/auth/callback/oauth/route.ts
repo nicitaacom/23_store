@@ -64,12 +64,12 @@ export async function GET(request: Request) {
       const email = response.data.user.email
       const syncedUser = await syncPublicUserRecord(response.data.user, { provider })
 
-      const redirectTarget = getLocalizedAppUrl(url)
+      const redirectUrl = getLocalizedAppUrl(url)
       console.log("[auth:oauth][route] authentication succeeded", {
         userId: user_id,
         email,
         provider,
-        redirectTarget,
+        redirectUrl,
         avatarUrlFound: Boolean(syncedUser.avatarUrl),
       })
 

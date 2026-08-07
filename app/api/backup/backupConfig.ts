@@ -68,7 +68,7 @@ export type TBackupTableConfig = {
   // see filterRowsByUuidColumns below.
   uuidColumns: string[]
   // Columns which can contain an authenticated user's id. Cross-project imports replace source
-  // auth ids in these columns with the target project's ids before any public-table upsert. Text
+  // auth ids in these columns with the destination project's ids before any public-table upsert. Text
   // columns can also contain anonymous ids; only exact ids returned by the Auth preparation route
   // are replaced.
   authUserIdColumns: string[]

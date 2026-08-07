@@ -57,8 +57,8 @@ export async function POST(request: Request) {
     }
 
     const selectAllAuthUsersResp = await selectAllAuthUsers()
-    const targetUserById = new Map(selectAllAuthUsersResp.map(user => [user.id, user]))
-    const targetUserByEmail = new Map(
+    const destinationUserById = new Map(selectAllAuthUsersResp.map(user => [user.id, user]))
+    const destinationUserByEmail = new Map(
       selectAllAuthUsersResp.flatMap(user => {
         const email = normalizeAuthEmail(user.email)
         return email ? [[email, user] as const] : []
@@ -71,14 +71,14 @@ export async function POST(request: Request) {
 
     for (const sourceUserId of sourceUserIdsToPrepare) {
       const sourceUser = sourceUserById.get(sourceUserId)
-      let targetUser = targetUserById.get(sourceUserId)
+      let destinationUser = destinationUserById.get(sourceUserId)
 
-      if (!targetUser && sourceUser) targetUser = targetUserByEmail.get(sourceUser.email)
-      if (!targetUser && !sourceUser) {
-        throw new Error(`Auth user ${sourceUserId} is missing in the target project and 23_users.csv has no profile for it`)
+      if (!destinationUser && sourceUser) destinationUser = destinationUserByEmail.get(sourceUser.email)
+      if (!destinationUser && !sourceUser) {
+        throw new Error(`Auth user ${sourceUserId} is missing in the destination project and 23_users.csv has no profile for it`)
       }
 
-      if (!targetUser && sourceUser) {
+      if (!destinationUser && sourceUser) {
         const passwordResetRequired = Boolean(sourceUser.providers?.includes("credentials"))
         const { data, error } = await supabaseAdmin.auth.admin.createUser({
           email: sourceUser.email,
@@ -94,20 +94,20 @@ export async function POST(request: Request) {
         })
         if (error) throw error
 
-        targetUser = data.user
-        targetUserById.set(targetUser.id, targetUser)
-        targetUserByEmail.set(sourceUser.email, targetUser)
+        destinationUser = data.user
+        destinationUserById.set(destinationUser.id, destinationUser)
+        destinationUserByEmail.set(sourceUser.email, destinationUser)
         created++
       } else {
         reused++
       }
 
-      if (!targetUser) throw new Error(`Could not prepare Auth user ${sourceUserId}`)
+      if (!destinationUser) throw new Error(`Could not prepare Auth user ${sourceUserId}`)
 
       mappings.push({
         sourceUserId,
-        targetUserId: targetUser.id,
-        passwordResetRequired: hasBackupPasswordResetMarker(targetUser, sourceUserId),
+        destinationUserId: destinationUser.id,
+        passwordResetRequired: hasBackupPasswordResetMarker(destinationUser, sourceUserId),
       })
     }
 

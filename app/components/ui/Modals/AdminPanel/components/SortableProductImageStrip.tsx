@@ -21,7 +21,7 @@ interface SortableProductImageStripProps {
   activeImageIndex: number
   disabled: boolean
   images: TSortableProductImage[]
-  onReorder: (sourceId: string, targetId: string) => void
+  onReorder: (sourceId: string, destinationId: string) => void
   onSelect: (imageIndex: number) => void
 }
 
