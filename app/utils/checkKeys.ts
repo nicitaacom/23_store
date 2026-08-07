@@ -412,14 +412,16 @@ export const KEY_PROBES: TKeyProbe[] = [
  * there and the probe is not attempted. That is what catches a name declared in `.env.example` and
  * never set on Vercel.
  */
-export async function runOneKeyProbe(probe: TKeyProbe): Promise<{ name: string; reason: string } | null> {
+export async function runOneKeyProbe(
+  probe: TKeyProbe,
+): Promise<{ name: string; reason: string; tier: TKeyProbe["tier"] } | null> {
   const value = readKey(probe.name)
   if (!value) {
     if (probe.optionalWhen && readKey(probe.optionalWhen)) return null
 
     const alsoEmpty = probe.optionalWhen ? ` and so is ${probe.optionalWhen}, the app reads one of the two` : ""
 
-    return { name: probe.name, reason: `missing - declared, value is empty${alsoEmpty}` }
+    return { name: probe.name, reason: `is not defined or empty${alsoEmpty}`, tier: probe.tier }
   }
   if (!probe.check) return null
 
@@ -432,7 +434,7 @@ export async function runOneKeyProbe(probe: TKeyProbe): Promise<{ name: string; 
     }),
   ])
 
-  return reason ? { name: probe.name, reason } : null
+  return reason ? { name: probe.name, reason, tier: probe.tier } : null
 }
 
 /**
@@ -446,7 +448,7 @@ export async function runKeyChecks(
   probes: TKeyProbe[] = KEY_PROBES,
   onProbeDone?: (name: string, reason: string | null, doneCount: number, total: number, elapsedMs: number) => void,
 ): Promise<TKeyCheckReport> {
-  const failures: { name: string; reason: string }[] = []
+  const failures: { name: string; reason: string; tier: TKeyProbe["tier"] }[] = []
   let nextIndex = 0
   let doneCount = 0
 
@@ -526,11 +528,21 @@ export function formatKeyCheckReport(projectName: string, report: TKeyCheckRepor
   const namesCount = report.liveCount + report.shapeCount + report.skipCount
   if (report.ok) return `${projectName} — all ${namesCount} names OK · ${report.liveCount} proved by a request`
 
+  const failedLiveCount = report.failures.filter(failure => failure.tier === "live").length
+  const failedShapeCount = report.failures.filter(failure => failure.tier === "shape").length
+  const okLiveCount = report.liveCount - failedLiveCount
+  const okShapeCount = report.shapeCount - failedShapeCount
+  const isSingleFailure = report.failures.length === 1
+  const envWord = `env${isSingleFailure ? "" : "s"}`
+  const requireWord = `require${isSingleFailure ? "s" : ""}`
+
   return [
-    `${projectName} — ${report.failures.length} key${report.failures.length === 1 ? "" : "s"} need you`,
+    `${projectName} — ${report.failures.length} ${envWord} ${requireWord} attention`,
     "",
     ...report.failures.map(failure => `✘ ${failure.name} — ${failure.reason}`),
     "",
-    `✔ ${namesCount - report.failures.length} other names OK · ${report.shapeCount} shape-checked`,
+    `∑ ${namesCount} total`,
+    `✅ ${okLiveCount}/${report.liveCount} proved by a real request (provider answered)`,
+    `🔎 ${okShapeCount}/${report.shapeCount} shape-checked only (pattern matched, never sent)`,
   ].join("\n")
 }

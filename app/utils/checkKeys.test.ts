@@ -75,7 +75,7 @@ describe("runKeyChecks presence", () => {
     const report = await runKeyChecks([{ name: "MADE_UP_KEY_NAME", tier: "skip" }])
 
     expect(report.ok).toBe(false)
-    expect(report.failures).toEqual([{ name: "MADE_UP_KEY_NAME", reason: "missing - declared, value is empty" }])
+    expect(report.failures).toEqual([{ name: "MADE_UP_KEY_NAME", reason: "is not defined or empty", tier: "skip" }])
   })
 
   it("passes a present name whose tier asks for nothing more", async () => {

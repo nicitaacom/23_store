@@ -37,10 +37,15 @@ async function sendAlertEmail(report: TKeyCheckReport, message: string): Promise
   const notificationEmail = process.env.NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL
   if (!notificationEmail) return false
 
+  const isSingleFailure = report.failures.length === 1
+  const envWord = `env${isSingleFailure ? "" : "s"}`
+  const requireWord = `require${isSingleFailure ? "s" : ""}`
+  const subject = `${PROJECT_NAME} — ${report.failures.length} ${envWord} ${requireWord} attention`
+
   const { error } = await resend.emails.send({
     from: process.env.NEXT_PUBLIC_SUPPORT_EMAIL,
     to: notificationEmail,
-    subject: `${PROJECT_NAME} — ${report.failures.length} API keys need you`,
+    subject,
     html: `<pre style="font:14px/1.6 ui-monospace,monospace">${message}</pre>`,
   })
 

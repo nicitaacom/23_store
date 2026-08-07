@@ -5,7 +5,7 @@
  */
 export type TKeyCheckReport = {
   ok: boolean
-  failures: { name: string; reason: string }[]
+  failures: { name: string; reason: string; tier: "live" | "shape" | "skip" }[]
   liveCount: number
   shapeCount: number
   skipCount: number
