@@ -102,6 +102,8 @@ function stripAllowedSenses(text) {
       .replace(/The server had an error while processing your request\. Sorry about that!/g, "")
       .replace(/cannot read propert(?:y|ies)/gi, "") // Node/browser TypeError text
       .replace(/cannot fork/gi, "") // the OS's own errno message
+      // HTML link target attribute - real API values
+      .replace(/target=["'](?:_blank|_parent|_self|_top)["']/gi, "")
   )
 }
 
@@ -229,6 +231,23 @@ function isExternalPropertyRead(node) {
   return parent?.type === "MemberExpression" && parent.property === node && !parent.computed
 }
 
+// skip `target` when it's a property name in TypeScript/React (interface, type, or JSX prop)
+function isPropertyName(node) {
+  const parent = node.parent
+  // TypeScript property: target?: "..." in interface/type
+  if (parent?.type === "TSPropertySignature" && parent.key === node) return true
+  // Object literal property: { target: ... }
+  if (parent?.type === "Property" && parent.key === node && !parent.computed) return true
+  // Destructuring parameter: const { target } = props OR const { target = "_self" } = props
+  if (parent?.type === "Property" && parent.value === node) return true
+  if (parent?.type === "AssignmentPattern" && parent.left === node) return true
+  // JSX attribute name: <Link target={...} />
+  if (parent?.type === "JSXAttribute" && parent.name?.name === node.name) return true
+  // JSX attribute value: <Link target={target} /> - parent is JSXExpressionContainer
+  if (parent?.type === "JSXExpressionContainer" && parent.parent?.type === "JSXAttribute" && parent.parent.name?.name === "target") return true
+  return false
+}
+
 module.exports = {
   "no-banned-words": {
     meta: {
@@ -262,6 +281,7 @@ module.exports = {
           if (node.name === "eval" && isRealEvalCall(node)) return
           if (externalImportNames.has(node.name)) return
           if (EXTERNAL_PROPERTY_NAMES.has(node.name) && isExternalPropertyRead(node)) return
+          if (EXTERNAL_PROPERTY_NAMES.has(node.name) && isPropertyName(node)) return
           if (establishedNameSet.has(node.name.toLowerCase())) return
 
           for (const word of splitIdentifierWords(node.name)) checkText(context, node, word, false)
