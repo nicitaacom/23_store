@@ -7,7 +7,7 @@ import { FiSave } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
 import { TProductVariant } from "@/ts/product/TProductVariant"
-import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
+import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { BaseInput } from "../../../Inputs/BaseInput"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
@@ -69,7 +69,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
 
   const persistedSignature = useMemo(() => signature(toDrafts(variants)), [variants])
   const isDirty = signature(drafts) !== persistedSignature
-  useAdminPanelDirty(`edit-product-${id}-variants`, isDirty || isLoading)
+  useAdminPanelChanged(`edit-product-${id}-variants`, isDirty || isLoading)
 
   // 1. Per-field draft mutations
   const updateDraft = useCallback((variantId: string, patch: Partial<VariantDraft>) => {

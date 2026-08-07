@@ -7,7 +7,7 @@ import { MdOutlineDelete } from "react-icons/md"
 import { twMerge } from "tailwind-merge"
 
 import { TCategory } from "@/ts/categories/TCategory"
-import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
+import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { isValidCategoryName } from "@/utils/categoryValidation"
 import { useCategories } from "@/store/categories/useCategories"
@@ -40,7 +40,7 @@ export function CategoriesForm() {
     Boolean(editingCategory && editNameValue.trim() !== editingCategory.name.trim()) ||
     deletingId !== null
 
-  useAdminPanelDirty("categories-draft", hasCategoryDraft || isAdding || isSubmittingCategoryChange)
+  useAdminPanelChanged("categories-draft", hasCategoryDraft || isAdding || isSubmittingCategoryChange)
 
   const childrenOf = useCallback(
     (parentId: string) => categories.filter(category => category.parent_id === parentId),

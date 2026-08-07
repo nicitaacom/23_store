@@ -15,7 +15,7 @@ import { CategoriesForm } from "./components/CategoriesForm"
 import { DeleteProductForm } from "./components/DeleteProductForm"
 import { EditProductForm } from "./components/EditProductForm"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
-import { AdminPanelDirtyProvider } from "./AdminPanelDirtyContext"
+import { AdminPanelChangedProvider } from "./AdminPanelChangedContext"
 import { AdminPanelUnsavedChangesDialog } from "./components/AdminPanelUnsavedChangesDialog"
 import { PricingForm } from "./components/PricingForm"
 import { useI18n } from "@/locales/client"
@@ -38,7 +38,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
   const [panelAction, setPanelAction] = useState<TPanelAction>(PANEL_ACTIONS.add)
   const [productSort, setProductSort] = useState<TAdminProductSort>(ADMIN_PRODUCT_SORTS.createdDesc)
   const [pendingDeleteProduct, setPendingDeleteProduct] = useState<IPendingDeleteProduct | IPendingDeleteProduct[] | null>(null)
-  const [dirtySections, setDirtySections] = useState<Record<string, boolean>>({})
+  const [changedSections, setDirtySections] = useState<Record<string, boolean>>({})
   const [pendingDiscardAction, setPendingDiscardAction] = useState<(() => void) | null>(null)
   const hasUnsavedChangesRef = useRef(false)
   const requestGuardedActionRef = useRef<(action: () => void) => void>(() => {})
@@ -46,9 +46,9 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
   const ignoreNextPopStateRef = useRef(false)
   const afterGuardRemovalRef = useRef<(() => void) | null>(null)
   const { isLoading } = useLoading()
-  const hasUnsavedChanges = Object.values(dirtySections).some(Boolean)
+  const hasUnsavedChanges = Object.values(changedSections).some(Boolean)
 
-  const setSectionDirty = useCallback((section: string, isDirty: boolean) => {
+  const setSectionHasChanges = useCallback((section: string, isDirty: boolean) => {
     setDirtySections(currentSections => {
       if (currentSections[section] === isDirty) return currentSections
       if (!isDirty) {
@@ -60,7 +60,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
     })
   }, [])
 
-  const dirtyContextValue = useMemo(() => ({ setSectionDirty }), [setSectionDirty])
+  const changedContextValue = useMemo(() => ({ setSectionHasChanges }), [setSectionHasChanges])
 
   const requestGuardedAction = useCallback(
     (action: () => void) => {
@@ -122,7 +122,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
   // where the application dialog can ask before the real navigation is allowed.
   useEffect(() => {
     if (hasUnsavedChanges && !hasHistoryGuardRef.current) {
-      window.history.pushState({ ...window.history.state, adminPanelDirtyGuard: true }, "", window.location.href)
+      window.history.pushState({ ...window.history.state, adminPanelChangedGuard: true }, "", window.location.href)
       hasHistoryGuardRef.current = true
       return
     }
@@ -148,7 +148,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
 
       // The browser just removed our duplicate entry. Restore it before showing the dialog so
       // "Keep editing" leaves both the URL and the history position unchanged.
-      window.history.pushState({ ...window.history.state, adminPanelDirtyGuard: true }, "", window.location.href)
+      window.history.pushState({ ...window.history.state, adminPanelChangedGuard: true }, "", window.location.href)
       hasHistoryGuardRef.current = true
       requestGuardedActionRef.current(() => window.history.back())
     }
@@ -209,7 +209,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
       onCloseRequest={requestGuardedAction}
       modalQuery="AdminPanel">
       {({ closeModal }) => (
-        <AdminPanelDirtyProvider value={dirtyContextValue}>
+        <AdminPanelChangedProvider value={changedContextValue}>
           <AdminPanelHeader
             title={t("modal.admin_panel.label")}
             activeAction={panelAction}
@@ -269,7 +269,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
             onDiscard={handleDiscard}
             onKeepEditing={() => setPendingDiscardAction(null)}
           />
-        </AdminPanelDirtyProvider>
+        </AdminPanelChangedProvider>
       )}
     </ModalQueryContainer>
   )

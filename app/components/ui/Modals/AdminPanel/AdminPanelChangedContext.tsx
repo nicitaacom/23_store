@@ -2,20 +2,20 @@
 
 import { createContext, useContext, useEffect } from "react"
 
-interface AdminPanelDirtyContextValue {
-  setSectionDirty: (section: string, isDirty: boolean) => void
+interface AdminPanelChangedContextValue {
+  setSectionHasChanges: (section: string, hasChanges: boolean) => void
 }
 
-const AdminPanelDirtyContext = createContext<AdminPanelDirtyContextValue | null>(null)
+const AdminPanelChangedContext = createContext<AdminPanelChangedContextValue | null>(null)
 
-export const AdminPanelDirtyProvider = AdminPanelDirtyContext.Provider
+export const AdminPanelChangedProvider = AdminPanelChangedContext.Provider
 
-export function useAdminPanelDirty(section: string, isDirty: boolean) {
-  const context = useContext(AdminPanelDirtyContext)
+export function useAdminPanelChanged(section: string, hasChanges: boolean) {
+  const context = useContext(AdminPanelChangedContext)
 
   useEffect(() => {
-    context?.setSectionDirty(section, isDirty)
+    context?.setSectionHasChanges(section, hasChanges)
 
-    return () => context?.setSectionDirty(section, false)
-  }, [context, isDirty, section])
+    return () => context?.setSectionHasChanges(section, false)
+  }, [context, hasChanges, section])
 }

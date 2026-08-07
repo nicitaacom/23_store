@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 
-import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
+import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { CategoryDropdown } from "./CategoryDropdown"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
@@ -36,7 +36,7 @@ export function FormatCategoryForm({ id, category_id }: FormatCategoryFormProps)
   }, [categories.length, hydrate])
 
   const currentName = categories.find(category => category.id === category_id)?.name ?? t("category.uncategorized")
-  useAdminPanelDirty(
+  useAdminPanelChanged(
     `edit-product-${id}-category`,
     (isEditing && selectedId !== (category_id ?? null)) || isUpdatingCategory,
   )

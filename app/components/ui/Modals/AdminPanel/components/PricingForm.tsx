@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { BiCheck, BiLinkExternal, BiRefresh, BiX } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
 
-import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
+import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { aiPricingSDK } from "@/sdk/AIPricingSDK/AIPricingSDK"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -25,7 +25,7 @@ export function PricingForm() {
   const [error, setError] = useState<string | null>(null)
 
   const isUpdating = updatingKey !== null
-  useAdminPanelDirty("ai-pricing-request", isUpdating)
+  useAdminPanelChanged("ai-pricing-request", isUpdating)
 
   const selectSettings = async () => {
     setIsFetching(true)

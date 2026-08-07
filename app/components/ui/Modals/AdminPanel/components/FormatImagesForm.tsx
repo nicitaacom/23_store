@@ -7,7 +7,7 @@ import { BiPlus, BiTrash, BiStar, BiUpload } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
 
 import { showToastWarningFn } from "../functions/showToastWarningFn"
-import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
+import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { uploadProductImages } from "@/functions/createProductHelpers"
 import { useLoading } from "@/store/ui/useLoading"
@@ -43,7 +43,7 @@ export function FormatImagesForm({ id, title, imgUrl, selectedIndex, onSelect, o
   const pendingUrlsRef = useRef<string[] | null>(null)
   const deleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const snapshotRef = useRef<string[]>([])
-  useAdminPanelDirty(
+  useAdminPanelChanged(
     `edit-product-${id}-images`,
     newImages.length > 0 || deletingUrls.size > 0 || pendingCount > 0 || isLoading,
   )

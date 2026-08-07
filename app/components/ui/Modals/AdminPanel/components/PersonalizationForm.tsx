@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { TMockupRect, TPersonalizationConfig, TPersonalizationDraftState, TProductPersonalization } from "@/ts/product/TPersonalization"
-import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
+import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { formatPrintSize, getAspectCorrectHeightPct, getAspectDrift, MAX_ASPECT_DRIFT } from "@/utils/printMetrics"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
@@ -88,7 +88,7 @@ export function PersonalizationForm({
     (isEnabled || Boolean(personalization?.isEnabled)) && printAreaSignature !== savedPrintAreaSignature
   const isDirty = Boolean(productId) && (enabledStateChanged || enabledConfigChanged)
 
-  useAdminPanelDirty(`edit-product-${productId ?? "new"}-personalization`, isDirty || isUpdatingConfig)
+  useAdminPanelChanged(`edit-product-${productId ?? "new"}-personalization`, isDirty || isUpdatingConfig)
   const currentVerdict: TPrintAreaVerdict = checkedSignature === printAreaSignature ? verdict : "unchecked"
 
   // "Fix the shape" only makes the rectangle the right SHAPE - it says nothing about where it sits, so

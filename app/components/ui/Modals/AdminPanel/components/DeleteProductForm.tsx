@@ -8,7 +8,7 @@ import { MdChecklist, MdClose } from "react-icons/md"
 import { IPendingDeleteProduct } from "@/ts/interfaces/IPendingDeleteProduct"
 import { TAdminProductSort } from "@/ts/types/TAdminProductSort"
 import { TProductDB } from "@/ts/product/TProductDB"
-import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
+import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { AdminPanelProductSearch } from "./AdminPanelProductSearch"
 import { AdminPanelProductSort } from "./AdminPanelProductSort"
 import { OwnerDeleteProduct } from "./OwnerDeleteProduct"
@@ -68,7 +68,7 @@ export function DeleteProductForm({
   const selectedProducts = ownerProducts.filter(product => selectedIds.has(product.id))
   const allSelected = filteredProducts.length > 0 && selectedIds.size === filteredProducts.length
   const someSelected = selectedIds.size > 0 && !allSelected
-  useAdminPanelDirty("delete-product-selection", selectedIds.size > 0)
+  useAdminPanelChanged("delete-product-selection", selectedIds.size > 0)
 
   return (
     <div className="mx-auto flex min-h-full w-full max-w-[1080px] flex-col">

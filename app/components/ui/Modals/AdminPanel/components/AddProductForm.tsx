@@ -18,7 +18,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { readPastedImages, toDataUrl } from "../functions/readPastedImages"
 import { reorderProductImages } from "../functions/reorderProductImages"
 import { showToastWarningFn } from "../functions/showToastWarningFn"
-import { useAdminPanelDirty } from "../AdminPanelDirtyContext"
+import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { useFocusVariantLabelAfterImageAdded } from "../hooks/useFocusVariantLabelAfterImageAdded"
 import { CategoryDropdown } from "./CategoryDropdown"
 import { PersonalizationForm } from "./PersonalizationForm"
@@ -231,7 +231,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     Boolean(personalizationState.draft) ||
     !isVariantImageAttached
 
-  useAdminPanelDirty("add-product-draft", hasDraft)
+  useAdminPanelChanged("add-product-draft", hasDraft)
 
   // Register subTitle manually since it's no longer backed by a ProductInput/textarea
   useEffect(() => {
