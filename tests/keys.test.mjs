@@ -13,7 +13,7 @@ import path from "node:path"
 import { before, describe, it } from "node:test"
 import { fileURLToPath } from "node:url"
 
-import { formatKeyProgressLine, KEY_PROBES, runKeyChecks } from "../app/utils/checkKeys.ts"
+import { formatKeyProgressLine, KEY_PROBES, runKeyChecks } from "../app/utils/checkEnvs.ts"
 
 const REPO_DIRECTORY = path.join(path.dirname(fileURLToPath(import.meta.url)), "..")
 const WHOLE_RUN_TIMEOUT_MS = 120000
@@ -39,20 +39,20 @@ function readNames(fileName, pattern) {
 describe("every name declared in the project is in the registry", () => {
   const registryNames = new Set(KEY_PROBES.map(probe => probe.name))
 
-  it("app/utils/checkKeys.ts lists every name in env.d.ts", () => {
+  it("app/utils/checkEnvs.ts lists every name in env.d.ts", () => {
     const declaredNames = readNames("env.d.ts", DECLARATION_NAME_PATTERN)
     assert.ok(declaredNames, "env.d.ts was not found next to this test")
 
     const missing = [...declaredNames].filter(name => !registryNames.has(name))
-    assert.deepEqual(missing, [], `declared in env.d.ts but missing from app/utils/checkKeys.ts: ${missing.join(", ")}`)
+    assert.deepEqual(missing, [], `declared in env.d.ts but missing from app/utils/checkEnvs.ts: ${missing.join(", ")}`)
   })
 
-  it("app/utils/checkKeys.ts lists every name in .env.example", () => {
+  it("app/utils/checkEnvs.ts lists every name in .env.example", () => {
     const exampleNames = readNames(".env.example", DOTENV_NAME_PATTERN)
     assert.ok(exampleNames, ".env.example was not found next to this test")
 
     const missing = [...exampleNames].filter(name => !registryNames.has(name))
-    assert.deepEqual(missing, [], `declared in .env.example but missing from app/utils/checkKeys.ts: ${missing.join(", ")}`)
+    assert.deepEqual(missing, [], `declared in .env.example but missing from app/utils/checkEnvs.ts: ${missing.join(", ")}`)
   })
 
   it("every registry name is declared in env.d.ts", () => {
@@ -60,7 +60,7 @@ describe("every name declared in the project is in the registry", () => {
     assert.ok(declaredNames, "env.d.ts was not found next to this test")
 
     const undeclared = [...registryNames].filter(name => !declaredNames.has(name))
-    assert.deepEqual(undeclared, [], `in app/utils/checkKeys.ts but never declared in env.d.ts: ${undeclared.join(", ")}`)
+    assert.deepEqual(undeclared, [], `in app/utils/checkEnvs.ts but never declared in env.d.ts: ${undeclared.join(", ")}`)
   })
 })
 

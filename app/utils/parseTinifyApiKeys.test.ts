@@ -4,7 +4,7 @@ import { parseTinifyApiKeys } from "@/utils/parseTinifyApiKeys"
 
 /**
  * This parse used to sit inline in `app/api/tinify/route.ts`. It moved out so the uploader and
- * `app/utils/checkKeys.ts` count the keys the same way, and these cases pin the behaviour it had
+ * `app/utils/checkEnvs.ts` count the keys the same way, and these cases pin the behaviour it had
  * there - both written shapes, and the trimming that decides how many keys the uploader gets.
  */
 describe("parseTinifyApiKeys", () => {

@@ -1082,7 +1082,7 @@ pg_cron 'keys_check'  '0 4 * * *'   (fires daily, the const in code decides)
                           a Telegram message, and an email only if Telegram did not land
 ```
 
-**The schedule is daily on purpose.** `PROD_CHECK_EVERY_DAYS` in `app/utils/checkKeys.ts` is the real
+**The schedule is daily on purpose.** `PROD_CHECK_EVERY_DAYS` in `app/utils/checkEnvs.ts` is the real
 gate, so moving from weekly to daily later is changing `7` to `1` in one TypeScript file — no SQL edit,
 no re-scheduling, and no chance of the cron and the code disagreeing about the cadence.
 

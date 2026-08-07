@@ -1,5 +1,5 @@
 /**
- * What `runKeyChecks` in `app/utils/checkKeys.ts` answers with. The webhook writes this into Redis
+ * What `runKeyChecks` in `app/utils/checkEnvs.ts` answers with. The webhook writes this into Redis
  * under `keys-check:last-report` and compares `failures` against the previous run, so the same
  * broken key stays quiet instead of sending a message every week.
  */

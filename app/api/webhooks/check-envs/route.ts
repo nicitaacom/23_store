@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { timingSafeEqual } from "node:crypto"
 
 import type { TKeyCheckReport } from "@/ts/types/TKeyCheckReport"
-import { daysSince, formatKeyCheckReport, PROD_CHECK_EVERY_DAYS, runKeyChecks, shouldSendKeyAlert } from "@/utils/checkKeys"
+import { daysSince, formatKeyCheckReport, PROD_CHECK_EVERY_DAYS, runKeyChecks, shouldSendKeyAlert } from "@/utils/checkEnvs"
 import {
   getRedisKeysCheckLastAlert,
   getRedisKeysCheckLastRun,

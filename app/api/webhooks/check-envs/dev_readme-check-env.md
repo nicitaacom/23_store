@@ -34,7 +34,7 @@ revoked key answers in under a second; anything sitting at the timeout is the ne
 
 | File | Holds |
 | --- | --- |
-| [app/utils/checkKeys.ts](../../../utils/checkKeys.ts) | the 3 CAPS consts, the registry of 38 names, every probe, `runKeyChecks()` |
+| [app/utils/checkEnvs.ts](../../../utils/checkEnvs.ts) | the 3 CAPS consts, the registry of 38 names, every probe, `runKeyChecks()` |
 | [app/ts/types/TKeyProbe.ts](../../../ts/types/TKeyProbe.ts) | one registry entry |
 | [app/ts/types/TKeyCheckReport.ts](../../../ts/types/TKeyCheckReport.ts) | what a run answers |
 | [app/libs/keysCheckRedis.ts](../../../libs/keysCheckRedis.ts) | the three Upstash keys the prod run remembers |
@@ -42,7 +42,7 @@ revoked key answers in under a second; anything sitting at the timeout is the ne
 | [tests/keys.test.mjs](../../../../tests/keys.test.mjs) | `pnpm test:keys` — one test per name + 3 drift tests |
 | [tests/pushKeyCheck.mjs](../../../../tests/pushKeyCheck.mjs) | what `.githooks/pre-push` runs |
 | [tests/alias-hook.mjs](../../../../tests/alias-hook.mjs) | teaches node the `@/` alias that tsconfig gives TypeScript |
-| [app/utils/checkKeys.test.ts](../../../utils/checkKeys.test.ts) | vitest cases for the quiet rules and presence |
+| [app/utils/checkEnvs.test.ts](../../../utils/checkEnvs.test.ts) | vitest cases for the quiet rules and presence |
 
 ### Types
 
@@ -78,7 +78,7 @@ Upstash (shared by 14/19/23/28/29)
   keys-check:23:last-report            the whole last report, readable without a run
   keys-check:23:last-alert             { names, sentAt } — what was already reported
 
-app/utils/checkKeys.ts
+app/utils/checkEnvs.ts
   PUSH_CHECK_EVERY_DAYS = 3            the pre-push gate
   PROD_CHECK_EVERY_DAYS = 7            the webhook gate
   REALERT_AFTER_DAYS   = 28            how often an unfixed name is repeated
@@ -153,7 +153,7 @@ Supabase pg_cron 'keys_check'  '0 4 * * *'   (daily — the const decides)
 
 ### When it breaks silence
 
-`shouldSendKeyAlert` in `app/utils/checkKeys.ts`:
+`shouldSendKeyAlert` in `app/utils/checkEnvs.ts`:
 
 ```
 failing names            last alert                       →  what happens
@@ -204,13 +204,13 @@ Three files have to agree on which names exist. Each edge is enforced:
         ╱      ╲
        ╱        ╲   eslint local-rules/envs-order
       ╱          ╲
-.env.example ──── the registry in app/utils/checkKeys.ts
+.env.example ──── the registry in app/utils/checkEnvs.ts
              ╲   ╱
               ╲ ╱   the 3 drift tests in tests/keys.test.mjs
 ```
 
 Add a name to `.env.example` and forget the registry → `pnpm test:keys` fails with
-`declared in .env.example but missing from app/utils/checkKeys.ts`. Add it to `env.d.ts` only →
+`declared in .env.example but missing from app/utils/checkEnvs.ts`. Add it to `env.d.ts` only →
 `envs-order` warns. There is no way to add a variable and leave it unchecked.
 
 ## 4. TODO and decisions made AGAINST

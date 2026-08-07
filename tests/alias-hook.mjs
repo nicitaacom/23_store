@@ -2,10 +2,10 @@
  * Teaches node the `@/` alias that `tsconfig.json` gives TypeScript.
  *
  * `node --test` strips types by itself, but it resolves module specifiers the node way, and node has
- * no idea that `@/utils/checkKeys` means `app/utils/checkKeys.ts`. Next.js and tsc read that mapping
+ * no idea that `@/utils/checkEnvs` means `app/utils/checkEnvs.ts`. Next.js and tsc read that mapping
  * from `tsconfig.json`; node reads this file instead, passed with `--import`.
  *
- * The extension is added here too, because a TypeScript source writes `@/utils/checkKeys` while node
+ * The extension is added here too, because a TypeScript source writes `@/utils/checkEnvs` while node
  * asks the filesystem for an exact filename.
  */
 import { existsSync } from "node:fs"

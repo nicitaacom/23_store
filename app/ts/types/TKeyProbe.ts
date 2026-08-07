@@ -1,5 +1,5 @@
 /**
- * One entry in the registry of `app/utils/checkKeys.ts` - one name declared in `env.d.ts`.
+ * One entry in the registry of `app/utils/checkEnvs.ts` - one name declared in `env.d.ts`.
  *
  * `presence` is not a tier: every entry is checked for a present, non-empty value first, and `check`
  * only runs after that passes.

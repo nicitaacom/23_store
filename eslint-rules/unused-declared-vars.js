@@ -59,11 +59,11 @@ const DECLARATION_FILE = "env.d.ts"
 // Files that LIST every variable name by definition, so a mention inside them proves nothing about
 // the variable still being read anywhere real.
 //
-// checkKeys.ts is the key-check registry: it names every declaration on purpose, once in its entry
+// checkEnvs.ts is the key-check registry: it names every declaration on purpose, once in its entry
 // and often again in the comment beside it. Added 2026-08-03 after that file went in and silenced
 // this rule completely - UPSTASH_REDIS_URL is read by no code in 14/19/23, and stopped being
-// reported the moment the registry mentioned it.
-const CATALOGUE_FILES = new Set([DECLARATION_FILE, "checkKeys.ts"])
+// reported the moment the registry mentioned it. Renamed from checkKeys.ts 2026-08-07.
+const CATALOGUE_FILES = new Set([DECLARATION_FILE, "checkEnvs.ts"])
 const EXAMPLE_FILE = ".env.example"
 const IDENTIFIER_PATTERN = /[A-Za-z_$][\w$]*/g
 

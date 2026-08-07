@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
-import { formatKeyProgressLine, PUSH_CHECK_EVERY_DAYS, runKeyChecks } from "../app/utils/checkKeys.ts"
+import { formatKeyProgressLine, PUSH_CHECK_EVERY_DAYS, runKeyChecks } from "../app/utils/checkEnvs.ts"
 
 const REPO_DIRECTORY = path.join(path.dirname(fileURLToPath(import.meta.url)), "..")
 // inside .git, so it needs no .gitignore line and no fresh clone ever inherits a stale one
