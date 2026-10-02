@@ -1,6 +1,6 @@
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 import { NavbarView } from "./NavbarView"
-import { getCookie } from "@/utils/helpersSSR"
+import { getUserAvatarUrl, sanitizeAvatarUrl } from "@/utils/user"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 
 export default async function Navbar() {
@@ -24,18 +24,17 @@ export default async function Navbar() {
     }, 0)
 
   let roles: string[] = []
+  let avatarUrl: string | undefined
   if (user && user.id) {
     const { data: role_rows, error: role_error } = await supabase
       .from("23_users")
-      .select("roles")
+      .select("roles, avatar_url")
       .eq("id", user.id)
       .order("created_at", { ascending: true })
     if (role_error) throw Error(role_error.message)
     roles = role_rows?.[0]?.roles ?? []
+    avatarUrl = sanitizeAvatarUrl(role_rows?.[0]?.avatar_url) || getUserAvatarUrl(user)
   }
-
-  // need to get avatarUrl on server and then pass to client component (because I import cookies from next/headers)
-  const avatarUrl = (await getCookie("avatarUrl")) || undefined
 
   return <NavbarView avatarUrl={avatarUrl} cartQuantity={cart_quantity} roles={roles} user={user} />
 }

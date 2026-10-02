@@ -21,3 +21,10 @@ export function getUserAvatarUrl(user: User | null | undefined) {
 export function getPreferredAvatarUrl(avatarUrlFromDB: string | null | undefined, user: User | null | undefined) {
   return sanitizeAvatarUrl(avatarUrlFromDB) || getUserAvatarUrl(user)
 }
+
+export function getSyncedAvatarUrl(storedAvatarUrls: Array<string | null | undefined>, user: User) {
+  const providerAvatarUrl = getUserAvatarUrl(user)
+  const nonEmptyAvatarUrls = storedAvatarUrls.map(sanitizeAvatarUrl).filter(Boolean)
+  const customAvatarUrl = nonEmptyAvatarUrls.find(avatarUrl => avatarUrl !== providerAvatarUrl)
+  return getPreferredAvatarUrl(customAvatarUrl || nonEmptyAvatarUrls[0], user)
+}

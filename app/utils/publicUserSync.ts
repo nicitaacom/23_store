@@ -1,7 +1,7 @@
 import { User } from "@supabase/supabase-js"
 
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
-import { getPreferredAvatarUrl, getUserName, sanitizeAvatarUrl } from "@/utils/user"
+import { getSyncedAvatarUrl, getUserName } from "@/utils/user"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import { Json } from "@/ts/types_db"
 
@@ -159,8 +159,7 @@ export async function syncPublicUserRecord(user: User, options: SyncPublicUserOp
   const mergedRoles = mergeRoles(rows.map(row => row.roles))
   const mergedUsername = getFirstNonEmptyString([...rows.map(row => row.username), fallbackUsername]) || fallbackUsername
   const mergedEmailConfirmedAt = getFirstNonEmptyString([user.email_confirmed_at, ...rows.map(row => row.email_confirmed_at)]) || null
-  const mergedAvatarUrl =
-    getPreferredAvatarUrl(getFirstNonEmptyString(rows.map(row => sanitizeAvatarUrl(row.avatar_url))), user) || null
+  const mergedAvatarUrl = getSyncedAvatarUrl(rows.map(row => row.avatar_url), user) || null
 
   if (!survivorRow) {
     const { error: insertUserError } = await supabaseAdmin.from("23_users").insert({
