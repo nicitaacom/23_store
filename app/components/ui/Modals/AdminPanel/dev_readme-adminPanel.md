@@ -207,6 +207,11 @@ The Add, Edit, avatar, and support image pickers share the 1MB limit. When an im
 warning shows the filename, pixel dimensions, actual size, and maximum size. PNG files point to
 `https://tinypng.com/`; JPG and other accepted image formats point to `https://tinyjpg.com/`.
 
+The product gallery accepts at most 100 images. `MAX_PRODUCT_IMAGES` in
+`app/constants/uploadLimits.ts` is shared by Add, Edit, paste validation, and the creation helper.
+Stripe's own preview still takes at most eight; the storefront gallery reads all uploaded URLs
+from `23_products.img_url`.
+
 ## 3f. A variant without an image
 
 A variant is real with a **label and a price**. An image is a bonus that turns the selector entry into a
