@@ -225,6 +225,9 @@ Where the owner sets it:
 | Edit tab → `VariantsForm` | the **No image** chip that sits first in each variant's image picker |
 | Manage page | the **No image** button next to "Assign current image" |
 
+In Edit, the selected image has a solid success border, a two-pixel outer ring, a corner check,
+and `aria-pressed=true` so it stays distinguishable from the other thumbnails.
+
 What is stored and what is shown:
 
 ```

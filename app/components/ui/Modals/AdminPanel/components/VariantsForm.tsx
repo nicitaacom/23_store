@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react"
 import Image from "next/image"
-import { BiPlus, BiTrash } from "react-icons/bi"
+import { BiCheck, BiPlus, BiTrash } from "react-icons/bi"
 import { FiSave } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
@@ -45,7 +45,7 @@ function toDrafts(variants: TProductVariant[] | null): VariantDraft[] {
   }))
 }
 
-// Stable string used to detect "dirty" drafts vs what is persisted
+// Stable string used to detect draft changes against the stored variants
 function signature(drafts: VariantDraft[]) {
   return JSON.stringify(
     drafts.map(draft => ({
@@ -68,8 +68,8 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
   const [drafts, setDrafts] = useState<VariantDraft[]>(() => toDrafts(variants))
 
   const persistedSignature = useMemo(() => signature(toDrafts(variants)), [variants])
-  const isDirty = signature(drafts) !== persistedSignature
-  useAdminPanelChanged(`edit-product-${id}-variants`, isDirty || isLoading)
+  const hasVariantChanges = signature(drafts) !== persistedSignature
+  useAdminPanelChanged(`edit-product-${id}-variants`, hasVariantChanges || isLoading)
 
   // 1. Per-field draft mutations
   const updateDraft = useCallback((variantId: string, patch: Partial<VariantDraft>) => {
@@ -230,14 +230,22 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                         <button
                           className={twMerge(
                             "relative h-12 w-12 shrink-0 overflow-hidden rounded border transition-colors duration-150",
-                            isActive ? "border-brand/60 ring-1 ring-brand/40" : "border-border-color/30 hover:border-brand/40",
+                            isActive
+                              ? "border-success ring-2 ring-success ring-offset-2 ring-offset-background"
+                              : "border-border-color/30 hover:border-success/60",
                           )}
                           key={`${url}-${index}`}
                           type="button"
                           tabIndex={-1}
+                          aria-pressed={isActive}
                           onClick={() => updateDraft(draft.id, { image_url: url })}
                           disabled={isLoading}>
                           <Image className="object-cover" src={url} alt={`variant-image-${index + 1}`} fill sizes="48px" />
+                          {isActive && (
+                            <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-tl bg-success text-background">
+                              <BiCheck size={14} />
+                            </span>
+                          )}
                         </button>
                       )
                     })}
@@ -253,7 +261,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
         </div>
       )}
 
-      {isDirty && (
+      {hasVariantChanges && (
         <Button
           className="self-end font-medium"
           type="button"
