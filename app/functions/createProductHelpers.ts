@@ -3,6 +3,7 @@ import { ImageListType } from "react-images-uploading"
 import { TPersonalizationDraft, TProductPersonalization } from "@/ts/product/TPersonalization"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
+import { mapWithConcurrency } from "./mapWithConcurrency"
 import { uploadImageFn } from "./uploadImageFn"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
@@ -10,8 +11,8 @@ import { slugify, slugifyEmail } from "@/utils/slugify"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import useUser from "@/store/user/useUser"
 import { DEFAULT_MIN_DPI } from "@/utils/printMetrics"
+import { MAX_CONCURRENT_PRODUCT_IMAGE_REQUESTS, MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 import { MAX_PRODUCT_DESCRIPTION_LENGTH, MAX_PRODUCT_TITLE_LENGTH, MIN_PRODUCT_TITLE_LENGTH } from "@/constants/productLimits"
-import { MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 import {
   PRODUCT_DESCRIPTION_INVALID_CHARACTER_REGEX,
   PRODUCT_DESCRIPTION_PATTERN,
@@ -130,18 +131,13 @@ export async function resolveSourceProductImages(images: ImageListType | undefin
 }
 
 export async function tinifyProductImages(imageFiles: File[]) {
-  const compressionResults = await Promise.allSettled(imageFiles.map(imageFile => compressImageWithTinify(imageFile)))
-  const compressionErrors = compressionResults
-    .filter((result): result is PromiseRejectedResult => result.status === "rejected")
-    .map(result => (result.reason instanceof Error ? result.reason.message : String(result.reason)))
-
-  if (compressionErrors.length > 0) {
-    throw new Error(`Tinify failed: ${compressionErrors.join(", ")}`)
-  }
-
-  return compressionResults
-    .filter((result): result is PromiseFulfilledResult<File> => result.status === "fulfilled")
-    .map(result => result.value)
+  return mapWithConcurrency(imageFiles, MAX_CONCURRENT_PRODUCT_IMAGE_REQUESTS, async (imageFile, index) => {
+    try {
+      return await compressImageWithTinify(imageFile)
+    } catch (error) {
+      throw new Error(`Image ${index + 1}: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  })
 }
 
 const PRODUCT_IMAGES_BUCKET = "23_product-images"
@@ -181,8 +177,10 @@ export async function uploadProductImages(imageFiles: File[], t: TI18nFunction, 
   const titleSlug = slugify(title) || "product"
   const highestExistingIndex = await resolveHighestProductImageIndex(uploadFolder)
 
-  const uploadResults = await Promise.all(
-    imageFiles.map(async (imageFile, index) => {
+  const uploadResults = await mapWithConcurrency(
+    imageFiles,
+    MAX_CONCURRENT_PRODUCT_IMAGE_REQUESTS,
+    async (imageFile, index) => {
       const fileExtension = getFileExtensionFromContentType(imageFile.type, imageFile.name)
       const response = await uploadImageFn({
         t,
@@ -198,7 +196,7 @@ export async function uploadProductImages(imageFiles: File[], t: TI18nFunction, 
       }
 
       return response.publicUrl
-    }),
+    },
   )
 
   if (!uploadResults.length) {

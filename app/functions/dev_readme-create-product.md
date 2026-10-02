@@ -46,7 +46,7 @@ Product image → its path:
 | Layer                                              | What it holds                                                                                             | Why here                                                                     |
 | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | `react-images-uploading` (local state)             | Raw `File` objects + `data_url` previews before upload                                                    | Never leaves the browser; discarded after upload                             |
-| Supabase Storage `23_public-images` bucket         | Compressed product images (public URLs)                                                                   | Permanent, CDN-served, referenced by DB rows                                 |
+| Supabase Storage `23_product-images` bucket        | Compressed product images (public URLs)                                                                   | Permanent, CDN-served, referenced by DB rows                                 |
 | Supabase DB `23_products`                          | Product row: `id`, `price_id`, `owner_id`, `translations`, `price`, `on_stock`, `img_url[]`, `variants[]` | Source of truth for the storefront                                           |
 | Stripe                                             | Product + Price objects                                                                                   | Required for checkout; `id`/`price_id` from Stripe become the DB primary key |
 | Zustand `ownerProductsStore`                       | Owner's products list in memory                                                                           | Drives the Admin Panel edit/delete UI without re-fetching on every action    |
@@ -109,7 +109,7 @@ index.mjs                       <- AWS Lambda handler (lives outside this repo i
 | **Pending created product** | Entry in `pendingCreatedProductsRef` (a ref array in `AddProductForm`) that maps an optimistic ID to the real owner/title/price so Pusher can match and replace it.                                                 |
 | **Raw translations**        | All 4 locales set to the same source text (`createRawProductTranslations`). Shown until Lambda finishes.                                                                                                            |
 | **Lambda translate**        | AWS Lambda `23-ai-translate` (`index.mjs`): calls OpenAI, upserts translated row into `23_products`, fires `product:created` on Pusher.                                                                             |
-| **Tinify**                  | Image compression via `/api/products/compress`. Runs before upload to keep Storage lean.                                                                                                                            |
+| **Tinify**                  | Image compression via `/api/tinify`. Runs before upload to keep Storage lean.                                                                                                                            |
 | **Variant**                 | A selectable option on a product (e.g. colour, size). Each variant stores its own `image_url` — a snapshot of one `img_url` entry at creation time. If images are later re-uploaded, variant URLs must be remapped. |
 
 ---
@@ -120,63 +120,61 @@ index.mjs                       <- AWS Lambda handler (lives outside this repo i
 AddProductForm (browser)
 app/components/ui/Modals/AdminPanel/components/AddProductForm.tsx
 
-User fills: title, description, images (ImageListType), variants, on_stock
+User fills: title, description, up to 100 images (ImageListType), variants with their own stock
 -> clicks "Create product"
--> calls createProductFn(t, input)    app/functions/createProductFn.tsx
+-> adds an optimistic card, clears the form, calls createProductFn(tGlobal, input) in the background
 
 
 STEP 1 — resolve source images
   resolveSourceProductImages(images)  app/functions/createProductHelpers.ts
   - extracts File[] from ImageListType
-  - throws if 0 images or > MAX_PRODUCT_IMAGES
+  - throws if 0 images or > MAX_PRODUCT_IMAGES (100 in app/constants/uploadLimits.ts)
 
 
 STEP 2 — Tinify compression
   tinifyProductImages(sourceImageFiles)   app/functions/createProductHelpers.ts
   - calls compressImageWithTinify() per file
-      POST /api/products/compress         app/api/products/compress/route.ts
+      POST /api/tinify                    app/api/tinify/route.ts
       -> Tinify API compresses the image
-      -> returns compressed Blob + content-type
+      -> returns compressed bytes + content-type
       -> reconstructs File with correct extension from content-type
-  - all compressions run in parallel (Promise.allSettled)
-  - throws on any failure — no partial uploads allowed
+  - at most four compressions run at once; output order matches input order
+  - stops starting more requests after the first failure and reports that image once
 
 
-STEP 3 — upload to Supabase Storage
-  uploadProductImages(tinifiedFiles, t)   app/functions/createProductHelpers.ts
-  - folder:   user.id (or anonymousId as fallback)
-  - filename: {uploadBatchId}_{index+1}
-  - bucket:   23_public-images (public CDN)
-  - upsert:   true (safe to retry)
-  - all uploads run in parallel (Promise.all)
-  - returns string[] of public CDN URLs
-
-
-STEP 4 — resolve variants
-  resolveUploadedProductVariants(variants, urls)  app/functions/createProductHelpers.ts
-  - maps variant.imageIndex -> uploadedImageUrls[imageIndex]
-  - filters out: empty label / zero price / missing image
-  - trims to MAX_PRODUCT_VARIANTS
-
-
-STEP 5 — resolve price
+STEP 3 — resolve price
   resolveProductPrice(title, desc, price, variants)  app/functions/createProductHelpers.ts
   priority:
     1. explicit price from form (if > 0)
     2. variants[0].price (if valid number > 0)
-    3. GET /api/products/suggested-price  (DB lookup by title similarity)
+    3. POST /api/fetch-prices
     4. AI prompt to OpenAI -> parse number from text response
     5. hardcoded fallback: 4.99
 
 
-STEP 6 — create Stripe product + price
-  createStripeProduct(title, desc, price, urls, t)  app/functions/createProductHelpers.ts
+STEP 4 — create Stripe product + price
+  createStripeProduct(title, desc, price, tGlobal)  app/functions/createProductHelpers.ts
   - validates title/description with regex (length, characters, must start alphanumeric)
-  - POST /api/add-product                           app/api/add-product/route.ts
-      -> stripe.products.create({ name, description, images })
+  - POST /api/products/add                          app/api/products/add/route.ts
+      -> stripe.products.create({ name, description })
       -> stripe.prices.create({ product, unit_amount: price*100, currency: "usd" })
   - returns { productId, priceId }
-    these two IDs become the composite primary key in 23_products
+    productId names the product's Storage folder and DB row
+
+
+STEP 5 — upload to Supabase Storage
+  uploadProductImages(tinifiedFiles, tGlobal, productId, title)
+  - folder:   slugifyEmail(ownerEmail)/productId
+  - filename: slug(title)-{index}.ext
+  - bucket:   23_product-images (public CDN)
+  - upsert:   true
+  - at most four uploads run at once; URLs keep the image order
+  - returns string[] of public CDN URLs
+
+
+STEP 6 — resolve variants and personalization
+  - variant.imageIndex maps to uploadedImageUrls[imageIndex]; -1 means no variant image
+  - only variants with a label and positive price are kept, up to MAX_PRODUCT_VARIANTS
 
 
 STEP 7 — insert into Supabase + invoke Lambda
@@ -207,11 +205,14 @@ STEP 7 — insert into Supabase + invoke Lambda
           -> success:       returns { status: "invoked", statusCode, executedVersion }
 
 
+STEP 8 — update Stripe's image preview (at most eight images)
+  - a failure here is logged; the DB product and storefront images remain available
+
 createProductFn returns TProductDB (with raw translations)
 AddProductForm:
-  - adds optimistic product to ownerProductsStore (user sees it instantly)
-  - registers in pendingCreatedProductsRef { optimisticId -> { owner_id, title, price } }
-  - clears the form — user can create another product immediately
+  - already added the optimistic product before calling createProductFn
+  - replaces it when the background response arrives
+  - restores the form if creation fails
 
 
   ============================================================
@@ -250,6 +251,20 @@ app/components/ui/Modals/AdminPanel/hooks/useSubscribeToProductCreated.ts
 ```
 
 ---
+
+## 4a. Failure messages
+
+`createProductFn.tsx` records the current step. When a browser request receives no response, it
+shows that step once and tells the owner to reconnect or retry, then to check the product list
+before creating a duplicate. `navigator.onLine === false` confirms the device reports offline;
+`navigator.onLine === true` does not prove the server responded, so the message names both the
+connection and service as possibilities. A server response with an error keeps its specific
+message. `tinifyProductImages()` reports the first failed image once instead of repeating the
+same fetch error for every image in the batch. `mapWithConcurrency()` bounds compression and
+Storage uploads to four requests and stops starting new ones after a failure.
+
+The `eslint-rules/no-vague-error-msg.js` rule only sees static strings. Runtime errors need this
+step-specific handling in addition to lint checks.
 
 ## 5. Reproduction steps
 

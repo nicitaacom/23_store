@@ -1,5 +1,6 @@
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { TProductDB } from "@/ts/product/TProductDB"
+import { describeProductCreationError } from "./describeProductCreationError"
 import {
   TCreateProductFnInput,
   createStripeProduct,
@@ -43,11 +44,16 @@ export async function createProductFn(t: TI18nFunction, input: TCreateProductFnI
     setIsLoading(true)
   }
 
+  let currentStage = "checking product images"
   try {
     const sourceImageFiles = await resolveSourceProductImages(images)
+    currentStage = "compressing product images"
     const tinifiedImageFiles = await tinifyProductImages(sourceImageFiles)
+    currentStage = "checking the product price"
     const resolvedPrice = await resolveProductPrice(title, description, price, variants)
+    currentStage = "creating the product listing"
     const createStripeProductResp = await createStripeProduct(title, description, resolvedPrice, t)
+    currentStage = "uploading product images"
     const uploadedImageUrls = normalizeProductImageUrls(
       await uploadProductImages(tinifiedImageFiles, t, createStripeProductResp.productId, title),
     )
@@ -60,6 +66,7 @@ export async function createProductFn(t: TI18nFunction, input: TCreateProductFnI
     const resolvedPersonalization = resolveUploadedPersonalization(personalization, uploadedImageUrls)
     const userId = getUserId()
 
+    currentStage = "publishing the product"
     const createProductResponse = await productsSDK.translateAndInsertInDB({
       id: createStripeProductResp.productId,
       price_id: createStripeProductResp.priceId,
@@ -99,8 +106,8 @@ export async function createProductFn(t: TI18nFunction, input: TCreateProductFnI
     } as TProductDB
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error("createProductFn error:", errorMessage)
-    throw new Error(errorMessage)
+    console.error("createProductFn error:", { currentStage, errorMessage })
+    throw new Error(describeProductCreationError(error, currentStage, typeof navigator === "undefined" || navigator.onLine))
   } finally {
     if (manageLoading) {
       setIsLoading(false)
