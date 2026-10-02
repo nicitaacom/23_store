@@ -9,7 +9,6 @@ export async function GET(request: Request) {
   // get data about code to exchange this code to cookies session
   const url = new URL(request.url)
   const code = url.searchParams.get("code")
-  const origin = process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_PRODUCTION_URL?.replace(/\/$/, "") : url.origin
 
   // get data about provider to save it in DB to throw error like
   // 'You already have signed in account with google - continue with google?'
@@ -73,7 +72,7 @@ export async function GET(request: Request) {
         avatarUrlFound: Boolean(syncedUser.avatarUrl),
       })
 
-      const redirectResponse = NextResponse.redirect(origin)
+      const redirectResponse = NextResponse.redirect(redirectUrl)
 
       if (syncedUser.avatarUrl) redirectResponse.cookies.set("avatarUrl", syncedUser.avatarUrl, { path: "/" })
       else redirectResponse.cookies.delete("avatarUrl")

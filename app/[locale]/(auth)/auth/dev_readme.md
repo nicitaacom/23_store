@@ -29,7 +29,7 @@ In this route I:
    to show more relevant error like 'You already have account with this email - login with `google` or `twitter`'
 5. Replace avatar url if user have no avatar
    For case when user login with credentials - logout - login with google
-6. Set avatarUrl cookie on server and redirect to `location.origin`
+6. Set avatarUrl cookie on server and redirect to the localized home URL from `getLocalizedAppUrl()`
 
 This route required for case when user click 'continue with google' or 'continue with twitter' button
 
