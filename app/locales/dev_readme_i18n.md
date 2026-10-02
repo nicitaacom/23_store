@@ -27,6 +27,7 @@ encodes that same decision so it survives future refactors instead of relying on
 - `app/locales/config.ts` - the 4 locale loaders (`en`, `fi`, `ru`, `se`)
 - `app/locales/client.ts` - `useI18n`, `useScopedI18n`, `I18nProviderClient`, `useChangeLocale`, `useCurrentLocale` (client components)
 - `app/locales/server.ts` - `getI18n`, `getScopedI18n`, `getCurrentLocale`, `getStaticParams` (server components / route handlers)
+- Each file calls its `createI18nClient` or `createI18nServer` factory once and exports all hooks from that instance. Keep the hooks and provider together when adding an export.
 - `app/[locale]/` - every route lives under this dynamic segment
 - `proxy.ts` (Next's renamed `middleware.ts`) - runs `createI18nMiddleware` first, then auth/rate-limit/role checks; default locale is hardcoded to `fi` (`resolveLocaleFromRequest: () => "fi"`, browser language is ignored on purpose), `urlMappingStrategy: "rewrite"`
 - Picking a language: `LanguageDropdown.tsx` calls `useChangeLocale()` (next-international's own hook), which pushes a locale-prefixed URL - `proxy.ts`'s `addLocaleToResponse` sets the `Next-Locale` cookie from that URL. There is no hand-written `document.cookie` write anymore (a previous hand-rolled version raced against Next's background prefetching and got silently reverted - see `plans/plan-01-language-switcher.md` if that pattern ever reappears, don't repeat it).
