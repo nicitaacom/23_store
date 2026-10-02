@@ -78,6 +78,9 @@ notifications, not buyer-facing), `CategoriesForm.tsx` / `FormatImagesForm.tsx` 
   anymore (that broke once Prettier started wrapping long values differently per language). What must
   still match is the **key set** - run `grep -oE '"[a-z_]+\.[a-z_.]+":' app/locales/en.ts | sort -u` against
   the other 3 files and diff.
+- **Product processing counts** - `getProductProcessingPluralForm()` uses `Intl.PluralRules` for the
+  active locale (`se` maps to the Swedish language tag `sv`). Russian uses one/few/other forms,
+  including 21, 22, and 25. Keep all three `product.*_processing` keys in all four locale files.
 - **Technical / non-linguistic content** - brand names (`PayPal`, `Stripe`, `Klarna`, `Telegram`, `Jotion`),
   international units (`DPI`), keyboard-shortcut glyphs (`⌘`, `K`), and format examples (`ORD-123456`,
   `example@gmail.com`) don't get a locale key. Either express them as a JS string literal

@@ -31,6 +31,7 @@ import { createProductFn } from "@/functions/createProductFn"
 import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils/product"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
+import { getProductProcessingPluralForm } from "@/utils/getProductProcessingPluralForm"
 import { getUserId } from "@/utils/getUserId"
 import { resolveUploadedPersonalization } from "@/functions/createProductHelpers"
 import { useCategories } from "@/store/categories/useCategories"
@@ -212,7 +213,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     control,
     setValue,
     trigger,
-    formState: { errors, isDirty: isFormDirty },
+    formState: { errors, isDirty: hasFormChanges },
   } = useForm<IFormDataAddProduct>({
     defaultValues: EMPTY_PRODUCT_FORM_VALUES,
     mode: "onSubmit",
@@ -222,7 +223,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const titleValue = useWatch({ control, name: "title" })
   const descriptionValue = useWatch({ control, name: "subTitle" })
   const hasDraft =
-    isFormDirty ||
+    hasFormChanges ||
     images.length > 0 ||
     variants.length > 0 ||
     Boolean(variantLabelValue || variantPriceValue || variantQuantityValue) ||
@@ -269,10 +270,13 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       return
     }
 
+    const pluralForm = getProductProcessingPluralForm(nextPendingTranslationsAmount, locale)
     const pendingProductsLabel =
-      nextPendingTranslationsAmount === 1
-        ? t("one_product_processing")
-        : t("products_processing", { count: nextPendingTranslationsAmount })
+      pluralForm === "one"
+        ? t("one_product_processing", { count: nextPendingTranslationsAmount })
+        : pluralForm === "few"
+          ? t("few_products_processing", { count: nextPendingTranslationsAmount })
+          : t("products_processing", { count: nextPendingTranslationsAmount })
 
     showToast("success", t("creating_translating"), `${pendingProductsLabel} ${t("create_another_meanwhile")}`, null)
   }
