@@ -167,6 +167,8 @@ export default {
   "auth.recovery.change_email": "Сменить email",
   "auth.already_authenticated": "Вы уже авторизованы",
   "auth.already_authenticated_subtitle": "Если хотите войти в другой аккаунт — выйдите и войдите снова",
+  "auth.logout_failed_title": "Не удалось выйти",
+  "auth.logout_failed_body": "Сеанс всё ещё активен. Попробуйте ещё раз или обратитесь в поддержку.",
 
   // =================        =================
   //                   MODALS

@@ -1,7 +1,6 @@
-## Usage for useAvatarDropdownClose.ts
+## Avatar dropdown close behavior
 
-For avatar dropdown you see in top right corner (in navbar)
-this hook used for:
+`AvatarDropdown.tsx` owns its open state and uses `useOnEscOrClickOutside` to close on:
 
 1. Handling `click outside` dropdown event (if click outside dropdown - close dropdown)
 2. Handling `esc` press (if click on 'esc' key - close dropdown)

@@ -3,7 +3,6 @@ import { useAnonCategoryViewsStore } from "@/store/categories/useAnonCategoryVie
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
 import { useAreYouSureDeleteProductModal } from "@/store/ui/areYouSureDeleteProductModal"
 import { useAreYouSureMarkTicketAsCompletedSupportModal } from "@/store/ui/areYouSureMarkTicketAsCompletedSupportModal"
-import { useAvatarDropdown } from "@/store/ui/useAvatarDropdown"
 import useCartStore from "@/store/user/cartStore"
 import { useCategoryPreferences } from "@/store/categories/useCategoryPreferences"
 import { useContactDropdown } from "@/store/ui/useContactDropdown"
@@ -36,7 +35,6 @@ const storybookStores = [
   useAreYouSureClearCartModal,
   useAreYouSureDeleteProductModal,
   useAreYouSureMarkTicketAsCompletedSupportModal,
-  useAvatarDropdown,
   useContactDropdown,
   useCtrlKModal,
   useDarkModeStore,

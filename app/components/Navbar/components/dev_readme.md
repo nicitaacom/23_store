@@ -63,7 +63,7 @@ Small contact dropdown.
 
 Logged-in user menu.
 
-- shows avatar from cookie, server prop or user store
+- shows the saved account avatar from the server prop or a just-updated client value
 - opens `AdminPanel` with query params
 - opens update-avatar modal from zustand
 - exposes support links / stats for support role
@@ -77,7 +77,10 @@ Logout action extracted into a separate item.
 
 - signs out with Supabase client
 - clears user zustand store
-- calls `router.refresh()` so server-rendered UI updates immediately
+- navigates to the locale's home page after a successful sign out, which refreshes server auth state
+
+See [dev_readme-navbar-auth.md](dev_readme-navbar-auth.md) and [dev_readme-avatar.md](dev_readme-avatar.md)
+for the account state and avatar paths.
 
 ### `HamburgerMenu.tsx`
 

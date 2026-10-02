@@ -167,6 +167,8 @@ export default {
   "auth.recovery.change_email": "Ändra email",
   "auth.already_authenticated": "Redan autentiserad",
   "auth.already_authenticated_subtitle": "Om du vill logga in på ett annat konto, logga ut och logga sedan in igen",
+  "auth.logout_failed_title": "Utloggningen misslyckades",
+  "auth.logout_failed_body": "Din session är fortfarande aktiv. Försök igen eller kontakta supporten.",
 
   // =================        =================
   //                   MODALS

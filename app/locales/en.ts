@@ -167,6 +167,8 @@ export default {
   "auth.recovery.change_email": "Change email",
   "auth.already_authenticated": "Already authenticated",
   "auth.already_authenticated_subtitle": "If you want to login to another account - logout - then login into another one",
+  "auth.logout_failed_title": "Sign out failed",
+  "auth.logout_failed_body": "Your session is still active. Please try again or contact support.",
 
   // =================        =================
   //                   MODALS

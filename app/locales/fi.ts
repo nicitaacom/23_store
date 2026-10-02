@@ -167,6 +167,8 @@ export default {
   "auth.recovery.change_email": "Vaihda sähköposti",
   "auth.already_authenticated": "Olet jo kirjautunut",
   "auth.already_authenticated_subtitle": "Jos haluat kirjautua toiselle tilille, kirjaudu ulos ja kirjaudu sitten toiseen",
+  "auth.logout_failed_title": "Uloskirjautuminen epäonnistui",
+  "auth.logout_failed_body": "Istuntosi on edelleen aktiivinen. Yritä uudelleen tai ota yhteyttä tukeen.",
 
   // =================        =================
   //                   MODALS

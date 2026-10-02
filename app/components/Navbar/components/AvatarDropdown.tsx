@@ -9,7 +9,7 @@ import { IoIosStats } from "react-icons/io"
 import { FaTelegramPlane } from "react-icons/fa"
 
 import { LogoutDropdownItem } from "./LogoutDropdownItem"
-import { getCookie } from "@/utils/helpersCSR"
+import { OpenAuthModalButton } from "./OpenAuthModalButton"
 import { getUserAvatarUrl, getUserName } from "@/utils/user"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
@@ -25,7 +25,7 @@ interface AvatarDropdownProps {
 }
 
 function getSafeAvatarUrl(clientAvatarUrl: string, avatarUrlClient: string, avatarUrlServer: string | undefined) {
-  const avatarUrl = clientAvatarUrl || getCookie("avatarUrl")?.trim() || avatarUrlServer?.trim() || avatarUrlClient || ""
+  const avatarUrl = clientAvatarUrl || avatarUrlServer?.trim() || avatarUrlClient || ""
   return avatarUrl || "/placeholder.jpg"
 }
 
@@ -75,9 +75,11 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
   }
 
   function openUpdateAvatarModal() {
-    updateAvatarModal.openModal(getCookie("avatarUrl")?.trim() || avatarUrlServer?.trim() || getUserAvatarUrl(user))
+    updateAvatarModal.openModal(clientAvatarUrl || avatarUrlServer?.trim() || getUserAvatarUrl(user))
     closeDropdown()
   }
+
+  if (!user) return <OpenAuthModalButton />
 
   return (
     <DropdownContainer

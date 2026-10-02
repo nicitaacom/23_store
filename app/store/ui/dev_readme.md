@@ -27,10 +27,11 @@ I know the name is long - it exactly describe the purpose of this file
 I use this store in `AreYouSureMarkTicketAsCompletedSupportModal.tsx` and in `MarkTicketAsCompletedSupport.tsx`
 `MarkTicketAsCompletedSupport.tsx` - its icon support click to mark ticket as completed
 
-## Usage for avatarDropdown.ts
+## Avatar dropdown
 
-I use this global store to open/close/toggle avarar dropdown that you see in top right corner
-This comes with hook `useAvatarDropdownClose.ts`
+The navbar's avatar menu uses local state in `app/components/Navbar/components/AvatarDropdown.tsx`.
+The old `useAvatarDropdown` store was unused and was removed. See
+`app/components/Navbar/components/dev_readme-auth-avatar.md` for logout, roles, and avatar data.
 
 ## Usage for contactDropdown.ts
 
