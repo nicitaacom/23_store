@@ -46,7 +46,7 @@ export function generateStaticParams(): { ticketId: string }[] {
 export async function generateMetadata({ params: paramsPromise }: ChatPageProps): Promise<Metadata> {
   const { ticketId } = await paramsPromise
   const getInitialMessagesByTicketIdResp = await getInitialMessagesByTicketId(ticketId)
-  const firstMessage = getInitialMessagesByTicketIdCacheResp[0]
+  const firstMessage = getInitialMessagesByTicketIdResp[0]
 
   if (!firstMessage?.sender_username) {
     return {
@@ -76,7 +76,7 @@ export default async function ChatPage({ params: paramsPromise }: ChatPageProps)
   const { ticketId } = await paramsPromise
   const getInitialMessagesByTicketIdResp = await getInitialMessagesByTicketId(ticketId)
   const getTicketMetaResp = await getTicketMeta(ticketId)
-  const firstMessage = getInitialMessagesByTicketIdCacheResp[0]
+  const firstMessage = getInitialMessagesByTicketIdResp[0]
 
   if (!getInitialMessagesByTicketIdResp || !getTicketMetaResp?.is_open) {
     return <ThisTicketIsCompleted ticketId={ticketId} />
