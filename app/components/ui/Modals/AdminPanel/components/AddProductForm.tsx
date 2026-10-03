@@ -967,18 +967,22 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
         {/* Description */}
         <div className="grid gap-1.5">
-          <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">{t("description")}</label>
-          <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
-          <MarkdownEditor
-            className={twMerge(inputCn, "min-h-[100px]")}
-            ref={descriptionRef}
-            onWrapRef={wrapRef}
-            value={descriptionValue ?? ""}
-            onChange={nextValue => setValue("subTitle", nextValue, { shouldValidate: false })}
-            onBlur={() => void trigger("subTitle")}
-            disabled={isLoading}
-            placeholder={t("placeholder.description")}
-          />
+          <div className="grid gap-0.5">
+            <div className="flex items-center gap-2">
+              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">{t("description")}</label>
+              <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
+            </div>
+            <MarkdownEditor
+              className={twMerge(inputCn, "min-h-[100px]")}
+              ref={descriptionRef}
+              onWrapRef={wrapRef}
+              value={descriptionValue ?? ""}
+              onChange={nextValue => setValue("subTitle", nextValue, { shouldValidate: false })}
+              onBlur={() => void trigger("subTitle")}
+              disabled={isLoading}
+              placeholder={t("placeholder.description")}
+            />
+          </div>
           {errors.subTitle?.message && <p className="font-secondary text-danger text-xs">{errors.subTitle.message as string}</p>}
         </div>
 

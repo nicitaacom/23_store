@@ -12,6 +12,10 @@ A WYSIWYG rich-text editor for product descriptions. The old `contentEditable` a
 - Toolbar (B / I / U buttons) — [app/components/ui/Modals/AdminPanel/components/RichTextToolbar.tsx](../Modals/AdminPanel/components/RichTextToolbar.tsx)
 - Conversion utils — [app/utils/markdownTiptap.ts](../../../utils/markdownTiptap.ts)
 
+In the add-product form, the description label and 24px toolbar buttons share a row directly
+above the editor. Keep only a 2px gap between that row and the editor border. The edit-product
+form uses the same compact toolbar beside its Save / Cancel buttons.
+
 ### 1.2 Types
 
 ```ts
