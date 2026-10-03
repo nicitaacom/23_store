@@ -29,6 +29,14 @@ The application must provide these values in `.env.local`:
 
 The service-role key is read only by Cypress's Node process. Browser test code does not receive it. Fixture products use the `cypress-e2e-` prefix, and test setup removes only rows with that prefix.
 
+`prepareFixtures` in `cypress.config.ts` creates or refreshes the confirmed
+`cypress-owner@joki.example` and `cypress-other@joki.example` accounts. Their
+password is the `TEST_PASSWORD` constant in that file. Use the owner account in
+the local Sign In modal to inspect authenticated customer and owner flows. The
+fixture also clears `password_reset_required` after setting the test password,
+so an account restored from a database backup can sign in. These accounts are
+test data; do not reuse them for a real customer.
+
 GitHub Actions runs `.github/scripts/check-ci-supabase.mjs` before installing browsers. It checks
 the five tables the fixtures use. If `public.23_users` is missing from the schema cache, check the
 Actions Supabase URL and service-role key: they must point to the database that has the store tables.

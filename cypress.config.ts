@@ -123,6 +123,7 @@ async function ensureAccount(account: (typeof accounts)[keyof typeof accounts]) 
     email_confirmed_at: confirmedAt,
     providers: ["credentials"],
     roles: account.roles,
+    password_reset_required: false,
   })
   if (publicUserError) throw publicUserError
 
