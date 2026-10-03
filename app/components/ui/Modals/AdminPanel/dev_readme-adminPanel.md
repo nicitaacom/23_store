@@ -31,9 +31,11 @@ fixed — see [VariantsForm.tsx](components/VariantsForm.tsx) and the per-varian
 Edit and Delete share `TAdminProductSort`. Products without a real image always lead; the selected
 secondary order is created date, base price, or the visible localized name.
 
-`AdminPanelDirtyContext` collects drafts from every tab. `ModalQueryContainer.onCloseRequest` routes X,
-outside click, and Escape through the same discard dialog; the AdminPanel also covers tab changes,
-links, Back, and browser `beforeunload`.
+`AdminPanelDirtyContext` collects drafts from every tab. `ModalQueryContainer.onCloseRequest` routes
+the X button and Escape through the discard dialog; the AdminPanel also covers tab changes, links,
+Back, and browser `beforeunload`. Outside clicks are ignored for this workspace, including clicks
+around the image upload control and warning toast. Closing removes only its `modal` query value
+through the App Router, keeping the URL and visible modal in sync while preserving catalog filters.
 
 Submitting **Create product** scrolls the Add tab's details pane back to the top. A successful submit
 therefore opens the cleared form at its title field, while a rejected submit exposes its topmost errors.

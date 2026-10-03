@@ -38,7 +38,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
   const [panelAction, setPanelAction] = useState<TPanelAction>(PANEL_ACTIONS.add)
   const [productSort, setProductSort] = useState<TAdminProductSort>(ADMIN_PRODUCT_SORTS.createdDesc)
   const [pendingDeleteProduct, setPendingDeleteProduct] = useState<IPendingDeleteProduct | IPendingDeleteProduct[] | null>(null)
-  const [changedSections, setDirtySections] = useState<Record<string, boolean>>({})
+  const [changedSections, setChangedSections] = useState<Record<string, boolean>>({})
   const [pendingDiscardAction, setPendingDiscardAction] = useState<(() => void) | null>(null)
   const hasUnsavedChangesRef = useRef(false)
   const requestGuardedActionRef = useRef<(action: () => void) => void>(() => {})
@@ -48,10 +48,10 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
   const { isLoading } = useLoading()
   const hasUnsavedChanges = Object.values(changedSections).some(Boolean)
 
-  const setSectionHasChanges = useCallback((section: string, isDirty: boolean) => {
-    setDirtySections(currentSections => {
-      if (currentSections[section] === isDirty) return currentSections
-      if (!isDirty) {
+  const setSectionHasChanges = useCallback((section: string, hasChanges: boolean) => {
+    setChangedSections(currentSections => {
+      if (currentSections[section] === hasChanges) return currentSections
+      if (!hasChanges) {
         const nextSections = { ...currentSections }
         delete nextSections[section]
         return nextSections
@@ -94,7 +94,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
   const handleDiscard = useCallback(() => {
     const action = pendingDiscardAction
     hasUnsavedChangesRef.current = false
-    setDirtySections({})
+    setChangedSections({})
     setPendingDiscardAction(null)
 
     if (hasHistoryGuardRef.current) {
@@ -162,10 +162,10 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
 
     const handleLinkClick = (event: MouseEvent) => {
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
-      const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null
-      if (!target || target.target === "_blank" || target.hasAttribute("download")) return
+      const anchorElement = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null
+      if (!anchorElement || anchorElement.target === "_blank" || anchorElement.hasAttribute("download")) return
 
-      const destination = new URL(target.href, window.location.href)
+      const destination = new URL(anchorElement.href, window.location.href)
       if (destination.href === window.location.href || (destination.hash && destination.pathname === window.location.pathname)) {
         return
       }
@@ -206,6 +206,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
       hideCloseButton
       disableDismiss={!!pendingDeleteProduct}
       ignoreInputs={false}
+      dismissOnOutside={false}
       onCloseRequest={requestGuardedAction}
       modalQuery="AdminPanel">
       {({ closeModal }) => (

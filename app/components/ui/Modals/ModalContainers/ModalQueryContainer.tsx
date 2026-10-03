@@ -1,12 +1,13 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { usePathname, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { IoMdClose } from "react-icons/io"
 import { useSwipeable } from "react-swipeable"
 import { twMerge } from "tailwind-merge"
 import { AnimatePresence, motion } from "framer-motion"
 
+import { getUrlWithoutModal } from "@/utils/modalQuery"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
 interface ModalQueryContainerProps {
@@ -17,6 +18,7 @@ interface ModalQueryContainerProps {
   hideCloseButton?: boolean
   disableDismiss?: boolean
   ignoreInputs?: boolean
+  dismissOnOutside?: boolean
   onVisibilityChange?: (isVisible: boolean) => void
   onCloseRequest?: (continueClose: () => void) => void
 }
@@ -30,10 +32,11 @@ export function ModalQueryContainer({
   hideCloseButton = false,
   disableDismiss = false,
   ignoreInputs = true,
+  dismissOnOutside = true,
   onVisibilityChange,
   onCloseRequest,
 }: ModalQueryContainerProps) {
-  const pathname = usePathname()
+  const router = useRouter()
   const queryParams = useSearchParams()
   const modalRef = useRef<HTMLDivElement | null>(null)
   const backdropRef = useRef<HTMLDivElement | null>(null)
@@ -54,11 +57,8 @@ export function ModalQueryContainer({
     return () => onVisibilityChange?.(false)
   }, [onVisibilityChange, showModal])
 
-  // Close modal: animate out, then strip the ?modal param WITHOUT a server roundtrip.
-  // history.replaceState (instead of router.push) avoids re-running the server layout
-  // (getOwnerProducts / auth) and re-tracking utm params on every modal close.
-  // The popstate event after it is what makes the App Router re-read the URL: without it
-  // `useSearchParams()` keeps returning ?modal=... and the modal comes straight back.
+  // Close modal: animate out, then remove its query value through the App Router so the URL and
+  // useSearchParams agree. Keep unrelated catalog filters and query values in place.
   // A pending request (`isLoading`) must NOT block the close - only `disableDismiss` does,
   // which is what the flows that truly must not be interrupted set.
   const closeModal = useCallback(() => {
@@ -66,11 +66,10 @@ export function ModalQueryContainer({
     setShouldClose(true)
     setTimeout(() => {
       setIsDismissed(true)
-      window.history.replaceState(null, "", pathname ?? "/")
-      window.dispatchEvent(new PopStateEvent("popstate"))
+      router.replace(getUrlWithoutModal(window.location.href, modalQuery), { scroll: false })
       setShouldClose(false)
     }, 260)
-  }, [disableDismiss, pathname])
+  }, [disableDismiss, modalQuery, router])
 
   const requestClose = useCallback(() => {
     if (disableDismiss) return
@@ -85,6 +84,7 @@ export function ModalQueryContainer({
   useOnEscOrClickOutside(modalRef, requestClose, {
     isHookEnabled: showModal && !shouldClose && !disableDismiss,
     ignoreInputs,
+    ignoreOutsideClicks: !dismissOnOutside,
   })
 
   /* Close only when the interaction starts on the backdrop itself, not when
@@ -93,7 +93,7 @@ export function ModalQueryContainer({
      from modal content triggering close on tablets. */
   const modalBgHandler = useSwipeable({
     onTouchStartOrOnMouseDown: e => {
-      if (!disableDismiss && e.event.target === backdropRef.current) {
+      if (dismissOnOutside && !disableDismiss && e.event.target === backdropRef.current) {
         requestClose()
       }
     },

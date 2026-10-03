@@ -44,22 +44,25 @@ function useEscOrClickOutside(
     isInner?: boolean
     /** If true → ignore focused inputs and close immediately on Esc */
     ignoreInputs?: boolean
+    /** Keep Escape handling while leaving outside clicks to an explicit close button. */
+    ignoreOutsideClicks?: boolean
   } = {},
 ) {
-  const { isHookEnabled = true, isInner = false, ignoreInputs = false } = options
+  const { isHookEnabled = true, isInner = false, ignoreInputs = false, ignoreOutsideClicks = false } = options
 
   useEffect(() => {
     if (!isHookEnabled) return
 
-    const isIgnoredTarget = (target: EventTarget | null) => {
-      if (!(target instanceof Node)) return false
+    const isIgnoredNode = (clickedNode: unknown) => {
+      if (!(clickedNode instanceof Node)) return false
 
-      const targetElement = target instanceof Element ? target : target.parentElement
-      return !!targetElement?.closest("[data-click-outside-ignore]")
+      const clickedElement = clickedNode instanceof Element ? clickedNode : clickedNode.parentElement
+      return !!clickedElement?.closest("[data-click-outside-ignore]")
     }
 
     const handleClick = (e: MouseEvent) => {
-      if (isIgnoredTarget(e.target)) return
+      if (ignoreOutsideClicks) return
+      if (isIgnoredNode(e.target)) return
 
       if (ref.current && !ref.current.contains(e.target as Node)) {
         onClose()
@@ -105,7 +108,7 @@ function useEscOrClickOutside(
       document.removeEventListener("mousedown", handleClick, true)
       document.removeEventListener("contextmenu", handleClick, true)
     }
-  }, [ref, onClose, isHookEnabled, isInner, ignoreInputs])
+  }, [ref, onClose, isHookEnabled, isInner, ignoreInputs, ignoreOutsideClicks])
 }
 
 export default useEscOrClickOutside
