@@ -61,6 +61,9 @@ export default async function RootLayout({
 
   return (
     <html className={darkMode ?? "dark"} lang={locale} data-theme="default" suppressHydrationWarning>
+      <head>
+        <meta name="darkreader-lock" />
+      </head>
       <body>
         <SeasonalThemeLifecycle />
         <I18nProviderClient locale={locale}>
