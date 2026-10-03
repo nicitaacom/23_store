@@ -33,6 +33,8 @@ The project tracker records the overall plan status; checked rows below record f
   controls, tables, and the Admin Panel header.
 - [x] Keep the product detail image aligned with the chosen variant, including after hovering a
   different gallery thumbnail. Reproduced on `prod_VDZssGjkDmIVhA` and covered in Storybook.
+- [x] Keep Admin Panel visible when an oversized pasted image shows a warning. Give the lazy toast
+  its own Suspense boundary; a Cypress check pastes a real oversized PNG and samples panel visibility.
 
 ## Project 5 cards still shown as To-do
 

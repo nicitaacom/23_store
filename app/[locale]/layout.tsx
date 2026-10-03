@@ -72,7 +72,9 @@ export default async function RootLayout({
             <ModalsQueryProvider ownerProducts={getOwnerProductsResp ?? []} roles={roles} isAuthenticated={!!normalizedUser} />
           </Suspense>
           <ModalsProvider />
-          <ToastProvider />
+          <Suspense fallback={null}>
+            <ToastProvider />
+          </Suspense>
           <OfflineBanner />
           <UTMTracker />
         </I18nProviderClient>
