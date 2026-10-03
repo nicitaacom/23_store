@@ -72,19 +72,21 @@ body,
   border-color: hsl(var(--border-color));
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-label {
-  color: hsl(var(--title));
-}
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  label {
+    color: hsl(var(--title));
+  }
 
-p,
-span {
-  color: hsl(var(--subTitle));
+  p,
+  span {
+    color: hsl(var(--subTitle));
+  }
 }
 
 .ProseMirror p {

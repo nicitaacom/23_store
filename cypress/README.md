@@ -29,6 +29,12 @@ The application must provide these values in `.env.local`:
 
 The service-role key is read only by Cypress's Node process. Browser test code does not receive it. Fixture products use the `cypress-e2e-` prefix, and test setup removes only rows with that prefix.
 
+GitHub Actions runs `.github/scripts/check-ci-supabase.mjs` before installing browsers. It checks
+the five tables the fixtures use. If `public.23_users` is missing from the schema cache, check the
+Actions Supabase URL and service-role key: they must point to the database that has the store tables.
+The regular CI run uses Electron; a manual **CI** run with `full_browser_matrix` also tests Chrome,
+Firefox, and WebKit.
+
 ## Run
 
 ```sh

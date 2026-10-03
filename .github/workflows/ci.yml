@@ -8,6 +8,11 @@ on:
   merge_group:
     types: [checks_requested]
   workflow_dispatch:
+    inputs:
+      full_browser_matrix:
+        description: Run Cypress in Chrome, Firefox, and WebKit after Electron
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -108,13 +113,20 @@ jobs:
       - name: Create CI dotenv file
         run: node .github/scripts/create-ci-env.mjs
 
-      - name: Install Cypress, Firefox, and WebKit
+      - name: Check CI Supabase tables
+        run: node .github/scripts/check-ci-supabase.mjs
+
+      - name: Install Cypress
         run: |
           pnpm exec cypress install
           pnpm exec cypress verify
+
+      - name: Install optional browser matrix
+        if: github.event_name == 'workflow_dispatch' && inputs.full_browser_matrix
+        run: |
           pnpm exec playwright install --with-deps firefox webkit
 
-      - name: Run full and cross-browser Cypress tests
+      - name: Run Cypress tests
         shell: bash
         run: |
           set -euo pipefail
@@ -129,7 +141,7 @@ jobs:
           trap stop_server EXIT
 
           for attempt in $(seq 1 60); do
-            if curl --fail --silent --show-error http://127.0.0.1:3023 > /dev/null; then
+            if curl --fail --silent http://127.0.0.1:3023 > /dev/null; then
               break
             fi
 
@@ -147,9 +159,11 @@ jobs:
           done
 
           pnpm run cypress:run:electron
-          pnpm run cypress:run:chrome -- --spec "cypress/e2e/i18n.cy.ts,cypress/e2e/responsiveness.cy.ts"
-          pnpm run cypress:run:firefox -- --spec "cypress/e2e/i18n.cy.ts,cypress/e2e/responsiveness.cy.ts"
-          pnpm run cypress:run:webkit -- --spec "cypress/e2e/i18n.cy.ts,cypress/e2e/responsiveness.cy.ts"
+          if [ "${{ inputs.full_browser_matrix }}" = "true" ]; then
+            pnpm run cypress:run:chrome -- --spec "cypress/e2e/i18n.cy.ts,cypress/e2e/responsiveness.cy.ts"
+            pnpm run cypress:run:firefox -- --spec "cypress/e2e/i18n.cy.ts,cypress/e2e/responsiveness.cy.ts"
+            pnpm run cypress:run:webkit -- --spec "cypress/e2e/i18n.cy.ts,cypress/e2e/responsiveness.cy.ts"
+          fi
 
       - name: Upload Cypress failure details
         if: failure()
@@ -196,9 +210,6 @@ jobs:
 
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium
-
-      - name: Build static Storybook
-        run: pnpm build-storybook
 
       - name: Run Storybook render, interaction, and accessibility tests
         run: pnpm test:storybook

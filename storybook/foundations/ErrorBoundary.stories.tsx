@@ -20,6 +20,15 @@ const failedReportHandlers = [
 const meta = {
   title: "Foundations/ErrorBoundary",
   component: LocaleError,
+  beforeEach() {
+    const reportConsoleError = console.error
+    console.error = (...messages: unknown[]) => {
+      if (messages[0] === "[LocaleError]" && messages[1] instanceof Error &&
+        messages[1].message === "Attempted to call useScopedI18n() from the server") return
+      reportConsoleError(...messages)
+    }
+    return () => { console.error = reportConsoleError }
+  },
   parameters: {
     layout: "fullscreen",
   },

@@ -75,9 +75,9 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
         disabled={disabled}
         onClick={() => setOpen(prevOpen => !prevOpen)}
         aria-expanded={open}>
-        <span className={twMerge("truncate", !value && "text-white/40")}>{selectedName}</span>
+        <span className={twMerge("truncate", !value && "text-white/70")}>{selectedName}</span>
         <TbChevronDown
-          className={twMerge("shrink-0 text-white/40 transition-transform duration-150", open && "rotate-180")}
+          className={twMerge("shrink-0 text-white/70 transition-transform duration-150", open && "rotate-180")}
           size={14}
         />
       </button>
@@ -100,7 +100,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
           <button
             className={twMerge(
               "w-full px-3 py-2 text-left text-sm transition-colors duration-100",
-              !value ? "bg-success/10 text-success" : "text-white/50 hover:bg-white/[0.06] hover:text-white",
+              !value ? "bg-success/10 text-success" : "text-white/70 hover:bg-white/[0.06] hover:text-white",
             )}
             type="button"
             onClick={() => handleOptionSelect(null)}>
@@ -138,7 +138,7 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
             )
           })}
 
-          {filteredParents.length === 0 && <p className="px-3 py-3 text-sm text-white/30">{t("no_categories_found")}</p>}
+          {filteredParents.length === 0 && <p className="px-3 py-3 text-sm text-white/70">{t("no_categories_found")}</p>}
         </div>
       </div>
     </div>

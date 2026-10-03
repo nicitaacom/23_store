@@ -68,10 +68,11 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isDirty },
+    // eslint-disable-next-line local-rules/no-banned-words -- React Hook Form exposes this exact field name.
+    formState: { errors, isDirty: hasChanges },
   } = useForm<IFormDataAddProduct>()
 
-  useAdminPanelChanged(`edit-product-${id}-title`, (isEditing && isDirty) || isLoading)
+  useAdminPanelChanged(`edit-product-${id}-title`, (isEditing && hasChanges) || isLoading)
 
   const onSubmit = (data: IFormDataAddProduct) => {
     updateTitle(data.title)
@@ -131,7 +132,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
           />
           <div className="mt-1 flex justify-end gap-1">
             <button
-              className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80"
+              className="rounded px-2 py-0.5 text-xs text-white/70 transition-colors hover:text-white/80"
               type="button"
               onClick={cancelInput}>
               {tCommon("cancel")}

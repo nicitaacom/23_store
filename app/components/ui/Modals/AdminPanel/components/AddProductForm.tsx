@@ -262,7 +262,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   // Shared className applied to every ProductInput — guarantees identical backgrounds
   const inputCn =
-    "w-full border-white/15 !bg-white/[0.07] text-[14px] text-white placeholder:text-white/40 shadow-none transition-colors focus:border-success-accent/35 focus:!bg-white/[0.09] disabled:opacity-50"
+    "w-full border-white/15 !bg-white/[0.07] text-[14px] text-white placeholder:text-white/70 shadow-none transition-colors focus:border-success-accent/35 focus:!bg-white/[0.09] disabled:opacity-50"
   const isLoading = isSubmitting
 
   const updateBackgroundToast = (nextPendingTranslationsAmount: number) => {
@@ -821,7 +821,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                         />
                       </svg>
                     </div>
-                    <p className="text-[11px] text-white/25">{t("click_or_drop_here")}</p>
+                    <p className="text-[11px] text-white/70">{t("click_or_drop_here")}</p>
                   </div>
                 )}
 
@@ -915,7 +915,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                   <span className="text-success-accent transition-transform group-open:rotate-180" aria-hidden="true">▾</span>
                 </summary>
                 <div className="grid gap-1.5 border-t border-white/8 p-3">
-                  <p className="text-[11px] text-white/50">{tGlobal("personalize.admin_add_product_hint")}</p>
+                  <p className="text-[11px] text-white/70">{tGlobal("personalize.admin_add_product_hint")}</p>
                   <PersonalizationForm
                     className="rounded-none border-0 bg-transparent p-0 shadow-none"
                     key={personalizationFormKey}
@@ -943,7 +943,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         }}>
         {/* Title */}
         <div className="grid gap-1.5">
-          <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("title")}</label>
+          <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">{t("title")}</label>
           <ProductInput
             className={twMerge(inputCn, "h-12")}
             id="title"
@@ -958,7 +958,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
         {/* Description */}
         <div className="grid gap-1.5">
-          <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("description")}</label>
+          <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">{t("description")}</label>
           <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
           <MarkdownEditor
             className={twMerge(inputCn, "min-h-[100px]")}
@@ -976,11 +976,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         {/* Category */}
         <div className="grid gap-1.5">
           <div className="flex items-center gap-2">
-            <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+            <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
               {tGlobal("category.edit_category")}
             </label>
             {isSuggestingCategory && (
-              <span className="text-[10px] text-white/40 animate-pulse">{tGlobal("category.ai_suggesting")}</span>
+              <span className="text-[10px] text-white/70 animate-pulse">{tGlobal("category.ai_suggesting")}</span>
             )}
             {!isSuggestingCategory && autoAssignedName && categoryId && (
               <span className="flex items-center gap-1 rounded bg-success/10 px-1.5 py-0.5 text-[10px] text-success">
@@ -1015,11 +1015,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3">
           <div className="grid gap-2 tablet:grid-cols-[minmax(0,1fr)_130px_140px_auto]">
             <label className="grid flex-1 gap-1.5">
-              <span className="whitespace-nowrap px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+              <span className="whitespace-nowrap px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
                 {t("variant_label")}
               </span>
               <input
-                className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
+                className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/70 focus:border-success-accent/35 focus:bg-white/[0.09]"
                 ref={variantLabelInputRef}
                 value={variantLabelValue}
                 onChange={event => changeVariantLabel(event.target.value)}
@@ -1028,11 +1028,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               />
             </label>
             <label className="grid gap-1.5">
-              <span className="whitespace-nowrap px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+              <span className="whitespace-nowrap px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
                 {t("variant_price")}
               </span>
               <input
-                className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
+                className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/70 focus:border-success-accent/35 focus:bg-white/[0.09]"
                 value={variantPriceValue}
                 onChange={event => setVariantPriceValue(formatGroupedNumberInput(event.target.value))}
                 placeholder={t("placeholder.price")}
@@ -1041,11 +1041,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               />
             </label>
             <label className="grid gap-1.5">
-              <span className="whitespace-nowrap px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+              <span className="whitespace-nowrap px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
                 {t("variant_quantity")}
               </span>
               <input
-                className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/40 focus:border-success-accent/35 focus:bg-white/[0.09]"
+                className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/70 focus:border-success-accent/35 focus:bg-white/[0.09]"
                 value={variantQuantityValue}
                 onChange={event => setVariantQuantityValue(formatGroupedNumberInput(event.target.value))}
                 placeholder="0"
@@ -1062,7 +1062,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             </button>
           </div>
 
-          <label className="flex w-fit items-center gap-2 text-[11px] text-white/50">
+          <label className="flex w-fit items-center gap-2 text-[11px] text-white/70">
             <input
               type="checkbox"
               checked={isVariantImageAttached}
@@ -1074,9 +1074,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
           {/* The print area is measured against the attached photo, so a variant showing another
               variant's photo makes the buyer's preview lie about what gets printed */}
-          {isVariantImageAttached && <p className="text-[11px] text-white/50">{t("variant_image_matches_hint")}</p>}
+          {isVariantImageAttached && <p className="text-[11px] text-white/70">{t("variant_image_matches_hint")}</p>}
 
-          <p className="text-[11px] text-white/50">{t("manage_variant_help")}</p>
+          <p className="text-[11px] text-white/70">{t("manage_variant_help")}</p>
 
           {variants.length > 0 ? (
             <div className="grid gap-2 tablet:grid-cols-2">
@@ -1104,7 +1104,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     <div className="min-w-0 flex-1">
                       <p className="line-clamp-2 text-sm font-medium text-white">{variant.label}</p>
                       <p className="mt-0.5 text-[11px] text-success">{formatCurrency(variant.price)}</p>
-                      <p className={twMerge("mt-0.5 text-[11px]", variant.quantity > 0 ? "text-white/50" : "text-warning")}>
+                      <p className={twMerge("mt-0.5 text-[11px]", variant.quantity > 0 ? "text-white/70" : "text-warning")}>
                         {variant.quantity > 0 ? `${variant.quantity} ${t("on_stock")}` : t("out_of_stock_label")}
                       </p>
                     </div>
@@ -1129,11 +1129,11 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         {/* Live preview row — on_stock is the accumulated stock of all variants, not a manual field */}
         <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3 tablet:grid-cols-2">
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-widest text-white/30">{t("price")}</p>
+            <p className="text-[10px] font-medium uppercase tracking-widest text-white/70">{t("price")}</p>
             <p className="mt-1 text-sm font-semibold text-white/75">{previewPrice}</p>
           </div>
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-widest text-white/30">{t("on_stock")}</p>
+            <p className="text-[10px] font-medium uppercase tracking-widest text-white/70">{t("on_stock")}</p>
             <p className="mt-1 text-sm font-semibold text-white/75">{previewStock}</p>
           </div>
         </div>

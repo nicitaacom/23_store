@@ -61,7 +61,7 @@ export default function LocaleError({ error, reset }: ErrorBoundaryProps) {
                 variant="ghost"
                 size="icon-xs"
                 onClick={handleCopyErrorDetails}
-                aria-label={t("copy_error_details")}
+                aria-label={isCopied ? t("copied") : t("copy_error_details")}
                 title={isCopied ? t("copied") : t("copy_error_details")}>
                 {isCopied ? <MdCheck className="text-sm" /> : <MdContentCopy className="text-sm" />}
               </Button>

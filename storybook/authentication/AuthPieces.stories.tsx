@@ -58,7 +58,7 @@ export const HeadersPerVariant: Story = {
   render: () => <AuthHeaders />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await waitFor(() => expect(canvas.getAllByRole("img", { name: "logo" }).length).toBe(6))
+    await waitFor(() => expect(canvas.getAllByRole("img", { name: /logo/i }).length).toBe(6))
   },
 }
 

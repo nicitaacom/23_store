@@ -33,6 +33,9 @@ type Story = StoryObj<typeof meta>;
 export const AddProduct: Story = {};
 export const OwnerWithoutAdminRole: Story = {
   args: { roles: ["OWNER"] },
+  play: async () => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+  },
 };
 
 export const CreateProductReturnsToTop: Story = {
@@ -166,6 +169,7 @@ export const AIPriceProposals: Story = {
     await expect(await canvas.findByText("Price proposals")).toBeVisible();
     await expect(canvas.getByText(/USD\/JPY strengthened/)).toBeVisible();
     await expect(canvas.getByRole("button", { name: "Approve" })).toBeVisible();
+    await new Promise(resolve => setTimeout(resolve, 300));
   },
 };
 

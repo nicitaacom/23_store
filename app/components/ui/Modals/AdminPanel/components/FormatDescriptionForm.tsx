@@ -38,8 +38,8 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   const wrapRef = useRef<((marker: string) => void) | null>(null)
   const editorContainerRef = useRef<HTMLDivElement | null>(null)
   const valueRef = useRef(value)
-  const isDirty = isEditing && value.trim() !== (currentTranslation.description ?? "").trim()
-  useAdminPanelChanged(`edit-product-${id}-description`, isDirty || isLoading)
+  const hasChanges = isEditing && value.trim() !== (currentTranslation.description ?? "").trim()
+  useAdminPanelChanged(`edit-product-${id}-description`, hasChanges || isLoading)
   useEffect(() => {
     valueRef.current = value
   }, [value])
@@ -100,7 +100,7 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
             <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
             <div className="flex gap-1">
               <button
-                className="rounded px-2 py-0.5 text-xs text-white/50 transition-colors hover:text-white/80"
+                className="rounded px-2 py-0.5 text-xs text-white/70 transition-colors hover:text-white/80"
                 type="button"
                 onClick={handleCancel}>
                 {tCommon("cancel")}

@@ -50,17 +50,13 @@ function BackupProgressWorkbench() {
   const [isModalOpen, setIsModalOpen] = useState(true)
 
   useEffect(() => {
-    function syncBackupModalVisibility() {
-      setIsModalOpen(new URLSearchParams(window.location.search).getAll("modal").includes("DbBackup"))
-    }
-
-    window.addEventListener("popstate", syncBackupModalVisibility)
-    return () => window.removeEventListener("popstate", syncBackupModalVisibility)
+    return useDbBackupState.subscribe(state => setIsModalOpen(state.isModalOpen))
   }, [])
 
   function reopenBackupModal() {
     window.history.replaceState(null, "", "/en/stats?modal=DbBackup")
     window.dispatchEvent(new PopStateEvent("popstate"))
+    setIsModalOpen(true)
   }
 
   return (

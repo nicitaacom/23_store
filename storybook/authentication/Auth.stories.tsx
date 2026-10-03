@@ -149,7 +149,7 @@ export const AuthenticatedRedirect: Story = {
 export const AnonymousProtectedAction: Story = {
   render: AnonymousPrompt,
   play: async ({ canvasElement }) => {
-    const findByRoleResp = await within(canvasElement).findByRole("link", { name: "login" })
+    const findByRoleResp = await within(canvasElement).findByRole("link", { name: /log in/i })
     await expect(findByRoleResp).toHaveAttribute("href", "/en?modal=AuthModal&variant=login")
   },
 }

@@ -30,6 +30,7 @@ const config: StorybookConfig = {
             currentDirectory,
             "../storybook/mocks/trackBuyingFlowEventAction.ts",
           ),
+          "@/actions/trackVisitAction": path.resolve(currentDirectory, "../storybook/mocks/trackVisitAction.ts"),
           "@/libs/pusher": path.resolve(currentDirectory, "../storybook/mocks/pusher.ts"),
           "@/libs/supabase/supabaseClient": path.resolve(
             currentDirectory,
