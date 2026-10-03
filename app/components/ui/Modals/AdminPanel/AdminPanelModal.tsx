@@ -204,9 +204,8 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
         "laptop:w-[min(92vw,1100px)] desktop:w-[min(90vw,1400px)]",
       )}
       hideCloseButton
-      disableDismiss={!!pendingDeleteProduct}
+      disableDismiss={!!pendingDeleteProduct || !!pendingDiscardAction}
       ignoreInputs={false}
-      dismissOnOutside={false}
       onCloseRequest={requestGuardedAction}
       modalQuery="AdminPanel">
       {({ closeModal }) => (

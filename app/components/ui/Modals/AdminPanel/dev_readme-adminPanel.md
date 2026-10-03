@@ -33,9 +33,12 @@ secondary order is created date, base price, or the visible localized name.
 
 `AdminPanelDirtyContext` collects drafts from every tab. `ModalQueryContainer.onCloseRequest` routes
 the X button and Escape through the discard dialog; the AdminPanel also covers tab changes, links,
-Back, and browser `beforeunload`. Outside clicks are ignored for this workspace, including clicks
-around the image upload control and warning toast. Closing removes only its `modal` query value
-through the App Router, keeping the URL and visible modal in sync while preserving catalog filters.
+Back, and browser `beforeunload`. A click on the backdrop requests the same guarded close; clicks
+on the image upload control and warning toast keep the panel open. Closing removes only its `modal`
+query value through the App Router, keeping the URL and visible modal in sync while preserving
+catalog filters.
+While the discard dialog is open, the outer modal's dismiss handler is disabled so Escape reaches
+the dialog. Its X and Escape both act like **Keep editing** and preserve the draft.
 
 Submitting **Create product** scrolls the Add tab's details pane back to the top. A successful submit
 therefore opens the cleared form at its title field, while a rejected submit exposes its topmost errors.

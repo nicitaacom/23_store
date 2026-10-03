@@ -12,7 +12,10 @@ const meta = {
   parameters: {
     // The Add tab asks for the category list on mount - answering it here keeps the story from
     // failing on an unhandled request.
-    msw: { handlers: [http.get("*/api/categories/select", () => HttpResponse.json({ categories: fixtureCategories }))] },
+    msw: { handlers: [
+      http.get("*/api/categories/select", () => HttpResponse.json({ categories: fixtureCategories })),
+      http.post("*/api/ai/suggest-category", () => HttpResponse.json({ category_id: null })),
+    ] },
     nextjs: {
       navigation: {
         pathname: "/en",
@@ -31,6 +34,14 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const AddProduct: Story = {};
+export const BackdropClosesPanel: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(canvas.getByText("Product workspace")).toBeVisible());
+    await userEvent.click(canvasElement);
+    await waitFor(() => expect(canvas.queryByText("Product workspace")).not.toBeInTheDocument());
+  },
+};
 export const OwnerWithoutAdminRole: Story = {
   args: { roles: ["OWNER"] },
   play: async () => {
@@ -63,6 +74,21 @@ export const UnsavedChanges: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Close admin panel" }));
     await waitFor(() => expect(canvas.getByText("Discard unsaved changes?")).toBeVisible());
     await expect(canvas.getByRole("button", { name: "Keep editing" })).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Close confirmation" }));
+    await waitFor(() => expect(canvas.queryByText("Discard unsaved changes?")).not.toBeInTheDocument());
+    await expect(canvas.getByPlaceholderText("Product title")).toHaveValue("Unsaved product");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Close admin panel" }));
+    await waitFor(() => expect(canvas.getByText("Discard unsaved changes?")).toBeVisible());
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(canvas.queryByText("Discard unsaved changes?")).not.toBeInTheDocument());
+    await expect(canvas.getByPlaceholderText("Product title")).toHaveValue("Unsaved product");
+
+    await userEvent.click(canvasElement);
+    await waitFor(() => expect(canvas.getByText("Discard unsaved changes?")).toBeVisible());
+    await userEvent.click(canvas.getByRole("button", { name: "Keep editing" }));
+    await waitFor(() => expect(canvas.queryByText("Discard unsaved changes?")).not.toBeInTheDocument());
+    await expect(canvas.getByPlaceholderText("Product title")).toHaveValue("Unsaved product");
   },
 };
 
