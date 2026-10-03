@@ -13,6 +13,12 @@ and you may got different email from that you saw in react-email preview
    pass the returned string straight to the SDK method - rendering into a state variable first once shipped
    an email with an empty body for months.
 
+The error boundary report in `app/functions/support/reportErrorToSupport.tsx` uses
+`renderToStaticMarkup` from `react-dom/server`. The installed `@react-email/render@0.0.10` bundles
+React 18 while the app uses React 19, so its `renderAsync` cannot render React 19 elements. The
+report includes the page URL and up to 4,000 characters of `error.stack`; see
+`ErrorReportEmail.test.ts` for the rendering check.
+
 I reccomend you to do it with `<table>` `<tbody>` `<tr>` `<td>` rather then with `<div>`
 
 You may check examples to get understanding how it works - https://react.email/examples

@@ -10,6 +10,7 @@ interface ErrorReportEmailProps {
   message: string
   digest?: string
   pageUrl: string | null
+  stack?: string
 }
 
 /**
@@ -17,7 +18,7 @@ interface ErrorReportEmailProps {
  * This does not require translation because this email will be sent to support - support speaks english
  */
 // http://localhost:6006/?path=/story/foundations-errorboundary--render-crash
-export function ErrorReportEmail({ message, digest, pageUrl }: ErrorReportEmailProps) {
+export function ErrorReportEmail({ message, digest, pageUrl, stack }: ErrorReportEmailProps) {
   return (
     <Html>
       <Head />
@@ -41,6 +42,7 @@ export function ErrorReportEmail({ message, digest, pageUrl }: ErrorReportEmailP
           <Text style={text}>
             Message: <span style={mono}>{message}</span>
           </Text>
+          {stack && <Text style={{ ...text, ...mono, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>Stack: {stack}</Text>}
 
           <Hr style={hr} />
           <Text style={footer}>Sent from your e-commerce store</Text>

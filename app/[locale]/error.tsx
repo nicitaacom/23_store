@@ -37,7 +37,7 @@ export default function LocaleError({ error, reset }: ErrorBoundaryProps) {
 
   async function handleReportToSupport() {
     setReportStatus("sending")
-    const reportErrorToSupportResp = await reportErrorToSupport(tGlobal, error.message, error.digest)
+    const reportErrorToSupportResp = await reportErrorToSupport(tGlobal, error.message, error.digest, error.stack)
     setReportStatus(reportErrorToSupportResp.success ? "sent" : "failed")
   }
 
