@@ -175,6 +175,14 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
             const draft = group[0]
             const groupId = draft.group_id ?? draft.id
             const groupLabel = getVariantGroupLabel(group)
+            const groupOptions = getVariantGroupOptions(group)
+            const optionNames = Object.keys(groupOptions)
+            const translatedOptionNames: Record<string, string> = {
+              Size: t("variant_size"), Color: t("variant_color"), Weight: t("variant_weight"),
+            }
+            const parameterHeading = optionNames.length === 1
+              ? translatedOptionNames[optionNames[0]] ?? optionNames[0]
+              : t("variant_parameter")
             // 3. A variant pointing at an image the gallery no longer holds is flagged — this is the bug
             // users hit. A variant with no image at all is a size variant, so it stays unflagged.
             const isImageMissing = Boolean(draft.image_url) && !imgUrl.includes(draft.image_url as string)
@@ -183,7 +191,8 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
             return (
               <div
                 className={twMerge(
-                  "rounded border bg-foreground/5 p-2",
+                  "halloween-panel rounded border bg-foreground/5 p-2",
+                  isImageMissing && "halloween-panel-warning",
                   isImageMissing ? "border-warning/40" : "border-border-color/35",
                 )}
                 key={groupId}>
@@ -191,7 +200,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                   <div className="flex min-w-0 flex-1 flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <BaseInput
-                        className="min-w-0 flex-1"
+                        className="min-w-0 flex-1 border-border-color/60 focus:border-success focus:ring-success/60"
                         value={groupLabel}
                         onChange={event => updateGroup(groupId, { label: event.target.value })}
                         disabled={isLoading}
@@ -205,7 +214,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                     </div>
                     <VariantOptionsEditor
                       variantLabel={groupLabel}
-                      options={getVariantGroupOptions(group)}
+                      options={groupOptions}
                       onChange={options => {
                         const nextCount = drafts.length - group.length + expandVariantOptionValues(options).length
                         if (nextCount > MAX_PRODUCT_VARIANTS) {
@@ -216,32 +225,40 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                       }}
                       disabled={isLoading}
                     />
-                    <div className="grid gap-2">
-                      {group.map(row => (
-                        <div className="flex flex-wrap items-center gap-2" key={row.id}>
-                          <span className="min-w-20 text-xs text-subTitle">
-                            {Object.entries(row.options).map(([name, values]) => `${name === "Size" ? t("variant_size") : name === "Color" ? t("variant_color") : name === "Weight" ? t("variant_weight") : name}: ${values[0]}`).join(" / ") || t("variant")}
-                          </span>
-                          <BaseInput
-                            className="min-w-24 flex-1"
-                            aria-label={`${groupLabel} ${Object.values(row.options).flat().join(" ")} ${t("variant_price")}`}
-                            value={row.priceInput}
-                            onChange={event => updateDraft(row.id, { priceInput: formatGroupedNumberInput(event.target.value) })}
-                            disabled={isLoading}
-                            inputMode="decimal"
-                            placeholder={t("variant_price")}
-                          />
-                          <BaseInput
-                            className="min-w-24 flex-1"
-                            aria-label={`${groupLabel} ${Object.values(row.options).flat().join(" ")} ${t("variant_quantity")}`}
-                            value={row.quantityInput}
-                            onChange={event => updateDraft(row.id, { quantityInput: formatGroupedNumberInput(event.target.value) })}
-                            disabled={isLoading}
-                            inputMode="numeric"
-                            placeholder={t("variant_quantity")}
-                          />
-                        </div>
-                      ))}
+                    <div className="halloween-table overflow-hidden rounded border border-border-color/60 bg-background/40">
+                      <div className="grid grid-cols-[minmax(72px,1fr)_minmax(0,1.2fr)_minmax(0,1.2fr)] items-center gap-2 bg-foreground/60 px-2 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-title">
+                        <span>{parameterHeading}</span>
+                        <span>{t("price")}</span>
+                        <span>{t("on_stock")}</span>
+                      </div>
+                      {group.map(row => {
+                        const rowOptions = Object.entries(row.options)
+                        const rowLabel = rowOptions.length === 1
+                          ? rowOptions[0][1][0]
+                          : rowOptions.map(([name, values]) => `${name}: ${values[0]}`).join(" / ") || groupLabel
+                        return (
+                          <div className="grid grid-cols-[minmax(72px,1fr)_minmax(0,1.2fr)_minmax(0,1.2fr)] items-center gap-2 border-t border-border-color/45 px-2 py-2" key={row.id}>
+                            <span className="min-w-0 break-words text-sm font-medium text-title">{rowLabel}</span>
+                            <BaseInput
+                              className="w-full min-w-0 border-border-color/60 px-1.5 text-xs focus:border-success focus:ring-success/60 mobile:px-3 mobile:text-sm"
+                              aria-label={`${groupLabel} ${rowLabel} ${t("variant_price")}`}
+                              value={row.priceInput}
+                              onChange={event => updateDraft(row.id, { priceInput: formatGroupedNumberInput(event.target.value) })}
+                              disabled={isLoading}
+                              inputMode="decimal"
+                              placeholder={t("price")}
+                            />
+                            <BaseInput
+                              className="w-full min-w-0 border-border-color/60 px-1.5 text-xs focus:border-success focus:ring-success/60 mobile:px-3 mobile:text-sm"
+                              aria-label={`${groupLabel} ${rowLabel} ${t("variant_quantity")}`}
+                              value={row.quantityInput}
+                              onChange={event => updateDraft(row.id, { quantityInput: formatGroupedNumberInput(event.target.value) })}
+                              disabled={isLoading}
+                              inputMode="numeric"
+                            />
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                   <button

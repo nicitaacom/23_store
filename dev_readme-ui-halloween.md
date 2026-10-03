@@ -1,8 +1,7 @@
 ## Halloween UI description
 
-The Halloween theme is a graveyard palette and backdrop, ported from `14_portfolio` and scoped
-to `data-theme="halloween"`. It is not a brown or orange recolour of the store's default palette
-— it replaces the full token set.
+The Halloween theme combines a graveyard backdrop with orange controls, violet panels, and
+bone text. All seasonal component rules are scoped to `data-theme="halloween"`.
 
 ## 0. Why this document exists
 
@@ -17,7 +16,7 @@ action colour, bone text, deep aubergine negative space.
 
 | File                                                | Role                                                          |
 | ---------------------------------------------------- | -------------------------------------------------------------- |
-| `app/styles/theme-halloween.css`                    | token bridge (`:root[data-theme="halloween"]`) + scene styles |
+| `app/styles/theme-halloween.css`                    | tokens, component styles, and scene styles |
 | `app/components/SeasonalBackdrop.tsx`               | mounts `HalloweenScene` and `NewYearScene` behind the page     |
 | `app/components/Halloween/HalloweenScene.tsx`       | full-page ambient backdrop: canvas fog, SVG graveyard, vignette |
 | `app/utils/resolveSeasonalTheme.ts`                 | month number in, theme name out                               |
@@ -34,22 +33,23 @@ no component needs to know a seasonal theme exists.
 | --------------------- | ---------------------- |
 | `--brand`            | `25deg 100% 55%`      |
 | `--background`       | `273deg 37% 4%`       |
-| `--foreground`       | `268deg 24% 12%`      |
-| `--foreground-accent`| `267deg 27% 20%`      |
-| `--foreground-hover` | `267deg 27% 24%`      |
+| `--foreground`       | `271deg 27% 12%`      |
+| `--foreground-accent`| `269deg 30% 20%`      |
+| `--foreground-hover` | `269deg 30% 25%`      |
 | `--title`             | `43deg 23% 88%`       |
 | `--title-foreground` | `270deg 28% 7%`       |
-| `--subTitle`         | `270deg 10% 70%`      |
-| `--border-color`     | `269deg 20% 46%`      |
+| `--subTitle`         | `32deg 13% 76%`       |
+| `--border-color`     | `26deg 31% 52%`       |
 | `--icon-color`       | `43deg 23% 88%`       |
 | `--modal-surface`    | `270deg 26% 9%`       |
 | `--info`             | `264deg 62% 76%`      |
 | `--warning`          | `36deg 100% 54%`      |
 | `--danger`           | `0deg 100% 69%`       |
-| `--success`          | `116deg 34% 58%`      |
-| `--success-accent`   | `116deg 40% 46%`      |
+| `--success`          | `30deg 100% 69%`      |
+| `--success-accent`   | `25deg 100% 55%`      |
 
-`--halloween-room` (`#070509`) is a substance variable, read only by `.halloween-scene`.
+`--success` also uses a lighter orange so existing price and selection accents participate in
+the seasonal UI. `--halloween-room` (`#070509`) is read by `.halloween-scene`.
 
 ---
 
@@ -72,15 +72,15 @@ no component needs to know a seasonal theme exists.
 | Raised surface   | Muted violet                   |
 | Deep inset       | Blue-black / purple-black      |
 | Primary accent   | Jack-o'-lantern orange         |
-| Secondary accent | Cemetery green                 |
+| Secondary accent | Pale ember orange              |
 | Spectral accent  | Cyan-violet ghost light        |
 | Body text        | Desaturated bone               |
 | Muted text       | Grey-lilac                     |
 | Frame edge       | Cold grey bone or thorn purple |
 | Error            | Blood red, used sparingly      |
 
-Orange means action. Green means healthy/live. Purple holds the frame. Bone is structure and
-text. No warm brown workshop material is used.
+Orange marks actions, prices, and selected controls. Purple holds the frame. Bone is structure
+and text. Warning and danger keep their own distinct tokens.
 
 ### 3.2 Shape
 
@@ -125,7 +125,7 @@ Three visual levels are normally enough.
 ## 4. How it turns on
 
 ```text
-themeMonths.ts { halloween: [11] }
+themeMonths.ts { halloween: configured months }
         │
         ▼
 resolveSeasonalTheme(month) -> "halloween" | "default"
@@ -139,6 +139,14 @@ SeasonalThemeLifecycle  writes  document.documentElement.dataset.theme
         ▼
 SeasonalBackdrop -> HalloweenScene  (fixed, z-0, pointer-events:none)
 ```
+
+## 4.1 Component layer
+
+`halloween-nav`, `halloween-panel`, `halloween-product-card`, `halloween-button`,
+`halloween-field`, `halloween-options`, and `halloween-table` opt shared components into the
+seasonal treatment. These classes have no effect in the default or New Year themes. Their CSS
+adds ember borders, layered crypt surfaces, highlighted table headings, and strong orange focus
+outlines. Keep new Halloween ornament at panel edges so product images and form text stay clear.
 
 ---
 

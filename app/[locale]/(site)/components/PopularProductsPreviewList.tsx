@@ -56,7 +56,7 @@ export function PopularProductsPreviewList({
 
           return (
             <article
-              className="group flex flex-col overflow-hidden rounded-lg border border-border-color/20 bg-background/80 shadow-lg shadow-success/5 transition-transform duration-300 hover:-translate-y-1 hover:border-success/30"
+              className="halloween-product-card group flex flex-col overflow-hidden rounded-lg border border-border-color/20 bg-background/80 shadow-lg shadow-success/5 transition-transform duration-300 hover:-translate-y-1 hover:border-success/30"
               key={product.id}>
               {/* Vertical card — image banner on top, details below (grid tile) */}
               <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-foreground/5">

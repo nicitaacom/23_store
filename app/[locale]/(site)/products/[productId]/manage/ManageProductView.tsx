@@ -29,7 +29,7 @@ interface ManageProductViewProps {
 }
 
 const inputCn =
-  "w-full rounded-2xl border border-white/8 !bg-[#0f1318] px-4 text-[15px] text-white placeholder:text-white/22 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors focus:border-success/30 focus:!bg-[#131922] disabled:opacity-50"
+  "halloween-field w-full rounded-2xl border border-white/25 !bg-[#0f1318] px-4 text-[15px] text-white placeholder:text-white/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition-all focus:border-success focus:!bg-[#131922] focus:ring-2 focus:ring-success/60 disabled:opacity-50"
 
 function normalizeVariantsForDraft(product: TProductDB): TProductVariantDraft[] {
   return (product.variants || []).map(variant => ({
@@ -348,13 +348,21 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         const variant = group[0]
         const groupId = variant.group_id ?? variant.id
         const groupLabel = getVariantGroupLabel(group)
+        const groupOptions = getVariantGroupOptions(group)
+        const optionNames = Object.keys(groupOptions)
+        const translatedOptionNames: Record<string, string> = {
+          Size: t("variant_size"), Color: t("variant_color"), Weight: t("variant_weight"),
+        }
+        const parameterHeading = optionNames.length === 1
+          ? translatedOptionNames[optionNames[0]] ?? optionNames[0]
+          : t("variant_parameter")
         const linkedImageUrl = product.img_url.find(url => url === variant.imageDataUrl) ?? null
 
         return (
           <div
-            className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(14,18,24,0.96),rgba(9,11,15,0.98))] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.2)]"
+            className="halloween-panel min-w-0 rounded-2xl border border-white/20 bg-[linear-gradient(180deg,rgba(14,18,24,0.96),rgba(9,11,15,0.98))] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.2)]"
             key={groupId}>
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black">
                 {linkedImageUrl ? (
                   <Image className="object-cover" src={linkedImageUrl} alt={groupLabel} fill sizes="64px" />
@@ -363,18 +371,19 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 )}
               </div>
 
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <input
-                  className="w-full rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
-                  value={groupLabel}
-                  onChange={event => updateVariantLabelRef.current(groupId, event.target.value)}
-                  placeholder={t("variant_label")}
-                  disabled={isUpdatingProduct}
-                />
+              <input
+                className="halloween-field min-w-0 flex-1 rounded-xl border border-white/30 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-all focus:border-success focus:ring-2 focus:ring-success/70"
+                value={groupLabel}
+                onChange={event => updateVariantLabelRef.current(groupId, event.target.value)}
+                placeholder={t("variant_label")}
+                disabled={isUpdatingProduct}
+              />
+            </div>
 
+            <div className="mt-3 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
                 <VariantOptionsEditor
                   variantLabel={groupLabel}
-                  options={getVariantGroupOptions(group)}
+                  options={groupOptions}
                   onChange={options => {
                     const nextCount = variants.length - group.length + expandVariantOptionValues(options).length
                     if (nextCount > MAX_PRODUCT_VARIANTS) {
@@ -386,35 +395,43 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   disabled={isUpdatingProduct}
                 />
 
-                <div className="grid gap-2">
-                  {group.map(row => (
-                    <div className="flex flex-wrap items-center gap-2" key={row.id}>
-                      <span className="min-w-20 text-xs text-subTitle">
-                        {Object.entries(row.options ?? {}).map(([name, values]) => `${name === "Size" ? t("variant_size") : name === "Color" ? t("variant_color") : name === "Weight" ? t("variant_weight") : name}: ${values[0]}`).join(" / ") || t("variant")}
-                      </span>
-                      <input
-                        className="min-w-24 flex-1 rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
-                        aria-label={`${groupLabel} ${Object.values(row.options ?? {}).flat().join(" ")} ${t("variant_price")}`}
-                        value={row.price > 0 ? formatGroupedNumberInput(String(row.price)) : ""}
-                        onChange={event => updateVariantPriceRef.current(row.id, event.target.value)}
-                        placeholder={t("placeholder.price")}
-                        disabled={isUpdatingProduct}
-                        inputMode="decimal"
-                      />
-                      <input
-                        className={twMerge(
-                          "min-w-24 flex-1 rounded-xl border bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30",
-                          row.quantity > 0 ? "border-white/8" : "border-warning/40",
-                        )}
-                        aria-label={`${groupLabel} ${Object.values(row.options ?? {}).flat().join(" ")} ${t("variant_quantity")}`}
-                        value={row.quantity > 0 ? formatGroupedNumberInput(String(row.quantity)) : ""}
-                        onChange={event => updateVariantQuantityRef.current(row.id, event.target.value)}
-                        placeholder={t("variant_quantity")}
-                        disabled={isUpdatingProduct}
-                        inputMode="numeric"
-                      />
-                    </div>
-                  ))}
+                <div className="halloween-table overflow-hidden rounded-xl border border-white/25 bg-[#0d1116]">
+                  <div className="grid grid-cols-[minmax(72px,1fr)_minmax(0,1.2fr)_minmax(0,1.2fr)] items-center gap-2 bg-white/[0.10] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-white/90">
+                    <span>{parameterHeading}</span>
+                    <span>{t("price")}</span>
+                    <span>{t("on_stock")}</span>
+                  </div>
+                  {group.map(row => {
+                    const rowOptions = Object.entries(row.options ?? {})
+                    const rowLabel = rowOptions.length === 1
+                      ? rowOptions[0][1][0]
+                      : rowOptions.map(([name, values]) => `${name}: ${values[0]}`).join(" / ") || groupLabel
+                    return (
+                      <div className="grid grid-cols-[minmax(72px,1fr)_minmax(0,1.2fr)_minmax(0,1.2fr)] items-center gap-2 border-t border-white/20 px-3 py-2" key={row.id}>
+                        <span className="min-w-0 break-words text-sm font-medium text-title">{rowLabel}</span>
+                        <input
+                          className="halloween-field w-full min-w-0 rounded-lg border border-white/25 bg-[#111820] px-1.5 py-2 text-xs text-white outline-none transition-all focus:border-success focus:ring-2 focus:ring-success/70 mobile:px-2.5 mobile:text-sm"
+                          aria-label={`${groupLabel} ${rowLabel} ${t("variant_price")}`}
+                          value={row.price > 0 ? formatGroupedNumberInput(String(row.price)) : ""}
+                          onChange={event => updateVariantPriceRef.current(row.id, event.target.value)}
+                          placeholder={t("price")}
+                          disabled={isUpdatingProduct}
+                          inputMode="decimal"
+                        />
+                        <input
+                          className={twMerge(
+                            "halloween-field w-full min-w-0 rounded-lg border bg-[#111820] px-1.5 py-2 text-xs text-white outline-none transition-all focus:border-success focus:ring-2 focus:ring-success/70 mobile:px-2.5 mobile:text-sm",
+                            row.quantity > 0 ? "border-white/25" : "border-warning/70",
+                          )}
+                          aria-label={`${groupLabel} ${rowLabel} ${t("variant_quantity")}`}
+                          value={formatGroupedNumberInput(String(row.quantity))}
+                          onChange={event => updateVariantQuantityRef.current(row.id, event.target.value)}
+                          disabled={isUpdatingProduct}
+                          inputMode="numeric"
+                        />
+                      </div>
+                    )
+                  })}
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -443,7 +460,6 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 {/* The print area is measured against the linked photo, so a variant showing another
                     variant's photo makes the buyer's preview lie about what gets printed */}
                 <p className="text-[11px] text-subTitle">{t("variant_image_matches_hint")}</p>
-              </div>
             </div>
           </div>
         )
@@ -452,9 +468,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   )
 
   return (
-    <div className="grid gap-6 laptop:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-      <section className="rounded-2xl border border-white/8 bg-[linear-gradient(145deg,rgba(12,16,21,0.98),rgba(8,10,14,0.99))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.34)]">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("manage_images")}</p>
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-6 laptop:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <section className="halloween-panel rounded-2xl border border-white/8 bg-[linear-gradient(145deg,rgba(12,16,21,0.98),rgba(8,10,14,0.99))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.34)]">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-white/70">{t("manage_images")}</p>
         {product.img_url.length > 0 && (
           <div className="relative mt-3 aspect-[4/3] w-full overflow-hidden rounded-xl border border-white/8 bg-black">
             <AnimatePresence
@@ -502,8 +518,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         </div>
       </section>
 
-      <form className="flex flex-col gap-4" onSubmit={event => handleSubmit(onSubmit)(event)}>
-        <section className="rounded-2xl border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(20,90,44,0.22),transparent_28%),linear-gradient(155deg,rgba(11,14,19,0.99),rgba(8,10,14,1))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.42)]">
+      <form className="flex min-w-0 flex-col gap-4" onSubmit={event => handleSubmit(onSubmit)(event)}>
+        <section className="halloween-panel rounded-2xl border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(20,90,44,0.22),transparent_28%),linear-gradient(155deg,rgba(11,14,19,0.99),rgba(8,10,14,1))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.42)]">
           <div className="mb-4">
             <p className="text-xs uppercase tracking-[0.24em] text-subTitle">{t("manage_product")}</p>
             <h1 className="mt-2 text-3xl font-semibold text-title">{t("manage_product_title")}</h1>
@@ -512,7 +528,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
           <div className="grid gap-4">
             <div className="grid gap-1.5">
-              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">{t("title")}</label>
+              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">{t("title")}</label>
               <ProductInput
                 className={twMerge(inputCn, "h-12")}
                 id="title"
@@ -525,7 +541,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             </div>
 
             <div className="grid gap-1.5">
-              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
                 {t("description")}
               </label>
               <ProductInput
@@ -555,11 +571,11 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
+        <section className="halloween-panel rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
           <div className="flex flex-col gap-3">
             <div className="grid items-end gap-3 mobile:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
               <label className="grid gap-1.5">
-                <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
                   {t("variant_label")}
                 </span>
                 <input
@@ -572,7 +588,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               </label>
 
               <label className="grid gap-1.5">
-                <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/40">
+                <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
                   {t("variant_price")}
                 </span>
                 <input
@@ -601,7 +617,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             {!variants.length && <p className="text-sm text-subTitle">{t("manage_variant_help")}</p>}
           </div>
 
-          <div className="mt-4 grid gap-3">
+          <div className="mt-4 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
             {variantCards.length ? variantCards : <p className="text-sm text-subTitle">{t("manage_variant_empty")}</p>}
           </div>
         </section>
@@ -609,7 +625,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         {/* Own section with its own update button - the print area is not part of the title/price form */}
         <PersonalizationForm imageUrls={product.img_url} productId={product.id} personalization={product.personalization} />
 
-        <section className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
+        <section className="halloween-panel rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
           <div className="flex flex-wrap gap-3">
             <Button
               className="font-medium"

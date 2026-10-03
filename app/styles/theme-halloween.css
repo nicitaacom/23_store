@@ -1,18 +1,17 @@
-/* Halloween — October and November. Palette ported from
-   14_portfolio/app/styles/theme-halloween.css and re-written onto this repo's token names.
-   Orange means action. Purple holds the frame. Bone is text. */
+/* Halloween: ember controls, dark violet panels, and bone text. */
 
-:root[data-theme="halloween"] {
+:root[data-theme="halloween"],
+:root[data-theme="halloween"] .dark {
   --brand: 25deg 100% 55%;
   --background: 273deg 37% 4%;
-  --foreground: 268deg 24% 12%;
-  --foreground-accent: 267deg 27% 20%;
-  --foreground-hover: 267deg 27% 24%;
+  --foreground: 271deg 27% 12%;
+  --foreground-accent: 269deg 30% 20%;
+  --foreground-hover: 269deg 30% 25%;
   --title: 43deg 23% 88%;
   --title-foreground: 270deg 28% 7%;
-  --subTitle: 270deg 10% 70%;
+  --subTitle: 32deg 13% 76%;
 
-  --border-color: 269deg 20% 46%;
+  --border-color: 26deg 31% 52%;
   --icon-color: 43deg 23% 88%;
 
   --modal-surface: 270deg 26% 9%;
@@ -20,17 +19,140 @@
   --info: 264deg 62% 76%;
   --warning: 36deg 100% 54%;
   --danger: 0deg 100% 69%;
-  --success: 116deg 34% 58%;
-  --success-accent: 116deg 40% 46%;
+  --success: 30deg 100% 69%;
+  --success-accent: 25deg 100% 55%;
 
   /* Read by .halloween-scene only */
   --halloween-room: #070509;
+}
+
+:root[data-theme="halloween"] {
+  background-color: hsl(var(--background));
 }
 
 /* The scene sits behind the page, so the two opaque surfaces above it step aside */
 :root[data-theme="halloween"] body,
 :root[data-theme="halloween"] main {
   background-color: transparent;
+}
+
+/* Seasonal component vocabulary. These classes are attached only to shared storefront parts,
+   so other themes retain their own surfaces and status colors. */
+:root[data-theme="halloween"] .halloween-nav {
+  background: linear-gradient(90deg, rgb(17 9 23 / 0.97), rgb(39 17 34 / 0.96) 50%, rgb(17 9 23 / 0.97));
+  border-bottom: 1px solid rgb(255 139 46 / 0.64);
+  box-shadow: 0 2px 0 rgb(255 187 100 / 0.12), 0 15px 36px rgb(0 0 0 / 0.55);
+}
+
+:root[data-theme="halloween"] .halloween-nav::after {
+  background: linear-gradient(90deg, transparent 4%, rgb(255 136 35 / 0.45) 27%, rgb(255 190 91 / 0.72) 50%, rgb(255 136 35 / 0.45) 73%, transparent 96%);
+  bottom: -2px;
+  content: "";
+  height: 1px;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+}
+
+:root[data-theme="halloween"] .halloween-admin-header {
+  background: radial-gradient(circle at 0 0, rgb(255 143 46 / 0.2), transparent 33%),
+    linear-gradient(115deg, #241324, #130d1d 72%);
+  border-bottom-color: rgb(255 165 78 / 0.58);
+}
+
+:root[data-theme="halloween"] .halloween-panel {
+  background-color: #130c1a;
+  background-image: radial-gradient(circle at 100% 0, rgb(255 133 32 / 0.13), transparent 34%),
+    linear-gradient(145deg, rgb(38 19 42 / 0.96), rgb(15 9 22 / 0.98) 72%);
+  border-color: rgb(255 160 78 / 0.5);
+  box-shadow: inset 0 1px 0 rgb(255 209 151 / 0.13), inset 0 -1px 0 rgb(5 2 8 / 0.8),
+    0 12px 30px rgb(5 2 8 / 0.36);
+}
+
+:root[data-theme="halloween"] .halloween-panel.halloween-panel-warning {
+  border-color: hsl(var(--warning) / 0.9);
+}
+
+:root[data-theme="halloween"] .halloween-product-card {
+  background-color: #160e1c;
+  border-color: rgb(255 157 65 / 0.5);
+  box-shadow: inset 0 1px 0 rgb(255 204 143 / 0.16), 0 12px 30px rgb(4 1 7 / 0.48);
+  position: relative;
+}
+
+:root[data-theme="halloween"] .halloween-product-card::after {
+  background: linear-gradient(90deg, rgb(255 145 44 / 0.9), rgb(255 186 84 / 0.24), transparent 82%);
+  content: "";
+  height: 3px;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+:root[data-theme="halloween"] .halloween-product-card:hover {
+  border-color: rgb(255 172 82 / 0.9);
+  box-shadow: inset 0 1px 0 rgb(255 204 143 / 0.2), 0 18px 36px rgb(255 104 19 / 0.15);
+}
+
+:root[data-theme="halloween"] .halloween-product-card a.text-title {
+  color: hsl(var(--title));
+}
+
+:root[data-theme="halloween"] .halloween-product-card .halloween-button {
+  background-color: rgb(255 133 39 / 0.12);
+  border-color: rgb(255 167 80 / 0.64);
+  color: #ffbb75;
+}
+
+:root[data-theme="halloween"] .halloween-product-card .halloween-button svg {
+  color: inherit;
+}
+
+:root[data-theme="halloween"] .halloween-button {
+  border-radius: 6px 10px 6px 10px;
+}
+
+:root[data-theme="halloween"] .halloween-button:hover:not(:disabled),
+:root[data-theme="halloween"] .halloween-button:focus-visible {
+  box-shadow: 0 0 0 1px rgb(255 159 68 / 0.42), 0 0 18px rgb(255 111 24 / 0.19);
+}
+
+:root[data-theme="halloween"] .halloween-field {
+  background-color: #120d1a;
+  border-color: rgb(255 170 96 / 0.55);
+  box-shadow: inset 0 2px 5px rgb(2 0 4 / 0.45);
+  color: hsl(var(--title));
+}
+
+:root[data-theme="halloween"] .halloween-field:focus {
+  border-color: #ffb463;
+  box-shadow: inset 0 2px 5px rgb(2 0 4 / 0.4), 0 0 0 3px rgb(255 150 52 / 0.45);
+  outline: 2px solid #ffbf7a;
+  outline-offset: 2px;
+}
+
+:root[data-theme="halloween"] .halloween-options {
+  background: linear-gradient(120deg, rgb(23 12 30 / 0.96), rgb(34 16 34 / 0.9));
+  border-color: rgb(255 164 77 / 0.54);
+}
+
+:root[data-theme="halloween"] .halloween-table {
+  background-color: #110b19;
+  border-color: rgb(255 154 67 / 0.52);
+}
+
+:root[data-theme="halloween"] .halloween-table > :first-child {
+  background: linear-gradient(90deg, rgb(103 43 23 / 0.64), rgb(52 25 39 / 0.78));
+  border-bottom-color: rgb(255 156 67 / 0.45);
+  color: #ffcf9a;
+}
+
+:root[data-theme="halloween"] :is(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid #ffbd78;
+  outline-offset: 2px;
 }
 
 /* ── Graveyard scene — verbatim from 14_portfolio/app/styles/theme-halloween.css:101-122,228-244 */

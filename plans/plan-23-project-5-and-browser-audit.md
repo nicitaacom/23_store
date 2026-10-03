@@ -28,6 +28,9 @@ The project tracker records the overall plan status; checked rows below record f
   once across module reloads. The local suite passed: 34 files, 230 tests.
 - [x] Keep sizes as parameters inside their owning variant card in Add, Edit, and Manage. The
   storefront shows one chip per variant group, while the chosen size reaches the cart and order.
+- [x] Make grouped-size price and stock columns readable, strengthen input focus, and keep the
+  management form within a 320px viewport. Add Halloween styling to shared navigation, cards,
+  controls, tables, and the Admin Panel header.
 
 ## Project 5 cards still shown as To-do
 

@@ -9,7 +9,7 @@ export const BaseInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<
   ({ className, ...props }, ref) => (
     <input
       className={twMerge(
-        "h-8 w-full rounded-lg border border-border-color/25 bg-background/60 px-3 text-sm text-title outline-none transition-all duration-150 placeholder:text-subTitle/55 focus:border-brand/50 focus:bg-background focus:ring-2 focus:ring-brand/15",
+        "halloween-field h-8 w-full rounded-lg border border-border-color/35 bg-background/60 px-3 text-sm text-title outline-none transition-all duration-150 placeholder:text-subTitle/70 focus:border-brand focus:bg-background focus:ring-2 focus:ring-brand/55",
         className,
       )}
       ref={ref}

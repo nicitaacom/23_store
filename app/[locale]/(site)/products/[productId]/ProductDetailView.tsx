@@ -168,7 +168,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
         </div>
 
         <div className="order-1 tablet:order-2 flex flex-col gap-2">
-          <div className="overflow-hidden rounded-[2px] border border-success/20 bg-foreground/5">
+          <div className="halloween-panel overflow-hidden rounded-[2px] border border-success/20 bg-foreground/5">
             <div className="relative aspect-square w-full max-h-[480px]">
               <Image
                 className="object-contain p-4 mobile:p-6"
@@ -203,7 +203,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
 
       {/* Right column: product info */}
       <aside className="flex flex-col gap-2">
-        <section className="flex flex-col gap-2 rounded-[2px] border border-success/20 bg-foreground/5 p-3">
+        <section className="halloween-panel flex flex-col gap-2 rounded-[2px] border border-success/20 bg-foreground/5 p-3">
           {/* Badges row */}
           <div className="flex flex-wrap items-center gap-2">
             <span
@@ -289,7 +289,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
         </section>
 
         {/* Product details */}
-        <section className="flex flex-col gap-2 rounded-[2px] border border-border-color/20 bg-foreground/5 p-3">
+        <section className="halloween-panel flex flex-col gap-2 rounded-[2px] border border-border-color/20 bg-foreground/5 p-3">
           <h2 className="text-sm font-semibold text-title">{t("product_details")}</h2>
           <p className="text-sm leading-6 text-subTitle">
             <MarkdownText text={translation.description} />

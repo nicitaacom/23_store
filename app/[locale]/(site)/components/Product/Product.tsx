@@ -73,7 +73,7 @@ function Product({ ...product }: Props) {
     // 1. Card — soft accent gradient + animated left accent bar that grows on hover
     <article
       className={twMerge(
-        "group relative flex flex-col overflow-hidden rounded-md border border-border-color/20 bg-gradient-to-br from-foreground/5 to-transparent transition-colors duration-300 tablet:flex-row",
+        "halloween-product-card group relative flex flex-col overflow-hidden rounded-md border border-border-color/20 bg-gradient-to-br from-foreground/5 to-transparent transition-colors duration-300 tablet:flex-row",
         "hover:border-success/30 hover:from-success/10 hover:to-transparent",
         // before:z-10 - the media div below is positioned too, so without it the accent bar paints
         // under the product image and the hover effect is only visible next to the text

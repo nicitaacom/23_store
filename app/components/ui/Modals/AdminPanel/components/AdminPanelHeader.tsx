@@ -8,6 +8,7 @@ import { MdOutlineDelete, MdOutlineCategory, MdPriceChange } from "react-icons/m
 
 import { TPanelAction } from "@/ts/types/TPanelAction"
 import { useScopedI18n } from "@/locales/client"
+import { useSiteTheme } from "@/hooks/ui/useSiteTheme"
 import { OrganicCanvasBackground } from "@/components/OrganicCanvasBackground"
 
 export const PANEL_ACTIONS = {
@@ -49,19 +50,20 @@ export function AdminPanelHeader({
   roles,
 }: AdminPanelHeaderProps) {
   const t = useScopedI18n("product")
+  const siteTheme = useSiteTheme()
 
   return (
     <OrganicCanvasBackground
       // mark the whole header as a non-dismiss zone so clicking empty space (gaps/padding)
       // between the tabs doesn't trip the modal's click-outside handler and close it
       className={twMerge(
-        "h-[52px] overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.12),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))] tablet:h-[56px] tablet:rounded-t-lg",
+        "halloween-admin-header h-[52px] overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.12),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))] tablet:h-[56px] tablet:rounded-t-lg",
         className,
       )}
       data-click-outside-ignore
       parentClassName="relative flex h-full items-center justify-between gap-2 px-2 py-2 tablet:px-3"
       particleCount={3}
-      brandHsl="137, 82%, 52%"
+      brandHsl={siteTheme === "halloween" ? "25, 100%, 55%" : "137, 82%, 52%"}
       verticalOverflow={18}>
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <div className="min-w-0">

@@ -1,4 +1,6 @@
 import "../app/globals.css";
+import "../app/styles/theme-halloween.css";
+import "../app/styles/theme-new-year.css";
 import type { Preview } from "@storybook/nextjs-vite";
 import { initialize, mswLoader } from "msw-storybook-addon";
 

@@ -46,7 +46,7 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
   }
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border-color/20 bg-modal-surface shadow-compact-lg transition-transform duration-300 hover:-translate-y-1">
+    <article className="halloween-product-card group flex flex-col overflow-hidden rounded-2xl border border-border-color/20 bg-modal-surface shadow-compact-lg transition-transform duration-300 hover:-translate-y-1">
       {/* Image banner + like (only when not bought) */}
       <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-foreground/5">
         <ImageWithFallback

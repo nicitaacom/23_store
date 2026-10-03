@@ -385,6 +385,7 @@ export default {
   "product.variant_option_name": "Egenskap (färg, storlek, vikt...)",
   "product.variant_option_value": "Värde (blå, XL, 2,5 kg...)",
   "product.variant_option_add": "Lägg till egenskap",
+  "product.variant_parameter": "Egenskap",
   "product.variant_options_for": "Val för varianten {variant}",
   "product.variant_options_for_new": "Val för den nya varianten",
   "product.variant_color": "Färg",

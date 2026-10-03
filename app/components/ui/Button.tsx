@@ -6,9 +6,9 @@ import { VariantProps, cva } from "class-variance-authority"
 import { twMerge } from "tailwind-merge"
 
 const buttonVariants = cva(
-  `inline-flex items-center justify-center border font-primary font-medium outline-none
+  `halloween-button inline-flex items-center justify-center border font-primary font-medium outline-none
   transition-[background-color,border-color,color,transform,box-shadow] duration-150 disabled:opacity-50 disabled:pointer-events-none
-  focus-visible:ring-1 focus-visible:ring-brand/35 focus-visible:ring-offset-1 focus-visible:ring-offset-background
+  focus-visible:ring-2 focus-visible:ring-brand/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background
   active:scale-[0.99] whitespace-nowrap`,
   {
     variants: {
