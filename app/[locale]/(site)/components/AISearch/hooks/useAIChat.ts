@@ -40,7 +40,9 @@ export function useAIChat() {
   const rateLimitSDK = new RateLimitSDK()
   const t = useI18n()
 
-  useEffect(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), [conversation])
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [conversation])
 
   useEffect(() => {
     if (!isLoading && inputRef.current) inputRef.current.focus()
