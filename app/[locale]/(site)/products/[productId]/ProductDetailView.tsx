@@ -15,6 +15,7 @@ import { ProductLikeButton } from "../../components/ProductLikeButton"
 import { createCartProductKey, getProductPriceForVariant } from "@/utils/cartProducts"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
+import { getProductVariantGroupLabel, groupProductVariants } from "@/utils/variantOptions"
 import { resolvePersonalizationConfig } from "@/utils/printMetrics"
 import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import useCartStore from "@/store/user/cartStore"
@@ -49,7 +50,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
   // A label is all a variant needs to be real - size variants (S/M/L) look identical in a photo, so
   // they have no image of their own and show as a text chip instead of a swatch.
   const variants = useMemo(() => product.variants?.filter(variant => variant.label) || [], [product.variants])
-  const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
+  const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants.find(variant => variant.quantity > 0) || variants[0]
   const galleryImages = useMemo(() => {
     const orderedImages = [selectedVariant?.image_url, ...(product.img_url || [])].filter((image): image is string =>
       Boolean(image),
@@ -108,32 +109,35 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
 
   const renderedVariants = useMemo(
     () =>
-      variants.map(variant => (
-        <button
-          className={twMerge(
-            "flex h-20 items-center gap-3 rounded-[2px] border px-3 text-left transition-colors duration-150",
-            variant.id === selectedVariant?.id
-              ? "border-success bg-success/10"
-              : "border-border-color/20 bg-background/40 hover:border-success/30 hover:bg-success/5",
-          )}
-          key={variant.id}
-          type="button"
-          onClick={() => handleSelectVariant(variant.id)}>
-          {variant.image_url && (
-            <Image
-              className="h-14 w-14 rounded-[2px] object-cover"
-              src={variant.image_url}
-              alt={variant.label}
-              width={64}
-              height={64}
-            />
-          )}
-          <div className="min-w-0">
-            <span className="block text-base font-medium text-title">{variant.label}</span>
-            <span className="text-sm text-success">{formatCurrency(variant.price)}</span>
-          </div>
-        </button>
-      )),
+      groupProductVariants(variants).map(group => {
+        const variant = group.find(row => row.quantity > 0) ?? group[0]
+        return (
+          <button
+            className={twMerge(
+              "flex h-20 items-center gap-3 rounded-[2px] border px-3 text-left transition-colors duration-150",
+              group.some(row => row.id === selectedVariant?.id)
+                ? "border-success bg-success/10"
+                : "border-border-color/20 bg-background/40 hover:border-success/30 hover:bg-success/5",
+            )}
+            key={variant.id}
+            type="button"
+            onClick={() => handleSelectVariant(variant.id)}>
+            {variant.image_url && (
+              <Image
+                className="h-14 w-14 rounded-[2px] object-cover"
+                src={variant.image_url}
+                alt={variant.label}
+                width={64}
+                height={64}
+              />
+            )}
+            <div className="min-w-0">
+              <span className="block text-base font-medium text-title">{getProductVariantGroupLabel(variant)}</span>
+              <span className="text-sm text-success">{formatCurrency(variant.price)}</span>
+            </div>
+          </button>
+        )
+      }),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSelectVariant is a stable store action, never add fns to deps
     [variants, selectedVariant],
   )

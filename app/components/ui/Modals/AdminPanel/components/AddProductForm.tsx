@@ -29,7 +29,7 @@ import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { createProductFn } from "@/functions/createProductFn"
 import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils/product"
-import { expandVariantOptionValues, labelForVariantCombination, toVariantOptionValues } from "@/utils/variantOptions"
+import { expandVariantOptionValues, getVariantGroupLabel, getVariantGroupOptions, groupVariantDrafts, toVariantOptionValues } from "@/utils/variantOptions"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
 import { getProductProcessingPluralForm } from "@/utils/getProductProcessingPluralForm"
@@ -668,7 +668,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       ...currentVariants,
       ...optionCombinations.map((options, index) => ({
         id: index === 0 ? groupId : crypto.randomUUID(),
-        label: labelForVariantCombination(normalizedLabel, options, index),
+        label: normalizedLabel,
         options: toVariantOptionValues(options),
         group_id: groupId,
         imageIndex: isVariantImageAttached ? activeImageIndex : -1,
@@ -686,8 +686,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     hasOfferedPreviousVariantPriceRef.current = false
   }
 
-  const removeVariant = (variantId: string) => {
-    setVariants(currentVariants => currentVariants.filter(variant => variant.id !== variantId))
+  const removeVariant = (groupId: string) => {
+    setVariants(currentVariants => currentVariants.filter(variant => (variant.group_id ?? variant.id) !== groupId))
   }
 
   useEffect(() => {
@@ -1111,12 +1111,14 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
           {variants.length > 0 ? (
             <div className="grid gap-2 tablet:grid-cols-2">
-              {variants.map(variant => {
+              {groupVariantDrafts(variants).map(group => {
+                const variant = group[0]
+                const groupId = variant.group_id ?? variant.id
                 const variantImage = images.find(image => image.data_url === variant.imageDataUrl)
                 const variantImageIndex = images.findIndex(image => image.data_url === variant.imageDataUrl)
 
                 return (
-                  <div className="flex items-center gap-2 rounded border border-white/8 bg-white/[0.03] p-2" key={variant.id}>
+                  <div className="flex items-center gap-2 rounded border border-white/8 bg-white/[0.03] p-2" key={groupId}>
                     {variantImage?.data_url && (
                       <button
                         className="relative h-14 w-14 shrink-0 overflow-hidden rounded border border-white/10"
@@ -1133,8 +1135,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                       </button>
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-sm font-medium text-white">{variant.label}</p>
-                      {Object.entries(variant.options ?? {}).map(([name, values]) => (
+                      <p className="line-clamp-2 text-sm font-medium text-white">{getVariantGroupLabel(group)}</p>
+                      {Object.entries(getVariantGroupOptions(group)).map(([name, values]) => (
                         <p className="text-[11px] text-subTitle" key={name}>{name}: {values.join(", ")}</p>
                       ))}
                       <p className="mt-0.5 text-[11px] text-success">{formatCurrency(variant.price)}</p>
@@ -1146,7 +1148,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                       className="rounded border border-danger/50 bg-danger/8 px-3 py-2 text-[11px] font-medium text-danger transition-colors hover:bg-danger/12"
                       type="button"
                       tabIndex={-1}
-                      onClick={() => removeVariant(variant.id)}>
+                      onClick={() => removeVariant(groupId)}>
                       {t("remove")}
                     </button>
                   </div>

@@ -1,4 +1,5 @@
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
+import { getProductVariantSelectionLabel } from "@/utils/variantOptions"
 
 /**
  * The line-item name is the only per-line text that reaches the payment dashboard - there is no
@@ -8,7 +9,7 @@ import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
  */
 export function buildStripeLineName(product: TProductAfterDB) {
   const variantName = product.selectedVariant
-    ? `${product.translations.fi.title} - ${product.selectedVariant.label}`
+    ? `${product.translations.fi.title} - ${getProductVariantSelectionLabel(product.selectedVariant)}`
     : product.translations.fi.title
 
   return product.designId ? `${variantName} · design ${product.designId.slice(0, 8)}` : variantName

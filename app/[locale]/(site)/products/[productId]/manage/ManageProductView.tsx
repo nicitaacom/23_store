@@ -11,9 +11,9 @@ import { AnimatePresence, motion } from "framer-motion"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVariant"
 import { TProductDB } from "@/ts/product/TProductDB"
+import { expandVariantOptionValues, getVariantGroupLabel, getVariantGroupOptions, groupVariantDrafts, toVariantOptionValues, updateVariantGroupOptions } from "@/utils/variantOptions"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
-import { expandVariantOptionValues, labelForVariantCombination, toVariantOptionValues } from "@/utils/variantOptions"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
@@ -73,7 +73,6 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const {
     register,
     handleSubmit,
-    // eslint-disable-next-line local-rules/no-banned-words -- React Hook Form exposes this exact field name.
     formState: { errors, isDirty: hasFormChanges },
   } = useForm<IFormDataAddProduct>({
     defaultValues: {
@@ -127,9 +126,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     setVariantPriceValue("")
   }, [t, toast, variantLabelValue, variantPriceValue, variants.length])
 
-  const updateVariantLabel = useCallback((variantId: string, nextLabel: string) => {
+  const updateVariantLabel = useCallback((groupId: string, nextLabel: string) => {
     setVariants(currentVariants =>
-      currentVariants.map(variant => (variant.id === variantId ? { ...variant, label: nextLabel } : variant)),
+      currentVariants.map(variant => ((variant.group_id ?? variant.id) === groupId ? { ...variant, label: nextLabel } : variant)),
     )
   }, [])
 
@@ -164,13 +163,13 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   }, [])
 
   const assignFirstImageToVariant = useCallback(
-    (variantId: string) => {
+    (groupId: string) => {
       const firstImageUrl = product.img_url[0]
       if (!firstImageUrl) return
 
       setVariants(currentVariants =>
         currentVariants.map(variant =>
-          variant.id === variantId
+          (variant.group_id ?? variant.id) === groupId
             ? {
                 ...variant,
                 imageIndex: 0,
@@ -183,32 +182,32 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     [product.img_url],
   )
 
-  const clearVariantImage = useCallback((variantId: string) => {
+  const clearVariantImage = useCallback((groupId: string) => {
     setVariants(currentVariants =>
-      currentVariants.map(variant => (variant.id === variantId ? { ...variant, imageIndex: -1, imageDataUrl: null } : variant)),
+      currentVariants.map(variant => ((variant.group_id ?? variant.id) === groupId ? { ...variant, imageIndex: -1, imageDataUrl: null } : variant)),
     )
   }, [])
 
-  const removeVariant = useCallback((variantId: string) => {
-    setVariants(currentVariants => currentVariants.filter(variant => variant.id !== variantId))
+  const removeVariant = useCallback((groupId: string) => {
+    setVariants(currentVariants => currentVariants.filter(variant => (variant.group_id ?? variant.id) !== groupId))
   }, [])
 
   // An image the gallery no longer holds becomes null rather than falling back to the first photo -
   // the fallback belongs at render time, so replacing the photos later fixes every imageless variant.
   const buildResolvedVariants = useCallback(() => {
-    return variants.flatMap((variant): TProductVariant[] => {
-      if (!variant.label.trim()) return []
-      const combinations = expandVariantOptionValues(variant.options ?? {})
-      return combinations.map((options, index) => ({
-        id: index === 0 ? variant.id : crypto.randomUUID(),
-        label: labelForVariantCombination(variant.label.trim(), options, index),
+    return groupVariantDrafts(variants).flatMap(group => group.flatMap((variant): TProductVariant[] => {
+      const label = getVariantGroupLabel(group).trim()
+      if (!label) return []
+      return [{
+        id: variant.id,
+        label,
         image_url: product.img_url.find(url => url === variant.imageDataUrl) ?? null,
-        options,
-        group_id: variant.group_id ?? (combinations.length > 1 ? variant.id : undefined),
+        options: expandVariantOptionValues(variant.options ?? {})[0],
+        group_id: variant.group_id,
         price: variant.price > 0 ? variant.price : product.price,
         quantity: variant.quantity > 0 ? Math.floor(variant.quantity) : 0,
-      }))
-    })
+      }]
+    }))
   }, [product.img_url, product.price, variants])
 
   // Held in refs so other hooks below can call the latest version without listing these
@@ -314,7 +313,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     [
       locale,
       product.id,
-      product.img_url.length,
+      product.img_url,
       product.price,
       product.translations,
       product.variants,
@@ -345,17 +344,20 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
   const variantCards = useMemo(
     () =>
-      variants.map(variant => {
+      groupVariantDrafts(variants).map(group => {
+        const variant = group[0]
+        const groupId = variant.group_id ?? variant.id
+        const groupLabel = getVariantGroupLabel(group)
         const linkedImageUrl = product.img_url.find(url => url === variant.imageDataUrl) ?? null
 
         return (
           <div
             className="rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(14,18,24,0.96),rgba(9,11,15,0.98))] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.2)]"
-            key={variant.id}>
+            key={groupId}>
             <div className="flex gap-3">
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black">
                 {linkedImageUrl ? (
-                  <Image className="object-cover" src={linkedImageUrl} alt={variant.label} fill sizes="64px" />
+                  <Image className="object-cover" src={linkedImageUrl} alt={groupLabel} fill sizes="64px" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-[10px] text-white/35">{t("variant")}</div>
                 )}
@@ -364,60 +366,76 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               <div className="flex min-w-0 flex-1 flex-col gap-2">
                 <input
                   className="w-full rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
-                  value={variant.label}
-                  onChange={event => updateVariantLabelRef.current(variant.id, event.target.value)}
+                  value={groupLabel}
+                  onChange={event => updateVariantLabelRef.current(groupId, event.target.value)}
                   placeholder={t("variant_label")}
                   disabled={isUpdatingProduct}
                 />
 
-                <div className="flex gap-2">
-                  <input
-                    className="w-full min-w-0 flex-1 rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
-                    value={variant.price > 0 ? formatGroupedNumberInput(String(variant.price)) : ""}
-                    onChange={event => updateVariantPriceRef.current(variant.id, event.target.value)}
-                    placeholder={t("placeholder.price")}
-                    disabled={isUpdatingProduct}
-                    inputMode="decimal"
-                  />
-                  <input
-                    className={twMerge(
-                      "w-full min-w-0 flex-1 rounded-xl border bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30",
-                      variant.quantity > 0 ? "border-white/8" : "border-warning/40",
-                    )}
-                    value={variant.quantity > 0 ? formatGroupedNumberInput(String(variant.quantity)) : ""}
-                    onChange={event => updateVariantQuantityRef.current(variant.id, event.target.value)}
-                    placeholder={t("variant_quantity")}
-                    disabled={isUpdatingProduct}
-                    inputMode="numeric"
-                  />
-                </div>
-
                 <VariantOptionsEditor
-                  variantLabel={variant.label}
-                  options={variant.options ?? {}}
-                  onChange={options => setVariants(current => current.map(row => row.id === variant.id ? { ...row, options } : row))}
+                  variantLabel={groupLabel}
+                  options={getVariantGroupOptions(group)}
+                  onChange={options => {
+                    const nextCount = variants.length - group.length + expandVariantOptionValues(options).length
+                    if (nextCount > MAX_PRODUCT_VARIANTS) {
+                      toast.show("warning", t("warning.max_variants_title", { maxVariants: MAX_PRODUCT_VARIANTS }), t("warning.max_variants_subtitle", { maxVariants: MAX_PRODUCT_VARIANTS }))
+                      return
+                    }
+                    setVariants(current => updateVariantGroupOptions(current, groupId, options))
+                  }}
                   disabled={isUpdatingProduct}
                 />
+
+                <div className="grid gap-2">
+                  {group.map(row => (
+                    <div className="flex flex-wrap items-center gap-2" key={row.id}>
+                      <span className="min-w-20 text-xs text-subTitle">
+                        {Object.entries(row.options ?? {}).map(([name, values]) => `${name === "Size" ? t("variant_size") : name === "Color" ? t("variant_color") : name === "Weight" ? t("variant_weight") : name}: ${values[0]}`).join(" / ") || t("variant")}
+                      </span>
+                      <input
+                        className="min-w-24 flex-1 rounded-xl border border-white/8 bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30"
+                        aria-label={`${groupLabel} ${Object.values(row.options ?? {}).flat().join(" ")} ${t("variant_price")}`}
+                        value={row.price > 0 ? formatGroupedNumberInput(String(row.price)) : ""}
+                        onChange={event => updateVariantPriceRef.current(row.id, event.target.value)}
+                        placeholder={t("placeholder.price")}
+                        disabled={isUpdatingProduct}
+                        inputMode="decimal"
+                      />
+                      <input
+                        className={twMerge(
+                          "min-w-24 flex-1 rounded-xl border bg-[#0f1318] px-3 py-2 text-sm text-white outline-none transition-colors focus:border-success/30",
+                          row.quantity > 0 ? "border-white/8" : "border-warning/40",
+                        )}
+                        aria-label={`${groupLabel} ${Object.values(row.options ?? {}).flat().join(" ")} ${t("variant_quantity")}`}
+                        value={row.quantity > 0 ? formatGroupedNumberInput(String(row.quantity)) : ""}
+                        onChange={event => updateVariantQuantityRef.current(row.id, event.target.value)}
+                        placeholder={t("variant_quantity")}
+                        disabled={isUpdatingProduct}
+                        inputMode="numeric"
+                      />
+                    </div>
+                  ))}
+                </div>
 
                 <div className="flex flex-wrap gap-2">
                   <button
                     className="rounded-xl border border-success/20 bg-success/8 px-3 py-2 text-xs font-medium text-success transition-colors hover:bg-success/12"
                     type="button"
-                    onClick={() => assignFirstImageToVariantRef.current(variant.id)}>
+                    onClick={() => assignFirstImageToVariantRef.current(groupId)}>
                     {t("assign_current_image")}
                   </button>
                   {linkedImageUrl && (
                     <button
                       className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-white/60 transition-colors hover:bg-white/[0.07]"
                       type="button"
-                      onClick={() => clearVariantImageRef.current(variant.id)}>
+                      onClick={() => clearVariantImageRef.current(groupId)}>
                       {t("variant_no_image")}
                     </button>
                   )}
                   <button
                     className="rounded-xl border border-danger/20 bg-danger/8 px-3 py-2 text-xs font-medium text-danger transition-colors hover:bg-danger/12"
                     type="button"
-                    onClick={() => removeVariantRef.current(variant.id)}>
+                    onClick={() => removeVariantRef.current(groupId)}>
                     {t("remove")}
                   </button>
                 </div>
@@ -430,7 +448,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           </div>
         )
       }),
-    [isUpdatingProduct, product.img_url, t, variants],
+    [isUpdatingProduct, product.img_url, t, toast, variants],
   )
 
   return (

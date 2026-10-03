@@ -1,4 +1,5 @@
 // do it in this way to reduce bundle size for better performance - https://github.com/resend/react-email/issues/1329#issuecomment-1980561233
+// do it in this way to reduce bundle size for better performance - https://github.com/resend/react-email/issues/1329#issuecomment-1980561233
 import { Fragment } from "react"
 // do it in this way to reduce bundle size for better performance - https://github.com/resend/react-email/issues/1329#issuecomment-1980561233
 import { Html } from "@react-email/html"
@@ -15,6 +16,7 @@ import { twMerge } from "tailwind-merge"
 
 import { TProductAfterDB } from "../ts/product/TProductAfterDB"
 import { formatCurrency } from "../utils/currencyFormatter"
+import { getProductVariantSelectionLabel } from "@/utils/variantOptions"
 import { getURL } from "@/utils/helpers"
 import { getVariantImageUrl } from "@/utils/cartProducts"
 import { toProductLocale } from "@/utils/product"
@@ -137,7 +139,7 @@ export function CheckEmail({
                             </Text>
                             {product.selectedVariant?.label && (
                               <Text style={{ lineHeight: "1.5", marginBottom: "12px" }} className="m-0 text-[14px] text-subTitle">
-                                {variantLabel}: {product.selectedVariant.label}
+                                {variantLabel}: {getProductVariantSelectionLabel(product.selectedVariant)}
                               </Text>
                             )}
                             <Text className="m-0 text-[16px] font-medium text-title">

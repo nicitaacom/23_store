@@ -34,8 +34,83 @@ export function expandVariantOptionValues(options: TVariantOptionValues): Record
   return combinations
 }
 
-export function labelForVariantCombination(label: string, options: Record<string, string>, index: number) {
-  return index === 0 ? label : `${label} / ${Object.entries(options).map(([name, value]) => `${name}: ${value}`).join(" / ")}`
+type VariantOptionDraft = { id: string; label: string; group_id?: string; options?: TVariantOptionValues }
+
+export function groupVariantDrafts<T extends VariantOptionDraft>(drafts: T[]): T[][] {
+  const groups = new Map<string, T[]>()
+  for (const draft of drafts) {
+    const groupId = draft.group_id ?? draft.id
+    groups.set(groupId, [...(groups.get(groupId) ?? []), draft])
+  }
+  return [...groups.values()]
+}
+
+export function getVariantGroupLabel(group: VariantOptionDraft[]) {
+  const first = group[0]
+  if (!first) return ""
+  const options = Object.entries(first.options ?? {}).map(([name, values]) => `${name}: ${values[0]}`).join(" / ")
+  const generatedSuffix = options ? ` / ${options}` : ""
+  return generatedSuffix && first.label.endsWith(generatedSuffix)
+    ? first.label.slice(0, -generatedSuffix.length)
+    : first.label
+}
+
+export function getVariantGroupOptions(group: VariantOptionDraft[]): TVariantOptionValues {
+  const options: TVariantOptionValues = {}
+  for (const draft of group) {
+    for (const [name, values] of Object.entries(draft.options ?? {})) {
+      options[name] = [...new Set([...(options[name] ?? []), ...values])]
+    }
+  }
+  return options
+}
+
+function variantCombinationKey(options: Record<string, string>) {
+  return JSON.stringify(Object.entries(options).sort(([firstName], [secondName]) => firstName.localeCompare(secondName)))
+}
+
+export function updateVariantGroupOptions<T extends VariantOptionDraft>(drafts: T[], groupId: string, options: TVariantOptionValues): T[] {
+  const group = drafts.filter(draft => (draft.group_id ?? draft.id) === groupId)
+  const first = group[0]
+  if (!first) return drafts
+
+  const label = getVariantGroupLabel(group)
+  const combinations = expandVariantOptionValues(options)
+  const updated = combinations.map((combination, index) => {
+    const existing = group.find(draft => variantCombinationKey(expandVariantOptionValues(draft.options ?? {})[0]) === variantCombinationKey(combination))
+      ?? (index === 0 && group.length === 1 && (!Object.keys(first.options ?? {}).length || !Object.keys(combination).length) ? first : undefined)
+    return {
+      ...(existing ?? first),
+      id: existing?.id ?? crypto.randomUUID(),
+      label,
+      options: toVariantOptionValues(combination),
+      group_id: groupId,
+    }
+  })
+  const firstIndex = drafts.findIndex(draft => (draft.group_id ?? draft.id) === groupId)
+  return drafts.flatMap((draft, index) => index === firstIndex ? updated : (draft.group_id ?? draft.id) === groupId ? [] : [draft])
+}
+
+export function groupProductVariants(variants: TProductVariant[]): TProductVariant[][] {
+  const groups = new Map<string, TProductVariant[]>()
+  for (const variant of variants) {
+    const groupId = variant.group_id ?? variant.id
+    groups.set(groupId, [...(groups.get(groupId) ?? []), variant])
+  }
+  return [...groups.values()]
+}
+
+export function getProductVariantGroupLabel(variant: TProductVariant) {
+  const options = Object.entries(cleanVariantOptions(variant.options)).map(([name, value]) => `${name}: ${value}`).join(" / ")
+  const generatedSuffix = options ? ` / ${options}` : ""
+  return generatedSuffix && variant.label.endsWith(generatedSuffix)
+    ? variant.label.slice(0, -generatedSuffix.length)
+    : variant.label
+}
+
+export function getProductVariantSelectionLabel(variant: TProductVariant) {
+  const options = Object.entries(cleanVariantOptions(variant.options)).map(([name, value]) => `${name}: ${value}`).join(" / ")
+  return options ? `${getProductVariantGroupLabel(variant)} / ${options}` : getProductVariantGroupLabel(variant)
 }
 
 export function getVariantOptionGroups(variants: TProductVariant[]) {

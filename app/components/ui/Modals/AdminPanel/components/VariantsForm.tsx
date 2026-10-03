@@ -9,16 +9,16 @@ import { twMerge } from "tailwind-merge"
 import { TProductVariant, TVariantOptionValues } from "@/ts/product/TProductVariant"
 import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { BaseInput } from "../../../Inputs/BaseInput"
+import { expandVariantOptionValues, getVariantGroupLabel, getVariantGroupOptions, groupVariantDrafts, toVariantOptionValues, updateVariantGroupOptions } from "@/utils/variantOptions"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
-import { expandVariantOptionValues, labelForVariantCombination, toVariantOptionValues } from "@/utils/variantOptions"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLoading } from "@/store/ui/useLoading"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui"
-import { VariantOptionsEditor } from "@/components/ui/VariantOptionsEditor"
 import { MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
+import { VariantOptionsEditor } from "@/components/ui/VariantOptionsEditor"
 
 interface VariantsFormProps {
   id: string
@@ -84,8 +84,12 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
     setDrafts(current => current.map(draft => (draft.id === variantId ? { ...draft, ...patch } : draft)))
   }, [])
 
-  const removeDraft = useCallback((variantId: string) => {
-    setDrafts(current => current.filter(draft => draft.id !== variantId))
+  const updateGroup = useCallback((groupId: string, patch: Partial<VariantDraft>) => {
+    setDrafts(current => current.map(draft => (draft.group_id ?? draft.id) === groupId ? { ...draft, ...patch } : draft))
+  }, [])
+
+  const removeDraft = useCallback((groupId: string) => {
+    setDrafts(current => current.filter(draft => (draft.group_id ?? draft.id) !== groupId))
   }, [])
 
   const addDraft = useCallback(() => {
@@ -107,24 +111,23 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
       return toast.show("warning", t("variant_label"), t("manage_variant_label_required"))
     }
 
-    const resolved: TProductVariant[] = drafts.flatMap(draft => {
-      const label = draft.label.trim()
+    const resolved: TProductVariant[] = groupVariantDrafts(drafts).flatMap(group => group.map(draft => {
+      const label = getVariantGroupLabel(group).trim()
       const image_url = draft.image_url && imgUrl.includes(draft.image_url) ? draft.image_url : null
       const parsedPrice = parseFormattedNumber(draft.priceInput)
       const variantPrice = Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice : price
       const parsedQuantity = parseFormattedNumber(draft.quantityInput)
       const variantQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
-      const combinations = expandVariantOptionValues(draft.options)
-      return combinations.map((options, index) => ({
-        id: index === 0 ? draft.id : crypto.randomUUID(),
-        label: labelForVariantCombination(label, options, index),
+      return {
+        id: draft.id,
+        label,
         image_url,
-        options,
-        group_id: draft.group_id ?? (combinations.length > 1 ? draft.id : undefined),
+        options: expandVariantOptionValues(draft.options)[0],
+        group_id: draft.group_id,
         price: variantPrice,
         quantity: variantQuantity,
-      }))
-    })
+      }
+    }))
 
     if (resolved.length > MAX_PRODUCT_VARIANTS) {
       return toast.show(
@@ -168,26 +171,29 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {drafts.map(draft => {
+          {groupVariantDrafts(drafts).map(group => {
+            const draft = group[0]
+            const groupId = draft.group_id ?? draft.id
+            const groupLabel = getVariantGroupLabel(group)
             // 3. A variant pointing at an image the gallery no longer holds is flagged — this is the bug
             // users hit. A variant with no image at all is a size variant, so it stays unflagged.
             const isImageMissing = Boolean(draft.image_url) && !imgUrl.includes(draft.image_url as string)
             // Sold out when the typed quantity resolves to 0 — surfaced as a badge so the owner sees it at a glance
-            const isSoldOut = !(parseFormattedNumber(draft.quantityInput) > 0)
+            const isSoldOut = group.every(row => !(parseFormattedNumber(row.quantityInput) > 0))
             return (
               <div
                 className={twMerge(
                   "rounded border bg-foreground/5 p-2",
                   isImageMissing ? "border-warning/40" : "border-border-color/35",
                 )}
-                key={draft.id}>
+                key={groupId}>
                 <div className="flex flex-col gap-2 tablet:flex-row">
                   <div className="flex min-w-0 flex-1 flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <BaseInput
                         className="min-w-0 flex-1"
-                        value={draft.label}
-                        onChange={event => updateDraft(draft.id, { label: event.target.value })}
+                        value={groupLabel}
+                        onChange={event => updateGroup(groupId, { label: event.target.value })}
                         disabled={isLoading}
                         placeholder={t("variant_label")}
                       />
@@ -197,36 +203,52 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                         </span>
                       )}
                     </div>
-                    <div className="flex gap-2">
-                      <BaseInput
-                        className="min-w-0 flex-1"
-                        value={draft.priceInput}
-                        onChange={event => updateDraft(draft.id, { priceInput: formatGroupedNumberInput(event.target.value) })}
-                        disabled={isLoading}
-                        inputMode="decimal"
-                        placeholder={t("variant_price")}
-                      />
-                      <BaseInput
-                        className="min-w-0 flex-1"
-                        value={draft.quantityInput}
-                        onChange={event => updateDraft(draft.id, { quantityInput: formatGroupedNumberInput(event.target.value) })}
-                        disabled={isLoading}
-                        inputMode="numeric"
-                        placeholder={t("variant_quantity")}
-                      />
-                    </div>
                     <VariantOptionsEditor
-                      variantLabel={draft.label}
-                      options={draft.options}
-                      onChange={options => updateDraft(draft.id, { options })}
+                      variantLabel={groupLabel}
+                      options={getVariantGroupOptions(group)}
+                      onChange={options => {
+                        const nextCount = drafts.length - group.length + expandVariantOptionValues(options).length
+                        if (nextCount > MAX_PRODUCT_VARIANTS) {
+                          toast.show("warning", t("warning.max_variants_title", { maxVariants: MAX_PRODUCT_VARIANTS }), t("warning.max_variants_subtitle", { maxVariants: MAX_PRODUCT_VARIANTS }))
+                          return
+                        }
+                        setDrafts(current => updateVariantGroupOptions(current, groupId, options))
+                      }}
                       disabled={isLoading}
                     />
+                    <div className="grid gap-2">
+                      {group.map(row => (
+                        <div className="flex flex-wrap items-center gap-2" key={row.id}>
+                          <span className="min-w-20 text-xs text-subTitle">
+                            {Object.entries(row.options).map(([name, values]) => `${name === "Size" ? t("variant_size") : name === "Color" ? t("variant_color") : name === "Weight" ? t("variant_weight") : name}: ${values[0]}`).join(" / ") || t("variant")}
+                          </span>
+                          <BaseInput
+                            className="min-w-24 flex-1"
+                            aria-label={`${groupLabel} ${Object.values(row.options).flat().join(" ")} ${t("variant_price")}`}
+                            value={row.priceInput}
+                            onChange={event => updateDraft(row.id, { priceInput: formatGroupedNumberInput(event.target.value) })}
+                            disabled={isLoading}
+                            inputMode="decimal"
+                            placeholder={t("variant_price")}
+                          />
+                          <BaseInput
+                            className="min-w-24 flex-1"
+                            aria-label={`${groupLabel} ${Object.values(row.options).flat().join(" ")} ${t("variant_quantity")}`}
+                            value={row.quantityInput}
+                            onChange={event => updateDraft(row.id, { quantityInput: formatGroupedNumberInput(event.target.value) })}
+                            disabled={isLoading}
+                            inputMode="numeric"
+                            placeholder={t("variant_quantity")}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   <button
                     className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded border border-border-color/35 bg-background/55 text-danger transition-colors duration-150 hover:bg-danger/10 disabled:opacity-40"
                     type="button"
                     tabIndex={-1}
-                    onClick={() => removeDraft(draft.id)}
+                    onClick={() => removeDraft(groupId)}
                     disabled={isLoading}
                     title={t("remove")}>
                     <BiTrash size={14} />
@@ -249,7 +271,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                       )}
                       type="button"
                       tabIndex={-1}
-                      onClick={() => updateDraft(draft.id, { image_url: null })}
+                      onClick={() => updateGroup(groupId, { image_url: null })}
                       disabled={isLoading}>
                       {t("variant_no_image")}
                     </button>
@@ -267,7 +289,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                           type="button"
                           tabIndex={-1}
                           aria-pressed={isActive}
-                          onClick={() => updateDraft(draft.id, { image_url: url })}
+                          onClick={() => updateGroup(groupId, { image_url: url })}
                           disabled={isLoading}>
                           <Image className="object-cover" src={url} alt={`variant-image-${index + 1}`} fill sizes="48px" />
                           {isActive && (

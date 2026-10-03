@@ -95,26 +95,26 @@ export const ColorAndSizeOptions: Story = {
 export const WeightOptionsStayWithVariant: Story = {
   args: {
     variants: [
-      { id: "blue-5", group_id: "blue", label: "Blue 5 kg", options: { Weight: "5 kg" }, price: 10, quantity: 2 },
-      { id: "blue-10", group_id: "blue", label: "Blue 10 kg", options: { Weight: "10 kg" }, price: 18, quantity: 2 },
-      { id: "red-5", group_id: "red", label: "Red 5 kg", options: { Weight: "5 kg" }, price: 10, quantity: 2 },
-      { id: "red-10", group_id: "red", label: "Red 10 kg", options: { Weight: "10 kg" }, price: 18, quantity: 2 },
-      { id: "red-20", group_id: "red", label: "Red 20 kg", options: { Weight: "20 kg" }, price: 30, quantity: 2 },
+      { id: "blue-5", group_id: "blue", label: "Blue", options: { Weight: "5 kg" }, price: 10, quantity: 2 },
+      { id: "blue-10", group_id: "blue", label: "Blue", options: { Weight: "10 kg" }, price: 18, quantity: 2 },
+      { id: "red-5", group_id: "red", label: "Red", options: { Weight: "5 kg" }, price: 10, quantity: 2 },
+      { id: "red-10", group_id: "red", label: "Red", options: { Weight: "10 kg" }, price: 18, quantity: 2 },
+      { id: "red-20", group_id: "red", label: "Red", options: { Weight: "20 kg" }, price: 30, quantity: 2 },
     ],
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const blueTen = await canvas.findByRole("button", { name: /Blue 10 kg/ });
+    const blueTen = await canvas.findByRole("button", { name: /^Blue / });
     await expect(canvas.queryByRole("button", { name: /^20 kg$/ })).not.toBeInTheDocument();
     await userEvent.click(canvas.getByRole("button", { name: /^10 kg$/ }));
     await expect(blueTen).toHaveClass(/border-success/);
 
-    const redFive = canvas.getByRole("button", { name: /Red 5 kg/ });
+    const redFive = canvas.getByRole("button", { name: /^Red / });
     await userEvent.click(redFive);
     await expect(redFive).toHaveClass(/border-success/);
     await expect(canvas.getByRole("button", { name: /^20 kg$/ })).toBeVisible();
     await userEvent.click(canvas.getByRole("button", { name: /^10 kg$/ }));
-    await expect(canvas.getByRole("button", { name: /Red 10 kg/ })).toHaveClass(/border-success/);
+    await expect(redFive).toHaveClass(/border-success/);
   },
 };
 export const CartLockedVariant: Story = {

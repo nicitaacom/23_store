@@ -9,6 +9,7 @@ import { Hr } from "@react-email/hr"
 import { Img } from "@react-email/img"
 
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
+import { getProductVariantSelectionLabel } from "@/utils/variantOptions"
 
 interface RequestBetterPricesEmailProps {
   products: TProductAfterDB[]
@@ -42,7 +43,7 @@ export function RequestBetterPricesEmail({ products, totalPrice, userEmail }: Re
                   ))}
                 <Text style={productNumber}>#{index + 1}</Text>
                   <Text style={productName}>{translation.title}</Text>
-                  {product.selectedVariant?.label && <Text style={productSubtitle}>Variant: {product.selectedVariant.label}</Text>}
+                  {product.selectedVariant?.label && <Text style={productSubtitle}>Variant: {getProductVariantSelectionLabel(product.selectedVariant)}</Text>}
                   {translation.description && <Text style={productSubtitle}>{translation.description}</Text>}
                 <div style={productDetails}>
                   <Text style={productPrice}>Price: ${product.price.toFixed(2)}</Text>

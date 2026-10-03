@@ -6,9 +6,9 @@ import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { mapWithConcurrency } from "./mapWithConcurrency"
 import { uploadImageFn } from "./uploadImageFn"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
+import { expandVariantOptionValues } from "@/utils/variantOptions"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { slugify, slugifyEmail } from "@/utils/slugify"
-import { expandVariantOptionValues, labelForVariantCombination } from "@/utils/variantOptions"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import useUser from "@/store/user/useUser"
 import { DEFAULT_MIN_DPI } from "@/utils/printMetrics"
@@ -304,7 +304,7 @@ export function resolveUploadedProductVariants(variants: TProductVariantDraft[] 
     .filter(variant => variant.label.trim() && variant.price > 0)
     .flatMap(variant => expandVariantOptionValues(variant.options ?? {}).map((options, index): TProductVariant => ({
       id: index === 0 ? variant.id : crypto.randomUUID(),
-      label: labelForVariantCombination(variant.label.trim(), options, index),
+      label: variant.label.trim(),
       group_id: variant.group_id ?? variant.id,
       options,
       image_url: imageUrls[variant.imageIndex] ?? null,

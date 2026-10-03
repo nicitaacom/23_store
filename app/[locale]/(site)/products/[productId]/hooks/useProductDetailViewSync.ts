@@ -10,7 +10,7 @@ import { useProductDetail } from "@/store/ui/useProductDetail"
 interface UseProductDetailViewSyncParams {
   product: TProductDB
   isAuthenticated: boolean
-  variants: { id: string }[]
+  variants: { id: string; quantity: number }[]
   galleryImages: string[]
 }
 
@@ -19,7 +19,8 @@ export function useProductDetailViewSync({ product, isAuthenticated, variants, g
   const { addView } = useAnonCategoryViewsStore()
 
   useEffect(() => {
-    if (variants.length) selectVariant(variants[0].id)
+    const firstAvailableVariant = variants.find(variant => variant.quantity > 0) ?? variants[0]
+    if (firstAvailableVariant) selectVariant(firstAvailableVariant.id)
   }, [variants, selectVariant])
 
   useEffect(() => {

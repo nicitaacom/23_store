@@ -77,8 +77,8 @@ export const MultipleValuesForOneOption: Story = {
     await userEvent.type(canvas.getByPlaceholderText("Product price"), "12");
     await userEvent.type(canvas.getByPlaceholderText("0"), "4");
     await userEvent.click(canvas.getByRole("button", { name: "Add variant" }));
-    await expect(within(canvas.getByText("Blue").parentElement!).getByText("Size: 36")).toBeVisible();
-    await expect(canvas.getByText("Blue / Size: 38")).toBeVisible();
+    await expect(within(canvas.getByText("Blue").parentElement!).getByText("Size: 36, 38")).toBeVisible();
+    await expect(canvas.queryByText("Blue / Size: 38")).not.toBeInTheDocument();
     await expect(canvas.getByPlaceholderText("Option (Color, Size, Weight...)")).toHaveValue("");
     await expect(canvas.queryByRole("button", { name: "Size: 36 ×" })).not.toBeInTheDocument();
 
@@ -91,6 +91,35 @@ export const MultipleValuesForOneOption: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Add variant" }));
     await expect(within(canvas.getByText("Red").parentElement!).getByText("Weight: 10 kg")).toBeVisible();
     await expect(within(canvas.getByText("Blue").parentElement!).queryByText("Weight: 10 kg")).not.toBeInTheDocument();
+  },
+};
+
+export const EditGroupedSizes: Story = {
+  parameters: { a11y: { test: "todo" } },
+  args: {
+    ownerProducts: [{
+      ...headphonesProduct,
+      variants: [
+        { id: "grey-38", group_id: "grey", label: "Grey", options: { Size: "38.5" }, image_url: null, price: 17.44, quantity: 114 },
+        { id: "grey-39", group_id: "grey", label: "Grey / Size: 39.5", options: { Size: "39.5" }, image_url: null, price: 17.44, quantity: 114 },
+      ],
+    }],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Edit product" }));
+    await expect(await canvas.findByText("Options for Grey")).toBeVisible();
+    await expect(canvas.getByRole("button", { name: "Size: 38.5 ×" })).toBeVisible();
+    await expect(canvas.getByRole("button", { name: "Size: 39.5 ×" })).toBeVisible();
+    await expect(canvas.queryByText("Options for Grey / Size: 39.5")).not.toBeInTheDocument();
+
+    const name = canvas.getByPlaceholderText("Option (Color, Size, Weight...)");
+    const value = canvas.getByPlaceholderText("Value (Blue, XL, 2.5 kg...)");
+    await userEvent.type(name, "Size");
+    await userEvent.type(value, "40");
+    await userEvent.click(canvas.getByRole("button", { name: "Add option" }));
+    await expect(canvas.getByRole("button", { name: "Size: 40 ×" })).toBeVisible();
+    await expect(canvas.queryByText("Options for Grey / Size: 40")).not.toBeInTheDocument();
   },
 };
 export const BackdropClosesPanel: Story = {

@@ -14,6 +14,7 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getAvailableStock, getProductPriceForVariant, getVariantImageUrl } from "@/utils/cartProducts"
 import { getProductGalleryImages } from "@/utils/product"
+import { getProductVariantGroupLabel, getProductVariantSelectionLabel, groupProductVariants } from "@/utils/variantOptions"
 import { resolvePersonalizationConfig } from "@/utils/printMetrics"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { MarkdownText } from "@/components/ui/MarkdownText"
@@ -45,7 +46,7 @@ function Product({ ...product }: Props) {
   // A label is all a variant needs to be real - size variants (S/M/L) look identical in a photo, so
   // they have no image of their own and show as a text chip instead of a swatch.
   const variants = useMemo(() => product.variants?.filter(variant => variant.label) || [], [product.variants])
-  const derivedVariantId = product.variantId || variants[0]?.id || ""
+  const derivedVariantId = product.variantId || variants.find(variant => variant.quantity > 0)?.id || variants[0]?.id || ""
   const [selectedVariantId, setSelectedVariantId] = useState(derivedVariantId)
   const [prevDerivedVariantId, setPrevDerivedVariantId] = useState(derivedVariantId)
   const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
@@ -122,7 +123,7 @@ function Product({ ...product }: Props) {
           {variants.length > 0 && isVariantSelectionLocked && (
             <span className="inline-flex items-center gap-1.5 rounded border border-border-color/20 bg-background/55 px-2 py-0.5 text-[11px] text-subTitle">
               <VariantImage src={getVariantImageUrl(product, selectedVariant)} alt={selectedVariant?.label || ""} />
-              {selectedVariant?.label}
+              {selectedVariant && getProductVariantSelectionLabel(selectedVariant)}
             </span>
           )}
         </div>
@@ -133,9 +134,10 @@ function Product({ ...product }: Props) {
         )}
         {variants.length > 0 && !isVariantSelectionLocked && (
           <div className="flex flex-row gap-2 overflow-x-auto pb-1">
-            {variants.map(variant => {
-              const isActive = variant.id === selectedVariant?.id
-              const isVariantSoldOut = variant.quantity === 0
+            {groupProductVariants(variants).map(group => {
+              const variant = group.find(row => row.quantity > 0) ?? group[0]
+              const isActive = group.some(row => row.id === selectedVariant?.id)
+              const isVariantSoldOut = group.every(row => row.quantity === 0)
               return (
                 <button
                   className={twMerge(
@@ -151,7 +153,7 @@ function Product({ ...product }: Props) {
                   onClick={() => setSelectedVariantId(variant.id)}>
                   {variant.image_url && <VariantImage src={variant.image_url} alt={variant.label} />}
                   <div className="min-w-0">
-                    <span className="block max-w-[120px] truncate text-sm font-medium leading-4">{variant.label}</span>
+                    <span className="block max-w-[120px] truncate text-sm font-medium leading-4">{getProductVariantGroupLabel(variant)}</span>
                     {isVariantSoldOut ? (
                       <span className="text-xs font-medium text-warning">{t("out_of_stock_label")}</span>
                     ) : (

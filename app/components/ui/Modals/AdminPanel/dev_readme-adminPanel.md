@@ -233,6 +233,11 @@ from `23_products.img_url`.
 A variant is real with a **label and a price**. An image is a bonus that turns the selector entry into a
 swatch — size variants (S/M/L, 30x40 vs 50x70) look identical in a photo, so they have none.
 
+Size is entered as a parameter on the variant card. Edit and Manage group rows with the same
+`group_id` under one variant label; each size has its own price and stock fields inside the card.
+Saving keeps an existing size's purchase ID and stores the size in `options`, without adding the
+size to the variant label. The storefront shows one variant chip per group and a separate size picker.
+
 Where the owner sets it:
 
 | Surface | Control |
