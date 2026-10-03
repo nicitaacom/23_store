@@ -6,7 +6,7 @@ import { devtools } from "zustand/middleware"
 type ProductDetailStore = {
   selectedVariantId: string
   activeImage: string
-  selectVariant: (variantId: string) => void
+  selectVariant: (variantId: string, image: string) => void
   selectImage: (image: string) => void
 }
 
@@ -15,7 +15,7 @@ type SetState = (fn: (prevState: ProductDetailStore) => Partial<ProductDetailSto
 const productDetailStore = (set: SetState): ProductDetailStore => ({
   selectedVariantId: "",
   activeImage: "",
-  selectVariant: variantId => set(() => ({ selectedVariantId: variantId })),
+  selectVariant: (variantId, image) => set(() => ({ selectedVariantId: variantId, activeImage: image })),
   selectImage: image => set(() => ({ activeImage: image })),
 })
 

@@ -211,6 +211,25 @@ export const ProductDetail: Story = {
   },
 }
 
+export const VariantSelectionChangesMainImage: Story = {
+  render: () => <ProductDetailView category={fixtureCategories[1]} isAuthenticated product={headphonesProduct} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const mainImage = () => canvasElement.querySelector("img.object-contain")
+    const mainImageSource = () => decodeURIComponent(mainImage()?.getAttribute("src") || "")
+    const silverVariant = await canvas.findByRole("button", { name: /Silver/ })
+
+    await userEvent.click(silverVariant)
+    await waitFor(() => expect(mainImageSource()).toContain("/projects/J.png"))
+
+    await userEvent.hover(canvas.getByRole("button", { name: "Joki wireless headphones-2" }))
+    await waitFor(() => expect(mainImageSource()).toContain("/placeholder.jpg"))
+
+    await userEvent.click(silverVariant)
+    await waitFor(() => expect(mainImageSource()).toContain("/projects/J.png"))
+  },
+}
+
 export const ManageProduct: Story = {
   render: () => <ManageProductView product={headphonesProduct} />,
 }

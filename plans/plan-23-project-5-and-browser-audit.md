@@ -31,6 +31,8 @@ The project tracker records the overall plan status; checked rows below record f
 - [x] Make grouped-size price and stock columns readable, strengthen input focus, and keep the
   management form within a 320px viewport. Add Halloween styling to shared navigation, cards,
   controls, tables, and the Admin Panel header.
+- [x] Keep the product detail image aligned with the chosen variant, including after hovering a
+  different gallery thumbnail. Reproduced on `prod_VDZssGjkDmIVhA` and covered in Storybook.
 
 ## Project 5 cards still shown as To-do
 

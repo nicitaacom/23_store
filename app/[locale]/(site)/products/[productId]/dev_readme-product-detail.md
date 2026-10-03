@@ -6,6 +6,12 @@ normalized row. `ProductDetailView.tsx` renders the title, description, images, 
 optional personalization. The component reads the active locale with `useCurrentLocale()` and
 UI text with `useScopedI18n("product")`; both hooks come from `app/locales/client.ts`.
 
+Selecting a variant updates its ID and the active gallery image together in
+`useProductDetail`. A variant with no image uses the first product photo, then the placeholder.
+Gallery thumbnails may temporarily preview another photo; choosing a variant again restores its
+own photo. Keep these updates together because the previous image can still be a valid gallery
+entry and would otherwise remain visible after a variant change.
+
 If one product shows a client error such as `i is not a function`, capture the browser console
 stack and the product ID. The error boundary's support email includes the browser stack (up to
 4,000 characters) and page URL; a minified message by itself is insufficient. The support report

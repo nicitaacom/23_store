@@ -107,40 +107,35 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
     [galleryImages, activeImage, translation.title],
   )
 
-  const renderedVariants = useMemo(
-    () =>
-      groupProductVariants(variants).map(group => {
-        const variant = group.find(row => row.quantity > 0) ?? group[0]
-        return (
-          <button
-            className={twMerge(
-              "flex h-20 items-center gap-3 rounded-[2px] border px-3 text-left transition-colors duration-150",
-              group.some(row => row.id === selectedVariant?.id)
-                ? "border-success bg-success/10"
-                : "border-border-color/20 bg-background/40 hover:border-success/30 hover:bg-success/5",
-            )}
-            key={variant.id}
-            type="button"
-            onClick={() => handleSelectVariant(variant.id)}>
-            {variant.image_url && (
-              <Image
-                className="h-14 w-14 rounded-[2px] object-cover"
-                src={variant.image_url}
-                alt={variant.label}
-                width={64}
-                height={64}
-              />
-            )}
-            <div className="min-w-0">
-              <span className="block text-base font-medium text-title">{getProductVariantGroupLabel(variant)}</span>
-              <span className="text-sm text-success">{formatCurrency(variant.price)}</span>
-            </div>
-          </button>
-        )
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSelectVariant is a stable store action, never add fns to deps
-    [variants, selectedVariant],
-  )
+  const renderedVariants = groupProductVariants(variants).map(group => {
+    const variant = group.find(row => row.quantity > 0) ?? group[0]
+    return (
+      <button
+        className={twMerge(
+          "flex h-20 items-center gap-3 rounded-[2px] border px-3 text-left transition-colors duration-150",
+          group.some(row => row.id === selectedVariant?.id)
+            ? "border-success bg-success/10"
+            : "border-border-color/20 bg-background/40 hover:border-success/30 hover:bg-success/5",
+        )}
+        key={variant.id}
+        type="button"
+        onClick={() => handleSelectVariant(variant.id)}>
+        {variant.image_url && (
+          <Image
+            className="h-14 w-14 rounded-[2px] object-cover"
+            src={variant.image_url}
+            alt={variant.label}
+            width={64}
+            height={64}
+          />
+        )}
+        <div className="min-w-0">
+          <span className="block text-base font-medium text-title">{getProductVariantGroupLabel(variant)}</span>
+          <span className="text-sm text-success">{formatCurrency(variant.price)}</span>
+        </div>
+      </button>
+    )
+  })
 
   const renderedHighlights = useMemo(
     () =>
