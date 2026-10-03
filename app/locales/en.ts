@@ -674,6 +674,7 @@ export default {
   "product.few_products_processing": "{count} products are processing.",
   "product.products_processing": "{count} products are processing.",
   "product.create_another_meanwhile": "You can create another product while AI finishes translation.",
+  "product.created_products_title": "Products created",
   "product.request_replenishment": "Request replenishment",
   "product.success.replenishment_title": "You requested replenishment",
   "product.success.replenishment_body": "Now the product owner knows that somebody wants to buy it again",

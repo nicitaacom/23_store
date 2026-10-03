@@ -141,6 +141,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const previousImageIndexRef = useRef(0)
   const pendingTranslationsAmountRef = useRef(0)
   const pendingCreatedProductsRef = useRef<TPendingCreatedProduct[]>([])
+  const createdProductsRef = useRef<{ id: string; title: string }[]>([])
 
   const onChange = (imageList: ImageListType) => {
     const sortableImages = addSortableImageIds(imageList)
@@ -278,30 +279,50 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           ? t("few_products_processing", { count: nextPendingTranslationsAmount })
           : t("products_processing", { count: nextPendingTranslationsAmount })
 
-    showToast("success", t("creating_translating"), `${pendingProductsLabel} ${t("create_another_meanwhile")}`, null)
+    showToast(
+      "success",
+      t("creating_translating"),
+      <div className="grid gap-2">
+        <p>{pendingProductsLabel} {t("create_another_meanwhile")}</p>
+        <ul className="max-h-40 space-y-1 overflow-y-auto">
+          {pendingCreatedProductsRef.current.map(product => <li key={product.optimisticProductId}>… {product.title}</li>)}
+          {createdProductsRef.current.map(product => (
+            <li key={product.id}>
+              ✓ <a className="underline underline-offset-2" href={`/${locale}/products/${product.id}`} target="_blank" rel="noreferrer">{product.title}</a>
+            </li>
+          ))}
+        </ul>
+      </div>,
+      null,
+    )
   }
 
   const increasePendingTranslations = () => {
     const nextPendingTranslationsAmount = pendingTranslationsAmountRef.current + 1
+    if (nextPendingTranslationsAmount === 1) createdProductsRef.current = []
     pendingTranslationsAmountRef.current = nextPendingTranslationsAmount
     updateBackgroundToast(nextPendingTranslationsAmount)
   }
 
-  const decreasePendingTranslations = (showCompletedToast = false, productId?: string) => {
+  const decreasePendingTranslations = (showCompletedToast = false, productId?: string, productTitle?: string) => {
+    if (showCompletedToast && productId && productTitle) createdProductsRef.current.push({ id: productId, title: productTitle })
     const nextPendingTranslationsAmount = Math.max(0, pendingTranslationsAmountRef.current - 1)
     pendingTranslationsAmountRef.current = nextPendingTranslationsAmount
 
     if (nextPendingTranslationsAmount > 0) {
       updateBackgroundToast(nextPendingTranslationsAmount)
     } else if (showCompletedToast) {
-      const subTitle = productId ? (
-        <a className="underline underline-offset-2" href={`/${locale}/products/${productId}`} target="_blank" rel="noreferrer">
-          {t("view_product")}
-        </a>
-      ) : (
-        "AI translation completed."
+      showToast(
+        "success",
+        t("created_products_title"),
+        <ul className="max-h-40 space-y-1 overflow-y-auto">
+          {createdProductsRef.current.map(product => (
+            <li key={product.id}>
+              ✓ <a className="underline underline-offset-2" href={`/${locale}/products/${product.id}`} target="_blank" rel="noreferrer">{product.title}</a>
+            </li>
+          ))}
+        </ul>,
       )
-      showToast("success", "Product created", subTitle)
     } else {
       closeToast()
     }

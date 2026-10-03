@@ -672,6 +672,7 @@ export default {
   "product.few_products_processing": "{count} produkter bearbetas.",
   "product.products_processing": "{count} produkter bearbetas.",
   "product.create_another_meanwhile": "Du kan skapa en till produkt medan AI slutför översättningen.",
+  "product.created_products_title": "Produkter skapade",
   "product.request_replenishment": "Begär påfyllning",
   "product.success.replenishment_title": "Du begärde påfyllning",
   "product.success.replenishment_body": "Nu vet produktägaren att någon vill köpa den igen",

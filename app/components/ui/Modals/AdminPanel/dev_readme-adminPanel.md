@@ -41,6 +41,9 @@ Submitting **Create product** scrolls the Add tab's details pane back to the top
 therefore opens the cleared form at its title field, while a rejected submit exposes its topmost errors.
 The Add tab keeps the image gallery and its print-area editor in the left pane. The print-area editor
 is inside a native `details` section, closed by default; closing the section keeps its draft mounted.
+The background translation toast lists each pending product by its submitted title. A matching
+`product:created` Pusher event removes that title from the pending list and adds a link to the created
+product; the final toast retains the completed names.
 
 ### 1.2 Types
 

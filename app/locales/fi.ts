@@ -674,6 +674,7 @@ export default {
   "product.few_products_processing": "{count} tuotetta käsitellään.",
   "product.products_processing": "{count} tuotetta käsitellään.",
   "product.create_another_meanwhile": "Voit luoda toisen tuotteen samalla kun AI viimeistelee käännöksen.",
+  "product.created_products_title": "Tuotteet luotu",
   "product.request_replenishment": "Pyydä täydennystä",
   "product.success.replenishment_title": "Pyysit täydennystä",
   "product.success.replenishment_body": "Nyt tuotteen omistaja tietää, että joku haluaa ostaa sen uudelleen",

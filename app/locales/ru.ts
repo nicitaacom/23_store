@@ -673,6 +673,7 @@ export default {
   "product.few_products_processing": "{count} товара обрабатываются.",
   "product.products_processing": "{count} товаров обрабатывается.",
   "product.create_another_meanwhile": "Вы можете создать ещё один товар, пока AI заканчивает перевод.",
+  "product.created_products_title": "Товары созданы",
   "product.request_replenishment": "Запросить пополнение",
   "product.success.replenishment_title": "Вы запросили пополнение",
   "product.success.replenishment_body": "Теперь владелец товара знает, что кто-то хочет купить его снова",
