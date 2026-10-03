@@ -49,6 +49,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 20 | [plan-20-buying-flow-stats.md](plan-20-buying-flow-stats.md) | P1 | Opus · high | done - tasks 1-8; SQL is in the commit body; local Playwright reached all 5 capture stages, and rows + search toggle wait for that table | plan-19 (reads its buttons) |
 | 21 | [plan-21-backup-storage-url-relink.md](plan-21-backup-storage-url-relink.md) | P1 | GPT-5 · high | done | plan-11 |
 | 22 | [plan-22-storage-buckets-email-slug.md](plan-22-storage-buckets-email-slug.md) | P1 | Opus · high | done - both stages, all 10 steps. The 6-bucket SQL and the cleanup_guest_support_images pg_cron job wait for Nikita to run them (SQL is in commit 22a59a97 / f099368e and be863ef5). §5 holds the 4 image prompts - Nikita runs them through an image generator | plan-21 |
+| 23 | [plan-23-project-5-and-browser-audit.md](plan-23-project-5-and-browser-audit.md) | P1 | GPT-6 · high | in progress - Project 5 cards and browser checks are tracked in the plan | — |
 
 Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screenshot rule (2 = P1, 3+ = P0) sets nothing — P1 here means "blocks users or is the main asked-for work".
 
