@@ -29,9 +29,9 @@ import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { categoriesSDK } from "@/sdk/CategoriesSDK/CategoriesSDK"
 import { createProductFn } from "@/functions/createProductFn"
 import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils/product"
+import { expandVariantOptionValues, labelForVariantCombination, toVariantOptionValues } from "@/utils/variantOptions"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
-import { expandVariantOptionValues, labelForVariantCombination, toVariantOptionValues } from "@/utils/variantOptions"
 import { getProductProcessingPluralForm } from "@/utils/getProductProcessingPluralForm"
 import { getUserId } from "@/utils/getUserId"
 import { resolveUploadedPersonalization } from "@/functions/createProductHelpers"
@@ -738,6 +738,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                   isDraggingg && "fixed inset-0 z-[101] rounded-none border-0 bg-[#0a0f15]/95",
                 )}
                 ref={dragZone}
+                data-testid="add-product-upload"
                 onClick={onImageUpload}
                 disabled={isLoading}
                 type="button"

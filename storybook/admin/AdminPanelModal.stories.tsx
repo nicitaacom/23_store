@@ -34,6 +34,26 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const AddProduct: Story = {};
+export const FileDragOnly: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const upload = await canvas.findByTestId("add-product-upload");
+
+    const text = new DataTransfer();
+    text.setData("text/plain", "selected description");
+    document.dispatchEvent(new DragEvent("dragover", { bubbles: true, dataTransfer: text }));
+    await expect(upload).not.toHaveClass(/fixed/);
+
+    const files = new DataTransfer();
+    files.items.add(new File(["image"], "chair-drag-test-1.png", { type: "image/png" }));
+    document.dispatchEvent(new DragEvent("dragover", { bubbles: true, dataTransfer: files }));
+    await waitFor(() => expect(upload).toHaveClass(/fixed/));
+    document.dispatchEvent(new DragEvent("dragend", { bubbles: true, dataTransfer: files }));
+    await waitFor(() => expect(upload).not.toHaveClass(/fixed/));
+    const modal = upload.closest('[class*="bg-modal-surface"]');
+    await waitFor(() => expect(Number(getComputedStyle(modal!).opacity)).toBeGreaterThan(0.99));
+  },
+};
 export const MultipleValuesForOneOption: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

@@ -4,28 +4,31 @@ const useDragging = () => {
   const [isDraggingg, setIsDragging] = useState(false)
 
   useEffect(() => {
-    const handler = () => {
+    let hideTimer: ReturnType<typeof setTimeout> | null = null
+
+    const handleDragOver = (event: DragEvent) => {
+      if (!Array.from(event.dataTransfer?.types ?? []).includes("Files")) return
       setIsDragging(true)
+      if (hideTimer) clearTimeout(hideTimer)
+      // Dragend is not always fired when a file leaves the browser window.
+      hideTimer = setTimeout(() => setIsDragging(false), 500)
     }
 
-    const dropHandler = () => {
+    const resetDrag = () => {
+      if (hideTimer) clearTimeout(hideTimer)
+      hideTimer = null
       setIsDragging(false)
     }
 
-    const dragEndHandler = () => {
-      setIsDragging(false)
-    }
-
-    document.addEventListener("dragover", handler, true)
-    // document.addEventListener("dragleave", leaveHandler, true)
-    document.addEventListener("drop", dropHandler, true)
-    document.addEventListener("dragend", dragEndHandler, true)
+    document.addEventListener("dragover", handleDragOver, true)
+    document.addEventListener("drop", resetDrag, true)
+    document.addEventListener("dragend", resetDrag, true)
 
     return () => {
-      document.removeEventListener("dragover", handler)
-      // document.removeEventListener("dragleave", leaveHandler)
-      document.removeEventListener("drop", dropHandler)
-      document.removeEventListener("dragend", dragEndHandler)
+      if (hideTimer) clearTimeout(hideTimer)
+      document.removeEventListener("dragover", handleDragOver, true)
+      document.removeEventListener("drop", resetDrag, true)
+      document.removeEventListener("dragend", resetDrag, true)
     }
   }, [])
 
