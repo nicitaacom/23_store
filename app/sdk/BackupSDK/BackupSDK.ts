@@ -45,18 +45,18 @@ export type TBackupFilesProgress = {
   speedBytesPerMs: number | null
 }
 
-/** True for a .tar.gz / .gz archive (by extension), false for a loose .csv file. */
-function isArchiveFile(file: File): boolean {
+/** True for a .tar.gz / .gz backup file (by extension), false for a loose .csv file. */
+function isCompressedBackupFile(file: File): boolean {
   return file.name.endsWith(".tar.gz") || file.name.endsWith(".gz") || file.name.endsWith(".tgz")
 }
 
 /**
- * Collect `<table>.csv` text keyed by table name from one input file — either a .tar.gz archive
+ * Collect `<table>.csv` text keyed by table name from one input file — either a .tar.gz backup file
  * (decompressed + parsed in the browser) or a single loose .csv (whose table is read from its
- * filename). Archive bytes never reach a server function.
+ * filename). Backup file bytes never reach a server function.
  */
 async function readCsvEntries(file: File): Promise<Record<string, string>> {
-  if (!isArchiveFile(file)) {
+  if (!isCompressedBackupFile(file)) {
     const table = file.name.replace(/\.csv$/i, "")
     return { [table]: await file.text() }
   }
@@ -65,7 +65,7 @@ async function readCsvEntries(file: File): Promise<Record<string, string>> {
   try {
     tarBytes = await gunzipBufferClient(new Uint8Array(await file.arrayBuffer()))
   } catch (error) {
-    throw new Error(`${file.name} is not a valid .tar.gz archive: ${error instanceof Error ? error.message : String(error)}`)
+    throw new Error(`${file.name} is not a valid .tar.gz backup file: ${error instanceof Error ? error.message : String(error)}`)
   }
 
   const entries = parseTar(Buffer.from(tarBytes))
@@ -187,7 +187,7 @@ export class BackupSDK extends BaseSDK {
    * separate from file export so a table-only backup never has to touch Storage or wait on file
    * downloads.
    */
-  async exportTables(onProgress: (done: number, total: number) => void): Promise<{ fileName: string; archiveFile: Blob }> {
+  async exportTables(onProgress: (done: number, total: number) => void): Promise<{ fileName: string; exportFile: Blob }> {
     const response = await this.getJson<API.BackupRowsGetResponse>("/api/backup/rows")
     if ("error" in response) throw new Error(response.error)
 
@@ -206,13 +206,13 @@ export class BackupSDK extends BaseSDK {
     const gzipped = await gzipBufferClient(new Uint8Array(tarBuffer))
     const date = new Date().toISOString().slice(0, 10)
     const fileName = `23_backup-tables-${date}.tar.gz`
-    const archiveFile = new Blob([gzipped], { type: "application/gzip" })
+    const exportFile = new Blob([gzipped], { type: "application/gzip" })
 
-    return { fileName, archiveFile }
+    return { fileName, exportFile }
   }
 
   /**
-   * Import table rows from CSV files — either .tar.gz archives (from exportTables) or loose .csv
+   * Import table rows from CSV files — either .tar.gz backup files (from exportTables) or loose .csv
    * files. Rows are parsed in the browser and POSTed to /api/backup/rows in ≤500-row batches, in
    * FK-safe order (BACKUP_TABLES). The server upserts on each table's primary key and returns
    * real counts (plus how many rows it skipped for a bad uuid column).
@@ -227,7 +227,7 @@ export class BackupSDK extends BaseSDK {
     const tablesToImport = BACKUP_TABLES.filter(table => csvByTable[table.name] !== undefined)
     if (tablesToImport.length === 0) {
       const example = BACKUP_TABLES[0]?.name ?? "table"
-      throw new Error(`No table CSV files found — expected files like ${example}.csv, either loose or inside a .tar.gz archive.`)
+      throw new Error(`No table CSV files found — expected files like ${example}.csv, either loose or inside a .tar.gz backup file.`)
     }
 
     // Parse every supplied table before creating Auth users or writing any rows. A malformed later
@@ -310,7 +310,7 @@ export class BackupSDK extends BaseSDK {
    * how large the library is. Progress is byte-accurate (file sizes are known from the list), and
    * the connection speed shown is measured live from these downloads as they happen.
    */
-  async exportFiles(onProgress: (progress: TBackupFilesProgress) => void): Promise<{ fileName: string; archiveFile: Blob }> {
+  async exportFiles(onProgress: (progress: TBackupFilesProgress) => void): Promise<{ fileName: string; exportFile: Blob }> {
     const response = await this.getJson<API.BackupFilesGetResponse>("/api/backup/files")
     if ("error" in response) throw new Error(response.error)
 
@@ -355,28 +355,28 @@ export class BackupSDK extends BaseSDK {
     const gzipped = await gzipBufferClient(new Uint8Array(tarBuffer))
     const date = new Date().toISOString().slice(0, 10)
     const fileName = `23_backup-files-${date}.tar.gz`
-    const archiveFile = new Blob([gzipped], { type: "application/gzip" })
+    const exportFile = new Blob([gzipped], { type: "application/gzip" })
 
-    return { fileName, archiveFile }
+    return { fileName, exportFile }
   }
 
   /**
-   * Import storage files from a .tar.gz archive — entirely client-side. The browser decompresses
-   * and parses the archive locally (no server ever sees the archive bytes), asks the server for a
+   * Import storage files from a .tar.gz backup file — entirely client-side. The browser decompresses
+   * and parses the backup file locally (no server ever sees the backup file bytes), asks the server for a
    * signed upload URL per file, then PUTs each file's bytes straight to Supabase. Progress is
-   * byte-accurate: every file's exact size is already known from the parsed archive, and
+   * byte-accurate: every file's exact size is already known from the parsed backup file, and
    * xhr.upload.onprogress gives real in-flight bytes for the file currently uploading. The
    * connection speed shown is measured live from these uploads as they happen.
    */
   async importFiles(file: File, onProgress: (progress: TBackupFilesProgress) => void): Promise<TFilesImportResult> {
     const speedTracker = createSpeedTracker()
-    onProgress({ bytesDone: 0, bytesTotal: 0, label: "Reading archive…", speedBytesPerMs: null })
+    onProgress({ bytesDone: 0, bytesTotal: 0, label: "Reading backup file…", speedBytesPerMs: null })
 
     let tarBytes: Uint8Array
     try {
       tarBytes = await gunzipBufferClient(new Uint8Array(await file.arrayBuffer()))
     } catch (error) {
-      throw new Error(`${file.name} is not a valid .tar.gz archive: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(`${file.name} is not a valid .tar.gz backup file: ${error instanceof Error ? error.message : String(error)}`)
     }
 
     const entries = parseTar(Buffer.from(tarBytes))
@@ -384,7 +384,7 @@ export class BackupSDK extends BaseSDK {
     const contentTypesEntry = entries.get("storage-content-types.json")
     const contentTypes: Record<string, string> = contentTypesEntry ? JSON.parse(contentTypesEntry.toString("utf8")) : {}
 
-    const archiveFiles: { bucket: string; path: string; bytes: Uint8Array; contentType: string }[] = []
+    const storedFiles: { bucket: string; path: string; bytes: Uint8Array; contentType: string }[] = []
     for (const [name, entryBuffer] of Array.from(entries)) {
       if (!name.startsWith("storage/")) continue
       const withoutPrefix = name.slice("storage/".length)
@@ -392,7 +392,7 @@ export class BackupSDK extends BaseSDK {
       if (slashIndex === -1) continue
       const bucket = withoutPrefix.slice(0, slashIndex)
       const path = withoutPrefix.slice(slashIndex + 1)
-      archiveFiles.push({
+      storedFiles.push({
         bucket,
         path,
         bytes: new Uint8Array(entryBuffer),
@@ -400,15 +400,15 @@ export class BackupSDK extends BaseSDK {
       })
     }
 
-    if (archiveFiles.length === 0) {
-      throw new Error("No storage files found in the archive — expected storage/23_product-images/… or storage/23_avatar-images/… entries.")
+    if (storedFiles.length === 0) {
+      throw new Error("No storage files found in the backup file — expected storage/23_product-images/… or storage/23_avatar-images/… entries.")
     }
 
-    const byPath = new Map(archiveFiles.map(archiveFile => [`${archiveFile.bucket}/${archiveFile.path}`, archiveFile]))
+    const byPath = new Map(storedFiles.map(storedFile => [`${storedFile.bucket}/${storedFile.path}`, storedFile]))
     const bucketStats: Record<string, { files: number; failed: number }> = {}
     const firstErrorByBucket: Record<string, string> = {}
 
-    const bytesTotal = archiveFiles.reduce((sum, archiveFile) => sum + archiveFile.bytes.length, 0)
+    const bytesTotal = storedFiles.reduce((sum, storedFile) => sum + storedFile.bytes.length, 0)
     let bytesUploadedSoFar = 0
 
     const bumpStat = (bucket: string, key: "files" | "failed") => {
@@ -416,20 +416,20 @@ export class BackupSDK extends BaseSDK {
       bucketStats[bucket][key]++
     }
 
-    for (let start = 0; start < archiveFiles.length; start += URL_BATCH_SIZE) {
-      const batch = archiveFiles.slice(start, start + URL_BATCH_SIZE)
+    for (let start = 0; start < storedFiles.length; start += URL_BATCH_SIZE) {
+      const batch = storedFiles.slice(start, start + URL_BATCH_SIZE)
 
       const postResp = await this.postJson<{ files: { bucket: string; path: string }[] }, API.BackupFilesPostResponse>("/api/backup/files", {
-        files: batch.map(archiveFile => ({ bucket: archiveFile.bucket, path: archiveFile.path })),
+        files: batch.map(storedFile => ({ bucket: storedFile.bucket, path: storedFile.path })),
       })
       if ("error" in postResp) throw new Error(`Failed to prepare file upload: ${postResp.error}`)
 
       for (const destination of postResp.results) {
-        const archiveFile = byPath.get(`${destination.bucket}/${destination.path}`)
+        const storedFile = byPath.get(`${destination.bucket}/${destination.path}`)
 
-        if ("skipped" in destination || !archiveFile) {
+        if ("skipped" in destination || !storedFile) {
           bumpStat(destination.bucket, "failed")
-          if (archiveFile) bytesUploadedSoFar += archiveFile.bytes.length
+          if (storedFile) bytesUploadedSoFar += storedFile.bytes.length
           continue
         }
 
@@ -439,7 +439,7 @@ export class BackupSDK extends BaseSDK {
           label: `${destination.bucket}/${destination.path}`,
           speedBytesPerMs: speedTracker.sample(bytesUploadedSoFar),
         })
-        const uploadFileData = new Blob([archiveFile.bytes], { type: archiveFile.contentType })
+        const uploadFileData = new Blob([storedFile.bytes], { type: storedFile.contentType })
         try {
           await uploadToSignedUrlWithProgress(destination.signedUrl, uploadFileData, loaded =>
             onProgress({
@@ -454,7 +454,7 @@ export class BackupSDK extends BaseSDK {
           bumpStat(destination.bucket, "failed")
           if (!firstErrorByBucket[destination.bucket]) firstErrorByBucket[destination.bucket] = error instanceof Error ? error.message : String(error)
         }
-        bytesUploadedSoFar += archiveFile.bytes.length
+        bytesUploadedSoFar += storedFile.bytes.length
       }
     }
 

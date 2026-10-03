@@ -86,9 +86,9 @@ export function PersonalizationForm({
   const enabledStateChanged = isEnabled !== Boolean(personalization?.isEnabled)
   const enabledConfigChanged =
     (isEnabled || Boolean(personalization?.isEnabled)) && printAreaSignature !== savedPrintAreaSignature
-  const isDirty = Boolean(productId) && (enabledStateChanged || enabledConfigChanged)
+  const hasChanges = Boolean(productId) && (enabledStateChanged || enabledConfigChanged)
 
-  useAdminPanelChanged(`edit-product-${productId ?? "new"}-personalization`, isDirty || isUpdatingConfig)
+  useAdminPanelChanged(`edit-product-${productId ?? "new"}-personalization`, hasChanges || isUpdatingConfig)
   const currentVerdict: TPrintAreaVerdict = checkedSignature === printAreaSignature ? verdict : "unchecked"
 
   // "Fix the shape" only makes the rectangle the right SHAPE - it says nothing about where it sits, so

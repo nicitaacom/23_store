@@ -47,7 +47,7 @@ declare namespace API {
   type BackupFilesGetResponse = { files: BackupFileRef[] } | { error: string; code?: string; details?: string; hint?: string }
 
   // POST /api/backup/files { files: [{ bucket, path }] } — asks for a signed upload URL per file.
-  // The browser has already decompressed the archive locally; bytes are PUT straight to Supabase
+  // The browser has already decompressed the backup file locally; bytes are PUT straight to Supabase
   // from there, never through this route.
   type BackupUploadDestination =
     | { bucket: string; path: string; signedUrl: string }

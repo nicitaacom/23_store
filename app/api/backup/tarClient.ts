@@ -2,7 +2,7 @@
 // `Buffer` math (works in the browser via Next's polyfill) or uses the built-in Web
 // `CompressionStream` API — deliberately NO Node `zlib` import, so this module is safe to pull
 // into the client bundle. Project-specific constants (which tables/buckets are backed up) live in
-// ./backupConfig; this file is pure archive plumbing.
+// ./backupConfig; this file is pure backup file plumbing.
 
 // ── tar helpers ─────────────────────────────────────────────────────────────
 
@@ -75,7 +75,7 @@ export function addTarEntry(chunks: Buffer[], name: string, data: Buffer): void 
 }
 
 export function finalizeTar(chunks: Buffer[]): Buffer {
-  // Two 512-byte zero blocks mark end of archive
+  // Two 512-byte zero blocks mark end of backup file
   chunks.push(Buffer.alloc(1024, 0))
   return Buffer.concat(chunks)
 }
@@ -121,7 +121,7 @@ export function parseTar(buf: Buffer): Map<string, Buffer> {
 /**
  * Gzip a buffer in the browser using the built-in CompressionStream Web API (zero deps).
  * Output is a standard gzip stream, so the server's Node `gunzipBuffer` decompresses it
- * identically — the archive format is byte-compatible with server-built archives.
+ * identically — the backup file format is byte-compatible with server-built backup files.
  */
 export async function gzipBufferClient(input: Uint8Array): Promise<Uint8Array> {
   const compressionStream = new CompressionStream("gzip")
@@ -132,7 +132,7 @@ export async function gzipBufferClient(input: Uint8Array): Promise<Uint8Array> {
 
 /**
  * Decompress a gzip buffer in the browser using the built-in DecompressionStream Web API (zero
- * deps). The counterpart to gzipBufferClient — reads .tar.gz archives client-side so archive
+ * deps). The counterpart to gzipBufferClient — reads .tar.gz backup files client-side so backup file
  * bytes never reach a server function.
  */
 export async function gunzipBufferClient(input: Uint8Array): Promise<Uint8Array> {

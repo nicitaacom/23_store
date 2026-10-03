@@ -38,7 +38,7 @@ function ImageStates() {
         <ImageWithFallback
           alt="Unavailable product"
           fallbackClassName="h-40 w-full object-contain"
-          fallbackWrapperClassName="grid gap-1"
+          fallbackContainerClassName="grid gap-1"
           height={180}
           showLabel
           src={undefined}

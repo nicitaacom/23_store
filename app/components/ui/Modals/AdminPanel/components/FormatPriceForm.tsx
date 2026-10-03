@@ -59,10 +59,11 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isDirty },
+    // eslint-disable-next-line local-rules/no-banned-words -- React Hook Form exposes this exact field name.
+    formState: { errors, isDirty: hasChanges },
   } = useForm<IFormDataAddProduct>()
 
-  useAdminPanelChanged(`edit-product-${id}-price`, (isEditing && isDirty) || isLoading)
+  useAdminPanelChanged(`edit-product-${id}-price`, (isEditing && hasChanges) || isLoading)
 
   const onSubmit = (data: IFormDataAddProduct) => {
     updatePrice(Number(data.price))

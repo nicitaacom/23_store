@@ -10,6 +10,9 @@ has not picked it up. The preflight reports this before the long browser install
 fixtures are created. Regular runs use Electron; the manual `full_browser_matrix` input adds Chrome,
 Firefox, and WebKit. The initial failed `curl` while Next.js starts is expected during the retry loop.
 
+Quality runs the repository-wide ESLint rules before type checking. The prior hard-rule failures in
+backup naming and form state names were cleared; `pnpm lint` now completes with warnings only.
+
 Storybook tests run directly through Vitest's Storybook project. The separate static build was
 removed from CI because Chromatic performs its own build. `storybook/mocks/failureReporting.ts`
 turns the first browser console error into a failing test and prevents the test runner's own error

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { applyBackupImportDefaults, getTableConfig } from "./backupConfig"
 
 describe("backup import defaults", () => {
-  it("restores the empty ticket message used by older archives", () => {
+  it("restores the empty ticket message used by older backup files", () => {
     const config = getTableConfig("23_tickets")
     if (!config) throw new Error("23_tickets backup config is missing")
 
@@ -12,7 +12,7 @@ describe("backup import defaults", () => {
     ])
   })
 
-  it("restores the empty message body used by older archives", () => {
+  it("restores the empty message body used by older backup files", () => {
     const config = getTableConfig("23_messages")
     if (!config) throw new Error("23_messages backup config is missing")
 

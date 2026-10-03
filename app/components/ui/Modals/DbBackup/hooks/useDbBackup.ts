@@ -16,17 +16,17 @@ export function useDbBackup() {
   const tablesInputRef = useRef<HTMLInputElement>(null)
   const filesInputRef = useRef<HTMLInputElement>(null)
 
-  const downloadArchiveFile = useCallback((archiveFile: Blob, name: string) => {
-    const url = URL.createObjectURL(archiveFile)
+  const downloadExportFile = useCallback((exportFile: Blob, name: string) => {
+    const url = URL.createObjectURL(exportFile)
     const anchor = document.createElement("a")
     anchor.href = url
     anchor.download = name
     anchor.click()
     URL.revokeObjectURL(url)
   }, [])
-  const downloadArchiveFileRef = useRef(downloadArchiveFile)
+  const downloadExportFileRef = useRef(downloadExportFile)
   useEffect(() => {
-    downloadArchiveFileRef.current = downloadArchiveFile
+    downloadExportFileRef.current = downloadExportFile
   })
 
   const startExportTables = useCallback(async () => {
@@ -38,10 +38,10 @@ export function useDbBackup() {
 
     try {
       const { backupSDK } = await import("@/sdk/BackupSDK/BackupSDK")
-      const { fileName, archiveFile } = await backupSDK.exportTables((done, total) => {
+      const { fileName, exportFile } = await backupSDK.exportTables((done, total) => {
         useDbBackupState.setState({ tablesExportProgress: total > 0 ? done / total : 0 })
       })
-      downloadArchiveFileRef.current(archiveFile, fileName)
+      downloadExportFileRef.current(exportFile, fileName)
       useDbBackupState.setState({ tablesExportPhase: "done" })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
@@ -107,7 +107,7 @@ export function useDbBackup() {
 
     try {
       const { backupSDK } = await import("@/sdk/BackupSDK/BackupSDK")
-      const { fileName, archiveFile } = await backupSDK.exportFiles(progress => {
+      const { fileName, exportFile } = await backupSDK.exportFiles(progress => {
         useDbBackupState.setState({
           filesExportBytesDone: progress.bytesDone,
           filesExportBytesTotal: progress.bytesTotal,
@@ -115,7 +115,7 @@ export function useDbBackup() {
           filesExportLabel: progress.label,
         })
       })
-      downloadArchiveFileRef.current(archiveFile, fileName)
+      downloadExportFileRef.current(exportFile, fileName)
       useDbBackupState.setState({ filesExportPhase: "done" })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)

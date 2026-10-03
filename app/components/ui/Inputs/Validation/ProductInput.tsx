@@ -225,8 +225,8 @@ export function ProductInput({
             if (type === "numeric") {
               if (e.metaKey || e.ctrlKey) return
 
-              const { key, target } = e
-              const { value } = target as HTMLInputElement
+              const { key } = e
+              const { value } = e.currentTarget
               const regex = numericFormat === "grouped" ? /^(?!\..)[0-9.,]+$/ : /^(?!\..)[0-9.]+$/
 
               if (value.length === 0 && [".", ","].includes(key)) {

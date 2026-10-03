@@ -23,7 +23,7 @@ export function AreYouSureDeleteProductModal() {
 
     setIsLoading(true)
     try {
-      //archive product on stripe first and then in DB
+      // Remove the Stripe listing before the database row
       await productsSDK.deleteProduct({ id: areYouSureDeleteProductModal.id })
 
       //close modal and refresh - so user immediately see changes

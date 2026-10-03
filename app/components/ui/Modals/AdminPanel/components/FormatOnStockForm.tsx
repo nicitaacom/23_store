@@ -61,10 +61,11 @@ export function FormatOnStockForm({ id, onStock, isDerivedFromVariants = false }
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty },
+    // eslint-disable-next-line local-rules/no-banned-words -- React Hook Form exposes this exact field name.
+    formState: { errors, isDirty: hasChanges },
   } = useForm<IFormDataAddProduct>()
 
-  useAdminPanelChanged(`edit-product-${id}-stock`, (isEditing && isDirty) || isLoading)
+  useAdminPanelChanged(`edit-product-${id}-stock`, (isEditing && hasChanges) || isLoading)
 
   const onSubmit = (data: IFormDataAddProduct) => {
     updateOnStock(parseFormattedNumber(data.onStock))

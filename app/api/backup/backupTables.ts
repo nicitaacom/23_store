@@ -1,5 +1,5 @@
 // One stable import point for the routes and the SDK: project-specific constants/types come from
-// ./backupConfig, the pure archive plumbing from ./tarClient and ./csvClient.
+// ./backupConfig, the pure backup file plumbing from ./tarClient and ./csvClient.
 export {
   BACKUP_TABLE_NAMES,
   BACKUP_TABLES,

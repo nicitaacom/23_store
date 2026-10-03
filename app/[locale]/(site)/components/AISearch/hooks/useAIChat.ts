@@ -225,9 +225,9 @@ export function useAIChat() {
   }
 
   const handleTextareaInput = (event: React.FormEvent<HTMLTextAreaElement>) => {
-    const target = event.target as HTMLTextAreaElement
-    target.style.height = "auto"
-    target.style.height = `${Math.min(target.scrollHeight, 120)}px`
+    const textarea = event.currentTarget
+    textarea.style.height = "auto"
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`
   }
 
   return {

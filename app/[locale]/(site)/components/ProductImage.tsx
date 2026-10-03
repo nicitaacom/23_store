@@ -12,7 +12,7 @@ export function ProductImage({ imgUrl, productTitle }: ProductImageProps) {
   return imgUrl.length === 1 ? (
     <ImageWithFallback
       className="w-full h-full object-contain"
-      fallbackWrapperClassName="relative w-full h-full flex flex-col items-center justify-center gap-2"
+      fallbackContainerClassName="relative w-full h-full flex flex-col items-center justify-center gap-2"
       fallbackClassName="object-contain w-auto h-4/5"
       showLabel
       src={imgUrl[0]}

@@ -20,7 +20,7 @@ function selectConfig(name: (typeof BACKUP_TABLES)[number]["name"]) {
 }
 
 describe("backup Auth restore helpers", () => {
-  it("normalizes archived public users for Auth preparation", () => {
+  it("normalizes exported public users for Auth preparation", () => {
     expect(
       selectBackupSourceUsers([
         {

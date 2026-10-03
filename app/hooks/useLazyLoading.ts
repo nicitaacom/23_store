@@ -93,7 +93,7 @@ export const useLazyLoading = <T extends { id: string }>({
     return () => observer.disconnect()
   }, [bottomNode])
 
-  // eslint-disable-next-line local-rules/sdk-method-naming -- generic pass-through wrapper around the caller-supplied fetchFunction, not a DB/Redis read itself
+  // eslint-disable-next-line local-rules/sdk-method-naming -- forwards to the caller-supplied fetchFunction, not a DB/Redis read itself
   const fetchDataForRange = useCallback(
     async (start: number, end: number) => {
       if (isInitialLoading || isLoading) return
@@ -123,7 +123,7 @@ export const useLazyLoading = <T extends { id: string }>({
     },
     [fetchFunction, isInitialLoading, isLoading, setState],
   )
-  // eslint-disable-next-line local-rules/sdk-method-naming -- generic pass-through wrapper around the caller-supplied fetchFunction, not a DB/Redis read itself
+  // eslint-disable-next-line local-rules/sdk-method-naming -- forwards to the caller-supplied fetchFunction, not a DB/Redis read itself
   const fetchDataForRangeRef = useRef(fetchDataForRange)
   useEffect(() => {
     fetchDataForRangeRef.current = fetchDataForRange

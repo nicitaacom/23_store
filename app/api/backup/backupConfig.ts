@@ -15,7 +15,7 @@ type TStorageClient = Pick<SupabaseClient<Database>, "storage">
 
 type AllTables = keyof Database["public"]["Tables"]
 
-// Tables intentionally left out of the backup archive. Any table added to types_db.ts that is
+// Tables intentionally left out of the backup backup file. Any table added to types_db.ts that is
 // neither here nor in BACKUP_TABLE_NAMES fails the exhaustiveness check below at compile time.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used only as a type below
 const EXCLUDED_FROM_BACKUP = ["utm_stats", "23_buying_flow_events"] as const satisfies readonly AllTables[]
@@ -60,7 +60,7 @@ export type TBackupTableConfig = {
   // Columns whose scalar/array/JSON values can contain public URLs for BACKUP_BUCKETS. The relink
   // route walks only these columns, so unrelated URLs and text never change during restore.
   storageUrlColumns?: string[]
-  // NOT NULL text columns whose database default is an empty string. Archives exported before
+  // NOT NULL text columns whose database default is an empty string. Backup files exported before
   // quoted empty CSV fields were added represent both null and "" as an unquoted empty field.
   emptyStringDefaultColumns?: string[]
   // Columns whose Postgres type is uuid. A row with an empty/invalid value in one of these is

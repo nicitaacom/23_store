@@ -18,7 +18,7 @@ export function OwnerProductImage({ imgUrl, className, alt }: OwnerProductImageP
         className="h-full w-full object-contain"
         key={imgUrl}
         showLabel
-        fallbackWrapperClassName="absolute inset-0 flex flex-col items-center justify-center gap-1.5"
+        fallbackContainerClassName="absolute inset-0 flex flex-col items-center justify-center gap-1.5"
         fallbackClassName="h-4/5 w-auto"
         src={imgUrl}
         alt={alt ?? "Product image"}

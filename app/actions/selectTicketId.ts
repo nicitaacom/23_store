@@ -1,17 +1,17 @@
 import { getUserId } from "@/utils/getUserId"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 
-// simple in-memory cache (browser + server safe)
-let ticketIdPromiseCache: Promise<string | undefined> | null = null
+// Reuse the selected ticket ID request within this module
+let ticketIdRequest: Promise<string | undefined> | null = null
 
 async function selectTicketId(): Promise<string | undefined> {
   const userId = getUserId()
   if (!userId) return undefined
   if (userId.includes("anonymousId")) return userId
 
-  if (ticketIdPromiseCache) return ticketIdPromiseCache
+  if (ticketIdRequest) return ticketIdRequest
 
-  ticketIdPromiseCache = (async () => {
+  ticketIdRequest = (async () => {
     try {
       return supportSDK.getTicketId({ userId })
     } catch (error) {
@@ -20,7 +20,7 @@ async function selectTicketId(): Promise<string | undefined> {
     }
   })()
 
-  return ticketIdPromiseCache
+  return ticketIdRequest
 }
 
 export default selectTicketId

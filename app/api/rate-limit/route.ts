@@ -12,7 +12,7 @@ import { Ratelimit } from "@upstash/ratelimit"
 import { TRateLimiterName } from "@/sdk/RateLimitSDK/types/TRateLimiterName"
 import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
 
-const limiterCache = new Map<string, Ratelimit>()
+const limitersByName = new Map<string, Ratelimit>()
 const redis = new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN })
 
 export async function POST(req: Request) {
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       { status: 400 },
     )
 
-  // 1. get limiter (creates + caches)
+  // 1. get or create a limiter for this name
   const rateLimiter = getRateLimiter(limiterName as TRateLimiterName)
 
   // 2. build limiter key (may throw if required value missing)
@@ -35,8 +35,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 400 })
   }
 
-  if (!limiterCache.has(limiterName))
-    return NextResponse.json({ error: `limiterCache doesn't include ${limiterName}` }, { status: 400 })
+  if (!limitersByName.has(limiterName))
+    return NextResponse.json({ error: `limitersByName doesn't include ${limiterName}` }, { status: 400 })
 
   /* -------- Rate limit setup ---------- */
   // on VPS you need to fetch IP instead of using this
@@ -99,7 +99,7 @@ function getRateLimitKey(payload: API.RateLimitRequest): string {
 }
 
 function getRateLimiter(rateLimiterName: TRateLimiterName) {
-  if (limiterCache.has(rateLimiterName)) return limiterCache.get(rateLimiterName)!
+  if (limitersByName.has(rateLimiterName)) return limitersByName.get(rateLimiterName)!
 
   const spec = RATE_LIMITS[rateLimiterName]
   const limiter = new Ratelimit({
@@ -108,6 +108,6 @@ function getRateLimiter(rateLimiterName: TRateLimiterName) {
     analytics: false,
   })
 
-  limiterCache.set(rateLimiterName, limiter)
+  limitersByName.set(rateLimiterName, limiter)
   return limiter
 }

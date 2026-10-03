@@ -73,6 +73,7 @@ export async function POST(request: Request) {
           status: 200,
           headers: {
             "Content-Type": compressedContentType,
+            // eslint-disable-next-line local-rules/no-banned-words -- The HTTP response header name is fixed by the protocol.
             "Cache-Control": "no-store",
           },
         })

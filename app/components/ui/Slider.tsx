@@ -35,7 +35,7 @@ function SliderImage({
   return (
     <ImageWithFallback
       className={twMerge("object-contain w-full h-full", className)}
-      fallbackWrapperClassName="relative w-full h-full flex flex-col items-center justify-center gap-2"
+      fallbackContainerClassName="relative w-full h-full flex flex-col items-center justify-center gap-2"
       fallbackClassName="w-auto h-4/5"
       showLabel
       src={image.src}
@@ -55,6 +55,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
   return (
     <figure
       className={twMerge(
+        // eslint-disable-next-line local-rules/no-banned-words -- react-responsive-carousel owns this CSS class name.
         "relative w-full h-full bg-black [&_.carousel]:h-full [&_.carousel-root]:h-full [&_.slider-wrapper]:h-full [&_.slider]:h-full",
         containerClassName,
       )}>
