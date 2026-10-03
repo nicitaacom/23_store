@@ -22,8 +22,10 @@ The project tracker records the overall plan status; checked rows below record f
   the URL and visible state after each action, and fix any reproducible failure.
 - [ ] Reproduce the reported connection loss during Admin Panel use. Keep the page usable and
   show a useful retry state when a request fails.
-- [ ] Read the Storybook CI failure from the supplied run and fix the repeated console error.
-  Run the local Storybook suite and the relevant CI checks.
+- [x] Read the Storybook CI failure from the supplied run and fix the repeated console error.
+  The old run first logged an expected ErrorBoundary story error, then the reporter wrapped its
+  own error repeatedly. The current story filters that expected log; the reporter now installs
+  once across module reloads. The local suite passed: 34 files, 230 tests.
 
 ## Project 5 cards still shown as To-do
 

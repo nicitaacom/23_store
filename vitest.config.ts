@@ -45,7 +45,7 @@ export default defineConfig({
         test: {
           name: "unit",
           environment: "node",
-          include: ["app/**/*.test.ts"],
+          include: ["app/**/*.test.ts", "storybook/mocks/*.test.ts"],
         },
         resolve: {
           alias: { "@": path.join(currentDirectory, "app") },
