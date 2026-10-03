@@ -11,6 +11,7 @@ import { FaTelegramPlane } from "react-icons/fa"
 import { LogoutDropdownItem } from "./LogoutDropdownItem"
 import { OpenAuthModalButton } from "./OpenAuthModalButton"
 import { getUserAvatarUrl, getUserName } from "@/utils/user"
+import { openModalOnCurrentPage } from "@/utils/modalQuery"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import useEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import { useScopedI18n } from "@/locales/client"
@@ -60,12 +61,12 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
     : getAnonymousAvatar(isDarkMode)
 
   function openAdminPanel() {
-    router.push("?modal=AdminPanel")
+    openModalOnCurrentPage("AdminPanel")
     closeDropdown()
   }
 
   function openDbBackup() {
-    router.push("?modal=DbBackup")
+    openModalOnCurrentPage("DbBackup")
     closeDropdown()
   }
 

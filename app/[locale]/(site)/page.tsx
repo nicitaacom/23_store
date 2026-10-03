@@ -1,11 +1,11 @@
 import { cache } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { BiPlus, BiWindowOpen } from "react-icons/bi"
-import { FaPlus } from "react-icons/fa"
+import { BiWindowOpen } from "react-icons/bi"
 
 import { TCategory } from "@/ts/categories/TCategory"
 import { AIInputSearch } from "./components/AISearch/AIInputSearch"
+import { CatalogAddProductButton } from "./components/CatalogAddProductButton"
 import { CatalogSearchForm } from "./components/CatalogSearchForm"
 import { CategoryPillBar } from "./components/CategoryPillBar"
 import { SortedProducts } from "./components/SortedProducts"
@@ -87,7 +87,6 @@ export default async function Home({ params: paramsPromise, searchParams: search
   if (selectProductsResp.error) throw selectProductsResp.error
   const products = normalizeProducts(selectProductsResp.data)
   const filteredProducts = searchQuery ? filterProductsBySearchQuery(products, searchQuery) : products
-  const addProductHref = user ? `/${params.locale}?modal=AdminPanel` : `/${params.locale}?modal=AuthModal&variant=login`
 
   //Logic for pagination
   const requestedPerPage = Number(searchParams["perPage"])
@@ -139,14 +138,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
                     serverViews={serverViews}
                   />
                   <div className="flex flex-row items-center gap-[2px] pt-1">
-                    <Link
-                      className="inline-flex h-10 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-background mobile:text-base max-[480px]:flex-1 max-[480px]:gap-0 max-[480px]:px-0 max-[480px]:py-0"
-                      href={addProductHref}
-                      aria-label={t("add")}>
-                      <BiPlus className="hidden text-xl max-[480px]:block" />
-                      <FaPlus className="hidden text-sm min-[481px]:block" />
-                      <span className="text-inherit max-[480px]:hidden">{t("add")}</span>
-                    </Link>
+                    <CatalogAddProductButton isAuthenticated={!!user} label={t("add")} />
                     <Link
                       className="inline-flex h-10 w-fit items-center justify-center whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-background mobile:text-base max-[480px]:flex-1 max-[480px]:px-0 max-[480px]:py-0"
                       href={`/${params.locale}/popular-products`}

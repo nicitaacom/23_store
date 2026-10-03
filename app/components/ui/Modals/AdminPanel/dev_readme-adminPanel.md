@@ -7,6 +7,12 @@ leaving the page. The Admin Panel is that place. It opens as a query-param modal
 so it survives refresh and is shareable. Product tabs use owner authorization; category management
 remains gated to the `ADMIN` role.
 
+Open the panel from the catalog button or avatar menu through `openModalOnCurrentPage()` in
+`app/utils/modalQuery.ts`. It changes the query on the current pathname with a `null` history
+state, which lets `useSearchParams` mount the modal without a locale route request. A Next Link to
+`/{locale}?modal=AdminPanel` intermittently navigated back to `/` and closed the panel. The
+catalog button lives in `app/[locale]/(site)/components/CatalogAddProductButton.tsx`.
+
 A second reason this doc exists: variants used to render **without images** and there was **no way to
 edit a variant** after creating it (Edit tab had title/price/stock/images but not variants). That is
 fixed — see [VariantsForm.tsx](components/VariantsForm.tsx) and the per-variant stock section below.

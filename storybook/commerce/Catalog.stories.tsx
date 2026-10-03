@@ -5,16 +5,17 @@ import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { fixtureCategories, headphonesProduct, soldOutProduct } from "../fixtures"
 import { BannersSlider } from "@/[locale]/(site)/popular-products/BannersSlider"
+import { CatalogAddProductButton } from "@/[locale]/(site)/components/CatalogAddProductButton"
 import { CatalogSearchForm } from "@/[locale]/(site)/components/CatalogSearchForm"
 import { CategoryPillBar } from "@/[locale]/(site)/components/CategoryPillBar"
 import { ManageProductView } from "@/[locale]/(site)/products/[productId]/manage/ManageProductView"
 import { NoProductsFound } from "@/[locale]/(site)/search/NoProductsFound"
+import PaginationControls from "@/components/PaginationControls"
 import { PopularProductCard } from "@/[locale]/(site)/popular-products/components/PopularProductCard"
 import { PopularProductsLazyFeed } from "@/[locale]/(site)/popular-products/PopularProductsLazyFeed"
 import { PopularProductsPreviewList } from "@/[locale]/(site)/components/PopularProductsPreviewList"
 import { ProductDetailView } from "@/[locale]/(site)/products/[productId]/ProductDetailView"
 import ProductsPerPage from "@/components/ProductsPerPage"
-import PaginationControls from "@/components/PaginationControls"
 import { SortedProducts } from "@/[locale]/(site)/components/SortedProducts"
 
 const products = [headphonesProduct, soldOutProduct]
@@ -76,6 +77,14 @@ export const SearchForm: Story = {
         placeholder="Search products by name or description"
         submitLabel="Search"
       />
+    </div>
+  ),
+}
+
+export const AddProductButton: Story = {
+  render: () => (
+    <div className="p-3">
+      <CatalogAddProductButton isAuthenticated label="Add product" />
     </div>
   ),
 }
