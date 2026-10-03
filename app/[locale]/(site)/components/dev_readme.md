@@ -41,6 +41,8 @@ owner attaches none and they render as text chips of the same height:
 Both selectors filter on the label alone (`variants.filter(variant => variant.label)` in
 [Product.tsx](Product/Product.tsx) and [ProductDetailView.tsx](../products/[productId]/ProductDetailView.tsx))
 and render the thumbnail only when there is one.
+In the catalog card, selecting an image variant puts that image first in `ProductImage` and resets
+the image slider to it. Selecting a variant without an image keeps the product gallery.
 
 Wherever an image is unavoidable — cart line, Stripe/PayPal line item, order email — one helper answers:
 

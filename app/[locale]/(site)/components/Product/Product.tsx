@@ -50,6 +50,10 @@ function Product({ ...product }: Props) {
   const selectedVariant = variants.find(variant => variant.id === selectedVariantId) || variants[0]
   // eslint-disable-next-line react-hooks/exhaustive-deps -- getProductGalleryImages only reads product.img_url
   const previewImages = useMemo(() => getProductGalleryImages(product), [product.img_url])
+  const selectedVariantImage = selectedVariant?.image_url
+  const displayedImages = selectedVariantImage
+    ? [selectedVariantImage, ...previewImages.filter(image => image !== selectedVariantImage)]
+    : previewImages
   const selectedPrice = getProductPriceForVariant(product, selectedVariant?.id)
   const isVariantSelectionLocked = Boolean(product.cartKey)
   // Effective stock for the line in view: the chosen variant's quantity, or product on_stock when variantless.
@@ -77,7 +81,7 @@ function Product({ ...product }: Props) {
 
       {/* 2. Media — full-width banner on mobile, fixed landscape that fills row height on tablet+ */}
       <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-foreground/10 tablet:aspect-auto tablet:w-[240px]">
-        <ProductImage imgUrl={previewImages} productTitle={translation.title} />
+        <ProductImage key={selectedVariant?.id ?? "base"} imgUrl={displayedImages} productTitle={translation.title} />
         <ProductLikeButton className="absolute right-2 top-2 z-[90]" productId={product.id} categoryId={product.category_id} />
       </div>
 
