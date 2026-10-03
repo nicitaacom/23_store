@@ -657,7 +657,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
   return (
     <div className="mx-auto grid h-full min-h-0 w-full gap-3 tablet:grid-cols-[minmax(0,1fr)_minmax(0,1.45fr)]">
-      {/* ── LEFT: Image Gallery only ── */}
+      {/* ── LEFT: Image Gallery and print area ── */}
       <ImageUploading
         multiple
         value={images}
@@ -887,6 +887,24 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                   )}
                 </div>
               )}
+
+              <details className="group shrink-0 rounded border border-white/8 bg-white/[0.02]">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-3 text-sm font-semibold text-white/80 marker:hidden">
+                  <span>{tGlobal("personalize.admin_title")}</span>
+                  <span className="text-success-accent transition-transform group-open:rotate-180" aria-hidden="true">▾</span>
+                </summary>
+                <div className="grid gap-1.5 border-t border-white/8 p-3">
+                  <p className="text-[11px] text-white/50">{tGlobal("personalize.admin_add_product_hint")}</p>
+                  <PersonalizationForm
+                    className="rounded-none border-0 bg-transparent p-0 shadow-none"
+                    key={personalizationFormKey}
+                    imageUrls={imageDataUrls}
+                    personalization={restoredPersonalization}
+                    onDraftChange={setPersonalizationState}
+                    onGeneratedMockup={replaceMockupImage}
+                  />
+                </div>
+              </details>
             </section>
           )
         }}
@@ -1085,20 +1103,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               {t("manage_variant_empty")}
             </div>
           )}
-        </div>
-
-        {/* The print area is marked out here and stored with the product on create — the same editor the
-            Edit tab and the manage page mount, minus its update button (there is no row to update yet) */}
-        <div className="grid gap-1.5 rounded border border-white/8 bg-white/[0.02] p-3">
-          <p className="text-[11px] text-white/50">{tGlobal("personalize.admin_add_product_hint")}</p>
-          <PersonalizationForm
-            className="rounded-none border-0 bg-transparent p-0 shadow-none"
-            key={personalizationFormKey}
-            imageUrls={imageDataUrls}
-            personalization={restoredPersonalization}
-            onDraftChange={setPersonalizationState}
-            onGeneratedMockup={replaceMockupImage}
-          />
         </div>
 
         {/* Live preview row — on_stock is the accumulated stock of all variants, not a manual field */}

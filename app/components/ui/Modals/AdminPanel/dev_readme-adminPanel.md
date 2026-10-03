@@ -39,6 +39,8 @@ through the App Router, keeping the URL and visible modal in sync while preservi
 
 Submitting **Create product** scrolls the Add tab's details pane back to the top. A successful submit
 therefore opens the cleared form at its title field, while a rejected submit exposes its topmost errors.
+The Add tab keeps the image gallery and its print-area editor in the left pane. The print-area editor
+is inside a native `details` section, closed by default; closing the section keeps its draft mounted.
 
 ### 1.2 Types
 
