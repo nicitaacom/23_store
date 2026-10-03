@@ -14,6 +14,16 @@ cleared value field so another size can be entered immediately. Removing a chip 
 value. Color, Size, and Weight use stable stored names and localized labels; any other name is kept
 as entered.
 
+The editor shows which variant owns the draft options. Adding a variant stores its combinations on
+that variant only, then clears the option inputs for the next variant. A Blue variant with Size S/M
+and a Red variant with Weight 10 kg remain separate; options entered for one do not carry into the
+other. The same ownership label appears in the Admin Panel edit form and standalone manage page.
+
+Rows expanded from one draft share a `group_id` in the existing JSONB `variants` value. The buyer's
+option picker shows values from the selected group, and switching Size or Weight prefers another row
+in that group. Choosing a different variant chip changes groups. Older rows without `group_id` retain
+the original global option picker behavior. No SQL migration is needed.
+
 Adding or saving a variant expands the entered values into one row per combination. For example,
 Size 36/38 and Color Blue/Red create four variants with separate IDs. The entered price, stock, and
 image are copied to each row; owners can adjust those rows afterward in the Edit tab. The first row
@@ -29,5 +39,6 @@ a value chooses the matching variant that preserves the most other selected valu
 existing variant ID, price, stock, image, and cart behavior. Variant chips remain available for rows
 without options and for combinations that need a direct choice.
 
-The focused checks are `app/utils/variantOptions.test.ts` and the `ColorAndSizeOptions` Storybook
-story in `storybook/commerce/Product.stories.tsx`.
+The focused checks are `app/utils/variantOptions.test.ts`, the `MultipleValuesForOneOption` Storybook
+story in `storybook/admin/AdminPanelModal.stories.tsx`, and the `ColorAndSizeOptions` and
+`WeightOptionsStayWithVariant` stories in `storybook/commerce/Product.stories.tsx`.

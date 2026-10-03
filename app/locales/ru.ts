@@ -386,6 +386,8 @@ export default {
   "product.variant_option_name": "Параметр (цвет, размер, вес...)",
   "product.variant_option_value": "Значение (синий, XL, 2,5 кг...)",
   "product.variant_option_add": "Добавить параметр",
+  "product.variant_options_for": "Параметры варианта «{variant}»",
+  "product.variant_options_for_new": "Параметры нового варианта",
   "product.variant_color": "Цвет",
   "product.variant_size": "Размер",
   "product.variant_weight": "Вес",

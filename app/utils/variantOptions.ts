@@ -53,10 +53,11 @@ export function getVariantOptionGroups(variants: TProductVariant[]) {
 export function chooseVariantForOption(variants: TProductVariant[], selected: TProductVariant | undefined, name: string, value: string) {
   const candidates = variants.filter(variant => variant.options?.[name] === value)
   return candidates.sort((first, second) => {
+    const sameGroup = (variant: TProductVariant) => Number(Boolean(selected?.group_id && variant.group_id === selected.group_id))
     const matches = (variant: TProductVariant) =>
       Object.entries(selected?.options ?? {}).filter(([otherName, otherValue]) =>
         otherName !== name && variant.options?.[otherName] === otherValue,
       ).length
-    return matches(second) - matches(first) || Number(second.quantity > 0) - Number(first.quantity > 0)
+    return sameGroup(second) - sameGroup(first) || matches(second) - matches(first) || Number(second.quantity > 0) - Number(first.quantity > 0)
   })[0]
 }

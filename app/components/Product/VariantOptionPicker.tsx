@@ -12,7 +12,10 @@ interface VariantOptionPickerProps {
 
 export function VariantOptionPicker({ variants, selectedVariant, onSelect }: VariantOptionPickerProps) {
   const t = useScopedI18n("product")
-  const groups = getVariantOptionGroups(variants)
+  const relatedVariants = selectedVariant?.group_id
+    ? variants.filter(variant => variant.group_id === selectedVariant.group_id)
+    : variants
+  const groups = getVariantOptionGroups(relatedVariants)
   if (!groups.length) return null
 
   return (

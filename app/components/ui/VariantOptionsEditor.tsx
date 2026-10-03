@@ -7,12 +7,13 @@ import { cleanVariantOptions } from "@/utils/variantOptions"
 import { useScopedI18n } from "@/locales/client"
 
 interface VariantOptionsEditorProps {
+  variantLabel: string
   options: TVariantOptionValues
   onChange: (options: TVariantOptionValues) => void
   disabled?: boolean
 }
 
-export function VariantOptionsEditor({ options, onChange, disabled = false }: VariantOptionsEditorProps) {
+export function VariantOptionsEditor({ variantLabel, options, onChange, disabled = false }: VariantOptionsEditorProps) {
   const t = useScopedI18n("product")
   const suggestionsId = useId()
   const [name, setName] = useState("")
@@ -41,6 +42,9 @@ export function VariantOptionsEditor({ options, onChange, disabled = false }: Va
 
   return (
     <div className="grid gap-2 rounded border border-border-color/30 bg-background/30 p-2">
+      <p className="min-w-0 truncate text-xs font-semibold text-title">
+        {variantLabel.trim() ? t("variant_options_for", { variant: variantLabel.trim() }) : t("variant_options_for_new")}
+      </p>
       <div className="flex flex-wrap gap-2">
         <input
           aria-label={t("variant_option_name")}

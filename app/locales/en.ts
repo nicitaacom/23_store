@@ -386,6 +386,8 @@ export default {
   "product.variant_option_name": "Option (Color, Size, Weight...)",
   "product.variant_option_value": "Value (Blue, XL, 2.5 kg...)",
   "product.variant_option_add": "Add option",
+  "product.variant_options_for": "Options for {variant}",
+  "product.variant_options_for_new": "Options for this new variant",
   "product.variant_color": "Color",
   "product.variant_size": "Size",
   "product.variant_weight": "Weight",

@@ -305,6 +305,7 @@ export function resolveUploadedProductVariants(variants: TProductVariantDraft[] 
     .flatMap(variant => expandVariantOptionValues(variant.options ?? {}).map((options, index): TProductVariant => ({
       id: index === 0 ? variant.id : crypto.randomUUID(),
       label: labelForVariantCombination(variant.label.trim(), options, index),
+      group_id: variant.group_id ?? variant.id,
       options,
       image_url: imageUrls[variant.imageIndex] ?? null,
       price: variant.price,

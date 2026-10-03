@@ -23,6 +23,18 @@ describe("variant options", () => {
     expect(chooseVariantForOption(variants, variants[0], "Color", "Red")?.id).toBe("red-small")
   })
 
+  it("keeps the parent variant when two parents share the same weight values", () => {
+    const grouped: TProductVariant[] = [
+      { id: "blue-5", group_id: "blue", label: "Blue 5 kg", options: { Weight: "5 kg" }, price: 10, quantity: 2 },
+      { id: "blue-10", group_id: "blue", label: "Blue 10 kg", options: { Weight: "10 kg" }, price: 18, quantity: 0 },
+      { id: "red-5", group_id: "red", label: "Red 5 kg", options: { Weight: "5 kg" }, price: 10, quantity: 2 },
+      { id: "red-10", group_id: "red", label: "Red 10 kg", options: { Weight: "10 kg" }, price: 18, quantity: 2 },
+    ]
+
+    expect(chooseVariantForOption(grouped, grouped[2], "Weight", "10 kg")?.id).toBe("red-10")
+    expect(chooseVariantForOption(grouped, grouped[0], "Weight", "10 kg")?.id).toBe("blue-10")
+  })
+
   it("adds repeated values as separate purchasable combinations", () => {
     const choices = { Size: ["36", "38"], Color: ["Blue", "Red"] }
     const combinations = expandVariantOptionValues(choices)

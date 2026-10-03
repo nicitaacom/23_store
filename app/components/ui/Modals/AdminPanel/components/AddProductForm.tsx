@@ -116,6 +116,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [variantPriceValue, setVariantPriceValue] = useState("")
   const [variantQuantityValue, setVariantQuantityValue] = useState("")
   const [variantOptions, setVariantOptions] = useState<TVariantOptionValues>({})
+  const [variantDraftKey, setVariantDraftKey] = useState(0)
   // Colour variants take the image on screen; size variants (S/M/L) look the same in a photo and take none
   const [isVariantImageAttached, setIsVariantImageAttached] = useState(true)
   const [variants, setVariants] = useState<TProductVariantDraft[]>([])
@@ -412,6 +413,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariantPriceValue("")
     setVariantQuantityValue("")
     setVariantOptions({})
+    setVariantDraftKey(currentKey => currentKey + 1)
     hasOfferedPreviousVariantPriceRef.current = false
     setCategoryId(null)
     setAutoAssignedName(null)
@@ -430,6 +432,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariantPriceValue(snapshot.variantPrice)
     setVariantQuantityValue(snapshot.variantQuantity)
     setVariantOptions(snapshot.variantOptions)
+    setVariantDraftKey(currentKey => currentKey + 1)
     hasOfferedPreviousVariantPriceRef.current = Boolean(snapshot.variantPrice)
   }
 
@@ -526,6 +529,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           id: variant.id,
           label: variant.label.trim(),
           options: expandVariantOptionValues(variant.options ?? {})[0],
+          group_id: variant.group_id,
           image_url: images[variant.imageIndex]?.data_url ?? null,
           price: variant.price,
           quantity: variant.quantity,
@@ -643,6 +647,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     const normalizedQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
 
     const optionCombinations = expandVariantOptionValues(variantOptions)
+    const groupId = crypto.randomUUID()
     if (variants.length + optionCombinations.length > MAX_PRODUCT_VARIANTS) {
       return showToast(
         "warning",
@@ -662,9 +667,10 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariants(currentVariants => [
       ...currentVariants,
       ...optionCombinations.map((options, index) => ({
-        id: crypto.randomUUID(),
+        id: index === 0 ? groupId : crypto.randomUUID(),
         label: labelForVariantCombination(normalizedLabel, options, index),
         options: toVariantOptionValues(options),
+        group_id: groupId,
         imageIndex: isVariantImageAttached ? activeImageIndex : -1,
         imageDataUrl: isVariantImageAttached ? (images[activeImageIndex]?.data_url ?? null) : null,
         price: normalizedPrice,
@@ -675,6 +681,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariantPriceValue("")
     setVariantQuantityValue("")
     setVariantOptions({})
+    setVariantDraftKey(currentKey => currentKey + 1)
     // The row is empty again, so the next label earns its own price offer
     hasOfferedPreviousVariantPriceRef.current = false
   }
@@ -1077,7 +1084,13 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             </button>
           </div>
 
-          <VariantOptionsEditor options={variantOptions} onChange={setVariantOptions} disabled={isLoading} />
+          <VariantOptionsEditor
+            key={variantDraftKey}
+            variantLabel={variantLabelValue}
+            options={variantOptions}
+            onChange={setVariantOptions}
+            disabled={isLoading}
+          />
 
           <label className="flex w-fit items-center gap-2 text-[11px] text-white/70">
             <input

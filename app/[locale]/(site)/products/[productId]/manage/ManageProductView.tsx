@@ -39,6 +39,7 @@ function normalizeVariantsForDraft(product: TProductDB): TProductVariantDraft[] 
     imageIndex: variant.image_url ? product.img_url.findIndex(image => image === variant.image_url) : -1,
     imageDataUrl: variant.image_url ?? null,
     options: toVariantOptionValues(variant.options),
+    group_id: variant.group_id,
     price: variant.price > 0 ? variant.price : product.price,
     quantity: variant.quantity,
   }))
@@ -107,15 +108,17 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       )
     }
 
+    const id = crypto.randomUUID()
     setVariants(currentVariants => [
       ...currentVariants,
       {
-        id: crypto.randomUUID(),
+        id,
         label: normalizedLabel,
         // A new variant starts with no image - "Assign current image" attaches one when it helps
         imageIndex: -1,
         imageDataUrl: null,
         options: {},
+        group_id: id,
         price: normalizedPrice,
         quantity: 0, // new variants start sold out; owner sets stock per row below
       },
@@ -195,11 +198,13 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const buildResolvedVariants = useCallback(() => {
     return variants.flatMap((variant): TProductVariant[] => {
       if (!variant.label.trim()) return []
-      return expandVariantOptionValues(variant.options ?? {}).map((options, index) => ({
+      const combinations = expandVariantOptionValues(variant.options ?? {})
+      return combinations.map((options, index) => ({
         id: index === 0 ? variant.id : crypto.randomUUID(),
         label: labelForVariantCombination(variant.label.trim(), options, index),
         image_url: product.img_url.find(url => url === variant.imageDataUrl) ?? null,
         options,
+        group_id: variant.group_id ?? (combinations.length > 1 ? variant.id : undefined),
         price: variant.price > 0 ? variant.price : product.price,
         quantity: variant.quantity > 0 ? Math.floor(variant.quantity) : 0,
       }))
@@ -286,6 +291,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           imageIndex: variant.image_url ? product.img_url.indexOf(variant.image_url) : -1,
           imageDataUrl: variant.image_url ?? null,
           options: toVariantOptionValues(variant.options),
+          group_id: variant.group_id,
           price: variant.price,
           quantity: variant.quantity,
         })))
@@ -387,6 +393,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 </div>
 
                 <VariantOptionsEditor
+                  variantLabel={variant.label}
                   options={variant.options ?? {}}
                   onChange={options => setVariants(current => current.map(row => row.id === variant.id ? { ...row, options } : row))}
                   disabled={isUpdatingProduct}

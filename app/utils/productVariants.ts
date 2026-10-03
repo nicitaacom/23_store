@@ -51,6 +51,7 @@ export function normalizeProductVariants(value: unknown, fallbackPrice = 0, fall
     .map(variant => ({
       ...variant,
       options: cleanVariantOptions(variant.options),
+      group_id: typeof variant.group_id === "string" && variant.group_id.trim() ? variant.group_id : undefined,
       image_url: resolveVariantImageUrl(variant.image_url),
       price:
         typeof variant.price === "number" && Number.isFinite(variant.price) && variant.price > 0 ? variant.price : fallbackPrice,

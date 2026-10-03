@@ -37,9 +37,12 @@ export const AddProduct: Story = {};
 export const MultipleValuesForOneOption: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const variantLabel = await canvas.findByPlaceholderText("Variant label");
     const optionName = await canvas.findByPlaceholderText("Option (Color, Size, Weight...)");
     const optionValue = canvas.getByPlaceholderText("Value (Blue, XL, 2.5 kg...)");
 
+    await userEvent.type(variantLabel, "Blue");
+    await expect(canvas.getByText("Options for Blue")).toBeVisible();
     await userEvent.type(optionName, "Size");
     await userEvent.type(optionValue, "36");
     await userEvent.click(canvas.getByRole("button", { name: "Add option" }));
@@ -51,12 +54,23 @@ export const MultipleValuesForOneOption: Story = {
     await expect(canvas.getByRole("button", { name: "Size: 36 ×" })).toBeVisible();
     await expect(canvas.getByRole("button", { name: "Size: 38 ×" })).toBeVisible();
 
-    await userEvent.type(canvas.getByPlaceholderText("Variant label"), "Shoe");
     await userEvent.type(canvas.getByPlaceholderText("Product price"), "12");
     await userEvent.type(canvas.getByPlaceholderText("0"), "4");
     await userEvent.click(canvas.getByRole("button", { name: "Add variant" }));
-    await expect(canvas.getByText("Shoe")).toBeVisible();
-    await expect(canvas.getByText("Shoe / Size: 38")).toBeVisible();
+    await expect(within(canvas.getByText("Blue").parentElement!).getByText("Size: 36")).toBeVisible();
+    await expect(canvas.getByText("Blue / Size: 38")).toBeVisible();
+    await expect(canvas.getByPlaceholderText("Option (Color, Size, Weight...)")).toHaveValue("");
+    await expect(canvas.queryByRole("button", { name: "Size: 36 ×" })).not.toBeInTheDocument();
+
+    await userEvent.type(variantLabel, "Red");
+    await expect(canvas.getByText("Options for Red")).toBeVisible();
+    await userEvent.type(canvas.getByPlaceholderText("Option (Color, Size, Weight...)"), "Weight");
+    await userEvent.type(canvas.getByPlaceholderText("Value (Blue, XL, 2.5 kg...)"), "10 kg");
+    await userEvent.click(canvas.getByRole("button", { name: "Add option" }));
+    await userEvent.type(canvas.getByPlaceholderText("Product price"), "14");
+    await userEvent.click(canvas.getByRole("button", { name: "Add variant" }));
+    await expect(within(canvas.getByText("Red").parentElement!).getByText("Weight: 10 kg")).toBeVisible();
+    await expect(within(canvas.getByText("Blue").parentElement!).queryByText("Weight: 10 kg")).not.toBeInTheDocument();
   },
 };
 export const BackdropClosesPanel: Story = {

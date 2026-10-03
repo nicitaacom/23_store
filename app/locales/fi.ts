@@ -386,6 +386,8 @@ export default {
   "product.variant_option_name": "Vaihtoehto (väri, koko, paino...)",
   "product.variant_option_value": "Arvo (sininen, XL, 2,5 kg...)",
   "product.variant_option_add": "Lisää vaihtoehto",
+  "product.variant_options_for": "Variantin {variant} valinnat",
+  "product.variant_options_for_new": "Uuden variantin valinnat",
   "product.variant_color": "Väri",
   "product.variant_size": "Koko",
   "product.variant_weight": "Paino",

@@ -34,6 +34,7 @@ type VariantDraft = {
   label: string
   image_url: string | null
   options: TVariantOptionValues
+  group_id?: string
   priceInput: string
   quantityInput: string
 }
@@ -44,6 +45,7 @@ function toDrafts(variants: TProductVariant[] | null): VariantDraft[] {
     label: variant.label,
     image_url: variant.image_url ?? null,
     options: toVariantOptionValues(variant.options),
+    group_id: variant.group_id,
     priceInput: variant.price > 0 ? formatGroupedNumberInput(String(variant.price)) : "",
     quantityInput: formatGroupedNumberInput(String(variant.quantity)),
   }))
@@ -57,6 +59,7 @@ function signature(drafts: VariantDraft[]) {
       label: draft.label.trim(),
       image_url: draft.image_url,
       options: draft.options,
+      group_id: draft.group_id,
       price: parseFormattedNumber(draft.priceInput),
       quantity: parseFormattedNumber(draft.quantityInput),
     })),
@@ -93,7 +96,8 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
         t("warning.max_variants_subtitle", { maxVariants: MAX_PRODUCT_VARIANTS }),
       )
     }
-    setDrafts(current => [...current, { id: crypto.randomUUID(), label: "", image_url: null, options: {}, priceInput: "", quantityInput: "0" }])
+    const id = crypto.randomUUID()
+    setDrafts(current => [...current, { id, label: "", image_url: null, options: {}, group_id: id, priceInput: "", quantityInput: "0" }])
   }, [drafts.length, t, toast])
 
   // 2. Resolve drafts → persistable variants (label required; an image the gallery no longer holds
@@ -110,11 +114,13 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
       const variantPrice = Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice : price
       const parsedQuantity = parseFormattedNumber(draft.quantityInput)
       const variantQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
-      return expandVariantOptionValues(draft.options).map((options, index) => ({
+      const combinations = expandVariantOptionValues(draft.options)
+      return combinations.map((options, index) => ({
         id: index === 0 ? draft.id : crypto.randomUUID(),
         label: labelForVariantCombination(label, options, index),
         image_url,
         options,
+        group_id: draft.group_id ?? (combinations.length > 1 ? draft.id : undefined),
         price: variantPrice,
         quantity: variantQuantity,
       }))
@@ -210,6 +216,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                       />
                     </div>
                     <VariantOptionsEditor
+                      variantLabel={draft.label}
                       options={draft.options}
                       onChange={options => updateDraft(draft.id, { options })}
                       disabled={isLoading}
