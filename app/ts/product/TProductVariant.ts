@@ -5,6 +5,8 @@ export type TProductVariant = {
   // into a swatch. Without one the variant is a text chip - see getVariantImageUrl for what is shown
   // wherever an image is unavoidable (cart line, Stripe line item, order email).
   image_url?: string | null
+  // Named choices such as Color=Blue and Weight=2.5 kg. One row represents one purchasable combination.
+  options?: Record<string, string>
   price: number // variant-specific price override
   quantity: number // per-variant stock; 0 = sold out (manual, never auto-decremented)
 }
@@ -14,6 +16,7 @@ export type TProductVariantDraft = {
   label: string
   imageIndex: number
   imageDataUrl?: string | null
+  options?: Record<string, string>
   price: number // variant-specific price override
   quantity: number // per-variant stock; 0 = sold out
 }

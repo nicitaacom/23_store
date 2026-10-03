@@ -21,6 +21,7 @@ import { FormatImagesForm } from "@/components/ui/Modals/AdminPanel/components/F
 import { MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 import { PersonalizationForm } from "@/components/ui/Modals/AdminPanel/components/PersonalizationForm"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
+import { VariantOptionsEditor } from "@/components/ui/VariantOptionsEditor"
 
 interface ManageProductViewProps {
   product: TProductDB
@@ -36,6 +37,7 @@ function normalizeVariantsForDraft(product: TProductDB): TProductVariantDraft[] 
     // -1 keeps "this variant has no image of its own" distinct from "it uses the first one"
     imageIndex: variant.image_url ? product.img_url.findIndex(image => image === variant.image_url) : -1,
     imageDataUrl: variant.image_url ?? null,
+    options: variant.options ?? {},
     price: variant.price > 0 ? variant.price : product.price,
     quantity: variant.quantity,
   }))
@@ -69,7 +71,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty },
+    // eslint-disable-next-line local-rules/no-banned-words -- React Hook Form exposes this exact field name.
+    formState: { errors, isDirty: hasFormChanges },
   } = useForm<IFormDataAddProduct>({
     defaultValues: {
       title: currentTranslation.title,
@@ -78,8 +81,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
     },
   })
 
-  const isVariantsDirty = stringifyValue(variants) !== stringifyValue(normalizeVariantsForDraft(product))
-  const hasChanges = isDirty || isVariantsDirty
+  const hasVariantChanges = stringifyValue(variants) !== stringifyValue(normalizeVariantsForDraft(product))
+  const hasChanges = hasFormChanges || hasVariantChanges
 
   const previewPrice = variants[0]?.price > 0 ? formatCurrency(variants[0].price) : formatCurrency(product.price)
 
@@ -111,6 +114,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         // A new variant starts with no image - "Assign current image" attaches one when it helps
         imageIndex: -1,
         imageDataUrl: null,
+        options: {},
         price: normalizedPrice,
         quantity: 0, // new variants start sold out; owner sets stock per row below
       },
@@ -196,6 +200,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           id: variant.id,
           label: variant.label.trim(),
           image_url: product.img_url.find(url => url === variant.imageDataUrl) ?? null,
+          options: variant.options,
           price: variant.price > 0 ? variant.price : product.price,
           quantity: variant.quantity > 0 ? Math.floor(variant.quantity) : 0,
         }
@@ -365,6 +370,12 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                     inputMode="numeric"
                   />
                 </div>
+
+                <VariantOptionsEditor
+                  options={variant.options ?? {}}
+                  onChange={options => setVariants(current => current.map(row => row.id === variant.id ? { ...row, options } : row))}
+                  disabled={isUpdatingProduct}
+                />
 
                 <div className="flex flex-wrap gap-2">
                   <button

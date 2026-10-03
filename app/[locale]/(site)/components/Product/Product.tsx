@@ -19,6 +19,7 @@ import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { MarkdownText } from "@/components/ui/MarkdownText"
 import { PersonalizeButton } from "@/components/ui/Buttons/PersonalizeButton"
 import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
+import { VariantOptionPicker } from "@/components/Product/VariantOptionPicker"
 
 function VariantImage({ src, alt }: { src: string; alt: string }) {
   const [errored, setErrored] = useState(false)
@@ -127,6 +128,9 @@ function Product({ ...product }: Props) {
         </div>
 
         {/* 7. Selectable variants (not in cart context) */}
+        {!isVariantSelectionLocked && (
+          <VariantOptionPicker variants={variants} selectedVariant={selectedVariant} onSelect={setSelectedVariantId} />
+        )}
         {variants.length > 0 && !isVariantSelectionLocked && (
           <div className="flex flex-row gap-2 overflow-x-auto pb-1">
             {variants.map(variant => {

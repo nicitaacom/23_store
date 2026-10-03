@@ -17,6 +17,7 @@ declare namespace API {
     id: string
     label: string
     image_url?: string | null // optional: size variants (S/M/L) share one photo, so they have none
+    options?: Record<string, string>
     price: number
     quantity: number // per-variant stock; 0 = sold out
   }

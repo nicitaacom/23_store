@@ -5,6 +5,7 @@ import { invokeTranslateProductLambda } from "./invokeTranslateProductLambda"
 import type { TProductInsertPayload } from "./insertDBProduct"
 import { getRunPersonalizationSqlMessage, isMissingSchemaError } from "@/utils/personalizationSchema"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
+import { cleanVariantOptions } from "@/utils/variantOptions"
 
 export const runtime = "nodejs"
 export const maxDuration = 30
@@ -29,6 +30,7 @@ function normalizeVariants(variants: API.ProductsTranslateAndInsertRequest["vari
 
   return variants.map(variant => ({
     ...variant,
+    options: cleanVariantOptions(variant.options),
     price: parseNumericValue((variant as API.ProductsVariant & { price?: number | string }).price),
   }))
 }

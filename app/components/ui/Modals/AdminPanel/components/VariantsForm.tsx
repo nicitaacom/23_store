@@ -16,6 +16,7 @@ import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
 import { Button } from "@/components/ui"
+import { VariantOptionsEditor } from "@/components/ui/VariantOptionsEditor"
 import { MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 
 interface VariantsFormProps {
@@ -31,6 +32,7 @@ type VariantDraft = {
   id: string
   label: string
   image_url: string | null
+  options: Record<string, string>
   priceInput: string
   quantityInput: string
 }
@@ -40,6 +42,7 @@ function toDrafts(variants: TProductVariant[] | null): VariantDraft[] {
     id: variant.id,
     label: variant.label,
     image_url: variant.image_url ?? null,
+    options: variant.options ?? {},
     priceInput: variant.price > 0 ? formatGroupedNumberInput(String(variant.price)) : "",
     quantityInput: formatGroupedNumberInput(String(variant.quantity)),
   }))
@@ -52,6 +55,7 @@ function signature(drafts: VariantDraft[]) {
       id: draft.id,
       label: draft.label.trim(),
       image_url: draft.image_url,
+      options: draft.options,
       price: parseFormattedNumber(draft.priceInput),
       quantity: parseFormattedNumber(draft.quantityInput),
     })),
@@ -88,7 +92,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
         t("warning.max_variants_subtitle", { maxVariants: MAX_PRODUCT_VARIANTS }),
       )
     }
-    setDrafts(current => [...current, { id: crypto.randomUUID(), label: "", image_url: null, priceInput: "", quantityInput: "0" }])
+    setDrafts(current => [...current, { id: crypto.randomUUID(), label: "", image_url: null, options: {}, priceInput: "", quantityInput: "0" }])
   }, [drafts.length, t, toast])
 
   // 2. Resolve drafts → persistable variants (label required; an image the gallery no longer holds
@@ -103,7 +107,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
         const parsedQuantity = parseFormattedNumber(draft.quantityInput)
         const variantQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
         if (!label) return null
-        return { id: draft.id, label, image_url, price: variantPrice, quantity: variantQuantity }
+        return { id: draft.id, label, image_url, options: draft.options, price: variantPrice, quantity: variantQuantity }
       })
       .filter((variant): variant is TProductVariant => Boolean(variant))
 
@@ -192,6 +196,11 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                         placeholder={t("variant_quantity")}
                       />
                     </div>
+                    <VariantOptionsEditor
+                      options={draft.options}
+                      onChange={options => updateDraft(draft.id, { options })}
+                      disabled={isLoading}
+                    />
                   </div>
                   <button
                     className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded border border-border-color/35 bg-background/55 text-danger transition-colors duration-150 hover:bg-danger/10 disabled:opacity-40"

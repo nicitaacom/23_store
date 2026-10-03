@@ -26,6 +26,7 @@ import { PersonalizeButton } from "@/components/ui/Buttons/PersonalizeButton"
 import { PersonalizeModal } from "@/components/ui/Modals/PersonalizeModal/PersonalizeModal"
 import { ProductQuantityButton } from "@/components/ui/Buttons/ProductQuantityButton"
 import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
+import { VariantOptionPicker } from "@/components/Product/VariantOptionPicker"
 
 interface ProductDetailViewProps {
   category: TCategory | null
@@ -176,6 +177,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
             </div>
           </div>
 
+          <VariantOptionPicker variants={variants} selectedVariant={selectedVariant} onSelect={handleSelectVariant} />
           {variants.length > 0 && <div className="flex flex-wrap items-stretch gap-2">{renderedVariants}</div>}
 
           {isLowStock && (

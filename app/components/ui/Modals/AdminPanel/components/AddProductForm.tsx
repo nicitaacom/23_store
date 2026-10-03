@@ -49,6 +49,7 @@ import {
 } from "@/constants/uploadLimits"
 import { MarkdownEditor } from "@/components/ui/Inputs/MarkdownEditor"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
+import { VariantOptionsEditor } from "@/components/ui/VariantOptionsEditor"
 
 const previewImageVariants = {
   initial: (direction: "next" | "prev") => ({
@@ -82,6 +83,7 @@ type PendingFormSnapshot = {
   variantLabel: string
   variantPrice: string
   variantQuantity: string
+  variantOptions: Record<string, string>
 }
 
 const EMPTY_PRODUCT_FORM_VALUES: Partial<IFormDataAddProduct> = {
@@ -112,6 +114,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [variantLabelValue, setVariantLabelValue] = useState("")
   const [variantPriceValue, setVariantPriceValue] = useState("")
   const [variantQuantityValue, setVariantQuantityValue] = useState("")
+  const [variantOptions, setVariantOptions] = useState<Record<string, string>>({})
   // Colour variants take the image on screen; size variants (S/M/L) look the same in a photo and take none
   const [isVariantImageAttached, setIsVariantImageAttached] = useState(true)
   const [variants, setVariants] = useState<TProductVariantDraft[]>([])
@@ -227,7 +230,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     hasFormChanges ||
     images.length > 0 ||
     variants.length > 0 ||
-    Boolean(variantLabelValue || variantPriceValue || variantQuantityValue) ||
+    Boolean(variantLabelValue || variantPriceValue || variantQuantityValue || Object.keys(variantOptions).length) ||
     categoryId !== null ||
     personalizationState.isEnabled ||
     Boolean(personalizationState.draft) ||
@@ -407,6 +410,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariantLabelValue("")
     setVariantPriceValue("")
     setVariantQuantityValue("")
+    setVariantOptions({})
     hasOfferedPreviousVariantPriceRef.current = false
     setCategoryId(null)
     setAutoAssignedName(null)
@@ -424,6 +428,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariantLabelValue(snapshot.variantLabel)
     setVariantPriceValue(snapshot.variantPrice)
     setVariantQuantityValue(snapshot.variantQuantity)
+    setVariantOptions(snapshot.variantOptions)
     hasOfferedPreviousVariantPriceRef.current = Boolean(snapshot.variantPrice)
   }
 
@@ -519,6 +524,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         .map(variant => ({
           id: variant.id,
           label: variant.label.trim(),
+          options: variant.options,
           image_url: images[variant.imageIndex]?.data_url ?? null,
           price: variant.price,
           quantity: variant.quantity,
@@ -570,6 +576,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         variantLabel: variantLabelValue,
         variantPrice: variantPriceValue,
         variantQuantity: variantQuantityValue,
+        variantOptions: { ...variantOptions },
       }
       const submitImages = [...images]
 
@@ -655,6 +662,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
       {
         id: crypto.randomUUID(),
         label: normalizedLabel,
+        options: variantOptions,
         imageIndex: isVariantImageAttached ? activeImageIndex : -1,
         imageDataUrl: isVariantImageAttached ? (images[activeImageIndex]?.data_url ?? null) : null,
         price: normalizedPrice,
@@ -664,6 +672,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     setVariantLabelValue("")
     setVariantPriceValue("")
     setVariantQuantityValue("")
+    setVariantOptions({})
     // The row is empty again, so the next label earns its own price offer
     hasOfferedPreviousVariantPriceRef.current = false
   }
@@ -1062,6 +1071,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             </button>
           </div>
 
+          <VariantOptionsEditor options={variantOptions} onChange={setVariantOptions} disabled={isLoading} />
+
           <label className="flex w-fit items-center gap-2 text-[11px] text-white/70">
             <input
               type="checkbox"
@@ -1103,6 +1114,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="line-clamp-2 text-sm font-medium text-white">{variant.label}</p>
+                      {Object.entries(variant.options ?? {}).map(([name, value]) => (
+                        <p className="text-[11px] text-subTitle" key={name}>{name}: {value}</p>
+                      ))}
                       <p className="mt-0.5 text-[11px] text-success">{formatCurrency(variant.price)}</p>
                       <p className={twMerge("mt-0.5 text-[11px]", variant.quantity > 0 ? "text-white/70" : "text-warning")}>
                         {variant.quantity > 0 ? `${variant.quantity} ${t("on_stock")}` : t("out_of_stock_label")}

@@ -7,6 +7,7 @@ import {
   TProductPersonalization,
 } from "@/ts/product/TPersonalization"
 import { normalizeProductImageUrls, normalizeProductTranslations } from "./product"
+import { cleanVariantOptions } from "./variantOptions"
 
 // price and quantity are optional on the raw row — legacy variants predate both fields
 type TProductVariantCandidate = Omit<TProductVariant, "price" | "quantity"> & {
@@ -49,6 +50,7 @@ export function normalizeProductVariants(value: unknown, fallbackPrice = 0, fall
     .filter(isProductVariant)
     .map(variant => ({
       ...variant,
+      options: cleanVariantOptions(variant.options),
       image_url: resolveVariantImageUrl(variant.image_url),
       price:
         typeof variant.price === "number" && Number.isFinite(variant.price) && variant.price > 0 ? variant.price : fallbackPrice,

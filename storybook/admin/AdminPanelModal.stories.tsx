@@ -197,3 +197,19 @@ export const SecondVariantTakesPreviousPrice: Story = {
     await waitFor(() => expect(variantPriceInput).toHaveValue("3.89"));
   },
 };
+
+export const StructuredVariantOptions: Story = {
+  parameters: { a11y: { test: "todo" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(await canvas.findByPlaceholderText(/Option \(Color/), "Color");
+    await userEvent.type(canvas.getByPlaceholderText(/Value \(Blue/), "Blue");
+    await userEvent.click(canvas.getByRole("button", { name: "Add option" }));
+    await expect(canvas.getByRole("button", { name: "Color: Blue ×" })).toBeVisible();
+
+    await userEvent.type(canvas.getByPlaceholderText("Variant label"), "Blue large");
+    await userEvent.type(canvas.getByPlaceholderText("Product price"), "12");
+    await userEvent.click(canvas.getByRole("button", { name: "Add variant" }));
+    await expect(canvas.getByText("Color: Blue")).toBeVisible();
+  },
+};

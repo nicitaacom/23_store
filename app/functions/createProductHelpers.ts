@@ -306,6 +306,7 @@ export function resolveUploadedProductVariants(variants: TProductVariantDraft[] 
       (variant): TProductVariant => ({
         id: variant.id,
         label: variant.label.trim(),
+        options: variant.options,
         image_url: imageUrls[variant.imageIndex] ?? null,
         price: variant.price,
         quantity: variant.quantity,

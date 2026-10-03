@@ -73,6 +73,25 @@ export const VariantWithoutImage: Story = {
     await waitFor(() => expect(canvas.getAllByText("$9.90").length).toBeGreaterThan(1));
   },
 };
+export const ColorAndSizeOptions: Story = {
+  args: {
+    variants: [
+      { id: "blue-s", label: "Blue S", options: { Color: "Blue", Size: "S" }, image_url: "/products/keyboard.png", price: 10, quantity: 2 },
+      { id: "blue-l", label: "Blue L", options: { Color: "Blue", Size: "L" }, image_url: "/products/keyboard.png", price: 12, quantity: 2 },
+      { id: "red-s", label: "Red S", options: { Color: "Red", Size: "S" }, image_url: "/products/keyboard.png", price: 10, quantity: 2 },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const large = await canvas.findByRole("button", { name: /^L$/ });
+    await userEvent.click(large);
+    await expect(large).toHaveAttribute("aria-pressed", "true");
+    const red = canvas.getByRole("button", { name: /^Red$/ });
+    await userEvent.click(red);
+    await expect(red).toHaveAttribute("aria-pressed", "true");
+    await expect(canvas.getByRole("button", { name: /^S$/ })).toHaveAttribute("aria-pressed", "true");
+  },
+};
 export const CartLockedVariant: Story = {
   args: {
     cartKey: `${FIXTURE_IDS.product}::${FIXTURE_IDS.variant}`,
