@@ -37,6 +37,8 @@ The project tracker records the overall plan status; checked rows below record f
   its own Suspense boundary; a Cypress check pastes a real oversized PNG and samples panel visibility.
 - [x] Move Tab at the end of the Add Product description to the new variant name and give the title
   focus outline room inside the form. Verified with a Storybook keyboard test and live browser check.
+- [x] Dismiss toasts with a deliberate right swipe using `react-swipeable`. A Storybook browser test
+  covers short drags, left drags, and right touch swipes.
 
 ## Project 5 cards still shown as To-do
 

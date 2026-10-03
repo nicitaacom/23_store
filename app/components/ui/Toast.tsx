@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useSwipeable } from "react-swipeable"
 import { AiOutlineCheckCircle, AiOutlineWarning } from "react-icons/ai"
 import { BiErrorCircle } from "react-icons/bi"
 
@@ -11,8 +12,13 @@ import useToast from "@/store/ui/useToast"
 
 // http://localhost:6006/?path=/story/commerce-cartcomposition--empty
 export default function Toast() {
-  const { variant, title, subTitle } = useToast()
+  const { variant, title, subTitle, close } = useToast()
   const t = useI18n()
+  const swipeHandlers = useSwipeable({
+    onSwipedRight: close,
+    delta: 60,
+    trackMouse: true,
+  })
 
   const variantConfig: Record<
     TToastVariant,
@@ -58,12 +64,13 @@ export default function Toast() {
 
   return (
     <motion.div
-      className={`fixed bottom-[2%] right-[2%] z-[4999] flex w-auto max-w-[min(92vw,420px)] gap-3 rounded
+      className={`fixed bottom-[2%] right-[2%] z-[4999] flex w-auto max-w-[min(92vw,420px)] touch-pan-y gap-3 rounded
         border ${currentConfig.borderColor} bg-foreground/95 px-3 py-2 shadow-compact`}
+      {...swipeHandlers}
       data-click-outside-ignore
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 100, opacity: 0 }}
+      exit={{ x: "110%", opacity: 0 }}
       transition={{ duration: 0.3 }}>
       <div className={`flex items-center ${currentConfig.iconColor}`}>{currentConfig.icon}</div>
 
