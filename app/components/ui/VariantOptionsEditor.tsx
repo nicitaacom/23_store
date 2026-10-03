@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useState } from "react"
+import { useId, useRef, useState } from "react"
 
 import type { TVariantOptionValues } from "@/ts/product/TProductVariant"
 import { cleanVariantOptions } from "@/utils/variantOptions"
@@ -17,6 +17,7 @@ export function VariantOptionsEditor({ options, onChange, disabled = false }: Va
   const suggestionsId = useId()
   const [name, setName] = useState("")
   const [value, setValue] = useState("")
+  const valueInputRef = useRef<HTMLInputElement>(null)
   const standardNames = ["Color", "Size", "Weight"]
   const translatedNames = [t("variant_color"), t("variant_size"), t("variant_weight")]
   const standardIndex = translatedNames.findIndex(translatedName => translatedName.toLowerCase() === name.trim().toLowerCase())
@@ -34,8 +35,8 @@ export function VariantOptionsEditor({ options, onChange, disabled = false }: Va
     if (!cleanedName) return
     const nextValue = cleaned[cleanedName]
     onChange({ ...options, [cleanedName]: [...existingValues, nextValue] })
-    setName("")
     setValue("")
+    valueInputRef.current?.focus()
   }
 
   return (
@@ -63,6 +64,7 @@ export function VariantOptionsEditor({ options, onChange, disabled = false }: Va
           maxLength={80}
           onChange={event => setValue(event.target.value)}
           placeholder={t("variant_option_value")}
+          ref={valueInputRef}
           value={value}
         />
         <button

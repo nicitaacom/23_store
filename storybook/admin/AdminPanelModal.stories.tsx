@@ -43,7 +43,9 @@ export const MultipleValuesForOneOption: Story = {
     await userEvent.type(optionName, "Size");
     await userEvent.type(optionValue, "36");
     await userEvent.click(canvas.getByRole("button", { name: "Add option" }));
-    await userEvent.type(optionName, "Size");
+    await expect(optionName).toHaveValue("Size");
+    await expect(optionValue).toHaveValue("");
+    await expect(optionValue).toHaveFocus();
     await userEvent.type(optionValue, "38");
     await userEvent.click(canvas.getByRole("button", { name: "Add option" }));
     await expect(canvas.getByRole("button", { name: "Size: 36 ×" })).toBeVisible();

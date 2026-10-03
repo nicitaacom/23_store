@@ -9,8 +9,10 @@ The JSONB `variants` column can now also hold `options`, for example:
 
 The Add Product form, Admin Panel variant editor, and standalone Manage Product page all use
 `VariantOptionsEditor`. The editor keeps a list of values for each name: adding `Size: 38` after
-`Size: 36` shows both chips. Removing a chip removes only that value. Color, Size, and Weight use
-stable stored names and localized labels; any other name is kept as entered.
+`Size: 36` shows both chips. After adding a value, the name stays selected and focus returns to the
+cleared value field so another size can be entered immediately. Removing a chip removes only that
+value. Color, Size, and Weight use stable stored names and localized labels; any other name is kept
+as entered.
 
 Adding or saving a variant expands the entered values into one row per combination. For example,
 Size 36/38 and Color Blue/Red create four variants with separate IDs. The entered price, stock, and
