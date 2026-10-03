@@ -14,6 +14,7 @@ import { PopularProductsLazyFeed } from "@/[locale]/(site)/popular-products/Popu
 import { PopularProductsPreviewList } from "@/[locale]/(site)/components/PopularProductsPreviewList"
 import { ProductDetailView } from "@/[locale]/(site)/products/[productId]/ProductDetailView"
 import ProductsPerPage from "@/components/ProductsPerPage"
+import PaginationControls from "@/components/PaginationControls"
 import { SortedProducts } from "@/[locale]/(site)/components/SortedProducts"
 
 const products = [headphonesProduct, soldOutProduct]
@@ -126,6 +127,29 @@ export const PerPagePicker: Story = {
       <ProductsPerPage />
     </div>
   ),
+}
+
+export const MobilePagination: Story = {
+  parameters: { viewport: { defaultViewport: "mobileSmall" } },
+  render: () => (
+    <div className="w-[320px] max-w-full p-3">
+      <PaginationControls
+        basePath="/en"
+        currentPage={2}
+        hasNextPage
+        hasPrevPage
+        perPage={30}
+        totalPages={6}
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const nav = await within(canvasElement).findByRole("navigation", { name: "Pagination" })
+    const links = [...nav.querySelectorAll("a")].filter(link => link.getClientRects().length > 0)
+    await expect(links.length).toBe(5)
+    await expect(new Set(links.map(link => Math.round(link.getBoundingClientRect().top))).size).toBe(1)
+    await expect(nav.scrollWidth).toBeLessThanOrEqual(nav.clientWidth)
+  },
 }
 
 export const PopularPreview: Story = {
