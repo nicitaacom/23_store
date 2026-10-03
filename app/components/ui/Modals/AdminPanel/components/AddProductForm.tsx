@@ -952,7 +952,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
       {/* ── RIGHT: Details Form + Variants ── */}
       <form
-        className="panel-scroll flex min-h-0 flex-col gap-3 overflow-y-auto pb-1"
+        className="panel-scroll flex min-h-0 flex-col gap-3 overflow-y-auto px-1 pb-1"
         noValidate
         onSubmit={event => {
           event.preventDefault()
@@ -989,6 +989,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               value={descriptionValue ?? ""}
               onChange={nextValue => setValue("subTitle", nextValue, { shouldValidate: false })}
               onBlur={() => void trigger("subTitle")}
+              onTabAtEnd={() => variantLabelInputRef.current?.focus()}
               disabled={isLoading}
               placeholder={t("placeholder.description")}
             />

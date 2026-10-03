@@ -34,6 +34,23 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const AddProduct: Story = {};
+export const TabFromDescriptionToVariant: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const editor = await waitFor(() => {
+      const content = canvasElement.querySelector<HTMLElement>(".ProseMirror");
+      if (!content) throw new Error("Description editor is not ready");
+      return content;
+    });
+
+    await userEvent.type(editor, "- First detail{Enter}Last detail");
+    await waitFor(() => expect(editor.querySelector("ul")).not.toBeNull());
+    await userEvent.tab();
+
+    await expect(canvas.getByPlaceholderText("Variant label")).toHaveFocus();
+    await expect(editor).toHaveTextContent("Last detail");
+  },
+};
 export const FileDragOnly: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

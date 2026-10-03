@@ -23,6 +23,7 @@ interface MarkdownEditorProps {
   value: string           // markdown string: **bold**, *italic*, _underline_, * bullet
   onChange: (value: string) => void
   onBlur?: () => void
+  onTabAtEnd?: () => void  // called when Tab is pressed at the end of the document
   onWrapRef?: React.MutableRefObject<((marker: string) => void) | null>
   placeholder?: string
   disabled?: boolean
@@ -75,6 +76,10 @@ Toolbar B click
 Paste (Ctrl+V)
   → ProseMirror handles natively — plain text pasted as paragraph nodes
   → onUpdate fires → tiptapToMarkdown → onChange
+
+Tab at the end of the Add Product description
+  → onTabAtEnd focuses the new variant name input
+  → Tab elsewhere keeps the editor's list editing behavior
 
 External value change (e.g. undo rollback from parent)
   → useEffect([value, editor]) fires

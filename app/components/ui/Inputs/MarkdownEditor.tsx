@@ -11,6 +11,7 @@ interface MarkdownEditorProps {
   value: string
   onChange: (value: string) => void
   onBlur?: () => void
+  onTabAtEnd?: () => void
   onWrapRef?: React.MutableRefObject<((marker: string) => void) | null>
   placeholder?: string
   disabled?: boolean
@@ -25,7 +26,7 @@ const MARKER_TO_COMMAND = {
 
 // http://localhost:6006/?path=/story/ui-inputs-messageinput--message
 export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
-  ({ value, onChange, onBlur, onWrapRef, placeholder, disabled }, ref) => {
+  ({ value, onChange, onBlur, onTabAtEnd, onWrapRef, placeholder, disabled }, ref) => {
     const suppressUpdateRef = useRef(false)
 
     const initialValueRef = useRef(value)
@@ -85,7 +86,23 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
         className={twMerge(
           "relative overflow-hidden rounded border border-border-color/30 bg-background/60 px-3 py-2 text-sm text-title transition-colors duration-150 focus-within:border-brand/40 focus-within:bg-background",
           disabled && "pointer-events-none cursor-not-allowed bg-foreground/45",
-        )}>
+        )}
+        onKeyDownCapture={event => {
+          if (event.key !== "Tab" || event.shiftKey || !onTabAtEnd || !editor || event.target !== editor.view.dom) return
+
+          const { doc, selection } = editor.state
+          if (!selection.empty) return
+
+          let lastTextBlockEnd = -1
+          doc.descendants((node, position) => {
+            if (node.isTextblock) lastTextBlockEnd = position + node.nodeSize - 1
+          })
+          if (selection.to !== lastTextBlockEnd) return
+
+          event.preventDefault()
+          event.stopPropagation()
+          onTabAtEnd()
+        }}>
         {isEmpty && placeholder && (
           <div className="pointer-events-none absolute left-3 top-2 text-sm text-subTitle select-none">
             {placeholder}

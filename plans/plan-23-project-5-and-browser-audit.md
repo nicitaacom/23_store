@@ -35,6 +35,8 @@ The project tracker records the overall plan status; checked rows below record f
   different gallery thumbnail. Reproduced on `prod_VDZssGjkDmIVhA` and covered in Storybook.
 - [x] Keep Admin Panel visible when an oversized pasted image shows a warning. Give the lazy toast
   its own Suspense boundary; a Cypress check pastes a real oversized PNG and samples panel visibility.
+- [x] Move Tab at the end of the Add Product description to the new variant name and give the title
+  focus outline room inside the form. Verified with a Storybook keyboard test and live browser check.
 
 ## Project 5 cards still shown as To-do
 
