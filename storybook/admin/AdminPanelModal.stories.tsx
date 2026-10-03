@@ -34,6 +34,29 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const AddProduct: Story = {};
+export const MultipleValuesForOneOption: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const optionName = await canvas.findByPlaceholderText("Option (Color, Size, Weight...)");
+    const optionValue = canvas.getByPlaceholderText("Value (Blue, XL, 2.5 kg...)");
+
+    await userEvent.type(optionName, "Size");
+    await userEvent.type(optionValue, "36");
+    await userEvent.click(canvas.getByRole("button", { name: "Add option" }));
+    await userEvent.type(optionName, "Size");
+    await userEvent.type(optionValue, "38");
+    await userEvent.click(canvas.getByRole("button", { name: "Add option" }));
+    await expect(canvas.getByRole("button", { name: "Size: 36 ×" })).toBeVisible();
+    await expect(canvas.getByRole("button", { name: "Size: 38 ×" })).toBeVisible();
+
+    await userEvent.type(canvas.getByPlaceholderText("Variant label"), "Shoe");
+    await userEvent.type(canvas.getByPlaceholderText("Product price"), "12");
+    await userEvent.type(canvas.getByPlaceholderText("0"), "4");
+    await userEvent.click(canvas.getByRole("button", { name: "Add variant" }));
+    await expect(canvas.getByText("Shoe")).toBeVisible();
+    await expect(canvas.getByText("Shoe / Size: 38")).toBeVisible();
+  },
+};
 export const BackdropClosesPanel: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -192,7 +215,7 @@ export const AIPriceProposals: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: "AI pricing" }));
-    await expect(await canvas.findByText("Price proposals")).toBeVisible();
+    await waitFor(() => expect(canvas.getByText("Price proposals")).toBeVisible());
     await expect(canvas.getByText(/USD\/JPY strengthened/)).toBeVisible();
     await expect(canvas.getByRole("button", { name: "Approve" })).toBeVisible();
     await new Promise(resolve => setTimeout(resolve, 300));

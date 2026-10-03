@@ -13,6 +13,7 @@ import { TProductVariant, TProductVariantDraft } from "@/ts/product/TProductVari
 import { TProductDB } from "@/ts/product/TProductDB"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
+import { expandVariantOptionValues, labelForVariantCombination, toVariantOptionValues } from "@/utils/variantOptions"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
@@ -37,7 +38,7 @@ function normalizeVariantsForDraft(product: TProductDB): TProductVariantDraft[] 
     // -1 keeps "this variant has no image of its own" distinct from "it uses the first one"
     imageIndex: variant.image_url ? product.img_url.findIndex(image => image === variant.image_url) : -1,
     imageDataUrl: variant.image_url ?? null,
-    options: variant.options ?? {},
+    options: toVariantOptionValues(variant.options),
     price: variant.price > 0 ? variant.price : product.price,
     quantity: variant.quantity,
   }))
@@ -192,20 +193,17 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   // An image the gallery no longer holds becomes null rather than falling back to the first photo -
   // the fallback belongs at render time, so replacing the photos later fixes every imageless variant.
   const buildResolvedVariants = useCallback(() => {
-    return variants
-      .map((variant): TProductVariant | null => {
-        if (!variant.label.trim()) return null
-
-        return {
-          id: variant.id,
-          label: variant.label.trim(),
-          image_url: product.img_url.find(url => url === variant.imageDataUrl) ?? null,
-          options: variant.options,
-          price: variant.price > 0 ? variant.price : product.price,
-          quantity: variant.quantity > 0 ? Math.floor(variant.quantity) : 0,
-        }
-      })
-      .filter((variant): variant is TProductVariant => Boolean(variant))
+    return variants.flatMap((variant): TProductVariant[] => {
+      if (!variant.label.trim()) return []
+      return expandVariantOptionValues(variant.options ?? {}).map((options, index) => ({
+        id: index === 0 ? variant.id : crypto.randomUUID(),
+        label: labelForVariantCombination(variant.label.trim(), options, index),
+        image_url: product.img_url.find(url => url === variant.imageDataUrl) ?? null,
+        options,
+        price: variant.price > 0 ? variant.price : product.price,
+        quantity: variant.quantity > 0 ? Math.floor(variant.quantity) : 0,
+      }))
+    })
   }, [product.img_url, product.price, variants])
 
   // Held in refs so other hooks below can call the latest version without listing these
@@ -241,6 +239,14 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
       try {
         const resolvedVariants = buildResolvedVariantsRef.current()
+        if (resolvedVariants.length > MAX_PRODUCT_VARIANTS) {
+          toast.show(
+            "warning",
+            t("warning.max_variants_title", { maxVariants: MAX_PRODUCT_VARIANTS }),
+            t("warning.max_variants_subtitle", { maxVariants: MAX_PRODUCT_VARIANTS }),
+          )
+          return
+        }
         const normalizedTitle = data.title.trim()
         const normalizedSubTitle = data.subTitle.trim()
         const normalizedPrice = resolvedVariants[0]?.price
@@ -274,6 +280,15 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           nextProductId = responseData.product?.id || nextProductId
         }
 
+        setVariants(resolvedVariants.map(variant => ({
+          id: variant.id,
+          label: variant.label,
+          imageIndex: variant.image_url ? product.img_url.indexOf(variant.image_url) : -1,
+          imageDataUrl: variant.image_url ?? null,
+          options: toVariantOptionValues(variant.options),
+          price: variant.price,
+          quantity: variant.quantity,
+        })))
         toast.show("success", t("changes_saved"), t("manage_product_success"))
 
         if (nextProductId !== product.id) {

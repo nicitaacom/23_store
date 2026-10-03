@@ -12,7 +12,7 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa"
 
 import { TPersonalizationDraftState } from "@/ts/product/TPersonalization"
 import { TSortableProductImage } from "@/ts/product/TSortableProductImage"
-import { TProductVariantDraft } from "@/ts/product/TProductVariant"
+import { TProductVariantDraft, TVariantOptionValues } from "@/ts/product/TProductVariant"
 import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { readPastedImages, toDataUrl } from "../functions/readPastedImages"
@@ -31,6 +31,7 @@ import { createProductFn } from "@/functions/createProductFn"
 import { createRawProductTranslations, normalizeProductImageUrls } from "@/utils/product"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
+import { expandVariantOptionValues, labelForVariantCombination, toVariantOptionValues } from "@/utils/variantOptions"
 import { getProductProcessingPluralForm } from "@/utils/getProductProcessingPluralForm"
 import { getUserId } from "@/utils/getUserId"
 import { resolveUploadedPersonalization } from "@/functions/createProductHelpers"
@@ -83,7 +84,7 @@ type PendingFormSnapshot = {
   variantLabel: string
   variantPrice: string
   variantQuantity: string
-  variantOptions: Record<string, string>
+  variantOptions: TVariantOptionValues
 }
 
 const EMPTY_PRODUCT_FORM_VALUES: Partial<IFormDataAddProduct> = {
@@ -114,7 +115,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [variantLabelValue, setVariantLabelValue] = useState("")
   const [variantPriceValue, setVariantPriceValue] = useState("")
   const [variantQuantityValue, setVariantQuantityValue] = useState("")
-  const [variantOptions, setVariantOptions] = useState<Record<string, string>>({})
+  const [variantOptions, setVariantOptions] = useState<TVariantOptionValues>({})
   // Colour variants take the image on screen; size variants (S/M/L) look the same in a photo and take none
   const [isVariantImageAttached, setIsVariantImageAttached] = useState(true)
   const [variants, setVariants] = useState<TProductVariantDraft[]>([])
@@ -524,7 +525,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         .map(variant => ({
           id: variant.id,
           label: variant.label.trim(),
-          options: variant.options,
+          options: expandVariantOptionValues(variant.options ?? {})[0],
           image_url: images[variant.imageIndex]?.data_url ?? null,
           price: variant.price,
           quantity: variant.quantity,
@@ -641,7 +642,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
     const parsedQuantity = parseFormattedNumber(variantQuantityValue)
     const normalizedQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
 
-    if (variants.length >= MAX_PRODUCT_VARIANTS) {
+    const optionCombinations = expandVariantOptionValues(variantOptions)
+    if (variants.length + optionCombinations.length > MAX_PRODUCT_VARIANTS) {
       return showToast(
         "warning",
         t("warning.max_variants_title", { maxVariants: MAX_PRODUCT_VARIANTS }),
@@ -659,15 +661,15 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
     setVariants(currentVariants => [
       ...currentVariants,
-      {
+      ...optionCombinations.map((options, index) => ({
         id: crypto.randomUUID(),
-        label: normalizedLabel,
-        options: variantOptions,
+        label: labelForVariantCombination(normalizedLabel, options, index),
+        options: toVariantOptionValues(options),
         imageIndex: isVariantImageAttached ? activeImageIndex : -1,
         imageDataUrl: isVariantImageAttached ? (images[activeImageIndex]?.data_url ?? null) : null,
         price: normalizedPrice,
         quantity: normalizedQuantity,
-      },
+      })),
     ])
     setVariantLabelValue("")
     setVariantPriceValue("")
@@ -1118,8 +1120,8 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="line-clamp-2 text-sm font-medium text-white">{variant.label}</p>
-                      {Object.entries(variant.options ?? {}).map(([name, value]) => (
-                        <p className="text-[11px] text-subTitle" key={name}>{name}: {value}</p>
+                      {Object.entries(variant.options ?? {}).map(([name, values]) => (
+                        <p className="text-[11px] text-subTitle" key={name}>{name}: {values.join(", ")}</p>
                       ))}
                       <p className="mt-0.5 text-[11px] text-success">{formatCurrency(variant.price)}</p>
                       <p className={twMerge("mt-0.5 text-[11px]", variant.quantity > 0 ? "text-white/70" : "text-warning")}>

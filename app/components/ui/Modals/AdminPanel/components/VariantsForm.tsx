@@ -6,10 +6,11 @@ import { BiCheck, BiPlus, BiTrash } from "react-icons/bi"
 import { FiSave } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
-import { TProductVariant } from "@/ts/product/TProductVariant"
+import { TProductVariant, TVariantOptionValues } from "@/ts/product/TProductVariant"
 import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { BaseInput } from "../../../Inputs/BaseInput"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
+import { expandVariantOptionValues, labelForVariantCombination, toVariantOptionValues } from "@/utils/variantOptions"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLoading } from "@/store/ui/useLoading"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
@@ -32,7 +33,7 @@ type VariantDraft = {
   id: string
   label: string
   image_url: string | null
-  options: Record<string, string>
+  options: TVariantOptionValues
   priceInput: string
   quantityInput: string
 }
@@ -42,7 +43,7 @@ function toDrafts(variants: TProductVariant[] | null): VariantDraft[] {
     id: variant.id,
     label: variant.label,
     image_url: variant.image_url ?? null,
-    options: variant.options ?? {},
+    options: toVariantOptionValues(variant.options),
     priceInput: variant.price > 0 ? formatGroupedNumberInput(String(variant.price)) : "",
     quantityInput: formatGroupedNumberInput(String(variant.quantity)),
   }))
@@ -98,21 +99,33 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
   // 2. Resolve drafts → persistable variants (label required; an image the gallery no longer holds
   // becomes null, so the render-time fallback picks the product's first photo)
   const handleSave = useCallback(async () => {
-    const resolved: TProductVariant[] = drafts
-      .map((draft): TProductVariant | null => {
-        const label = draft.label.trim()
-        const image_url = draft.image_url && imgUrl.includes(draft.image_url) ? draft.image_url : null
-        const parsedPrice = parseFormattedNumber(draft.priceInput)
-        const variantPrice = Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice : price
-        const parsedQuantity = parseFormattedNumber(draft.quantityInput)
-        const variantQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
-        if (!label) return null
-        return { id: draft.id, label, image_url, options: draft.options, price: variantPrice, quantity: variantQuantity }
-      })
-      .filter((variant): variant is TProductVariant => Boolean(variant))
-
-    if (drafts.length && resolved.length !== drafts.length) {
+    if (drafts.some(draft => !draft.label.trim())) {
       return toast.show("warning", t("variant_label"), t("manage_variant_label_required"))
+    }
+
+    const resolved: TProductVariant[] = drafts.flatMap(draft => {
+      const label = draft.label.trim()
+      const image_url = draft.image_url && imgUrl.includes(draft.image_url) ? draft.image_url : null
+      const parsedPrice = parseFormattedNumber(draft.priceInput)
+      const variantPrice = Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice : price
+      const parsedQuantity = parseFormattedNumber(draft.quantityInput)
+      const variantQuantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? Math.floor(parsedQuantity) : 0
+      return expandVariantOptionValues(draft.options).map((options, index) => ({
+        id: index === 0 ? draft.id : crypto.randomUUID(),
+        label: labelForVariantCombination(label, options, index),
+        image_url,
+        options,
+        price: variantPrice,
+        quantity: variantQuantity,
+      }))
+    })
+
+    if (resolved.length > MAX_PRODUCT_VARIANTS) {
+      return toast.show(
+        "warning",
+        t("warning.max_variants_title", { maxVariants: MAX_PRODUCT_VARIANTS }),
+        t("warning.max_variants_subtitle", { maxVariants: MAX_PRODUCT_VARIANTS }),
+      )
     }
 
     setIsLoading(true)

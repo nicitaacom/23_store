@@ -11,12 +11,16 @@ export type TProductVariant = {
   quantity: number // per-variant stock; 0 = sold out (manual, never auto-decremented)
 }
 
+// Form values can contain several choices for one name. Saving expands them into one row per
+// combination, so persisted TProductVariant.options stays one string per name.
+export type TVariantOptionValues = Record<string, string[]>
+
 export type TProductVariantDraft = {
   id: string
   label: string
   imageIndex: number
   imageDataUrl?: string | null
-  options?: Record<string, string>
+  options?: TVariantOptionValues
   price: number // variant-specific price override
   quantity: number // per-variant stock; 0 = sold out
 }

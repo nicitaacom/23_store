@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import type { TProductVariant } from "@/ts/product/TProductVariant"
-import { chooseVariantForOption, cleanVariantOptions, getVariantOptionGroups } from "./variantOptions"
+import { chooseVariantForOption, cleanVariantOptions, expandVariantOptionValues, getVariantOptionGroups, labelForVariantCombination, toVariantOptionValues } from "./variantOptions"
 
 const variants: TProductVariant[] = [
   { id: "blue-small", label: "Blue S", options: { Color: "Blue", Size: "S" }, price: 10, quantity: 2 },
@@ -21,5 +21,22 @@ describe("variant options", () => {
   it("keeps other selected choices when a matching combination exists", () => {
     expect(chooseVariantForOption(variants, variants[0], "Size", "L")?.id).toBe("blue-large")
     expect(chooseVariantForOption(variants, variants[0], "Color", "Red")?.id).toBe("red-small")
+  })
+
+  it("adds repeated values as separate purchasable combinations", () => {
+    const choices = { Size: ["36", "38"], Color: ["Blue", "Red"] }
+    const combinations = expandVariantOptionValues(choices)
+    expect(combinations).toEqual([
+      { Size: "36", Color: "Blue" },
+      { Size: "36", Color: "Red" },
+      { Size: "38", Color: "Blue" },
+      { Size: "38", Color: "Red" },
+    ])
+    expect(toVariantOptionValues(combinations[0])).toEqual({ Size: ["36"], Color: ["Blue"] })
+    expect(labelForVariantCombination("Shoe", combinations[2], 2)).toBe("Shoe / Size: 38 / Color: Blue")
+  })
+
+  it("keeps generated combinations within the variant limit", () => {
+    expect(expandVariantOptionValues({ Size: Array.from({ length: 100 }, (_, index) => String(index)) })).toHaveLength(33)
   })
 })

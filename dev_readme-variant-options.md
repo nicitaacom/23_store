@@ -8,9 +8,17 @@ The JSONB `variants` column can now also hold `options`, for example:
 ```
 
 The Add Product form, Admin Panel variant editor, and standalone Manage Product page all use
-`VariantOptionsEditor`. Add the same option names to each combination you sell. Color, Size, and
-Weight use stable stored names and localized labels; any other name is kept as entered. Old variants
-without `options` continue to work. No SQL migration is needed because `variants` is JSONB.
+`VariantOptionsEditor`. The editor keeps a list of values for each name: adding `Size: 38` after
+`Size: 36` shows both chips. Removing a chip removes only that value. Color, Size, and Weight use
+stable stored names and localized labels; any other name is kept as entered.
+
+Adding or saving a variant expands the entered values into one row per combination. For example,
+Size 36/38 and Color Blue/Red create four variants with separate IDs. The entered price, stock, and
+image are copied to each row; owners can adjust those rows afterward in the Edit tab. The first row
+keeps the entered label, and other rows include their choices in the label. Creation and editing
+reject a set that would exceed the 32-variant product limit. Saved `options` still contain one string
+per name, so the picker, cart, and orders keep using a specific variant ID. Old variants without
+`options` continue to work. No SQL migration is needed because `variants` is JSONB.
 
 `resolveUploadedProductVariants` retains options during creation. The update route keeps them through
 `normalizeProductVariants`; `cleanVariantOptions` trims entries and rejects malformed values. The

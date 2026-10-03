@@ -8,6 +8,7 @@ import { uploadImageFn } from "./uploadImageFn"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { slugify, slugifyEmail } from "@/utils/slugify"
+import { expandVariantOptionValues, labelForVariantCombination } from "@/utils/variantOptions"
 import supabaseClient from "@/libs/supabase/supabaseClient"
 import useUser from "@/store/user/useUser"
 import { DEFAULT_MIN_DPI } from "@/utils/printMetrics"
@@ -300,16 +301,14 @@ export function resolveUploadedPersonalization(
 // the variant has no image of its own, which is a valid size variant (S/M/L), not a broken row.
 export function resolveUploadedProductVariants(variants: TProductVariantDraft[] | undefined, imageUrls: string[]) {
   return (variants || [])
-    .slice(0, MAX_PRODUCT_VARIANTS)
     .filter(variant => variant.label.trim() && variant.price > 0)
-    .map(
-      (variant): TProductVariant => ({
-        id: variant.id,
-        label: variant.label.trim(),
-        options: variant.options,
-        image_url: imageUrls[variant.imageIndex] ?? null,
-        price: variant.price,
-        quantity: variant.quantity,
-      }),
-    )
+    .flatMap(variant => expandVariantOptionValues(variant.options ?? {}).map((options, index): TProductVariant => ({
+      id: index === 0 ? variant.id : crypto.randomUUID(),
+      label: labelForVariantCombination(variant.label.trim(), options, index),
+      options,
+      image_url: imageUrls[variant.imageIndex] ?? null,
+      price: variant.price,
+      quantity: variant.quantity,
+    })))
+    .slice(0, MAX_PRODUCT_VARIANTS)
 }

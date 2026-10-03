@@ -2,12 +2,13 @@
 
 import { useId, useState } from "react"
 
+import type { TVariantOptionValues } from "@/ts/product/TProductVariant"
 import { cleanVariantOptions } from "@/utils/variantOptions"
 import { useScopedI18n } from "@/locales/client"
 
 interface VariantOptionsEditorProps {
-  options: Record<string, string>
-  onChange: (options: Record<string, string>) => void
+  options: TVariantOptionValues
+  onChange: (options: TVariantOptionValues) => void
   disabled?: boolean
 }
 
@@ -16,16 +17,23 @@ export function VariantOptionsEditor({ options, onChange, disabled = false }: Va
   const suggestionsId = useId()
   const [name, setName] = useState("")
   const [value, setValue] = useState("")
+  const standardNames = ["Color", "Size", "Weight"]
+  const translatedNames = [t("variant_color"), t("variant_size"), t("variant_weight")]
+  const standardIndex = translatedNames.findIndex(translatedName => translatedName.toLowerCase() === name.trim().toLowerCase())
+  const storedName = standardIndex >= 0 ? standardNames[standardIndex] : name.trim()
+  const optionNameForInput = Object.keys(options).find(existingName => existingName.toLowerCase() === storedName.toLowerCase()) ?? storedName
+  const isNewNameAtLimit = Object.keys(options).length >= 8 && !Object.keys(options).includes(optionNameForInput)
+  const existingValues = Object.prototype.hasOwnProperty.call(options, optionNameForInput) ? options[optionNameForInput] : []
+  const isDuplicateValue = existingValues.includes(value.trim())
+  const isInvalidName = optionNameForInput === "__proto__"
 
   function addOption() {
-    const standardNames = ["Color", "Size", "Weight"]
-    const translatedNames = [t("variant_color"), t("variant_size"), t("variant_weight")]
-    const standardIndex = translatedNames.findIndex(translatedName => translatedName.toLowerCase() === name.trim().toLowerCase())
-    const storedName = standardIndex >= 0 ? standardNames[standardIndex] : name
-    const cleaned = cleanVariantOptions({ [storedName]: value })
-    const optionName = Object.keys(cleaned)[0]
-    if (!optionName) return
-    onChange({ ...options, [optionName]: cleaned[optionName] })
+    if (isNewNameAtLimit || isDuplicateValue || isInvalidName) return
+    const cleaned = cleanVariantOptions({ [optionNameForInput]: value })
+    const cleanedName = Object.keys(cleaned)[0]
+    if (!cleanedName) return
+    const nextValue = cleaned[cleanedName]
+    onChange({ ...options, [cleanedName]: [...existingValues, nextValue] })
     setName("")
     setValue("")
   }
@@ -59,7 +67,7 @@ export function VariantOptionsEditor({ options, onChange, disabled = false }: Va
         />
         <button
           className="rounded border border-success/35 px-3 py-1.5 text-sm text-success disabled:opacity-40"
-          disabled={disabled || !name.trim() || !value.trim() || Object.keys(options).length >= 8}
+          disabled={disabled || !name.trim() || !value.trim() || isNewNameAtLimit || isDuplicateValue || isInvalidName}
           onClick={addOption}
           type="button">
           {t("variant_option_add")}
@@ -67,18 +75,22 @@ export function VariantOptionsEditor({ options, onChange, disabled = false }: Va
       </div>
       {Object.entries(options).length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {Object.entries(options).map(([optionName, optionValue]) => (
+          {Object.entries(options).flatMap(([optionName, optionValues]) => optionValues.map(optionValue => (
             <button
               aria-label={`${optionName}: ${optionValue} ×`}
               className="rounded border border-success/30 bg-success/10 px-2 py-1 text-xs text-title"
               disabled={disabled}
-              key={optionName}
-              onClick={() => onChange(Object.fromEntries(Object.entries(options).filter(([key]) => key !== optionName)))}
+              key={`${optionName}:${optionValue}`}
+              onClick={() => {
+                const remainingValues = optionValues.filter(value => value !== optionValue)
+                if (remainingValues.length) onChange({ ...options, [optionName]: remainingValues })
+                else onChange(Object.fromEntries(Object.entries(options).filter(([name]) => name !== optionName)))
+              }}
               title={t("remove")}
               type="button">
               {optionName === "Color" ? t("variant_color") : optionName === "Size" ? t("variant_size") : optionName === "Weight" ? t("variant_weight") : optionName}: {optionValue} ×
             </button>
-          ))}
+          )))}
         </div>
       )}
     </div>
