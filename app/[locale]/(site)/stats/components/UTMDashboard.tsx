@@ -398,7 +398,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
   useEffect(() => {
     let cancelled = false
 
-    async function fetchStats() {
+    async function selectStats() {
       const response = await selectDBUTMStatsAction({ year: selectedYear, month: selectedMonth })
       if (cancelled) return
 
@@ -410,7 +410,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
       setForceRender(prev => prev + 1)
     }
 
-    fetchStats()
+    selectStats()
     return () => {
       cancelled = true
     }
@@ -451,6 +451,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
   if (!currentData) return null
 
   const stats = currentData
+  const totalMediumVisits = stats.mediumStats.reduce((total, item) => total + item.count, 0)
   const topCountries = stats.countryStats.slice(0, 8)
   const topLocations = stats.locationStats.slice(0, 6)
 
@@ -464,7 +465,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
         variants={containerVariants}>
         {/* Header with Date Picker */}
         <motion.div className="mb-8" variants={itemVariants}>
-          <div className="flex flex-col mobile:flex-row mobile:items-center mobile:justify-between gap-4">
+          <div className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between">
             <div>
               <h1 className="text-3xl mobile:text-4xl font-bold text-title mb-2">UTM Analytics Dashboard</h1>
               <p className="text-subTitle">
@@ -631,10 +632,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
                     fill="#8884d8"
                     dataKey="count"
                     labelLine={false}
-                    label={(props: { name?: string; percent?: number }) => {
-                      const percent = props.percent || 0
-                      return `${props.name}: ${(percent * 100).toFixed(0)}%`
-                    }}>
+                    label={false}>
                     {stats.mediumStats.map((_, index: number) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
@@ -651,6 +649,21 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
               </ResponsiveContainer>
             ) : (
               <EmptyState title="Traffic medium" />
+            )}
+            {stats.mediumStats.length > 0 && (
+              <ul className="mt-3 grid gap-2 text-sm mobile:grid-cols-2" aria-label="Traffic medium breakdown">
+                {stats.mediumStats.map((medium, index) => (
+                  <li className="flex min-w-0 items-center gap-2" key={medium.name}>
+                    <span style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} className="h-2.5 w-2.5 shrink-0 rounded-full" />
+                    <span className="min-w-0 flex-1 truncate text-subTitle" title={medium.name}>{medium.name}</span>
+                    <span className="shrink-0 font-semibold text-title">
+                      {totalMediumVisits > 0
+                        ? Math.round((medium.count / totalMediumVisits) * 100)
+                        : 0}%
+                    </span>
+                  </li>
+                ))}
+              </ul>
             )}
           </motion.div>
         </motion.div>
