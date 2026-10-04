@@ -44,9 +44,9 @@ export default async function SearchPage({ searchParams: searchParamsPromise }: 
   }
 
   return (
-    <div className="max-w-[1024px] text-2xl text-white flex flex-col gap-y-8 justify-between items-center py-12 min-h-[calc(100vh-4rem)] mx-auto">
+    <div className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-[1024px] flex-col items-center justify-between gap-y-8 py-12 text-2xl text-white max-[767px]:gap-y-3 max-[767px]:px-0 max-[767px]:py-2">
       <SearchTracker query={query} resultsCount={products.length} />
-      <section className="flex flex-col gap-y-4">
+      <section className="flex flex-col gap-y-4 max-[767px]:gap-y-2">
         <Products products={products} />
       </section>
     </div>
