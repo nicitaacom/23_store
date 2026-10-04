@@ -61,6 +61,47 @@ describe("avatar editor on short mobile screens", () => {
       cy.get('[role="dialog"]').should("not.exist")
     })
   })
+
+  it("wraps the Finnish upload copy inside the fullscreen modal at 320×480", () => {
+    cy.viewport(320, 480)
+    cy.visit("/fi")
+    cy.get('[data-cy="user-menu"]').closest("button").click()
+    cy.contains("button", "Update avatar").click()
+    cy.get('[data-cy="update-avatar-scroll"]').scrollTo("bottom")
+
+    cy.get('[role="dialog"] button[aria-label="Sulje ikkuna"]').should("be.visible").should(button => {
+      const bounds = button[0].getBoundingClientRect()
+      expect(bounds.top, "Finnish avatar close control remains visible after scrolling").to.be.at.least(0)
+      expect(bounds.right, "Finnish avatar close control stays inside the phone").to.be.at.most(320)
+      expect(bounds.width, "Finnish avatar close hit area").to.be.at.least(44)
+      expect(bounds.height, "Finnish avatar close hit area").to.be.at.least(44)
+    })
+
+    cy.get('[role="dialog"] .image-upload h1').should("be.visible").should(heading => {
+      const uploadButton = heading[0].closest("button")!
+      const headingBounds = heading[0].getBoundingClientRect()
+      const buttonBounds = uploadButton.getBoundingClientRect()
+      expect(heading[0].textContent?.trim()).to.equal("Napsauta tai pudota kuva tähän")
+      expect(heading[0].scrollWidth, "Finnish upload heading has no clipped text").to.be.at.most(heading[0].clientWidth)
+      expect(headingBounds.left, "Finnish upload heading stays inside its button").to.be.at.least(buttonBounds.left)
+      expect(headingBounds.right, "Finnish upload heading stays inside its button").to.be.at.most(buttonBounds.right)
+    })
+    cy.get('[role="dialog"] .image-upload p').should("be.visible").should(description => {
+      expect(description[0].scrollWidth, "Finnish upload description has no clipped text").to.be.at.most(
+        description[0].clientWidth,
+      )
+    })
+    cy.document().should(document => {
+      expect(document.documentElement.scrollWidth, "Finnish avatar modal has no horizontal overflow").to.be.at.most(320)
+    })
+    cy.get('[data-mobile-fullscreen-backdrop="true"]').should(backdrop => {
+      expect(getComputedStyle(backdrop[0]).opacity, "avatar modal backdrop finishes opening").to.equal("1")
+    })
+    cy.get('[role="dialog"]').should(dialog => {
+      expect(getComputedStyle(dialog[0]).opacity, "avatar modal finishes opening").to.equal("1")
+    })
+    cy.screenshot("avatar-finnish-upload-after-320x480", { capture: "viewport" })
+  })
 })
 
 export {}
