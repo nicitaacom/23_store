@@ -1,7 +1,11 @@
-# Mobile responsiveness
+## Mobile responsiveness
 
-- Use no page or container padding on phones; add only the minimum needed inside content.
-- Keep gaps and margins very small while preserving readable text and 44px touch targets.
-- Make modals fullscreen, edge-to-edge, borderless, and scrollable, with a visible, reachable close button.
-- Prevent horizontal overflow with wrapping and `min-w-0`; keep actions reachable on short screens.
-- Prefer CSS `dvh` for viewport sizing. Use `useScreenHeight` when JavaScript must react to the visible height.
+- **Padding:** Remove page and container padding on phones; keep only tiny inner padding where needed.
+- **Spacing:** Use very small gaps and margins while keeping controls at least 44px tall.
+- **Modals:** Fill the screen edge to edge, remove borders, allow scrolling, and keep the close button visible.
+- **Text:** Use compact, readable type; wrap long text and prevent horizontal overflow. Center text when it improves the layout.
+- **Short screens:** Keep content scrollable and actions reachable. Prefer CSS `dvh`; use `useScreenHeight` when JavaScript must react to visible height.
+
+## Tablets and laptops
+
+- Keep spacing comfortable and use responsive layouts that fit the available width.
