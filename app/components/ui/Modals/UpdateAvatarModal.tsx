@@ -113,11 +113,13 @@ export function UpdateAvatarModal() {
 
   return (
     <ModalContainer
-      className="relative w-[92vw] max-w-[520px] overflow-hidden border-none bg-transparent p-0 shadow-none"
+      className="relative max-h-[calc(100dvh-2rem)] w-[92vw] max-w-[520px] overflow-hidden border-none bg-transparent p-0 shadow-none"
       classnameContainer="z-[1001]"
       isOpen={updateAvatarModal.isOpen}
       onClose={updateAvatarModal.closeModal}>
-      <div className="rounded-lg border border-border-color/35 bg-foreground/95 shadow-compact">
+      <div
+        className="panel-scroll max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-lg border border-border-color/35 bg-foreground/95 shadow-compact"
+        data-cy="update-avatar-scroll">
         <div className="border-b border-border-color/30 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] px-4 py-4">
           <div className="flex items-center gap-x-3">
             <div className="flex h-9 w-9 items-center justify-center rounded border border-border-color/35 bg-background">
