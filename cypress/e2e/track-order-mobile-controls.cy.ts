@@ -40,6 +40,52 @@ describe("track order mobile controls", () => {
       })
     })
   })
+
+  it("keeps disabled order controls readable in the Halloween theme", () => {
+    cy.viewport(320, 480)
+    cy.visit("/en/track-order")
+    cy.document().then(document => {
+      document.documentElement.dataset.theme = "halloween"
+    })
+
+    cy.get('[data-cy="track-order-submit"]').should(button => {
+      const style = getComputedStyle(button[0])
+      const contrast = getContrastRatio(style.color, style.backgroundColor)
+      expect(Number(style.opacity), "disabled button opacity").to.equal(1)
+      expect(contrast, `disabled Track label contrast (${style.color} on ${style.backgroundColor})`).to.be.at.least(4.5)
+    })
+
+    cy.get('[data-cy="track-order-number"]').should(input => {
+      const style = getComputedStyle(input[0])
+      const placeholderColor = getComputedStyle(input[0], "::placeholder").color
+      const contrast = getContrastRatio(placeholderColor, style.backgroundColor)
+      expect(contrast, `order number placeholder contrast (${placeholderColor} on ${style.backgroundColor})`).to.be.at.least(4.5)
+    })
+  })
 })
+
+function getContrastRatio(foreground: string, background: string): number {
+  const foregroundLuminance = getRelativeLuminance(parseRgb(foreground))
+  const backgroundLuminance = getRelativeLuminance(parseRgb(background))
+  const lighter = Math.max(foregroundLuminance, backgroundLuminance)
+  const darker = Math.min(foregroundLuminance, backgroundLuminance)
+
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
+function parseRgb(color: string): [number, number, number] {
+  const channels = color.match(/[\d.]+/g)?.slice(0, 3).map(Number)
+  expect(channels, `RGB color ${color}`).to.have.length(3)
+  return channels as [number, number, number]
+}
+
+function getRelativeLuminance([red, green, blue]: [number, number, number]): number {
+  const linearize = (channel: number) => {
+    const normalized = channel / 255
+    return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4
+  }
+
+  return 0.2126 * linearize(red) + 0.7152 * linearize(green) + 0.0722 * linearize(blue)
+}
 
 export {}

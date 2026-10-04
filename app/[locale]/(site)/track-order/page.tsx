@@ -44,7 +44,7 @@ export default function TrackOrderPage() {
               />
               <Button
                 className="w-full rounded-lg bg-success px-5 text-sm font-semibold tablet:w-auto max-[767px]:min-h-[44px]
-                           opacity-60 transition hover:bg-success-accent"
+                           text-title-foreground transition hover:bg-success-accent disabled:opacity-100"
                 data-cy="track-order-submit"
                 disabled>
                 {t("track")}
