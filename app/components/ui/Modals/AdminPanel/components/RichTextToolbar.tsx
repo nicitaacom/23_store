@@ -18,7 +18,7 @@ export function RichTextToolbar({ onWrap }: RichTextToolbarProps) {
         { label: "U", title: "Underline (_text_)", marker: "_", className: "underline" },
       ].map(({ label, title, marker, className }) => (
         <button
-          className="flex h-8 w-8 items-center justify-center rounded border border-white/10 bg-white/[0.04] text-xs text-white/60 transition-colors duration-150 hover:border-white/20 hover:bg-white/[0.08] hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="flex h-11 w-11 items-center justify-center rounded border border-white/10 bg-white/[0.04] text-xs text-white/60 transition-colors duration-150 hover:border-white/20 hover:bg-white/[0.08] hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
           key={label}
           type="button"
           title={title}

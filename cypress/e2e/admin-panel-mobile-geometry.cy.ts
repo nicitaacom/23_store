@@ -10,6 +10,14 @@ const mobileViewports = [
   { width: 414, height: 480 },
 ]
 
+function assertAdminButtonsMeetMobileSize() {
+  cy.get('[role="dialog"] button:visible').each(button => {
+    const bounds = button[0].getBoundingClientRect()
+    expect(bounds.width, `${button.text().trim() || button.attr("aria-label")} button width`).to.be.at.least(44)
+    expect(bounds.height, `${button.text().trim() || button.attr("aria-label")} button height`).to.be.at.least(44)
+  })
+}
+
 describe("Admin Panel mobile geometry and actions", () => {
   let owner: TFixtureAccount
 
@@ -30,6 +38,9 @@ describe("Admin Panel mobile geometry and actions", () => {
       cy.get('[data-cy="admin-panel-close"]').should("be.visible")
 
       cy.get('[data-cy="admin-panel-close"]').should(closeButton => {
+        const closeBounds = closeButton[0].getBoundingClientRect()
+        expect(closeBounds.width, "close control width").to.be.at.least(44)
+        expect(closeBounds.height, "close control height").to.be.at.least(44)
         const panel = closeButton[0].closest<HTMLElement>(".halloween-panel")
         expect(panel, "Admin Panel element").not.to.equal(null)
         const bounds = panel!.getBoundingClientRect()
@@ -60,6 +71,10 @@ describe("Admin Panel mobile geometry and actions", () => {
         expect(layout[0].scrollHeight, "one mobile scroll area contains the full form")
           .to.be.greaterThan(layout[0].clientHeight)
       })
+      assertAdminButtonsMeetMobileSize()
+      cy.get('[data-cy^="admin-action-"]').each(button => {
+        expect(button[0].getBoundingClientRect().height, `${button.text()} tab touch height`).to.be.at.least(44)
+      })
       cy.get('[data-cy="create-product"]').scrollIntoView().should("be.visible").and("be.disabled")
       cy.get('[data-cy="add-product-layout"]').should(layout => {
         expect(layout[0].scrollTop, "scrolling to Create moves the mobile form").to.be.greaterThan(0)
@@ -68,7 +83,11 @@ describe("Admin Panel mobile geometry and actions", () => {
       cy.get("#add-product-description").type("Mobile copy")
       cy.get('button[aria-label="Bold (**text**)"]')
         .should("not.have.attr", "tabindex", "-1")
-        .and("have.css", "width", "32px")
+        .should(button => {
+          const bounds = button[0].getBoundingClientRect()
+          expect(bounds.width, "bold toolbar touch width").to.be.at.least(44)
+          expect(bounds.height, "bold toolbar touch height").to.be.at.least(44)
+        })
         .focus()
       cy.press(Cypress.Keyboard.Keys.ENTER)
       cy.get("#add-product-description").type(" keyboard bold")
@@ -78,6 +97,7 @@ describe("Admin Panel mobile geometry and actions", () => {
         cy.get(`[data-cy="admin-action-${action}"]`).should("be.visible").click()
         cy.get(`[data-cy="admin-action-${action}"]`).should("have.attr", "aria-pressed", "true")
         cy.location("search").should("include", "modal=AdminPanel")
+        assertAdminButtonsMeetMobileSize()
       })
     })
   })

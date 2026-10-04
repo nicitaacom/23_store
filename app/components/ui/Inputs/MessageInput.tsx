@@ -124,7 +124,7 @@ export function MessageInput({ className, placeholder, onSend }: MessageInputPro
           onKeyDown={handleKeyDown}
           autoFocus></textarea>
         <button
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-success-accent/30 bg-success-accent/15 text-success-accent transition-colors duration-150 hover:bg-success-accent/25 disabled:cursor-not-allowed disabled:opacity-45"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-success-accent/30 bg-success-accent/15 text-success-accent transition-colors duration-150 hover:bg-success-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success-accent/70 disabled:cursor-not-allowed disabled:opacity-45"
           aria-label={t("common.send_message")}
           data-cy="support-message-send"
           disabled={!messageBodyValue.trim().length && !image}

@@ -59,7 +59,7 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
 
     return (
       <button
-        className="rounded p-1 transition-transform duration-150 hover:scale-105"
+        className="inline-flex h-11 min-w-[44px] shrink-0 items-center justify-center rounded transition-transform duration-150 hover:scale-105"
         aria-label={`Rate ${ratingValue} out of 5`}
         key={ratingValue}
         onMouseEnter={() => setHover(ratingValue)}
@@ -85,9 +85,10 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
     <>
       <button
         className={twMerge(
-          "flex h-8 w-8 items-center justify-center rounded border border-white/16 bg-white/8 text-white/85 transition-colors duration-150 hover:border-success-accent/40 hover:bg-success-accent/15 hover:text-success-accent",
+          "flex h-11 w-11 items-center justify-center rounded border border-white/16 bg-white/8 text-white/85 transition-colors duration-150 hover:border-success-accent/40 hover:bg-success-accent/15 hover:text-success-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success-accent/70",
           messagesLength === 0 && "cursor-not-allowed opacity-55",
         )}
+        disabled={messagesLength === 0}
         aria-label={messagesLength === 0 ? "Close unavailable for empty ticket" : "Close ticket"}
         onClick={() => messagesLength !== 0 && setShowMarkTicketAsCompleted(true)}
         title={messagesLength === 0 ? "I don't let you close empty ticket" : "Close ticket"}
@@ -100,10 +101,10 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
           <h1 className="text-base font-semibold text-title">{t("close_ticket_confirm_title")}</h1>
           <p className="mt-2 text-sm text-subTitle">{t("close_ticket_confirm_subtitle")}</p>
           <div className="mt-3 flex justify-center gap-2">
-            <Button className="w-fit" variant="success-outline" size="sm" onClick={closeTicket}>
+            <Button className="min-h-[44px] min-w-[44px] w-fit" variant="success-outline" size="sm" onClick={closeTicket}>
               {t("yes")}
             </Button>
-            <Button className="w-fit" variant="danger-outline" size="sm" onClick={() => setShowMarkTicketAsCompleted(false)}>
+            <Button className="min-h-[44px] min-w-[44px] w-fit" variant="danger-outline" size="sm" onClick={() => setShowMarkTicketAsCompleted(false)}>
               {t("no")}
             </Button>
           </div>
@@ -114,7 +115,7 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
         <div className="w-full max-w-[290px] rounded-lg border border-border-color/35 bg-foreground/95 p-4 text-center shadow-compact-lg">
           <h1 className="text-base font-semibold text-title">{t("rate_ticket_title")}</h1>
           <div className="mt-3 flex justify-center gap-1.5">{stars}</div>
-          <Button className="mt-3" variant="default-outline" size="sm" onClick={() => rateTicket(null)}>
+          <Button className="mt-3 min-h-[44px]" variant="default-outline" size="sm" onClick={() => rateTicket(null)}>
             {t("rate_ticket_skip")}
           </Button>
         </div>

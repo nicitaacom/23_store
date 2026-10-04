@@ -71,7 +71,7 @@ export function AdminPanelHeader({
           <h1 className="mt-px truncate text-[18px] font-semibold leading-none text-white tablet:text-[20px]">{title}</h1>
         </div>
         <button
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded border border-white/25 bg-white/10 text-white transition-colors duration-150 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded border border-white/25 bg-white/10 text-white transition-colors duration-150 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50"
           data-cy="admin-panel-close"
           type="button"
           onClick={onClose}
@@ -91,7 +91,7 @@ export function AdminPanelHeader({
             return (
               <button
                 className={twMerge(
-                  "flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded border px-2.5 text-xs font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+                  "flex h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded border px-2.5 text-xs font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
                   isActive
                     ? "border-brand/60 bg-brand/15 text-brand"
                     : "border-white/15 bg-white/5 text-white/80 hover:border-white/35 hover:text-white",

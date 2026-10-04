@@ -5,6 +5,7 @@ import { AiFillCaretLeft, AiFillCaretRight } from "react-icons/ai"
 import { twMerge } from "tailwind-merge"
 
 import { OwnerProductImage } from "./OwnerProductImage"
+import { useScopedI18n } from "@/locales/client"
 
 interface OwnerProductImageSliderProps {
   images: string[]
@@ -16,6 +17,7 @@ interface OwnerProductImageSliderProps {
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
 export function OwnerProductImageSlider({ images, title, onClickSlide, selectedIndex, onSelect }: OwnerProductImageSliderProps) {
+  const tCommon = useScopedI18n("common")
   const [internalIndex, setInternalIndex] = useState(0)
   const slideIndex = selectedIndex ?? internalIndex
   const hasMultiple = images.length > 1
@@ -52,14 +54,18 @@ export function OwnerProductImageSlider({ images, title, onClickSlide, selectedI
       {hasMultiple && (
         <>
           <button
-            className="absolute left-0 top-0 z-10 flex h-full w-9 items-center justify-center bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-20"
+            className="absolute left-0 top-0 z-10 flex h-full w-11 items-center justify-center bg-black/40 text-white opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white tablet:w-9 tablet:opacity-0 tablet:group-hover:opacity-100 tablet:group-focus-within:opacity-100 disabled:opacity-20"
             onClick={prev}
+            type="button"
+            aria-label={tCommon("previous_image")}
             disabled={safeIndex === 0}>
             <AiFillCaretLeft size={18} />
           </button>
           <button
-            className="absolute right-0 top-0 z-10 flex h-full w-9 items-center justify-center bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-20"
+            className="absolute right-0 top-0 z-10 flex h-full w-11 items-center justify-center bg-black/40 text-white opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white tablet:w-9 tablet:opacity-0 tablet:group-hover:opacity-100 tablet:group-focus-within:opacity-100 disabled:opacity-20"
             onClick={next}
+            type="button"
+            aria-label={tCommon("next_image")}
             disabled={safeIndex === images.length - 1}>
             <AiFillCaretRight size={18} />
           </button>

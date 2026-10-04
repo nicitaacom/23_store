@@ -24,7 +24,7 @@ describe("anonymous customer actions", () => {
     }
     const expectedTotal = fixtures.ownerProduct.price * 2 + fixtures.otherProduct.price
 
-    cy.visit("/")
+    cy.visit("/en")
     cy.window().invoke("localStorage.setItem", "cart", JSON.stringify({ state: { products: cartRecord }, version: 0 }))
 
     cy.intercept("POST", "/api/rate-limit", { statusCode: 200, body: { success: true } }).as("rateLimit")
@@ -53,7 +53,7 @@ describe("anonymous customer actions", () => {
     cy.intercept("POST", "/api/tickets/open", { statusCode: 200, body: { status: 200 } }).as("openTicket")
     cy.intercept("POST", "/api/message/send", { statusCode: 200, delay: 1000, body: { status: 200 } }).as("sendMessage")
 
-    cy.visit("/")
+    cy.visit("/en")
     cy.wait("@getMessages")
     cy.get('[data-cy="open-support"]').click()
     cy.get('[data-cy="open-support"]').parent().should("have.css", "z-index", "1500")
@@ -62,11 +62,32 @@ describe("anonymous customer actions", () => {
       expect(bounds.top, "support chat heading is below the top edge").to.be.at.least(0)
       expect(bounds.bottom, "support chat heading is within the viewport").to.be.at.most(480)
     })
+    cy.get('[aria-label="Close unavailable for empty ticket"]').should(button => {
+      const bounds = button[0].getBoundingClientRect()
+      expect(bounds.width, "support close control width").to.be.at.least(44)
+      expect(bounds.height, "support close control height").to.be.at.least(44)
+    })
+    cy.get('[data-cy="support-message-send"]').should(button => {
+      const bounds = button[0].getBoundingClientRect()
+      expect(bounds.width, "support send control width").to.be.at.least(44)
+      expect(bounds.height, "support send control height").to.be.at.least(44)
+    })
     cy.get('[data-cy="support-message-input"]').type(message)
     cy.get('[data-cy="support-message-send"]').click()
 
     cy.contains(message).should("be.visible")
     cy.wait(["@sendTelegram", "@openTicket", "@sendMessage"])
+    cy.get('[aria-label="Close ticket"]').click()
+    cy.contains("button", /^Yes$/).should(button => {
+      const bounds = button[0].getBoundingClientRect()
+      expect(bounds.width, "confirm close width").to.be.at.least(44)
+      expect(bounds.height, "confirm close height").to.be.at.least(44)
+    })
+    cy.contains("button", /^No$/).should(button => {
+      const bounds = button[0].getBoundingClientRect()
+      expect(bounds.width, "cancel close width").to.be.at.least(44)
+      expect(bounds.height, "cancel close height").to.be.at.least(44)
+    }).click()
   })
 })
 

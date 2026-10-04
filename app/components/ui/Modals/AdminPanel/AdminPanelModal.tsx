@@ -9,14 +9,14 @@ import { ADMIN_PRODUCT_SORTS, TAdminProductSort } from "@/ts/types/TAdminProduct
 import { TPanelAction } from "@/ts/types/TPanelAction"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { AddProductForm } from "./components/AddProductForm"
-import { AdminPanelDeleteConfirmDialog } from "./components/AdminPanelDeleteConfirmDialog"
 import { AdminPanelHeader, PANEL_ACTIONS } from "./components/AdminPanelHeader"
-import { CategoriesForm } from "./components/CategoriesForm"
-import { DeleteProductForm } from "./components/DeleteProductForm"
 import { EditProductForm } from "./components/EditProductForm"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { AdminPanelChangedProvider } from "./AdminPanelChangedContext"
+import { AdminPanelDeleteConfirmDialog } from "./components/AdminPanelDeleteConfirmDialog"
 import { AdminPanelUnsavedChangesDialog } from "./components/AdminPanelUnsavedChangesDialog"
+import { CategoriesForm } from "./components/CategoriesForm"
+import { DeleteProductForm } from "./components/DeleteProductForm"
 import { PricingForm } from "./components/PricingForm"
 import { useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
@@ -198,6 +198,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
         "flex flex-col overflow-hidden border-border-color/35 bg-modal-surface shadow-compact-lg transition-all duration-300",
         // mobile: true full-screen, no border/radius
         "h-[100dvh] w-screen rounded-none border-0",
+        "max-[767px]:[&_button]:min-h-[44px] max-[767px]:[&_button]:min-w-[44px]",
         // tablet+: floating dialog, height bounded to the viewport so it never overflows on short screens
         "tablet:h-[88vh] tablet:max-h-[900px] tablet:w-[92vw] tablet:rounded-lg tablet:border",
         // laptop / desktop: cap width so the dialog stays readable on wide screens

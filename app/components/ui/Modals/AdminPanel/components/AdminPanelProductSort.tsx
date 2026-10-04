@@ -14,7 +14,7 @@ export function AdminPanelProductSort({ value, onChange }: AdminPanelProductSort
 
   return (
     <select
-      className="h-8 shrink-0 cursor-pointer rounded border border-white/15 bg-background/80 px-2 text-xs text-title outline-none transition-colors hover:border-white/25 focus:border-success-accent/35"
+      className="h-11 shrink-0 cursor-pointer rounded border border-white/15 bg-background/80 px-2 text-xs text-title outline-none transition-colors hover:border-white/25 focus:border-success-accent/35"
       aria-label={t("admin_sort_label")}
       value={value}
       onChange={event => onChange(event.currentTarget.value as TAdminProductSort)}>
