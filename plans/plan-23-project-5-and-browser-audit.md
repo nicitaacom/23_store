@@ -22,8 +22,11 @@ The project tracker records the overall plan status; checked rows below record f
   the popular-products hero, order tracking, stats pie labels, and support/owner dock clearance.
   The payment cancel state was checked with a cart item. No audited route has document-width
   overflow; owner, admin, and support screens were checked with test accounts.
-- [ ] Exercise visible buttons with Playwright after signing in as the fixture owner. Check
-  the URL and visible state after each action, and fix any reproducible failure.
+- [x] Exercise signed-in owner controls in Cypress at mobile widths. `prepareFixtures` plus
+  `cy.signIn(fixtures.owner)` covers the profile menu, product editor, Admin Panel tabs and category
+  picker, pricing retry, and avatar modal. The checks confirm visible/pressed states, modal query
+  state, save-button changes, scrolling, and viewport bounds. The five focused mobile specs pass:
+  10 tests total at 320px, 332px, 414px, plus a 768px tablet check.
 - [x] Reproduce a lost AI-pricing settings request in Admin Panel at 320×480. The panel remains
   usable, shows a localized Retry button, and recovers when the request succeeds; owner price and
   delete failures also roll back cleanly at 320×480.
