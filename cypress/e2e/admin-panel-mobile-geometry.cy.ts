@@ -126,6 +126,12 @@ describe("Admin Panel mobile geometry and actions", () => {
     cy.visit("/?modal=AdminPanel")
     cy.get('[data-cy="admin-panel-close"]').should("be.visible")
     cy.get('[data-cy="add-product-layout"]').should("have.css", "display", "grid")
+    cy.get('[data-cy="variant-entry-fields"]').should(fields => {
+      const layout = getComputedStyle(fields[0])
+      expect(layout.gridTemplateColumns.split(" "), "tablet variant fields use two columns").to.have.length(2)
+      expect(fields[0].scrollWidth, "tablet variant fields have no horizontal overflow").to.be.at.most(fields[0].clientWidth)
+    })
+    cy.screenshot("admin-panel-tablet-after-768x568", { capture: "viewport" })
     cy.get('[data-testid="add-product-upload"]').should("be.visible")
     cy.get('[data-cy="create-product"]').scrollIntoView().should("be.visible").and("be.disabled")
     cy.document().should(document => {

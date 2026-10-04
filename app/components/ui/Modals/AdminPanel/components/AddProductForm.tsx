@@ -1050,7 +1050,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
         {/* ── Variants (moved from left col) ── */}
         <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3">
-          <div className="grid gap-2 tablet:grid-cols-[minmax(0,1fr)_130px_140px_auto]">
+          <div
+            className="grid gap-2 tablet:grid-cols-2 laptop:grid-cols-[minmax(0,1fr)_130px_140px_auto]"
+            data-cy="variant-entry-fields">
             <label className="grid flex-1 gap-1.5">
               <span className="whitespace-nowrap px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
                 {t("variant_label")}
