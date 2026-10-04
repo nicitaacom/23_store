@@ -61,6 +61,22 @@ export const TabFromDescriptionToVariant: Story = {
     await waitFor(() => expect(canvas.getByPlaceholderText("Variant label")).toHaveFocus());
   },
 };
+export const MobileKeyboardBoldToolbar: Story = {
+  globals: { theme: "dark", viewport: { value: "mobileSmall" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const editor = await canvas.findByRole("textbox", { name: "Description" });
+    await userEvent.type(editor, "Mobile copy");
+
+    const boldButton = canvas.getByRole("button", { name: "Bold (**text**)" });
+    boldButton.focus();
+    await userEvent.keyboard("{Enter}");
+    await expect(editor).toHaveFocus();
+
+    await userEvent.type(editor, " keyboard bold");
+    await waitFor(() => expect(editor.querySelector("strong")?.textContent?.trim()).toBe("keyboard bold"));
+  },
+};
 export const FileDragOnly: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
