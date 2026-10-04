@@ -49,3 +49,26 @@ export const Search: Story = {
   },
 };
 export const AvatarUpdate: Story = { render: AvatarModalExample, globals: { theme: "dark" } };
+export const AvatarUpdateMobileControls: Story = {
+  render: AvatarModalExample,
+  globals: { theme: "dark" },
+  parameters: { viewport: { defaultViewport: "mobileSmall" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const controls = [
+      await canvas.findByRole("button", { name: "Close modal" }),
+      await canvas.findByRole("button", { name: /click or drop avatar here/i }),
+      await canvas.findByRole("textbox", { name: "Avatar URL" }),
+      await canvas.findByRole("button", { name: "Use provider avatar" }),
+      await canvas.findByRole("button", { name: "Save avatar" }),
+    ]
+
+    for (const control of controls) {
+      const bounds = control.getBoundingClientRect()
+      await expect(bounds.width).toBeGreaterThanOrEqual(44)
+      await expect(bounds.height).toBeGreaterThanOrEqual(44)
+    }
+
+    await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(320)
+  },
+}

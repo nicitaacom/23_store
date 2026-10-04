@@ -192,10 +192,16 @@ export function UpdateAvatarModal() {
                       alt={t("modal.avatar.upload_alt")}
                     />
                     <div className="flex flex-row items-center justify-end gap-2">
-                      <Button size="sm" variant="secondary-outline" onClick={() => onImageUpdate(index)} disabled={isLoading}>
+                      <Button
+                        className="max-[767px]:min-h-[44px]"
+                        size="sm"
+                        variant="secondary-outline"
+                        onClick={() => onImageUpdate(index)}
+                        disabled={isLoading}>
                         {t("modal.avatar.update_action")}
                       </Button>
                       <Button
+                        className="max-[767px]:min-h-[44px]"
                         size="sm"
                         variant="danger-outline"
                         onClick={() => {
@@ -214,9 +220,13 @@ export function UpdateAvatarModal() {
           </ImageUploading>
 
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-title">{t("modal.avatar.url_label")}</p>
+            <label className="text-sm font-medium text-title" htmlFor="avatar-url">
+              {t("modal.avatar.url_label")}
+            </label>
             <Input
+              className="max-[767px]:h-11"
               type="url"
+              id="avatar-url"
               value={avatarUrl}
               onChange={e => setAvatarUrl(e.target.value)}
               placeholder="https://example.com/avatar.jpg"
@@ -227,6 +237,7 @@ export function UpdateAvatarModal() {
 
           <div className="grid grid-cols-1 gap-2 mobile:grid-cols-2">
             <Button
+              className="max-[767px]:min-h-[44px]"
               variant="secondary-outline"
               fullWidth
               loading={isLoading}
@@ -234,7 +245,7 @@ export function UpdateAvatarModal() {
               onClick={() => submitAvatar("")}>
               {t("modal.avatar.use_provider_avatar")}
             </Button>
-            <Button fullWidth loading={isLoading} onClick={() => submitAvatar(avatarUrl)}>
+            <Button className="max-[767px]:min-h-[44px]" fullWidth loading={isLoading} onClick={() => submitAvatar(avatarUrl)}>
               {t("modal.avatar.save_avatar")}
             </Button>
           </div>
