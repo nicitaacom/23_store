@@ -11,10 +11,10 @@ export function NoTicketFound({ ticketId }: { ticketId: string }) {
   const { isDarkMode } = useDarkModeStore()
 
   return (
-    <main className="flex h-full min-w-0 flex-1 items-center justify-center rounded-lg border border-border-color/35 bg-foreground/35 px-6 py-8">
-      <div className="flex max-w-xl flex-col items-center gap-6 px-6 py-8 text-center">
+    <main className="flex h-full min-w-0 flex-1 items-center justify-center rounded-lg border border-border-color/35 bg-foreground/35 px-3 py-8 mobile:px-6">
+      <div className="flex min-w-0 max-w-xl flex-col items-center gap-6 px-2 py-8 text-center mobile:px-6">
         <Image
-          className="hidden h-[180px] w-[360px] mobile:block laptop:h-[220px] laptop:w-[440px]"
+          className="hidden h-auto max-w-full mobile:block mobile:w-[360px] laptop:w-[440px]"
           src={isDarkMode ? "/support/no-ticket-with-ticketId-found-dark.png" : "/support/no-ticket-with-ticketId-found-light.png"}
           alt="No ticket id found"
           width={480}
