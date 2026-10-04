@@ -10,7 +10,7 @@ export function OpenSupportChatButton() {
   const { openDropdown } = useSupportDropdown()
 
   return (
-    <Button className="mt-auto" variant="default" onClick={openDropdown}>
+    <Button className="mt-auto min-h-[44px]" data-cy="support-page-open-chat" variant="default" onClick={openDropdown}>
       {t("open_live_chat")}
     </Button>
   )
