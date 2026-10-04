@@ -14,10 +14,14 @@ The project tracker records the overall plan status; checked rows below record f
   `cypress/README.md`. Commit `c7327461` clears the migrated password reset flag.
 - [x] Fix catalog and avatar menu openings of Admin Panel. Commit `2af79a5a`; Playwright
   verified opening, query state, and backdrop dismissal.
-- [ ] Run every reachable app route at phone, tablet, and desktop widths, including catalog,
-  product, cart, auth, owner, support, and stats routes. Record and fix horizontal overflow,
-  clipped text, unreachable controls, and controls hidden behind the chat dock. Include the
-  supplied mobile catalog screenshot, where pagination and page size take too much height.
+- [x] Run every reachable app route at phone, tablet, and desktop widths, including catalog,
+  product, cart, auth, owner, support, and stats routes. Playwright checked 320, 332, 414, 768,
+  and 1280px viewports. The supplied 332px catalog layout was reproduced; catalog cards now use
+  normal phone scrolling, category pills have their own swipe row, and pagination fits beside page
+  size. The same audit fixed product gallery and long-title widths, auth registration scrolling,
+  the popular-products hero, order tracking, stats pie labels, and support/owner dock clearance.
+  The payment cancel state was checked with a cart item. No audited route has document-width
+  overflow; owner, admin, and support screens were checked with test accounts.
 - [ ] Exercise visible buttons with Playwright after signing in as the fixture owner. Check
   the URL and visible state after each action, and fix any reproducible failure.
 - [ ] Reproduce the reported connection loss during Admin Panel use. Keep the page usable and
