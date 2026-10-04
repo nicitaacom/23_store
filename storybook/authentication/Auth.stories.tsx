@@ -94,6 +94,29 @@ export const OAuthChoices: Story = {
     await expect(canvas.getByAltText(/continue with twitter/i)).toBeVisible()
   },
 }
+export const MobileTouchControls: Story = {
+  parameters: { viewport: { defaultViewport: "mobileSmall" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const rememberCheckbox = await canvas.findByRole("checkbox", { name: /remember me/i })
+    const controls = [
+      rememberCheckbox.closest("label"),
+      await canvas.findByRole("link", { name: /forgot password/i }),
+      await canvas.findByRole("button", { name: /sign in/i }),
+      await canvas.findByRole("button", { name: /continue with google/i }),
+      await canvas.findByRole("button", { name: /continue with faceit/i }),
+      await canvas.findByRole("button", { name: /continue with twitter/i }),
+      await canvas.findByRole("link", { name: /create account/i }),
+    ]
+
+    for (const control of controls) {
+      if (!control) throw new Error("Remember checkbox label is missing")
+      const bounds = control.getBoundingClientRect()
+      await expect(bounds.width).toBeGreaterThanOrEqual(44)
+      await expect(bounds.height).toBeGreaterThanOrEqual(44)
+    }
+  },
+}
 export const PendingRequest: Story = { args: { isSubmitting: true } }
 export const BackendRejection: Story = { args: { responseMessage: "The supplied credentials were rejected." } }
 export const EmailSent: Story = { args: { isEmailSent: true, responseMessage: "Check your inbox to continue." } }

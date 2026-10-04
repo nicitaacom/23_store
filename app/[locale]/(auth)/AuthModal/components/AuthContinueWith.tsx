@@ -23,7 +23,7 @@ export function AuthContinueWith({ isSubmitting, isEmailSent, queryParams, pathn
         <ContinueWithButton provider="twitter" />
       </div>
       <Button
-        className={twMerge("justify-center text-base", isEmailSent && "opacity-50 pointer-events-none cursor-default")}
+        className={twMerge("min-h-[44px] justify-center text-base", isEmailSent && "opacity-50 pointer-events-none cursor-default")}
         href={`${pathname}?modal=AuthModal&variant=${queryParams === "login" ? "register" : "login"}`}
         variant="link"
         disabled={isEmailSent}>

@@ -112,6 +112,7 @@ export function AuthForm({
           <div className={twMerge("invisible flex min-h-[20px] items-center", queryParams === "login" && "visible")}>
             {/* 'Remember me' now checkbox do nothing - expected !isChecked 1m jwt - isChecked 3m jwt */}
             <Checkbox
+              className="min-h-[44px]"
               label={t("auth.remember.me")}
               onChange={() => setIsChecked(isChecked => !isChecked)}
               disabled={isSubmitting}
@@ -120,7 +121,7 @@ export function AuthForm({
           </div>
           {queryParams !== "register" && (
             <Button
-              className="text-sm mobile:text-base"
+              className="min-h-[44px] text-sm mobile:text-base"
               href={`${pathname}?modal=AuthModal&variant=${queryParams === "login" ? "recover" : "login"}`}
               variant="link">
               {queryParams === "login" ? t("auth.forgot.password") : t("auth.sign.in")}
@@ -130,7 +131,7 @@ export function AuthForm({
 
         {/* LOGIN/REGISTER BUTTON */}
         <Button
-          className="mt-1 border-border-color/45 bg-background/55"
+          className="mt-1 min-h-[44px] border-border-color/45 bg-background/55"
           data-cy="auth-submit"
           type="submit"
           variant="default-outline"
