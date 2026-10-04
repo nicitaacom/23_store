@@ -262,7 +262,7 @@ function getMockData(year: number, month: number): IUTMAggregatedStats {
 
 function EmptyState({ title }: { title: string }) {
   return (
-    <div className="flex flex-col items-center justify-center h-[300px] text-subTitle">
+    <div className="flex h-[300px] flex-col items-center justify-center text-subTitle max-[767px]:h-[200px]">
       <IoTrendingUp className="w-12 h-12 mb-4 opacity-50" />
       <p className="text-lg font-medium">No data available</p>
       <p className="text-sm opacity-75">{title} data will appear here</p>
@@ -275,12 +275,12 @@ function DailyVisitsChart({ data }: { data: { date: string; visits: number }[] }
 
   if (!data || data.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 max-[767px]:space-y-2">
         <div>
-          <h3 className="text-lg mobile:text-xl font-bold text-title">Daily Visits</h3>
+          <h3 className="text-lg font-bold text-title mobile:text-xl max-[767px]:text-base">Daily Visits</h3>
           <p className="text-sm text-subTitle">Traffic trend by date</p>
         </div>
-        <div className="flex flex-col items-center justify-center h-[300px] text-subTitle rounded-lg border border-border-color/20 bg-background/40">
+        <div className="flex h-[300px] flex-col items-center justify-center rounded-lg border border-border-color/20 bg-background/40 text-subTitle max-[767px]:h-[200px]">
           <IoTrendingUp className="w-12 h-12 mb-4 opacity-50" />
           <p className="text-lg font-medium">No data available</p>
           <p className="text-sm opacity-75">Chart data will appear here</p>
@@ -294,13 +294,13 @@ function DailyVisitsChart({ data }: { data: { date: string; visits: number }[] }
   const showDots = points.length <= 45
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-4 mobile:flex-row mobile:items-start mobile:justify-between">
+    <div className="space-y-4 max-[767px]:space-y-2">
+      <div className="flex flex-col gap-4 mobile:flex-row mobile:items-start mobile:justify-between max-[767px]:gap-2">
         <div>
-          <h3 className="text-lg mobile:text-xl font-bold text-title">Daily Visits</h3>
+          <h3 className="text-lg font-bold text-title mobile:text-xl max-[767px]:text-base">Daily Visits</h3>
           <p className="text-sm text-subTitle">{rangeSummary}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 max-[767px]:gap-1">
           {DAILY_VISITS_RANGE_OPTIONS.map(option => (
             <button
               className={`min-h-[44px] rounded-full px-3 py-1.5 text-xs font-medium transition-colors mobile:text-sm ${
@@ -316,7 +316,7 @@ function DailyVisitsChart({ data }: { data: { date: string; visits: number }[] }
         </div>
       </div>
 
-      <div className="h-[340px] rounded-lg border border-border-color/20 bg-background/40 p-3 mobile:p-4">
+      <div className="h-[340px] rounded-lg border border-border-color/20 bg-background/40 p-3 mobile:p-4 max-[767px]:h-[240px] max-[767px]:p-2">
         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <AreaChart data={points} margin={{ top: 12, right: 12, left: 0, bottom: 8 }}>
             <defs>
@@ -455,18 +455,18 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
   const topLocations = stats.locationStats.slice(0, 6)
 
   return (
-    <div className="min-h-screen bg-background p-4 mobile:p-6">
+    <div className="min-h-[100dvh] bg-background p-4 mobile:p-6 max-[767px]:px-0 max-[767px]:py-2" data-cy="utm-dashboard-root">
       <motion.div
         className="mx-auto max-w-7xl"
         initial="hidden"
         animate="visible"
         variants={containerVariants}>
         {/* Header with Date Picker */}
-        <motion.div className="mb-8" variants={itemVariants}>
-          <div className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between">
+        <motion.div className="mb-8 max-[767px]:mb-3" variants={itemVariants}>
+          <div className="flex flex-col gap-4 tablet:flex-row tablet:items-center tablet:justify-between max-[767px]:gap-2">
             <div>
-              <h1 className="text-3xl mobile:text-4xl font-bold text-title mb-2">UTM Analytics Dashboard</h1>
-              <p className="text-subTitle">
+              <h1 className="mb-2 text-3xl font-bold text-title mobile:text-4xl max-[767px]:mb-1 max-[767px]:text-xl">UTM Analytics Dashboard</h1>
+              <p className="text-subTitle max-[767px]:text-sm">
                 Track your marketing campaign performance {utmStatsResponse.totalVisits === 0 ? "(mock data)" : ""}
               </p>
             </div>
@@ -501,8 +501,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}>
-                    <div className="p-4">
-                      <div className="mb-4">
+                    <div className="p-4 max-[767px]:p-2">
+                      <div className="mb-4 max-[767px]:mb-2">
                         <label className="text-xs font-medium text-subTitle mb-2 block">Year</label>
                         <div className="grid grid-cols-3 gap-1">
                           {years.map(year => (
@@ -546,7 +546,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
 
         {/* Key Metrics */}
         <motion.div
-          className="grid grid-cols-1 mobile:grid-cols-2 laptop:grid-cols-5 gap-4 mobile:gap-6 mb-8"
+          className="mb-8 grid grid-cols-1 gap-4 mobile:grid-cols-2 mobile:gap-6 laptop:grid-cols-5 max-[767px]:mb-3 max-[767px]:grid-cols-2 max-[767px]:gap-2"
+          data-cy="utm-metrics-grid"
           variants={itemVariants}>
           {[
             {
@@ -579,13 +580,14 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
             },
           ].map((metric, index) => (
             <motion.div
-              className={`${metric.bgClass} p-4 mobile:p-6 rounded-xl shadow-lg`}
+              className={`${metric.bgClass} rounded-xl p-4 shadow-lg mobile:p-6 max-[767px]:rounded-md max-[767px]:p-2`}
               key={metric.title}
+              data-cy="utm-dashboard-metric"
               variants={itemVariants}
               whileHover={{ scale: 1.05 }}>
               <h3 className={`${metric.titleClass} text-xs mobile:text-sm font-medium opacity-90`}>{metric.title}</h3>
               <motion.p
-                className={`${metric.numberClass} text-2xl mobile:text-3xl font-bold mt-2`}
+                className={`${metric.numberClass} mt-2 text-2xl font-bold mobile:text-3xl max-[767px]:mt-1 max-[767px]:text-xl`}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: index * 0.1 + 0.2 }}>
@@ -598,14 +600,15 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
         <BuyingFlow year={selectedYear} month={selectedMonth} />
 
         {/* Charts Grid */}
-        <motion.div className="grid grid-cols-1 laptop:grid-cols-2 gap-6 mobile:gap-8">
+        <motion.div className="grid grid-cols-1 gap-6 laptop:grid-cols-2 mobile:gap-8 max-[767px]:gap-2">
           {/* UTM Sources Chart */}
           <motion.div
-            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg"
+            className="rounded-xl border border-border-color bg-foreground p-4 shadow-lg mobile:p-6 max-[767px]:rounded-md max-[767px]:p-2"
             variants={itemVariants}>
-            <h3 className="text-lg mobile:text-xl font-bold text-title mb-4">Traffic Sources</h3>
+            <h3 className="mb-4 text-lg font-bold text-title mobile:text-xl max-[767px]:mb-2 max-[767px]:text-base">Traffic Sources</h3>
             {stats.sourceStats.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <div className="h-[300px] max-[767px]:h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.sourceStats}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border-color) / 0.3)" />
                   <XAxis dataKey="name" stroke="hsl(var(--subTitle))" fontSize={12} />
@@ -620,7 +623,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
                   />
                   <Bar dataKey="count" fill="#3B82F6" radius={[4, 4, 0, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
+                </ResponsiveContainer>
+              </div>
             ) : (
               <EmptyState title="Traffic sources" />
             )}
@@ -628,11 +632,12 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
 
           {/* UTM Medium Pie Chart */}
           <motion.div
-            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg"
+            className="rounded-xl border border-border-color bg-foreground p-4 shadow-lg mobile:p-6 max-[767px]:rounded-md max-[767px]:p-2"
             variants={itemVariants}>
-            <h3 className="text-lg mobile:text-xl font-bold text-title mb-4">Traffic Medium</h3>
+            <h3 className="mb-4 text-lg font-bold text-title mobile:text-xl max-[767px]:mb-2 max-[767px]:text-base">Traffic Medium</h3>
             {stats.mediumStats.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <div className="h-[300px] max-[767px]:h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={stats.mediumStats}
@@ -656,7 +661,8 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
                     }}
                   />
                 </PieChart>
-              </ResponsiveContainer>
+                </ResponsiveContainer>
+              </div>
             ) : (
               <EmptyState title="Traffic medium" />
             )}
@@ -678,21 +684,22 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
           </motion.div>
         </motion.div>
 
-        <motion.div className="grid grid-cols-1 laptop:grid-cols-2 gap-6 mobile:gap-8 mt-6 mobile:mt-8">
+        <motion.div className="mt-6 grid grid-cols-1 gap-6 laptop:grid-cols-2 mobile:mt-8 mobile:gap-8 max-[767px]:mt-2 max-[767px]:gap-2">
           <motion.div
-            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg"
+            className="rounded-xl border border-border-color bg-foreground p-4 shadow-lg mobile:p-6 max-[767px]:rounded-md max-[767px]:p-2"
             variants={itemVariants}>
-            <div className="mb-4 flex items-center gap-3">
+            <div className="mb-4 flex items-center gap-3 max-[767px]:mb-2 max-[767px]:gap-2">
               <div className="rounded-full bg-brand/15 p-2 text-brand">
                 <IoGlobeOutline className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-lg mobile:text-xl font-bold text-title">Visitor Countries</h3>
+                <h3 className="text-lg font-bold text-title mobile:text-xl max-[767px]:text-base">Visitor Countries</h3>
                 <p className="text-sm text-subTitle">Geographic traffic based on edge headers</p>
               </div>
             </div>
             {topCountries.length > 0 ? (
-              <ResponsiveContainer width="100%" height={320}>
+              <div className="h-[320px] max-[767px]:h-[240px]">
+                <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={topCountries} layout="vertical" margin={{ top: 8, right: 16, bottom: 8, left: 12 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border-color) / 0.3)" horizontal={false} />
                   <XAxis type="number" stroke="hsl(var(--subTitle))" fontSize={12} />
@@ -722,32 +729,33 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
                   />
                   <Bar dataKey="count" fill="#10B981" radius={[0, 6, 6, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
+                </ResponsiveContainer>
+              </div>
             ) : (
               <EmptyState title="Country" />
             )}
           </motion.div>
 
           <motion.div
-            className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg"
+            className="rounded-xl border border-border-color bg-foreground p-4 shadow-lg mobile:p-6 max-[767px]:rounded-md max-[767px]:p-2"
             variants={itemVariants}>
-            <div className="mb-4 flex items-center gap-3">
+            <div className="mb-4 flex items-center gap-3 max-[767px]:mb-2 max-[767px]:gap-2">
               <div className="rounded-full bg-info/15 p-2 text-info">
                 <IoLocationOutline className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-lg mobile:text-xl font-bold text-title">Where Visitors Come From</h3>
+                <h3 className="text-lg font-bold text-title mobile:text-xl max-[767px]:text-base">Where Visitors Come From</h3>
                 <p className="text-sm text-subTitle">Top locations ranked by visit share</p>
               </div>
             </div>
             {topLocations.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-4 max-[767px]:space-y-2">
                 {topLocations.map((location, index) => {
                   const share = stats.totalVisits > 0 ? Math.round((location.count / stats.totalVisits) * 100) : 0
 
                   return (
                     <motion.div
-                      className="rounded-xl border border-border-color/70 bg-background/50 p-4"
+                      className="rounded-xl border border-border-color/70 bg-background/50 p-4 max-[767px]:rounded-md max-[767px]:p-2"
                       key={`${location.name}-${index}`}
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -784,7 +792,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
 
         {/* Daily Visits Chart - Full Width */}
         <motion.div
-          className="bg-foreground border border-border-color p-4 mobile:p-6 rounded-xl shadow-lg mt-6 mobile:mt-8"
+          className="mt-6 rounded-xl border border-border-color bg-foreground p-4 shadow-lg mobile:mt-8 mobile:p-6 max-[767px]:mt-2 max-[767px]:rounded-md max-[767px]:p-2"
           variants={itemVariants}>
           <DailyVisitsChart data={stats.chartData || []} />
         </motion.div>

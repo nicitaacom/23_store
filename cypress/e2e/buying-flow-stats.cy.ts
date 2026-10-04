@@ -33,6 +33,20 @@ function waitForEvent(sessionId: string, event: string, checkoutKind?: string): 
   })
 }
 
+function assertDailyChartControlsAfterScroll(width: number, height: number) {
+  cy.get('[data-cy="utm-range-month"]').scrollIntoView().should("be.visible").should(button => {
+    const bounds = button[0].getBoundingClientRect()
+    expect(bounds.height, `chart range target height at ${width}px`).to.be.at.least(44)
+    expect(bounds.top, `chart range target top at ${width}px`).to.be.at.least(0)
+    expect(bounds.bottom, `chart range target bottom at ${width}px`).to.be.at.most(height)
+  }).click()
+  cy.document().should(document => {
+    expect(document.documentElement.scrollWidth, `dashboard after scroll at ${width}px`).to.be.at.most(
+      document.documentElement.clientWidth,
+    )
+  })
+}
+
 describe("buying-flow stats", () => {
   let fixture: TBuyingFlowFixture
   let sessionId: string | null = null
@@ -73,6 +87,19 @@ describe("buying-flow stats", () => {
       cy.viewport(320, 480)
       cy.visit("/en/stats")
       cy.get('[data-cy="buying-flow-section"]').should("be.visible")
+      cy.get('[data-cy="utm-dashboard-root"]').should(root => {
+        expect(getComputedStyle(root[0]).paddingLeft, "phone dashboard gutter").to.equal("0px")
+        expect(getComputedStyle(root[0]).paddingRight, "phone dashboard gutter").to.equal("0px")
+      })
+      cy.get('[data-cy="utm-metrics-grid"]').should(grid => {
+        expect(getComputedStyle(grid[0]).gridTemplateColumns.split(" ").length, "phone metric columns").to.equal(2)
+      })
+      cy.get('[data-cy="utm-dashboard-metric"]').first().should(metric => {
+        expect(parseFloat(getComputedStyle(metric[0]).paddingLeft), "phone metric padding").to.be.at.most(8)
+      })
+      cy.get('[data-cy="buying-flow-section"]').should(section => {
+        expect(parseFloat(getComputedStyle(section[0]).paddingLeft), "phone buying-flow padding").to.be.at.most(8)
+      })
       cy.get('[data-cy="buying-flow-stage-product_view"]').should("contain.text", "Viewed")
       cy.get('[data-cy="buying-flow-stage-add_to_cart"]').should("contain.text", "Added")
       cy.get('[data-cy="buying-flow-stage-cart_open"]').should("contain.text", "Cart")
@@ -110,6 +137,30 @@ describe("buying-flow stats", () => {
       })
       cy.get('[data-cy="utm-date-picker-period"]').contains("January").click()
       cy.get('[data-cy="utm-date-picker-toggle"]').should("contain.text", "January")
+      assertDailyChartControlsAfterScroll(320, 480)
+
+      ;[
+        { width: 332, height: 568 },
+        { width: 414, height: 480 },
+      ].forEach(({ width, height }) => {
+        cy.viewport(width, height)
+        cy.visit("/en/stats")
+        cy.get('[data-cy="utm-dashboard-metric"]').should("have.length", 5)
+        cy.get('[data-cy="buying-flow-stage-product_view"]').should("be.visible")
+        cy.get('[data-cy="utm-dashboard-root"]').should(root => {
+          expect(getComputedStyle(root[0]).paddingLeft, `phone gutter at ${width}px`).to.equal("0px")
+          expect(getComputedStyle(root[0]).paddingRight, `phone gutter at ${width}px`).to.equal("0px")
+        })
+        cy.get('[data-cy="utm-metrics-grid"]').should(grid => {
+          expect(getComputedStyle(grid[0]).gridTemplateColumns.split(" ").length, `metric columns at ${width}px`).to.equal(2)
+        })
+        cy.document().should(document => {
+          expect(document.documentElement.scrollWidth, `stats dashboard at ${width}px`).to.be.at.most(
+            document.documentElement.clientWidth,
+          )
+        })
+        assertDailyChartControlsAfterScroll(width, height)
+      })
     })
   })
 })

@@ -94,21 +94,21 @@ export function BuyingFlow({ year, month }: BuyingFlowProps) {
 
   return (
     <section
-      className="my-6 rounded-xl border border-border-color bg-foreground p-4 shadow-lg mobile:my-8 mobile:p-6"
+      className="my-6 rounded-xl border border-border-color bg-foreground p-4 shadow-lg mobile:my-8 mobile:p-6 max-[767px]:my-2 max-[767px]:rounded-md max-[767px]:p-2"
       data-cy="buying-flow-section">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-title mobile:text-2xl">Buying flow</h2>
-        <p className="text-sm text-subTitle">Distinct visitors for the selected dashboard period</p>
+      <div className="mb-6 max-[767px]:mb-2">
+        <h2 className="text-xl font-bold text-title mobile:text-2xl max-[767px]:text-lg">Buying flow</h2>
+        <p className="text-sm text-subTitle max-[767px]:text-xs">Distinct visitors for the selected dashboard period</p>
       </div>
 
       {errorMessage ? (
-        <p className="rounded-lg border border-danger/30 bg-danger/10 p-4 text-sm text-danger">{errorMessage}</p>
+        <p className="rounded-lg border border-danger/30 bg-danger/10 p-4 text-sm text-danger max-[767px]:p-2">{errorMessage}</p>
       ) : !buyingFlowStats ? (
-        <p className="rounded-lg border border-border-color/40 bg-background/40 p-4 text-sm text-subTitle">
+        <p className="rounded-lg border border-border-color/40 bg-background/40 p-4 text-sm text-subTitle max-[767px]:p-2">
           Selecting buying-flow rows…
         </p>
       ) : buyingFlowStats.stages.every(stage => stage.visitors === 0) ? (
-        <p className="rounded-lg border border-border-color/40 bg-background/40 p-4 text-sm text-subTitle">
+        <p className="rounded-lg border border-border-color/40 bg-background/40 p-4 text-sm text-subTitle max-[767px]:p-2">
           No buying-flow events yet — rows appear after the SQL in the commit body runs and visitors click.
         </p>
       ) : (
@@ -120,7 +120,7 @@ export function BuyingFlow({ year, month }: BuyingFlowProps) {
                   <div
                     className="flex min-w-0 flex-1 flex-col items-center gap-2"
                     data-cy={`buying-flow-stage-${stage.stage}`}>
-                    <div className="flex h-32 w-full items-end overflow-hidden rounded-lg border border-border-color/30 bg-background/50 p-1.5">
+                    <div className="flex h-32 w-full items-end overflow-hidden rounded-lg border border-border-color/30 bg-background/50 p-1.5 max-[767px]:h-24">
                       <motion.div
                         className="w-full rounded-md bg-gradient-to-t from-brand to-success"
                         initial={{ height: 0 }}
@@ -128,7 +128,7 @@ export function BuyingFlow({ year, month }: BuyingFlowProps) {
                         transition={{ delay: index * 0.12, duration: 0.55, ease: "easeOut" }}
                       />
                     </div>
-                    <p className="text-2xl font-bold text-title">
+                    <p className="text-2xl font-bold text-title max-[767px]:text-lg">
                       <AnimatedNumber value={stage.visitors} />
                     </p>
                     <p className="text-xs font-semibold uppercase tracking-[0.12em] text-subTitle">{stage.label}</p>
@@ -152,7 +152,7 @@ export function BuyingFlow({ year, month }: BuyingFlowProps) {
             </div>
           </div>
 
-          <div className="mt-6 border-t border-border-color/30 pt-5">
+          <div className="mt-6 border-t border-border-color/30 pt-5 max-[767px]:mt-3 max-[767px]:pt-2">
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-subTitle">Checkout clicks</h3>
             <div className="grid gap-2 mobile:grid-cols-2 laptop:grid-cols-5">
               {buyingFlowStats.checkoutKinds.map((checkoutKind, index) => (
@@ -170,8 +170,8 @@ export function BuyingFlow({ year, month }: BuyingFlowProps) {
             </div>
           </div>
 
-          <div className="mt-6 border-t border-border-color/30 pt-5">
-            <div className="mb-4 flex flex-wrap gap-2">
+          <div className="mt-6 border-t border-border-color/30 pt-5 max-[767px]:mt-3 max-[767px]:pt-2">
+            <div className="mb-4 flex flex-wrap gap-2 max-[767px]:mb-2">
               <button
                 className={`min-h-[44px] rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
                   selectedSearchList === "misses"
@@ -215,7 +215,7 @@ export function BuyingFlow({ year, month }: BuyingFlowProps) {
                     ))}
                   </div>
                 ) : (
-                  <p className="rounded-lg border border-border-color/30 bg-background/40 p-3 text-sm text-subTitle">
+                  <p className="rounded-lg border border-border-color/30 bg-background/40 p-3 text-sm text-subTitle max-[767px]:p-2">
                     {selectedSearchList === "misses"
                       ? "Missed searches appear after a visitor searches and gets zero results."
                       : "Top searches appear after visitors use product search."}
