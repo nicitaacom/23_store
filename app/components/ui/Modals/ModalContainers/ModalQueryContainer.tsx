@@ -7,6 +7,7 @@ import { useSwipeable } from "react-swipeable"
 import { twMerge } from "tailwind-merge"
 import { AnimatePresence, motion } from "framer-motion"
 
+import { useModalScrollLock } from "./useModalScrollLock"
 import { getUrlWithoutModal } from "@/utils/modalQuery"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import { useScopedI18n } from "@/locales/client"
@@ -53,6 +54,7 @@ export function ModalQueryContainer({
   if (!isModalInQuery && isDismissed) setIsDismissed(false)
 
   const showModal = isModalInQuery && !isDismissed
+  useModalScrollLock(showModal)
 
   useEffect(() => {
     onVisibilityChange?.(showModal)
@@ -119,7 +121,7 @@ export function ModalQueryContainer({
     <AnimatePresence>
       {showModal && (
         <motion.div
-          className="fixed inset-0 z-[1601] flex items-center justify-center bg-background/60 px-3 py-0 backdrop-blur-[2px] tablet:py-4"
+          className="fixed inset-0 z-[1601] flex items-center justify-center bg-background/60 px-3 py-0 backdrop-blur-[2px] max-[767px]:p-0 tablet:py-4"
           initial={{ opacity: 0 }}
           animate={shouldClose ? { opacity: 0 } : { opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -133,6 +135,7 @@ export function ModalQueryContainer({
             className={twMerge(
               "halloween-panel relative z-[1600] overflow-hidden rounded-lg border border-border-color/35 bg-modal-surface shadow-compact",
               className,
+              "max-[767px]:h-[100dvh] max-[767px]:max-h-none max-[767px]:w-screen max-[767px]:max-w-none max-[767px]:rounded-none max-[767px]:border-0",
             )}
             initial={{ y: 16, opacity: 0 }}
             animate={shouldClose ? { y: 8, opacity: 0 } : { y: 0, opacity: 1 }}

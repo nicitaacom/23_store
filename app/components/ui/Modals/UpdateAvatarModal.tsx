@@ -113,7 +113,7 @@ export function UpdateAvatarModal() {
 
   return (
     <ModalContainer
-      className="relative max-h-[calc(100dvh-2rem)] w-[92vw] max-w-[520px] overflow-hidden border-none bg-transparent p-0 shadow-none max-[767px]:h-dvh max-[767px]:max-h-none max-[767px]:w-screen max-[767px]:max-w-none"
+      className="relative max-h-[calc(100dvh-2rem)] w-[92vw] max-w-[520px] overflow-hidden border-none bg-transparent p-0 shadow-none max-[767px]:h-[100dvh] max-[767px]:max-h-none max-[767px]:w-screen max-[767px]:max-w-none"
       classnameContainer="z-[1001]"
       fullScreenOnMobile
       isOpen={updateAvatarModal.isOpen}

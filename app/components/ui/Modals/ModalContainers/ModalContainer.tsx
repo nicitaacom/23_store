@@ -6,6 +6,7 @@ import { useSwipeable } from "react-swipeable"
 import { AnimatePresence, motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 
+import { useModalScrollLock } from "./useModalScrollLock"
 import { useLoading } from "@/store/ui/useLoading"
 import { useScopedI18n } from "@/locales/client"
 
@@ -25,7 +26,7 @@ export function ModalContainer({
   onClose,
   className,
   classnameContainer,
-  fullScreenOnMobile = false,
+  fullScreenOnMobile = true,
   label,
   children,
 }: ModalContainerProps) {
@@ -33,6 +34,8 @@ export function ModalContainer({
   const { isLoading } = useLoading()
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null)
+
+  useModalScrollLock(isOpen)
 
   function closeModal() {
     if (isLoading) return
@@ -106,7 +109,7 @@ export function ModalContainer({
               "relative z-[50] overflow-hidden rounded-lg border border-border-color/35 bg-foreground shadow-compact",
               className,
               fullScreenOnMobile &&
-                "max-[767px]:h-dvh max-[767px]:max-h-[100dvh] max-[767px]:w-screen max-[767px]:max-w-none max-[767px]:rounded-none max-[767px]:border-0",
+                "max-[767px]:h-[100dvh] max-[767px]:max-h-[100dvh] max-[767px]:w-screen max-[767px]:max-w-none max-[767px]:rounded-none max-[767px]:border-0",
             )}
             data-mobile-fullscreen-modal={fullScreenOnMobile ? "true" : undefined}
             aria-label={typeof label === "string" ? label : "Modal"}

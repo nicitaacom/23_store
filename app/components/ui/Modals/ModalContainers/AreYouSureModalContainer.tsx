@@ -7,6 +7,7 @@ import { useSwipeable } from "react-swipeable"
 import { AnimatePresence, motion } from "framer-motion"
 import { twMerge } from "tailwind-merge"
 
+import { useModalScrollLock } from "./useModalScrollLock"
 import { Button } from "../.."
 import type { ButtonProps } from "../../Button"
 import { useLoading } from "@/store/ui/useLoading"
@@ -94,6 +95,8 @@ export function AreYouSureModalContainer({
   primaryButtonDataCy,
   secondaryButtonDataCy,
 }: AreYouSureModalContainerProps) {
+  useModalScrollLock(isOpen)
+
   const t = useScopedI18n("modal")
   const { isLoading } = useLoading()
   const titleId = useId()
@@ -159,7 +162,7 @@ export function AreYouSureModalContainer({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[2000] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[2000] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px] max-[767px]:p-0"
           data-click-outside-ignore
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -170,6 +173,7 @@ export function AreYouSureModalContainer({
             className={twMerge(
               "relative z-[100] w-[min(calc(100vw-2rem),560px)] overflow-hidden rounded-lg border border-border-color/35 bg-foreground/95 shadow-compact",
               className,
+              "max-[767px]:h-[100dvh] max-[767px]:max-h-none max-[767px]:w-screen max-[767px]:max-w-none max-[767px]:rounded-none max-[767px]:border-0",
             )}
             data-click-outside-ignore
             role="dialog"
@@ -192,7 +196,7 @@ export function AreYouSureModalContainer({
               type="button">
               <IoMdClose size={22} />
             </button>
-            <div className={twMerge("flex max-w-[620px] flex-col gap-4 px-4 pb-4 pt-5 tablet:px-5", contentClassName)}>
+            <div className={twMerge("flex max-w-[620px] flex-col gap-4 px-4 pb-4 pt-5 tablet:px-5 max-[767px]:gap-3 max-[767px]:px-2 max-[767px]:pb-2 max-[767px]:pt-3", contentClassName)}>
               <div className={twMerge("flex flex-col gap-2 pr-10 text-start", titleClassName)}>
                 <div className="font-secondary text-xl font-bold leading-tight text-title" id={titleId}>
                   {label}
