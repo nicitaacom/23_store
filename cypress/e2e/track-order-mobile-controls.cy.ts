@@ -10,6 +10,13 @@ describe("track order mobile controls", () => {
       cy.viewport(width, height)
       cy.visit("/en/track-order")
 
+      cy.get('[data-cy="track-order-content"]').should(content => {
+        expect(getComputedStyle(content[0]).paddingLeft, "phone page gutter").to.equal("0px")
+        expect(getComputedStyle(content[0]).paddingRight, "phone page gutter").to.equal("0px")
+      })
+      cy.get('[data-cy="track-order-search-card"]').should(card => {
+        expect(parseFloat(getComputedStyle(card[0]).paddingLeft), "phone card padding").to.be.at.most(8)
+      })
       cy.get('[data-cy="track-order-number"]').should("be.visible").should(input => {
         expect((input[0] as HTMLInputElement).labels, "order number label").to.have.length(1)
         expect(input[0].getBoundingClientRect().height, "order number hit area").to.be.at.least(44)

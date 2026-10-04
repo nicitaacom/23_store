@@ -11,15 +11,15 @@ export default async function SupportPage() {
   const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-64px)] w-full max-w-5xl flex-col justify-center gap-6 px-4 pb-24 pt-10 tablet:py-10">
+    <div className="mx-auto flex min-h-[calc(100dvh-64px)] w-full max-w-5xl flex-col justify-center gap-6 px-4 pb-24 pt-10 tablet:py-10 max-[767px]:gap-2 max-[767px]:px-0 max-[767px]:pt-2" data-cy="support-page-layout">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-title tablet:text-4xl">{t("support.title")}</h1>
-        <p className="mt-2 text-base text-subTitle">{t("support.subtitle")}</p>
+        <h1 className="text-3xl font-bold tracking-tight text-title tablet:text-4xl max-[767px]:text-2xl">{t("support.title")}</h1>
+        <p className="mt-2 text-base text-subTitle max-[767px]:mt-1 max-[767px]:text-sm">{t("support.subtitle")}</p>
       </div>
 
-      <div className="grid gap-3 tablet:grid-cols-3">
-        <div className="flex flex-col gap-3 rounded-lg border border-border-color/35 bg-foreground/35 p-4 transition-colors duration-150 hover:border-brand/30">
-          <div className="flex h-9 w-9 items-center justify-center rounded border border-brand/20 bg-brand/10 text-brand">
+      <div className="grid gap-3 tablet:grid-cols-3 max-[767px]:gap-2">
+        <div className="flex flex-col gap-3 rounded-lg border border-border-color/35 bg-foreground/35 p-4 transition-colors duration-150 hover:border-brand/30 max-[767px]:gap-2 max-[767px]:p-2" data-cy="support-option-card">
+          <div className="flex h-9 w-9 items-center justify-center rounded border border-brand/20 bg-brand/10 text-brand max-[767px]:h-8 max-[767px]:w-8">
             <MdOutlineEmail size={20} />
           </div>
           <h2 className="text-base font-semibold text-title">{t("support.option_1")}</h2>
@@ -29,8 +29,8 @@ export default async function SupportPage() {
           </Button>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-lg border border-border-color/35 bg-foreground/35 p-4 transition-colors duration-150 hover:border-brand/30">
-          <div className="flex h-9 w-9 items-center justify-center rounded border border-brand/20 bg-brand/10 text-brand">
+        <div className="flex flex-col gap-3 rounded-lg border border-border-color/35 bg-foreground/35 p-4 transition-colors duration-150 hover:border-brand/30 max-[767px]:gap-2 max-[767px]:p-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded border border-brand/20 bg-brand/10 text-brand max-[767px]:h-8 max-[767px]:w-8">
             <BiSupport size={20} />
           </div>
           <h2 className="text-base font-semibold text-title">{t("support.option_2_title")}</h2>
@@ -38,8 +38,8 @@ export default async function SupportPage() {
           <OpenSupportChatButton />
         </div>
 
-        <div className="flex flex-col gap-3 rounded-lg border border-border-color/35 bg-foreground/35 p-4 transition-colors duration-150 hover:border-brand/30">
-          <div className="flex h-9 w-9 items-center justify-center rounded border border-brand/20 bg-brand/10 text-brand">
+        <div className="flex flex-col gap-3 rounded-lg border border-border-color/35 bg-foreground/35 p-4 transition-colors duration-150 hover:border-brand/30 max-[767px]:gap-2 max-[767px]:p-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded border border-brand/20 bg-brand/10 text-brand max-[767px]:h-8 max-[767px]:w-8">
             <FaTelegramPlane size={18} />
           </div>
           <h2 className="text-base font-semibold text-title">{t("support.option_3")}</h2>

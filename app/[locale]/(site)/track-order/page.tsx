@@ -12,22 +12,22 @@ export default function TrackOrderPage() {
   const t = useScopedI18n("trackorder")
 
   return (
-    <div className="w-full min-h-[calc(100vh-64px)] bg-background">
+    <div className="w-full min-h-[calc(100dvh-64px)] bg-background">
       <div className="mx-auto grid max-w-[1440px] grid-cols-1 laptop:grid-cols-2">
         {/* LEFT */}
-        <div className="flex h-full flex-col gap-6 p-4 laptop:p-8">
+        <div className="flex h-full flex-col gap-6 p-4 laptop:p-8 max-[767px]:gap-2 max-[767px]:p-0" data-cy="track-order-content">
           {/* Header */}
-          <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-success/20 text-xl">📦</div>
+          <div className="flex items-center gap-4 max-[767px]:gap-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-success/20 text-xl max-[767px]:h-9 max-[767px]:w-9">📦</div>
             <div>
-              <h1 className="text-2xl font-bold text-title">{t("title")}</h1>
+              <h1 className="text-2xl font-bold text-title max-[767px]:text-xl">{t("title")}</h1>
               <p className="text-xs text-subTitle">{t("subtitle")}</p>
             </div>
           </div>
 
           {/* Search card */}
-          <div className="rounded-xl border border-border-color bg-foreground p-4 shadow-sm">
-            <label className="mb-2 block text-xs font-medium text-title" htmlFor="track-order-number">
+          <div className="rounded-xl border border-border-color bg-foreground p-4 shadow-sm max-[767px]:rounded-md max-[767px]:p-2" data-cy="track-order-search-card">
+            <label className="mb-2 block text-xs font-medium text-title max-[767px]:mb-1" htmlFor="track-order-number">
               {t("order_number")}
             </label>
             <div className="flex flex-col gap-2 tablet:flex-row">
@@ -53,8 +53,8 @@ export default function TrackOrderPage() {
           </div>
 
           {/* Info */}
-          <div className="rounded-xl border border-success/30 bg-success/10 p-4">
-            <div className="flex items-start gap-3">
+          <div className="rounded-xl border border-success/30 bg-success/10 p-4 max-[767px]:rounded-md max-[767px]:p-2">
+            <div className="flex items-start gap-3 max-[767px]:gap-2">
               <span className="text-lg">⏳</span>
               <div>
                 <p className="text-sm font-semibold text-title">{t("tracking_not_available_title")}</p>
@@ -64,10 +64,10 @@ export default function TrackOrderPage() {
           </div>
 
           {/* Timeline */}
-          <div className="flex-1 rounded-xl border border-border-color bg-foreground p-4 shadow-sm">
-            <p className="mb-4 text-sm font-semibold text-title">{t("order_status")}</p>
+          <div className="flex-1 rounded-xl border border-border-color bg-foreground p-4 shadow-sm max-[767px]:rounded-md max-[767px]:p-2">
+            <p className="mb-4 text-sm font-semibold text-title max-[767px]:mb-2">{t("order_status")}</p>
 
-            <div className="relative space-y-5 pl-6">
+            <div className="relative space-y-5 pl-6 max-[767px]:space-y-3 max-[767px]:pl-5">
               <div className="absolute left-[11px] top-0 h-full w-px bg-border-color" />
 
               {[
@@ -77,7 +77,7 @@ export default function TrackOrderPage() {
                 { title: t("order_status_4_title"), desc: t("order_status_1_subtitle"), active: false },
                 { title: t("order_status_5_title"), desc: t("order_status_1_subtitle"), active: false },
               ].map(step => (
-                <div className="relative flex gap-3" key={step.title}>
+                <div className="relative flex gap-3 max-[767px]:gap-2" key={step.title}>
                   <div
                     className={twMerge(
                       "z-10 h-4 w-4 rounded-full border-2 border-background",
