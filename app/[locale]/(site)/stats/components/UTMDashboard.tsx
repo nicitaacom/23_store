@@ -393,7 +393,6 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
   const [currentData, setCurrentData] = useState<IUTMAggregatedStats | null>(() =>
     utmStatsResponse.totalVisits > 0 ? utmStatsResponse : null,
   )
-  const [forceRender, setForceRender] = useState(0) // Force re-render trigger
 
   // 2. Whenever the selected period changes (incl. mount), fetch stats filtered to that period.
   useEffect(() => {
@@ -408,7 +407,6 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
       const nextData = resolved ?? (utmStatsResponse.totalVisits > 0 ? null : getMockData(selectedYear, selectedMonth))
       if (nextData) setCurrentData(nextData)
       setIsAnimating(false)
-      setForceRender(prev => prev + 1)
     }
 
     selectStats()
@@ -459,8 +457,7 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
   return (
     <div className="min-h-screen bg-background p-4 mobile:p-6">
       <motion.div
-        className="max-w-7xl mx-auto" // Force re-render when this changes
-        key={forceRender}
+        className="mx-auto max-w-7xl"
         initial="hidden"
         animate="visible"
         variants={containerVariants}>
