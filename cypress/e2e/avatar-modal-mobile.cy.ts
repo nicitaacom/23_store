@@ -5,6 +5,7 @@ type TFixtureAccount = {
 }
 
 const mobileViewports = [
+  { width: 320, height: 320 },
   { width: 320, height: 480 },
   { width: 332, height: 568 },
   { width: 414, height: 480 },
@@ -49,14 +50,43 @@ describe("avatar editor on short mobile screens", () => {
         expect(bounds.top, "modal close top is visible").to.be.at.least(0)
         expect(bounds.right, "modal close right edge is visible").to.be.at.most(width)
       })
-      cy.get('[role="dialog"] .image-upload h1').should("be.visible").should(heading => {
+      cy.get('[role="dialog"] .image-upload h1').scrollIntoView().should("be.visible").should(heading => {
         const button = heading[0].closest("button")!
         const bounds = heading[0].getBoundingClientRect()
         const buttonBounds = button.getBoundingClientRect()
         expect(bounds.left, "upload heading stays inside the button").to.be.at.least(buttonBounds.left)
         expect(bounds.right, "upload heading stays inside the button").to.be.at.most(buttonBounds.right)
         expect(heading[0].scrollWidth, "upload heading has no clipped text").to.be.at.most(heading[0].clientWidth)
+        expect(bounds.top, "upload heading scrolls into view").to.be.at.least(0)
+        expect(bounds.bottom, "upload heading scrolls into view").to.be.at.most(height)
       })
+      cy.get('[data-cy="update-avatar-scroll"]').should(panel => {
+        expect(panel[0].scrollTop, `${width}×${height} upload is reachable by scrolling`).to.be.greaterThan(0)
+      })
+      cy.get('[role="dialog"]')
+        .contains("button", "Save avatar")
+        .scrollIntoView()
+        .should("be.visible")
+        .should(button => {
+          const bounds = button[0].getBoundingClientRect()
+          expect(bounds.height, `${width}×${height} save action touch height`).to.be.at.least(44)
+          expect(bounds.top, `${width}×${height} save action scrolls into view`).to.be.at.least(0)
+          expect(bounds.bottom, `${width}×${height} save action scrolls into view`).to.be.at.most(height)
+        })
+      cy.get('[role="dialog"] button[aria-label="Close modal"]').should(button => {
+        const bounds = button[0].getBoundingClientRect()
+        expect(bounds.top, `${width}×${height} close stays visible after scrolling`).to.be.at.least(0)
+        expect(bounds.bottom, `${width}×${height} close stays visible after scrolling`).to.be.at.most(height)
+      })
+      if (width === 320 && height === 320) {
+        cy.document().then(document => {
+          const reviewStyle = document.createElement("style")
+          reviewStyle.dataset.mobileReview = "true"
+          reviewStyle.textContent = "nextjs-portal { display: none !important; }"
+          document.head.append(reviewStyle)
+        })
+        cy.screenshot("avatar-modal-after-320x320", { capture: "viewport" })
+      }
       cy.get('[role="dialog"] button[aria-label]').should("be.visible").click()
       cy.get('[role="dialog"]').should("not.exist")
     })
