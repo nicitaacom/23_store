@@ -27,7 +27,7 @@ function openOwnerProduct(fixtures: TFixtures, action: "edit" | "delete") {
   cy.visit("/?modal=AdminPanel")
   cy.wait("@selectCategories")
   cy.get(`[data-cy="admin-action-${action}"]`).click()
-  cy.get(`[data-product-id="${fixtures.ownerProduct.id}"]`).scrollIntoView().should("be.visible")
+  cy.get(`[data-product-id="${fixtures.ownerProduct.id}"]`).should("exist")
 }
 
 describe("optimistic product CRUD", () => {

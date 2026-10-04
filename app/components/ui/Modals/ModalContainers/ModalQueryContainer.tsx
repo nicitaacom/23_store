@@ -117,7 +117,7 @@ export function ModalQueryContainer({
     <AnimatePresence>
       {showModal && (
         <motion.div
-          className="fixed inset-0 z-[1601] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[1601] flex items-center justify-center bg-background/60 px-3 py-0 backdrop-blur-[2px] tablet:py-4"
           initial={{ opacity: 0 }}
           animate={shouldClose ? { opacity: 0 } : { opacity: 1 }}
           exit={{ opacity: 0 }}
