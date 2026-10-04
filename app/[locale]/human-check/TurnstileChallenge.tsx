@@ -103,7 +103,11 @@ export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps
           </div>
 
           <div className="mt-6 flex justify-center">
-            <Button variant="default-outline" onClick={() => window.location.assign(`/${locale}`)}>
+            <Button
+              className="min-h-[44px]"
+              data-cy="human-check-back-to-main"
+              variant="default-outline"
+              onClick={() => window.location.assign(`/${locale}`)}>
               {t("back_to_main")}
             </Button>
           </div>
