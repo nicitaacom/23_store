@@ -11,29 +11,45 @@ const viewports = [
 ]
 
 describe("responsive layout", () => {
-  it("keeps the short-screen mobile menu and language picker reachable", () => {
-    cy.viewport(320, 480)
-    cy.visit("/en")
-    cy.get('[data-cy="open-mobile-menu"]').click()
+  ;[
+    { width: 320, height: 480 },
+    { width: 320, height: 320 },
+  ].forEach(({ width, height }) => {
+    it(`keeps the short-screen mobile menu and language picker reachable at ${width}×${height}`, () => {
+      cy.viewport(width, height)
+      cy.visit("/en")
+      cy.get('[data-cy="open-mobile-menu"]').click()
 
-    cy.get('aside [aria-label="Close menu"]').should("be.visible").should(control => {
-      const bounds = control[0].getBoundingClientRect()
-      expect(bounds.width, "menu close touch width").to.be.at.least(44)
-      expect(bounds.height, "menu close touch height").to.be.at.least(44)
-    })
-
-    cy.get("aside > div").scrollTo("bottom")
-    cy.get('aside [data-cy="language-trigger"]').should("be.visible").should(control => {
-      const bounds = control[0].getBoundingClientRect()
-      expect(bounds.width, "language trigger touch width").to.be.at.least(44)
-      expect(bounds.height, "language trigger touch height").to.be.at.least(44)
-    }).click()
-
-    ;["en", "fi", "ru", "se"].forEach(locale => {
-      cy.get(`aside [data-cy="language-${locale}"]`).should("be.visible").should(control => {
+      cy.get('aside [aria-label="Close menu"]').should("be.visible").should(control => {
         const bounds = control[0].getBoundingClientRect()
-        expect(bounds.width, `${locale} option touch width`).to.be.at.least(44)
-        expect(bounds.height, `${locale} option touch height`).to.be.at.least(44)
+        expect(bounds.width, "menu close touch width").to.be.at.least(44)
+        expect(bounds.height, "menu close touch height").to.be.at.least(44)
+        expect(bounds.top, "menu close stays inside the top edge").to.be.at.least(0)
+        expect(bounds.bottom, "menu close stays inside the screen").to.be.at.most(height)
+      })
+
+      cy.get("aside > div").scrollTo("bottom").should(content => {
+        expect(content[0].scrollTop, "drawer content scrolls to its bottom").to.be.greaterThan(0)
+      })
+      cy.get('aside [data-cy="language-trigger"]').should("be.visible").should(control => {
+        const bounds = control[0].getBoundingClientRect()
+        expect(bounds.width, "language trigger touch width").to.be.at.least(44)
+        expect(bounds.height, "language trigger touch height").to.be.at.least(44)
+        expect(bounds.bottom, "language trigger stays inside the screen").to.be.at.most(height)
+      }).click()
+
+      ;["en", "fi", "ru", "se"].forEach(locale => {
+        cy.get(`aside [data-cy="language-${locale}"]`).should("be.visible").should(control => {
+          const bounds = control[0].getBoundingClientRect()
+          expect(bounds.width, `${locale} option touch width`).to.be.at.least(44)
+          expect(bounds.height, `${locale} option touch height`).to.be.at.least(44)
+          expect(bounds.left, `${locale} option stays inside the screen`).to.be.at.least(0)
+          expect(bounds.right, `${locale} option stays inside the screen`).to.be.at.most(width)
+        })
+      })
+
+      cy.document().should(document => {
+        expect(Math.max(document.documentElement.scrollWidth, document.body.scrollWidth), "no mobile drawer overflow").to.be.at.most(width)
       })
     })
   })
