@@ -104,6 +104,13 @@ export const PendingProtection: Story = {
   args: { pending: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const dialog = await waitFor(() => canvas.getByRole("dialog", { name: "Account settings" }));
+    const backdrop = dialog.parentElement;
+    if (!backdrop) throw new Error("Modal backdrop was not rendered");
+    await waitFor(() => {
+      expect(Number(getComputedStyle(dialog).opacity)).toBe(1);
+      expect(Number(getComputedStyle(backdrop).opacity)).toBe(1);
+    });
     const closeButton = await waitFor(() => canvas.getByRole("button", { name: "Close modal" }));
     await expect(closeButton).toBeDisabled();
     await userEvent.keyboard("{Escape}");
