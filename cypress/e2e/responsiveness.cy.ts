@@ -105,4 +105,60 @@ describe("responsive layout", () => {
   })
 })
 
+type TAuthenticatedResponsiveFixtures = {
+  owner: { id: string; email: string; password: string }
+  ownerProduct: { id: string }
+}
+
+const authenticatedMobileViewports = [
+  { width: 320, height: 480 },
+  { width: 332, height: 568 },
+  { width: 414, height: 480 },
+]
+
+describe("authenticated responsive layout", () => {
+  let fixtures: TAuthenticatedResponsiveFixtures
+
+  before(() => {
+    cy.task<TAuthenticatedResponsiveFixtures>("prepareFixtures").then(preparedFixtures => {
+      fixtures = preparedFixtures
+    })
+  })
+
+  beforeEach(() => {
+    cy.signIn(fixtures.owner)
+  })
+
+  authenticatedMobileViewports.forEach(({ width, height }) => {
+    it(`keeps owner pages within ${width}×${height} after sign in`, () => {
+      cy.viewport(width, height)
+      cy.visit("/en")
+      cy.get('[aria-label="Open profile menu"]').should("be.visible").click()
+      cy.get('[aria-label="Open profile menu"]').parent().find("ul").contains("button", "Manage products").should("be.visible")
+      cy.document().should(document => {
+        expect(document.documentElement.scrollWidth, `signed-in catalog at ${width}px`).to.be.at.most(
+          document.documentElement.clientWidth,
+        )
+      })
+
+      cy.visit(`/en/products/${fixtures.ownerProduct.id}/manage`)
+      cy.get("#title").should("be.visible")
+      cy.get('[data-cy="manage-save"]').should("be.disabled")
+      cy.document().should(document => {
+        expect(document.documentElement.scrollWidth, `manage page at ${width}px`).to.be.at.most(
+          document.documentElement.clientWidth,
+        )
+      })
+
+      cy.visit("/?modal=AdminPanel")
+      cy.get('[data-cy="admin-panel-close"]').should("be.visible")
+      cy.document().should(document => {
+        expect(document.documentElement.scrollWidth, `Admin Panel at ${width}px`).to.be.at.most(
+          document.documentElement.clientWidth,
+        )
+      })
+    })
+  })
+})
+
 export {}
