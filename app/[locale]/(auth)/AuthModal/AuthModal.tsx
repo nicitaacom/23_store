@@ -90,7 +90,7 @@ export function AuthModal() {
   return (
     <ModalQueryContainer
       className={twMerge(
-        "w-[calc(100vw-1.5rem)] mobile:w-[500px] rounded-3xl transition-all duration-300",
+        "max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] overflow-y-auto rounded-3xl transition-all duration-300 mobile:w-[500px]",
         modalHeightTailwind(queryParams, errors),
       )}
       closeButtonClassName="right-4 top-4 rounded-xl p-1"
@@ -98,12 +98,14 @@ export function AuthModal() {
       <div className="mx-auto flex w-full flex-col justify-center gap-y-4 px-6 pb-6 pt-6 mobile:px-8">
         <div
           className={twMerge(
-            "flex w-full flex-row items-center gap-x-4 pr-12",
+            "flex w-full min-w-0 flex-row items-center gap-x-3 pr-12",
             isAuthCompleted ? "justify-center" : "justify-start",
             (queryParams === "login" || queryParams === "register") && "mb-4",
             (errors.email || errors.password) && "!mb-3",
           )}>
-          <AuthLogo isAuthCompleted={isAuthCompleted} isRecoverCompleted={isRecoverCompleted} />
+          <div className="hidden shrink-0 min-[360px]:block">
+            <AuthLogo isAuthCompleted={isAuthCompleted} isRecoverCompleted={isRecoverCompleted} />
+          </div>
           <AuthText queryParams={queryParams} />
         </div>
 

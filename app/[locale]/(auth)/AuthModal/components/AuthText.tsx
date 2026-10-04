@@ -4,7 +4,7 @@ import { useI18n } from "@/locales/client"
 export function AuthText({ queryParams }: { queryParams: string | null }) {
   const t = useI18n()
   return (
-    <h1 className="font-primary text-3xl font-bold leading-none text-title mobile:text-4xl">
+    <h1 className="min-w-0 font-primary text-xl font-bold leading-tight text-title [overflow-wrap:anywhere] min-[360px]:text-2xl mobile:text-4xl">
       {queryParams === "login"
         ? t("auth.sign.in")
         : queryParams === "register"
