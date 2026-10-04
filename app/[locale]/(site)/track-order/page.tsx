@@ -27,11 +27,15 @@ export default function TrackOrderPage() {
 
           {/* Search card */}
           <div className="rounded-xl border border-border-color bg-foreground p-4 shadow-sm">
-            <label className="mb-2 block text-xs font-medium text-title">{t("order_number")}</label>
+            <label className="mb-2 block text-xs font-medium text-title" htmlFor="track-order-number">
+              {t("order_number")}
+            </label>
             <div className="flex flex-col gap-2 tablet:flex-row">
               <input
-                className="min-w-0 w-full flex-1 rounded-lg border border-border-color bg-background px-3 py-2 text-sm text-title
+                className="min-w-0 w-full flex-1 rounded-lg border border-border-color bg-background px-3 py-2 text-sm text-title max-[767px]:min-h-[44px]
                            placeholder:text-subTitle focus:border-success focus:outline-none focus:ring-1 focus:ring-success/30"
+                id="track-order-number"
+                data-cy="track-order-number"
                 // eslint-disable-next-line local-rules/no-untranslated-ui -- example order-number format, not language-specific text
                 placeholder="ORD-123456"
                 value={orderNumberValue}
@@ -39,8 +43,9 @@ export default function TrackOrderPage() {
                 onChange={event => setOrderNumberValue(event.target.value)}
               />
               <Button
-                className="w-full rounded-lg bg-success px-5 text-sm font-semibold tablet:w-auto
+                className="w-full rounded-lg bg-success px-5 text-sm font-semibold tablet:w-auto max-[767px]:min-h-[44px]
                            opacity-60 transition hover:bg-success-accent"
+                data-cy="track-order-submit"
                 disabled>
                 {t("track")}
               </Button>
