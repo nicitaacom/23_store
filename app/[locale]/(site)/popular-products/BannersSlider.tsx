@@ -46,19 +46,21 @@ export function BannersSlider() {
   const banner = BANNERS[current]
 
   return (
-    <div className="relative h-full min-h-[220px] w-full overflow-hidden rounded-[16px] border border-white/10 tablet:min-h-[320px]">
+    <div className="relative h-full min-h-0 w-full overflow-hidden rounded-lg tablet:min-h-[320px] tablet:rounded-[16px] tablet:border tablet:border-white/10">
       <div
         style={{ transition: "opacity 1000ms ease" }}
         className={`relative h-full w-full ${animating ? "opacity-0" : "opacity-100"}`}>
         <Image className="object-cover" src={banner.src} alt={banner.alt} fill unoptimized />
         <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent" />
-        <div className="absolute bottom-6 left-6 max-w-[55%]">
-          <p className="text-xl font-bold leading-tight text-white laptop:text-2xl">{banner.heading}</p>
-          <p className="mt-1.5 text-sm leading-relaxed text-white/75">{banner.sub}</p>
+        <div className="absolute bottom-2 left-2 min-w-0 max-w-[54%] tablet:bottom-6 tablet:left-6 tablet:max-w-[55%]">
+          <p className="break-words text-xs font-bold leading-tight text-white tablet:text-xl laptop:text-2xl">{banner.heading}</p>
+          <p className="mt-0.5 break-words text-[10px] leading-tight text-white/75 tablet:mt-1.5 tablet:text-sm tablet:leading-relaxed">
+            {banner.sub}
+          </p>
         </div>
       </div>
 
-      <div style={{ zIndex: 10 }} className="absolute bottom-4 right-5 flex gap-2">
+      <div style={{ zIndex: 10 }} className="absolute bottom-0 right-0 flex gap-0 tablet:bottom-4 tablet:right-5 tablet:gap-2">
         {BANNERS.map((_, index) => (
           <button
             className="flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"

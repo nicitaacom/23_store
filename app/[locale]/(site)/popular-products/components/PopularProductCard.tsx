@@ -60,10 +60,14 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
         {!isBought && <ProductLikeButton className="absolute right-3 top-3 z-[2]" productId={product.id} />}
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-2 tablet:gap-3 tablet:p-5">
+      <div className="flex flex-1 flex-col gap-1 p-1.5 tablet:gap-3 tablet:p-5">
         <div>
-          <h3 className="text-xl font-bold leading-tight text-title line-clamp-2 tablet:text-2xl">{translation.title}</h3>
-          <p className="mt-1 text-sm text-subTitle line-clamp-2">{translation.description}</p>
+          <h3 className="min-w-0 break-words text-sm font-bold leading-tight text-title line-clamp-2 tablet:text-2xl">
+            {translation.title}
+          </h3>
+          <p className="mt-0.5 min-w-0 break-words text-xs leading-4 text-subTitle line-clamp-2 tablet:mt-1 tablet:text-sm">
+            {translation.description}
+          </p>
         </div>
 
         <div className="h-px w-full bg-border-color/20" />
@@ -72,7 +76,7 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
         <div className="flex items-end justify-between gap-2">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-subTitle">{t("price")}</p>
-            <p className="text-2xl font-bold text-success">{formatCurrency(product.price)}</p>
+            <p className="text-lg font-bold text-success tablet:text-2xl">{formatCurrency(product.price)}</p>
           </div>
           <div className="flex flex-col items-end gap-1 text-xs text-subTitle">
             <span className="inline-flex items-center gap-1">
@@ -87,17 +91,17 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
 
         {/* Rate (only when bought) */}
         {isBought && (
-          <div className="rounded-lg border border-border-color/20 bg-background/40 px-3 py-2">
+          <div className="rounded-lg border border-border-color/20 bg-background/40 px-1.5 py-1.5 tablet:px-3 tablet:py-2">
             <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.16em] text-subTitle">
               {myRating ? t("your_rating") : t("rate_this_product")}
             </p>
-            <div className="flex gap-1">
+            <div className="flex flex-wrap gap-0">
               {Array.from({ length: 5 }, (_, index) => {
                 const starValue = index + 1
                 const isFilled = starValue <= (hover || myRating)
                 return (
                   <button
-                    className="inline-flex h-11 w-11 items-center justify-center rounded transition-transform duration-150 hover:scale-105 disabled:cursor-default disabled:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning/70"
+                    className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded transition-transform duration-150 hover:scale-105 disabled:cursor-default disabled:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning/70"
                     key={starValue}
                     type="button"
                     aria-label={`${myRating ? t("your_rating") : t("rate_this_product")}: ${starValue} / 5`}
@@ -114,7 +118,7 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
         )}
 
         <Link
-          className="mt-auto flex items-center justify-center rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-title-foreground transition-colors duration-150 hover:bg-brand/90"
+          className="mt-auto flex min-h-11 items-center justify-center rounded-lg bg-brand px-2 py-1 text-xs font-semibold text-title-foreground transition-colors duration-150 hover:bg-brand/90 tablet:rounded-xl tablet:px-4 tablet:py-3 tablet:text-sm"
           href={`/${locale}/products/${product.id}`}>
           {t("view_product")}
         </Link>

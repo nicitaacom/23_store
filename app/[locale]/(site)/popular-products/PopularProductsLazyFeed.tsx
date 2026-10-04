@@ -51,17 +51,19 @@ export function PopularProductsLazyFeed({ initialProducts, locale, totalItems }:
   }
 
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-border-color/20 bg-background/70 px-4 py-3">
+    <section className="flex flex-col gap-2 tablet:gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-1 text-center tablet:gap-3 tablet:rounded-[24px] tablet:border tablet:border-border-color/20 tablet:bg-background/70 tablet:px-4 tablet:py-3">
         <div className="text-sm text-subTitle">
           {t("fetched_count", { fetched: products.length, total: totalItems })}
         </div>
-        <div className="text-xs uppercase tracking-[0.24em] text-success">{t("scroll_for_more")}</div>
+        <div className="text-[10px] uppercase tracking-[0.12em] text-success tablet:text-xs tablet:tracking-[0.24em]">
+          {t("scroll_for_more")}
+        </div>
       </div>
 
       <div className="h-px" ref={topRef} />
 
-      <div className="grid grid-cols-1 gap-4 mobile:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 tablet:gap-4 laptop:grid-cols-3 desktop:grid-cols-4">
         {visibleProducts.map(product => (
           <PopularProductCard key={product.id} product={product} locale={locale} />
         ))}
