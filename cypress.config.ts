@@ -42,6 +42,11 @@ const accounts = {
     username: "cypress_buying_flow_admin",
     roles: ["ADMIN"],
   },
+  support: {
+    email: "cypress-support@joki.example",
+    username: "cypress_support",
+    roles: ["SUPPORT"],
+  },
 }
 
 let preparedAccountsPromise: Promise<{
@@ -49,6 +54,7 @@ let preparedAccountsPromise: Promise<{
   other: Awaited<ReturnType<typeof ensureAccount>>
 }> | null = null
 let preparedBuyingFlowFixturesPromise: Promise<Awaited<ReturnType<typeof prepareBuyingFlowFixtures>>> | null = null
+let preparedSupportFixturesPromise: Promise<Awaited<ReturnType<typeof prepareSupportFixtures>>> | null = null
 
 function getSupabaseTestClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -285,6 +291,55 @@ async function prepareBuyingFlowFixtures() {
   return { admin, product }
 }
 
+async function prepareSupportFixtures() {
+  const supabase = getSupabaseTestClient()
+  const [support, owner] = await Promise.all([ensureAccount(accounts.support), ensureAccount(accounts.owner)])
+  const ticketId = `${PRODUCT_PREFIX}support-ticket`
+  const messageBody = "Cypress mobile support conversation"
+
+  const { error: cleanupMessagesError } = await supabase.from("23_messages").delete().eq("ticket_id", ticketId)
+  if (cleanupMessagesError) throw cleanupMessagesError
+  const { error: cleanupTicketError } = await supabase.from("23_tickets").delete().eq("id", ticketId)
+  if (cleanupTicketError) throw cleanupTicketError
+
+  const { error: ticketError } = await supabase.from("23_tickets").insert({
+    id: ticketId,
+    is_open: true,
+    last_message_body: messageBody,
+    owner_id: owner.id,
+    owner_avatar_url: null,
+    owner_username: accounts.owner.username,
+  })
+  if (ticketError) throw ticketError
+
+  const { error: messageError } = await supabase.from("23_messages").insert({
+    body: messageBody,
+    images: null,
+    seen: true,
+    sender_avatar_url: null,
+    sender_id: owner.id,
+    sender_username: accounts.owner.username,
+    ticket_id: ticketId,
+  })
+  if (messageError) throw messageError
+
+  return { support, ticketId, messageBody }
+}
+
+async function cleanupSupportFixtures(ticketId: string) {
+  if (ticketId !== `${PRODUCT_PREFIX}support-ticket`) {
+    throw new Error(`Refusing to delete unexpected Cypress support ticket id: ${ticketId}`)
+  }
+
+  const supabase = getSupabaseTestClient()
+  const { error: messageError } = await supabase.from("23_messages").delete().eq("ticket_id", ticketId)
+  if (messageError) throw messageError
+  const { error: ticketError } = await supabase.from("23_tickets").delete().eq("id", ticketId)
+  if (ticketError) throw ticketError
+
+  return null
+}
+
 async function getBuyingFlowFixtures() {
   preparedBuyingFlowFixturesPromise ??= prepareBuyingFlowFixtures()
   return preparedBuyingFlowFixturesPromise
@@ -312,6 +367,11 @@ export default defineConfig({
         readBuyingFlowEventsForSession,
         deleteBuyingFlowEventsForSession,
         prepareBuyingFlowFixtures: getBuyingFlowFixtures,
+        prepareSupportFixtures: () => {
+          preparedSupportFixturesPromise ??= prepareSupportFixtures()
+          return preparedSupportFixturesPromise
+        },
+        cleanupSupportFixtures,
         async insertProductWithRls({
           account,
           product,
