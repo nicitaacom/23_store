@@ -47,6 +47,7 @@ describe("anonymous customer actions", () => {
   it("lets an anonymous visitor contact support", () => {
     const message = "Anonymous Cypress support request"
 
+    cy.viewport(320, 480)
     cy.intercept("POST", "/api/messages/get-messages", { statusCode: 200, body: [] }).as("getMessages")
     cy.intercept("POST", "/api/telegram", { statusCode: 200, body: { ok: true } }).as("sendTelegram")
     cy.intercept("POST", "/api/tickets/open", { statusCode: 200, body: { status: 200 } }).as("openTicket")
@@ -55,6 +56,12 @@ describe("anonymous customer actions", () => {
     cy.visit("/")
     cy.wait("@getMessages")
     cy.get('[data-cy="open-support"]').click()
+    cy.get('[data-cy="open-support"]').parent().should("have.css", "z-index", "1500")
+    cy.get('[data-cy="open-support"]').parent().find("h1").should("be.visible").then(header => {
+      const bounds = header[0].getBoundingClientRect()
+      expect(bounds.top, "support chat heading is below the top edge").to.be.at.least(0)
+      expect(bounds.bottom, "support chat heading is within the viewport").to.be.at.most(480)
+    })
     cy.get('[data-cy="support-message-input"]').type(message)
     cy.get('[data-cy="support-message-send"]').click()
 
