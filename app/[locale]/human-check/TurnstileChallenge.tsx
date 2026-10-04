@@ -84,17 +84,17 @@ export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps
   }, [locale, nextPath])
 
   return (
-    <div className="fixed inset-0 z-[120] overflow-y-auto bg-background/92 px-4 py-8 backdrop-blur-md">
+    <div className="fixed inset-0 z-[120] overflow-y-auto bg-background/92 px-4 py-8 backdrop-blur-md max-[767px]:px-0 max-[767px]:py-0">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.14),transparent_45%),radial-gradient(circle_at_bottom,rgba(16,185,129,0.12),transparent_35%)]" />
-      <div className="relative flex min-h-full items-center justify-center">
-        <div className="w-full max-w-xl rounded-[28px] border border-border-color/80 bg-foreground/95 p-6 shadow-[0_28px_120px_rgba(0,0,0,0.3)] md:p-8">
-          <div className="mb-6 flex flex-col gap-3 text-center">
-            <p className="text-xs uppercase tracking-[0.25em] text-subTitle">{t("security_check")}</p>
-            <h1 className="text-3xl font-semibold text-title">{t("verify_human")}</h1>
-            <p className="text-subTitle">{t("challenge_description")}</p>
+      <div className="relative flex min-h-full items-center justify-center max-[767px]:items-start">
+        <div className="w-full max-w-xl rounded-[28px] border border-border-color/80 bg-foreground/95 p-6 shadow-[0_28px_120px_rgba(0,0,0,0.3)] md:p-8 max-[767px]:min-h-[100dvh] max-[767px]:rounded-none max-[767px]:border-0 max-[767px]:px-3 max-[767px]:py-3">
+          <div className="mb-6 flex flex-col gap-3 text-center max-[767px]:mb-3 max-[767px]:gap-2">
+            <p className="text-xs uppercase tracking-[0.25em] text-subTitle max-[767px]:tracking-[0.12em]">{t("security_check")}</p>
+            <h1 className="text-3xl font-semibold text-title max-[767px]:text-2xl max-[767px]:leading-tight">{t("verify_human")}</h1>
+            <p className="text-sm text-subTitle">{t("challenge_description")}</p>
           </div>
 
-          <div className="flex flex-col items-center gap-4 rounded-[24px] border border-border-color/70 bg-background px-4 py-6">
+          <div className="flex flex-col items-center gap-4 rounded-[24px] border border-border-color/70 bg-background px-4 py-6 max-[767px]:gap-2 max-[767px]:rounded-md max-[767px]:px-2 max-[767px]:py-2">
             <div className="min-h-[70px]" ref={turnstileRef} />
 
             {status === "verifying" && <p className="text-sm text-subTitle">{t("verifying")}</p>}
@@ -102,7 +102,7 @@ export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps
             {errorMessage && <p className="text-center text-sm text-danger">{errorMessage}</p>}
           </div>
 
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex justify-center max-[767px]:mt-3">
             <Button
               className="min-h-[44px]"
               data-cy="human-check-back-to-main"
