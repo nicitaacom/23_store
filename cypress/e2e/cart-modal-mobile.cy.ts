@@ -3,6 +3,7 @@ type TCartFixture = {
 }
 
 const viewports = [
+  { width: 320, height: 320 },
   { width: 320, height: 480 },
   { width: 332, height: 568 },
   { width: 414, height: 480 },
@@ -44,7 +45,7 @@ describe("cart modal on short phones", () => {
       cy.get('[data-cy="cart-quantity"]').should("contain", "1")
       cy.get('[data-cy="other-ways-to-pay"]').click()
 
-      if (width === 320) {
+      if (width === 320 && height === 480) {
         cy.document().then(document => {
           const screenshotStyle = document.createElement("style")
           screenshotStyle.dataset.mobileReview = "true"
@@ -75,6 +76,10 @@ describe("cart modal on short phones", () => {
           })
           cy.screenshot("cart-modal-after-320x480", { capture: "viewport" })
         })
+      }
+
+      if (width === 320 && height === 320) {
+        cy.screenshot("cart-modal-after-320x320", { capture: "viewport" })
       }
 
       cy.get('[role="dialog"]').should("be.visible").should(dialog => {
