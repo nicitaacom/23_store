@@ -33,6 +33,19 @@ describe("popular products banner on mobile", () => {
       cy.document().should(document => {
         expect(document.documentElement.scrollWidth).to.be.at.most(document.documentElement.clientWidth)
       })
+      if (width === 320) {
+        cy.window().then(appWindow => {
+          appWindow.scrollTo(0, appWindow.document.documentElement.scrollHeight)
+        })
+        cy.window().its("scrollY").should("be.greaterThan", 0)
+        cy.get("button:visible").each(button => {
+          const bounds = button[0].getBoundingClientRect()
+          expect(bounds.left, "scrolled banner action stays inside the phone").to.be.at.least(-1)
+          expect(bounds.right, "scrolled banner action stays inside the phone").to.be.at.most(321)
+          expect(bounds.height, "scrolled banner action remains easy to tap").to.be.at.least(44)
+        })
+        cy.screenshot("popular-products-scrolled-after-320x480", { capture: "viewport" })
+      }
     })
   })
 })

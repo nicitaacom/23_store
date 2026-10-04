@@ -109,17 +109,34 @@ describe("responsive layout", () => {
           const renderedWidth = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth)
           expect(renderedWidth, `${route} after scrolling at ${viewport.width}px`).to.be.at.most(viewportWidth)
 
-          const viewportButtons = Array.from(document.querySelectorAll("button")).filter(button => {
-            const bounds = button.getBoundingClientRect()
-            return bounds.bottom > 0 && bounds.top < viewport.height
+          const viewportControls = Array.from(
+            document.querySelectorAll<HTMLElement>(
+              'button, a[href], input:not([type="hidden"]), select, textarea, [role="button"]',
+            ),
+          ).filter(control => {
+            const bounds = control.getBoundingClientRect()
+            const style = document.defaultView?.getComputedStyle(control)
+            const visible =
+              bounds.width > 0 &&
+              bounds.height > 0 &&
+              style?.display !== "none" &&
+              style?.visibility !== "hidden" &&
+              style?.opacity !== "0"
+            return visible && bounds.bottom > 0 && bounds.top < viewport.height
           })
-          expect(viewportButtons.length, `${route} has visible controls after scrolling`).to.be.greaterThan(0)
-          viewportButtons.forEach(button => {
-            const bounds = button.getBoundingClientRect()
-            expect(bounds.height, `${route} scrolled control height`).to.be.at.least(44)
-            expect(bounds.left, `${route} scrolled control left edge`).to.be.at.least(-1)
-            expect(bounds.right, `${route} scrolled control right edge`).to.be.at.most(viewportWidth + 1)
-            expect(bounds.bottom, `${route} scrolled control bottom edge`).to.be.at.most(viewport.height + 1)
+          expect(viewportControls.length, `${route} has visible controls after scrolling`).to.be.greaterThan(0)
+          viewportControls.forEach(control => {
+            const bounds = control.getBoundingClientRect()
+            const controlName =
+              control.getAttribute("aria-label") ||
+              control.textContent?.trim() ||
+              `${control.tagName}#${control.id}.${control.className}`
+            const visibleBounds = `(${bounds.left},${bounds.top})–(${bounds.right},${bounds.bottom}) at ${viewport.width}×${viewport.height}`
+            expect(bounds.left, `${route} ${controlName} left edge ${visibleBounds}`).to.be.at.least(-1)
+            expect(bounds.right, `${route} ${controlName} right edge ${visibleBounds}`).to.be.at.most(viewportWidth + 1)
+            if (control.matches("button, input, select, textarea, [role='button']")) {
+              expect(bounds.height, `${route} ${controlName} hit area after scrolling`).to.be.at.least(44)
+            }
           })
         })
       })
