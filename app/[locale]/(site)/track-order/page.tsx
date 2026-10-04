@@ -28,9 +28,9 @@ export default function TrackOrderPage() {
           {/* Search card */}
           <div className="rounded-xl border border-border-color bg-foreground p-4 shadow-sm">
             <label className="mb-2 block text-xs font-medium text-title">{t("order_number")}</label>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 tablet:flex-row">
               <input
-                className="flex-1 rounded-lg border border-border-color bg-background px-3 py-2 text-sm text-title
+                className="min-w-0 w-full flex-1 rounded-lg border border-border-color bg-background px-3 py-2 text-sm text-title
                            placeholder:text-subTitle focus:border-success focus:outline-none focus:ring-1 focus:ring-success/30"
                 // eslint-disable-next-line local-rules/no-untranslated-ui -- example order-number format, not language-specific text
                 placeholder="ORD-123456"
@@ -39,7 +39,7 @@ export default function TrackOrderPage() {
                 onChange={event => setOrderNumberValue(event.target.value)}
               />
               <Button
-                className="rounded-lg bg-success px-5 text-sm font-semibold
+                className="w-full rounded-lg bg-success px-5 text-sm font-semibold tablet:w-auto
                            opacity-60 transition hover:bg-success-accent"
                 disabled>
                 {t("track")}
