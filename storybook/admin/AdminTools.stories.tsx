@@ -118,7 +118,7 @@ export const UtmDatePickerClosesOnOutsideClick: Story = {
   render: () => <UTMDashboard utmStatsResponse={utmStats} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const trigger = await waitFor(() => canvas.getByRole("button", { name: /Entire Year/ }))
+    const trigger = await waitFor(() => canvas.getByRole("button", { name: "Choose analytics year and period" }))
     await userEvent.click(trigger)
     await waitFor(() => expect(canvas.getByText("Year")).toBeVisible())
 

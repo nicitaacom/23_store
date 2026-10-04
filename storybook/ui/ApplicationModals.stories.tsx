@@ -19,6 +19,7 @@ function SearchModalExample() {
 
 function AvatarModalExample() {
   useLayoutEffect(() => {
+    document.documentElement.dataset.theme = "default";
     useUser.setState({ user: customerUser });
     useUpdateAvatarModal.getState().openModal(FIXTURE_IMAGES.avatar);
   }, []);
