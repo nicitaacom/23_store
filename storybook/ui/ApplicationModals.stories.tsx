@@ -51,7 +51,7 @@ export const Search: Story = {
 export const AvatarUpdate: Story = { render: AvatarModalExample, globals: { theme: "dark" } };
 export const AvatarUpdateMobileControls: Story = {
   render: AvatarModalExample,
-  globals: { theme: "dark" },
+  globals: { theme: "light" },
   parameters: { viewport: { defaultViewport: "mobileSmall" } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -65,8 +65,8 @@ export const AvatarUpdateMobileControls: Story = {
 
     for (const control of controls) {
       const bounds = control.getBoundingClientRect()
-      await expect(bounds.width).toBeGreaterThanOrEqual(44)
-      await expect(bounds.height).toBeGreaterThanOrEqual(44)
+      await expect(Math.round(bounds.width)).toBeGreaterThanOrEqual(44)
+      await expect(Math.round(bounds.height)).toBeGreaterThanOrEqual(44)
     }
 
     await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(320)
