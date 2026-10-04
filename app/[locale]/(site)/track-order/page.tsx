@@ -53,7 +53,7 @@ export default function TrackOrderPage() {
           </div>
 
           {/* Info */}
-          <div className="rounded-xl border border-success/30 bg-success/10 p-4 max-[767px]:rounded-md max-[767px]:p-2">
+          <div className="rounded-xl border border-success/30 bg-success/10 p-4 max-[767px]:rounded-md max-[767px]:p-2" data-cy="track-order-status-notice">
             <div className="flex items-start gap-3 max-[767px]:gap-2">
               <span className="text-lg">⏳</span>
               <div>
