@@ -28,7 +28,7 @@ export default function SupportButton() {
       <AnimatePresence>
         {isDropdown && (
           <motion.div
-            className="pointer-events-auto absolute bottom-[calc(100%+14px)] right-0 origin-bottom-right"
+            className="support-chat-panel-container pointer-events-auto absolute bottom-[calc(100%+14px)] right-0 origin-bottom-right"
             initial={{ opacity: 0, y: 12, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
@@ -39,7 +39,7 @@ export default function SupportButton() {
       </AnimatePresence>
 
       <Button
-        className="relative h-12 w-12 border border-success/30 bg-background/95 px-0 shadow-compact backdrop-blur-xl transition-colors duration-150 hover:border-success/45 hover:bg-foreground/80 desktop:h-14 desktop:w-14"
+        className="support-chat-launcher relative h-12 w-12 border border-success/30 bg-background/95 px-0 shadow-compact backdrop-blur-xl transition-colors duration-150 hover:border-success/45 hover:bg-foreground/80 desktop:h-14 desktop:w-14"
         data-cy="open-support"
         variant="default-outline"
         size="icon-md"

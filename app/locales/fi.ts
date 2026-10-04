@@ -733,6 +733,7 @@ export default {
   "support.drop_image_title": "Raahaa kuva tähän",
   "support.drop_image_subtitle": "Liitä 1 kuva tukiviestiisi",
   "support.open_chat": "Avaa tukichat",
+  "support.close_chat": "Sulje tukichat",
   "support.sender_avatar_alt": "Lähettäjän avatar",
   "support.message_attachment_alt": "Viestin liite",
   "support.close_ticket_confirm_title": "Suljetaanko tämä tiketti?",

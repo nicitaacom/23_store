@@ -2,6 +2,7 @@
 
 import { Fragment, useRef, useState } from "react"
 import { BiSupport } from "react-icons/bi"
+import { IoMdClose } from "react-icons/io"
 
 import { useSupportDropdownTicketClosedState } from "../hooks/useSupportDropdownTicketClosedState"
 import { DragAndDropArea } from "./DragAndDropArea/DragAndDropArea"
@@ -27,7 +28,7 @@ export default function SupportButtonDropdown() {
   const { user } = useUser()
   const userId = user?.id || getAnonymousId()
   const { isLoading } = useLoading()
-  const { isDropdown } = useSupportDropdown()
+  const { isDropdown, closeDropdown } = useSupportDropdown()
   const { messages, ticketId, setMessages } = useMessages()
 
   // messages present on first render come from the initial fetch and must not animate; only later arrivals pop in
@@ -46,7 +47,7 @@ export default function SupportButtonDropdown() {
   })
 
   return (
-    <section className="relative flex h-[440px] max-h-[calc(100dvh-96px)] w-[min(92vw,390px)] flex-col overflow-hidden rounded-lg border border-border-color/35 bg-modal-surface shadow-compact-lg mobile:h-[540px]">
+    <section className="support-chat-panel relative flex h-[440px] max-h-[calc(100dvh-96px)] w-[min(92vw,390px)] flex-col overflow-hidden rounded-lg border border-border-color/35 bg-modal-surface shadow-compact-lg mobile:h-[540px]">
       <OrganicCanvasBackground
         className="h-auto shrink-0 overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.06),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))]"
         parentClassName="relative flex items-start justify-between gap-2 px-3 py-3"
@@ -64,12 +65,22 @@ export default function SupportButtonDropdown() {
             <p className="mt-0.5 text-[11px] text-white/55">{t("response_time", { number: 15 })}</p>
           </div>
         </div>
-        <MarkTicketAsCompletedUser
-          isClosedBySupport={isClosedBySupport}
-          key={ticketId || "empty-ticket"}
-          messagesLength={messages.length}
-          ticketId={ticketId}
-        />
+        <div className="flex shrink-0 gap-1">
+          <button
+            className="flex h-11 w-11 items-center justify-center rounded border border-white/16 bg-white/8 text-white/85 transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success-accent/70"
+            aria-label={t("close_chat")}
+            data-cy="support-chat-close"
+            onClick={closeDropdown}
+            type="button">
+            <IoMdClose size={22} />
+          </button>
+          <MarkTicketAsCompletedUser
+            isClosedBySupport={isClosedBySupport}
+            key={ticketId || "empty-ticket"}
+            messagesLength={messages.length}
+            ticketId={ticketId}
+          />
+        </div>
       </OrganicCanvasBackground>
 
       {isLoading ? (
@@ -79,7 +90,7 @@ export default function SupportButtonDropdown() {
           </div>
         </div>
       ) : (
-        <div className="relative flex min-h-0 flex-1 flex-col bg-background/35">
+        <div className="support-chat-body relative flex min-h-0 flex-col bg-background/35">
           {messages.length ? (
             <ul className="panel-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3" ref={bottomRef}>
               {messages.map((message, index) => (

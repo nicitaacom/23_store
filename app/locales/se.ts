@@ -731,6 +731,7 @@ export default {
   "support.drop_image_title": "Släpp bilden här",
   "support.drop_image_subtitle": "Bifoga 1 bild till ditt supportmeddelande",
   "support.open_chat": "Öppna supportchatt",
+  "support.close_chat": "Stäng supportchatten",
   "support.sender_avatar_alt": "Avsändarens avatar",
   "support.message_attachment_alt": "Meddelandebilaga",
   "support.close_ticket_confirm_title": "Stäng detta ärende?",

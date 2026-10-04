@@ -115,6 +115,35 @@ body {
   min-height: 100vh;
 }
 
+@media (max-width: 767px) and (max-height: 360px) {
+  html:has(.support-chat-panel-container),
+  body:has(.support-chat-panel-container) {
+    overflow: hidden !important;
+  }
+
+  .support-chat-panel-container {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 0;
+  }
+
+  .support-chat-panel {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .support-chat-body {
+    padding-bottom: 64px;
+  }
+
+  .support-chat-launcher[aria-expanded="true"] {
+    display: none;
+  }
+}
+
 .image-upload {
   /*
 Docs - https://kovart.github.io/dashed-border-generator/ 

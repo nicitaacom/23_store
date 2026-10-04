@@ -732,6 +732,7 @@ export default {
   "support.drop_image_title": "Перетащите изображение сюда",
   "support.drop_image_subtitle": "Прикрепите 1 изображение к сообщению в поддержку",
   "support.open_chat": "Открыть чат поддержки",
+  "support.close_chat": "Закрыть чат поддержки",
   "support.sender_avatar_alt": "Аватар отправителя",
   "support.message_attachment_alt": "Вложение сообщения",
   "support.close_ticket_confirm_title": "Закрыть этот тикет?",

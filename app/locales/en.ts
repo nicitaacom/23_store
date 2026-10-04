@@ -733,6 +733,7 @@ export default {
   "support.drop_image_title": "Drop image here",
   "support.drop_image_subtitle": "Attach 1 image to your support message",
   "support.open_chat": "Open support chat",
+  "support.close_chat": "Close support chat",
   "support.sender_avatar_alt": "Sender avatar",
   "support.message_attachment_alt": "Message attachment",
   "support.close_ticket_confirm_title": "Close this ticket?",
