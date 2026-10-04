@@ -5,6 +5,7 @@ type TFixtureAccount = {
 }
 
 const viewports = [
+  { width: 320, height: 320 },
   { width: 320, height: 480 },
   { width: 332, height: 568 },
   { width: 414, height: 480 },
