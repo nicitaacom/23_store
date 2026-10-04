@@ -14,6 +14,7 @@ interface ModalContainerProps {
   onClose: () => void
   className?: string
   classnameContainer?: string
+  fullScreenOnMobile?: boolean
   label?: string | React.ReactNode
   children: React.ReactNode
 }
@@ -24,6 +25,7 @@ export function ModalContainer({
   onClose,
   className,
   classnameContainer,
+  fullScreenOnMobile = false,
   label,
   children,
 }: ModalContainerProps) {
@@ -91,7 +93,9 @@ export function ModalContainer({
           className={twMerge(
             `fixed inset-0 z-[49] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px]`,
             classnameContainer,
+            fullScreenOnMobile && "max-[767px]:p-0",
           )}
+          data-mobile-fullscreen-backdrop={fullScreenOnMobile ? "true" : undefined}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -101,7 +105,10 @@ export function ModalContainer({
             className={twMerge(
               "relative z-[50] overflow-hidden rounded-lg border border-border-color/35 bg-foreground shadow-compact",
               className,
+              fullScreenOnMobile &&
+                "max-[767px]:h-dvh max-[767px]:max-h-[100dvh] max-[767px]:w-screen max-[767px]:max-w-none max-[767px]:rounded-none max-[767px]:border-0",
             )}
+            data-mobile-fullscreen-modal={fullScreenOnMobile ? "true" : undefined}
             aria-label={typeof label === "string" ? label : "Modal"}
             aria-modal="true"
             initial={{ y: 14, opacity: 0 }}
@@ -112,7 +119,7 @@ export function ModalContainer({
             {...modalHandler}>
             <button
               className={twMerge(
-                  "absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70",
+                "absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70",
                   isLoading && "opacity-50 cursor-default pointer-events-none",
                 )}
               aria-label={t("close_modal")}
@@ -122,7 +129,12 @@ export function ModalContainer({
               type="button">
               <IoMdClose size={22} />
             </button>
-            <div className="flex max-w-[600px] flex-col gap-3 px-4 pb-4 pt-5">
+            <div
+              className={twMerge(
+                "flex max-w-[600px] flex-col gap-3 px-4 pb-4 pt-5",
+                fullScreenOnMobile && "max-[767px]:h-full max-[767px]:min-h-0 max-[767px]:max-w-none max-[767px]:gap-0 max-[767px]:p-0",
+              )}
+              data-mobile-fullscreen-content={fullScreenOnMobile ? "true" : undefined}>
               {label && <div className="py-1 text-xl text-center text-title">{label}</div>}
               {children}
             </div>

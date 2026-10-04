@@ -113,21 +113,23 @@ export function UpdateAvatarModal() {
 
   return (
     <ModalContainer
-      className="relative max-h-[calc(100dvh-2rem)] w-[92vw] max-w-[520px] overflow-hidden border-none bg-transparent p-0 shadow-none"
+      className="relative max-h-[calc(100dvh-2rem)] w-[92vw] max-w-[520px] overflow-hidden border-none bg-transparent p-0 shadow-none max-[767px]:h-dvh max-[767px]:max-h-none max-[767px]:w-screen max-[767px]:max-w-none"
       classnameContainer="z-[1001]"
+      fullScreenOnMobile
       isOpen={updateAvatarModal.isOpen}
       onClose={updateAvatarModal.closeModal}>
       <div
-        className="panel-scroll max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-lg border border-border-color/35 bg-foreground/95 shadow-compact"
+        className="panel-scroll flex min-h-0 flex-col max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-lg border border-border-color/35 bg-foreground/95 shadow-compact max-[767px]:h-full max-[767px]:max-h-none max-[767px]:rounded-none max-[767px]:border-0"
+        data-mobile-fullscreen-surface="true"
         data-cy="update-avatar-scroll">
-        <div className="border-b border-border-color/30 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] px-4 py-4">
+        <div className="min-w-0 border-b border-border-color/30 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] px-4 py-4 pr-16">
           <div className="flex items-center gap-x-3">
             <div className="flex h-9 w-9 items-center justify-center rounded border border-border-color/35 bg-background">
               <BiImageAdd className="text-title" size={20} />
             </div>
-            <div className="flex flex-col">
-              <h2 className="text-xl font-semibold text-title">{t("modal.avatar.title")}</h2>
-              <p className="text-sm text-subTitle">{t("modal.avatar.subtitle")}</p>
+            <div className="min-w-0 flex-1">
+              <h2 className="break-words text-xl font-semibold text-title">{t("modal.avatar.title")}</h2>
+              <p className="break-words text-sm text-subTitle">{t("modal.avatar.subtitle")}</p>
             </div>
           </div>
         </div>
@@ -162,7 +164,7 @@ export function UpdateAvatarModal() {
                 {!imageList.length ? (
                   <Button
                     className={twMerge(
-                      "image-upload min-h-[156px] w-full rounded border border-dashed px-4 py-6 text-base",
+                      "image-upload min-h-[156px] w-full min-w-0 rounded border border-dashed px-4 py-6 text-base max-[767px]:whitespace-normal",
                       isDragging
                         ? "border-brand bg-brand/10 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
                         : "border-border-color bg-background/30",
@@ -171,12 +173,12 @@ export function UpdateAvatarModal() {
                     onClick={onImageUpload}
                     disabled={isLoading}
                     {...dragProps}>
-                    <div className="pointer-events-none flex flex-col items-center text-center">
+                    <div className="pointer-events-none flex w-full min-w-0 flex-col items-center whitespace-normal text-center">
                       <BiUpload className="mb-3 text-title" size={28} />
-                      <h1 className="text-lg font-semibold text-title">
+                      <h1 className="max-w-full break-words text-lg font-semibold text-title">
                         {isDragging ? t("modal.avatar.drop_here") : t("modal.avatar.click_or_drop_here")}
                       </h1>
-                      <p className="mt-2 text-sm text-subTitle">{t("modal.avatar.drag_and_drop_hint")}</p>
+                      <p className="mt-2 max-w-full break-words text-sm text-subTitle">{t("modal.avatar.drag_and_drop_hint")}</p>
                     </div>
                   </Button>
                 ) : null}
