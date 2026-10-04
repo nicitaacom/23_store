@@ -70,6 +70,7 @@ describe("buying-flow stats", () => {
       cy.visit("/en/search?query=buying-flow-cypress-miss")
       waitForEvent(currentSessionId, "search")
 
+      cy.viewport(320, 480)
       cy.visit("/en/stats")
       cy.get('[data-cy="buying-flow-section"]').should("be.visible")
       cy.get('[data-cy="buying-flow-stage-product_view"]').should("contain.text", "Viewed")
@@ -78,8 +79,37 @@ describe("buying-flow stats", () => {
       cy.get('[data-cy="buying-flow-stage-checkout_click"]').should("contain.text", "Checkout")
       cy.get('[data-cy="buying-flow-toggle-misses"]').should("have.class", "bg-brand")
       cy.contains("buying-flow-cypress-miss").should("be.visible")
-      cy.get('[data-cy="buying-flow-toggle-top"]').click().should("have.class", "bg-brand")
+      cy.get('[data-cy="buying-flow-toggle-top"]').click()
+      cy.get('[data-cy="buying-flow-toggle-top"]').should("have.class", "bg-brand")
       cy.contains("buying-flow-cypress-miss").should("be.visible")
+
+      cy.document().should(document => {
+        expect(document.documentElement.scrollWidth, "stats dashboard has no mobile horizontal overflow").to.be.at.most(
+          document.documentElement.clientWidth,
+        )
+      })
+      cy.get("main button:visible").each(button => {
+        const bounds = button[0].getBoundingClientRect()
+        expect(Math.round(bounds.width), `${button.text().trim()} button width`).to.be.at.least(44)
+        expect(Math.round(bounds.height), `${button.text().trim()} button height`).to.be.at.least(44)
+      })
+
+      cy.get('[data-cy="utm-date-picker-toggle"]').click().should("have.attr", "aria-expanded", "true")
+      cy.get('[data-cy="utm-date-picker-menu"]').should("be.visible").should(menu => {
+        const bounds = menu[0].getBoundingClientRect()
+        const viewportWidth = menu[0].ownerDocument.documentElement.clientWidth
+        expect(bounds.left, "stats date menu stays inside the left edge").to.be.at.least(0)
+        expect(bounds.right, "stats date menu stays inside the right edge").to.be.at.most(viewportWidth)
+        expect(bounds.top, "stats date menu stays inside the top edge").to.be.at.least(0)
+        expect(bounds.bottom, "stats date menu stays inside the short viewport").to.be.at.most(480)
+      })
+      cy.get('[data-cy="utm-date-picker-menu"] button:visible').each(option => {
+        const bounds = option[0].getBoundingClientRect()
+        expect(Math.round(bounds.width), `${option.text().trim()} date option width`).to.be.at.least(44)
+        expect(Math.round(bounds.height), `${option.text().trim()} date option height`).to.be.at.least(44)
+      })
+      cy.get('[data-cy="utm-date-picker-period"]').contains("January").click()
+      cy.get('[data-cy="utm-date-picker-toggle"]').should("contain.text", "January")
     })
   })
 })

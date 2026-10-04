@@ -303,9 +303,10 @@ function DailyVisitsChart({ data }: { data: { date: string; visits: number }[] }
         <div className="flex flex-wrap gap-2">
           {DAILY_VISITS_RANGE_OPTIONS.map(option => (
             <button
-              className={`rounded-full px-3 py-1.5 text-xs mobile:text-sm font-medium transition-colors ${
+              className={`min-h-[44px] rounded-full px-3 py-1.5 text-xs font-medium transition-colors mobile:text-sm ${
                 selectedRange === option.key ? "bg-brand text-foreground" : "bg-background/60 text-subTitle hover:bg-active-color"
               }`}
+              data-cy={`utm-range-${option.key}`}
               key={option.key}
               type="button"
               onClick={() => setSelectedRange(option.key)}>
@@ -475,7 +476,12 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
 
             <div className="relative" ref={datePickerRef}>
               <motion.button
-                className="bg-brand text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow"
+                className="min-h-[44px] bg-brand text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow"
+                aria-expanded={isDatePickerOpen}
+                aria-haspopup="dialog"
+                aria-label="Choose analytics year and period"
+                data-cy="utm-date-picker-toggle"
+                type="button"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}>
@@ -491,7 +497,10 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
               <AnimatePresence>
                 {isDatePickerOpen && (
                   <motion.div
-                    className="absolute right-0 mt-2 bg-foreground border border-border-color rounded-lg shadow-xl z-50 min-w-[200px]"
+                    className="absolute right-0 mt-2 max-h-[calc(100dvh-10rem)] overflow-y-auto bg-foreground border border-border-color rounded-lg shadow-xl z-50 min-w-[200px]"
+                    data-cy="utm-date-picker-menu"
+                    role="dialog"
+                    aria-label="Choose analytics year and period"
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}>
@@ -501,10 +510,12 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
                         <div className="grid grid-cols-3 gap-1">
                           {years.map(year => (
                             <button
-                              className={`px-2 py-1 text-sm rounded transition-colors ${
+                              className={`min-h-[44px] px-2 py-1 text-sm rounded transition-colors ${
                                 year === selectedYear ? "bg-brand text-white" : "text-title hover:bg-active-color"
                               }`}
+                              data-cy="utm-date-picker-year"
                               key={year}
+                              type="button"
                               onClick={() => handleDateChange(year, selectedMonth)}>
                               {year}
                             </button>
@@ -516,10 +527,12 @@ export function UTMDashboard({ utmStatsResponse }: { utmStatsResponse: IUTMAggre
                         <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-border-color scrollbar-track-transparent">
                           {months.map((month, index) => (
                             <button
-                              className={`px-2 py-1 text-sm text-left rounded transition-colors ${
+                              className={`min-h-[44px] px-2 py-1 text-sm text-left rounded transition-colors ${
                                 index === selectedMonth ? "bg-brand text-white" : "text-title hover:bg-active-color"
                               }`}
+                              data-cy="utm-date-picker-period"
                               key={index}
+                              type="button"
                               onClick={() => handleDateChange(selectedYear, index)}>
                               {month}
                             </button>

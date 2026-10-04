@@ -173,7 +173,7 @@ export function BuyingFlow({ year, month }: BuyingFlowProps) {
           <div className="mt-6 border-t border-border-color/30 pt-5">
             <div className="mb-4 flex flex-wrap gap-2">
               <button
-                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`min-h-[44px] rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
                   selectedSearchList === "misses"
                     ? "bg-brand text-foreground"
                     : "bg-background/60 text-subTitle hover:bg-active-color"
@@ -184,7 +184,7 @@ export function BuyingFlow({ year, month }: BuyingFlowProps) {
                 Missed searches
               </button>
               <button
-                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`min-h-[44px] rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
                   selectedSearchList === "top"
                     ? "bg-brand text-foreground"
                     : "bg-background/60 text-subTitle hover:bg-active-color"
