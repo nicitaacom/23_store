@@ -695,7 +695,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   }, [activeImageIndex])
 
   return (
-    <div className="mx-auto grid h-full min-h-0 w-full gap-3 tablet:grid-cols-[minmax(0,1fr)_minmax(0,1.45fr)]">
+    <div
+      className="panel-scroll mx-auto flex h-full min-h-0 w-full flex-col gap-3 overflow-y-auto tablet:grid tablet:grid-cols-[minmax(0,1fr)_minmax(0,1.45fr)] tablet:overflow-hidden"
+      data-cy="add-product-layout">
       {/* ── LEFT: Image Gallery and print area ── */}
       <ImageUploading
         multiple
@@ -728,7 +730,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           const imageDirection = safeActiveImageIndex >= previousImageIndexRef.current ? "next" : "prev"
 
           return (
-            <section className="panel-scroll flex min-h-0 flex-col gap-2 overflow-y-auto pb-1">
+            <section className="panel-scroll flex shrink-0 flex-col gap-2 pb-1 tablet:min-h-0 tablet:overflow-y-auto">
               {/* Upload trigger */}
               <button
                 className={twMerge(
@@ -952,7 +954,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
 
       {/* ── RIGHT: Details Form + Variants ── */}
       <form
-        className="panel-scroll flex min-h-0 flex-col gap-3 overflow-y-auto px-1 pb-1"
+        className="panel-scroll flex shrink-0 flex-col gap-3 px-1 pb-1 tablet:min-h-0 tablet:overflow-y-auto"
         noValidate
         onSubmit={event => {
           event.preventDefault()
@@ -962,7 +964,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         }}>
         {/* Title */}
         <div className="grid gap-1.5">
-          <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">{t("title")}</label>
+          <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70" htmlFor="title">
+            {t("title")}
+          </label>
           <ProductInput
             className={twMerge(inputCn, "h-12")}
             id="title"
@@ -979,12 +983,18 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         <div className="grid gap-1.5">
           <div className="grid gap-0.5">
             <div className="flex items-center gap-2">
-              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">{t("description")}</label>
+              <label
+                className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70"
+                id="add-product-description-label">
+                {t("description")}
+              </label>
               <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
             </div>
             <MarkdownEditor
               className={twMerge(inputCn, "min-h-[100px]")}
               ref={descriptionRef}
+              id="add-product-description"
+              ariaLabelledBy="add-product-description-label"
               onWrapRef={wrapRef}
               value={descriptionValue ?? ""}
               onChange={nextValue => setValue("subTitle", nextValue, { shouldValidate: false })}
@@ -1000,7 +1010,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
         {/* Category */}
         <div className="grid gap-1.5">
           <div className="flex items-center gap-2">
-            <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
+            <label
+              className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70"
+              id="add-product-category-label">
               {tGlobal("category.edit_category")}
             </label>
             {isSuggestingCategory && (
@@ -1032,6 +1044,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             }}
             disabled={isLoading}
             uncategorizedLabel={tGlobal("category.uncategorized")}
+            ariaLabelledBy="add-product-category-label"
           />
         </div>
 

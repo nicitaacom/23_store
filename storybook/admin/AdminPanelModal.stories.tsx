@@ -211,7 +211,7 @@ export const CategoryDropdownEscape: Story = {
   parameters: { a11y: { test: "todo" } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByRole("button", { name: "Uncategorized" }));
+    await userEvent.click(await canvas.findByRole("button", { name: "Edit category" }));
     const searchInput = canvas.getByPlaceholderText("Search categories...");
     await userEvent.type(searchInput, "Appliances");
     await userEvent.keyboard("{Escape}");

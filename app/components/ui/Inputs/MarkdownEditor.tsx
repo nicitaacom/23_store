@@ -13,6 +13,8 @@ interface MarkdownEditorProps {
   onBlur?: () => void
   onTabAtEnd?: () => void
   onWrapRef?: React.MutableRefObject<((marker: string) => void) | null>
+  id?: string
+  ariaLabelledBy?: string
   placeholder?: string
   disabled?: boolean
   className?: string
@@ -26,7 +28,7 @@ const MARKER_TO_COMMAND = {
 
 // http://localhost:6006/?path=/story/ui-inputs-messageinput--message
 export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
-  ({ value, onChange, onBlur, onTabAtEnd, onWrapRef, placeholder, disabled }, ref) => {
+  ({ value, onChange, onBlur, onTabAtEnd, onWrapRef, id, ariaLabelledBy, placeholder, disabled }, ref) => {
     const suppressUpdateRef = useRef(false)
 
     const initialValueRef = useRef(value)
@@ -46,6 +48,9 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
       editorProps: {
         attributes: {
           class: "min-h-[100px] w-full outline-none text-title [&_p]:mb-2 [&_p:last-child]:mb-0 [&_strong]:font-bold [&_em]:italic [&_em]:opacity-70 [&_u]:underline [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:mb-2",
+          ...(id ? { id } : {}),
+          ...(ariaLabelledBy ? { "aria-labelledby": ariaLabelledBy } : {}),
+          ...(ariaLabelledBy ? { role: "textbox", "aria-multiline": "true" } : {}),
         },
       },
     })

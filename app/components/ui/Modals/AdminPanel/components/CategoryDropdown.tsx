@@ -14,16 +14,19 @@ interface CategoryDropdownProps {
   onChange: (id: string | null) => void
   disabled?: boolean
   uncategorizedLabel: string
+  ariaLabelledBy?: string
 }
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
-export function CategoryDropdown({ categories, value, onChange, disabled, uncategorizedLabel }: CategoryDropdownProps) {
+export function CategoryDropdown({ categories, value, onChange, disabled, uncategorizedLabel, ariaLabelledBy }: CategoryDropdownProps) {
   const t = useScopedI18n("category")
   const [open, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [prevOpen, setPrevOpen] = useState(open)
   const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const wasOpenRef = useRef(false)
 
   useOnEscOrClickOutside(containerRef, () => setOpen(false), {
     isHookEnabled: open,
@@ -37,7 +40,15 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
   }
 
   useEffect(() => {
-    if (!open) return
+    if (!open) {
+      if (wasOpenRef.current) {
+        triggerRef.current?.focus()
+        wasOpenRef.current = false
+      }
+      return
+    }
+
+    wasOpenRef.current = true
     const timer = setTimeout(() => inputRef.current?.focus(), 50)
     return () => clearTimeout(timer)
   }, [open])
@@ -66,15 +77,17 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
       <button
         className={twMerge(
           "flex h-10 w-full items-center justify-between gap-2 rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white transition-colors duration-150",
-          "hover:border-white/25 hover:bg-white/[0.09] focus:outline-none",
+          "hover:border-white/25 hover:bg-white/[0.09] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand",
           open && "border-success-accent/35 bg-white/[0.09]",
           disabled && "cursor-default opacity-50",
         )}
         type="button"
-        tabIndex={-1}
+        ref={triggerRef}
         disabled={disabled}
         onClick={() => setOpen(prevOpen => !prevOpen)}
-        aria-expanded={open}>
+        aria-expanded={open}
+        aria-labelledby={ariaLabelledBy}
+        data-cy="category-dropdown-trigger">
         <span className={twMerge("truncate", !value && "text-white/70")}>{selectedName}</span>
         <TbChevronDown
           className={twMerge("shrink-0 text-white/70 transition-transform duration-150", open && "rotate-180")}
@@ -91,6 +104,8 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
           className="w-full border-b border-white/10 bg-transparent px-3 py-2 text-sm text-white placeholder:text-white/32 focus:outline-none"
           ref={inputRef}
           placeholder={t("search_placeholder")}
+          aria-label={t("search_placeholder")}
+          data-cy="category-dropdown-search"
           value={searchValue}
           onChange={e => setSearchValue(e.target.value)}
           onClick={e => e.stopPropagation()}
