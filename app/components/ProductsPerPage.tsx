@@ -75,18 +75,21 @@ export default function ProductsPerPage({ className }: { className?: string }) {
   }
 
   return (
-    <div
-      className={`relative flex justify-between items-center gap-x-2 border-[1px] border-solid rounded-[4px]
-    h-[48px] max-h-[42px] cursor-pointer px-4 py-2 ${className}`}
-      onClick={() => setShowDropdown(!showDropdown)}
-      ref={dropdownContainerRef}>
+    <div className={`relative shrink-0 ${className ?? ""}`} ref={dropdownContainerRef}>
       {/* Container content */}
-      <div className="flex flex-row gap-x-2 justify-between items-center">
-        <div className="flex items-center">
-          {selectedPerPage} {t("per_page")}
+      <button
+        className="flex h-10 items-center justify-between gap-x-2 rounded-[4px] border border-solid px-2 py-2 text-sm tablet:px-4 tablet:text-base"
+        type="button"
+        aria-label={`${selectedPerPage} ${t("per_page")}`}
+        aria-expanded={showDropdown}
+        onClick={() => setShowDropdown(!showDropdown)}>
+        <div className="flex flex-row items-center justify-between gap-x-2">
+          <div className="flex items-center">
+            {selectedPerPage} <span className="hidden tablet:inline">{t("per_page")}</span>
+          </div>
+          <BiUpArrow />
         </div>
-        <BiUpArrow />
-      </div>
+      </button>
 
       {/* Dropdown content */}
       <div

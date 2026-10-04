@@ -247,6 +247,8 @@ export default {
   "common.greeting": "Hej {username}",
   "common.send_message": "Skicka meddelande",
   "common.page_of_total": "Sida {current} av {total}",
+  "common.page_compact": "{current}/{total}",
+  "common.pagination": "Sidnavigering",
   "common.previous_image": "Föregående bild",
   "common.next_image": "Nästa bild",
   "common.cancel": "Avbryt",

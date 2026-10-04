@@ -248,6 +248,8 @@ export default {
   "common.greeting": "Привет, {username}",
   "common.send_message": "Отправить сообщение",
   "common.page_of_total": "Страница {current} из {total}",
+  "common.page_compact": "{current}/{total}",
+  "common.pagination": "Навигация по страницам",
   "common.previous_image": "Предыдущее изображение",
   "common.next_image": "Следующее изображение",
   "common.cancel": "Отмена",

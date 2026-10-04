@@ -103,10 +103,10 @@ export default async function Home({ params: paramsPromise, searchParams: search
   const entries = filteredProducts.slice(start, end)
 
   return (
-    <div className="mx-auto h-[calc(100vh-64px)] w-full overflow-hidden px-4 pb-[72px] pt-2 text-2xl text-title laptop:pb-2">
-      <section className="mx-auto grid h-full w-full max-w-[2200px] grid-cols-1 gap-1 4xl:max-w-[3000px] laptop:grid-cols-[minmax(0,1fr)_minmax(420px,30%)]">
+    <div className="mx-auto min-h-[calc(100dvh-64px)] w-full px-3 pb-24 pt-2 text-2xl text-title laptop:h-[calc(100vh-64px)] laptop:overflow-hidden laptop:px-4 laptop:pb-2">
+      <section className="mx-auto grid w-full max-w-[2200px] grid-cols-1 gap-1 laptop:h-full laptop:grid-cols-[minmax(0,1fr)_minmax(420px,30%)] 4xl:max-w-[3000px]">
         <div className="min-h-0 min-w-0 overflow-hidden rounded-[4px] border border-success/15 bg-gradient-to-br from-success/5 via-background to-background px-4 py-2 shadow-2xl shadow-success/5">
-          <div className="flex h-full min-h-0 flex-col gap-[2px]">
+          <div className="flex min-h-0 flex-col gap-[2px] laptop:h-full">
             <section className="shrink-0 flex flex-col gap-[2px]">
               <div className="flex flex-col gap-3">
                 <div className="flex w-full flex-row items-start justify-between gap-3">
@@ -127,7 +127,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
                   </div>
                 </div>
                 <div className="flex max-w-3xl flex-col gap-2">
-                  <h1 className="truncate whitespace-nowrap text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl laptop:text-4xl">
+                  <h1 className="text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl laptop:truncate laptop:whitespace-nowrap laptop:text-4xl">
                     {t("catalog_title")}
                   </h1>
                   <p className="hidden max-w-3xl text-base leading-7 text-subTitle tablet:block">{t("catalog_subtitle")}</p>
@@ -151,7 +151,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
               </div>
             </section>
 
-            <section className="panel-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto pr-1">
+            <section className="min-h-0 flex-1 pr-1 laptop:overflow-x-hidden laptop:overflow-y-auto laptop:[scrollbar-gutter:stable]">
               {totalItems === 0 ? (
                 <div className="flex min-h-full items-center justify-center rounded-[4px] border border-dashed border-success/20 bg-background/60 px-6 py-12 text-center text-base text-subTitle">
                   {t("no_products_found")}
@@ -162,7 +162,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
             </section>
 
             <div className="shrink-0 border-t border-success/15 pt-2">
-              <div className="flex flex-col-reverse items-center justify-between gap-[2px] tablet:flex-row">
+              <div className="flex items-center justify-between gap-2">
                 <PaginationControls
                   hasNextPage={end < totalItems}
                   hasPrevPage={start > 0}

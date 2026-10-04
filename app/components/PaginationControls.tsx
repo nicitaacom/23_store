@@ -43,11 +43,6 @@ function buildPaginationItems(currentPage: number, totalPages: number): Paginati
   return items
 }
 
-function buildMobilePaginationItems(currentPage: number, totalPages: number): number[] {
-  const firstPage = Math.max(1, Math.min(currentPage - 1, totalPages - 2))
-  return Array.from({ length: Math.min(3, totalPages) }, (_, index) => firstPage + index)
-}
-
 const controlBaseClassName =
   "inline-flex h-10 min-w-10 items-center justify-center rounded border border-success/18 bg-[#111315] px-2 text-sm font-medium text-title transition-all duration-200 hover:border-success/40 hover:bg-success/8 tablet:h-11 tablet:min-w-11 tablet:px-3"
 
@@ -76,11 +71,9 @@ function PaginationControls({
   }
 
   const paginationItems = buildPaginationItems(currentPage, totalPages)
-  const mobilePaginationItems = buildMobilePaginationItems(currentPage, totalPages)
-
   return (
-    <div className="flex w-full min-w-0 flex-col items-center gap-2 tablet:w-auto tablet:items-start">
-      <nav aria-label="Pagination" className="flex w-full items-center justify-center gap-1.5 rounded border border-success/18 bg-[#111315]/92 p-1.5 shadow-[0_10px_28px_rgba(0,0,0,0.22)] tablet:w-auto tablet:gap-2 tablet:p-2">
+    <div className="flex min-w-0 flex-col items-center gap-2 tablet:items-start">
+      <nav className="flex items-center justify-center gap-1.5 rounded border border-success/18 bg-[#111315]/92 p-1.5 shadow-[0_10px_28px_rgba(0,0,0,0.22)] tablet:gap-2 tablet:p-2" aria-label={t("pagination")}>
         <a
           className={twMerge(controlBaseClassName, !hasPrevPage && "pointer-events-none opacity-35")}
           aria-disabled={!hasPrevPage}
@@ -88,22 +81,9 @@ function PaginationControls({
           <BiChevronLeft className="text-lg text-success" />
         </a>
 
-        <div className="flex items-center gap-1.5 tablet:hidden">
-          {mobilePaginationItems.map(item => (
-            <a
-              className={twMerge(
-                controlBaseClassName,
-                item === currentPage
-                  ? "border-success bg-success/14 text-success shadow-[inset_0_0_0_1px_rgba(34,197,94,0.35)]"
-                  : "text-title/88",
-              )}
-              key={item}
-              aria-current={item === currentPage ? "page" : undefined}
-              href={createPageHref(item)}>
-              {item}
-            </a>
-          ))}
-        </div>
+        <span className="min-w-12 text-center text-xs font-semibold text-title tablet:hidden">
+          {t("page_compact", { current: currentPage, total: totalPages })}
+        </span>
 
         <div className="hidden items-center gap-2 tablet:flex">
           {paginationItems.map((item, index) =>
@@ -138,7 +118,7 @@ function PaginationControls({
         </a>
       </nav>
 
-      <p className="px-1 text-xs uppercase tracking-[0.18em] text-subTitle">
+      <p className="hidden px-1 text-xs uppercase tracking-[0.18em] text-subTitle tablet:block">
         {t("page_of_total", { current: currentPage, total: totalPages })}
       </p>
     </div>

@@ -247,6 +247,8 @@ export default {
   "common.greeting": "Hi {username}",
   "common.send_message": "Send message",
   "common.page_of_total": "Page {current} of {total}",
+  "common.page_compact": "{current}/{total}",
+  "common.pagination": "Pagination",
   "common.previous_image": "Previous image",
   "common.next_image": "Next image",
   "common.cancel": "Cancel",

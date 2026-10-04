@@ -247,6 +247,8 @@ export default {
   "common.greeting": "Hei {username}",
   "common.send_message": "Lähetä viesti",
   "common.page_of_total": "Sivu {current}/{total}",
+  "common.page_compact": "{current}/{total}",
+  "common.pagination": "Sivutus",
   "common.previous_image": "Edellinen kuva",
   "common.next_image": "Seuraava kuva",
   "common.cancel": "Peruuta",
