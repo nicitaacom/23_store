@@ -156,7 +156,7 @@ export function PricingForm() {
   }
 
   if (isFetching) {
-    return <p className="p-4 text-sm text-subTitle">{t("loading")}</p>
+    return <p className="p-4 text-sm text-title">{t("loading")}</p>
   }
 
   if (error) {

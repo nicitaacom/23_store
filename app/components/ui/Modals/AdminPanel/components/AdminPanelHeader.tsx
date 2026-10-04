@@ -57,59 +57,57 @@ export function AdminPanelHeader({
       // mark the whole header as a non-dismiss zone so clicking empty space (gaps/padding)
       // between the tabs doesn't trip the modal's click-outside handler and close it
       className={twMerge(
-        "halloween-admin-header h-[52px] overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.12),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))] tablet:h-[56px] tablet:rounded-t-lg",
+        "halloween-admin-header h-auto shrink-0 overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.12),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))] tablet:rounded-t-lg",
         className,
       )}
       data-click-outside-ignore
-      parentClassName="relative flex h-full items-center justify-between gap-2 px-2 py-2 tablet:px-3"
+      parentClassName="relative flex h-auto flex-col gap-2 px-2 py-2 tablet:px-3"
       particleCount={3}
       brandHsl={siteTheme === "halloween" ? "25, 100%, 55%" : "137, 82%, 52%"}
       verticalOverflow={18}>
-      <div className="flex min-w-0 flex-1 items-center gap-2">
+      <div className="flex w-full min-w-0 items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-success/85">{t("workspace")}</p>
           <h1 className="mt-px truncate text-[18px] font-semibold leading-none text-white tablet:text-[20px]">{title}</h1>
         </div>
-
-        <div className="ml-2 hidden min-w-0 flex-1 items-center gap-1 mobile:flex">
-          {(Object.keys(PANEL_ACTIONS) as TPanelAction[])
-            .filter(action => action !== "categories" || roles.includes("ADMIN"))
-            .map(action => {
-              const Icon = ACTION_ICONS[action]
-              const isActive = action === activeAction
-
-              return (
-                <button
-                  className={twMerge(
-                    // underline tab — flat, unified brand accent (active shows a brand underline bar)
-                    "relative flex h-8 min-w-0 items-center gap-1.5 px-2 text-xs transition-colors duration-150",
-                    isActive ? "text-brand" : "text-white/60 hover:text-white",
-                    disabled && "pointer-events-none opacity-50",
-                  )}
-                  data-cy={`admin-action-${action}`}
-                  key={action}
-                  type="button"
-                  onClick={() => onActionChange(action)}>
-                  <Icon className="shrink-0" />
-                  <span className="truncate">{actionLabels[action]}</span>
-                  {isActive && <span className="absolute inset-x-1 bottom-0 h-0.5 rounded-full bg-brand" />}
-                </button>
-              )
-            })}
-        </div>
+        <button
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded border border-white/25 bg-white/10 text-white transition-colors duration-150 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50"
+          data-cy="admin-panel-close"
+          type="button"
+          onClick={onClose}
+          disabled={disabled}
+          aria-label={t("close_admin_panel")}>
+          <IoMdClose size={20} />
+        </button>
       </div>
 
-      <button
-        className={twMerge(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/16 bg-white/8 text-white transition-colors duration-150 hover:bg-white/14",
-          disabled && "pointer-events-none opacity-50",
-        )}
-        data-cy="admin-panel-close"
-        type="button"
-        onClick={onClose}
-        aria-label={t("close_admin_panel")}>
-        <IoMdClose size={20} />
-      </button>
+      <nav className="flex w-full min-w-0 gap-1 overflow-x-auto pb-1 [scrollbar-width:thin]" aria-label={title}>
+        {(Object.keys(PANEL_ACTIONS) as TPanelAction[])
+          .filter(action => action !== "categories" || roles.includes("ADMIN"))
+          .map(action => {
+            const Icon = ACTION_ICONS[action]
+            const isActive = action === activeAction
+
+            return (
+              <button
+                className={twMerge(
+                  "flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded border px-2.5 text-xs font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+                  isActive
+                    ? "border-brand/60 bg-brand/15 text-brand"
+                    : "border-white/15 bg-white/5 text-white/80 hover:border-white/35 hover:text-white",
+                )}
+                data-cy={`admin-action-${action}`}
+                key={action}
+                type="button"
+                onClick={() => onActionChange(action)}
+                disabled={disabled}
+                aria-pressed={isActive}>
+                <Icon className="shrink-0 text-base" />
+                <span>{actionLabels[action]}</span>
+              </button>
+            )
+          })}
+      </nav>
     </OrganicCanvasBackground>
   )
 }

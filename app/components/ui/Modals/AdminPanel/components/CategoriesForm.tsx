@@ -141,6 +141,7 @@ export function CategoriesForm() {
           <div className="flex items-center gap-2">
             <select
               className="flex-1 rounded border border-border-color/50 bg-background/60 px-3 py-1.5 text-sm text-title focus:border-border-color focus:outline-none"
+              aria-label={t("category.parent_select")}
               value={addParentId ?? ""}
               onChange={e => setAddParentId(e.target.value || null)}>
               <option value="">Root category (no parent)</option>

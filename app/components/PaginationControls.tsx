@@ -77,6 +77,7 @@ function PaginationControls({
         <a
           className={twMerge(controlBaseClassName, !hasPrevPage && "pointer-events-none opacity-35")}
           aria-disabled={!hasPrevPage}
+          aria-label={t("previous_page")}
           href={hasPrevPage ? createPageHref(currentPage - 1) : undefined}>
           <BiChevronLeft className="text-lg text-success" />
         </a>
@@ -113,6 +114,7 @@ function PaginationControls({
         <a
           className={twMerge(controlBaseClassName, !hasNextPage && "pointer-events-none opacity-35")}
           aria-disabled={!hasNextPage}
+          aria-label={t("next_page")}
           href={hasNextPage ? createPageHref(currentPage + 1) : undefined}>
           <BiChevronRight className="text-lg text-success" />
         </a>

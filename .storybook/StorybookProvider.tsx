@@ -23,6 +23,8 @@ export function StorybookProvider({ children, locale, storyId, theme }: IStorybo
 
   useLayoutEffect(() => {
     useDarkModeStore.setState({ isDarkMode });
+    document.documentElement.classList.toggle("light", !isDarkMode);
+    document.documentElement.classList.toggle("dark", isDarkMode);
     document.documentElement.lang = normalizedLocale;
   }, [isDarkMode, normalizedLocale, storyId]);
 

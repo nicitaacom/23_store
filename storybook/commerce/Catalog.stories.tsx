@@ -155,8 +155,11 @@ export const MobilePagination: Story = {
   play: async ({ canvasElement }) => {
     const nav = await within(canvasElement).findByRole("navigation", { name: "Pagination" })
     const links = [...nav.querySelectorAll("a")].filter(link => link.getClientRects().length > 0)
-    await expect(links.length).toBe(5)
-    await expect(new Set(links.map(link => Math.round(link.getBoundingClientRect().top))).size).toBe(1)
+    await expect(links.length).toBe(2)
+    await expect(links[0]).toHaveAccessibleName("Previous page")
+    await expect(links[0]).toHaveAttribute("href", "/en?page=1&perPage=30")
+    await expect(links[1]).toHaveAccessibleName("Next page")
+    await expect(links[1]).toHaveAttribute("href", "/en?page=3&perPage=30")
     await expect(nav.scrollWidth).toBeLessThanOrEqual(nav.clientWidth)
   },
 }

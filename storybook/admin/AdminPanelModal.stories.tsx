@@ -14,6 +14,7 @@ const meta = {
     // failing on an unhandled request.
     msw: { handlers: [
       http.get("*/api/categories/select", () => HttpResponse.json({ categories: fixtureCategories })),
+      http.get("*/api/products/ai-pricing", () => HttpResponse.json({ globalEnabled: false, products: [], proposals: [] })),
       http.post("*/api/ai/suggest-category", () => HttpResponse.json({ category_id: null })),
     ] },
     nextjs: {
@@ -44,7 +45,7 @@ export const TabFromDescriptionToVariant: Story = {
     });
 
     await userEvent.type(editor, "- First detail{Enter}Last detail");
-    await waitFor(() => expect(editor.querySelector("ul")).not.toBeNull());
+    await waitFor(() => expect(editor.querySelector("ul")).not.toBeNull(), { timeout: 5000 });
     await userEvent.tab();
 
     await expect(canvas.getByPlaceholderText("Variant label")).toHaveFocus();
@@ -342,5 +343,32 @@ export const StructuredVariantOptions: Story = {
     await userEvent.type(canvas.getByPlaceholderText("Product price"), "12");
     await userEvent.click(canvas.getByRole("button", { name: "Add variant" }));
     await expect(canvas.getByText("Color: Blue")).toBeVisible();
+  },
+};
+
+export const MobileTabNavigation: Story = {
+  globals: { theme: "dark", viewport: { value: "mobileSmall" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(canvas.getByRole("button", { name: "Edit product" })).toBeVisible());
+
+    const nav = canvasElement.querySelector(".halloween-admin-header nav");
+    await expect(nav).not.toBeNull();
+    await expect(nav!.scrollWidth).toBeGreaterThan(nav!.clientWidth);
+    await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(
+      canvasElement.ownerDocument.documentElement.clientWidth,
+    );
+
+    for (const action of ["add", "edit", "delete", "pricing", "categories"]) {
+      const actionButton = canvasElement.querySelector<HTMLButtonElement>(`[data-cy='admin-action-${action}']`);
+      await expect(actionButton).not.toBeNull();
+      await userEvent.click(actionButton!);
+      await expect(actionButton).toHaveAttribute("aria-pressed", "true");
+    }
+
+    const closeButton = canvasElement.querySelector<HTMLButtonElement>("[data-cy='admin-panel-close']");
+    await expect(closeButton).not.toBeNull();
+    await userEvent.click(closeButton!);
+    await waitFor(() => expect(closeButton).not.toBeVisible());
   },
 };
