@@ -6,7 +6,7 @@ import { Button } from "@/components/ui"
 export function BackToMainButton() {
   return (
     <Button
-      className="min-h-[44px]"
+      className="h-12"
       data-cy="error-back-to-main"
       variant="default-outline"
       onClick={() => window.location.assign("/")}>
