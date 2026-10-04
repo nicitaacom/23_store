@@ -22,7 +22,9 @@ export default function SupportButton() {
   useEscOrClickOutside(dropdownRef, closeDropdown, { ignoreInputs: true, isHookEnabled: isDropdown })
 
   return (
-    <div className="fixed bottom-4 right-4 z-[120] mobile:bottom-5 mobile:right-5" ref={dropdownRef}>
+    <div
+      className={`fixed bottom-4 right-4 ${isDropdown ? "z-[1500]" : "z-[120]"} mobile:bottom-5 mobile:right-5`}
+      ref={dropdownRef}>
       <AnimatePresence>
         {isDropdown && (
           <motion.div
