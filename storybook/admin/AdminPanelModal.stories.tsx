@@ -66,12 +66,13 @@ export const MobileKeyboardBoldToolbar: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const editor = await canvas.findByRole("textbox", { name: "Description" });
-    await userEvent.type(editor, "Mobile copy");
+    await userEvent.type(editor, "Mobile copy", { delay: 5 });
+    await waitFor(() => expect(editor).toHaveTextContent("Mobile copy"));
 
     const boldButton = canvas.getByRole("button", { name: "Bold (**text**)" });
     boldButton.focus();
     await userEvent.keyboard("{Enter}");
-    await expect(editor).toHaveFocus();
+    await waitFor(() => expect(editor).toHaveFocus());
 
     await userEvent.type(editor, " keyboard bold");
     await waitFor(() => expect(editor.querySelector("strong")?.textContent?.trim()).toBe("keyboard bold"));

@@ -26,6 +26,10 @@ export function StorybookProvider({ children, locale, storyId, theme }: IStorybo
     document.documentElement.classList.toggle("light", !isDarkMode);
     document.documentElement.classList.toggle("dark", isDarkMode);
     document.documentElement.lang = normalizedLocale;
+    const resetSiteThemeFrame = window.requestAnimationFrame(() => {
+      document.documentElement.dataset.theme = "default";
+    });
+    return () => window.cancelAnimationFrame(resetSiteThemeFrame);
   }, [isDarkMode, normalizedLocale, storyId]);
 
   return (
