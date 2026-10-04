@@ -1,5 +1,6 @@
 "use client"
 
+import { useId } from "react"
 import { twMerge } from "tailwind-merge"
 
 import { useHasMounted } from "@/hooks/useHasMounted"
@@ -13,6 +14,7 @@ interface DropdownContainerProps {
   classNameIsDropdownTrue?: string
   classNameIsDropdownFalse?: string
   username?: string | undefined
+  ariaLabel: string
   list?: boolean
   onClick?: () => void
   isDropdown: boolean
@@ -25,6 +27,7 @@ export function DropdownContainer({
   children,
   icon,
   username,
+  ariaLabel,
   list = false,
   className = "",
   classNameDropdownContainer = "",
@@ -36,6 +39,7 @@ export function DropdownContainer({
   dropdownRef,
 }: DropdownContainerProps) {
   const t = useScopedI18n("common")
+  const dropdownId = useId()
 
   const handleClick = () => {
     if (onClick) {
@@ -50,9 +54,15 @@ export function DropdownContainer({
 
   return (
     <div className={twMerge("relative z-10", classNameDropdownContainer)} ref={dropdownRef}>
-      <div className="cursor-pointer transition-opacity duration-150 hover:opacity-80" onClick={handleClick}>
+      <button
+        className="flex h-11 w-11 items-center justify-center rounded-md transition-opacity duration-150 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
+        type="button"
+        aria-label={ariaLabel}
+        aria-expanded={isDropdown}
+        aria-controls={dropdownId}
+        onClick={handleClick}>
         {icon}
-      </div>
+      </button>
 
       <div
         className={twMerge(
@@ -61,7 +71,8 @@ export function DropdownContainer({
             ? `visible translate-y-0 opacity-100 transition-all duration-150 ${classNameIsDropdownTrue}`
             : `invisible -translate-y-1 opacity-0 transition-all duration-150 ${classNameIsDropdownFalse}`,
           className,
-        )}>
+        )}
+        id={dropdownId}>
         <div className="overflow-hidden rounded-lg border border-border-color/35 bg-foreground/95 text-sm shadow-compact">
           {username && hasMounted && (
             <h1 className="border-b border-border-color/30 px-3 py-2 text-center text-title">{t("greeting", { username })}</h1>

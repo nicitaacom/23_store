@@ -240,6 +240,8 @@ export default {
   "common.copied": "Copied",
   "common.user_avatar_alt": "User avatar",
   "common.cart": "Cart",
+  "common.increase_quantity": "Increase quantity",
+  "common.decrease_quantity": "Decrease quantity",
   "common.contact_response_time": "(response 8s)",
   "common.logo_alt": "Logo",
   "common.image_preview_alt": "Image preview",
@@ -260,6 +262,8 @@ export default {
 
   "navbar.open_menu": "Open menu",
   "navbar.close_menu": "Close menu",
+  "navbar.profile_menu": "Open profile menu",
+  "navbar.contact_menu": "Open contact options",
   "navbar.menu": "Menu",
   "navbar.projects": "Projects",
   "navbar.ecosystem_links": "Quick links to the rest of the Jokik project ecosystem.",

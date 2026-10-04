@@ -240,6 +240,8 @@ export default {
   "common.copied": "Kopioitu",
   "common.user_avatar_alt": "Käyttäjän avatar",
   "common.cart": "Ostoskori",
+  "common.increase_quantity": "Lisää määrää",
+  "common.decrease_quantity": "Vähennä määrää",
   "common.contact_response_time": "(vastaus 8s)",
   "common.logo_alt": "Logo",
   "common.image_preview_alt": "Kuvan esikatselu",
@@ -260,6 +262,8 @@ export default {
 
   "navbar.open_menu": "Avaa valikko",
   "navbar.close_menu": "Sulje valikko",
+  "navbar.profile_menu": "Avaa profiilivalikko",
+  "navbar.contact_menu": "Avaa yhteysvaihtoehdot",
   "navbar.menu": "Valikko",
   "navbar.projects": "Projektit",
   "navbar.ecosystem_links": "Pikalinkit muihin Jokik-ekosysteemin projekteihin.",

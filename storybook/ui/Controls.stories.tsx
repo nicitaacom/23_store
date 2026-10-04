@@ -67,15 +67,17 @@ function ProductQuantityControl() {
 function DropdownExample() {
   const [isDropdown, setIsDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const toggleDropdown = () => setIsDropdown(current => !current);
 
   return (
     <div className="flex justify-end p-3">
       <DropdownContainer
         list
         dropdownRef={dropdownRef}
-        icon={<button className="h-8 w-8 rounded border border-border-color" aria-label="Open actions"><FiMoreHorizontal /></button>}
+        icon={<FiMoreHorizontal />}
+        ariaLabel="Open actions"
         isDropdown={isDropdown}
-        toggle={() => setIsDropdown(current => !current)}>
+        toggle={toggleDropdown}>
         <DropdownItem icon={FiUser} label="Profile" />
         <DropdownItem icon={FiShoppingBag} label="Orders" href="/en/orders" />
       </DropdownContainer>
@@ -123,9 +125,9 @@ export const QuantityAndCart: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await waitFor(() => expect(canvas.getByLabelText("Quantity")).toHaveTextContent("1"));
-    await userEvent.click(canvas.getByRole("button", { name: "+" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Increase quantity" }));
     await waitFor(() => expect(canvas.getByLabelText("Quantity")).toHaveTextContent("2"));
-    await userEvent.click(canvas.getByRole("button", { name: "−" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Decrease quantity" }));
     await waitFor(() => expect(canvas.getByLabelText("Quantity")).toHaveTextContent("1"));
     await userEvent.click(canvas.getByRole("button", { name: "Clear" }));
     await waitFor(() => expect(canvas.getByLabelText("Quantity")).toHaveTextContent("0"));

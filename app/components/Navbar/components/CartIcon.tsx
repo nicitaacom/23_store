@@ -26,7 +26,7 @@ export function CartIcon({ cart_quantity, userId }: CartIconProps) {
   // If SSR finished show cartQuantity otherwise if user isAuthenticated show fetched cart_quantity otherwise from localstorage
   return (
     <Link
-      className={`mr-1 cursor-pointer text-title transition-all duration-300
+      className={`relative mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-title transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70
         before:absolute before:w-[20px] before:h-[20px] before:bg-brand before:rounded-full before:text-title-foreground
         before:translate-x-[80%] before:translate-y-[-20%] before:z-[9] ${
           (hasMounted ? cartQuantity : userId ? cart_quantity : cartQuantity) === 0 ? "before:hidden" : "before:flex"

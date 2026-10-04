@@ -241,6 +241,8 @@ export default {
   "common.copied": "Скопировано",
   "common.user_avatar_alt": "Аватар пользователя",
   "common.cart": "Корзина",
+  "common.increase_quantity": "Увеличить количество",
+  "common.decrease_quantity": "Уменьшить количество",
   "common.contact_response_time": "(ответ за 8с)",
   "common.logo_alt": "Логотип",
   "common.image_preview_alt": "Превью изображения",
@@ -261,6 +263,8 @@ export default {
 
   "navbar.open_menu": "Открыть меню",
   "navbar.close_menu": "Закрыть меню",
+  "navbar.profile_menu": "Открыть меню профиля",
+  "navbar.contact_menu": "Открыть способы связи",
   "navbar.menu": "Меню",
   "navbar.projects": "Проекты",
   "navbar.ecosystem_links": "Быстрые ссылки на другие проекты экосистемы Jokik.",

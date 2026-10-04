@@ -240,6 +240,8 @@ export default {
   "common.copied": "Kopierat",
   "common.user_avatar_alt": "Användaravatar",
   "common.cart": "Kundvagn",
+  "common.increase_quantity": "Öka antalet",
+  "common.decrease_quantity": "Minska antalet",
   "common.contact_response_time": "(svar 8s)",
   "common.logo_alt": "Logotyp",
   "common.image_preview_alt": "Bildförhandsvisning",
@@ -260,6 +262,8 @@ export default {
 
   "navbar.open_menu": "Öppna meny",
   "navbar.close_menu": "Stäng meny",
+  "navbar.profile_menu": "Öppna profilmenyn",
+  "navbar.contact_menu": "Öppna kontaktalternativ",
   "navbar.menu": "Meny",
   "navbar.projects": "Projekt",
   "navbar.ecosystem_links": "Snabblänkar till resten av Jokik-projektekosystemet.",

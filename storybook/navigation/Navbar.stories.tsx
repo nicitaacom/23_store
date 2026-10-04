@@ -75,8 +75,10 @@ export const OwnerAndAdminLinks: Story = {
   args: { cartQuantity: 4, roles: ["OWNER", "ADMIN", "SUPPORT"], user: ownerUser },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const trigger = await waitFor(() => canvasElement.querySelector('[data-cy="user-menu"]'))
-    await userEvent.click((trigger as HTMLElement).parentElement as HTMLElement)
+    const trigger = await canvas.findByRole("button", { name: "Open profile menu" })
+    trigger.focus()
+    await userEvent.keyboard("{Enter}")
+    await expect(trigger).toHaveAttribute("aria-expanded", "true")
     await waitFor(() => expect(canvas.getByText("Manage products")).toBeVisible())
     await expect(canvas.getByText("Support chat")).toBeVisible()
     await expect(canvas.getByText("Stats")).toBeVisible()
@@ -87,8 +89,9 @@ export const AvatarDropdownClosesOnOutsideClick: Story = {
   args: { cartQuantity: 4, roles: ["OWNER", "ADMIN", "SUPPORT"], user: ownerUser },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const trigger = await waitFor(() => canvasElement.querySelector('[data-cy="user-menu"]'))
-    await userEvent.click((trigger as HTMLElement).parentElement as HTMLElement)
+    const trigger = await canvas.findByRole("button", { name: "Open profile menu" })
+    await userEvent.click(trigger)
+    await expect(trigger).toHaveAttribute("aria-expanded", "true")
     const manageProducts = await waitFor(() => canvas.getByText("Manage products"))
     await waitFor(() => expect(manageProducts).toBeVisible())
 
@@ -114,8 +117,9 @@ export const ContactButtonClosesOnOutsideClick: Story = {
   parameters: { viewport: { defaultViewport: "laptop" } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const trigger = (await waitFor(() => canvasElement.querySelector('[data-cy="contact-trigger"]'))) as HTMLElement
+    const trigger = await canvas.findByRole("button", { name: "Open contact options" })
     await userEvent.click(trigger)
+    await expect(trigger).toHaveAttribute("aria-expanded", "true")
     const telegramLink = await waitFor(() => canvas.getByText("Telegram"))
     await waitFor(() => expect(telegramLink).toBeVisible())
 
@@ -164,6 +168,27 @@ export const MobileSearchFocus: Story = {
     const searchInput = canvas.getByRole("textbox", { name: "Catalog search" })
     await userEvent.click(searchButton)
     await expect(searchInput).toHaveFocus()
+  },
+}
+
+export const MobileNavigationSize: Story = {
+  parameters: { viewport: { defaultViewport: "mobileSmall" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const controls = [
+      await canvas.findByRole("button", { name: "Open menu" }),
+      await canvas.findByRole("link", { name: "Search" }),
+      await canvas.findByRole("link", { name: "Cart" }),
+      await canvas.findByRole("link", { name: "Log in" }),
+    ]
+
+    for (const control of controls) {
+      const { height, width } = control.getBoundingClientRect()
+      await expect(width).toBeGreaterThanOrEqual(44)
+      await expect(height).toBeGreaterThanOrEqual(44)
+    }
+
+    await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(320)
   },
 }
 

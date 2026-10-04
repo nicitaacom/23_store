@@ -11,6 +11,7 @@ import { DropdownContainer } from "@/components/ui"
 // http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function ContactButton() {
   const t = useScopedI18n("common")
+  const tNavbar = useScopedI18n("navbar")
   const dropDownRef = useRef<HTMLDivElement>(null)
   const [isShowDropdown, setIsShowDropdown] = useState(false)
 
@@ -29,6 +30,7 @@ export function ContactButton() {
       isDropdown={isShowDropdown}
       toggle={toggleDropdown}
       dropdownRef={dropDownRef}
+      ariaLabel={tNavbar("contact_menu")}
       classNameDropdownContainer="hidden mobile:flex"
       icon={
         <span data-cy="contact-trigger">

@@ -39,6 +39,7 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
   const router = useRouter()
   const t = useScopedI18n("backup")
   const tCommon = useScopedI18n("common")
+  const tNavbar = useScopedI18n("navbar")
 
   const avatarDropdownRef = useRef<HTMLDivElement>(null)
   const [isShowDropdown, setIsShowDropdown] = useState(false)
@@ -91,6 +92,7 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
       dropdownRef={avatarDropdownRef}
       classNameDropdownContainer="ml-1 z-[102]"
       username={getUserName(user) || "anonymous"}
+      ariaLabel={tNavbar("profile_menu")}
       icon={
         <span data-cy="user-menu">
           <Image className="w-[32px] h-[32px] rounded-full object-cover" src={avatarUrl} alt={tCommon("user_avatar_alt")} width={64} height={64} />

@@ -177,7 +177,7 @@ export function HamburgerMenu() {
     <>
       <div className="relative">
         <button
-          className="flex items-center justify-center rounded-[10px] border border-transparent p-1 transition-colors duration-200 hover:border-border-color/70 hover:bg-foreground"
+          className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-transparent p-0 transition-colors duration-200 hover:border-border-color/70 hover:bg-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
           type="button"
           aria-label={t("open_menu")}
           aria-expanded={isSidebar}

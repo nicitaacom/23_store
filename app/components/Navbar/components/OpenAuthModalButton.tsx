@@ -13,7 +13,10 @@ export function OpenAuthModalButton() {
   const updatedPath = pathname + (pathname?.includes("?") ? "&" : "?") + "modal=" + "AuthModal&variant=login"
 
   return (
-    <Link className="w-fit" href={updatedPath} aria-label={t("login")}>
+    <Link
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
+      href={updatedPath}
+      aria-label={t("login")}>
       <BiUserCircle className="cursor-pointer text-title hover:brightness-75 transition-all duration-300" size={32} />
     </Link>
   )
