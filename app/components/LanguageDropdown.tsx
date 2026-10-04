@@ -55,9 +55,10 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
     <div className={twMerge("relative inline-flex w-[130px] flex-col", className)} ref={dropdownContainerRef}>
       {/* Trigger — w-full so it stretches to whatever width the container is */}
       <button
-        className="flex w-full items-center gap-1.5 rounded border border-border-color/35 bg-background/55 px-2.5 py-1.5
-        text-sm text-title transition-colors duration-150 hover:bg-foreground/10"
+        className="flex min-h-[44px] w-full items-center gap-1.5 rounded border border-border-color/35 bg-background/55 px-2.5 py-1.5
+        text-sm text-title transition-colors duration-150 hover:bg-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
         data-cy="language-trigger"
+        type="button"
         onClick={() => setShowDropdown(!showDropdown)}
         aria-expanded={showDropdown}>
         {currentLocale ? (
@@ -88,17 +89,18 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
         )}>
         {locales.map(localeOption => (
           <a
-            className={`flex w-full items-center gap-2 whitespace-nowrap px-3 py-2 text-left text-sm transition-colors duration-100 ${
+            className={`flex min-h-[44px] w-full items-center gap-2 whitespace-nowrap px-3 py-2 text-left text-sm transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/70 ${
               locale === localeOption.code ? "bg-brand/15 text-brand hover:bg-brand/25" : "text-title hover:bg-foreground-accent"
             }`}
             data-cy={`language-${localeOption.code}`}
             key={localeOption.code}
             href={getLocaleHref(localeOption.code)}
+            aria-current={locale === localeOption.code ? "page" : undefined}
             onClick={() => setShowDropdown(false)}>
             <Image
               className="w-[18px] h-[13px] rounded-sm object-cover"
               src={localeOption.flag}
-              alt={localeOption.name}
+              alt=""
               width={18}
               height={13}
               sizes="18px"

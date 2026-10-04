@@ -209,7 +209,7 @@ export function HamburgerMenu() {
               transition={{ type: "spring", stiffness: 280, damping: 30 }}
               {...panelHandlers}>
               <div
-                className="flex h-full flex-col border-r border-border-color bg-foreground px-4 py-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+                className="flex h-full flex-col overflow-y-auto border-r border-border-color bg-foreground px-4 py-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
                 ref={containerRef}>
                 <div className="mb-6 rounded-[18px] border border-border-color/70 bg-background/80 px-4 py-4">
                   <div className="mb-4 flex items-center justify-between">
@@ -218,7 +218,7 @@ export function HamburgerMenu() {
                       <h2 className="text-xl font-semibold text-title">{t("projects")}</h2>
                     </div>
                     <button
-                      className="rounded-[10px] border border-border-color/70 bg-foreground p-1 text-icon-color transition-colors duration-200 hover:bg-foreground-accent/40"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] border border-border-color/70 bg-foreground p-0 text-icon-color transition-colors duration-200 hover:bg-foreground-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
                       type="button"
                       aria-label={t("close_menu")}
                       onClick={closeSidebar}>
