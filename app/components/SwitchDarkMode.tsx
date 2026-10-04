@@ -2,32 +2,31 @@
 
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
-interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface SwitchProps {
   className?: string
+  ariaLabel: string
 }
 
 // http://localhost:6006/?path=/story/navigation-navbar--anonymous
-export function SwitchDarkMode({ className, ...props }: SwitchProps) {
+export function SwitchDarkMode({ ariaLabel, className }: SwitchProps) {
   const mode = useDarkModeStore()
 
   return (
-    <label
-      className={`relative w-[36px] h-[20px] border-[3px] border-icon-color hover:brightness-75 transition-all duration-300 
-    rounded-full cursor-pointer mx-1 flex ${className}`}>
-      <input
-        className="hidden peer/input"
-        {...props}
-        type="checkbox"
-        id="check"
-        checked={mode.isDarkMode}
-        onChange={mode.toggleDarkMode}
-      />
-      <span
-        className={`absolute rounded-full
-      w-[10px] h-[10px] translate-x-[20%] translate-y-[20%] bg-icon-color transition-all duration-500
-      before:absolute before:content-['']
-      peer-checked/input:translate-x-[180%]`}
-      />
-    </label>
+    <button
+      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-md transition-all duration-300 hover:brightness-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70 ${className ?? ""}`}
+      type="button"
+      role="switch"
+      aria-label={ariaLabel}
+      aria-checked={mode.isDarkMode}
+      onClick={mode.toggleDarkMode}>
+      <span className="relative h-5 w-9 rounded-full border-[3px] border-icon-color">
+        <span
+          className={`absolute top-0 h-[10px] w-[10px] translate-y-[20%] rounded-full bg-icon-color transition-transform duration-500 ${
+            mode.isDarkMode ? "translate-x-[180%]" : "translate-x-[20%]"
+          }`}
+          aria-hidden="true"
+        />
+      </span>
+    </button>
   )
 }

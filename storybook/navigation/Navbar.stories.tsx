@@ -6,6 +6,7 @@ import type { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 import type { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 import { customerUser, ownerUser } from "../fixtures/users"
 import useCartStore from "@/store/user/cartStore"
+import { useScopedI18n } from "@/locales/client"
 import useUser from "@/store/user/useUser"
 import { LanguageDropdown } from "@/components/LanguageDropdown"
 import { NavbarView } from "@/components/Navbar/NavbarView"
@@ -18,6 +19,8 @@ interface NavigationExampleProps {
 }
 
 function NavigationExample({ cartQuantity, locale, roles, user }: NavigationExampleProps) {
+  const tNavbar = useScopedI18n("navbar")
+
   useLayoutEffect(() => {
     useUser.setState({ user })
     const products: TRecordCartProduct =
@@ -29,7 +32,7 @@ function NavigationExample({ cartQuantity, locale, roles, user }: NavigationExam
 
   return (
     <div className="min-h-[340px] bg-background pt-20">
-      <NavbarView cartQuantity={cartQuantity} locale={locale} roles={roles} user={user} />
+      <NavbarView cartQuantity={cartQuantity} darkModeLabel={tNavbar("dark_mode")} locale={locale} roles={roles} user={user} />
       <main className="p-6 text-subTitle">The application navigation remains fixed while this content scrolls.</main>
     </div>
   )
@@ -153,7 +156,7 @@ export const MobileSearchFocus: Story = {
   parameters: { viewport: { defaultViewport: "mobileSmall" } },
   render: () => (
     <div className="min-h-[340px] bg-background pt-20">
-      <NavbarView cartQuantity={0} locale="en" roles={[]} user={null} />
+      <NavbarView cartQuantity={0} darkModeLabel="Dark mode" locale="en" roles={[]} user={null} />
       <main className="p-6 text-subTitle">
         <label className="flex flex-col gap-2" htmlFor="catalog-search-input">
           Catalog search

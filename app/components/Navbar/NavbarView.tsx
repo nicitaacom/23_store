@@ -10,13 +10,14 @@ import { SwitchDarkMode } from "@/components"
 interface NavbarViewProps {
   avatarUrl?: string
   cartQuantity: number
+  darkModeLabel: string
   locale?: TLocaleTag
   roles: string[]
   user: User | null
 }
 
 // http://localhost:6006/?path=/story/navigation-navbar--anonymous
-export function NavbarView({ avatarUrl, cartQuantity, locale, roles, user }: NavbarViewProps) {
+export function NavbarView({ avatarUrl, cartQuantity, darkModeLabel, locale, roles, user }: NavbarViewProps) {
   return (
     <NavbarWrapper>
       <div className="flex flex-row items-center gap-x-4">
@@ -25,7 +26,7 @@ export function NavbarView({ avatarUrl, cartQuantity, locale, roles, user }: Nav
       </div>
       <div className="flex flex-row items-center gap-x-2">
         <LanguageDropdown className="hidden tablet:flex" locale={locale} />
-        <SwitchDarkMode className="max-[500px]:hidden" />
+        <SwitchDarkMode className="max-[500px]:hidden" ariaLabel={darkModeLabel} />
         <MobileSearchButton />
         <CartIcon userId={user?.id} cart_quantity={cartQuantity} />
         <ContactButton />

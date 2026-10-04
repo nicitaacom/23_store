@@ -1,9 +1,11 @@
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 import { NavbarView } from "./NavbarView"
+import { getScopedI18n } from "@/locales/server"
 import { getUserAvatarUrl, sanitizeAvatarUrl } from "@/utils/user"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 
 export default async function Navbar() {
+  const tNavbar = await getScopedI18n("navbar")
   const supabase = await supabaseServer()
   const {
     data: { user },
@@ -36,5 +38,5 @@ export default async function Navbar() {
     avatarUrl = sanitizeAvatarUrl(role_rows?.[0]?.avatar_url) || getUserAvatarUrl(user)
   }
 
-  return <NavbarView avatarUrl={avatarUrl} cartQuantity={cart_quantity} roles={roles} user={user} />
+  return <NavbarView avatarUrl={avatarUrl} cartQuantity={cart_quantity} darkModeLabel={tNavbar("dark_mode")} roles={roles} user={user} />
 }
