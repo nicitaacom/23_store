@@ -33,7 +33,7 @@ export function ManageProductButton({ productId, ownerId, size = "md", className
   return (
     <Button
       className={twMerge(
-        "w-full border border-white/8 bg-[#000000] text-title hover:border-warning/25 hover:bg-[#111111] hover:text-title mobile:w-fit font-medium",
+        "min-h-[44px] w-full border border-white/8 bg-[#000000] text-title hover:border-warning/25 hover:bg-[#111111] hover:text-title mobile:w-fit font-medium",
         className,
       )}
       href={`/${locale}/products/${productId}/manage`}

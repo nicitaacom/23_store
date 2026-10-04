@@ -436,21 +436,21 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
                 <div className="flex flex-wrap gap-2">
                   <button
-                    className="rounded-xl border border-success/20 bg-success/8 px-3 py-2 text-xs font-medium text-success transition-colors hover:bg-success/12"
+                    className="min-h-[44px] rounded-xl border border-success/20 bg-success/8 px-3 py-2 text-xs font-medium text-success transition-colors hover:bg-success/12"
                     type="button"
                     onClick={() => assignFirstImageToVariantRef.current(groupId)}>
                     {t("assign_current_image")}
                   </button>
                   {linkedImageUrl && (
                     <button
-                      className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-white/60 transition-colors hover:bg-white/[0.07]"
+                      className="min-h-[44px] rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-medium text-white/60 transition-colors hover:bg-white/[0.07]"
                       type="button"
                       onClick={() => clearVariantImageRef.current(groupId)}>
                       {t("variant_no_image")}
                     </button>
                   )}
                   <button
-                    className="rounded-xl border border-danger/20 bg-danger/8 px-3 py-2 text-xs font-medium text-danger transition-colors hover:bg-danger/12"
+                    className="min-h-[44px] rounded-xl border border-danger/20 bg-danger/8 px-3 py-2 text-xs font-medium text-danger transition-colors hover:bg-danger/12"
                     type="button"
                     onClick={() => removeVariantRef.current(groupId)}>
                     {t("remove")}
@@ -602,7 +602,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               </label>
 
               <Button
-                className="font-medium"
+                className="h-11 font-medium"
                 type="button"
                 onClick={addVariant}
                 disabled={isUpdatingProduct}
@@ -628,7 +628,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         <section className="halloween-panel rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
           <div className="flex flex-wrap gap-3">
             <Button
-              className="font-medium"
+              className="h-11 font-medium"
               type="button"
               onClick={deleteProduct}
               disabled={isUpdatingProduct}
@@ -641,7 +641,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             </Button>
 
             <Button
-              className="font-medium mobile:ml-auto"
+              className="h-11 font-medium mobile:ml-auto"
               type="submit"
               disabled={isUpdatingProduct || !hasChanges}
               variant="success"

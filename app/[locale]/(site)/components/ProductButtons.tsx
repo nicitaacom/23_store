@@ -48,7 +48,7 @@ export function ProductButtons({ productId, ownerId, showViewButton = true, vari
 
       {showViewButton && (
         <Button
-          className="w-full mobile:w-fit rounded font-medium"
+          className="h-11 w-full mobile:w-fit rounded font-medium"
           href={`/${locale}/products/${productId}`}
           variant="info-outline"
           size="md"

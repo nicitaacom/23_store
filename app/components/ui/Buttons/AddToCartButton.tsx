@@ -38,7 +38,7 @@ export function AddToCartButton({ productId, categoryId, className, variantId }:
 
   return (
     <Button
-      className={twMerge("w-full mobile:w-fit rounded font-medium", className)}
+      className={twMerge("h-11 w-full mobile:w-fit rounded font-medium", className)}
       variant="success"
       size="md"
       rounded="lg"

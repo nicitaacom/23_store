@@ -218,7 +218,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
           <div className="flex flex-wrap items-center gap-2">
             <ManageProductButton productId={product.id} ownerId={product.owner_id} size="sm" />
             <ProductLikeButton
-              className="h-8 w-8 rounded-[2px] border-border-color/20 bg-foreground/5 hover:border-warning/25 hover:bg-foreground/10"
+              className="h-11 w-11 rounded-[2px] border-border-color/20 bg-foreground/5 hover:border-warning/25 hover:bg-foreground/10"
               productId={product.id}
               categoryId={product.category_id}
             />

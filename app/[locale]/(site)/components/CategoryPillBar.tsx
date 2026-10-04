@@ -22,7 +22,7 @@ interface CategoryPillBarProps {
 
 function getCategoryButtonClassName(isActive: boolean) {
   return twMerge(
-    "inline-flex h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md border px-3.5 text-sm font-medium shadow-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/45",
+    "inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-md border px-3.5 text-sm font-medium shadow-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/45",
     isActive
       ? "border-success/55 bg-success/15 text-success shadow-success/10"
       : "border-border-color/45 bg-background/70 text-subTitle shadow-background/40 hover:border-success/40 hover:bg-success/5 hover:text-title",
@@ -119,7 +119,7 @@ export function CategoryPillBar({ categories, isAuthenticated, locale, serverVie
       </div>
 
       <button
-        className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-success/35 bg-success/5 px-3.5 text-sm font-medium text-title shadow-sm shadow-success/5 transition-colors duration-150 hover:border-success/60 hover:bg-success/15 hover:text-success focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/45"
+        className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-success/35 bg-success/5 px-3.5 text-sm font-medium text-title shadow-sm shadow-success/5 transition-colors duration-150 hover:border-success/60 hover:bg-success/15 hover:text-success focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/45"
         type="button"
         onClick={handleRequestCategory}>
         <span className="text-base leading-none text-success" aria-hidden="true">

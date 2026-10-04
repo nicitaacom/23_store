@@ -160,6 +160,11 @@ export const MobilePagination: Story = {
     await expect(links[0]).toHaveAttribute("href", "/en?page=1&perPage=30")
     await expect(links[1]).toHaveAccessibleName("Next page")
     await expect(links[1]).toHaveAttribute("href", "/en?page=3&perPage=30")
+    for (const link of links) {
+      const { height, width } = link.getBoundingClientRect()
+      await expect(width).toBeGreaterThanOrEqual(44)
+      await expect(height).toBeGreaterThanOrEqual(44)
+    }
     await expect(nav.scrollWidth).toBeLessThanOrEqual(nav.clientWidth)
   },
 }

@@ -44,7 +44,7 @@ function buildPaginationItems(currentPage: number, totalPages: number): Paginati
 }
 
 const controlBaseClassName =
-  "inline-flex h-10 min-w-10 items-center justify-center rounded border border-success/18 bg-[#111315] px-2 text-sm font-medium text-title transition-all duration-200 hover:border-success/40 hover:bg-success/8 tablet:h-11 tablet:min-w-11 tablet:px-3"
+  "inline-flex h-[44px] min-w-[44px] items-center justify-center rounded border border-success/18 bg-[#111315] px-2 text-sm font-medium text-title transition-all duration-200 hover:border-success/40 hover:bg-success/8 tablet:px-3"
 
 function PaginationControls({
   hasNextPage,

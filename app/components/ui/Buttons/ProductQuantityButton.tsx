@@ -42,11 +42,12 @@ export function ProductQuantityButton({ className, productId, action, variantId 
     return (
       <button
         className={twMerge(
-          "inline-flex h-8 w-8 items-center justify-center bg-background/55 text-sm font-semibold text-icon-color transition-colors duration-150 hover:bg-foreground/50",
+          "inline-flex h-11 w-11 items-center justify-center bg-background/55 text-sm font-semibold text-icon-color transition-colors duration-150 hover:bg-foreground/50",
           action === "increase" ? "text-success" : "text-danger",
           className,
         )}
         type="button"
+        aria-label={t(action === "increase" ? "increase_quantity" : "decrease_quantity")}
         onClick={handleClick}>
         {action === "increase" ? "+" : "−"}
       </button>
@@ -56,7 +57,7 @@ export function ProductQuantityButton({ className, productId, action, variantId 
   // 3. Clear — danger icon button
   return (
     <Button
-      className={twMerge("rounded font-medium w-full mobile:w-fit", className)}
+      className={twMerge("h-11 rounded font-medium w-full mobile:w-fit", className)}
       variant="danger-outline"
       size="md"
       rounded="lg"

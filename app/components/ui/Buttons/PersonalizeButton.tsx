@@ -24,7 +24,7 @@ export function PersonalizeButton({ productId, variantId, className }: Personali
   return (
     <Link
       className={twMerge(
-        "inline-flex h-10 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-[4px] border border-brand/40 px-4 text-sm font-semibold text-brand transition-colors duration-150 hover:border-brand hover:bg-brand hover:text-background",
+        "inline-flex h-11 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-[4px] border border-brand/40 px-4 text-sm font-semibold text-brand transition-colors duration-150 hover:border-brand hover:bg-brand hover:text-background",
         className,
       )}
       data-cy="personalize-button"

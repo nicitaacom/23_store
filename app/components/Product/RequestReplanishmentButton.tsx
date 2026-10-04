@@ -51,7 +51,7 @@ export function RequestReplanishmentButton({ product, className }: { product: TP
 
   return (
     <Button
-      className={twMerge("text-base font-medium", className)}
+      className={twMerge("min-h-[44px] text-base font-medium", className)}
       variant="info-outline"
       size="lg"
       rounded="sm"
