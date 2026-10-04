@@ -123,5 +123,5 @@ export const CartLockedVariant: Story = {
     variantId: FIXTURE_IDS.variant,
   },
 };
-export const OwnerControls: Story = { render: ProductWithOwner };
+export const OwnerControls: Story = { render: ProductWithOwner, globals: { theme: "dark" } };
 export const AnonymousControls: Story = {};

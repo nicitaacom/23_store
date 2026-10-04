@@ -110,11 +110,14 @@ export const LongProductName: Story = { args: { products: [secondCartProduct] } 
 export const QuantityAndTotals: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const total = canvasElement.querySelector("[data-cy='cart-total']");
-    if (!total) throw new Error("Cart total was not rendered");
-    await waitFor(() => expect(total).toHaveTextContent("$299.98"));
+    const total = await waitFor(() => {
+      const renderedTotal = canvasElement.querySelector<HTMLElement>("[data-cy='cart-total']");
+      if (!renderedTotal) throw new Error("Cart total was not rendered");
+      expect(renderedTotal).toHaveTextContent("$299.98");
+      return renderedTotal;
+    });
     const productArticle = canvas.getByRole("article");
-    await userEvent.click(within(productArticle).getByRole("button", { name: "+" }));
+    await userEvent.click(within(productArticle).getByRole("button", { name: "Increase quantity" }));
     await waitFor(() => expect(total).toHaveTextContent("$449.97"));
     await expect(useCartStore.getState().products[`${FIXTURE_IDS.product}::${FIXTURE_IDS.variant}`].quantity).toBe(3);
   },

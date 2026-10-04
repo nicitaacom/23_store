@@ -48,4 +48,4 @@ export const Search: Story = {
     await waitFor(() => expect(canvas.queryByRole("dialog")).not.toBeInTheDocument());
   },
 };
-export const AvatarUpdate: Story = { render: AvatarModalExample };
+export const AvatarUpdate: Story = { render: AvatarModalExample, globals: { theme: "dark" } };

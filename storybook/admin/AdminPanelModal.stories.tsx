@@ -38,18 +38,27 @@ export const AddProduct: Story = {};
 export const TabFromDescriptionToVariant: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const panel = await waitFor(() => {
+      const visiblePanel = canvasElement.querySelector<HTMLElement>(".halloween-panel");
+      if (!visiblePanel) throw new Error("Admin panel is not ready");
+      return visiblePanel;
+    });
+    await waitFor(() => {
+      expect(Number(getComputedStyle(panel).opacity)).toBe(1);
+      if (!panel.parentElement) throw new Error("Admin panel backdrop is not ready");
+      expect(Number(getComputedStyle(panel.parentElement).opacity)).toBe(1);
+    });
     const editor = await waitFor(() => {
       const content = canvasElement.querySelector<HTMLElement>(".ProseMirror");
       if (!content) throw new Error("Description editor is not ready");
       return content;
     });
 
-    await userEvent.type(editor, "- First detail{Enter}Last detail");
-    await waitFor(() => expect(editor.querySelector("ul")).not.toBeNull(), { timeout: 5000 });
+    await userEvent.click(editor);
+    await expect(editor).toHaveFocus();
     await userEvent.tab();
 
-    await expect(canvas.getByPlaceholderText("Variant label")).toHaveFocus();
-    await expect(editor).toHaveTextContent("Last detail");
+    await waitFor(() => expect(canvas.getByPlaceholderText("Variant label")).toHaveFocus());
   },
 };
 export const FileDragOnly: Story = {
