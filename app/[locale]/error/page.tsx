@@ -170,6 +170,8 @@ export default function Error() {
       <div className="flex flex-col justify-center items-center">
         <p className="text-danger">{fallbackErrorMessage}</p>
         <Button
+          className="min-h-[44px]"
+          data-cy="error-report-support"
           variant="link"
           onClick={handleReportToSupport}
           loading={reportStatus === "sending"}

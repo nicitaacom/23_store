@@ -43,6 +43,8 @@ export function NoCodeFoundError({ message }: { message?: string }) {
       <p className="text-danger text-center">{errorMessage}</p>
       <p className="text-center">You might pressed &quot;Cancel&quot; button when continue with google</p>
       <Button
+        className="min-h-[44px]"
+        data-cy="error-report-support"
         variant="link"
         onClick={handleReportToSupport}
         loading={reportStatus === "sending"}
