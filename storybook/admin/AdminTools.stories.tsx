@@ -144,9 +144,7 @@ export const Backup: Story = {
       expect(window.dispatchEvent(pageCloseEvent)).toBe(false)
     })
 
-    const firstCloseButton = canvasElement.querySelector("svg.absolute.right-3")
-    await expect(firstCloseButton).not.toBeNull()
-    await userEvent.click(firstCloseButton as Element)
+    await userEvent.click(canvas.getByRole("button", { name: "Close modal" }))
     const backupStatus = await waitFor(() => canvas.getByRole("status", { name: "Database backup" }))
     await expect(backupStatus).toBeVisible()
     await expect(backupStatus).toHaveTextContent("Tables · Export")
@@ -170,9 +168,7 @@ export const Backup: Story = {
     await waitFor(() => expect(canvas.getByRole("button", { name: "Export" })).toBeDisabled())
     await expect(canvas.queryByRole("status", { name: "Database backup" })).not.toBeInTheDocument()
 
-    const secondCloseButton = canvasElement.querySelector("svg.absolute.right-3")
-    await expect(secondCloseButton).not.toBeNull()
-    await userEvent.click(secondCloseButton as Element)
+    await userEvent.click(canvas.getByRole("button", { name: "Close modal" }))
     await waitFor(() => expect(canvas.getByRole("status", { name: "Database backup" })).toBeVisible())
 
     completeTablesExport()

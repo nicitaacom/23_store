@@ -60,9 +60,7 @@ export const CartClosesOnX: Story = {
     const canvas = within(canvasElement)
     await waitFor(() => expect(canvas.getByRole("heading", { name: "Your Cart" })).toBeVisible())
 
-    const closeButton = canvasElement.querySelector("svg.absolute.right-3")
-    await expect(closeButton).not.toBeNull()
-    await userEvent.click(closeButton as Element)
+    await userEvent.click(canvas.getByRole("button", { name: "Close modal" }))
 
     await waitFor(() => expect(canvas.queryByRole("heading", { name: "Your Cart" })).not.toBeInTheDocument(), { timeout: 3000 })
   },

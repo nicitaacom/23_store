@@ -76,7 +76,7 @@ export function ProductsInCart() {
         </div>
 
         {/* 4. Actions — primary first, optional payments second, destructive last */}
-        <div className="flex flex-col gap-2 laptop:mt-auto">
+        <div className="flex flex-col gap-2 laptop:mt-auto [&_button]:min-h-[44px]">
           <Button
             className="w-full border-success bg-success text-title-foreground hover:bg-success/90"
             data-cy="request-better-prices"

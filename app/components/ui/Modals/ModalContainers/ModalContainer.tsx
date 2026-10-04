@@ -112,7 +112,7 @@ export function ModalContainer({
             {...modalHandler}>
             <button
               className={twMerge(
-                  "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
+                  "absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70",
                   isLoading && "opacity-50 cursor-default pointer-events-none",
                 )}
               aria-label={t("close_modal")}

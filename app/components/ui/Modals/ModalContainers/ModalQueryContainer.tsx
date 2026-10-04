@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from "framer-motion"
 
 import { getUrlWithoutModal } from "@/utils/modalQuery"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
+import { useScopedI18n } from "@/locales/client"
 
 interface ModalQueryContainerProps {
   children: React.ReactNode | ((props: { closeModal: () => void }) => React.ReactNode)
@@ -36,6 +37,7 @@ export function ModalQueryContainer({
   onVisibilityChange,
   onCloseRequest,
 }: ModalQueryContainerProps) {
+  const t = useScopedI18n("modal")
   const router = useRouter()
   const queryParams = useSearchParams()
   const modalRef = useRef<HTMLDivElement | null>(null)
@@ -136,18 +138,23 @@ export function ModalQueryContainer({
             animate={shouldClose ? { y: 8, opacity: 0 } : { y: 0, opacity: 1 }}
             exit={{ y: 8, opacity: 0 }}
             transition={{ type: "spring", stiffness: 420, damping: 34, mass: 0.9 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("close_modal")}
             {...modalHandler}
             ref={modalRef}>
             {!hideCloseButton && (
-              <IoMdClose
+              <button
                 className={twMerge(
-                  "absolute right-3 top-3 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50",
+                  "absolute right-3 top-3 z-10 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70",
                   closeButtonClassName,
                   disableDismiss && "opacity-50 cursor-default pointer-events-none",
                 )}
-                size={22}
-                onClick={requestClose}
-              />
+                aria-label={t("close_modal")}
+                type="button"
+                onClick={requestClose}>
+                <IoMdClose size={22} />
+              </button>
             )}
             {content}
           </motion.div>
