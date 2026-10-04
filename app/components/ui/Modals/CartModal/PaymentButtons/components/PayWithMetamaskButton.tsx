@@ -268,12 +268,13 @@ export function PayWithMetamaskButton() {
         </Button>
 
         <Button
-          className={`group ${config.bg} ${config.hover} ${config.text} border-0 font-semibold shadow-lg hover:shadow-xl transition-all`}
+          className={`group !h-11 !w-11 !min-w-11 ${config.bg} ${config.hover} ${config.text} border-0 font-semibold shadow-lg hover:shadow-xl transition-all`}
           size="icon-lg"
           rounded="lg"
           disabled={isLoading}
           onClick={() => setShowChainSelector(!showChainSelector)}
-          title={t("payment.select_network")}>
+          title={t("payment.select_network")}
+          aria-label={t("payment.select_network")}>
           <span className="text-lg">⚡</span>
         </Button>
       </div>

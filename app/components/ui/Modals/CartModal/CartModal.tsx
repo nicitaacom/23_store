@@ -40,10 +40,10 @@ export function CartModal() {
     <ModalQueryContainer
       className="h-[80vh] w-full overflow-hidden laptop:max-h-[700px] laptop:max-w-[1100px] desktop:max-h-[75vh] desktop:max-w-[80vw]"
       modalQuery="CartModal">
-      <div className="relative flex h-full w-full flex-col gap-2 overflow-hidden p-3 laptop:p-4">
-        <h1 className="shrink-0 text-center text-xl font-semibold text-title">{t("modal.cart.label")}</h1>
+      <div className="relative flex h-full w-full flex-col gap-1 overflow-hidden p-1 max-[767px]:overflow-y-auto laptop:gap-2 laptop:p-4">
+        <h1 className="shrink-0 text-center text-lg font-semibold text-title laptop:text-xl">{t("modal.cart.label")}</h1>
         <div className="h-px w-full bg-border-color/20" />
-        <section className="min-h-0 flex-1 overflow-hidden">
+        <section className="min-h-0 flex-1 overflow-hidden max-[767px]:overflow-visible">
           {isSkeleton ? <ProductsSkeleton /> : cartStore.productsData.length > 0 ? <ProductsInCart /> : <EmptyCart />}
         </section>
       </div>

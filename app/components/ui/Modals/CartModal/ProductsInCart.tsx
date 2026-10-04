@@ -41,9 +41,9 @@ export function ProductsInCart() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-3 overflow-hidden laptop:flex-row">
+    <div className="flex h-full flex-col gap-2 overflow-hidden max-[767px]:h-auto max-[767px]:min-h-full max-[767px]:overflow-visible laptop:flex-row laptop:gap-3">
       {/* Products list */}
-      <section className="min-h-0 flex-1 overflow-y-auto pr-1 hide-scrollbar">
+      <section className="min-h-0 flex-1 overflow-y-auto pr-1 hide-scrollbar max-[767px]:max-h-[24dvh] max-[767px]:flex-none">
         <div className="flex flex-col gap-2">
           {cartStore.productsData.map(productData => (
             <Product {...productData} containerClassName="border border-border-color/20 shrink-0" key={productData.cartKey} />
@@ -52,10 +52,10 @@ export function ProductsInCart() {
       </section>
 
       {/* 1. Order summary sidebar — flex-col with actions pinned to bottom */}
-      <aside className="flex shrink-0 flex-col gap-3 laptop:w-[300px] laptop:border-l laptop:border-border-color/20 laptop:pl-4 desktop:w-[340px]">
+      <aside className="flex shrink-0 flex-col gap-2 laptop:gap-3 laptop:w-[300px] laptop:border-l laptop:border-border-color/20 laptop:pl-4 desktop:w-[340px]">
         {/* 2. Summary panel — soft accent gradient, emphasized total */}
-        <div className="rounded-md border border-border-color/20 bg-gradient-to-br from-foreground/10 to-transparent p-3">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.16em] text-subTitle">{t("product.order_summary")}</p>
+        <div className="rounded-md border border-border-color/20 bg-gradient-to-br from-foreground/10 to-transparent p-2 laptop:p-3">
+          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-subTitle laptop:mb-3">{t("product.order_summary")}</p>
 
           <div className="flex items-center justify-between py-1.5">
             <span className="text-sm text-subTitle">{t("product.subtotal")}</span>
