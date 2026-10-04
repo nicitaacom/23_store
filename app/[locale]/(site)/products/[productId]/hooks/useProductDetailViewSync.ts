@@ -23,7 +23,7 @@ export function useProductDetailViewSync({ product, isAuthenticated, variants, g
   const { activeImage, selectVariant, selectImage } = useProductDetail()
   const { addView } = useAnonCategoryViewsStore()
 
-  // A previous variant's photo can remain in the gallery, so URL validity alone cannot reset it.
+  // A previous variant's photo can remain in the gallery, so URL validity alone does not reset it.
   const handleSelectVariant = useCallback((variantId: string) => {
     const variant = variants.find(row => row.id === variantId)
     selectVariant(variantId, getVariantMainImage(product.img_url, variant))
