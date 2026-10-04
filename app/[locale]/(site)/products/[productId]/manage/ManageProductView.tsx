@@ -452,7 +452,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   <button
                     className="min-h-[44px] rounded-xl border border-danger/20 bg-danger/8 px-3 py-2 text-xs font-medium text-danger transition-colors hover:bg-danger/12"
                     type="button"
-                    onClick={() => removeVariantRef.current(groupId)}>
+                    onClick={() => removeVariantRef.current(groupId)}
+                    data-cy="manage-remove-variant">
                     {t("remove")}
                   </button>
                 </div>
@@ -528,7 +529,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
           <div className="grid gap-4">
             <div className="grid gap-1.5">
-              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">{t("title")}</label>
+              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70" htmlFor="title">
+                {t("title")}
+              </label>
               <ProductInput
                 className={twMerge(inputCn, "h-12")}
                 id="title"
@@ -541,7 +544,9 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             </div>
 
             <div className="grid gap-1.5">
-              <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
+              <label
+                className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70"
+                htmlFor="subTitle">
                 {t("description")}
               </label>
               <ProductInput
@@ -584,6 +589,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   onChange={event => setVariantLabelValue(event.target.value)}
                   placeholder={t("variant_label")}
                   disabled={isUpdatingProduct}
+                  data-cy="manage-variant-label"
                 />
               </label>
 
@@ -598,6 +604,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                   placeholder={t("placeholder.price")}
                   disabled={isUpdatingProduct}
                   inputMode="decimal"
+                  data-cy="manage-variant-price"
                 />
               </label>
 
@@ -609,7 +616,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 variant="success-outline"
                 size="lg"
                 rounded="lg"
-                shadow="sm">
+                shadow="sm"
+                data-cy="manage-add-variant">
                 {t("add_variant_action")}
               </Button>
             </div>
@@ -648,6 +656,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               size="lg"
               rounded="lg"
               shadow="sm"
+              data-cy="manage-save"
               rightIcon={<FiSave className="text-base" />}>
               {isUpdatingProduct ? t("saving_changes") : t("save_changes")}
             </Button>
