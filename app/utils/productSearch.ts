@@ -9,6 +9,8 @@ function normalizeSearchText(value: string) {
   return value
     .toLowerCase()
     .normalize("NFKD")
+    // Keep names like Lay's as one word; splitting into "lay" and "s" matches layer + size S.
+    .replace(/['’‘ʼ]/gu, "")
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim()
 }

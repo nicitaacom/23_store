@@ -22,6 +22,15 @@ describe("filterProductsBySearchQuery", () => {
   it("keeps a phrase within one field instead of combining unrelated translations", () => {
     const matching = product("Lay's Green Onion Chips", "Potato snacks")
     const unrelated = product("Green Tea", "Lay's products are sold nearby")
-    expect(filterProductsBySearchQuery([unrelated, matching], "lay's")).toEqual([matching])
+    const underwear = product("Side-Snap Women's Period Panties with 3-Layer Wavy Waistband", "")
+    const tattoo = product("Dreamy Blue Rose Butterfly Tattoo Sticker with Layered Effect", "")
+    expect(filterProductsBySearchQuery([unrelated, underwear, tattoo, matching], "lay's")).toEqual([matching])
+  })
+
+  it("matches brand words with straight, curly, or omitted apostrophes", () => {
+    const straight = product("Lay's Green Onion Chips", "")
+    const curly = product("Lay’s Sour Cream Chips", "")
+    expect(filterProductsBySearchQuery([straight, curly], "lays")).toEqual([straight, curly])
+    expect(filterProductsBySearchQuery([straight, curly], "lay's")).toEqual([straight, curly])
   })
 })

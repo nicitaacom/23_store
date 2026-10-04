@@ -9,3 +9,7 @@ matches first, then variant labels. Descriptions are a fallback only when no pro
 label matches in the selected product set. This keeps a query such as `whey` focused on products named
 Whey while still allowing description searches when names do not match. Tests live in
 `app/utils/productSearch.test.ts`.
+
+Apostrophes stay inside brand words during matching: `Lay's`, `Lay’s`, and `lays` all normalize to
+`lays`. Splitting the name into `lay` and `s` would also match unrelated titles containing
+`layer` and a separate `s`.

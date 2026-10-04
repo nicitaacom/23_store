@@ -39,6 +39,8 @@ The project tracker records the overall plan status; checked rows below record f
   focus outline room inside the form. Verified with a Storybook keyboard test and live browser check.
 - [x] Dismiss toasts with a deliberate right swipe using `react-swipeable`. A Storybook browser test
   covers short drags, left drags, and right touch swipes.
+- [x] Keep apostrophes in catalog search brand words so `lay's` finds Lay's products without
+  unrelated `layer` matches. Verified against the live catalog and unit cases for straight and curly apostrophes.
 
 ## Project 5 cards still shown as To-do
 
