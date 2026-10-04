@@ -1,8 +1,7 @@
 import type { User } from "@supabase/supabase-js"
-import { BiSearchAlt } from "react-icons/bi"
 
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
-import { AvatarDropdown, CartIcon, HamburgerMenu, Logo, OpenAuthModalButton } from "./components"
+import { AvatarDropdown, CartIcon, HamburgerMenu, Logo, MobileSearchButton, OpenAuthModalButton } from "./components"
 import { ContactButton } from "./components/ContactButton"
 import { NavbarWrapper } from "./components/NavbarWrapper"
 import { LanguageDropdown } from "@/components/LanguageDropdown"
@@ -27,7 +26,7 @@ export function NavbarView({ avatarUrl, cartQuantity, locale, roles, user }: Nav
       <div className="flex flex-row items-center gap-x-2">
         <LanguageDropdown className="hidden tablet:flex" locale={locale} />
         <SwitchDarkMode className="max-[500px]:hidden" />
-        <BiSearchAlt className="flex tablet:hidden" size={28} />
+        <MobileSearchButton />
         <CartIcon userId={user?.id} cart_quantity={cartQuantity} />
         <ContactButton />
         {user ? <AvatarDropdown roles={roles} avatarUrlServer={avatarUrl} /> : <OpenAuthModalButton />}

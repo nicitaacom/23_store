@@ -145,6 +145,28 @@ export const MobileMenu: Story = {
   },
 }
 
+export const MobileSearchFocus: Story = {
+  parameters: { viewport: { defaultViewport: "mobileSmall" } },
+  render: () => (
+    <div className="min-h-[340px] bg-background pt-20">
+      <NavbarView cartQuantity={0} locale="en" roles={[]} user={null} />
+      <main className="p-6 text-subTitle">
+        <label className="flex flex-col gap-2" htmlFor="catalog-search-input">
+          Catalog search
+          <input className="rounded border border-border-color bg-background p-2 text-title" id="catalog-search-input" />
+        </label>
+      </main>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const searchButton = await canvas.findByRole("link", { name: "Search" })
+    const searchInput = canvas.getByRole("textbox", { name: "Catalog search" })
+    await userEvent.click(searchButton)
+    await expect(searchInput).toHaveFocus()
+  },
+}
+
 export const DesktopNavigation: Story = {
   args: { cartQuantity: 1, user: customerUser },
   parameters: { viewport: { defaultViewport: "laptop" } },

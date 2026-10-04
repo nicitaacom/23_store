@@ -69,7 +69,7 @@ or a browser check before they can be called done.
 | [ ] | `37824584` root-fix-checkForRerenders | Measure and fix unnecessary rerenders. |
 | [ ] | `38996859` fix-contrast | Audit and fix contrast. |
 | [ ] | `39239429` add-guideForEnv | Document environment setup. |
-| [ ] | `41549721` imp-NavbarTSX_logicForSearchIcon_onMobilesOnClick | Make mobile search usable. |
+| [x] | `41549721` imp-NavbarTSX_logicForSearchIcon_onMobilesOnClick | The 44px mobile search link focuses the catalog input on the catalog page or returns to the current locale's catalog and focuses it. Storybook interaction and Chromium checks passed at 320px. |
 | [ ] | `41570759` imp-ProductsTSX_show_popularBuyed | Show popular products. |
 | [ ] | `42039097` imp-initialPageLoadingSkeleton_matchWithUI | Match the initial skeleton to the catalog. |
 | [ ] | `43098991` imp-languageTSX_BgContrast | Improve language menu contrast. |

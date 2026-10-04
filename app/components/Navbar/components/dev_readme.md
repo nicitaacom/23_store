@@ -51,6 +51,13 @@ Cart entry point.
 
 This SSR -> client handoff avoids hydration mismatch and still keeps cart count responsive.
 
+### `MobileSearchButton.tsx`
+
+- visible below tablet widths and opens the catalog search field
+- focuses the existing catalog input when it is on the current page
+- otherwise returns to the current locale's catalog and focuses the input after navigation
+- uses the `focusSearch=1` query value to focus the catalog input after navigation
+
 ### `ContactButton.tsx`
 
 Small contact dropdown.

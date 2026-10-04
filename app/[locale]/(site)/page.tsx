@@ -113,6 +113,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
                   <div className="w-full max-w-[480px] max-[480px]:max-w-none">
                     <CatalogSearchForm
                       ariaLabel={t("catalog_search_action")}
+                      focusSearch={searchParams["focusSearch"] === "1"}
                       initialQuery={searchQuery}
                       locale={params.locale}
                       perPage={perPage}

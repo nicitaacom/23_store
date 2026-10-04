@@ -9,6 +9,7 @@ import { useDebounce } from "@/hooks/useDebounce"
 interface CatalogSearchFormProps {
   locale: string
   initialQuery: string
+  focusSearch?: boolean
   perPage: number
   ariaLabel: string
   placeholder: string
@@ -32,6 +33,7 @@ function createCatalogSearchHref(locale: string, perPage: number, query: string)
 export function CatalogSearchForm({
   locale,
   initialQuery,
+  focusSearch = false,
   perPage,
   ariaLabel,
   placeholder,
@@ -41,6 +43,7 @@ export function CatalogSearchForm({
   const searchParams = useSearchParams()
   const normalizedInitialQuery = initialQuery.trim()
   const [queryValue, setQueryValue] = useState(normalizedInitialQuery)
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const [isPending, startTransition] = useTransition()
   const debouncedQuery = useDebounce(queryValue.trim(), 3000)
   const lastNavigatedQueryRef = useRef(normalizedInitialQuery)
@@ -54,6 +57,11 @@ export function CatalogSearchForm({
   useEffect(() => {
     lastNavigatedQueryRef.current = normalizedInitialQuery
   }, [normalizedInitialQuery])
+
+  useEffect(() => {
+    if (!focusSearch) return
+    searchInputRef.current?.focus()
+  }, [focusSearch])
 
   useEffect(() => {
     const currentQuery = searchParams?.get("query")?.trim() ?? ""
@@ -104,9 +112,11 @@ export function CatalogSearchForm({
       <input
         className="relative h-10 w-full rounded-[2px] bg-transparent px-3 text-base text-title outline-none placeholder:text-subTitle"
         aria-label={ariaLabel}
+        id="catalog-search-input"
         name="query"
         onChange={event => setQueryValue(event.currentTarget.value)}
         placeholder={placeholder}
+        ref={searchInputRef}
         type="search"
         value={queryValue}
       />
