@@ -27,6 +27,17 @@ describe("track order mobile controls", () => {
       cy.document().should(document => {
         expect(document.documentElement.scrollWidth).to.be.at.most(document.documentElement.clientWidth)
       })
+      cy.get('[data-cy="track-order-feedback"]').scrollIntoView().should("be.visible").should(link => {
+        const bounds = link[0].getBoundingClientRect()
+        expect(bounds.height, "feedback link hit area after scrolling").to.be.at.least(44)
+        expect(bounds.top, "feedback link stays inside short viewport").to.be.at.least(0)
+        expect(bounds.bottom, "feedback link stays inside short viewport").to.be.at.most(height)
+      })
+      cy.document().should(document => {
+        expect(document.documentElement.scrollWidth, "no overflow after scrolling to the footer").to.be.at.most(
+          document.documentElement.clientWidth,
+        )
+      })
     })
   })
 })

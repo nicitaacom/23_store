@@ -100,6 +100,28 @@ describe("responsive layout", () => {
           const renderedWidth = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth)
           expect(renderedWidth, `${route} at ${viewport.width}px`).to.be.at.most(viewportWidth)
         })
+
+        cy.window().then(appWindow => {
+          appWindow.scrollTo(0, appWindow.document.documentElement.scrollHeight)
+        })
+        cy.document().should(document => {
+          const viewportWidth = document.documentElement.clientWidth
+          const renderedWidth = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth)
+          expect(renderedWidth, `${route} after scrolling at ${viewport.width}px`).to.be.at.most(viewportWidth)
+
+          const viewportButtons = Array.from(document.querySelectorAll("button")).filter(button => {
+            const bounds = button.getBoundingClientRect()
+            return bounds.bottom > 0 && bounds.top < viewport.height
+          })
+          expect(viewportButtons.length, `${route} has visible controls after scrolling`).to.be.greaterThan(0)
+          viewportButtons.forEach(button => {
+            const bounds = button.getBoundingClientRect()
+            expect(bounds.height, `${route} scrolled control height`).to.be.at.least(44)
+            expect(bounds.left, `${route} scrolled control left edge`).to.be.at.least(-1)
+            expect(bounds.right, `${route} scrolled control right edge`).to.be.at.most(viewportWidth + 1)
+            expect(bounds.bottom, `${route} scrolled control bottom edge`).to.be.at.most(viewport.height + 1)
+          })
+        })
       })
     })
   })

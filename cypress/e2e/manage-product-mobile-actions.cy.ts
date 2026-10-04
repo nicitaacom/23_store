@@ -61,6 +61,11 @@ describe("manage product mobile actions", () => {
       cy.get('[data-cy="manage-remove-variant"]').click()
       cy.get('[data-cy="manage-remove-variant"]').should("not.exist")
       cy.get('[data-cy="manage-save"]').should("be.disabled")
+      cy.get('[data-cy="manage-save"]').scrollIntoView().should("be.visible").should(button => {
+        const bounds = button[0].getBoundingClientRect()
+        expect(bounds.top, "save action remains in the viewport at the end of the page").to.be.at.least(0)
+        expect(bounds.bottom, "save action remains in the viewport at the end of the page").to.be.at.most(height)
+      })
       cy.document().should(document => {
         expect(document.documentElement.scrollWidth).to.be.at.most(document.documentElement.clientWidth)
       })

@@ -94,12 +94,12 @@ export default function TrackOrderPage() {
           </div>
 
           {/* Footer links */}
-          <div className="flex justify-center gap-3 text-xs">
-            <Link className="font-medium text-success hover:text-success-accent" href="/support">
+          <div className="flex justify-center gap-3 text-xs max-[767px]:gap-1">
+            <Link className="inline-flex min-h-[44px] items-center px-2 font-medium text-success hover:text-success-accent" href="/support">
               {t("support")}
             </Link>
             <span className="text-border-color">•</span>
-            <Link className="font-medium text-success hover:text-success-accent" href="/feedback">
+            <Link className="inline-flex min-h-[44px] items-center px-2 font-medium text-success hover:text-success-accent" href="/feedback" data-cy="track-order-feedback">
               {t("feedback")}
             </Link>
           </div>
