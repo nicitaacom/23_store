@@ -43,7 +43,7 @@ export function BannersSlider() {
   const banner = BANNERS[current]
 
   return (
-    <div className="relative h-full min-h-[320px] w-full overflow-hidden rounded-[16px] border border-white/10">
+    <div className="relative h-full min-h-[220px] w-full overflow-hidden rounded-[16px] border border-white/10 tablet:min-h-[320px]">
       <div
         style={{ transition: "opacity 1000ms ease" }}
         className={`relative h-full w-full ${animating ? "opacity-0" : "opacity-100"}`}>
