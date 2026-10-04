@@ -162,7 +162,7 @@ export function AreYouSureModalContainer({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-[2000] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px] max-[767px]:p-0"
+          className="fixed inset-0 z-[2000] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px] max-[767px]:h-[100dvh] max-[767px]:items-start max-[767px]:p-0"
           data-click-outside-ignore
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

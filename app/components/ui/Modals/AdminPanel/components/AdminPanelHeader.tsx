@@ -61,7 +61,7 @@ export function AdminPanelHeader({
         className,
       )}
       data-click-outside-ignore
-      parentClassName="relative flex h-auto flex-col gap-2 px-2 py-2 tablet:px-3"
+      parentClassName="relative flex h-auto flex-col gap-2 px-2 pb-2 pt-5 tablet:px-3 tablet:py-2"
       particleCount={3}
       brandHsl={siteTheme === "halloween" ? "25, 100%, 55%" : "137, 82%, 52%"}
       verticalOverflow={18}>

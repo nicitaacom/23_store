@@ -75,11 +75,26 @@ describe("Admin Panel mobile geometry and actions", () => {
       cy.get('[data-cy^="admin-action-"]').each(button => {
         expect(Math.round(button[0].getBoundingClientRect().height), `${button.text()} tab touch height`).to.be.at.least(44)
       })
-      cy.get('[data-cy="create-product"]').scrollIntoView().should("be.visible").and("be.disabled")
+      cy.get('[data-cy="add-product-layout"]').scrollTo("bottom")
+      cy.get('[data-cy="create-product"]').should("be.visible").and("be.disabled")
       cy.get('[data-cy="add-product-layout"]').should(layout => {
         expect(layout[0].scrollTop, "scrolling to Create moves the mobile form").to.be.greaterThan(0)
       })
-      cy.get('[data-testid="add-product-upload"]').scrollIntoView().should("be.visible")
+      cy.get('[data-cy="admin-panel-close"]').should("be.visible").should(closeButton => {
+        const bounds = closeButton[0].getBoundingClientRect()
+        const panelElement = closeButton[0].closest<HTMLElement>(".halloween-panel")!
+        const panel = panelElement.getBoundingClientRect()
+        const header = closeButton[0].closest<HTMLElement>(".halloween-admin-header")!.getBoundingClientRect()
+        const parent = closeButton[0].parentElement!.getBoundingClientRect()
+        expect(
+          bounds.top,
+          `modal close stays in view after form scrolling (close=${bounds.top}..${bounds.bottom}, header=${header.top}..${header.bottom}, row=${parent.top}..${parent.bottom}, panel=${panel.top}..${panel.bottom}, scrollY=${closeButton[0].ownerDocument.defaultView?.scrollY})`,
+        ).to.be.at.least(0)
+        expect(bounds.bottom, "modal close stays in view after form scrolling").to.be.at.most(height)
+      })
+      if (width === 320) cy.screenshot("admin-panel-scrolled-close-after-320x480", { capture: "viewport" })
+      cy.get('[data-cy="add-product-layout"]').scrollTo("top")
+      cy.get('[data-testid="add-product-upload"]').should("be.visible")
       cy.get("#add-product-description").type("Mobile copy")
       cy.get('button[aria-label="Bold (**text**)"]')
         .should("not.have.attr", "tabindex", "-1")
@@ -95,6 +110,11 @@ describe("Admin Panel mobile geometry and actions", () => {
       ;(["add", "edit", "delete", "pricing"] as const).forEach(action => {
         cy.get(`[data-cy="admin-action-${action}"]`).should("be.visible").click()
         cy.get(`[data-cy="admin-action-${action}"]`).should("have.attr", "aria-pressed", "true")
+        cy.get('[data-cy="admin-panel-close"]').should("be.visible").should(closeButton => {
+          const bounds = closeButton[0].getBoundingClientRect()
+          expect(bounds.top, `${action} tab close stays in view`).to.be.at.least(0)
+          expect(bounds.bottom, `${action} tab close stays in view`).to.be.at.most(height)
+        })
         cy.location("search").should("include", "modal=AdminPanel")
         assertAdminButtonsMeetMobileSize()
       })

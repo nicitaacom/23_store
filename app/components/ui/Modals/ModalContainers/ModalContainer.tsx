@@ -96,7 +96,7 @@ export function ModalContainer({
           className={twMerge(
             `fixed inset-0 z-[49] flex items-center justify-center bg-background/60 px-3 py-4 backdrop-blur-[2px]`,
             classnameContainer,
-            fullScreenOnMobile && "max-[767px]:p-0",
+            fullScreenOnMobile && "max-[767px]:h-[100dvh] max-[767px]:items-start max-[767px]:p-0",
           )}
           data-mobile-fullscreen-backdrop={fullScreenOnMobile ? "true" : undefined}
           initial={{ opacity: 0 }}
