@@ -153,16 +153,16 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
   )
 
   return (
-    <div className="grid items-start gap-3 laptop:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] items-start gap-3 laptop:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       {/* Left column: gallery + gif */}
-      <section className="grid gap-2 tablet:grid-cols-[72px_minmax(0,1fr)]">
+      <section className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2 tablet:grid-cols-[72px_minmax(0,1fr)]">
         <div className="order-2 tablet:order-1">
           <div className="flex gap-2 overflow-x-auto pb-1 tablet:flex-col tablet:overflow-y-auto tablet:pb-0">
             {renderedThumbnails}
           </div>
         </div>
 
-        <div className="order-1 tablet:order-2 flex flex-col gap-2">
+        <div className="order-1 flex min-w-0 flex-col gap-2 tablet:order-2">
           <div className="halloween-panel overflow-hidden rounded-[2px] border border-success/20 bg-foreground/5">
             <div className="relative aspect-square w-full max-h-[480px]">
               <Image
@@ -197,7 +197,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
       </section>
 
       {/* Right column: product info */}
-      <aside className="flex flex-col gap-2">
+      <aside className="flex min-w-0 flex-col gap-2">
         <section className="halloween-panel flex flex-col gap-2 rounded-[2px] border border-success/20 bg-foreground/5 p-3">
           {/* Badges row */}
           <div className="flex flex-wrap items-center gap-2">
@@ -225,8 +225,8 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
           </div>
 
           {/* Title + buy control */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
+          <div className="flex flex-col gap-3 tablet:flex-row tablet:items-start tablet:justify-between">
+            <div className="min-w-0 flex-1">
               <Link
                 className="mb-1 inline-flex max-w-full truncate rounded-[2px] border border-success/25 bg-success/10 px-2 py-1 text-xs font-semibold tracking-wide text-success transition-colors duration-150 hover:border-success/45 hover:bg-success/15"
                 href={categoryHref}>
@@ -236,15 +236,15 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
                 {translation.title}
               </h1>
             </div>
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="flex w-full flex-wrap items-center gap-1 tablet:w-auto tablet:shrink-0 tablet:flex-nowrap">
               {personalizationConfig && !isOutOfStock && (
                 <PersonalizeButton className="h-11 rounded-[2px]" productId={product.id} variantId={selectedVariant?.id} />
               )}
               {isOutOfStock ? (
-                <RequestReplanishmentButton className="h-11 rounded-[2px] shadow-none" product={product} />
+                <RequestReplanishmentButton className="h-11 w-full rounded-[2px] shadow-none tablet:w-auto" product={product} />
               ) : quantity === 0 ? (
                 <AddToCartButton
-                  className="h-11 justify-between rounded-[2px] px-5 shadow-none"
+                  className="h-11 w-full justify-center rounded-[2px] px-5 shadow-none tablet:w-auto"
                   productId={product.id}
                   variantId={selectedVariant?.id}
                   categoryId={product.category_id}
