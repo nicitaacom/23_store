@@ -24,8 +24,9 @@ The project tracker records the overall plan status; checked rows below record f
   overflow; owner, admin, and support screens were checked with test accounts.
 - [ ] Exercise visible buttons with Playwright after signing in as the fixture owner. Check
   the URL and visible state after each action, and fix any reproducible failure.
-- [ ] Reproduce the reported connection loss during Admin Panel use. Keep the page usable and
-  show a useful retry state when a request fails.
+- [x] Reproduce a lost AI-pricing settings request in Admin Panel at 320×480. The panel remains
+  usable, shows a localized Retry button, and recovers when the request succeeds; owner price and
+  delete failures also roll back cleanly at 320×480.
 - [x] Read the Storybook CI failure from the supplied run and fix the repeated console error.
   The old run first logged an expected ErrorBoundary story error, then the reporter wrapped its
   own error repeatedly. The current story filters that expected log; the reporter now installs
