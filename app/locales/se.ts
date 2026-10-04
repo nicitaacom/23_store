@@ -269,6 +269,7 @@ export default {
   "navbar.ecosystem_links": "Snabblänkar till resten av Jokik-projektekosystemet.",
   "navbar.try_it": "Prova",
   "navbar.language": "Språk",
+  "navbar.dark_mode": "Mörkt läge",
   "toast.warning.subtitle": "Detta kräver din uppmärksamhet",
   "toast.error.updating_quantity": "Fel vid uppdatering av antal",
   "toast.please_login_title": "Vänligen logga in",

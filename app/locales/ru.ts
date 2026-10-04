@@ -270,6 +270,7 @@ export default {
   "navbar.ecosystem_links": "Быстрые ссылки на другие проекты экосистемы Jokik.",
   "navbar.try_it": "Попробовать",
   "navbar.language": "Язык",
+  "navbar.dark_mode": "Тёмная тема",
   "toast.warning.subtitle": "Требует вашего внимания",
   "toast.error.updating_quantity": "Ошибка обновления количества",
   "toast.please_login_title": "Пожалуйста, войдите",

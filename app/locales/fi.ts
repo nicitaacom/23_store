@@ -269,6 +269,7 @@ export default {
   "navbar.ecosystem_links": "Pikalinkit muihin Jokik-ekosysteemin projekteihin.",
   "navbar.try_it": "Kokeile",
   "navbar.language": "Kieli",
+  "navbar.dark_mode": "Tumma tila",
   "toast.warning.subtitle": "Tämä vaatii huomiotasi",
   "toast.error.updating_quantity": "Virhe määrän päivittämisessä",
   "toast.please_login_title": "Kirjaudu sisään",

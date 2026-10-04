@@ -269,6 +269,7 @@ export default {
   "navbar.ecosystem_links": "Quick links to the rest of the Jokik project ecosystem.",
   "navbar.try_it": "Try it",
   "navbar.language": "Language",
+  "navbar.dark_mode": "Dark mode",
   "toast.warning.subtitle": "This requires your attention",
   "toast.error.updating_quantity": "Error updating quantity",
   "toast.please_login_title": "Please login",

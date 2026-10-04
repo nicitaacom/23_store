@@ -3,7 +3,7 @@ import { useRef, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { BsWindow, BsDatabaseDown } from "react-icons/bs"
-import { BiImageAdd } from "react-icons/bi"
+import { BiImageAdd, BiMoon } from "react-icons/bi"
 import { IoChatboxEllipsesOutline } from "react-icons/io5"
 import { IoIosStats } from "react-icons/io"
 import { FaTelegramPlane } from "react-icons/fa"
@@ -18,7 +18,6 @@ import { useScopedI18n } from "@/locales/client"
 import { useUpdateAvatarModal } from "@/store/ui/useUpdateAvatarModal"
 import useUser from "@/store/user/useUser"
 import { DropdownContainer, DropdownItem } from "@/components/ui"
-import { SwitchDarkMode } from "@/components"
 
 interface AvatarDropdownProps {
   roles: string[]
@@ -112,7 +111,26 @@ export function AvatarDropdown({ roles, avatarUrlServer }: AvatarDropdownProps) 
         target="_blank"
       />
       {roles.includes("ADMIN") && <DropdownItem label="Stats" icon={IoIosStats} href="/stats" />}
-      <DropdownItem className="min-[501px]:hidden" label="Dark mode" icon={SwitchDarkMode} onClick={toggleDarkMode} />
+      <DropdownItem
+        className="min-[501px]:hidden"
+        label={tNavbar("dark_mode")}
+        icon={BiMoon}
+        onClick={toggleDarkMode}
+        ariaPressed={isDarkMode}
+        trailing={
+          <span
+            className={`relative h-5 w-9 shrink-0 rounded-full border-2 border-icon-color transition-colors ${
+              isDarkMode ? "bg-foreground" : "bg-background"
+            }`}
+            aria-hidden="true">
+            <span
+              className={`absolute top-0 h-[10px] w-[10px] translate-y-[20%] rounded-full bg-icon-color transition-transform ${
+                isDarkMode ? "translate-x-[180%]" : "translate-x-[20%]"
+              }`}
+            />
+          </span>
+        }
+      />
       <LogoutDropdownItem />
     </DropdownContainer>
   )
