@@ -62,8 +62,8 @@ export default async function ManageProductPage({ params: paramsPromise }: Manag
   }
 
   return (
-    <div className="mx-auto min-h-[calc(100vh-64px)] w-full max-w-[1600px] px-4 pb-24 pt-6 text-title tablet:pb-6">
-      <section className="flex flex-col gap-5">
+    <div className="mx-auto min-h-[calc(100vh-64px)] w-full max-w-[1600px] px-4 pb-24 pt-6 text-title tablet:pb-6 max-[767px]:px-0 max-[767px]:pt-1" data-cy="manage-product-page">
+      <section className="flex flex-col gap-5 max-[767px]:gap-2">
         <nav className="flex flex-wrap items-center gap-2 text-sm text-subTitle">
           <Link className="transition-colors duration-200 hover:text-success" href={`/${params.locale}`}>
             {t("products")}
@@ -78,15 +78,15 @@ export default async function ManageProductPage({ params: paramsPromise }: Manag
           <span className="text-title">{t("manage_product")}</span>
         </nav>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 max-[767px]:gap-1">
           <Link
-            className="inline-flex w-fit items-center gap-2 rounded-[4px] border border-success/18 bg-success/8 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success/35 hover:bg-success/14 hover:text-title"
+            className="inline-flex min-h-[44px] w-fit items-center gap-2 rounded-[4px] border border-success/18 bg-success/8 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success/35 hover:bg-success/14 hover:text-title max-[767px]:px-2 max-[767px]:py-1"
             href={`/${params.locale}/products/${getProductByIdResp.id}`}>
             <BiArrowBack className="text-lg" />
             {t("view_product")}
           </Link>
           <Link
-            className="inline-flex w-fit items-center gap-2 rounded-[4px] border border-white/8 bg-[#0f1318] px-4 py-2 text-sm font-semibold text-title transition-colors duration-300 hover:border-success/22 hover:bg-[#151b24]"
+            className="inline-flex min-h-[44px] w-fit items-center gap-2 rounded-[4px] border border-white/8 bg-[#0f1318] px-4 py-2 text-sm font-semibold text-title transition-colors duration-300 hover:border-success/22 hover:bg-[#151b24] max-[767px]:px-2 max-[767px]:py-1"
             href={`/${params.locale}`}>
             <BiArrowBack className="text-lg" />
             {t("back_to_catalog")}

@@ -33,6 +33,13 @@ describe("manage product mobile actions", () => {
       cy.viewport(width, height)
       cy.visit(`/en/products/${fixtures.ownerProduct.id}/manage`)
 
+      cy.get('[data-cy="manage-product-page"]').should(page => {
+        expect(getComputedStyle(page[0]).paddingLeft, "mobile page gutter").to.equal("0px")
+        expect(getComputedStyle(page[0]).paddingRight, "mobile page gutter").to.equal("0px")
+      })
+      cy.get('[data-cy="manage-product-info-panel"]').should(panel => {
+        expect(parseFloat(getComputedStyle(panel[0]).paddingLeft), "mobile section padding").to.be.at.most(8)
+      })
       cy.get("#title").should("be.visible")
       cy.get("#title").then(title => {
         expect((title[0] as HTMLInputElement).labels, "title input has an associated label").to.have.length(1)

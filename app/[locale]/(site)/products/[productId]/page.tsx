@@ -81,8 +81,8 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
     : `/${params.locale}`
 
   return (
-    <div className="min-h-[calc(100vh-64px)] w-full px-4 py-6 text-title">
-      <section className="flex flex-col gap-5">
+    <div className="min-h-[calc(100vh-64px)] w-full px-4 py-6 text-title max-[767px]:px-0 max-[767px]:py-2">
+      <section className="flex flex-col gap-5 max-[767px]:gap-2">
         <nav className="flex flex-wrap items-center gap-2 text-sm text-subTitle">
           <Link className="transition-colors duration-200 hover:text-success" href={categoryHref}>
             {getCategoryByIdResp?.name ?? tCategory("uncategorized")}
@@ -92,7 +92,7 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
         </nav>
 
         <Link
-          className="inline-flex w-fit items-center gap-2 rounded-[4px] border border-success/25 bg-success/5 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-background"
+          className="inline-flex min-h-[44px] w-fit items-center gap-2 rounded-[4px] border border-success/25 bg-success/5 px-4 py-2 text-sm font-semibold text-success transition-colors duration-300 hover:border-success hover:bg-success hover:text-background max-[767px]:px-2 max-[767px]:py-1"
           href={`/${params.locale}`}>
           <BiArrowBack className="text-lg" />
           {t("back_to_catalog")}

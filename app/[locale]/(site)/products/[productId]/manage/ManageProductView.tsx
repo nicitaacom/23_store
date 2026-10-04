@@ -360,7 +360,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
         return (
           <div
-            className="halloween-panel min-w-0 rounded-2xl border border-white/20 bg-[linear-gradient(180deg,rgba(14,18,24,0.96),rgba(9,11,15,0.98))] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.2)]"
+            className="halloween-panel min-w-0 rounded-2xl border border-white/20 bg-[linear-gradient(180deg,rgba(14,18,24,0.96),rgba(9,11,15,0.98))] p-3 shadow-[0_14px_40px_rgba(0,0,0,0.2)] max-[767px]:p-2"
             key={groupId}>
             <div className="flex items-center gap-3">
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black">
@@ -380,7 +380,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               />
             </div>
 
-            <div className="mt-3 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
+            <div className="mt-3 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 max-[767px]:mt-2 max-[767px]:gap-2">
                 <VariantOptionsEditor
                   variantLabel={groupLabel}
                   options={groupOptions}
@@ -469,8 +469,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
   )
 
   return (
-    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-6 laptop:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-      <section className="halloween-panel rounded-2xl border border-white/8 bg-[linear-gradient(145deg,rgba(12,16,21,0.98),rgba(8,10,14,0.99))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.34)]">
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-6 laptop:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] max-[767px]:gap-2">
+      <section className="halloween-panel rounded-2xl border border-white/8 bg-[linear-gradient(145deg,rgba(12,16,21,0.98),rgba(8,10,14,0.99))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.34)] max-[767px]:rounded-md max-[767px]:p-2">
         <p className="text-[11px] font-semibold uppercase tracking-widest text-white/70">{t("manage_images")}</p>
         {product.img_url.length > 0 && (
           <div className="relative mt-3 aspect-[4/3] w-full overflow-hidden rounded-xl border border-white/8 bg-black">
@@ -504,7 +504,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             </AnimatePresence>
           </div>
         )}
-        <div className="mt-3">
+        <div className="mt-3 max-[767px]:mt-1">
           <FormatImagesForm
             id={product.id}
             title={product.translations.fi.title}
@@ -519,15 +519,15 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         </div>
       </section>
 
-      <form className="flex min-w-0 flex-col gap-4" onSubmit={event => handleSubmit(onSubmit)(event)}>
-        <section className="halloween-panel rounded-2xl border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(20,90,44,0.22),transparent_28%),linear-gradient(155deg,rgba(11,14,19,0.99),rgba(8,10,14,1))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.42)]">
-          <div className="mb-4">
+      <form className="flex min-w-0 flex-col gap-4 max-[767px]:gap-2" onSubmit={event => handleSubmit(onSubmit)(event)}>
+        <section className="halloween-panel rounded-2xl border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(20,90,44,0.22),transparent_28%),linear-gradient(155deg,rgba(11,14,19,0.99),rgba(8,10,14,1))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.42)] max-[767px]:rounded-md max-[767px]:p-2" data-cy="manage-product-info-panel">
+          <div className="mb-4 max-[767px]:mb-2">
             <p className="text-xs uppercase tracking-[0.24em] text-subTitle">{t("manage_product")}</p>
-            <h1 className="mt-2 text-3xl font-semibold text-title">{t("manage_product_title")}</h1>
-            <p className="mt-2 text-sm leading-6 text-subTitle">{t("manage_product_subtitle")}</p>
+            <h1 className="mt-2 text-3xl font-semibold text-title max-[767px]:mt-1 max-[767px]:text-xl">{t("manage_product_title")}</h1>
+            <p className="mt-2 text-sm leading-6 text-subTitle max-[767px]:mt-1 max-[767px]:leading-5">{t("manage_product_subtitle")}</p>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-4 max-[767px]:gap-2">
             <div className="grid gap-1.5">
               <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70" htmlFor="title">
                 {t("title")}
@@ -550,7 +550,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
                 {t("description")}
               </label>
               <ProductInput
-                className={twMerge(inputCn, "min-h-[120px] resize-none py-3 leading-6")}
+                className={twMerge(inputCn, "min-h-[120px] resize-none py-3 leading-6 max-[767px]:min-h-[88px] max-[767px]:py-2")}
                 id="subTitle"
                 register={register}
                 errors={errors}
@@ -559,7 +559,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
               />
             </div>
 
-            <div className="grid items-end gap-4 mobile:grid-cols-2">
+            <div className="grid items-end gap-2 mobile:grid-cols-2">
               {/* Stock is the accumulated stock of all variants (read-only) — edit it per variant above */}
               <div className="h-12 flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.04] px-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-subTitle">{t("on_stock")}</p>
@@ -576,8 +576,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
           </div>
         </section>
 
-        <section className="halloween-panel rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
-          <div className="flex flex-col gap-3">
+        <section className="halloween-panel rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)] max-[767px]:rounded-md max-[767px]:p-2">
+          <div className="flex flex-col gap-3 max-[767px]:gap-2">
             <div className="grid items-end gap-3 mobile:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
               <label className="grid gap-1.5">
                 <span className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70">
@@ -625,7 +625,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
             {!variants.length && <p className="text-sm text-subTitle">{t("manage_variant_help")}</p>}
           </div>
 
-          <div className="mt-4 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
+          <div className="mt-4 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 max-[767px]:mt-2 max-[767px]:gap-2">
             {variantCards.length ? variantCards : <p className="text-sm text-subTitle">{t("manage_variant_empty")}</p>}
           </div>
         </section>
@@ -633,8 +633,8 @@ export function ManageProductView({ product }: ManageProductViewProps) {
         {/* Own section with its own update button - the print area is not part of the title/price form */}
         <PersonalizationForm imageUrls={product.img_url} productId={product.id} personalization={product.personalization} />
 
-        <section className="halloween-panel rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
-          <div className="flex flex-wrap gap-3">
+        <section className="halloween-panel rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgba(10,13,18,0.98),rgba(7,9,13,0.99))] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.28)] max-[767px]:rounded-md max-[767px]:p-2">
+          <div className="flex flex-wrap gap-3 max-[767px]:gap-2">
             <Button
               className="h-11 font-medium"
               type="button"
