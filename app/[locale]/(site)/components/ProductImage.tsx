@@ -29,7 +29,7 @@ export function ProductImage({ imgUrl, productTitle }: ProductImageProps) {
       images={imgUrl.map((image, index) => ({ src: image, alt: `${productTitle}-${index + 1}` }))}
       width={720}
       height={480}
-      swipeable={false}
+      swipeable
     />
   )
 }

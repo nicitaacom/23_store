@@ -110,7 +110,7 @@ export function CatalogSearchForm({
         aria-hidden="true"
       />
       <input
-        className="relative h-10 w-full rounded-[2px] bg-transparent px-3 text-base text-title outline-none placeholder:text-subTitle"
+        className="relative h-11 w-full rounded-[2px] bg-transparent px-3 text-base text-title outline-none placeholder:text-subTitle focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-success/60"
         aria-label={ariaLabel}
         id="catalog-search-input"
         name="query"
@@ -121,11 +121,12 @@ export function CatalogSearchForm({
         value={queryValue}
       />
       <button
-        className={`relative inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-[2px] border px-4 text-sm font-semibold transition-all duration-300 ${
+        className={`relative inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[2px] border px-4 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
           isPending
             ? "border-success bg-success text-black"
             : "border-success/30 bg-success/10 text-success hover:border-success hover:bg-success hover:text-background"
         }`}
+        data-cy="catalog-search-submit"
         aria-busy={isPending}
         disabled={isPending}
         type="submit">

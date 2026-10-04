@@ -97,9 +97,10 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
                 const isFilled = starValue <= (hover || myRating)
                 return (
                   <button
-                    className="rounded p-0.5 transition-transform duration-150 hover:scale-110 disabled:cursor-default disabled:hover:scale-100"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded transition-transform duration-150 hover:scale-105 disabled:cursor-default disabled:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning/70"
                     key={starValue}
                     type="button"
+                    aria-label={`${myRating ? t("your_rating") : t("rate_this_product")}: ${starValue} / 5`}
                     disabled={Boolean(myRating)}
                     onMouseEnter={() => !myRating && setHover(starValue)}
                     onMouseLeave={() => setHover(0)}

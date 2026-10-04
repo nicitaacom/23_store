@@ -72,7 +72,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
           <button
             className={twMerge(
               // 1. anchor to figure via absolute, center vertically
-              "absolute z-[88] top-1/2 -translate-y-1/2 left-0 h-full w-[40px] bg-[rgba(0,0,0,0.4)] flex justify-center items-center cursor-pointer duration-500",
+              "absolute z-[88] top-1/2 -translate-y-1/2 left-0 h-full w-11 bg-[rgba(0,0,0,0.4)] flex justify-center items-center cursor-pointer duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white",
               !hasPrev && "opacity-50 cursor-default",
             )}
             aria-label={t("previous_image")}
@@ -84,7 +84,7 @@ export function Slider({ images, width, height, emulateTouch, swipeable, classNa
         renderArrowNext={(clickHandler, hasNext) => (
           <button
             className={twMerge(
-              "absolute z-[88] top-1/2 -translate-y-1/2 right-0 h-full w-[40px] bg-[rgba(0,0,0,0.4)] flex justify-center items-center cursor-pointer duration-500",
+              "absolute z-[88] top-1/2 -translate-y-1/2 right-0 h-full w-11 bg-[rgba(0,0,0,0.4)] flex justify-center items-center cursor-pointer duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white",
               !hasNext && "opacity-50 cursor-default",
             )}
             aria-label={t("next_image")}

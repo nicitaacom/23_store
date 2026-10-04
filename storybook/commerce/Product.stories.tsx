@@ -49,6 +49,29 @@ export const LongLocalizedContent: Story = {
 export const MissingImage: Story = { args: { img_url: [] } };
 export const MultipleVariants: Story = {};
 export const SelectedVariant: Story = { args: { variantId: "variant-headphones-silver" } };
+export const MobileGalleryControls: Story = {
+  globals: { theme: "dark", viewport: { value: "mobileSmall" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const nextImage = await canvas.findByRole("button", { name: "Next image" });
+    const previousImage = canvas.getByRole("button", { name: "Previous image" });
+    for (const button of [nextImage, previousImage]) {
+      const bounds = button.getBoundingClientRect();
+      await expect(bounds.width).toBeGreaterThanOrEqual(44);
+      await expect(bounds.height).toBeGreaterThanOrEqual(44);
+    }
+
+    const selectedImage = () => canvasElement.querySelector<HTMLImageElement>(".slide.selected img");
+    await waitFor(() => expect(selectedImage()?.alt).toContain("-1"));
+    await userEvent.click(nextImage);
+    await waitFor(() => expect(selectedImage()?.alt).toContain("-2"));
+    await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(
+      canvasElement.ownerDocument.documentElement.clientWidth,
+    );
+    await userEvent.click(previousImage);
+    await waitFor(() => expect(selectedImage()?.alt).toContain("-1"));
+  },
+};
 export const SoldOutVariant: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

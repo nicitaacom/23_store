@@ -78,7 +78,8 @@ export default function ProductsPerPage({ className }: { className?: string }) {
     <div className={`relative shrink-0 ${className ?? ""}`} ref={dropdownContainerRef}>
       {/* Container content */}
       <button
-        className="flex h-10 items-center justify-between gap-x-2 rounded-[4px] border border-solid px-2 py-2 text-sm tablet:px-4 tablet:text-base"
+        className="flex h-11 items-center justify-between gap-x-2 rounded-[4px] border border-solid px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background tablet:px-4 tablet:text-base"
+        data-cy="products-per-page"
         type="button"
         aria-label={`${selectedPerPage} ${t("per_page")}`}
         aria-expanded={showDropdown}
@@ -103,7 +104,7 @@ export default function ProductsPerPage({ className }: { className?: string }) {
         onMouseLeave={() => setHover(null)}>
         {perPage.map(perPage => (
           <Link
-            className={`border-b-[1px] border-solid border-foreground
+            className={`flex min-h-[44px] items-center justify-center border-b-[1px] border-solid border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand
         transition-all duration-[300ms]
                 ${
                   isHover
@@ -115,6 +116,7 @@ export default function ProductsPerPage({ className }: { className?: string }) {
               setShowDropdown(false)
             }}
             href={createHref(perPage)}
+            data-cy="products-per-page-option"
             key={perPage}>
             {perPage}
           </Link>

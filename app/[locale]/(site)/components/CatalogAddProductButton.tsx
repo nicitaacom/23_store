@@ -14,7 +14,8 @@ interface CatalogAddProductButtonProps {
 export function CatalogAddProductButton({ isAuthenticated, label }: CatalogAddProductButtonProps) {
   return (
     <button
-      className="inline-flex h-10 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-background mobile:text-base max-[480px]:flex-1 max-[480px]:gap-0 max-[480px]:px-0 max-[480px]:py-0"
+      className="inline-flex h-11 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background mobile:text-base max-[480px]:flex-1 max-[480px]:gap-0 max-[480px]:px-0 max-[480px]:py-0"
+      data-cy="catalog-add-product"
       type="button"
       aria-label={label}
       onClick={() => openModalOnCurrentPage(isAuthenticated ? "AdminPanel" : "AuthModal", isAuthenticated ? undefined : "login")}>
