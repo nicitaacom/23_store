@@ -11,6 +11,58 @@ const viewports = [
 ]
 
 describe("responsive layout", () => {
+  it("keeps the short-screen mobile menu and language picker reachable", () => {
+    cy.viewport(320, 480)
+    cy.visit("/en")
+    cy.get('[data-cy="open-mobile-menu"]').click()
+
+    cy.get('aside [aria-label="Close menu"]').should("be.visible").should(control => {
+      const bounds = control[0].getBoundingClientRect()
+      expect(bounds.width, "menu close touch width").to.be.at.least(44)
+      expect(bounds.height, "menu close touch height").to.be.at.least(44)
+    })
+
+    cy.get("aside > div").scrollTo("bottom")
+    cy.get('aside [data-cy="language-trigger"]').should("be.visible").should(control => {
+      const bounds = control[0].getBoundingClientRect()
+      expect(bounds.width, "language trigger touch width").to.be.at.least(44)
+      expect(bounds.height, "language trigger touch height").to.be.at.least(44)
+    }).click()
+
+    ;["en", "fi", "ru", "se"].forEach(locale => {
+      cy.get(`aside [data-cy="language-${locale}"]`).should("be.visible").should(control => {
+        const bounds = control[0].getBoundingClientRect()
+        expect(bounds.width, `${locale} option touch width`).to.be.at.least(44)
+        expect(bounds.height, `${locale} option touch height`).to.be.at.least(44)
+      })
+    })
+  })
+
+  it("keeps catalog search, create, preview, and page-size actions easy to tap", () => {
+    cy.viewport(320, 480)
+    cy.visit("/en")
+
+    ;[
+      '[data-cy="catalog-search-submit"]',
+      '[data-cy="catalog-add-product"]',
+      '[data-cy="catalog-preview-page"]',
+      '[data-cy="products-per-page"]',
+    ].forEach(selector => {
+      cy.get(selector).should("be.visible").should(control => {
+        const bounds = control[0].getBoundingClientRect()
+        expect(bounds.width, `${selector} touch width`).to.be.at.least(44)
+        expect(bounds.height, `${selector} touch height`).to.be.at.least(44)
+      })
+    })
+
+    cy.get('[data-cy="products-per-page"]').click().should("have.attr", "aria-expanded", "true")
+    cy.get('[data-cy="products-per-page-option"]').each(option => {
+      const bounds = option[0].getBoundingClientRect()
+      expect(bounds.width, "page-size option touch width").to.be.at.least(44)
+      expect(bounds.height, "page-size option touch height").to.be.at.least(44)
+    })
+  })
+
   viewports.forEach(viewport => {
     it(`has no horizontal overflow at the ${viewport.label} size`, () => {
       cy.viewport(viewport.width, viewport.height)
