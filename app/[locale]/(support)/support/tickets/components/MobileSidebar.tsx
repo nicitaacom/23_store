@@ -37,7 +37,7 @@ export function MobileSidebar({ onOpenTicket, tickets, ticketsAmount, unreadMess
           </div>
           <p className="mt-1 text-xs text-subTitle">Tap a ticket to open the conversation.</p>
           <SearchInput
-            className="mt-3 h-9"
+            className="mt-3 h-11 min-h-[44px]"
             startIcon={<FiSearch size={16} />}
             placeholder={t("search_placeholder")}
             value={searchQuery}

@@ -34,7 +34,7 @@ function SidebarExample({ isMobile = false }: { isMobile?: boolean }) {
   const [searchQuery, setSearchQuery] = useState("")
   const Sidebar = isMobile ? MobileSidebar : DesktopSidebar
   return (
-    <div className="h-[560px] bg-background p-2">
+    <div className={`${isMobile ? "h-[calc(100dvh-64px)] min-h-0" : "h-[560px]"} bg-background p-2`}>
       <Sidebar
         onOpenTicket={fn()}
         searchQuery={searchQuery}
@@ -73,7 +73,29 @@ export const DesktopTicketList: Story = {
 }
 
 export const MobileTicketList: Story = {
+  globals: { viewport: { value: "mobileShort" } },
   render: () => <SidebarExample isMobile />,
+  play: async ({ canvasElement }) => {
+    const sidebar = await waitFor(() => {
+      const renderedSidebar = canvasElement.querySelector("aside")
+      if (!renderedSidebar) throw new Error("Mobile support inbox is not ready")
+      return renderedSidebar
+    })
+    const searchInput = await waitFor(() => {
+      const renderedSearchInput = sidebar.querySelector("input")
+      if (!renderedSearchInput) throw new Error("Mobile support search is not ready")
+      return renderedSearchInput
+    })
+    const ticketLinks = sidebar?.querySelectorAll("a") ?? []
+    const documentElement = canvasElement.ownerDocument.documentElement
+
+    await expect(Math.round(searchInput.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44)
+    await expect(ticketLinks.length).toBeGreaterThan(0)
+    ticketLinks.forEach(ticketLink => {
+      expect(Math.round(ticketLink.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44)
+    })
+    await expect(documentElement.scrollWidth).toBeLessThanOrEqual(documentElement.clientWidth)
+  },
 }
 
 export const TicketListWithoutTickets: Story = {

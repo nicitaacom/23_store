@@ -90,6 +90,7 @@ const preview: Preview = {
     viewport: {
       options: {
         mobileSmall: { name: "Mobile 320", styles: { width: "320px", height: "900px" } },
+        mobileShort: { name: "Mobile 320 short", styles: { width: "320px", height: "480px" } },
         mobileLarge: { name: "Mobile 414", styles: { width: "414px", height: "900px" } },
         tablet: { name: "Tablet 768", styles: { width: "768px", height: "1024px" } },
         laptop: { name: "Laptop 1024", styles: { width: "1024px", height: "900px" } },
