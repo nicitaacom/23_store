@@ -26,7 +26,7 @@ export function MessagesHeader({ owner_username, owner_avatar_url, owner_id, tic
   return (
     <OrganicCanvasBackground
       className="h-auto shrink-0 overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.06),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))]"
-      parentClassName="relative flex items-center justify-between gap-3 px-3 py-3 tablet:px-4"
+      parentClassName="relative flex items-center justify-between gap-2 px-2 py-2 tablet:px-4 tablet:py-3"
       particleCount={3}
       brandHsl="137, 82%, 52%"
       canvasOpacity={0.4}
@@ -57,7 +57,7 @@ export function MessagesHeader({ owner_username, owner_avatar_url, owner_id, tic
             )}>
             {is_open ? t("status_open") : t("status_closed")}
           </span>
-          <MarkTicketAsCompletedSupport className="border-success-accent/30 bg-success-accent/10 text-success-accent hover:bg-success-accent/15" />
+          <MarkTicketAsCompletedSupport className="h-11 border-success-accent/30 bg-success-accent/10 text-success-accent hover:bg-success-accent/15" />
         </div>
         <span className="hidden text-[11px] text-white/50 mobile:inline">{t("opened_on", { date: getSupportMessageDayLabel(ticket_created_at) })}</span>
       </div>

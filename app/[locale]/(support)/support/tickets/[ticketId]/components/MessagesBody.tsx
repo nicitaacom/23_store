@@ -40,11 +40,11 @@ export function MessagesBody({ initialMessages, ticket_id }: MessagesBodyProps) 
   return (
     <OrganicCanvasBackground
       className="min-h-0 flex-1 bg-background/35"
-      parentClassName="flex flex-col px-3 py-3 laptop:px-4"
+      parentClassName="flex flex-col px-2 py-2 laptop:px-4 laptop:py-3"
       particleCount={4}
       brandHsl="137, 82%, 52%"
       canvasOpacity={0.22}>
-      <ul className="panel-scroll flex h-full w-full flex-col gap-3 overflow-y-auto pr-1" ref={bottomRef}>
+      <ul className="panel-scroll flex h-full w-full flex-col gap-2 overflow-y-auto pr-1" ref={bottomRef}>
         {messages.map((message, index) => (
           <Fragment key={message.id}>
             {(index === 0 || !isSupportMessageSameDay(messages[index - 1].created_at, message.created_at)) && (

@@ -82,7 +82,7 @@ export default async function ChatPage({ params: paramsPromise }: ChatPageProps)
     return <ThisTicketIsCompleted ticketId={ticketId} />
   } else if (getInitialMessagesByTicketIdResp.length > 0 && firstMessage?.ticket_id && firstMessage.sender_username) {
     return (
-      <main className="relative flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border-color/35 bg-foreground/35">
+      <main className="relative flex h-full min-w-0 flex-1 flex-col overflow-hidden bg-foreground/35 laptop:rounded-lg laptop:border laptop:border-border-color/35">
         <MessagesHeader
           is_open={getTicketMetaResp.is_open}
           owner_avatar_url={firstMessage.sender_avatar_url || ""}

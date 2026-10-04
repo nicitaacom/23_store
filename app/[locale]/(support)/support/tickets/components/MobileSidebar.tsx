@@ -26,18 +26,18 @@ export function MobileSidebar({ onOpenTicket, tickets, ticketsAmount, unreadMess
 
   return (
     <aside className={twMerge("block h-full w-full laptop:hidden", isOpen && "hidden")}>
-      <div className="flex h-full flex-col overflow-hidden rounded-lg border border-border-color/35 bg-foreground/5">
-        <div className="border-b border-border-color/35 px-3 py-3">
+      <div className="flex h-full flex-col overflow-hidden bg-foreground/5 laptop:rounded-lg laptop:border laptop:border-border-color/35">
+        <div className="border-b border-border-color/35 px-2 py-2">
           <p className="font-primary text-[10px] font-semibold uppercase tracking-[0.18em] text-success">Support inbox</p>
-          <div className="mt-2 flex items-center justify-between gap-2">
+          <div className="mt-1 flex items-center justify-between gap-1.5">
             <h2 className="min-w-0 truncate font-secondary text-xl font-bold tracking-tight text-title">Open tickets</h2>
             <span className="shrink-0 rounded border border-success/20 bg-success/10 px-2 py-0.5 text-xs font-semibold text-success">
               {ticketsAmount}
             </span>
           </div>
-          <p className="mt-1 text-xs text-subTitle">Tap a ticket to open the conversation.</p>
+          <p className="mt-0.5 text-xs text-subTitle">Tap a ticket to open the conversation.</p>
           <SearchInput
-            className="mt-3 h-11 min-h-[44px]"
+            className="mt-2 h-11 min-h-[44px]"
             startIcon={<FiSearch size={16} />}
             placeholder={t("search_placeholder")}
             value={searchQuery}
@@ -46,21 +46,21 @@ export function MobileSidebar({ onOpenTicket, tickets, ticketsAmount, unreadMess
           />
         </div>
         {tickets.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center p-3">
-            <div className="w-full rounded border border-border-color/35 bg-background/35 px-4 py-5 text-center">
+          <div className="flex flex-1 items-center justify-center p-2">
+            <div className="w-full rounded border border-border-color/35 bg-background/35 px-3 py-3 text-center">
               {searchQuery.trim() ? (
                 <p className="text-sm text-subTitle">{t("no_search_results")}</p>
               ) : (
                 <>
                   <p className="text-lg font-semibold text-title">No tickets yet</p>
-                  <p className="mt-1 text-sm text-subTitle">New customer conversations will appear here as soon as they open a ticket.</p>
+                  <p className="mt-0.5 text-sm text-subTitle">New customer conversations will appear here as soon as they open a ticket.</p>
                 </>
               )}
             </div>
           </div>
         ) : (
-          <nav className="panel-scroll min-h-0 flex-1 overflow-y-auto p-2">
-            <ul className="flex flex-col gap-1.5">
+          <nav className="panel-scroll min-h-0 flex-1 overflow-y-auto p-1">
+            <ul className="flex flex-col gap-1">
               <AnimatePresence initial={false} mode="popLayout">
                 {tickets.map(ticket => (
                   <SidebarTicketRow

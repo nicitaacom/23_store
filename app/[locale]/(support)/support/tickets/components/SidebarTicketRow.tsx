@@ -34,7 +34,7 @@ export function SidebarTicketRow({ ticket, unseenMessagesAmount, onClick }: Side
       transition={{ layout: { type: "spring", stiffness: 420, damping: 34 }, opacity: { duration: 0.12 } }}>
       <Link
         className={twMerge(
-          "group flex items-start gap-2 rounded-md border border-transparent bg-background/20 px-2.5 py-2.5 transition-colors duration-150 hover:border-border-color/35 hover:bg-foreground",
+          "group flex items-start gap-1.5 rounded-md border border-transparent bg-background/20 px-2 py-2 transition-colors duration-150 hover:border-border-color/35 hover:bg-foreground",
           hasUnread && "border-success-accent/25 bg-success-accent/[0.06]",
           isActive && "border-border-color/45 bg-background/60",
         )}
@@ -55,7 +55,7 @@ export function SidebarTicketRow({ ticket, unseenMessagesAmount, onClick }: Side
               {getTicketRowTimeLabel(ticket.last_message_at ?? ticket.created_at)}
             </span>
           </div>
-          <div className="mt-1 flex items-start gap-2">
+          <div className="mt-0.5 flex items-start gap-1.5">
             <p className="min-w-0 flex-1 truncate text-xs text-subTitle">{ticket.last_message_body || "No messages yet"}</p>
             {hasUnread && (
               <span className="shrink-0 rounded border border-success-accent/30 bg-success-accent/12 px-1.5 py-0.5 text-[10px] font-semibold text-success-accent">
@@ -63,7 +63,7 @@ export function SidebarTicketRow({ ticket, unseenMessagesAmount, onClick }: Side
               </span>
             )}
           </div>
-          <div className="mt-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-subTitle/75">
+          <div className="mt-1 flex items-center gap-1 text-[10px] uppercase tracking-[0.18em] text-subTitle/75">
             <span>Ticket</span>
             <span className="h-1 w-1 rounded-full bg-subTitle/40" />
             <span>#{ticket.id.slice(0, 8)}</span>

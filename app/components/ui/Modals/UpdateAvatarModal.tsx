@@ -122,7 +122,7 @@ export function UpdateAvatarModal() {
         className="panel-scroll flex min-h-0 flex-col max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-lg border border-border-color/35 bg-foreground/95 shadow-compact max-[767px]:h-full max-[767px]:max-h-none max-[767px]:rounded-none max-[767px]:border-0"
         data-mobile-fullscreen-surface="true"
         data-cy="update-avatar-scroll">
-        <div className="min-w-0 border-b border-border-color/30 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] px-4 py-4 pr-16">
+        <div className="min-w-0 border-b border-border-color/30 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] px-4 py-4 pr-16 max-[767px]:px-2 max-[767px]:py-2 max-[767px]:pr-14">
           <div className="flex items-center gap-x-3">
             <div className="flex h-9 w-9 items-center justify-center rounded border border-border-color/35 bg-background">
               <BiImageAdd className="text-title" size={20} />
@@ -134,8 +134,8 @@ export function UpdateAvatarModal() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 px-4 py-4">
-          <div className="flex flex-col items-center gap-3 rounded border border-border-color/30 bg-background/70 px-4 py-4 shadow-none">
+        <div className="flex flex-col gap-4 px-4 py-4 max-[767px]:gap-2 max-[767px]:px-2 max-[767px]:py-2">
+          <div className="flex flex-col items-center gap-3 rounded border border-border-color/30 bg-background/70 px-4 py-4 shadow-none max-[767px]:gap-2 max-[767px]:px-2 max-[767px]:py-2">
             <Image
               className="h-20 w-20 rounded object-cover shadow-compact"
               alt={t("modal.avatar.preview_alt")}
@@ -164,7 +164,7 @@ export function UpdateAvatarModal() {
                 {!imageList.length ? (
                   <Button
                     className={twMerge(
-                      "image-upload min-h-[156px] w-full min-w-0 rounded border border-dashed px-4 py-6 text-base max-[767px]:whitespace-normal",
+                      "image-upload min-h-[156px] w-full min-w-0 rounded border border-dashed px-4 py-6 text-base max-[767px]:whitespace-normal max-[767px]:px-2 max-[767px]:py-3",
                       isDragging
                         ? "border-brand bg-brand/10 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
                         : "border-border-color bg-background/30",
@@ -184,7 +184,7 @@ export function UpdateAvatarModal() {
                 ) : null}
                 {imageList.map((image, index) => (
                   <div
-                    className="flex w-full flex-col gap-3 overflow-hidden rounded border border-border-color/30 bg-background/70 p-3 shadow-none"
+                    className="flex w-full flex-col gap-3 overflow-hidden rounded border border-border-color/30 bg-background/70 p-3 shadow-none max-[767px]:gap-2 max-[767px]:p-2"
                     key={index}>
                     <Image
                       className="aspect-square w-full max-h-[260px] rounded object-cover"

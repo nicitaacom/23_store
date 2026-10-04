@@ -104,9 +104,9 @@ export function MessageInput({ className, placeholder, onSend }: MessageInputPro
   }
 
   return (
-    <div className="w-full border-t border-border-color/35 bg-modal-surface px-3 py-3">
+    <div className="w-full border-t border-border-color/35 bg-modal-surface px-2 py-2">
       <PastedImagePreview />
-      <div className="flex items-end gap-2 rounded-xl border border-border-color/25 bg-foreground/30 px-4 py-2.5 shadow-compact transition-colors duration-150 focus-within:border-brand/40 focus-within:bg-foreground/45">
+      <div className="flex items-end gap-1.5 rounded-xl border border-border-color/25 bg-foreground/30 px-2.5 py-2 shadow-compact transition-colors duration-150 focus-within:border-brand/40 focus-within:bg-foreground/45 laptop:gap-2 laptop:px-4 laptop:py-2.5">
         <textarea
           style={{
             overflowY: "auto",
