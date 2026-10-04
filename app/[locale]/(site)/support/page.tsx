@@ -11,7 +11,7 @@ export default async function SupportPage() {
   const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-64px)] w-full max-w-5xl flex-col justify-center gap-6 px-4 py-10">
+    <div className="mx-auto flex min-h-[calc(100vh-64px)] w-full max-w-5xl flex-col justify-center gap-6 px-4 pb-24 pt-10 tablet:py-10">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-title tablet:text-4xl">{t("support.title")}</h1>
         <p className="mt-2 text-base text-subTitle">{t("support.subtitle")}</p>
