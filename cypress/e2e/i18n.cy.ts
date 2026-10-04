@@ -32,20 +32,25 @@ describe("internationalization", () => {
   it("persists a selected language after navigation and refresh", () => {
     cy.intercept("POST", "/api/messages/get-messages").as("getMessages")
     cy.intercept("POST", "/").as("trackVisit")
-    cy.visit("/")
+    cy.visit("/en")
     cy.wait(["@getMessages", "@trackVisit"])
 
+    // The desktop language picker is hidden below the tablet breakpoint. On a phone the picker
+    // lives at the bottom of the hamburger panel, so open that panel before selecting a locale.
+    cy.get('[data-cy="open-mobile-menu"]').click()
     cy.get('[data-cy="language-trigger"]').first().click()
-    cy.get('[data-cy="language-en"]').first().click()
+    cy.get('[data-cy="language-fi"]').filter(":visible").first().click()
 
-    cy.getCookie("Next-Locale").should("have.property", "value", "en")
-    cy.get('[data-cy="language-trigger"]').first().should("contain.text", "en")
+    cy.getCookie("Next-Locale").should("have.property", "value", "fi")
+    cy.get('[data-cy="open-mobile-menu"]').click()
+    cy.get('[data-cy="language-trigger"]:visible').first().should("contain.text", "fi")
     cy.wait("@trackVisit")
 
     cy.reload()
     cy.wait("@trackVisit")
-    cy.get('[data-cy="language-trigger"]').first().should("contain.text", "en")
-    cy.document().its("documentElement.lang").should("equal", "en")
+    cy.get('[data-cy="open-mobile-menu"]').click()
+    cy.get('[data-cy="language-trigger"]:visible').first().should("contain.text", "fi")
+    cy.document().its("documentElement.lang").should("equal", "fi")
   })
 })
 
