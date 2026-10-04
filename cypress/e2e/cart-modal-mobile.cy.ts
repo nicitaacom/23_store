@@ -28,16 +28,19 @@ describe("cart modal on short phones", () => {
   viewports.forEach(({ width, height }) => {
     it(`fills ${width}×${height} and keeps checkout controls usable`, () => {
       cy.viewport(width, height)
-      cy.visit("/")
-      cy.window().invoke(
-        "localStorage.setItem",
-        "cart",
-        JSON.stringify({
-          state: { products: { [fixture.ownerProduct.id]: { id: fixture.ownerProduct.id, quantity: 1, variantId: null } } },
-          version: 0,
-        }),
-      )
-      cy.visit("/?modal=CartModal")
+      cy.visit("/?modal=CartModal", {
+        // Cypress requires this callback name to seed storage before app initialization.
+        // eslint-disable-next-line local-rules/no-banned-words
+        onBeforeLoad(window) {
+          window.localStorage.setItem(
+            "cart",
+            JSON.stringify({
+              state: { products: { [fixture.ownerProduct.id]: { id: fixture.ownerProduct.id, quantity: 1, variantId: null } } },
+              version: 0,
+            }),
+          )
+        },
+      })
       cy.get('[data-cy="cart-quantity"]').should("contain", "1")
       cy.get('[data-cy="other-ways-to-pay"]').click()
 
