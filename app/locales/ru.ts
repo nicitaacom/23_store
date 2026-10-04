@@ -364,6 +364,7 @@ export default {
   "popular.banner2.sub": "Спешите получить скидку, пока не поздно",
   "popular.banner3.heading": "Большие скидки на технику и продукты Apple",
   "popular.banner3.sub": "Эксклюзивные предложения на любимую технику — успейте до конца акции",
+  "popular.banner_slide": "Показать баннер {index}",
   "popular.card_badge": "Популярные товары",
   "popular.hot_badge": "Хит",
   "popular.preview_list_link": "Список превью",

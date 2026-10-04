@@ -364,6 +364,7 @@ export default {
   "popular.banner2.sub": "Run to get your discount until it's too late",
   "popular.banner3.heading": "Big discounts on tech & Apple products",
   "popular.banner3.sub": "Exclusive deals on the gear you love — grab yours before stock runs out",
+  "popular.banner_slide": "Show banner {index}",
   "popular.card_badge": "Popular products",
   "popular.hot_badge": "Hot",
   "popular.preview_list_link": "Preview list",

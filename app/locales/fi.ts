@@ -364,6 +364,7 @@ export default {
   "popular.banner2.sub": "Juokse hakemaan alennuksesi ennen kuin on liian myöhäistä",
   "popular.banner3.heading": "Suuret alennukset tekniikasta ja Apple-tuotteista",
   "popular.banner3.sub": "Eksklusiiviset tarjoukset rakastamistasi laitteista — nappaa omasi ennen kuin varasto loppuu",
+  "popular.banner_slide": "Näytä banneri {index}",
   "popular.card_badge": "Suositut tuotteet",
   "popular.hot_badge": "Suosittu",
   "popular.preview_list_link": "Esikatseluluettelo",

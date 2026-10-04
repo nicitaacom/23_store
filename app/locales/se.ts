@@ -363,6 +363,7 @@ export default {
   "popular.banner2.sub": "Spring och hämta din rabatt innan det är för sent",
   "popular.banner3.heading": "Stora rabatter på teknik och Apple-produkter",
   "popular.banner3.sub": "Exklusiva erbjudanden på din favoritprodukter — ta din innan lagret tar slut",
+  "popular.banner_slide": "Visa banner {index}",
   "popular.card_badge": "Populära produkter",
   "popular.hot_badge": "Het",
   "popular.preview_list_link": "Förhandsvisningslista",

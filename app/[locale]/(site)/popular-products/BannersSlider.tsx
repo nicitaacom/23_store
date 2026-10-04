@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 
+import { useScopedI18n } from "@/locales/client"
+
 const BANNERS = [
   {
     src: "/banners/banner-1.gif",
@@ -26,6 +28,7 @@ const BANNERS = [
 
 // http://localhost:6006/?path=/story/commerce-catalog--search-form
 export function BannersSlider() {
+  const t = useScopedI18n("popular")
   const [current, setCurrent] = useState(0)
   const [animating, setAnimating] = useState(false)
 
@@ -58,10 +61,18 @@ export function BannersSlider() {
       <div style={{ zIndex: 10 }} className="absolute bottom-4 right-5 flex gap-2">
         {BANNERS.map((_, index) => (
           <button
-            className={`h-1.5 rounded-full transition-all duration-300 ${index === current ? "w-6 bg-white" : "w-1.5 bg-white/40"}`}
+            className="flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             key={index}
-            onClick={() => setCurrent(index)}
-          />
+            type="button"
+            aria-label={t("banner_slide", { index: index + 1 })}
+            aria-pressed={current === index}
+            data-cy="popular-banner-selector"
+            data-banner-index={index + 1}
+            onClick={() => setCurrent(index)}>
+            <span
+              className={`h-1.5 rounded-full transition-all duration-300 ${index === current ? "w-6 bg-white" : "w-1.5 bg-white/60"}`}
+            />
+          </button>
         ))}
       </div>
     </div>

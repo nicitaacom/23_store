@@ -60,9 +60,9 @@ export function PopularProductCard({ product, locale }: PopularProductCardProps)
         {!isBought && <ProductLikeButton className="absolute right-3 top-3 z-[2]" productId={product.id} />}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-5">
+      <div className="flex flex-1 flex-col gap-2 p-2 tablet:gap-3 tablet:p-5">
         <div>
-          <h3 className="text-2xl font-bold leading-tight text-title line-clamp-2">{translation.title}</h3>
+          <h3 className="text-xl font-bold leading-tight text-title line-clamp-2 tablet:text-2xl">{translation.title}</h3>
           <p className="mt-1 text-sm text-subTitle line-clamp-2">{translation.description}</p>
         </div>
 
