@@ -66,8 +66,17 @@ describe("localized public routes on short phones", () => {
             })
             expect(visibleButtons.length, `${route} exposes a button after scrolling at ${width}px`).to.be.greaterThan(0)
             visibleButtons.forEach(button => {
-              const bounds = button.getBoundingClientRect()
+              let bounds = button.getBoundingClientRect()
               const label = button.getAttribute("aria-label") || button.textContent?.trim() || "button"
+              const horizontalScrollParent = findHorizontalScrollParent(button, document)
+              if (horizontalScrollParent && bounds.right > viewportWidth + 1) {
+                horizontalScrollParent.scrollLeft += bounds.right - viewportWidth - 1
+                bounds = button.getBoundingClientRect()
+              }
+              if (horizontalScrollParent && bounds.left < -1) {
+                horizontalScrollParent.scrollLeft += bounds.left + 1
+                bounds = button.getBoundingClientRect()
+              }
               expect(bounds.height, `${route} ${label} hit height after scrolling`).to.be.at.least(44)
               expect(bounds.left, `${route} ${label} left edge after scrolling`).to.be.at.least(-1)
               expect(bounds.right, `${route} ${label} right edge after scrolling`).to.be.at.most(viewportWidth + 1)
@@ -78,5 +87,18 @@ describe("localized public routes on short phones", () => {
     })
   })
 })
+
+function findHorizontalScrollParent(control: HTMLElement, document: Document): HTMLElement | null {
+  let ancestorElement = control.parentElement
+  while (ancestorElement) {
+    const overflowX = document.defaultView?.getComputedStyle(ancestorElement).overflowX
+    if ((overflowX === "auto" || overflowX === "scroll") && ancestorElement.scrollWidth > ancestorElement.clientWidth) {
+      return ancestorElement
+    }
+    ancestorElement = ancestorElement.parentElement
+  }
+
+  return null
+}
 
 export {}
