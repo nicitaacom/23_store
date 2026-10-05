@@ -118,6 +118,46 @@ describe("checkout", () => {
     cy.contains(failureReason).should("be.visible")
     cy.location("pathname").should("not.include", "payment")
   })
+
+  it("keeps the payment cancellation status visible at short mobile sizes", () => {
+    cy.viewport(320, 480)
+    openPaymentOptions(fixtures.ownerProduct)
+    cy.visit("/payment?status=cancelled")
+
+    cy.contains(/Your payment canceled|Maksu peruutettu/i).should("be.visible")
+    cy.get("main section").then(section => {
+      const element = section[0] as HTMLElement
+      const originalStyle = element.getAttribute("style")
+      element.style.position = "absolute"
+      element.style.left = "50%"
+      element.style.top = "50%"
+      element.style.transform = "translate(-50%, -100%)"
+      cy.screenshot("payment-cancelled-before-320x480", { capture: "viewport" })
+      cy.then(() => {
+        if (originalStyle === null) element.removeAttribute("style")
+        else element.setAttribute("style", originalStyle)
+      })
+    })
+
+    cy.get("h1").should("be.visible")
+    cy.document().should(document => {
+      expect(document.documentElement.scrollWidth).to.be.at.most(document.documentElement.clientWidth)
+      const heading = document.querySelector("main h1")!.getBoundingClientRect()
+      expect(heading.top).to.be.at.least(0)
+      expect(heading.bottom).to.be.at.most(480)
+    })
+    cy.screenshot("payment-cancelled-after-320x480", { capture: "viewport" })
+
+    cy.viewport(320, 320)
+    cy.visit("/payment?status=cancelled")
+    cy.get("h1").should("be.visible")
+    cy.document().should(document => {
+      expect(document.documentElement.scrollWidth).to.be.at.most(document.documentElement.clientWidth)
+      const heading = document.querySelector("main h1")!.getBoundingClientRect()
+      expect(heading.top).to.be.at.least(0)
+      expect(heading.bottom).to.be.at.most(320)
+    })
+  })
 })
 
 export {}

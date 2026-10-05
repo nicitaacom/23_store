@@ -29,13 +29,11 @@ export default function Payment() {
 
   return (
     <section
-      className="absolute left-[50%] top-[50%] translate-x-[-50%]
-     translate-y-[-100%] tablet:translate-y-[-75%] laptop:translate-y-[-50%] 
-    flex flex-col text-center justify-center items-center w-full">
+      className="relative mx-auto flex min-h-[calc(100svh-4rem)] w-full flex-col items-center justify-center px-2 py-3 text-center">
       {status === "success" ? (
         <>
           <Image
-            style={{ width: "auto" }}
+            className="h-auto w-36 max-w-[70vw] tablet:w-48 laptop:w-64"
             src="/success-checkmark.gif"
             alt={t("success_checkmark")}
             width={256}
@@ -53,7 +51,7 @@ export default function Payment() {
       ) : (
         <>
           <Image
-            style={{ width: "auto" }}
+            className="h-auto w-36 max-w-[70vw] tablet:w-48 laptop:w-64"
             src="/error-checkmark.gif"
             alt={t("error_checkmark")}
             width={256}
