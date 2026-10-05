@@ -74,6 +74,7 @@ describe("checkout", () => {
   })
 
   it("sends a receipt email after a successful Stripe payment", () => {
+    cy.viewport(320, 320)
     const sessionId = "cs_test_cypress_stripe_success"
     interceptSuccessfulPayment("/api/create-checkout-session", sessionId, fixtures.ownerProduct)
     openPaymentOptions(fixtures.ownerProduct)
@@ -81,6 +82,15 @@ describe("checkout", () => {
     cy.get('[data-cy="pay-with-stripe"]').click()
 
     cy.contains(/Test (Maksu onnistui|Your payment is successful)/).should("be.visible")
+    cy.document().should(document => {
+      expect(document.documentElement.scrollWidth).to.be.at.most(document.documentElement.clientWidth)
+      const heading = document.querySelector("main h1")!.getBoundingClientRect()
+      const animation = document.querySelector("main img")!.getBoundingClientRect()
+      expect(heading.top, "success heading starts inside the short viewport").to.be.at.least(0)
+      expect(heading.bottom, "success heading ends inside the short viewport").to.be.at.most(320)
+      expect(animation.left, "success animation stays inside the left edge").to.be.at.least(0)
+      expect(animation.right, "success animation stays inside the right edge").to.be.at.most(320)
+    })
     cy.wait(["@createProviderSession", "@selectCustomerEmail", "@verifyPayment", "@sendReceipt", "@completePayment"])
   })
 
