@@ -207,7 +207,7 @@ export function AreYouSureModalContainer({
                 <Button
                   className={twMerge(
                     // strong ring on :focus (not only :focus-visible) so the button the modal auto-focuses is obviously highlighted before Enter acts on it
-                    "px-3 ring-offset-2 ring-offset-foreground focus:scale-[1.02] focus:ring-2 focus:ring-current focus-visible:scale-[1.02] focus-visible:ring-2 focus-visible:ring-current",
+                    "px-3 ring-offset-2 ring-offset-foreground focus:scale-[1.02] focus:ring-2 focus:ring-current focus-visible:scale-[1.02] focus-visible:ring-2 focus-visible:ring-current max-[767px]:min-h-[44px]",
                     secondaryButtonClassName,
                   )}
                   data-cy={secondaryButtonDataCy}
@@ -219,7 +219,7 @@ export function AreYouSureModalContainer({
                 </Button>
                 <Button
                   className={twMerge(
-                    "px-3 ring-offset-2 ring-offset-foreground focus:scale-[1.02] focus:ring-2 focus:ring-current focus-visible:scale-[1.02] focus-visible:ring-2 focus-visible:ring-current",
+                    "px-3 ring-offset-2 ring-offset-foreground focus:scale-[1.02] focus:ring-2 focus:ring-current focus-visible:scale-[1.02] focus-visible:ring-2 focus-visible:ring-current max-[767px]:min-h-[44px]",
                     primaryButtonClassName,
                   )}
                   data-cy={primaryButtonDataCy}
