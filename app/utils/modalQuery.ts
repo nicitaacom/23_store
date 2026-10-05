@@ -1,3 +1,5 @@
+import { startTransition } from "react"
+
 export function getUrlWithoutModal(href: string, modalQuery: string) {
   const nextUrl = new URL(href)
   const otherModals = nextUrl.searchParams.getAll("modal").filter(value => value !== modalQuery)
@@ -13,5 +15,5 @@ export function openModalOnCurrentPage(modalQuery: string, variant?: string) {
   if (variant) url.searchParams.set("variant", variant)
   // Next's history listener updates useSearchParams when state is null; reusing its current
   // internal state changed the address bar without mounting the modal in browser testing.
-  window.history.pushState(null, "", `${url.pathname}${url.search}${url.hash}`)
+  startTransition(() => window.history.pushState(null, "", `${url.pathname}${url.search}${url.hash}`))
 }

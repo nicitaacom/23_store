@@ -38,6 +38,7 @@ describe("owner profile menu mobile accessibility", () => {
     cy.get(menuButton).parent().find("ul").contains("a", "Support").should("be.visible").should(link => {
       expect(link[0].getBoundingClientRect().height, "Support link height").to.be.at.least(44)
     })
+    cy.screenshot("owner-menu-before-admin-panel-320x480", { capture: "viewport" })
 
     cy.get(menuButton).focus()
     cy.press(Cypress.Keyboard.Keys.TAB)
@@ -46,6 +47,7 @@ describe("owner profile menu mobile accessibility", () => {
 
     cy.location("search").should("include", "modal=AdminPanel")
     cy.get('[data-cy="admin-panel-close"]').should("be.visible").and("be.enabled")
+    cy.screenshot("owner-menu-admin-panel-after-320x480", { capture: "viewport" })
   })
 
   it("toggles mobile dark mode from its named and pressed button", () => {
