@@ -5,6 +5,7 @@ type TFixtureAccount = {
 }
 
 const mobileViewports = [
+  { width: 320, height: 320 },
   { width: 320, height: 480 },
   { width: 332, height: 568 },
   { width: 414, height: 480 },
@@ -92,7 +93,7 @@ describe("Admin Panel mobile geometry and actions", () => {
         ).to.be.at.least(0)
         expect(bounds.bottom, "modal close stays in view after form scrolling").to.be.at.most(height)
       })
-      if (width === 320) cy.screenshot("admin-panel-scrolled-close-after-320x480", { capture: "viewport" })
+      if (width === 320 && height === 480) cy.screenshot("admin-panel-scrolled-close-after-320x480", { capture: "viewport" })
       cy.get('[data-cy="add-product-layout"]').scrollTo("top")
       cy.get('[data-testid="add-product-upload"]').should("be.visible")
       cy.get("#add-product-description").type("Mobile copy")
