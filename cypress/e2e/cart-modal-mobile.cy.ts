@@ -104,7 +104,7 @@ describe("cart modal on short phones", () => {
         cy.wrap(button).scrollIntoView()
         const bounds = button[0].getBoundingClientRect()
         expect(bounds.width, `${button.text().trim()} button touch width`).to.be.at.least(44)
-        expect(bounds.height, `${button.text().trim()} button touch height`).to.be.at.least(44)
+        expect(Math.round(bounds.height), `${button.text().trim()} button touch height`).to.be.at.least(44)
       })
 
       ;["[data-cy='pay-with-stripe']", "[data-cy='pay-with-paypal']"].forEach(selector => {

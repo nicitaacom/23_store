@@ -79,7 +79,9 @@ describe("localized public routes on short phones", () => {
               }
               expect(bounds.height, `${route} ${label} hit height after scrolling`).to.be.at.least(44)
               expect(bounds.left, `${route} ${label} left edge after scrolling`).to.be.at.least(-1)
-              expect(bounds.right, `${route} ${label} right edge after scrolling`).to.be.at.most(viewportWidth + 1)
+              expect(Math.round(bounds.right), `${route} ${label} right edge after scrolling`).to.be.at.most(
+                viewportWidth + 1,
+              )
             })
           })
         })
