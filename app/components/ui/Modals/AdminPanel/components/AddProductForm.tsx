@@ -128,6 +128,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
   const [isSuggestingCategory, setIsSuggestingCategory] = useState(false)
   const variantLabelInputRef = useFocusVariantLabelAfterImageAdded(images.length)
   const dragZone = useRef<HTMLButtonElement | null>(null)
+  const titleInputRef = useRef<HTMLInputElement | null>(null)
   const descriptionRef = useRef<HTMLDivElement | null>(null)
   const wrapRef = useRef<((marker: string) => void) | null>(null)
   const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -702,6 +703,12 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 onClick={onImageUpload}
                 disabled={isLoading}
                 type="button"
+                onKeyDown={event => {
+                  if (event.key === "Tab" && !event.shiftKey) {
+                    event.preventDefault()
+                    titleInputRef.current?.focus()
+                  }
+                }}
                 {...dragProps}>
                 <div className="flex h-8 w-8 items-center justify-center rounded bg-white/[0.05] text-success-accent">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -914,6 +921,9 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             required
             placeholder={t("placeholder.title")}
             onBlur={handleTitleBlur}
+            externalInputRef={element => {
+              titleInputRef.current = element
+            }}
           />
         </div>
 
