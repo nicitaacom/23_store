@@ -4,8 +4,8 @@ import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 import { AvatarDropdown, CartIcon, HamburgerMenu, Logo, MobileSearchButton, OpenAuthModalButton } from "./components"
 import { ContactButton } from "./components/ContactButton"
 import { NavbarWrapper } from "./components/NavbarWrapper"
+import { DarkModeRadioButton } from "@/components"
 import { LanguageDropdown } from "@/components/LanguageDropdown"
-import { SwitchDarkMode } from "@/components"
 
 interface NavbarViewProps {
   avatarUrl?: string
@@ -26,7 +26,7 @@ export function NavbarView({ avatarUrl, cartQuantity, darkModeLabel, locale, rol
       </div>
       <div className="flex flex-row items-center gap-x-2">
         <LanguageDropdown className="hidden tablet:flex" locale={locale} />
-        <SwitchDarkMode className="max-[500px]:hidden" ariaLabel={darkModeLabel} />
+        <DarkModeRadioButton className="max-[500px]:hidden" ariaLabel={darkModeLabel} />
         <MobileSearchButton />
         <CartIcon userId={user?.id} cart_quantity={cartQuantity} />
         <ContactButton />

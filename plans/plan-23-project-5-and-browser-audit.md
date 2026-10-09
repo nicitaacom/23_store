@@ -49,6 +49,9 @@ The project tracker records the overall plan status; checked rows below record f
   covers short drags, left drags, and right touch swipes.
 - [x] Keep apostrophes in catalog search brand words so `lay's` finds Lay's products without
   unrelated `layer` matches. Verified against the live catalog and unit cases for straight and curly apostrophes.
+- [x] Reduce the language trigger to 32px, rename `SwitchDarkMode` to `DarkModeRadioButton`, and
+  keep the theme knob inside its track. Center cart quantities in one colored badge. The 14 navbar
+  Storybook tests, TypeScript, and ESLint pass.
 
 ## Project 5 cards still shown as To-do
 

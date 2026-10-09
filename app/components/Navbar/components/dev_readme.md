@@ -48,6 +48,8 @@ Cart entry point.
 - opens `CartModal` through query params
 - shows SSR cart quantity first
 - after mount it switches to zustand cart state for interactivity
+- places the quantity inside one badge with `bg-brand text-title-foreground` and centers it with
+  `flex items-center justify-center`; the badge is hidden when the cart is empty
 
 This SSR -> client handoff avoids hydration mismatch and still keeps cart count responsive.
 

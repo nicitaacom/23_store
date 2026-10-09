@@ -55,7 +55,7 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
     <div className={twMerge("relative inline-flex w-[130px] flex-col", className)} ref={dropdownContainerRef}>
       {/* Trigger — w-full so it stretches to whatever width the container is */}
       <button
-        className="flex min-h-[44px] w-full items-center gap-1.5 rounded border border-border-color/35 bg-background/55 px-2.5 py-1.5
+        className="flex h-8 w-full items-center gap-1.5 rounded border border-border-color/35 bg-background/55 px-2.5 py-1
         text-sm text-title transition-colors duration-150 hover:bg-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
         data-cy="language-trigger"
         type="button"

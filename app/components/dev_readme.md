@@ -6,12 +6,11 @@ If I use this file I understnad that user will see `<InitialPageLoadingSkeleton/
 intead of white screen with not clickable UI
 I'm sure that see skeleton definetly better
 
-## Info about Language.tsx
+## Info about LanguageDropdown.tsx
 
-I use this file only 1 time in navbar
-This file may be named as `<LanguageSwitcher/>`
-I keep this name and this location for this file
-because I may use it in sidebar
+The language menu is used in the navbar and mobile sidebar. Its trigger uses `h-8` (32px) for a
+compact header control; menu rows keep `min-h-[44px]` for selecting a language. The sidebar menu
+opens upward with `isDropUp`.
 
 ## Info about Layout.tsx
 
@@ -34,7 +33,9 @@ to go to the next page (also that's why I added up to 100 per page)
 
 ![ProductsPerPage.tsx-image](https://i.imgur.com/WIeGtz2.png)
 
-## Info about SwitchDarkMode.tsx
+## Info about DarkModeRadioButton.tsx
 
 I use this file (functional component) to switch between dark and light mode
 You can find this component in top right corner on / route
+The knob stays inside the 36×20px track in both modes. The button keeps its 44×44px click area
+and exposes the selected mode with `role="switch"` and `aria-checked`.

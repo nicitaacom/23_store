@@ -1,5 +1,5 @@
+import { DarkModeRadioButton } from "./DarkModeRadioButton"
 import Layout from "./Layout/Layout"
 import { OfflineBanner } from "./OfflineBanner"
 import { SeasonalBackdrop } from "./SeasonalBackdrop"
-import { SwitchDarkMode } from "./SwitchDarkMode"
-export { Layout, SwitchDarkMode, OfflineBanner, SeasonalBackdrop }
+export { Layout, DarkModeRadioButton, OfflineBanner, SeasonalBackdrop }

@@ -2,13 +2,13 @@
 
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 
-interface SwitchProps {
+interface DarkModeRadioButtonProps {
   className?: string
   ariaLabel: string
 }
 
 // http://localhost:6006/?path=/story/navigation-navbar--anonymous
-export function SwitchDarkMode({ ariaLabel, className }: SwitchProps) {
+export function DarkModeRadioButton({ ariaLabel, className }: DarkModeRadioButtonProps) {
   const mode = useDarkModeStore()
 
   return (
@@ -19,10 +19,10 @@ export function SwitchDarkMode({ ariaLabel, className }: SwitchProps) {
       aria-label={ariaLabel}
       aria-checked={mode.isDarkMode}
       onClick={mode.toggleDarkMode}>
-      <span className="relative h-5 w-9 rounded-full border-[3px] border-icon-color">
+      <span className="relative block h-5 w-9 rounded-full border-[3px] border-icon-color" aria-hidden="true">
         <span
-          className={`absolute top-0 h-[10px] w-[10px] translate-y-[20%] rounded-full bg-icon-color transition-transform duration-500 ${
-            mode.isDarkMode ? "translate-x-[180%]" : "translate-x-[20%]"
+          className={`absolute left-0.5 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-icon-color transition-transform duration-500 ${
+            mode.isDarkMode ? "translate-x-4" : "translate-x-0"
           }`}
           aria-hidden="true"
         />
