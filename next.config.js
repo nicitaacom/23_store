@@ -18,6 +18,12 @@ const nextConfig = {
     // Storage files use their provider CDN directly; overwrite URLs include a version query.
     unoptimized: true,
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "files.jokik.fi",
+        port: "",
+        pathname: "/**",
+      },
       ...(process.env.NEXT_PUBLIC_R2_PUBLIC_URL ? [{
         protocol: "https",
         hostname: new URL(process.env.NEXT_PUBLIC_R2_PUBLIC_URL).hostname,

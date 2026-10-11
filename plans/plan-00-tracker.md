@@ -27,7 +27,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 
 | # | Plan | Priority | Model · thinking | Status | Depends on |
 | --- | --- | --- | --- | --- | --- |
-| 01 | [plan-01-supabase-and-cloudflare-r2-migration.md](plan-01-supabase-and-cloudflare-r2-migration.md) | P0 | GPT-6.1-sol · xhigh | in progress — R2 import/export, bounded parallel transfers and backup UI verified locally; setup SQL and TLS 1.3 ready; user started Files import; full live import, synchronization and cutover pending | — |
+| 01 | [plan-01-supabase-and-cloudflare-r2-migration.md](plan-01-supabase-and-cloudflare-r2-migration.md) | P0 | GPT-6.1-sol · xhigh | in progress — user reports Files copy complete; skip-existing import, bounded automatic R2 URL relinking and elapsed/progress estimate verified locally; latest deployment, live URL verification and rollback rehearsal pending | — |
 | 02 | [plan-02-language-switcher.md](plan-02-language-switcher.md) | P1 | Sonnet · medium | done | — |
 | 03 | [plan-03-db-anonymous-tickets.md](plan-03-db-anonymous-tickets.md) | P1 | Sonnet · medium | done - SQL sits in dev_readme-supbase-sql.md, Nikita schedules the pg_cron job | — |
 | 04 | [plan-04-ecosystem-links-icon-utm.md](plan-04-ecosystem-links-icon-utm.md) | P2 | Sonnet · low | done | — |

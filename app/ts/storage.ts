@@ -38,6 +38,11 @@ export type TStorageUploadSession = {
   publicUrl?: string
   backup?: boolean
 }
+export type TBackupStorageUploadDestination = TStorageUploadDestination | {
+  skipped: true
+  reason: "already-exists"
+  reference: TStorageReference
+}
 export interface IStorageProvider {
   name: TStorageProviderName
   list(bucket: TBuckets, prefix?: string, cursor?: string | null): Promise<TStoragePage>

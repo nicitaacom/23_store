@@ -46,15 +46,16 @@ declare namespace API {
   // live storage. The browser downloads directly from provider URLs and packs the files locally.
   type BackupFilesGetResponse = { files: BackupFileRef[]; cursor?: string | null; nextBucketIndex?: number | null } | { error: string; code?: string; details?: string; hint?: string }
 
-  // ADMIN-only provider selection supports copying backups before the live provider changes.
+  // ADMIN imports upload or skip existing files, then relink database URLs to this provider.
   type BackupFilesPostRequest = {
     files: StoragePrepareRequest[]
     provider?: import("@/ts/storage").TStorageProviderName
+    skipExisting?: boolean
   }
   // Bytes go directly to temporary provider keys; completion verifies the final application file.
   type BackupUploadDestination =
     | ({ bucket: string; path: string } & import("@/ts/storage").TStorageUploadDestination)
-    | { bucket: string; path: string; skipped: true; reason: string }
+    | { bucket: string; path: string; skipped: true; reason: string; reference: import("@/ts/storage").TStorageReference }
   type BackupFilesPostResponse = {
     results: BackupUploadDestination[]
     relinkRequired?: boolean
@@ -84,6 +85,11 @@ declare namespace API {
     tables: BackupStorageRelinkTableResult[]
   }
   type BackupStorageRelinkResponse =
-    | BackupStorageRelinkResult
+    | (BackupStorageRelinkResult & { sessionId: string; step: number; done: boolean; label: string; provider: import("@/ts/storage").TStorageProviderName })
     | { error: string; code?: string; details?: string; hint?: string }
+  type BackupStorageRelinkRequest = {
+    provider?: import("@/ts/storage").TStorageProviderName
+    sessionId?: string
+    step?: number
+  }
 }

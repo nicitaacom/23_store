@@ -72,6 +72,7 @@ export function DbBackupProgressCard() {
           label={progressLabel}
           bytesDone={transferredBytes.done}
           bytesTotal={transferredBytes.total}
+          bytesSkipped={isImportingFiles ? backup.filesImportBytesSkipped : 0}
           speedBytesPerMs={speedBytesPerMs}
           startedAt={isExportingFiles ? backup.filesExportStartedAt : backup.filesImportStartedAt}
           finishedAt={isExportingFiles ? backup.filesExportFinishedAt : backup.filesImportFinishedAt}

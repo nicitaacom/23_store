@@ -667,3 +667,49 @@ Implementation/configuration: [storage documentation](../dev_readme-storage.md).
   for the last signed upload's file lock to expire before retrying; no R2 folder deletion is needed.
 - Continue on `development` and publish only that branch. The user's latest production import,
   live source reconciliation, rollback rehearsal and cutover remain the live completion gates.
+
+### Completed Files copy, automatic R2 relinking and skip strategy — October 11, 2026
+
+- The user reported that the old production Files import completed, with the message
+  "Files copied. Live image URLs are unchanged; complete final synchronization before switching storage."
+  They explicitly requested that re-importing the backup relink existing database images to R2.
+  This supersedes the earlier browser-copy decision that preserved Supabase URLs.
+- Files import now explicitly targets R2 for database and Auth URL relinking, including when an
+  older deployment still has a Supabase provider override or every archive object already exists.
+  Missing destination files keep their existing URLs and appear in the unresolved-reference result.
+  Scalars, arrays, product variants/personalization, support images and Auth avatars are included;
+  external URLs and unrelated database/Auth fields remain unchanged. The existing comparison RPC
+  and reference journal preserve concurrent edits. No additional SQL setup is required.
+- Added the checked-by-default **Skip files already in R2** checkbox. Existing keys are checked in
+  bounded metadata groups and skipped before upload locks, capacity reservations or signatures.
+  Unchecking it restores overwrite behavior. Skipped files have their own count, advance progress
+  and never inflate transferred bytes or measured speed. An entirely skipped archive still relinks
+  existing image references and reports success, rather than treating those objects as failures.
+- The relink endpoint now advances one ADMIN-owned Redis session page per request: one storage
+  inventory page, at most 200 profile emails, or at most 20 database/Auth rows, with four concurrent
+  reference updates. Continuations enforce actor ownership and target provider; completed-step
+  retries return persisted results. The route keeps the 60-second Vercel duration and origin check.
+- R2 is now the default live upload provider following the user's completed copy and cutover request.
+  An explicit Supabase override remains available for rollback. If that override exists in Vercel's
+  Production environment, change its existing value to R2 before redeploying; no extra variables
+  need adding. The six R2 entries and already-created analytics token remain the configuration.
+- `NEXT_PUBLIC_R2_PUBLIC_URL` was confirmed in `.env.example` and `env.d.ts`; local values remain
+  unread. `next.config.js` now explicitly permits `files.jokik.fi` even when the public environment
+  value is absent, while retaining configurable custom domains and Supabase image compatibility.
+- Remaining time now uses progress over elapsed time, extended when the current speed predicts a
+  longer duration. At 93% after 22:51, the progress estimate is about 1:44 rather than a brief
+  upload-speed estimate of nine seconds. Zero speed displays `00:00:00` as explicitly requested;
+  completed file work shows Finalizing while verification and relinking finish.
+- Verification passed: 408 unit tests across 45 files, TypeScript, 15 commit-validator/Husky tests,
+  and isolated headless browser checks at 320/414/1280 px in English/Russian. Checks cover both
+  checkbox strategies, zero uploaded bytes for skipped files, R2 relinking notices, elapsed/progress
+  and slowdown/zero-speed estimates, fixed filename height and modal/card overflow. Next image
+  patterns were verified with absent, configured and custom public URL values. ESLint reports zero
+  errors; the two new import-order warnings were fixed, leaving the existing warning baseline.
+  Verification disables environment-file reads; `.env.local` and the user's active window remain
+  untouched. No live database references were changed by these local checks.
+- The account-owned next step is the latest Ready `development` deployment, then **DB Backup →
+  Files → Import** with the skip checkbox checked and the existing Files archive. Confirm zero
+  unresolved references and `https://files.jokik.fi/` image URLs in Supabase's Table Editor. Keep
+  the Tables archive for recovery. Existing backup and storage guides document this workflow;
+  the previously rejected separate backup UI documentation file remains absent.

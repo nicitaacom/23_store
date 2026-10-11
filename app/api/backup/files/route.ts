@@ -49,14 +49,15 @@ export async function POST(request: NextRequest) {
     checkStorageOrigin(request)
     const actor = await verifyStorageActor(request)
     if (!actor.admin) throw new StorageRequestError("ADMIN role required", 403)
-    const { files, provider } = await request.json() as API.BackupFilesPostRequest
+    const { files, provider, skipExisting } = await request.json() as API.BackupFilesPostRequest
     if (!Array.isArray(files) || files.length < 1 || files.length > BACKUP_FILE_BATCH_SIZE)
       throw new StorageRequestError(`Supply 1 to ${BACKUP_FILE_BATCH_SIZE} files per request`)
+    if (skipExisting !== undefined && typeof skipExisting !== "boolean") throw new StorageRequestError("Invalid import strategy")
     const providerName = selectedProvider(provider)
-    const destinations = await prepareBackupStorageUploads(actor, files, providerName)
+    const destinations = await prepareBackupStorageUploads(actor, files, providerName, skipExisting)
     return NextResponse.json({
       results: destinations.map(destination => ({ bucket: destination.reference.bucket, path: destination.reference.path, ...destination })),
-      relinkRequired: providerName === activeStorageProvider(),
+      relinkRequired: true,
     } satisfies API.BackupFilesPostResponse)
   } catch (error) { return storageFailure(error) }
 }

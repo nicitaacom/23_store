@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import { activeStorageProvider } from "./config"
 import { cancelStorageCapacity, reserveStorageCapacity, STORAGE_CAPACITY_BYTES } from "./capacity"
 import { completeBackupStorageUploads, completeStorageUpload, prepareBackupStorageUploads, prepareStorageUpload, validateStorageUpload } from "./uploads"
 import { isStoragePath, resolveStorageReference, STORAGE_BUCKETS, storagePublicUrl } from "./references"
@@ -88,6 +89,12 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllEnvs(); vi.useRealTimers() })
 
 describe("configured storage references", () => {
+  it("uses R2 by default and preserves an explicit Supabase rollback selection", () => {
+    vi.stubEnv("STORAGE_PROVIDER", undefined)
+    expect(activeStorageProvider()).toBe("r2")
+    vi.stubEnv("STORAGE_PROVIDER", "supabase")
+    expect(activeStorageProvider()).toBe("supabase")
+  })
   it.each(STORAGE_BUCKETS)("round trips encoded names in %s through both providers", bucket => {
     for (const provider of ["supabase", "r2"] as const) {
       const path = `owner/product/файл ${"長".repeat(100)}.png`
@@ -108,6 +115,31 @@ describe("ADMIN backup provider selection", () => {
     const destinations = await prepareBackupStorageUploads(admin, [input], "r2")
     expect(destinations[0].reference.provider).toBe("r2")
     expect(process.env.STORAGE_PROVIDER).toBe("supabase")
+  })
+  it("skips existing paths before reserving capacity or signing uploads, and overwrites when unchecked", async () => {
+    const provider = state.provider!
+    files.set(`${input.bucket}/${input.filename}`, { provider: "r2", bucket: input.bucket, path: input.filename,
+      size: input.size, contentType: input.contentType, updatedAt: null, etag: "existing" })
+    expect(await prepareBackupStorageUploads(admin, [input], "r2", true)).toEqual([
+      { skipped: true, reason: "already-exists", reference: { provider: "r2", bucket: input.bucket, path: input.filename } },
+    ])
+    expect(provider.signUpload).not.toHaveBeenCalled()
+    expect(provider.measureBytes).not.toHaveBeenCalled()
+    expect(state.values.size).toBe(0)
+    const destinations = await prepareBackupStorageUploads(admin, [input], "r2", false)
+    expect(destinations[0]).toHaveProperty("uploadId")
+    expect(provider.signUpload).toHaveBeenCalledOnce()
+    expect(provider.measureBytes).toHaveBeenCalledOnce()
+  })
+  it("reserves and signs only missing files in a mixed skip batch", async () => {
+    const provider = state.provider!
+    files.set(`${input.bucket}/${input.filename}`, { provider: "r2", bucket: input.bucket, path: input.filename,
+      size: input.size, contentType: input.contentType, updatedAt: null, etag: "existing" })
+    const destinations = await prepareBackupStorageUploads(admin, [input, { ...input, filename: "new.png" }], "r2", true)
+    expect(destinations).toHaveLength(2)
+    expect(destinations.filter(destination => "skipped" in destination)).toHaveLength(1)
+    expect(provider.signUpload).toHaveBeenCalledOnce()
+    expect([...state.hashes.values()].flatMap(record => Object.keys(record))).toHaveLength(1)
   })
   it("rejects provider overrides outside ADMIN backup imports", async () => {
     await expect(prepareBackupStorageUploads(actor, [input], "r2")).rejects.toThrow("ADMIN role required")

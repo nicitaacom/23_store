@@ -198,10 +198,12 @@ export const BackupCopyToR2: Story = {
     await expect(canvas.getByText("R2")).toBeVisible()
     await expect(canvas.queryByText("Supabase")).not.toBeInTheDocument()
     await expect(canvas.queryByText("Current storage")).not.toBeInTheDocument()
+    await expect(canvas.getByRole("checkbox", { name: /Skip files already in R2/ })).toBeChecked()
+    await expect(canvas.getByText("Import will relink existing image URLs in the database to R2.")).toBeVisible()
     const file = new File(["example"], "files.tar.gz", { type: "application/gzip" })
     const fileInput = canvasElement.querySelector<HTMLInputElement>('input[accept=".tar.gz,.gz,.tgz"]')!
     await userEvent.upload(fileInput, file)
-    await waitFor(() => expect(backupSDK.importFiles).toHaveBeenLastCalledWith(file, expect.any(Function), "r2"))
+    await waitFor(() => expect(backupSDK.importFiles).toHaveBeenLastCalledWith(file, expect.any(Function), "r2", { skipExisting: true }))
     await expect(canvas.getByText("Elapsed time")).toBeVisible()
     await expect(canvas.getByText("Est. time remaining")).toBeVisible()
     const content = canvasElement.querySelector<HTMLElement>('[data-cy="db-backup-content"]')!
@@ -218,7 +220,7 @@ export const BackupCopyToR2: Story = {
     await waitFor(() => expect(useDbBackupState.getState().filesImportPhase).toBe("done"))
     await userEvent.click(await canvas.findByRole("button", { name: "Reopen backup" }))
     await userEvent.click(await canvas.findByRole("button", { name: "Files" }))
-    await expect(canvas.getByText(/Files copied\. Live image URLs/)).toBeVisible()
+    await expect(canvas.getByText("R2 image URL relinking completed.")).toBeVisible()
     await expect(canvas.getByText("R2")).toBeVisible()
     await expect(canvas.queryByText("Supabase")).not.toBeInTheDocument()
   },

@@ -26,7 +26,7 @@ export const backupSDK = {
     onProgress({ bytesDone: 1024, bytesTotal: 4096, label: "23_product-images/example.png", speedBytesPerMs: 2 });
     return { fileName: "files.tar.gz", exportFile: new Blob([], { type: "application/gzip" }) };
   }),
-  importFiles: fn((_file: File, onProgress: (progress: { bytesDone: number; bytesTotal: number; label: string; speedBytesPerMs: number | null }) => void, _provider?: TStorageProviderName) => {
+  importFiles: fn((_file: File, onProgress: (progress: { bytesDone: number; bytesTotal: number; label: string; speedBytesPerMs: number | null }) => void, _provider?: TStorageProviderName, _options?: { skipExisting?: boolean }) => {
     onProgress({ bytesDone: 1024, bytesTotal: 4096, label: "23_product-images/example.png", speedBytesPerMs: 2 });
     filesImportDeferred = createDeferred<TFilesImportResult>();
     return filesImportDeferred.promise;
@@ -44,6 +44,6 @@ export function completeTablesExport() {
 
 export function completeFilesImport() {
   if (!filesImportDeferred) throw new Error("Files import has not started");
-  filesImportDeferred.resolve({ buckets: [{ bucket: "23_product-images", files: 1, failed: 0 }], relink: null });
+  filesImportDeferred.resolve({ buckets: [{ bucket: "23_product-images", files: 1, failed: 0, skipped: 0 }], relink });
   filesImportDeferred = null;
 }

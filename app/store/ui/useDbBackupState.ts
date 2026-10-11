@@ -30,6 +30,8 @@ type TDbBackupState = {
   filesImportPhase: TFilesImportPhase
   filesImportBytesDone: number
   filesImportBytesTotal: number
+  filesImportBytesSkipped: number
+  filesImportSkipExisting: boolean
   filesImportSpeedBytesPerMs: number | null
   filesImportLabel: string
   filesImportStartedAt: number | null
@@ -41,6 +43,7 @@ type TDbBackupState = {
 type TDbBackupStore = TDbBackupState & {
   setModalOpen: (isModalOpen: boolean) => void
   reset: () => void
+  setFilesImportSkipExisting: (skipExisting: boolean) => void
 }
 
 const INITIAL_DB_BACKUP_STATE: TDbBackupState = {
@@ -64,6 +67,8 @@ const INITIAL_DB_BACKUP_STATE: TDbBackupState = {
   filesImportPhase: "idle",
   filesImportBytesDone: 0,
   filesImportBytesTotal: 0,
+  filesImportBytesSkipped: 0,
+  filesImportSkipExisting: true,
   filesImportSpeedBytesPerMs: null,
   filesImportLabel: "",
   filesImportStartedAt: null,
@@ -84,5 +89,6 @@ export function selectDbBackupIsBusy(state: TDbBackupState) {
 export const useDbBackupState = create<TDbBackupStore>()(set => ({
   ...INITIAL_DB_BACKUP_STATE,
   setModalOpen: isModalOpen => set({ isModalOpen }),
+  setFilesImportSkipExisting: filesImportSkipExisting => set({ filesImportSkipExisting }),
   reset: () => set(state => ({ ...INITIAL_DB_BACKUP_STATE, isModalOpen: state.isModalOpen })),
 }))

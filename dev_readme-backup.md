@@ -12,14 +12,18 @@ speed-aware chunking to fit the 60s cap — see "Why this design" below.
 - Trigger: avatar dropdown → **DB Backup** item, visible only when `roles` includes `"ADMIN"`.
 - Modal: `DbBackupModal` opened via `?modal=DbBackup`, with a Tables / Files tab switch.
 - **Files: R2. Tables: Supabase.** Each tab shows its provider without a selector. Both Files
-  buttons explicitly use R2. Import into inactive R2 copies files without relinking live database
-  URLs. Complete final synchronization in the migration runbook before cutover.
+  buttons explicitly use R2. Files import automatically relinks the existing database and Auth
+  image URLs to R2 after checking the destination files.
+- **Skip files already in R2** is checked by default. Existing paths are reported as skipped;
+  they use no upload signatures, capacity reservations or transfer bytes. Uncheck it to overwrite.
+  Import still relinks image URLs when every file is skipped, so repeat the Files import after
+  an earlier copy that left Supabase URLs unchanged. The Tables backup does not need importing.
 - File progress shows transferred bytes, measured transfer speed, elapsed time and estimated time
   remaining. Long filenames occupy a fixed two-line area; the full name is available on hover.
 - Active work belongs to the global Zustand `useDbBackupState`, so closing the modal keeps the
   export/import running and shows the same progress in a fixed card.
 
-![Copy a Files backup to inactive R2, using a Storybook fixture](public/docs/storage/backup-copy-to-r2.png)
+![Import Files and relink image URLs to R2, using fixture data](public/docs/storage/backup-copy-to-r2.png)
 
 <br/>
 
@@ -33,7 +37,9 @@ guarantee the limit is respected, it only estimates it.
 
 The full transfer runs outside the function deadline: **no application request contains file bytes.**
 Metadata operations still run on Vercel with `maxDuration = 60`: preparation covers at most 16 files,
-completion at most four. Slow provider/Redis responses may still time out; bounded batches reduce
+completion at most four. Relinking handles one inventory page, 200 profile emails, or at most 20
+database/Auth rows per request, with at most four concurrent reference updates.
+Slow provider/Redis responses may still time out; bounded batches reduce
 per-request work. A lost completion response is retried once using the same session IDs, without
 another file transfer. Completed sessions return their existing result without another copy.
 - Export: the server returns a file **list** (bucket/path/size/contentType, no bytes). The browser
@@ -156,9 +162,12 @@ reloading the page. The listener and progress card are removed as soon as the wo
 fails.
 
 Elapsed time includes preparation and verification, updates once a second and freezes on completion
-or error. Estimated time remaining uses untransferred bytes and measured transfer speed; unknown
-speed shows `—`, and verification shows Finalizing after all bytes transfer. It estimates transfer
-time; provider verification and export compression may extend completion.
+or error. Remaining time uses `elapsed × (1 − progress) / progress` and the current transfer-speed
+estimate, choosing the longer duration so a short upload-speed spike does not hide verification
+time. A slowing connection extends the estimate. Unknown speed still allows a progress estimate;
+zero speed displays `00:00:00` by the user's choice. Before either estimate is available it shows
+`—`. After all files have transferred or been skipped, verification and relinking show Finalizing.
+Skipped files advance the percentage but do not inflate transferred bytes or measured speed.
 
 `BackupFilesProgress` shares the modal/card presentation. The filename uses two reserved lines
 (`line-clamp-2 min-h-[2rem]`) and wraps within `min-w-0 flex-1`; the percentage uses `shrink-0`.
@@ -265,8 +274,13 @@ grace period; it is disabled by default during the first migration copy.
 **Storage URL relinking:** Tables import and Files import into the active provider finish by calling the ADMIN-only
 `POST /api/backup/relink-storage-urls`. Calling it from both flows makes the restore order
 independent: a Tables-first restore reports paths that are not uploaded yet, and the later Files
-import resolves them; a Files-first restore resolves them when Tables are imported. Importing Files
-into inactive R2 preserves live URLs and reports that final synchronization is still required.
+import resolves them; a Files-first restore resolves them when Tables are imported.
+Files import explicitly chooses R2 for relinking, including when every file is skipped or an older
+deployment still has a Supabase provider override. Table restore targets the active provider, which
+now defaults to R2. Each request advances one page in an ADMIN-owned Redis session; retrying an
+already completed step returns its stored result. The operation and its continuations retain the
+ADMIN and same-origin checks. Rows update through the existing comparison RPC and reference
+journal, preserving concurrent edits and unrelated fields.
 The route lists the objects currently present in all six logical categories, then recursively
 checks only the configured URL-bearing columns:
 
@@ -278,9 +292,10 @@ checks only the configured URL-bearing columns:
 - `23_messages.images` and `sender_avatar_url`
 - Supabase Auth `user_metadata.avatar_url`
 
-An old public URL is rewritten to `NEXT_PUBLIC_SUPABASE_URL` when its exact `bucket/path` exists in
-project B's Storage — and, since plan-23, also when the row's own folder holds the file under a
-different name. Current-project URLs, external/invalid/data URLs, and URLs with neither an exact
+An old public URL is rewritten to `NEXT_PUBLIC_R2_PUBLIC_URL` for Files imports, or the selected
+provider's public domain, when its exact `bucket/path` exists at the destination — and, since
+plan-23, also when the row's own folder holds the file under a different name.
+Already matching URLs, external/invalid/data URLs, and URLs with neither an exact
 match nor a folder match remain unchanged. Missing references and unique paths are returned as an
 unresolved warning in the modal; they do not fail an otherwise successful import. Re-running the
 finalizer is safe and idempotent. After it succeeds, the client refreshes the current route so

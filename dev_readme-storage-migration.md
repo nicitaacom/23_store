@@ -8,8 +8,10 @@ The Tables export is a recovery artifact; do not import it over the live databas
 
 ## Before importing your existing Files backup
 
-The application supports **DB Backup → Files (R2) → Import**. The first copy is ready after
-the following setup; completing that copy still leaves final synchronization and cutover.
+The application supports **DB Backup → Files (R2) → Import**, including automatic R2 URL relinking.
+The user completed the original copy on October 11; that older build intentionally kept Supabase
+URLs unchanged. On the latest build, re-import the Files archive with **Skip files already in R2**
+checked. Existing objects are skipped while database and Auth image URLs are relinked to R2.
 
 1. Application environment variables belong in the **Vercel dashboard → your 23_store project →
    Settings → Environment Variables**, with **Production** selected as the deployment environment.
@@ -31,12 +33,12 @@ the following setup; completing that copy still leaves final synchronization and
    For another Supabase project, apply this SQL before its first import. No repeat is needed for
    the project where the user has already run it.
 
-   **Do not add four extra environment entries for this first copy.** The code uses these defaults
+   **Do not add four extra environment entries.** The code uses these defaults
    when the entries are absent:
 
-   | Optional setting | Default | Behavior during the first import |
+   | Optional setting | Default | Behavior |
    | --- | --- | --- |
-   | `STORAGE_PROVIDER` | `supabase` | Live application writes stay on Supabase; the Files tab imports into R2 |
+   | `STORAGE_PROVIDER` | `r2` | Live uploads use R2; Files import relinks existing URLs to R2 |
    | `STORAGE_MIGRATION_PAUSED` | `false` | File changes remain available |
    | `STORAGE_CLEANUP_ENABLED` | `false` | Destructive cleanup stays disabled |
    | `R2_ACCOUNT_STANDARD_ONLY` | `false` | Account-wide included-allowance estimates remain unconfirmed; the application 10 GB cap still applies |
@@ -45,7 +47,8 @@ the following setup; completing that copy still leaves final synchronization and
    Deployments**, use the latest `development` deployment and redeploy after any environment
    changes. Keep the existing deployment branch configuration. Vercel's **Production** label
    selects the live deployment's environment variables; it does not require a Git branch named
-   `production`. Local settings need no changes for this production import test.
+   `production`. If `STORAGE_PROVIDER` is already set to `supabase` in the Production environment,
+   change that existing entry to `r2` before redeploying. An absent entry already defaults to R2.
 
 4. No R2 folder creation is required. The six category names are key prefixes inside
    `23-store-public`; uploading `23_avatar-images/<path>` makes that category visible automatically.
@@ -54,20 +57,26 @@ the following setup; completing that copy still leaves final synchronization and
    [R2 prefixes and folders](https://developers.cloudflare.com/r2/objects/#prefixes-and-folders)
 
    After the new production deployment is **Ready**, sign in as **ADMIN**, open **DB Backup → Files**,
-   click **Import** and select
+   leave **Skip files already in R2** checked, click **Import** and select
    `/home/kali/Downloads/23_backup-files-2026-10-09-extractable.tar.gz`. Keep the Tables archive
    for recovery. For the previously inspected Files export, expect **1,154 product images and
-   3 avatars**, with **zero failed uploads**. Importing to inactive R2 preserves live image URLs.
+   3 avatars**, uploaded or skipped, with **zero failed uploads**. Import now relinks existing
+   database and Auth image URLs to R2 even if all 1,157 files are already present.
 5. Check the imported category prefixes in **R2 → 23-store-public → Objects**, open an actual
    imported image at `https://files.jokik.fi/<category>/<path>`, and confirm the import result
-   reports that final synchronization is still required. Then follow §4 to synchronize current
-   Supabase files, verify checksums, update registered references and switch live writes to R2.
+   reports completed R2 relinking with zero unresolved references. Check `23_products.img_url`
+   and `23_users.avatar_url` in **Supabase → Table Editor**: application file URLs should begin
+   with `https://files.jokik.fi/`. Missing archive objects leave their old URLs unchanged and are
+   reported for recovery. The advanced §4 synchronization procedure remains available when the
+   source changed after export; the UI skip strategy preserves existing destination contents.
 
 Files uploads run eight at a time. Preparation authorizes up to 16 files with one inventory
 measurement; completion verifies at most four files per Vercel request. The full browser operation
 may exceed 60 seconds, while metadata routes retain the 60-second deadline. Slow provider/Redis
-requests may still time out. Retrying completion uses the same sessions and does not copy already
-completed files again. Progress shows actual transfer speed, elapsed time and estimated time left.
+requests may still time out. Relinking uses one inventory page or at most 20 database/Auth rows
+per request, with an ADMIN-owned continuation and idempotent completed-step retries. Progress
+shows actual transfer speed, elapsed time and an estimate based on progress over elapsed time,
+extended if the current transfer-speed estimate is longer. Zero speed shows `00:00:00`.
 
 New uploads create `temp-uploads/` automatically. This is a temporary internal prefix, separate from
 the six `TBuckets` application categories. Files are checked against their authorized size/type and
@@ -188,9 +197,9 @@ For the user-selected production browser flow, complete the setup and redeployme
 above. For a local rehearsal, configure the public bucket, custom domain, CORS and `.env.local`,
 apply the Supabase setup SQL, then restart the app. Open **DB Backup → Files (R2) → Import** and
 choose the Files `.tar.gz`. The Files tab always imports into and exports from R2; Tables uses
-Supabase. Importing into inactive R2
-leaves live database image URLs unchanged and reports that final synchronization is still needed.
-Keep `STORAGE_PROVIDER=supabase` during this initial copy. The Tables backup is not imported.
+Supabase. Files import relinks database references to R2 after upload verification or skipped
+existing objects. The default skip checkbox preserves existing destination files; unchecking it
+overwrites those paths. The active provider defaults to R2. The Tables backup is not imported.
 Before final sync, use the archive command below with `--apply` against the selected R2 bucket
 to establish its verified starting report. Files already matching the exported SHA-256 and MIME
 are verified without being uploaded again. Existing different files are preserved as conflicts.

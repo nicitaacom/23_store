@@ -8,7 +8,7 @@ import { isStorageBucket, isStoragePath } from "./references"
 import { listStorageObjects, storageProvider } from "./providers"
 import type { TStorageActor } from "./authorization"
 import { BACKUP_COMPLETION_BATCH_SIZE, BACKUP_FILE_BATCH_SIZE, BACKUP_METADATA_CONCURRENCY } from "@/constants/backupTransfer"
-import type { IStorageProvider, TStorageProviderName, TStorageReference, TStorageUploadDestination, TStorageUploadRequest, TStorageUploadSession } from "@/ts/storage"
+import type { IStorageProvider, TBackupStorageUploadDestination, TStorageProviderName, TStorageReference, TStorageUploadDestination, TStorageUploadRequest, TStorageUploadSession } from "@/ts/storage"
 import { MAX_IMAGE_FILE_SIZE_BYTES } from "@/constants/uploadLimits"
 
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif", "image/gif"]
@@ -96,7 +96,12 @@ export async function prepareStorageUpload(actor: TStorageActor, input: TStorage
   }
 }
 
-export async function prepareBackupStorageUploads(actor: TStorageActor, files: TStorageUploadRequest[], providerName?: TStorageProviderName) {
+export function prepareBackupStorageUploads(actor: TStorageActor, files: TStorageUploadRequest[], providerName?: TStorageProviderName,
+  skipExisting?: false): Promise<TStorageUploadDestination[]>
+export function prepareBackupStorageUploads(actor: TStorageActor, files: TStorageUploadRequest[], providerName?: TStorageProviderName,
+  skipExisting?: boolean): Promise<TBackupStorageUploadDestination[]>
+export async function prepareBackupStorageUploads(actor: TStorageActor, files: TStorageUploadRequest[], providerName?: TStorageProviderName,
+  skipExisting = false): Promise<TBackupStorageUploadDestination[]> {
   if (!actor.admin) throw new StorageRequestError("ADMIN role required", 403)
   if (fileChangesPaused()) throw new StorageRequestError("File changes are paused for storage synchronization", 503)
   if (!Array.isArray(files) || files.length < 1 || files.length > BACKUP_FILE_BATCH_SIZE)
@@ -105,6 +110,21 @@ export async function prepareBackupStorageUploads(actor: TStorageActor, files: T
   if (new Set(files.map(file => `${file.bucket}/${file.filename}`)).size !== files.length)
     throw new StorageRequestError("Duplicate file paths in backup batch")
   const provider = storageProvider(providerName ?? activeStorageProvider())
+  const skipped: TBackupStorageUploadDestination[] = []
+  if (skipExisting) {
+    const pending: TStorageUploadRequest[] = []
+    for (let start = 0; start < files.length; start += BACKUP_METADATA_CONCURRENCY) {
+      const objects = await Promise.all(files.slice(start, start + BACKUP_METADATA_CONCURRENCY)
+        .map(async file => ({ file, exists: await provider.inspect(file.bucket, file.filename) })))
+      for (const { file, exists } of objects) {
+        if (exists) skipped.push({ skipped: true, reason: "already-exists",
+          reference: { provider: provider.name, bucket: file.bucket, path: file.filename } })
+        else pending.push(file)
+      }
+    }
+    files = pending
+    if (!files.length) return skipped
+  }
   if (provider.name === "supabase" && files.some(file => file.size > SUPABASE_STAGING_MAX_BYTES))
     throw new StorageRequestError("Supabase browser imports support files up to 50 MiB. Use the local migration command for larger files.", 413)
   const uploads: { uploadId: string; session: TStorageUploadSession }[] = []
@@ -127,7 +147,7 @@ export async function prepareBackupStorageUploads(actor: TStorageActor, files: T
       const failed = allSettledResp.find(result => result.status === "rejected")
       if (failed?.status === "rejected") throw failed.reason
     }
-    return destinations
+    return [...skipped, ...destinations]
   } catch (error) {
     // These signatures have not been returned to the caller, so no transfer can have started.
     // Capacity changes share one provider lease; cancel the unsent batch together.

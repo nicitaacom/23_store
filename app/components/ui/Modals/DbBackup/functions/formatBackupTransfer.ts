@@ -17,7 +17,13 @@ export function formatBackupDuration(milliseconds: number): string {
 export function getBackupTransferTime(startedAt: number | null, finishedAt: number | null, now: number,
   bytesDone: number, bytesTotal: number, speedBytesPerMs: number | null) {
   const elapsed = startedAt === null ? 0 : Math.max(0, (finishedAt ?? now) - startedAt)
-  const remaining = finishedAt !== null || bytesTotal <= bytesDone || speedBytesPerMs === null || speedBytesPerMs <= 0 || !Number.isFinite(speedBytesPerMs)
-    ? null : Math.ceil((bytesTotal - bytesDone) / speedBytesPerMs / 1000) * 1000
+  if (finishedAt !== null || bytesTotal <= bytesDone || bytesTotal <= 0 ||
+    speedBytesPerMs !== null && (!Number.isFinite(speedBytesPerMs) || speedBytesPerMs < 0)) return { elapsed, remaining: null }
+  if (speedBytesPerMs === 0) return { elapsed, remaining: 0 }
+  // Progress over elapsed time includes preparation and verification between file transfers.
+  const progressRemaining = bytesDone > 0 && elapsed > 0 ? elapsed * (bytesTotal - bytesDone) / bytesDone : null
+  const speedRemaining = speedBytesPerMs !== null ? (bytesTotal - bytesDone) / speedBytesPerMs : null
+  const remaining = progressRemaining === null && speedRemaining === null ? null
+    : Math.ceil(Math.max(progressRemaining ?? 0, speedRemaining ?? 0) / 1000) * 1000
   return { elapsed, remaining }
 }

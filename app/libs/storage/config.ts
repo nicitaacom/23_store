@@ -8,7 +8,7 @@ export const SUPABASE_STAGING_BUCKET = "23_upload-staging"
 export const SUPABASE_STAGING_MAX_BYTES = 50 * 1024 ** 2
 
 export function activeStorageProvider(): TStorageProviderName {
-  const provider = process.env.STORAGE_PROVIDER ?? "supabase"
+  const provider = process.env.STORAGE_PROVIDER ?? "r2"
   if (provider !== "supabase" && provider !== "r2") throw new Error("STORAGE_PROVIDER must be supabase or r2")
   return provider
 }

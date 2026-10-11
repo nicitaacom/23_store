@@ -71,6 +71,9 @@ export function DbBackupModal() {
     filesImportPhase,
     filesImportBytesDone,
     filesImportBytesTotal,
+    filesImportBytesSkipped,
+    filesImportSkipExisting,
+    setFilesImportSkipExisting,
     filesImportSpeedBytesPerMs,
     filesImportLabel,
     filesImportStartedAt,
@@ -222,6 +225,12 @@ export function DbBackupModal() {
             )}
             {filesExportPhase === "error" && <p className="text-xs text-danger">{filesExportError}</p>}
 
+            <label className="flex items-start gap-2 text-xs text-subTitle">
+              <input className="mt-0.5 accent-success" type="checkbox" data-cy="backup-skip-existing" checked={filesImportSkipExisting}
+                disabled={isBusy} onChange={e => setFilesImportSkipExisting(e.target.checked)} />
+              <span>{t("skip_existing_files")}</span>
+            </label>
+            <p className="text-xs text-subTitle" data-cy="backup-files-relink-info">{t("files_relink_info")}</p>
             <Button
               className="w-fit"
               data-cy="backup-import-files"
@@ -239,6 +248,7 @@ export function DbBackupModal() {
               <BackupFilesProgress
                 bytesDone={filesImportBytesDone}
                 bytesTotal={filesImportBytesTotal}
+                bytesSkipped={filesImportBytesSkipped}
                 speedBytesPerMs={filesImportSpeedBytesPerMs}
                 label={filesImportLabel}
                 startedAt={filesImportStartedAt}
@@ -253,17 +263,17 @@ export function DbBackupModal() {
                   {filesImportResult.buckets.map(bucket => (
                     <li className="flex min-w-0 items-start justify-between gap-2 text-xs text-subTitle" key={bucket.bucket}>
                       <span className="min-w-0 [overflow-wrap:anywhere]">{bucket.bucket}</span>
-                      <span className="shrink-0">
+                      <span className="max-w-[60%] shrink-0 text-right [overflow-wrap:anywhere]">
                         {bucket.files} files{bucket.failed > 0 ? ` (${bucket.failed} failed)` : ""}
+                        {(bucket.skipped ?? 0) > 0 && ` · ${t("files_skipped_result", { count: bucket.skipped! })}`}
                       </span>
                     </li>
                   ))}
                 </ul>
-                {filesImportResult.relink ? <StorageRelinkResult result={filesImportResult.relink} /> : (
-                  <p className="border-t border-border-color/35 pt-2 text-xs text-warning">
-                    Files copied. Live image URLs are unchanged; complete final synchronization before switching storage.
-                  </p>
-                )}
+                {filesImportResult.relink && <>
+                  <p className="text-xs text-success">{t("files_relink_done")}</p>
+                  <StorageRelinkResult result={filesImportResult.relink} />
+                </>}
               </div>
             )}
           </div>

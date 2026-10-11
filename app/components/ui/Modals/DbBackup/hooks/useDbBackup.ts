@@ -132,6 +132,7 @@ export function useDbBackup() {
         filesImportPhase: "importing",
         filesImportBytesDone: 0,
         filesImportBytesTotal: 0,
+        filesImportBytesSkipped: 0,
         filesImportSpeedBytesPerMs: null,
         filesImportLabel: "",
         filesImportStartedAt: Date.now(),
@@ -146,10 +147,11 @@ export function useDbBackup() {
           useDbBackupState.setState({
             filesImportBytesDone: progress.bytesDone,
             filesImportBytesTotal: progress.bytesTotal,
+            filesImportBytesSkipped: progress.bytesSkipped ?? 0,
             filesImportSpeedBytesPerMs: progress.speedBytesPerMs,
             filesImportLabel: progress.label,
           })
-        }, "r2")
+        }, "r2", { skipExisting: useDbBackupState.getState().filesImportSkipExisting })
         useDbBackupState.setState({ filesImportResult: response, filesImportPhase: "done", filesImportFinishedAt: Date.now() })
         router.refresh()
         const hasUnresolvedImages = response.relink !== null && response.relink.unresolvedReferences > 0
@@ -224,6 +226,9 @@ export function useDbBackup() {
     filesImportPhase: backup.filesImportPhase,
     filesImportBytesDone: backup.filesImportBytesDone,
     filesImportBytesTotal: backup.filesImportBytesTotal,
+    filesImportBytesSkipped: backup.filesImportBytesSkipped,
+    filesImportSkipExisting: backup.filesImportSkipExisting,
+    setFilesImportSkipExisting: backup.setFilesImportSkipExisting,
     filesImportSpeedBytesPerMs: backup.filesImportSpeedBytesPerMs,
     filesImportLabel: backup.filesImportLabel,
     filesImportStartedAt: backup.filesImportStartedAt,

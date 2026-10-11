@@ -72,8 +72,9 @@ streaming tools. Upload authorization allows 120 requests/minute for authenticat
 
 ## 3. Environment, optional controls and SQL
 
-The active provider defaults to Supabase when `STORAGE_PROVIDER` is absent. Keep that default
-until the verified cutover. No R2 credentials are required for that default. Before deploying
+The active provider now defaults to R2 when `STORAGE_PROVIDER` is absent, following the user's
+completed Files copy and request to relink database references. Explicit `supabase` remains a
+rollback selection. R2 uses the six already configured R2 variables. Before deploying
 the new routes, apply `scripts/storage/setup.sql`: it creates
 private staging, restricts direct anonymous/authenticated Storage writes and staging reads,
 and installs service-only usage, exact comparison and guest-reference functions. Existing
@@ -81,7 +82,7 @@ permissive policies and source SQL stay documented. The service role performs au
 
 | Variable | Purpose |
 | --- | --- |
-| `STORAGE_PROVIDER` | Optional; defaults to `supabase`; set `r2` only after verified relinking |
+| `STORAGE_PROVIDER` | Optional; defaults to `r2`; change an existing `supabase` override to `r2` for cutover, retain `supabase` for rollback |
 | `STORAGE_MIGRATION_PAUSED` | Optional; defaults to false; set true to block ordinary file preparation/deletion during synchronization |
 | `STORAGE_CLEANUP_ENABLED` | Explicit opt-in after setup; default false |
 | `NEXT_PUBLIC_R2_PUBLIC_URL` | Production custom domain for public R2 files |

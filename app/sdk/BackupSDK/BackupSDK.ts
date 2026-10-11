@@ -37,7 +37,7 @@ export type TTablesImportResult = {
   relink: API.BackupStorageRelinkResult
 }
 export type TFilesImportResult = {
-  buckets: { bucket: string; files: number; failed: number }[]
+  buckets: { bucket: string; files: number; failed: number; skipped?: number }[]
   relink: API.BackupStorageRelinkResult | null
 }
 
@@ -48,6 +48,7 @@ export type TBackupFilesProgress = {
   bytesTotal: number
   label: string
   speedBytesPerMs: number | null
+  bytesSkipped?: number
 }
 
 /** True for a .tar.gz / .gz backup file (by extension), false for a loose .csv file. */
@@ -146,10 +147,27 @@ function createSpeedTracker() {
 }
 
 export class BackupSDK extends BaseSDK {
-  async relinkStorageUrls(): Promise<API.BackupStorageRelinkResult> {
-    const response = await this.postJson<Record<string, never>, API.BackupStorageRelinkResponse>("/api/backup/relink-storage-urls", {})
-    if ("error" in response) throw new Error(`Failed to relink Storage URLs: ${response.error}`)
-    return response
+  async relinkStorageUrls(provider?: TStorageProviderName, onProgress?: (label: string) => void): Promise<API.BackupStorageRelinkResult> {
+    let continuation: Pick<API.BackupStorageRelinkRequest, "sessionId" | "step"> = {}
+    for (;;) {
+      const body: API.BackupStorageRelinkRequest = { ...(provider ? { provider } : {}), ...continuation }
+      let response: API.BackupStorageRelinkResponse
+      try {
+        response = await this.postJson<API.BackupStorageRelinkRequest, API.BackupStorageRelinkResponse>(
+          "/api/backup/relink-storage-urls", body, { signal: AbortSignal.timeout(65000) })
+      } catch {
+        // Continue the same persisted page after a lost response; completed pages are idempotent.
+        response = await this.postJson<API.BackupStorageRelinkRequest, API.BackupStorageRelinkResponse>(
+          "/api/backup/relink-storage-urls", body, { signal: AbortSignal.timeout(65000) })
+      }
+      if ("error" in response) throw new Error(`Failed to relink Storage URLs: ${response.error}`)
+      onProgress?.(response.label)
+      if (response.done || !response.sessionId) {
+        const { rowsUpdated, urlsUpdated, authUsersUpdated, unresolvedReferences, unresolvedPaths, tables } = response
+        return { rowsUpdated, urlsUpdated, authUsersUpdated, unresolvedReferences, unresolvedPaths, tables }
+      }
+      continuation = { sessionId: response.sessionId, step: response.step }
+    }
   }
 
   /**
@@ -341,7 +359,8 @@ export class BackupSDK extends BaseSDK {
    * xhr.upload.onprogress gives real in-flight bytes for the file currently uploading. The
    * connection speed shown is measured live from these uploads as they happen.
    */
-  async importFiles(file: File, onProgress: (progress: TBackupFilesProgress) => void, provider?: TStorageProviderName): Promise<TFilesImportResult> {
+  async importFiles(file: File, onProgress: (progress: TBackupFilesProgress) => void, provider?: TStorageProviderName,
+    options?: { skipExisting?: boolean }): Promise<TFilesImportResult> {
     onProgress({ bytesDone: 0, bytesTotal: 0, label: "Reading backup file…", speedBytesPerMs: null })
 
     let tarBytes: Uint8Array
@@ -359,18 +378,19 @@ export class BackupSDK extends BaseSDK {
       throw new Error("No storage files found in the backup file — expected storage/23_product-images/… or storage/23_avatar-images/… entries.")
     }
 
-    const bucketStats: Record<string, { files: number; failed: number }> = {}
+    const bucketStats: Record<string, { files: number; failed: number; skipped: number }> = {}
     const firstErrorByBucket: Record<string, string> = {}
 
     const bytesTotal = storedFiles.reduce((sum, storedFile) => sum + storedFile.bytes.length, 0)
     let bytesTransferred = 0
-    let relinkRequired = true
+    let bytesSkipped = 0
+    let destinationProvider = provider
     const speedTracker = createSpeedTracker()
-    const reportProgress = (label: string) => onProgress({ bytesDone: bytesTransferred, bytesTotal, label,
+    const reportProgress = (label: string) => onProgress({ bytesDone: bytesTransferred, bytesTotal, bytesSkipped, label,
       speedBytesPerMs: speedTracker.sample(bytesTransferred) })
 
-    const bumpStat = (bucket: string, key: "files" | "failed") => {
-      if (!bucketStats[bucket]) bucketStats[bucket] = { files: 0, failed: 0 }
+    const bumpStat = (bucket: string, key: "files" | "failed" | "skipped") => {
+      if (!bucketStats[bucket]) bucketStats[bucket] = { files: 0, failed: 0, skipped: 0 }
       bucketStats[bucket][key]++
     }
 
@@ -385,13 +405,14 @@ export class BackupSDK extends BaseSDK {
 
       const postResp = await this.postJson<API.BackupFilesPostRequest, API.BackupFilesPostResponse>("/api/backup/files", {
         ...(provider ? { provider } : {}),
+        ...(options?.skipExisting !== undefined ? { skipExisting: options.skipExisting } : {}),
         files: batch.map(storedFile => {
           if (!isStorageBucket(storedFile.bucket)) throw new Error("Unsupported imported storage bucket")
           return { bucket: storedFile.bucket, filename: storedFile.path, size: storedFile.bytes.length, contentType: storedFile.contentType }
         }),
       })
       if ("error" in postResp) throw new Error(`Failed to prepare file upload: ${postResp.error}`)
-      if (postResp.relinkRequired === false) relinkRequired = false
+      destinationProvider ??= postResp.results[0]?.reference.provider
       const destinations = new Map(postResp.results.map(destination => [`${destination.bucket}/${destination.path}`, destination]))
       if (destinations.size !== postResp.results.length || postResp.results.length !== batch.length)
         throw new Error("Upload authorization returned an incomplete or duplicate file batch")
@@ -402,6 +423,12 @@ export class BackupSDK extends BaseSDK {
           const storedFile = batch[nextIndex++]
           const label = `${storedFile.bucket}/${storedFile.path}`
           const destination = destinations.get(label)
+          if (destination && "skipped" in destination && destination.reason === "already-exists") {
+            bumpStat(storedFile.bucket, "skipped")
+            bytesSkipped += storedFile.bytes.length
+            reportProgress(label)
+            continue
+          }
           if (!destination || "skipped" in destination) {
             recordFailure(storedFile.bucket, destination && "skipped" in destination ? destination.reason : "Upload authorization is missing")
             continue
@@ -440,14 +467,14 @@ export class BackupSDK extends BaseSDK {
       }
     }
 
-    const totalUploaded = Object.values(bucketStats).reduce((sum, stat) => sum + stat.files, 0)
+    const totalUploaded = Object.values(bucketStats).reduce((sum, stat) => sum + stat.files + stat.skipped, 0)
     if (totalUploaded === 0) {
       const firstError = Object.values(firstErrorByBucket)[0]
       throw new Error(firstError ?? "No files were uploaded — every path was skipped.")
     }
 
-    reportProgress(relinkRequired ? "Relinking image URLs…" : "Files copied to R2")
-    const relink = relinkRequired ? await this.relinkStorageUrls() : null
+    reportProgress(`Relinking existing image URLs to ${(destinationProvider ?? "r2").toUpperCase()}…`)
+    const relink = await this.relinkStorageUrls(destinationProvider, reportProgress)
     reportProgress("Done")
     return { buckets: Object.entries(bucketStats).map(([bucket, stat]) => ({ bucket, ...stat })), relink }
   }

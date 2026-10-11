@@ -8,6 +8,8 @@ import { gzipBufferClient } from "@/api/backup/tarClient"
 import { storageSDK } from "@/sdk/StorageSDK/StorageSDK"
 
 const requestMocks = vi.hoisted(() => ({ getJson: vi.fn(), postJson: vi.fn() }))
+const relinkResult: API.BackupStorageRelinkResult = { rowsUpdated: 1, urlsUpdated: 2, authUsersUpdated: 1,
+  unresolvedReferences: 0, unresolvedPaths: 0, tables: [] }
 
 vi.mock("../BaseSDK", () => ({
   BaseSDK: class {
@@ -24,7 +26,7 @@ afterEach(() => {
 })
 
 describe("BackupSDK Storage files", () => {
-  it("copies a backup to inactive R2 without changing live database URLs", async () => {
+  it("imports into R2 and relinks live database URLs to R2 even when the old server says it is inactive", async () => {
     const sdk = new BackupSDK()
     const path = "owner/product/image.png"
     const bytes = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
@@ -36,7 +38,7 @@ describe("BackupSDK Storage files", () => {
       .mockResolvedValue({ results: [{ uploadId: destination.uploadId, reference: destination.reference, publicUrl: "https://files.example/file" }] })
     vi.spyOn(storageSDK, "transfer").mockResolvedValue()
     vi.spyOn(storageSDK, "complete").mockResolvedValue({ reference: { provider: "r2", bucket: "23_product-images", path }, publicUrl: "https://files.example/file" })
-    const relink = vi.spyOn(sdk, "relinkStorageUrls")
+    const relink = vi.spyOn(sdk, "relinkStorageUrls").mockResolvedValue(relinkResult)
     const response = await sdk.importFiles(new File([gzipped], "files.tar.gz") as unknown as globalThis.File, vi.fn(), "r2")
     expect(requestMocks.postJson).toHaveBeenCalledWith("/api/backup/files", {
       provider: "r2", files: [{ bucket: "23_product-images", filename: path, size: bytes.length, contentType: "image/png" }],
@@ -44,8 +46,8 @@ describe("BackupSDK Storage files", () => {
     expect(storageSDK.transfer).toHaveBeenCalledWith(destination, expect.any(Blob), expect.any(Function))
     expect(storageSDK.complete).not.toHaveBeenCalled()
     expect(requestMocks.postJson).toHaveBeenCalledWith("/api/backup/files/complete", { uploadIds: ["upload-r2"] }, expect.objectContaining({ signal: expect.any(AbortSignal) }))
-    expect(response).toEqual({ buckets: [{ bucket: "23_product-images", files: 1, failed: 0 }], relink: null })
-    expect(relink).not.toHaveBeenCalled()
+    expect(response).toEqual({ buckets: [{ bucket: "23_product-images", files: 1, failed: 0, skipped: 0 }], relink: relinkResult })
+    expect(relink).toHaveBeenCalledWith("r2", expect.any(Function))
   })
 
   it("exports every selected-provider page using its download URLs", async () => {
@@ -122,12 +124,13 @@ describe("BackupSDK Storage files", () => {
     const uploadedImage = uploadedForms[0].get("") as Blob
     expect(uploadedImage.type).toBe("image/avif")
     expect(new Uint8Array(await uploadedImage.arrayBuffer())).toEqual(bytes)
-    expect(importFilesResp.buckets).toEqual([{ bucket: "23_product-images", files: 1, failed: 0 }])
+    expect(importFilesResp.buckets).toEqual([{ bucket: "23_product-images", files: 1, failed: 0, skipped: 0 }])
     expect(sdk.relinkStorageUrls).toHaveBeenCalledOnce()
   })
 
   it("bounds parallel uploads and completion requests and counts only actual transferred bytes", async () => {
     const sdk = new BackupSDK()
+    vi.spyOn(sdk, "relinkStorageUrls").mockResolvedValue(relinkResult)
     const storedFiles = Array.from({ length: 20 }, (_, index) => ({ bucket: "23_product-images", path: `owner/file-${index}.png`, contentType: "image/png", bytes: Buffer.alloc(1000) }))
     const gzipped = await gzipBufferClient(buildStorageTar(storedFiles))
     const preparedSizes: number[] = []
@@ -166,7 +169,7 @@ describe("BackupSDK Storage files", () => {
     expect(maximumTransfers).toBe(8)
     expect(preparedSizes).toEqual([16, 4])
     expect(completedSizes).toEqual([4, 4, 4, 3, 4])
-    expect(response.buckets).toEqual([{ bucket: "23_product-images", files: 19, failed: 1 }])
+    expect(response.buckets).toEqual([{ bucket: "23_product-images", files: 19, failed: 1, skipped: 0 }])
     expect(progress.at(-1)?.bytesDone).toBe(19327)
     expect(progress.at(-1)?.bytesTotal).toBe(20000)
     expect(progress.every((update, index) => update.bytesDone <= update.bytesTotal && (!index || update.bytesDone >= progress[index - 1].bytesDone))).toBe(true)
@@ -174,6 +177,7 @@ describe("BackupSDK Storage files", () => {
 
   it("retries the same completion ids after a lost response without transferring files twice", async () => {
     const sdk = new BackupSDK()
+    vi.spyOn(sdk, "relinkStorageUrls").mockResolvedValue(relinkResult)
     const storedFile = { bucket: "23_avatar-images", path: "owner/avatar.png", bytes: Buffer.from([1]), contentType: "image/png" }
     const gzipped = await gzipBufferClient(buildStorageTar([storedFile]))
     const destination = { bucket: storedFile.bucket, path: storedFile.path, uploadId: "existing-upload", method: "PUT", headers: {}, formField: null,
@@ -186,5 +190,38 @@ describe("BackupSDK Storage files", () => {
     expect(transfer).toHaveBeenCalledOnce()
     const completionRequests = requestMocks.postJson.mock.calls.filter(call => call[0] === "/api/backup/files/complete")
     expect(completionRequests.map(call => call[1])).toEqual([{ uploadIds: [destination.uploadId] }, { uploadIds: [destination.uploadId] }])
+  })
+
+  it("relinks an entirely skipped backup without another upload or a false failure", async () => {
+    const sdk = new BackupSDK()
+    const files = [{ bucket: "23_avatar-images", path: "owner/avatar.png", bytes: Buffer.alloc(1000), contentType: "image/png" }]
+    const gzipped = await gzipBufferClient(buildStorageTar(files))
+    requestMocks.postJson.mockResolvedValue({ results: [{ bucket: files[0].bucket, path: files[0].path,
+      skipped: true, reason: "already-exists", reference: { provider: "r2", bucket: files[0].bucket, path: files[0].path } }] })
+    const transfer = vi.spyOn(storageSDK, "transfer")
+    const relink = vi.spyOn(sdk, "relinkStorageUrls").mockResolvedValue(relinkResult)
+    const progress = vi.fn()
+    const response = await sdk.importFiles(new File([gzipped], "files.tar.gz") as unknown as globalThis.File, progress, "r2", { skipExisting: true })
+    expect(requestMocks.postJson).toHaveBeenCalledOnce()
+    expect(requestMocks.postJson).toHaveBeenCalledWith("/api/backup/files", expect.objectContaining({ provider: "r2", skipExisting: true }))
+    expect(transfer).not.toHaveBeenCalled()
+    expect(relink).toHaveBeenCalledWith("r2", expect.any(Function))
+    expect(response.buckets).toEqual([{ bucket: "23_avatar-images", files: 0, failed: 0, skipped: 1 }])
+    expect(progress).toHaveBeenLastCalledWith(expect.objectContaining({ bytesDone: 0, bytesTotal: 1000, bytesSkipped: 1000 }))
+  })
+
+  it("continues bounded relinking pages and retries a lost response with the same provider and step", async () => {
+    const sdk = new BackupSDK()
+    requestMocks.postJson.mockResolvedValueOnce({ ...relinkResult, sessionId: "session-id", step: 1, done: false, provider: "r2", label: "Checking R2 files…" })
+      .mockRejectedValueOnce(new Error("Response lost"))
+      .mockResolvedValueOnce({ ...relinkResult, sessionId: "session-id", step: 2, done: true, provider: "r2", label: "Image URL relinking finished" })
+    const progress = vi.fn()
+    expect(await sdk.relinkStorageUrls("r2", progress)).toEqual(relinkResult)
+    expect(requestMocks.postJson.mock.calls.map(call => call.slice(0, 2))).toEqual([
+      ["/api/backup/relink-storage-urls", { provider: "r2" }],
+      ["/api/backup/relink-storage-urls", { provider: "r2", sessionId: "session-id", step: 1 }],
+      ["/api/backup/relink-storage-urls", { provider: "r2", sessionId: "session-id", step: 1 }],
+    ])
+    expect(progress).toHaveBeenLastCalledWith("Image URL relinking finished")
   })
 })
