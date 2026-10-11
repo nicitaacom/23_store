@@ -46,6 +46,8 @@ export function DbBackupModal() {
   const t = useScopedI18n("backup")
   const {
     isBusy,
+    filesProvider,
+    selectFilesProvider,
     tablesInputRef,
     filesInputRef,
     tablesExportPhase,
@@ -192,6 +194,29 @@ export function DbBackupModal() {
         {tab === "files" && (
           <div className="flex flex-col gap-3 rounded border border-border-color/35 bg-foreground/5 p-3">
             <p className="text-xs text-subTitle">{t("files_subtitle")}</p>
+            <fieldset className="flex flex-col gap-2" disabled={isBusy}>
+              <legend className="mb-1 text-xs text-subTitle">File storage</legend>
+              <div className="flex gap-1">
+                {(["active", "supabase", "r2"] as const).map(provider => (
+                  <Button
+                    className="flex-1"
+                    key={provider}
+                    type="button"
+                    size="sm"
+                    variant={filesProvider === provider ? "default" : "ghost"}
+                    aria-pressed={filesProvider === provider}
+                    disabled={isBusy}
+                    onClick={() => selectFilesProvider(provider)}>
+                    {provider === "active" ? "Current storage" : provider === "r2" ? "R2" : "Supabase"}
+                  </Button>
+                ))}
+              </div>
+              {filesProvider !== "active" && (
+                <p className="text-xs text-subTitle">
+                  Files use the selected storage. Live uploads stay on the configured provider. A migration still needs final synchronization before switching.
+                </p>
+              )}
+            </fieldset>
 
             <Button
               className="w-fit"
@@ -269,7 +294,11 @@ export function DbBackupModal() {
                     </li>
                   ))}
                 </ul>
-                <StorageRelinkResult result={filesImportResult.relink} />
+                {filesImportResult.relink ? <StorageRelinkResult result={filesImportResult.relink} /> : (
+                  <p className="border-t border-border-color/35 pt-2 text-xs text-warning">
+                    Files copied. Live image URLs are unchanged; complete final synchronization before switching storage.
+                  </p>
+                )}
               </div>
             )}
           </div>

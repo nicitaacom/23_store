@@ -1,4 +1,7 @@
+import type { TBuckets } from "@/ts/types/TBuckets"
 import { getPublicUrl, isRelinkSourceBucket } from "./backupConfig"
+import { isStoragePath, resolveStorageReference, storagePublicUrl } from "@/libs/storage/references"
+import type { TStorageProviderName } from "@/ts/storage"
 
 const PUBLIC_STORAGE_PATH_PREFIX = "/storage/v1/object/public/"
 
@@ -18,13 +21,17 @@ const EMPTY_RELINKED_PATHS: ReadonlyMap<string, string> = new Map()
 export function selectBackupStoragePath(value: unknown, currentSupabaseUrl?: string): TBackupStoragePath | null {
   if (typeof value !== "string") return null
 
+  const reference = resolveStorageReference(value, { supabase: currentSupabaseUrl ?? process.env.NEXT_PUBLIC_SUPABASE_URL, r2: process.env.NEXT_PUBLIC_R2_PUBLIC_URL })
+  if (reference) return { bucket: reference.bucket, path: reference.path }
+
   try {
     const url = new URL(value)
     if (url.protocol !== "http:" && url.protocol !== "https:") return null
-    const currentSupabaseHost = currentSupabaseUrl ? new URL(currentSupabaseUrl).host : null
-    if (!url.hostname.endsWith(".supabase.co") && url.host !== currentSupabaseHost) return null
+    const recognizedOrigins = [currentSupabaseUrl ?? process.env.NEXT_PUBLIC_SUPABASE_URL,
+      ...(process.env.STORAGE_LEGACY_SUPABASE_ORIGINS ?? "").split(",")].filter(Boolean).map(origin => new URL(origin as string).origin)
+    if (url.username || url.password || !recognizedOrigins.includes(url.origin)) return null
 
-    const prefixIndex = url.pathname.indexOf(PUBLIC_STORAGE_PATH_PREFIX)
+    const prefixIndex = url.pathname.startsWith(PUBLIC_STORAGE_PATH_PREFIX) ? 0 : -1
     if (prefixIndex === -1) return null
 
     const storagePath = decodeURIComponent(url.pathname.slice(prefixIndex + PUBLIC_STORAGE_PATH_PREFIX.length))
@@ -33,7 +40,7 @@ export function selectBackupStoragePath(value: unknown, currentSupabaseUrl?: str
 
     const bucket = storagePath.slice(0, separatorIndex)
     const path = storagePath.slice(separatorIndex + 1)
-    return isRelinkSourceBucket(bucket) && path ? { bucket, path } : null
+    return isRelinkSourceBucket(bucket) && isStoragePath(path) ? { bucket, path } : null
   } catch {
     return null
   }
@@ -66,10 +73,9 @@ export function selectBackupPathsByFolder(availablePaths: Iterable<string>): TBa
  * any more, so the exported string alone leaves every one of those images unresolved.
  *
  * The row itself still says where its images belong today: the owner's email and the product id
- * build the folder (see backupConfig's selectStorageFolder). This pairs the files actually sitting
- * in that folder with the row's unresolved paths, in order - the 1st unresolved URL takes
- * `slug-1.jpg`, the 2nd takes `slug-2.jpg`. A row holding more unresolved URLs than the folder has
- * files leaves the extra ones unresolved, which is what the relink report counts.
+ * build the folder (see backupConfig's selectStorageFolder). A unique filename or a single
+ * unresolved image with one stored candidate is safe to match. Multiple unmatched product
+ * images stay unresolved and are reported for review; their positions do not prove identity.
  */
 export function selectRelinkedPathsByFolder(
   unresolvedPaths: readonly string[],
@@ -79,8 +85,11 @@ export function selectRelinkedPathsByFolder(
   const folderPaths = pathsByFolder.get(expectedFolder) ?? []
   const relinkedPathByExportedPath = new Map<string, string>()
 
-  unresolvedPaths.forEach((unresolvedPath, index) => {
-    const folderPath = folderPaths[index]
+  // Match a unique filename, or a single avatar/design candidate. Positional product matches remain unresolved.
+  unresolvedPaths.forEach(unresolvedPath => {
+    const filename = unresolvedPath.split("/").pop()
+    const matches = folderPaths.filter(path => path.split("/").pop() === filename)
+    const folderPath = matches.length === 1 ? matches[0] : unresolvedPaths.length === 1 && folderPaths.length === 1 ? folderPaths[0] : null
     if (folderPath) relinkedPathByExportedPath.set(unresolvedPath, folderPath)
   })
 
@@ -92,6 +101,7 @@ export function relinkBackupStorageValue(
   availablePaths: ReadonlySet<string>,
   currentSupabaseUrl: string,
   relinkedPathByExportedPath: ReadonlyMap<string, string> = EMPTY_RELINKED_PATHS,
+  destinationProvider: TStorageProviderName = "supabase",
 ): TBackupStorageValueRelinkResult {
   let urlsUpdated = 0
   let unresolvedReferences = 0
@@ -110,7 +120,9 @@ export function relinkBackupStorageValue(
       }
 
       const separatorIndex = resolvedPath.indexOf("/")
-      const nextUrl = getPublicUrl(resolvedPath.slice(0, separatorIndex), resolvedPath.slice(separatorIndex + 1), currentSupabaseUrl)
+      const nextUrl = destinationProvider === "supabase"
+        ? getPublicUrl(resolvedPath.slice(0, separatorIndex), resolvedPath.slice(separatorIndex + 1), currentSupabaseUrl)
+        : storagePublicUrl(destinationProvider, resolvedPath.slice(0, separatorIndex) as TBuckets, resolvedPath.slice(separatorIndex + 1))
       if (nextUrl !== currentValue) urlsUpdated++
       return nextUrl
     }

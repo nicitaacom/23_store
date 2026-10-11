@@ -7,7 +7,9 @@ const requiredNames = [
   "SUPABASE_SERVICE_ROLE_KEY",
   "NEXT_STRIPE_SECRET_KEY",
 ]
-const optionalNames = ["PUSHER_APP_ID", "PUSHER_SECRET"]
+const optionalNames = ["PUSHER_APP_ID", "PUSHER_SECRET", "STORAGE_PROVIDER", "STORAGE_MIGRATION_PAUSED",
+  "NEXT_PUBLIC_R2_PUBLIC_URL", "R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY",
+  "R2_BUCKET", "R2_STAGING_BUCKET", "R2_PRIVATE_BUCKET", "CLOUDFLARE_R2_ANALYTICS_TOKEN"]
 const missingNames = requiredNames.filter(name => !process.env[name]?.trim())
 
 if (missingNames.length > 0) {

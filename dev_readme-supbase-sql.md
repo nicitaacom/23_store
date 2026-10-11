@@ -698,7 +698,7 @@ folder per visitor, so "show me this guest's images" is a single folder listing.
 Nothing else ever removes those files. A guest's ticket is deleted by the daily
 `cleanup_anonymous_tickets` job above after a month of no activity, and that cascades to
 `23_messages` — the row holding the image URL goes, the file in Storage stays. A weekly `pg_cron`
-job closes that gap: every Sunday at 03:00 UTC it deletes any object in `23_support-guest-images`
+historical job closed that gap: every Sunday at 03:00 UTC it deleted metadata for an object in `23_support-guest-images`
 that no `23_messages.images` entry still points at.
 
 The match is on the object's name, so the URL stored on the message is cut back to the part after
@@ -1182,3 +1182,171 @@ keys-check:23:last-alert   names + sentAt  what was already reported, so it stay
 
 **A weekly `'0 4 * * 1'` schedule.** Then the cadence lives in two places — the cron string and
 `PROD_CHECK_EVERY_DAYS` — and they drift apart the first time one is changed without the other.
+
+## ACTIVE FILE STORAGE MIGRATION SETUP (plan-01, October 2026)
+
+The original bucket and cleanup SQL above is retained as deployment history. The old
+`cleanup_guest_support_images` body deletes metadata only; it must be replaced by the provider API
+route below to remove actual bytes. Do not reapply the historical job after this setup.
+Supabase remains the database/auth provider and a supported file rollback destination.
+
+Before deploying the storage routes, apply the following private-staging/restricted-functions SQL.
+New restrictive policies prevent direct anonymous/authenticated file writes from bypassing verified
+folders and the shared capacity limit; unrelated project buckets remain unaffected.
+
+```sql
+-- Apply through the Supabase SQL editor before deploying the storage routes.
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('23_upload-staging', '23_upload-staging', false, 52428800)
+ON CONFLICT (id) DO UPDATE SET public = false, file_size_limit = EXCLUDED.file_size_limit;
+
+-- Existing permissive policies stay documented; these restrictions prevent bypassing the API.
+DO $$
+DECLARE policy_name text; operation text;
+  application_buckets text := '(''23_product-images'',''23_ai-product-images'',''23_avatar-images'',''23_support-images'',''23_support-guest-images'',''23_product-personalization-images'',''23_upload-staging'')';
+BEGIN
+  FOREACH operation IN ARRAY ARRAY['INSERT','UPDATE','DELETE'] LOOP
+    policy_name := '23_controlled_storage_' || lower(operation);
+    EXECUTE format('DROP POLICY IF EXISTS %I ON storage.objects', policy_name);
+    IF operation = 'INSERT' THEN
+      EXECUTE format('CREATE POLICY %I ON storage.objects AS RESTRICTIVE FOR INSERT TO anon, authenticated WITH CHECK (bucket_id NOT IN %s)', policy_name, application_buckets);
+    ELSIF operation = 'UPDATE' THEN
+      EXECUTE format('CREATE POLICY %I ON storage.objects AS RESTRICTIVE FOR UPDATE TO anon, authenticated USING (bucket_id NOT IN %s) WITH CHECK (bucket_id NOT IN %s)', policy_name, application_buckets, application_buckets);
+    ELSE
+      EXECUTE format('CREATE POLICY %I ON storage.objects AS RESTRICTIVE FOR DELETE TO anon, authenticated USING (bucket_id NOT IN %s)', policy_name, application_buckets);
+    END IF;
+  END LOOP;
+END;
+$$;
+DROP POLICY IF EXISTS "23_private_staging_reads" ON storage.objects;
+CREATE POLICY "23_private_staging_reads" ON storage.objects AS RESTRICTIVE
+FOR SELECT TO anon, authenticated USING (bucket_id <> '23_upload-staging');
+
+CREATE OR REPLACE FUNCTION public."23_storage_usage"()
+RETURNS jsonb LANGUAGE sql SECURITY DEFINER SET search_path = pg_catalog AS $$
+  SELECT jsonb_build_object(
+    'databaseBytes', pg_database_size(current_database()),
+    'applicationStorageBytes', (
+      SELECT CASE WHEN bool_or(COALESCE(metadata->>'size', '') !~ '^[0-9]+$') THEN NULL
+        ELSE COALESCE(SUM(CASE WHEN metadata->>'size' ~ '^[0-9]+$' THEN (metadata->>'size')::numeric ELSE 0 END), 0) END
+      FROM storage.objects WHERE bucket_id = ANY(ARRAY[
+        '23_product-images','23_ai-product-images','23_avatar-images','23_support-images',
+        '23_support-guest-images','23_product-personalization-images'
+      ])
+    )
+  );
+$$;
+REVOKE ALL ON FUNCTION public."23_storage_usage"() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public."23_storage_usage"() TO service_role;
+
+CREATE OR REPLACE FUNCTION public."23_storage_update_references"(
+  table_name text, row_key jsonb, before_values jsonb, after_values jsonb
+) RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog AS $$
+DECLARE
+  allowed_columns text[];
+  required_keys text[];
+  schema_name text := 'public';
+  relation_name text := table_name;
+  column_name text;
+  assignments text := '';
+  comparisons text := '';
+  affected integer;
+BEGIN
+  CASE table_name
+    WHEN '23_users' THEN allowed_columns := ARRAY['avatar_url']; required_keys := ARRAY['id'];
+    WHEN '23_products' THEN allowed_columns := ARRAY['img_url','variants','personalization']; required_keys := ARRAY['price_id','owner_id','id'];
+    WHEN '23_ai_price_proposals' THEN allowed_columns := ARRAY['proposed_variants']; required_keys := ARRAY['id'];
+    WHEN '23_personalized_designs' THEN allowed_columns := ARRAY['source_url']; required_keys := ARRAY['id'];
+    WHEN '23_tickets' THEN allowed_columns := ARRAY['owner_avatar_url']; required_keys := ARRAY['id'];
+    WHEN '23_messages' THEN allowed_columns := ARRAY['images','sender_avatar_url']; required_keys := ARRAY['id'];
+    WHEN 'auth.users' THEN
+      schema_name := 'auth'; relation_name := 'users';
+      allowed_columns := ARRAY['raw_user_meta_data']; required_keys := ARRAY['id'];
+    ELSE RAISE EXCEPTION 'Unsupported storage reference table';
+  END CASE;
+  IF jsonb_typeof(row_key) <> 'object' OR jsonb_typeof(before_values) <> 'object' OR jsonb_typeof(after_values) <> 'object'
+    OR NOT (row_key ?& required_keys) OR row_key = '{}'::jsonb OR after_values = '{}'::jsonb THEN
+    RAISE EXCEPTION 'Invalid storage reference comparison';
+  END IF;
+  FOR column_name IN SELECT jsonb_object_keys(row_key) LOOP
+    IF NOT (column_name = ANY(required_keys)) OR row_key->column_name = 'null'::jsonb THEN
+      RAISE EXCEPTION 'Invalid row key';
+    END IF;
+  END LOOP;
+  FOR column_name IN SELECT jsonb_object_keys(before_values) LOOP
+    IF NOT (column_name = ANY(allowed_columns)) THEN RAISE EXCEPTION 'Unsupported comparison column'; END IF;
+    comparisons := comparisons || format(' AND to_jsonb(reference_row)->%L = $3->%L', column_name, column_name);
+  END LOOP;
+  FOR column_name IN SELECT jsonb_object_keys(after_values) LOOP
+    IF NOT (column_name = ANY(allowed_columns)) OR NOT (before_values ? column_name) THEN
+      RAISE EXCEPTION 'Unsupported storage reference column';
+    END IF;
+    assignments := assignments || CASE WHEN assignments = '' THEN '' ELSE ', ' END ||
+      format('%I = (jsonb_populate_record(NULL::%I.%I, $1)).%I', column_name, schema_name, relation_name, column_name);
+  END LOOP;
+  EXECUTE format('UPDATE %I.%I AS reference_row SET %s WHERE to_jsonb(reference_row) @> $2%s',
+    schema_name, relation_name, assignments, comparisons) USING after_values, row_key, before_values;
+  GET DIAGNOSTICS affected = ROW_COUNT;
+  IF affected > 1 THEN RAISE EXCEPTION 'Storage reference row key is not unique'; END IF;
+  RETURN affected = 1;
+END;
+$$;
+REVOKE ALL ON FUNCTION public."23_storage_update_references"(text,jsonb,jsonb,jsonb) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public."23_storage_update_references"(text,jsonb,jsonb,jsonb) TO service_role;
+
+CREATE OR REPLACE FUNCTION public."23_storage_guest_file_referenced"(candidate_urls text[])
+RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path = pg_catalog AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public."23_messages" AS message, unnest(message.images) AS image
+    WHERE split_part(image, '?', 1) = ANY(candidate_urls)
+  );
+$$;
+REVOKE ALL ON FUNCTION public."23_storage_guest_file_referenced"(text[]) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public."23_storage_guest_file_referenced"(text[]) TO service_role;
+```
+
+After deployment and Vault setup, schedule the active provider cleanup. The existing
+`keys_webhook_base_url` and `keys_webhook_secret` values must be the production origin and the
+deployment CRON_SECRET. Cleanup stays disabled until `STORAGE_CLEANUP_ENABLED=true`, pauses during
+migration, and retains inactive source files for explicit rollback/source-purge operations.
+
+```sql
+-- Apply after the routes are deployed. Reuse the existing keys-check Vault settings.
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+CREATE EXTENSION IF NOT EXISTS pg_net;
+CREATE EXTENSION IF NOT EXISTS supabase_vault CASCADE;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM vault.decrypted_secrets WHERE name = 'keys_webhook_base_url') OR
+     NOT EXISTS (SELECT 1 FROM vault.decrypted_secrets WHERE name = 'keys_webhook_secret') THEN
+    RAISE EXCEPTION 'Set keys_webhook_base_url and keys_webhook_secret (the deployment CRON_SECRET) in Vault before scheduling storage cleanup';
+  END IF;
+END;
+$$;
+SELECT cron.unschedule(jobid) FROM cron.job WHERE jobname IN (
+  'cleanup_guest_support_images', '23_storage_cleanup_resume', '23_storage_staging_cleanup'
+);
+SELECT cron.schedule('cleanup_guest_support_images', '5 3 * * 0', $$
+  SELECT net.http_post(
+    url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'keys_webhook_base_url') || '/api/storage/cleanup',
+    headers := jsonb_build_object('Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'keys_webhook_secret'), 'Content-Type', 'application/json'),
+    body := '{"mode":"guests","start":true}'::jsonb, timeout_milliseconds := 60000
+  );
+$$);
+SELECT cron.schedule('23_storage_staging_cleanup', '15 3 * * *', $$
+  SELECT net.http_post(
+    url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'keys_webhook_base_url') || '/api/storage/cleanup',
+    headers := jsonb_build_object('Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'keys_webhook_secret'), 'Content-Type', 'application/json'),
+    body := '{"mode":"staging","start":true}'::jsonb, timeout_milliseconds := 60000
+  );
+$$);
+SELECT cron.schedule('23_storage_cleanup_resume', '7,17,27,37,47,57 * * * *', $$
+  SELECT net.http_post(
+    url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'keys_webhook_base_url') || '/api/storage/cleanup',
+    headers := jsonb_build_object('Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'keys_webhook_secret'), 'Content-Type', 'application/json'),
+    body := '{"mode":"both","start":false}'::jsonb, timeout_milliseconds := 60000
+  );
+$$);
+```
+
+See [storage setup](dev_readme-storage.md) and [migration/rollback](dev_readme-storage-migration.md).

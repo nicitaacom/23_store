@@ -9,7 +9,7 @@ import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { expandVariantOptionValues } from "@/utils/variantOptions"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { slugify, slugifyEmail } from "@/utils/slugify"
-import supabaseClient from "@/libs/supabase/supabaseClient"
+import { storageSDK } from "@/sdk/StorageSDK/StorageSDK"
 import useUser from "@/store/user/useUser"
 import { DEFAULT_MIN_DPI } from "@/utils/printMetrics"
 import { MAX_CONCURRENT_PRODUCT_IMAGE_REQUESTS, MAX_PRODUCT_IMAGES, MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
@@ -149,10 +149,10 @@ const TRAILING_INDEX_REGEX = /-(\d+)\.[^.]+$/
 // A removed image keeps its file (only the row's img_url is rewritten), so the count of URLs on the
 // row is not enough - the highest number actually present in the folder is.
 async function resolveHighestProductImageIndex(uploadFolder: string) {
-  const { data: existingFiles } = await supabaseClient.storage.from(PRODUCT_IMAGES_BUCKET).list(uploadFolder)
+  const existingFiles = await storageSDK.list({ bucket: PRODUCT_IMAGES_BUCKET, entityId: uploadFolder.split("/")[1] })
 
   return (existingFiles ?? []).reduce((highestIndex, existingFile) => {
-    const trailingIndex = TRAILING_INDEX_REGEX.exec(existingFile.name)
+    const trailingIndex = TRAILING_INDEX_REGEX.exec(existingFile.path.split("/").pop() ?? "")
     return trailingIndex ? Math.max(highestIndex, Number(trailingIndex[1])) : highestIndex
   }, 0)
 }

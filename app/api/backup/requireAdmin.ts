@@ -6,8 +6,9 @@ export async function requireAdmin(): Promise<string | null> {
 
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser()
-  if (!user) return "Unauthorized"
+  if (!user || authError) return "Unauthorized"
 
   const { data: userRow, error } = await supabase.from("23_users").select("roles").eq("id", user.id).maybeSingle()
   if (error) return error.message

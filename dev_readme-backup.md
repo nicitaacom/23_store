@@ -3,14 +3,20 @@
 ADMIN-only feature to export the project's tables and Storage files and import them back. Tables
 and files are two **independent** flows — each has its own export and its own import — and file
 bytes **never pass through a Vercel function**: the browser downloads/uploads Storage objects
-straight to/from Supabase, so there is no 60s timeout or memory ceiling tied to library size. This
+straight to/from the active Supabase or R2 provider. Browser file imports/exports have a 512 MiB
+working-data limit; larger exports and migrations use the local streaming command. This
 replaces an earlier design that streamed a single combined archive through a Vercel function with
 speed-aware chunking to fit the 60s cap — see "Why this design" below.
 
 - Trigger: avatar dropdown → **DB Backup** item, visible only when `roles` includes `"ADMIN"`.
 - Modal: `DbBackupModal` opened via `?modal=DbBackup`, with a Tables / Files tab switch.
+- Files storage: **Current storage**, **Supabase**, or **R2**. Selection applies to file export/import
+  and stays fixed while work runs. Import into an inactive provider copies files without relinking
+  live database URLs. Complete final synchronization in the migration runbook before cutover.
 - Active work belongs to the global Zustand `useDbBackupState`, so closing the modal keeps the
   export/import running and shows the same progress in a fixed card.
+
+![Copy a Files backup to inactive R2, using a Storybook fixture](public/docs/storage/backup-copy-to-r2.png)
 
 <br/>
 
@@ -24,9 +30,10 @@ guarantee the limit is respected, it only estimates it.
 
 This version removes the limit instead of estimating around it: **no request carries file bytes.**
 - Export: the server returns a file **list** (bucket/path/size/contentType, no bytes). The browser
-  downloads each file directly from Supabase's public CDN and builds the `.tar.gz` locally.
+  downloads each file directly from the active provider and builds the `.tar.gz` locally.
 - Import: the browser decompresses the archive locally, asks the server for a signed upload URL
-  per file, then PUTs bytes straight to Supabase. The server only ever hands out URLs.
+  per file, then uploads straight to the chosen provider's private staging. Completion verifies
+  metadata and publishes the object through a provider-side copy.
 
 Two things from the old design are kept anyway, because they're independently useful, not because
 they were needed for the timeout problem:
@@ -167,7 +174,7 @@ UUID-looking ids in historical TEXT columns (tickets, messages, category views) 
 history and do not require a still-existing Auth account.
 
 **Files:** `GET /api/backup/files` returns every stored file's bucket/path/size/contentType (no
-bytes) → the browser downloads each file directly from Supabase's public CDN (5 concurrent
+bytes and paginated provider download URLs) → the browser downloads each file directly from the active provider (5 concurrent
 downloads) → packs a `.tar.gz` locally → downloads it. Progress is byte-accurate: `bytesDone` sums
 the `size` of each file as its download completes, against `bytesTotal` from the file list.
 
@@ -209,10 +216,10 @@ the round trip. For older archives where both forms were unquoted, import restor
 
 **Files:** upload one `.tar.gz` (from export or local repair). The browser decompresses and parses it
 locally, resolves short exported names through `storage-paths.json`, then asks `/api/backup/files`
-for a signed upload URL per file
-(≤100 per request; bucket membership is the whole ownership check — this schema has no per-file
-owner column), then PUTs each file's bytes directly to the signed URL with
-`upsert: true` baked into the token, so a re-import overwrites the existing object.
+for signed private-staging destinations (up to 4 files per metadata request). Verified ADMIN
+authorization and the shared 10 GB capacity limit apply. The browser PUTs directly to the provider,
+then calls `/api/storage/complete`; only verified length and MIME are published with overwrite
+behavior. Supabase staging permits 50 MiB per file; larger files use the local command.
 
 **Storage URL relinking:** both Tables import and Files import finish by calling the ADMIN-only
 `POST /api/backup/relink-storage-urls`. Calling it from both flows makes the restore order
@@ -252,12 +259,10 @@ The email is read from `23_users.email`, keyed by the row's `owner_id` — excep
 `23_personalized_designs`, which is keyed on `user_id`: the design file was uploaded by the buyer,
 while `owner_id` on that table is the shop owner of the product.
 
-Every stored file is indexed once by `bucket/folder` and sorted numerically inside it, so
-`slug-2.jpg` comes before `slug-10.jpg`. A row's unresolved URLs are then paired with that folder's
-files in order — 1st unresolved URL to `slug-1.jpg`, 2nd to `slug-2.jpg` — and the pairing is applied
-to every URL column of the row, so a variant URL stays equal to the `img_url` entry it points at. A
-row holding more unresolved URLs than the folder has files leaves the extra ones in the unresolved
-count.
+Every stored file is indexed once by `bucket/folder`. Relinking accepts a unique filename match
+or a single unresolved image with a single candidate. Multiple ambiguous product images stay
+unresolved and are reported; array position is not evidence of file identity. Exact comparison
+updates preserve concurrent row edits, including reordered arrays and newly added variants.
 
 **Matching by file name — how the files got into those folders in the first place.** The folder
 match above finds a row's images only once the files already sit in the new folder, and the
@@ -385,3 +390,23 @@ project (`19_spotify-clone` itself) and an admin-gated, no-scoping project (`26_
 same shape as this one). 23_store additionally keeps the connection-speed display and
 byte-accurate progress described above — neither exists in the spotify version, both are explicit
 requirements here.
+
+## Interchangeable storage and large portable backups
+
+Provider setup, shared capacity, private staging and cleanup are documented in
+[dev_readme-storage.md](dev_readme-storage.md). Follow the
+[migration runbook](dev_readme-storage-migration.md) for the existing Files export, cutover and
+rollback. The per-user 1 GB allowance and $0.30/GB/month upgrades remain plan TODOs; ADMIN is
+exempt from those future limits/fees, while the shared 10 GB capacity applies to every role.
+
+For a backup larger than the 512 MiB browser limit, export locally in a stream:
+
+```bash
+pnpm storage:migrate --operation export --source r2 --archive '/absolute/path/new-files.tar.gz' --manifest '/absolute/path/new-export.json'
+pnpm storage:migrate --operation export --source r2 --archive '/absolute/path/new-files.tar.gz' --manifest '/absolute/path/new-export.json' --apply
+```
+
+Use `--source supabase` to export legacy files. Dry-run writes the inventory report only; `--apply`
+writes a new portable gzip/tar, preserving MIME/path mappings and checking that source files do
+not change during export. Existing filenames are never overwritten. Large import/copy uses the
+runbook's streaming archive command and verifies SHA-256 by provider read-back.

@@ -2,68 +2,65 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       NEXT_PUBLIC_PRODUCTION_URL: string
-
       NEXT_PUBLIC_SUPABASE_URL: string
       NEXT_PUBLIC_SUPABASE_ANON_KEY: string
       SUPABASE_SERVICE_ROLE_KEY: string
-
+      STORAGE_LEGACY_SUPABASE_ORIGINS: string
+      SUPABASE_DATABASE_ALLOWANCE_BYTES: string
+      SUPABASE_STORAGE_ALLOWANCE_BYTES: string
       UPSTASH_REDIS_REST_URL: string
       UPSTASH_REDIS_REST_TOKEN: string
-
       AWS_ACCESS_KEY_ID: string
       AWS_SECRET_ACCESS_KEY: string
       NEXT_PUBLIC_AWS_REGION: string
-
       PUSHER_APP_ID: string
       NEXT_PUBLIC_PUSHER_APP_KEY: string
       PUSHER_SECRET: string
-
       NEXT_PUBLIC_PAYPAL_CLIENT_ID_TEST: string
-      PAYPAL_CLIENT_SECRET_TEST: string
-      PAYPAL_WEBHOOK_ID_TEST: string
       NEXT_PUBLIC_PAYPAL_CLIENT_ID_LIVE: string
+      PAYPAL_CLIENT_SECRET_TEST: string
       PAYPAL_CLIENT_SECRET_LIVE: string
+      PAYPAL_WEBHOOK_ID_TEST: string
       PAYPAL_WEBHOOK_ID_LIVE: string
-
       NEXT_STRIPE_SECRET_KEY: string
-
       NEXT_RESEND_SECRET: string
       NEXT_PUBLIC_SUPPORT_EMAIL: string
       NEXT_PUBLIC_SUPPORT_NOTIFICATION_EMAIL: string
-
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: string
       TURNSTILE_SECRET_KEY: string
-
       PINECONE_INDEX: string
       PINECONE_ENVIRONMENT: string
       PINECONE_API_KEY: string
-
       NEXT_PUBLIC_METAMASK_ADRESS_ETH: string
       NEXT_PUBLIC_METAMASK_ADRESS_BNB: string
       NEXT_PUBLIC_METAMASK_ADRESS_MATIC: string
-
       NEXT_PUBLIC_SOLANA_ADDRESS: string
       NEXT_PUBLIC_SOLANA_CLUSTER: string
-
       OPENAI_API_KEY: string
       PRICE_WEBHOOK_SECRET: string
-
       NEXT_COINMARKETCAP_SECRET: string
-
       TELEGRAM_BOT_TOKEN: string
       TELEGRAM_CHAT_ID: string
       NEXT_PUBLIC_TELEGRAM_URL: string
-
       TINIFY_API_KEY_ARR: string
-
-      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read via process.env[name] in checkEnvs.ts
+      // eslint-disable-next-line local-rules/no-defined-unused-envs -- Read by Chromatic CI and the dynamic environment checks.
       CHROMATIC_PROJECT_TOKEN: string
-
       DEVICE_ID_ENCRYPTION_KEY: string
-
       CRON_SECRET: string
-
       NEXT_PUBLIC_IS_DEBUG: string
+      STORAGE_PROVIDER: string
+      STORAGE_MIGRATION_PAUSED: string
+      STORAGE_CLEANUP_ENABLED: string
+      STORAGE_PRIVATE_LOGICAL_BUCKETS: string
+      NEXT_PUBLIC_R2_PUBLIC_URL: string
+      R2_ACCOUNT_ID: string
+      R2_ACCESS_KEY_ID: string
+      R2_SECRET_ACCESS_KEY: string
+      R2_BUCKET: string
+      R2_STAGING_BUCKET: string
+      R2_PRIVATE_BUCKET: string
+      R2_ACCOUNT_STANDARD_ONLY: string
+      CLOUDFLARE_R2_ANALYTICS_TOKEN: string
     }
   }
 }

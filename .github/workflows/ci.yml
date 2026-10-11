@@ -56,6 +56,12 @@ jobs:
       - name: Test custom ESLint rules
         run: pnpm test:eslint-rules
 
+      - name: Test application storage and backup logic
+        run: pnpm test:unit
+
+      - name: Test streaming storage migration and rollback
+        run: pnpm test:storage-cli
+
       - name: Lint tracked source
         run: pnpm lint
 

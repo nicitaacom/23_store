@@ -352,6 +352,22 @@ async function checkProductionUrl(productionUrl: string): Promise<string | null>
  * next push instead of going unchecked forever.
  */
 export const KEY_PROBES: TKeyProbe[] = [
+  { name: "STORAGE_PROVIDER", tier: "shape", optional: true, check: value => ["supabase", "r2"].includes(value) ? null : "must be supabase or r2" },
+  { name: "STORAGE_MIGRATION_PAUSED", tier: "shape", optional: true, check: value => ["true", "false"].includes(value) ? null : "must be true or false" },
+  { name: "STORAGE_CLEANUP_ENABLED", tier: "shape", optional: true, check: value => ["true", "false"].includes(value) ? null : "must be true or false" },
+  { name: "STORAGE_PRIVATE_LOGICAL_BUCKETS", tier: "skip", optional: true },
+  { name: "STORAGE_LEGACY_SUPABASE_ORIGINS", tier: "skip", optional: true },
+  { name: "NEXT_PUBLIC_R2_PUBLIC_URL", tier: "shape", requiredWhen: { name: "STORAGE_PROVIDER", value: "r2" }, check: checkUrl },
+  { name: "R2_ACCOUNT_ID", tier: "shape", requiredWhen: { name: "STORAGE_PROVIDER", value: "r2" }, check: value => /^[a-f0-9]{32}$/i.test(value) ? null : "must hold the 32-character account id" },
+  { name: "R2_ACCESS_KEY_ID", tier: "skip", requiredWhen: { name: "STORAGE_PROVIDER", value: "r2" } },
+  { name: "R2_SECRET_ACCESS_KEY", tier: "skip", requiredWhen: { name: "STORAGE_PROVIDER", value: "r2" } },
+  { name: "R2_BUCKET", tier: "skip", requiredWhen: { name: "STORAGE_PROVIDER", value: "r2" } },
+  { name: "R2_STAGING_BUCKET", tier: "skip", requiredWhen: { name: "STORAGE_PROVIDER", value: "r2" } },
+  { name: "R2_PRIVATE_BUCKET", tier: "skip", optional: true },
+  { name: "R2_ACCOUNT_STANDARD_ONLY", tier: "shape", optional: true, check: value => ["true", "false"].includes(value) ? null : "must be true or false" },
+  { name: "CLOUDFLARE_R2_ANALYTICS_TOKEN", tier: "skip", optional: true },
+  { name: "SUPABASE_DATABASE_ALLOWANCE_BYTES", tier: "shape", optional: true, check: checkNumber },
+  { name: "SUPABASE_STORAGE_ALLOWANCE_BYTES", tier: "shape", optional: true, check: checkNumber },
   { name: "NEXT_PUBLIC_PRODUCTION_URL", tier: "live", check: checkProductionUrl },
 
   { name: "NEXT_PUBLIC_SUPABASE_URL", tier: "live", check: checkSupabaseUrl },
@@ -417,6 +433,7 @@ export async function runOneKeyProbe(
 ): Promise<{ name: string; reason: string; tier: TKeyProbe["tier"] } | null> {
   const value = readKey(probe.name)
   if (!value) {
+    if (probe.optional || (probe.requiredWhen && readKey(probe.requiredWhen.name) !== probe.requiredWhen.value)) return null
     if (probe.optionalWhen && readKey(probe.optionalWhen)) return null
 
     const alsoEmpty = probe.optionalWhen ? ` and so is ${probe.optionalWhen}, the app reads one of the two` : ""

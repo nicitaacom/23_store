@@ -96,6 +96,7 @@ export function useDbBackup() {
   })
 
   const startExportFiles = useCallback(async () => {
+    const filesProvider = useDbBackupState.getState().filesProvider
     useDbBackupState.setState({
       filesExportPhase: "exporting",
       filesExportBytesDone: 0,
@@ -114,7 +115,7 @@ export function useDbBackup() {
           filesExportSpeedBytesPerMs: progress.speedBytesPerMs,
           filesExportLabel: progress.label,
         })
-      })
+      }, filesProvider === "active" ? undefined : filesProvider)
       downloadExportFileRef.current(exportFile, fileName)
       useDbBackupState.setState({ filesExportPhase: "done" })
     } catch (error) {
@@ -126,6 +127,7 @@ export function useDbBackup() {
 
   const startImportFiles = useCallback(
     async (file: File) => {
+      const filesProvider = useDbBackupState.getState().filesProvider
       useDbBackupState.setState({
         filesImportPhase: "importing",
         filesImportBytesDone: 0,
@@ -145,14 +147,15 @@ export function useDbBackup() {
             filesImportSpeedBytesPerMs: progress.speedBytesPerMs,
             filesImportLabel: progress.label,
           })
-        })
+        }, filesProvider === "active" ? undefined : filesProvider)
         useDbBackupState.setState({ filesImportResult: response, filesImportPhase: "done" })
         router.refresh()
-        const hasUnresolvedImages = response.relink.unresolvedReferences > 0
+        const hasUnresolvedImages = response.relink !== null && response.relink.unresolvedReferences > 0
+        const failedUploads = response.buckets.reduce((count, bucket) => count + bucket.failed, 0)
         toast.show(
-          hasUnresolvedImages ? "warning" : "success",
-          t(hasUnresolvedImages ? "import_partial" : "import_success"),
-          hasUnresolvedImages
+          hasUnresolvedImages || failedUploads > 0 ? "warning" : "success",
+          t(failedUploads > 0 ? "error" : hasUnresolvedImages ? "import_partial" : "import_success"),
+          failedUploads > 0 ? t("files_failed_result", { count: failedUploads }) : hasUnresolvedImages && response.relink
             ? t("unresolved_result", {
                 references: response.relink.unresolvedReferences,
                 paths: response.relink.unresolvedPaths,
@@ -192,8 +195,14 @@ export function useDbBackup() {
     useDbBackupState.getState().reset()
   }, [])
 
+  const selectFilesProvider = useCallback((provider: "active" | "supabase" | "r2") => {
+    if (!selectDbBackupIsBusy(useDbBackupState.getState())) useDbBackupState.setState({ filesProvider: provider })
+  }, [])
+
   return {
     isBusy: selectDbBackupIsBusy(backup),
+    filesProvider: backup.filesProvider,
+    selectFilesProvider,
     tablesInputRef,
     filesInputRef,
     tablesExportPhase: backup.tablesExportPhase,

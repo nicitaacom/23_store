@@ -40,19 +40,25 @@ declare namespace API {
 
   // One storage file's location + size + mime type — no bytes. Returned by the files list so the
   // browser knows what to download (export) and how big the whole set is (byte progress).
-  type BackupFileRef = { bucket: string; path: string; size: number; contentType: string }
+  type BackupFileRef = { bucket: string; path: string; size: number; contentType: string; downloadUrl?: string }
 
-  // GET /api/backup/files — every stored file's metadata (paths only, never bytes). The browser
-  // downloads each file straight from Supabase's public CDN and packs a .tar.gz locally.
-  type BackupFilesGetResponse = { files: BackupFileRef[] } | { error: string; code?: string; details?: string; hint?: string }
+  // GET /api/backup/files — a bounded metadata page from the chosen provider, defaulting to
+  // live storage. The browser downloads directly from provider URLs and packs the files locally.
+  type BackupFilesGetResponse = { files: BackupFileRef[]; cursor?: string | null; nextBucketIndex?: number | null } | { error: string; code?: string; details?: string; hint?: string }
 
-  // POST /api/backup/files { files: [{ bucket, path }] } — asks for a signed upload URL per file.
-  // The browser has already decompressed the backup file locally; bytes are PUT straight to Supabase
-  // from there, never through this route.
+  // ADMIN-only provider selection supports copying backups before the live provider changes.
+  type BackupFilesPostRequest = {
+    files: StoragePrepareRequest[]
+    provider?: import("@/ts/storage").TStorageProviderName
+  }
+  // Bytes go directly to private staging; completion verifies them before publication.
   type BackupUploadDestination =
-    | { bucket: string; path: string; signedUrl: string }
+    | ({ bucket: string; path: string } & import("@/ts/storage").TStorageUploadDestination)
     | { bucket: string; path: string; skipped: true; reason: string }
-  type BackupFilesPostResponse = { results: BackupUploadDestination[] } | { error: string }
+  type BackupFilesPostResponse = {
+    results: BackupUploadDestination[]
+    relinkRequired?: boolean
+  } | { error: string }
 
   type BackupStorageRelinkTableResult = {
     table: string

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
   relinkBackupStorageValue,
@@ -6,6 +6,9 @@ import {
   selectBackupStoragePath,
   selectRelinkedPathsByFolder,
 } from "./backupStorageRelink"
+
+beforeEach(() => vi.stubEnv("STORAGE_LEGACY_SUPABASE_ORIGINS", "https://old-project.supabase.co"))
+afterEach(() => vi.unstubAllEnvs())
 
 const CURRENT_SUPABASE_URL = "https://current-project.supabase.co"
 const OLD_PUBLIC_URL = "https://old-project.supabase.co/storage/v1/object/public"
@@ -90,25 +93,22 @@ describe("relinking a restored row by the folder its images belong in", () => {
     expect(pathsByFolder.get("23_avatar-images/nicitaacomgmailcom")).toEqual(["23_avatar-images/nicitaacomgmailcom/avatar.png"])
   })
 
-  it("pairs a row's unresolved paths with the folder's files in order and leaves the extra one unresolved", () => {
+  it("leaves ambiguous product images unresolved instead of assigning by position", () => {
     const relinkedPaths = selectRelinkedPathsByFolder(
       ["23_public-images/old-uuid/first.avif", "23_public-images/old-uuid/second.avif", "23_public-images/old-uuid/third.avif"],
       PRODUCT_FOLDER,
       selectBackupPathsByFolder([`${PRODUCT_FOLDER}/slivki-30pct-1.jpg`, `${PRODUCT_FOLDER}/slivki-30pct-2.jpg`]),
     )
 
-    expect(Object.fromEntries(relinkedPaths)).toEqual({
-      "23_public-images/old-uuid/first.avif": `${PRODUCT_FOLDER}/slivki-30pct-1.jpg`,
-      "23_public-images/old-uuid/second.avif": `${PRODUCT_FOLDER}/slivki-30pct-2.jpg`,
-    })
+    expect(Object.fromEntries(relinkedPaths)).toEqual({})
   })
 
   it("relinks a retired-bucket URL through the map and keeps a variant URL equal to its img_url entry", () => {
-    const firstOldUrl = `${OLD_PUBLIC_URL}/23_public-images/old-uuid/first.avif`
-    const secondOldUrl = `${OLD_PUBLIC_URL}/23_public-images/old-uuid/second.avif`
+    const firstOldUrl = `${OLD_PUBLIC_URL}/23_public-images/old-uuid/slivki-30pct-1.jpg`
+    const secondOldUrl = `${OLD_PUBLIC_URL}/23_public-images/old-uuid/slivki-30pct-2.jpg`
     const availablePaths = new Set([`${PRODUCT_FOLDER}/slivki-30pct-1.jpg`, `${PRODUCT_FOLDER}/slivki-30pct-2.jpg`])
     const relinkedPaths = selectRelinkedPathsByFolder(
-      ["23_public-images/old-uuid/first.avif", "23_public-images/old-uuid/second.avif"],
+      ["23_public-images/old-uuid/slivki-30pct-1.jpg", "23_public-images/old-uuid/slivki-30pct-2.jpg"],
       PRODUCT_FOLDER,
       selectBackupPathsByFolder(availablePaths),
     )

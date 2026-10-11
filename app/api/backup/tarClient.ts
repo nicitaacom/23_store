@@ -3,6 +3,7 @@
 // `CompressionStream` API — deliberately NO Node `zlib` import, so this module is safe to pull
 // into the client bundle. Project-specific constants (which tables/buckets are backed up) live in
 // ./backupConfig; this file is pure backup file plumbing.
+import { isStoragePath } from "@/libs/storage/references"
 
 // ── tar helpers ─────────────────────────────────────────────────────────────
 
@@ -89,15 +90,24 @@ export function parseTar(buf: Buffer): Map<string, Buffer> {
   while (offset + 512 <= buf.length) {
     const header = buf.subarray(offset, offset + 512)
     if (header.every(byte => byte === 0)) break
+    const checksumText = header.subarray(148, 156).toString("ascii").replace(/\0/g, "").trim()
+    const expectedChecksum = parseInt(checksumText, 8)
+    const checksumHeader = Buffer.from(header)
+    checksumHeader.fill(32, 148, 156)
+    if (!Number.isSafeInteger(expectedChecksum) || expectedChecksum !== computeChecksum(checksumHeader))
+      throw new Error("Invalid tar header checksum")
 
     const rawName = header.subarray(0, 100).toString("utf8").replace(/\0/g, "")
     const typeFlag = String.fromCharCode(header[156])
     const sizeText = header.subarray(124, 136).toString("utf8").replace(/\0/g, "").trim()
-    const size = parseInt(sizeText, 8) || 0
+    if (!/^[0-7]+$/.test(sizeText)) throw new Error("Invalid tar entry size")
+    const size = parseInt(sizeText, 8)
+    if (!Number.isSafeInteger(size) || size < 0) throw new Error("Invalid tar entry size")
 
     offset += 512
     const dataEnd = offset + size
     const paddedSize = Math.ceil(size / 512) * 512
+    if (dataEnd > buf.length || offset + paddedSize > buf.length) throw new Error("Truncated tar entry")
 
     if (typeFlag === "L") {
       // GNU long-name extension
@@ -105,13 +115,19 @@ export function parseTar(buf: Buffer): Map<string, Buffer> {
     } else if (typeFlag === "0" || typeFlag === "\0") {
       const name = pendingLongName ?? rawName
       pendingLongName = null
+      if (!isStoragePath(name)) throw new Error(`Unsafe imported tar path: ${name}`)
+      if (entries.has(name)) throw new Error(`Duplicate imported tar entry: ${name}`)
       entries.set(name, buf.subarray(offset, dataEnd))
-    } else {
+    } else if (typeFlag === "5") {
       pendingLongName = null
+      if (!isStoragePath(rawName.replace(/\/$/, ""))) throw new Error("Unsafe imported tar directory")
+    } else {
+      throw new Error(`Unsupported tar entry type: ${typeFlag}`)
     }
 
     offset += paddedSize
   }
+  if (offset + 512 > buf.length || pendingLongName) throw new Error("Truncated imported tar")
 
   return entries
 }
@@ -135,9 +151,23 @@ export async function gzipBufferClient(input: Uint8Array): Promise<Uint8Array> {
  * deps). The counterpart to gzipBufferClient — reads .tar.gz backup files client-side so backup file
  * bytes never reach a server function.
  */
-export async function gunzipBufferClient(input: Uint8Array): Promise<Uint8Array> {
+export async function gunzipBufferClient(input: Uint8Array, maximumBytes = 512 * 1024 ** 2): Promise<Uint8Array> {
   const decompressionStream = new DecompressionStream("gzip")
   const stream = new Response(input).body!.pipeThrough(decompressionStream)
-  const decompressed = await new Response(stream).arrayBuffer()
-  return new Uint8Array(decompressed)
+  const reader = stream.getReader()
+  const chunks: Uint8Array[] = []
+  let length = 0
+  try {
+    for (;;) {
+      const next = await reader.read()
+      if (next.done) break
+      length += next.value.length
+      if (length > maximumBytes) throw new Error("Browser backup exceeds 512 MiB; use the local streaming storage command")
+      chunks.push(next.value)
+    }
+  } finally { await reader.cancel() }
+  const bytes = new Uint8Array(length)
+  let offset = 0
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length }
+  return bytes
 }

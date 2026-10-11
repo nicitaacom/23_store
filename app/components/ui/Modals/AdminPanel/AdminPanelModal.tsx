@@ -12,6 +12,7 @@ import { AddProductForm } from "./components/AddProductForm"
 import { AdminPanelHeader, PANEL_ACTIONS } from "./components/AdminPanelHeader"
 import { EditProductForm } from "./components/EditProductForm"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
+import { StorageUsage } from "./components/StorageUsage"
 import { AdminPanelChangedProvider } from "./AdminPanelChangedContext"
 import { AdminPanelDeleteConfirmDialog } from "./components/AdminPanelDeleteConfirmDialog"
 import { AdminPanelUnsavedChangesDialog } from "./components/AdminPanelUnsavedChangesDialog"
@@ -220,6 +221,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
               delete: t("product.delete"),
               pricing: t("pricing.tab"),
               categories: t("modal.admin_panel.categories"),
+              storage: "Storage & usage",
             }}
             onActionChange={handlePanelActionChange}
             onClose={closeModal}
@@ -256,6 +258,9 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
               <div className="panel-scroll h-full overflow-y-auto pr-1">
                 <PricingForm />
               </div>
+            )}
+            {panelAction === PANEL_ACTIONS.storage && roles.includes("ADMIN") && (
+              <div className="panel-scroll h-full overflow-y-auto pr-1"><StorageUsage roles={roles} /></div>
             )}
             {panelAction === PANEL_ACTIONS.categories && roles.includes("ADMIN") && (
               <div className="panel-scroll h-full overflow-y-auto pr-1">

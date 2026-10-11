@@ -1,37 +1,17 @@
 import { NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 
+import { activeStorageProvider, fileChangesPaused } from "@/libs/storage/config"
+import { deleteStorageObject } from "@/libs/storage/operations"
+import { listStorageObjects, storageProvider } from "@/libs/storage/providers"
+import { resolveStorageReference } from "@/libs/storage/references"
+import { slugifyEmail } from "@/utils/slugify"
 import { stripe } from "@/libs/stripe"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
+import type { TStorageProviderName } from "@/ts/storage"
 
 type TRequest = {
   id: string
-}
-
-function resolveStoragePaths(imageUrls: unknown) {
-  if (!Array.isArray(imageUrls)) {
-    return []
-  }
-
-  return imageUrls
-    .map(url => {
-      if (typeof url !== "string" || !url.trim()) {
-        return null
-      }
-
-      try {
-        const pathname = new URL(url).pathname.replace(/^\/+/, "")
-        const publicBucketPrefix = "storage/v1/object/public/23_product-images/"
-        const bucketIndex = pathname.indexOf(publicBucketPrefix)
-
-        if (bucketIndex >= 0) {
-          return pathname.slice(bucketIndex + publicBucketPrefix.length)
-        }
-      } catch {}
-
-      return url.split("/").slice(-2).join("/")
-    })
-    .filter((path): path is string => Boolean(path))
 }
 
 function isMissingStripeResource(error: unknown) {
@@ -43,21 +23,23 @@ export async function POST(request: NextRequest) {
   const supabase = await supabaseRouteHandler()
 
   try {
+    if (fileChangesPaused()) return NextResponse.json({ error: "File changes are paused for storage synchronization" }, { status: 503 })
     if (!id?.trim()) {
       return NextResponse.json({ error: "Missing product id" }, { status: 400 })
     }
 
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser()
 
-    if (!user) {
+    if (!user || authError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { data: product, error: selectProductError } = await supabase
       .from("23_products")
-      .select("id, owner_id, price_id, img_url")
+      .select("id, owner_id, price_id, img_url, variants, personalization")
       .eq("id", id)
       .limit(1)
       .maybeSingle()
@@ -94,13 +76,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const storagePaths = resolveStoragePaths(product.img_url)
-    if (storagePaths.length > 0) {
-      const { error: deleteFromBucketError } = await supabase.storage.from("23_product-images").remove(storagePaths)
-
-      if (deleteFromBucketError) {
-        console.warn("DELETE_PRODUCT_BUCKET_WARNING", deleteFromBucketError.message)
-      }
+    if (!user.email) throw new Error("A verified owner email is required for product file deletion")
+    const folder = `${slugifyEmail(user.email)}/${id}`
+    const providers = new Set<TStorageProviderName>([activeStorageProvider()])
+    const visitReferences = (value: unknown) => {
+      const reference = resolveStorageReference(value)
+      if (reference) providers.add(reference.provider)
+      else if (Array.isArray(value)) value.forEach(visitReferences)
+      else if (value && typeof value === "object") Object.values(value).forEach(visitReferences)
+    }
+    visitReferences([product.img_url, product.variants, product.personalization])
+    for (const name of providers) {
+      const files = await listStorageObjects(storageProvider(name), "23_product-images", folder)
+      for (const file of files) await deleteStorageObject(file)
     }
 
     const { error: deleteProductError } = await supabase.from("23_products").delete().eq("id", id)

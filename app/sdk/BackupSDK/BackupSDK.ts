@@ -1,4 +1,6 @@
 import { BaseSDK } from "../BaseSDK"
+import { isStorageBucket } from "@/libs/storage/references"
+import { storageSDK } from "@/sdk/StorageSDK/StorageSDK"
 import {
   BACKUP_TABLES,
   addTarEntry,
@@ -17,6 +19,7 @@ import {
   type TBackupTableConfig,
   type TBackupFileRef,
 } from "@/api/backup/backupTables"
+import type { TStorageProviderName } from "@/ts/storage"
 
 // How often (ms) the speed tracker below re-samples throughput, and how much weight a new sample
 // gets against the running average (exponential moving average, not a flat average-since-start) —
@@ -25,7 +28,7 @@ const SPEED_SAMPLE_INTERVAL_MS = 200
 const SPEED_SAMPLE_WEIGHT = 0.3
 
 const ROW_BATCH_SIZE = 500
-const URL_BATCH_SIZE = 100
+const URL_BATCH_SIZE = 4
 const DOWNLOAD_CONCURRENCY = 5
 
 export type TTablesImportResult = {
@@ -35,7 +38,7 @@ export type TTablesImportResult = {
 }
 export type TFilesImportResult = {
   buckets: { bucket: string; files: number; failed: number }[]
-  relink: API.BackupStorageRelinkResult
+  relink: API.BackupStorageRelinkResult | null
 }
 
 // Progress shape shared by the files flow (export + import) — bytes, not just a file count, plus
@@ -109,41 +112,6 @@ function coerceRowsForImport(config: TBackupTableConfig, rows: Record<string, st
   })
 }
 
-/**
- * Upload a file to a Supabase signed upload URL with real progress events, using the same
- * multipart shape as the Supabase SDK's uploadToSignedUrl (a cacheControl field + the body
- * appended under an empty-string key) — but via XHR so we get upload.onprogress. x-upsert: true
- * mirrors the SDK and lets a re-import overwrite an existing object.
- */
-function uploadToSignedUrlWithProgress(signedUrl: string, body: Blob, onProgress: (loaded: number) => void): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest()
-    xhr.open("PUT", signedUrl)
-    xhr.setRequestHeader("x-upsert", "true")
-    xhr.upload.onprogress = event => {
-      if (event.lengthComputable) onProgress(event.loaded)
-    }
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve()
-      } else {
-        let message = xhr.responseText || xhr.statusText
-        try {
-          const parsed = JSON.parse(xhr.responseText)
-          if (parsed?.message) message = parsed.message
-        } catch {
-          // Not JSON — fall back to the raw text as-is.
-        }
-        reject(new Error(`Upload failed: ${message}`))
-      }
-    }
-    xhr.onerror = () => reject(new Error("Upload failed: network error"))
-    const formData = new FormData()
-    formData.append("cacheControl", "3600")
-    formData.append("", body)
-    xhr.send(formData)
-  })
-}
 
 /**
  * Tracks real transfer speed from actual progress deltas — not a synthetic probe against a
@@ -312,11 +280,19 @@ export class BackupSDK extends BaseSDK {
    * how large the library is. Progress is byte-accurate (file sizes are known from the list), and
    * the connection speed shown is measured live from these downloads as they happen.
    */
-  async exportFiles(onProgress: (progress: TBackupFilesProgress) => void): Promise<{ fileName: string; exportFile: Blob }> {
-    const response = await this.getJson<API.BackupFilesGetResponse>("/api/backup/files")
-    if ("error" in response) throw new Error(response.error)
-
-    const files = response.files
+  async exportFiles(onProgress: (progress: TBackupFilesProgress) => void, provider?: TStorageProviderName): Promise<{ fileName: string; exportFile: Blob }> {
+    const files: (API.BackupFileRef & { downloadUrl?: string })[] = []
+    let bucketIndex: number | null = 0
+    let cursor: string | null = null
+    do {
+      const getJsonResp: API.BackupFilesGetResponse = await this.getJson("/api/backup/files", { bucketIndex, cursor, provider })
+      if ("error" in getJsonResp) throw new Error(getJsonResp.error)
+      files.push(...getJsonResp.files)
+      cursor = getJsonResp.cursor ?? null
+      bucketIndex = getJsonResp.nextBucketIndex ?? null
+    } while (bucketIndex !== null)
+    if (files.reduce((bytes, file) => bytes + file.size, 0) > 512 * 1024 ** 2)
+      throw new Error("Browser backup supports up to 512 MiB; use the local storage command for larger inventories")
     const bytesTotal = files.reduce((sum, file) => sum + file.size, 0)
     let bytesDone = 0
     const speedTracker = createSpeedTracker()
@@ -331,10 +307,12 @@ export class BackupSDK extends BaseSDK {
         const file = files[index]
         let downloadedBytes: Buffer | null = null
         try {
-          const response = await fetch(getPublicUrl(file.bucket, file.path))
-          if (response.ok) downloadedBytes = Buffer.from(await response.arrayBuffer())
-        } catch {
-          // Missing/failed file — skip it (downloadedBytes stays null) rather than aborting the whole export.
+          const response = await fetch(file.downloadUrl ?? getPublicUrl(file.bucket, file.path))
+          if (!response.ok) throw new Error(`Backup download failed (${response.status}): ${file.path}`)
+          downloadedBytes = Buffer.from(await response.arrayBuffer())
+          if (downloadedBytes.length !== file.size) throw new Error(`File changed during backup: ${file.path}`)
+        } catch (error) {
+          throw new Error(error instanceof Error ? error.message : String(error))
         }
         packed[index] = { file, downloadedBytes }
         bytesDone += file.size
@@ -363,7 +341,7 @@ export class BackupSDK extends BaseSDK {
    * xhr.upload.onprogress gives real in-flight bytes for the file currently uploading. The
    * connection speed shown is measured live from these uploads as they happen.
    */
-  async importFiles(file: File, onProgress: (progress: TBackupFilesProgress) => void): Promise<TFilesImportResult> {
+  async importFiles(file: File, onProgress: (progress: TBackupFilesProgress) => void, provider?: TStorageProviderName): Promise<TFilesImportResult> {
     const speedTracker = createSpeedTracker()
     onProgress({ bytesDone: 0, bytesTotal: 0, label: "Reading backup file…", speedBytesPerMs: null })
 
@@ -388,6 +366,7 @@ export class BackupSDK extends BaseSDK {
 
     const bytesTotal = storedFiles.reduce((sum, storedFile) => sum + storedFile.bytes.length, 0)
     let bytesUploadedSoFar = 0
+    let relinkRequired = true
 
     const bumpStat = (bucket: string, key: "files" | "failed") => {
       if (!bucketStats[bucket]) bucketStats[bucket] = { files: 0, failed: 0 }
@@ -397,10 +376,15 @@ export class BackupSDK extends BaseSDK {
     for (let start = 0; start < storedFiles.length; start += URL_BATCH_SIZE) {
       const batch = storedFiles.slice(start, start + URL_BATCH_SIZE)
 
-      const postResp = await this.postJson<{ files: { bucket: string; path: string }[] }, API.BackupFilesPostResponse>("/api/backup/files", {
-        files: batch.map(storedFile => ({ bucket: storedFile.bucket, path: storedFile.path })),
+      const postResp = await this.postJson<API.BackupFilesPostRequest, API.BackupFilesPostResponse>("/api/backup/files", {
+        ...(provider ? { provider } : {}),
+        files: batch.map(storedFile => {
+          if (!isStorageBucket(storedFile.bucket)) throw new Error("Unsupported imported storage bucket")
+          return { bucket: storedFile.bucket, filename: storedFile.path, size: storedFile.bytes.length, contentType: storedFile.contentType }
+        }),
       })
       if ("error" in postResp) throw new Error(`Failed to prepare file upload: ${postResp.error}`)
+      if (postResp.relinkRequired === false) relinkRequired = false
 
       for (const destination of postResp.results) {
         const storedFile = byPath.get(`${destination.bucket}/${destination.path}`)
@@ -419,14 +403,15 @@ export class BackupSDK extends BaseSDK {
         })
         const uploadFileData = new Blob([storedFile.bytes], { type: storedFile.contentType })
         try {
-          await uploadToSignedUrlWithProgress(destination.signedUrl, uploadFileData, loaded =>
+          await storageSDK.transfer(destination, uploadFileData, uploadedBytes =>
             onProgress({
-              bytesDone: bytesUploadedSoFar + loaded,
+              bytesDone: bytesUploadedSoFar + uploadedBytes,
               bytesTotal,
               label: `${destination.bucket}/${destination.path}`,
-              speedBytesPerMs: speedTracker.sample(bytesUploadedSoFar + loaded),
+              speedBytesPerMs: speedTracker.sample(bytesUploadedSoFar + uploadedBytes),
             }),
           )
+          await storageSDK.complete(destination.uploadId)
           bumpStat(destination.bucket, "files")
         } catch (error) {
           bumpStat(destination.bucket, "failed")
@@ -442,8 +427,8 @@ export class BackupSDK extends BaseSDK {
       throw new Error(firstError ?? "No files were uploaded — every path was skipped.")
     }
 
-    onProgress({ bytesDone: bytesTotal, bytesTotal, label: "Relinking image URLs…", speedBytesPerMs: speedTracker.sample(bytesTotal) })
-    const relink = await this.relinkStorageUrls()
+    onProgress({ bytesDone: bytesTotal, bytesTotal, label: relinkRequired ? "Relinking image URLs…" : "Files copied; final synchronization is still required", speedBytesPerMs: speedTracker.sample(bytesTotal) })
+    const relink = relinkRequired ? await this.relinkStorageUrls() : null
     onProgress({ bytesDone: bytesTotal, bytesTotal, label: "Done", speedBytesPerMs: speedTracker.sample(bytesTotal) })
     return { buckets: Object.entries(bucketStats).map(([bucket, stat]) => ({ bucket, ...stat })), relink }
   }

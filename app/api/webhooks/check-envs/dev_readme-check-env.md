@@ -251,3 +251,12 @@ answers `{"skipped":true,"daysSinceLastRun":0}`.
   has not reported in over 10 days. The plan is for the pre-push run to check it and print a warning.
 - **`19_spotify-clone` and `26_hot-delivery` are parked.** `19_spotify-clone` has no Telegram names
   declared, so it needs `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` before its alerts work.
+
+## Conditional file-storage settings
+
+Storage defaults to Supabase. R2 connection/public-domain variables are required only when
+`STORAGE_PROVIDER=r2`; unset optional analytics tokens and Supabase plan allowances remain
+unavailable observations. The registry uses `optional` and `requiredWhen` probe metadata.
+Provider credentials, private staging and live permission checks are covered by
+[storage setup](../../../../dev_readme-storage.md). Upload policy is exported from
+`app/config/r2Config.ts`, separately from credentials.

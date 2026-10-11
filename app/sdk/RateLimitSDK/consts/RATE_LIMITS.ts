@@ -1,4 +1,9 @@
 export const RATE_LIMITS = {
+  storageUpload: {
+    windowSec: 60,
+    maxAllowed: 120,
+    key: (userId: string) => `storage:upload:${userId}`,
+  },
   localePage: {
     windowSec: 60,
     maxAllowed: 10, // 10 locale-page requests per minute per IP

@@ -135,6 +135,7 @@ export default [
       // Owner/admin notification, not buyer-facing - see the file's own header comment.
       "app/emails/RequestReplanishmentEmail.tsx",
       "app/components/ui/Modals/AdminPanel/components/CategoriesForm.tsx",
+      "app/components/ui/Modals/AdminPanel/components/StorageUsage.tsx",
       "app/components/ui/Modals/AdminPanel/components/FormatImagesForm.tsx",
       "app/components/ui/Modals/DbBackup/DbBackupModal.tsx",
       "app/\\[locale\\]/(site)/stats/components/UTMDashboard.tsx",

@@ -25,7 +25,14 @@ function resolveAliasPath(specifier) {
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
-    if (!specifier.startsWith("@/")) return nextResolve(specifier, context)
+    if (!specifier.startsWith("@/")) {
+      if (specifier.startsWith(".") && context.parentURL?.endsWith(".ts") && !context.parentURL.includes("/node_modules/")) {
+        const relativePath = fileURLToPath(new URL(specifier, context.parentURL))
+        const resolvedPath = EXTENSIONS.map(extension => `${relativePath}${extension}`).find(candidate => existsSync(candidate))
+        if (!existsSync(relativePath) && resolvedPath) return nextResolve(pathToFileURL(resolvedPath).href, context)
+      }
+      return nextResolve(specifier, context)
+    }
 
     const aliasPath = resolveAliasPath(specifier)
     if (!aliasPath) return nextResolve(specifier, context)

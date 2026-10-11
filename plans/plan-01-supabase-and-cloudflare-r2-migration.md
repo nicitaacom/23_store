@@ -62,6 +62,10 @@ The cost wording above records the original estimate; the corrected arithmetic i
 
 > "what I mean is shift every other plan means that current plan-01 becomes plan-02 current plan-02 becomes plan-03 etc"
 
+> "each user has 1GB of data to upload when limit exeeded it ask about 0.3$ per GB/month to upload more images to sell more"
+
+> "in order to avoid scam I want to set limit of 10GB for now in total for all users so it not exeed anything"
+
 Interpret `.tag.gz` as the existing `.tar.gz` backup format; inspect archive contents rather than
 assuming the extension proves compatibility.
 
@@ -174,6 +178,34 @@ uploads remain unpublished and are removed. Apply existing rate limiting to uplo
 especially guest uploads. Use private temporary storage for unverified uploads so a public object
 URL does not bypass completion checks; completion promotes verified files to their final keys.
 
+### Upload quotas and paid storage — added October 11, 2026
+
+- Export the policy from [`app/config/r2Config.ts`](../app/config/r2Config.ts), with
+  `totalForAllUsersGB: 10`, `totalGBUsedWarnPercentage: 80`, `perUserGB: 1`, and
+  `gbPerMonthPrice: 0.3`. Derive application limits, display values and warning thresholds from it.
+- Warn ADMIN when application storage reaches **80% (8 GB)**. Continue warning at/above the limit,
+  and distinguish verified stored data from capacity reserved for uploads.
+- **Hard application limit now: 10 GB total across all users** (10,000,000,000 bytes). Enforce it
+  server-side before issuing upload permission, including outstanding upload reservations and
+  temporary files. Concurrent requests, guest uploads, backup imports, and migration tools must
+  not bypass this limit. Count all application R2 buckets; pause copies if the migration would
+  exceed the limit. Unknown usage must block new uploads rather than assume zero.
+- **TODO — per-user allowance:** each authenticated user receives **1 GB** (1,000,000,000 bytes)
+  of uploaded data. Track verified ownership and actual stored bytes; overwrites and deletion
+  adjust usage correctly. Explain used space, remaining space, and rejected uploads in the UI.
+- **TODO — paid extra storage:** when the user's allowance is exceeded, offer additional storage
+  at **USD $0.30 per GB per month** so the user can upload more product images. Implement the
+  subscription, verified payment/webhook entitlement, cancellation, and failure behavior before
+  enabling this offer. Keep existing files readable when an entitlement expires.
+- Paid allowances must still respect the shared **10 GB hard application limit**. Disable the
+  purchase/upgrade action when the requested capacity is unavailable; do not sell unusable space.
+- **ADMIN exemption:** verified ADMIN users have no per-user storage allowance or paid-storage
+  requirement. The shared **10 GB limit still applies to ADMIN**, including backup imports and
+  migration copies. Existing individual image validation and security checks continue to apply.
+- The hard application limit is separate from Cloudflare's account-wide included GB-month
+  allowance. Other account buckets, request charges, taxes, and other services remain separate;
+  this upload limit is not a provider billing cap.
+
 ### ADMIN usage dashboard
 
 Add a **Storage & usage** view in the existing admin workspace, protected both in the UI and on
@@ -190,7 +222,8 @@ every API request.
 | Supabase egress   | Separate cached/uncached metrics when available; otherwise provider-dashboard link |
 
 Label R2's 10 GB as an **included allowance**, not a hard capacity limit. Show zero remaining
-allowance and a separate excess value above it; exceeding it alone does not disable uploads.
+allowance and a separate excess value above it. Show the separately enforced **10 GB application
+upload limit** and its remaining capacity; new uploads are blocked when that limit is reached.
 
 Fetch R2 metrics server-side through Cloudflare GraphQL. Use the latest storage sample per bucket,
 never the sum of historical storage snapshots. Keep application usage separate from account-wide
@@ -242,6 +275,11 @@ rather than defaulting to an assumed free plan.
   image configuration and cache behavior, including overwritten avatars/designs.
 - Preserve all Supabase SQL, policies, clients, setup documentation, and restore support, including
   `dev_readme-supbase-sql.md` and the self-hosted Supabase documentation.
+- Enforce the 10 GB total application limit before signing uploads or copying backup/migration
+  files. Reserve capacity atomically, release failed/expired reservations, verify actual bytes,
+  and reject concurrent attempts that would exceed the limit.
+- **TODO:** implement the 1 GB per-user allowance and the $0.30/GB/month paid upgrade described
+  above, with verified billing entitlements and the shared 10 GB limit taking precedence.
 
 ### 3. Support existing backups and reversible migration
 
@@ -318,6 +356,10 @@ Required scenarios:
 - Supabase and R2 upload/list/delete behavior; filename collisions and overwrites.
 - Unauthorized callers, non-admin usage access, forged owner/guest folders, expired signatures,
   oversized files, and direct access to unverified uploads.
+- The shared 10 GB limit at its boundary, parallel reservations, overwrite/deletion accounting,
+  expired uploads, unknown usage, and backup/migration attempts that exceed remaining capacity.
+- **TODO — paid-storage acceptance:** 1 GB per-user limits, verified upgrades at $0.30/GB/month,
+  expired or failed subscriptions, and refusing upgrades when shared capacity is unavailable.
 - All six file categories, product deletion, personalization, and avatar cache refresh.
 - Legacy and mapped-name archives, Unicode/long names, malformed archives, interrupted transfers,
   and resume.
@@ -337,3 +379,52 @@ been rehearsed, and Supabase documentation and functionality remain available.
 **Defaults:** existing Supabase deployment; R2 Standard; whole-project ADMIN visibility; existing
 file-access behavior; no database-provider migration, generic file-manager feature, or automatic
 production-source deletion.
+
+## §6 — Execution record and numbering map
+
+Completed earlier backup/language work was verified and committed on `development` as `875babb4`.
+The migration branch was then created from a clean working tree. All source Supabase setup and
+SQL history remains in the repository. Implementation details and live deployment gates are
+documented in [storage setup](../dev_readme-storage.md) and
+[the migration runbook](../dev_readme-storage-migration.md). Status remains in the tracker only.
+
+Explicit numbering mapping used for the shift: old `01→02`, `02→03`, `03→04`, `04→05`,
+`05→06`, `06→07`, `07→08`, `08→09`, `09→10`, `10→11`, `11→12`, `12→13`,
+`13→14`, `14→15`, `15→16`, `16→17`, `17→18`, `18→19`, `19→20`, `20→21`,
+`21→22`, `22→23`, `23→24`. Old tracker-only 13 is still the standalone `STORYBOOK-PLAN.md`
+(now row 14); old tracker-only 15 is personalization (now row 16). Plan filenames, screenshot
+mappings and dependencies use the shifted numbers, preserving historical contents and statuses.
+
+October 11 clarification: the exported storage policy uses `gbPerMonthPrice` (not the earlier
+`gbPerMonthCost` spelling). ADMIN has no planned per-user limit or storage fee; the shared 10 GB
+limit remains enforced for ADMIN. The warning threshold is configured at 80%, currently 8 GB.
+
+### Local implementation — October 11, 2026
+
+- Added interchangeable Supabase/R2 providers, typed Storage SDK and authorized metadata routes.
+  Browser uploads go directly to private staging; completion verifies and publishes the file.
+  Existing image flows and product deletion use the provider abstraction.
+- Exported the requested policy and enforced the shared 10 GB capacity with current inventory,
+  persistent reservations and provider leases. ADMIN, guests, restore and migration share the cap.
+  Added ADMIN storage/usage cards, the 80% warning and desktop/mobile fixture screenshots.
+- Files backup now supports explicit Supabase/R2 selection. Copying to inactive R2 does not relink
+  live URLs. Browser operations support 512 MiB; streaming local tools handle larger exports,
+  migration, resume, final sync, exact reference updates, full rollback and deletion reports.
+- Added restricted staging/usage/reference SQL and provider cleanup schedules. Retained original
+  Supabase documentation and source files. Cleanup schedules avoid existing jobs' minutes.
+- Inspected the supplied Files export locally: 1,157 files and 100,010,140 payload bytes. It fits
+  browser import; no upload or reference change was performed. The user will import through UI.
+- Verification: 379 unit tests; 21 streaming migration/reference tests; affected Storybook
+  interactions and accessibility checks; TypeScript; production build; unauthenticated API checks.
+  Restricted SQL and exact array/reference comparisons were exercised in isolated PostgreSQL 17.
+  Scheduling SQL was checked with local API stubs, without activating external webhooks.
+
+**Live gates remaining:** create the two R2 buckets and custom domain, configure CORS/credentials,
+apply Supabase setup SQL, inspect actual source access/usage, rehearse uploads and rollback, then
+perform the final live synchronization and deliberate cutover. Source Storage inspection returned
+an upstream unavailable response, so its actual classification is not yet verified. The tracker
+stays in progress. The 1 GB per-user allowance and $0.30/GB/month subscription remain §3 TODOs;
+ADMIN is exempt from both while retaining the shared 10 GB cap.
+
+Click-by-click setup and browser import: [migration runbook](../dev_readme-storage-migration.md).
+Implementation/configuration: [storage documentation](../dev_readme-storage.md).

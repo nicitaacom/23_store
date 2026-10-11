@@ -29,10 +29,15 @@
     "cypress:run:all-browsers": "pnpm cypress:run:electron && pnpm cypress:run:chrome && pnpm cypress:run:chromium && pnpm cypress:run:edge && pnpm cypress:run:firefox && pnpm cypress:run:webkit",
     "test:e2e": "start-server-and-test dev http://127.0.0.1:3023 cypress:run:electron",
     "test:e2e:all-browsers": "start-server-and-test dev http://127.0.0.1:3023 cypress:run:all-browsers",
-    "update-types": "echo 'STALE — do not run. The live DB is shared with other projects (19_*, 28_*, etc.), so pnpx supabase gen would overwrite app/ts/types_db.ts with unrelated tables. Edit types_db.ts manually instead. See app/ts/dev_readme.md.'"
+    "update-types": "echo 'STALE \u2014 do not run. The live DB is shared with other projects (19_*, 28_*, etc.), so pnpx supabase gen would overwrite app/ts/types_db.ts with unrelated tables. Edit types_db.ts manually instead. See app/ts/dev_readme.md.'",
+    "storage:migrate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./tests/alias-hook.mjs --env-file=.env.local scripts/storage-migrate.mjs",
+    "test:storage-cli": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./tests/alias-hook.mjs --test scripts/storage/*.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-lambda": "^3.1024.0",
+    "@aws-sdk/client-s3": "^3.1149.0",
+    "@aws-sdk/lib-storage": "^3.1149.0",
+    "@aws-sdk/s3-request-presigner": "^3.1149.0",
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/sortable": "10.0.0",
     "@dnd-kit/utilities": "3.2.2",
@@ -83,6 +88,7 @@
     "resend": "^3.4.0",
     "stripe": "^14.25.0",
     "tailwind-merge": "^1.14.0",
+    "tar-stream": "^3.2.2",
     "uuid": "^9.0.1",
     "zustand": "^4.5.4"
   },

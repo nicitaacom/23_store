@@ -43,6 +43,7 @@ export async function POST(req: Request) {
       name: title,
       ...(description ? { description } : {}),
       active: true,
+      metadata: { storage_owner_id: user.id },
     })
 
     const priceResponse = await stripe.prices.create({

@@ -330,3 +330,10 @@ message in an error toast. `/api/personalized-designs` does the same for a missi
   `image_url` key is already valid storage — existing rows keep working untouched.
 - TODO (if ever needed): show remaining stock count next to each in-stock variant in the selector
   (today only the price is shown for in-stock variants).
+
+## Storage & usage
+
+Verified ADMIN has a Storage & usage header action. Its loading/error/remaining-capacity cards
+and 8 GB warning are described in [dev_readme-ui-storage-usage.md](../../../../../dev_readme-ui-storage-usage.md).
+The policy is exported by `app/config/r2Config.ts`. ADMIN is exempt from the planned per-user
+quota and storage price, but the shared 10 GB limit still applies to ADMIN uploads and restores.

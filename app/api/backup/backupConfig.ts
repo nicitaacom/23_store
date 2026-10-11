@@ -7,7 +7,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 
 import { slugifyEmail } from "@/utils/slugify"
-import { Database } from "@/ts/types_db"
+import type { Database } from "@/ts/types_db"
 
 // File backup only needs the Storage API. Limiting the parameter to that API avoids threading
 // database query generics through the recursive bucket walk.

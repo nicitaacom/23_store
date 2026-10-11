@@ -9,6 +9,8 @@
  *   skip  - nothing beyond presence
  */
 export type TKeyProbe = {
+  optional?: boolean
+  requiredWhen?: { name: string; value: string }
   name: string
   tier: "live" | "shape" | "skip"
   /**

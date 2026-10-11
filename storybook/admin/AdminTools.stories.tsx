@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import type { IUTMAggregatedStats } from "@/ts/interfaces/IUTMAggregatedStats"
-import { completeTablesExport } from "../mocks/backupSDK"
+import { backupSDK, completeFilesImport, completeTablesExport } from "../mocks/backupSDK"
 import { useDbBackupState } from "@/store/ui/useDbBackupState"
 import { DbBackupModal } from "@/components/ui/Modals/DbBackup/DbBackupModal"
 import { DbBackupProgressCard } from "@/components/ui/Modals/DbBackup/DbBackupProgressCard"
@@ -183,6 +183,33 @@ export const Backup: Story = {
 export const BackupProgressPlacement: Story = {
   parameters: { viewport: { defaultViewport: "mobileSmall" } },
   render: () => <BackupProgressPlacementWorkbench />,
+}
+
+export const BackupCopyToR2: Story = {
+  parameters: {
+    nextjs: { navigation: { pathname: "/en/stats", query: { modal: "DbBackup" } } },
+    viewport: { defaultViewport: "mobileSmall" },
+  },
+  render: () => <BackupProgressWorkbench />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(await canvas.findByRole("button", { name: "Files" }))
+    await userEvent.click(canvas.getByRole("button", { name: "R2" }))
+    await expect(canvas.getByRole("button", { name: "R2" })).toHaveAttribute("aria-pressed", "true")
+    const file = new File(["example"], "files.tar.gz", { type: "application/gzip" })
+    const fileInput = canvasElement.querySelector<HTMLInputElement>('input[accept=".tar.gz,.gz,.tgz"]')!
+    await userEvent.upload(fileInput, file)
+    await waitFor(() => expect(backupSDK.importFiles).toHaveBeenLastCalledWith(file, expect.any(Function), "r2"))
+    await expect(canvas.getByRole("button", { name: "Supabase" })).toBeDisabled()
+    await userEvent.click(canvas.getByRole("button", { name: "Close modal" }))
+    await expect(await canvas.findByRole("status", { name: "Database backup" })).toBeVisible()
+    completeFilesImport()
+    await waitFor(() => expect(useDbBackupState.getState().filesImportPhase).toBe("done"))
+    await userEvent.click(await canvas.findByRole("button", { name: "Reopen backup" }))
+    await userEvent.click(await canvas.findByRole("button", { name: "Files" }))
+    await expect(canvas.getByText(/Files copied\. Live image URLs/)).toBeVisible()
+    await expect(canvas.getByRole("button", { name: "R2" })).toHaveAttribute("aria-pressed", "true")
+  },
 }
 
 export const SalesAssistantMemory: Story = {

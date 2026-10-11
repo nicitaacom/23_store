@@ -4,13 +4,15 @@ import { requireAdmin } from "../requireAdmin"
 import { selectAllAuthUsers } from "../selectAllAuthUsers"
 import {
   BACKUP_TABLES,
-  listFiles,
   relinkBackupStorageValue,
   selectBackupPathsByFolder,
   selectRelinkedPathsByFolder,
   type TBackupStoragePathsByFolder,
 } from "../backupTables"
+import { activeStorageProvider } from "@/libs/storage/config"
+import { compareStorageReferences } from "@/libs/storage/relink"
 import { isMissingSchemaError } from "@/utils/personalizationSchema"
+import { listBackupStorageFiles } from "@/libs/storage/backup"
 import { slugifyEmail } from "@/utils/slugify"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 
@@ -74,7 +76,7 @@ function selectRowRelinkedPaths(
   const orderingColumn = config.storageUrlColumns?.[0]
   if (!expectedFolder || !orderingColumn) return EMPTY_RELINKED_PATHS
 
-  const { unresolvedPaths } = relinkBackupStorageValue(row[orderingColumn], context.availablePaths, context.currentSupabaseUrl)
+  const { unresolvedPaths } = relinkBackupStorageValue(row[orderingColumn], context.availablePaths, context.currentSupabaseUrl, EMPTY_RELINKED_PATHS, activeStorageProvider())
   return selectRelinkedPathsByFolder(unresolvedPaths, expectedFolder, context.pathsByFolder)
 }
 
@@ -87,15 +89,10 @@ async function updateTableRows(
   for (let start = 0; start < pendingUpdates.length; start += UPDATE_CONCURRENCY) {
     await Promise.all(
       pendingUpdates.slice(start, start + UPDATE_CONCURRENCY).map(async pendingUpdate => {
-        // eslint-disable-next-line local-rules/use-rls-supabase-client -- requireAdmin authorizes relinking restored backup rows.
-        let updateQuery = supabaseAdmin.from(config.name).update(pendingUpdate.columns as never)
-        for (const column of rowIdColumns) {
-          const value = pendingUpdate.row[column]
-          if (value === undefined || value === null) throw new Error(`${config.name}.${column} is required to relink Storage URLs`)
-          updateQuery = updateQuery.eq(column as never, value as never)
-        }
-        const { error } = await updateQuery
-        if (error) throw error
+        const rowKey = Object.fromEntries(rowIdColumns.map(column => [column, pendingUpdate.row[column]]))
+        const before = Object.fromEntries(Object.keys(pendingUpdate.columns).map(column => [column, pendingUpdate.row[column]]))
+        if (!await compareStorageReferences(config.name, rowKey, before, pendingUpdate.columns))
+          throw new Error(`Concurrent row edit preserved: ${config.name}`)
       }),
     )
   }
@@ -109,7 +106,7 @@ export async function POST() {
     const currentSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     if (!currentSupabaseUrl) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set")
 
-    const availablePaths = new Set((await listFiles(supabaseAdmin)).map(file => `${file.bucket}/${file.path}`))
+    const availablePaths = new Set((await listBackupStorageFiles(activeStorageProvider())).map(file => `${file.bucket}/${file.path}`))
     const context: TRelinkContext = {
       availablePaths,
       pathsByFolder: selectBackupPathsByFolder(availablePaths),
@@ -148,7 +145,7 @@ export async function POST() {
           let rowUrlsUpdated = 0
 
           for (const column of config.storageUrlColumns) {
-            const relinked = relinkBackupStorageValue(row[column], availablePaths, currentSupabaseUrl, relinkedPathByExportedPath)
+            const relinked = relinkBackupStorageValue(row[column], availablePaths, currentSupabaseUrl, relinkedPathByExportedPath, activeStorageProvider())
             tableUnresolvedReferences += relinked.unresolvedReferences
             relinked.unresolvedPaths.forEach(path => tableUnresolvedPaths.add(path))
             if (relinked.urlsUpdated === 0) continue
@@ -202,15 +199,16 @@ export async function POST() {
         availablePaths,
         currentSupabaseUrl,
         avatarRelinkedPaths,
+        activeStorageProvider(),
       )
       authUnresolvedReferences += relinked.unresolvedReferences
       relinked.unresolvedPaths.forEach(path => authUnresolvedPaths.add(path))
       if (relinked.urlsUpdated === 0) continue
 
-      const { error } = await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
-        user_metadata: { ...authUser.user_metadata, avatar_url: relinked.value },
-      })
-      if (error) throw error
+      if (!await compareStorageReferences("auth.users", { id: authUser.id },
+        { raw_user_meta_data: authUser.user_metadata },
+        { raw_user_meta_data: { ...authUser.user_metadata, avatar_url: relinked.value } }))
+        throw new Error("Concurrent authentication metadata edit preserved")
       authUsersUpdated++
       authUrlsUpdated += relinked.urlsUpdated
     }

@@ -3,6 +3,7 @@
 import { create } from "zustand"
 
 import type { TFilesImportResult, TTablesImportResult } from "@/sdk/BackupSDK/BackupSDK"
+import type { TStorageProviderName } from "@/ts/storage"
 
 type TTablesExportPhase = "idle" | "exporting" | "done" | "error"
 type TTablesImportPhase = "idle" | "importing" | "done" | "error"
@@ -11,6 +12,7 @@ type TFilesImportPhase = "idle" | "importing" | "done" | "error"
 
 type TDbBackupState = {
   isModalOpen: boolean
+  filesProvider: TStorageProviderName | "active"
   tablesExportPhase: TTablesExportPhase
   tablesExportProgress: number
   tablesExportError: string | null
@@ -41,6 +43,7 @@ type TDbBackupStore = TDbBackupState & {
 
 const INITIAL_DB_BACKUP_STATE: TDbBackupState = {
   isModalOpen: false,
+  filesProvider: "active",
   tablesExportPhase: "idle",
   tablesExportProgress: 0,
   tablesExportError: null,

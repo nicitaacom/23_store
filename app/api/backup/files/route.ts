@@ -1,77 +1,62 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 import { requireAdmin } from "../requireAdmin"
-import { BACKUP_BUCKETS, isBackupBucket, listFiles } from "../backupTables"
-import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
+import { activeStorageProvider, privateStorageBuckets } from "@/libs/storage/config"
+import { checkStorageOrigin, storageFailure, StorageRequestError, verifyStorageActor } from "@/libs/storage/authorization"
+import { prepareBackupStorageUploads } from "@/libs/storage/uploads"
+import { storageProvider } from "@/libs/storage/providers"
+import { STORAGE_BUCKETS } from "@/libs/storage/references"
+import type { TStorageProviderName } from "@/ts/storage"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
-// GET /api/backup/files
-//
-// Returns every stored file's bucket/path/size/contentType — paths and sizes only, never Storage
-// bytes. The browser downloads each file directly from Supabase's public CDN and packs them into
-// one .tar.gz (see app/sdk/BackupSDK/BackupSDK.ts's exportFiles). Sizes drive the byte-accurate
-// progress bar (23 MB / 230 MB), not just a file count.
-export async function GET() {
-  const adminError = await requireAdmin()
-  if (adminError) return NextResponse.json({ error: adminError }, { status: adminError === "Unauthorized" ? 401 : 403 })
-
-  try {
-    const files = await listFiles(supabaseAdmin)
-    return NextResponse.json({ files } satisfies API.BackupFilesGetResponse)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    return NextResponse.json({ error: message } satisfies API.BackupFilesGetResponse, { status: 500 })
-  }
+function selectedProvider(provider: unknown): TStorageProviderName {
+  if (provider == null) return activeStorageProvider()
+  if (provider !== "supabase" && provider !== "r2") throw new StorageRequestError("Invalid storage provider")
+  return provider
 }
 
-type TFileRequest = { bucket?: string; path?: string }
-type TFilesPostBody = { files?: TFileRequest[] }
-
-const MAX_FILES_PER_REQUEST = 100
-
-// POST /api/backup/files  { files: [{ bucket, path }] }
-//
-// The browser has decompressed + parsed the .tar.gz locally and asks for a signed upload URL per
-// storage file. This schema has no per-file owner column, so bucket membership (isBackupBucket) is
-// the whole boundary — requireAdmin() already gated the whole request. upsert is baked into the
-// token so a re-import overwrites the existing object. The browser then PUTs each file's bytes
-// directly to Supabase — bytes never pass through this function, so there is no memory/timeout
-// ceiling on file size or count.
-export async function POST(request: Request) {
-  const { files } = (await request.json().catch(() => ({}))) as TFilesPostBody
-
-  if (!Array.isArray(files) || files.length === 0) {
-    return NextResponse.json({ error: "files must be a non-empty array" } satisfies API.BackupFilesPostResponse, { status: 400 })
-  }
-  if (files.length > MAX_FILES_PER_REQUEST) {
-    return NextResponse.json(
-      { error: `at most ${MAX_FILES_PER_REQUEST} files per request` } satisfies API.BackupFilesPostResponse,
-      { status: 400 },
-    )
-  }
-
+// Metadata and provider URLs only. Each request covers one bounded inventory page.
+export async function GET(request: NextRequest) {
   const adminError = await requireAdmin()
   if (adminError) return NextResponse.json({ error: adminError }, { status: adminError === "Unauthorized" ? 401 : 403 })
-
-  const results: API.BackupUploadDestination[] = []
-  for (const file of files) {
-    const bucket = file.bucket
-    const path = file.path
-    if (!bucket || !isBackupBucket(bucket) || !path) {
-      results.push({ bucket: bucket ?? "", path: path ?? "", skipped: true, reason: `invalid path — bucket must be one of ${BACKUP_BUCKETS.join(", ")}` })
-      continue
+  try {
+    const bucketIndex = Number(request.nextUrl.searchParams.get("bucketIndex") ?? 0)
+    const bucket = STORAGE_BUCKETS[bucketIndex]
+    if (!Number.isInteger(bucketIndex) || !bucket) throw new StorageRequestError("Invalid bucket index")
+    const provider = storageProvider(selectedProvider(request.nextUrl.searchParams.get("provider")))
+    const page = await provider.list(bucket, "", request.nextUrl.searchParams.get("cursor"))
+    const files: API.BackupFileRef[] = []
+    for (let start = 0; start < page.objects.length; start += 10) {
+      files.push(...await Promise.all(page.objects.slice(start, start + 10).map(async object => {
+        const metadata = provider.name === "r2" ? await provider.inspect(bucket, object.path) : object
+        if (!metadata) throw new Error(`Inventory changed during backup: ${bucket}/${object.path}`)
+        const downloadUrl = privateStorageBuckets().includes(bucket)
+          ? await provider.signDownload(bucket, object.path) : provider.publicUrl(bucket, object.path)
+        return { ...metadata, downloadUrl }
+      })))
     }
+    return NextResponse.json({ files, cursor: page.cursor,
+      nextBucketIndex: page.cursor ? bucketIndex : bucketIndex + 1 < STORAGE_BUCKETS.length ? bucketIndex + 1 : null,
+    } satisfies API.BackupFilesGetResponse)
+  } catch (error) { return storageFailure(error) }
+}
 
-    const { data, error: urlError } = await supabaseAdmin.storage.from(bucket).createSignedUploadUrl(path, { upsert: true })
-    if (urlError || !data) {
-      results.push({ bucket, path, skipped: true, reason: urlError?.message ?? "could not create upload URL" })
-      continue
-    }
-    results.push({ bucket, path, signedUrl: data.signedUrl })
-  }
-
-  return NextResponse.json({ results } satisfies API.BackupFilesPostResponse)
+// Restore authorization uses exact imported tar keys, sizes and MIME types after the ADMIN check.
+export async function POST(request: NextRequest) {
+  try {
+    checkStorageOrigin(request)
+    const actor = await verifyStorageActor(request)
+    if (!actor.admin) throw new StorageRequestError("ADMIN role required", 403)
+    const { files, provider } = await request.json() as API.BackupFilesPostRequest
+    if (!Array.isArray(files) || files.length < 1 || files.length > 4) throw new StorageRequestError("Supply 1 to 4 files per request")
+    const providerName = selectedProvider(provider)
+    const destinations = await prepareBackupStorageUploads(actor, files, providerName)
+    return NextResponse.json({
+      results: destinations.map(destination => ({ bucket: destination.reference.bucket, path: destination.reference.path, ...destination })),
+      relinkRequired: providerName === activeStorageProvider(),
+    } satisfies API.BackupFilesPostResponse)
+  } catch (error) { return storageFailure(error) }
 }

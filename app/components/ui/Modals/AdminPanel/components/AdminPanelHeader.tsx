@@ -17,6 +17,7 @@ export const PANEL_ACTIONS = {
   delete: "delete",
   pricing: "pricing",
   categories: "categories",
+  storage: "storage",
 } as const
 
 interface AdminPanelHeaderProps {
@@ -36,6 +37,7 @@ const ACTION_ICONS: Record<TPanelAction, typeof FiPlus> = {
   delete: MdOutlineDelete,
   pricing: MdPriceChange,
   categories: MdOutlineCategory,
+  storage: MdOutlineCategory,
 }
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
@@ -83,7 +85,7 @@ export function AdminPanelHeader({
 
       <nav className="flex w-full min-w-0 gap-1 overflow-x-auto pb-1 [scrollbar-width:thin]" aria-label={title}>
         {(Object.keys(PANEL_ACTIONS) as TPanelAction[])
-          .filter(action => action !== "categories" || roles.includes("ADMIN"))
+          .filter(action => (action !== "categories" && action !== "storage") || roles.includes("ADMIN"))
           .map(action => {
             const Icon = ACTION_ICONS[action]
             const isActive = action === activeAction

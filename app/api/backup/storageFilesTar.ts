@@ -1,5 +1,6 @@
 import type { TBackupFileRef } from "./backupConfig"
 import { addTarEntry, finalizeTar } from "@/api/backup/tarClient"
+import { isStorageBucket, isStoragePath } from "@/libs/storage/references"
 
 export type TBackupStorageFile = Pick<TBackupFileRef, "bucket" | "path" | "contentType"> & { bytes: Uint8Array }
 
@@ -32,6 +33,7 @@ export function buildStorageTar(files: TBackupStorageFile[]): Buffer {
   const storedPaths = new Set<string>()
 
   files.forEach((file, index) => {
+    if (!isStorageBucket(file.bucket) || !isStoragePath(file.path)) throw new Error("Invalid backup storage key")
     const storagePath = `${file.bucket}/${file.path}`
     if (storedPaths.has(storagePath)) throw new Error(`Duplicate storage path in backup: ${storagePath}`)
     storedPaths.add(storagePath)
@@ -78,12 +80,16 @@ export function readStorageTarEntries(entries: Map<string, Buffer>): TBackupStor
 
   for (const [name, bytes] of entries) {
     if (!name.startsWith(STORAGE_PREFIX) && !name.startsWith(SHORT_STORAGE_PREFIX)) continue
+    if (!isStoragePath(name)) throw new Error(`Unsafe archive path: ${name}`)
     const mappedPath = Object.hasOwn(storagePaths, name) ? storagePaths[name] : null
+    if (mappedPath && !name.startsWith(SHORT_STORAGE_PREFIX)) throw new Error(`Unexpected path mapping for ${name}`)
     const storagePath = mappedPath ?? (name.startsWith(STORAGE_PREFIX) ? name.slice(STORAGE_PREFIX.length) : null)
     if (!storagePath) throw new Error(`Missing original Storage path for ${name} in storage-paths.json`)
 
     const slashIndex = storagePath.indexOf("/")
     if (slashIndex < 1 || slashIndex === storagePath.length - 1) throw new Error(`Invalid Storage path for ${name}`)
+    if (!isStorageBucket(storagePath.slice(0, slashIndex)) || !isStoragePath(storagePath.slice(slashIndex + 1)))
+      throw new Error(`Unsafe or unsupported storage key: ${storagePath}`)
     if (storedPaths.has(storagePath)) throw new Error(`Duplicate storage path in backup: ${storagePath}`)
     storedPaths.add(storagePath)
 
@@ -93,6 +99,9 @@ export function readStorageTarEntries(entries: Map<string, Buffer>): TBackupStor
       bytes: new Uint8Array(bytes),
       contentType: Object.hasOwn(contentTypes, storagePath) ? contentTypes[storagePath] : "application/octet-stream",
     })
+  }
+  for (const name of Object.keys(storagePaths)) {
+    if (!entries.has(name) || !name.startsWith(SHORT_STORAGE_PREFIX)) throw new Error(`Unused or invalid storage mapping: ${name}`)
   }
   return files
 }

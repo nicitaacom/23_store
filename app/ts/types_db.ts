@@ -452,6 +452,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      "23_storage_usage": { Args: Record<string, never>; Returns: Json }
+      "23_storage_update_references": {
+        Args: { table_name: string; row_key: Json; before_values: Json; after_values: Json }
+        Returns: boolean
+      }
+      "23_storage_guest_file_referenced": { Args: { candidate_urls: string[] }; Returns: boolean }
+
       // product likes/ratings counter RPCs (see dev_readme-supbase-sql.md)
       increment_product_likes: {
         Args: { p_id: string; delta: number }

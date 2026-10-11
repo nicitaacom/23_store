@@ -1,0 +1,71 @@
+import { S3Client, CopyObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
+const mocks = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), createSignedUploadUrl: vi.fn() }))
+vi.mock("@/libs/supabase/supabaseAdmin", () => ({ default: { storage: { from: () => mocks } } }))
+import { R2StorageProvider, SupabaseStorageProvider } from "./providers"
+
+beforeEach(() => {
+  vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_URL", "https://files.example")
+  vi.stubEnv("R2_ACCOUNT_ID", "a".repeat(32)); vi.stubEnv("R2_ACCESS_KEY_ID", "fixture-key"); vi.stubEnv("R2_SECRET_ACCESS_KEY", "fixture-secret")
+  vi.stubEnv("R2_BUCKET", "fixture-files"); vi.stubEnv("R2_STAGING_BUCKET", "fixture-staging")
+  vi.stubEnv("R2_PRIVATE_BUCKET", "fixture-private"); vi.stubEnv("STORAGE_PRIVATE_LOGICAL_BUCKETS", "")
+  vi.clearAllMocks()
+})
+afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks() })
+
+describe("R2 provider", () => {
+  it("signs exact content length, MIME and immutable uploads into private staging", async () => {
+    const upload = await new R2StorageProvider().signUpload("uploads/id/file.png", "image/png", 8)
+    const url = new URL(upload.signedUrl)
+    expect(url.pathname).toBe("/fixture-staging/uploads/id/file.png")
+    expect(url.searchParams.get("X-Amz-SignedHeaders")?.split(";")).toEqual(expect.arrayContaining(["content-length", "content-type", "if-none-match"]))
+    expect(upload.headers).toEqual({ "Content-Type": "image/png", "If-None-Match": "*" })
+    expect(upload.formField).toBeNull()
+  })
+  it("preserves logical prefixes and continuation tokens", async () => {
+    const send = vi.spyOn(S3Client.prototype, "send").mockImplementation(async () => ({ Contents: [{ Key: "23_avatar-images/owner/a.png", Size: 8 }], IsTruncated: true, NextContinuationToken: "page-2" }))
+    const page = await new R2StorageProvider().list("23_avatar-images", "owner", "page-1")
+    expect(page.objects[0].path).toBe("owner/a.png"); expect(page.cursor).toBe("page-2")
+    expect(send.mock.calls[0][0]).toBeInstanceOf(ListObjectsV2Command)
+    expect((send.mock.calls[0][0] as ListObjectsV2Command).input).toMatchObject({ Prefix: "23_avatar-images/owner/", ContinuationToken: "page-1" })
+  })
+  it("measures every physical application bucket, including unfamiliar prefixes", async () => {
+    const send = vi.spyOn(S3Client.prototype, "send").mockImplementation(async () => ({ Contents: [{ Key: "unfamiliar-prefix/file", Size: 100 }] }))
+    expect(await new R2StorageProvider().measureBytes()).toBe(300)
+    expect(send).toHaveBeenCalledTimes(3)
+    send.mockImplementation(async () => ({ Contents: [{ Key: "file" }] }))
+    await expect(new R2StorageProvider().measureBytes()).rejects.toThrow("unknown")
+  })
+  it("publishes with a conditional provider copy without reading the payload into the route", async () => {
+    const send = vi.spyOn(S3Client.prototype, "send").mockImplementation(async () => ({ ContentLength: 8, ContentType: "image/png", ETag: "immutable" }))
+    await new R2StorageProvider().publish({ actor: "owner", reference: { provider: "r2", bucket: "23_avatar-images", path: "owner/a.png" },
+      stagePath: "uploads/id/a.png", size: 8, contentType: "image/png", upsert: true, expiresAt: new Date().toISOString() })
+    const command = send.mock.calls.map(call => call[0]).find(command => command instanceof CopyObjectCommand) as CopyObjectCommand
+    expect(command.input).toMatchObject({ Bucket: "fixture-files", Key: "23_avatar-images/owner/a.png", CopySourceIfMatch: "immutable" })
+  })
+})
+
+describe("Supabase provider", () => {
+  it("walks nested folders, preserving exact MIME, sizes and names", async () => {
+    mocks.list.mockImplementation(async (folder: string) => ({ data: folder
+      ? [{ id: "file", name: "long 文件.png", metadata: { size: 8, mimetype: "image/png" }, updated_at: "2026-10-11T12:00:00Z" }]
+      : [{ id: null, name: "owner" }], error: null }))
+    const page = await new SupabaseStorageProvider().list("23_avatar-images")
+    expect(page.objects[0]).toMatchObject({ path: "owner/long 文件.png", size: 8, contentType: "image/png" })
+    expect(page.cursor).toBeNull()
+  })
+  it("signs private staging and deletes bytes through the provider API", async () => {
+    mocks.createSignedUploadUrl.mockResolvedValue({ data: { signedUrl: "https://private.example/signed" }, error: null })
+    const provider = new SupabaseStorageProvider()
+    expect((await provider.signUpload("uploads/id/a.png", "image/png", 8)).formField).toBe("")
+    expect(mocks.createSignedUploadUrl).toHaveBeenCalledWith("uploads/id/a.png")
+    mocks.remove.mockResolvedValue({ error: null })
+    await provider.delete("23_avatar-images", "owner/a.png")
+    expect(mocks.remove).toHaveBeenCalledWith(["owner/a.png"])
+  })
+  it("treats missing object sizes as unknown capacity instead of zero", async () => {
+    mocks.list.mockResolvedValue({ data: [{ id: "file", name: "a.png", metadata: {} }], error: null })
+    await expect(new SupabaseStorageProvider().measureBytes()).rejects.toThrow("unknown")
+  })
+})
