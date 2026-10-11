@@ -5,6 +5,9 @@ Format: `type: message`
 Subject: one line, lowercase message, no period at the end, no scope.
 Description: **required** — see the 🚨 TODO block below.
 
+Exception: automatic merge subjects beginning with `Merge branch ` are allowed, including
+`Merge branch 'feat/storybook' into development`. These merge messages do not require a description.
+
 ### Types (from most to least used)
 
 | type    | when                                                         |
@@ -125,17 +128,25 @@ doc instead of the body, or when no item has an arrow chain. It reads
 A `command`, a "label" and any path or url are dropped before that out-of-reach match — otherwise
 `check the button reads "Pay with PayPal"` counts as a PayPal step while being a file the AI edits.
 
-**2. Git's own check.** `.githooks/commit-msg` runs the same rules on the message git is about to
-record, so a commit made outside the AI loop is still caught. It is TRACKED, unlike `.git/hooks`,
-which every OS reinstall and every fresh clone wipes.
+**2. Husky before Git records the commit.** `.husky/commit-msg` checks every developer's message
+with the same subject/type validator as CI. Only `fix`, `upd`, `style`, `docs`, `feat` and `chore`
+are accepted; `test` is rejected. Automatic `Merge branch *` subjects are the explicit exception.
+It then runs `.githooks/commit-msg` for the existing description
+and trailer checks. Both hook sources are tracked. Git supplies the new message at `commit-msg`,
+after `pre-commit`; type validation belongs there so it checks the current message.
 
 ### 🚨 After a fresh clone or an OS reinstall
 
-`core.hooksPath` is local config, so a clone does not inherit it. One line brings layer 2 back:
+The package's `prepare` script installs Husky during `pnpm install`. If dependencies were installed
+with scripts disabled, run the prepare script once:
 
 ```bash
-git config core.hooksPath .githooks
+pnpm run prepare
 ```
+
+`git config --get core.hooksPath` should report `.husky/_`. Avoid resetting it to `.githooks`, which
+bypasses the Husky type check. The existing pre-push key check is delegated through Husky; assistants
+must skip that hook when the user prohibits reading `.env.local`.
 
 Layer 1 comes back with `~/.claude/` — the hooks are also copied to
 `/home/kali/Documents/txt/claude-hooks/`.

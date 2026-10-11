@@ -15,9 +15,9 @@
 # matters. So the block is conditional, and every item in it has to name a place out of the AI's
 # reach - the Supabase SQL editor, a dashboard, an env var, DNS, his inbox, git push.
 #
-# This file is TRACKED, and `git config core.hooksPath .githooks` points git at it. .git/hooks is
-# wiped by every OS reinstall and every fresh clone; this folder is not. The one thing a fresh clone
-# has to redo is that single config line - see commit-patterns.md.
+# This file is TRACKED. Husky's commit-msg first checks the six supported commit types, then
+# runs this description/trailer check. The package prepare script installs Husky after a clone
+# or reinstall - see commit-patterns.md.
 #
 # ~/.claude/hooks/commit-rule-emoji-guard.py runs the same TODO check EARLIER, inside the AI's own
 # loop, before git is called at all. This is the backstop for what that hook never sees.
@@ -31,6 +31,8 @@ if grep -qiE '^Co-Authored-By:.*(claude|anthropic)' "$msg_file"; then
   echo "commit-msg: remove the Claude/Anthropic co-author trailer - never included in this repo's commits." >&2
   exit 1
 fi
+
+if head -1 "$msg_file" | grep -qE '^Merge branch .+$'; then exit 0; fi
 
 [ -n "${CLAUDECODE:-}" ] || exit 0
 

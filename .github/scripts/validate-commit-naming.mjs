@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process"
+import { readFileSync } from "node:fs"
 import process from "node:process"
 
 const ALLOWED_TYPES = ["fix", "upd", "style", "docs", "feat", "chore"]
@@ -10,6 +11,7 @@ export function validateCommitText(commitText, label = "commit") {
   const errors = []
 
   if (label === "pull request title" && lines.length !== 1) errors.push(`${label} must be one line`)
+  if (label !== "pull request title" && /^Merge branch .+$/.test(subject)) return errors
   if (!SUBJECT_PATTERN.test(subject)) errors.push(`${label} must use "type: lowercase message"`)
   if (/^[a-z]+\(/.test(subject)) errors.push(`${label} must not use a scope`)
   if (subject.endsWith(".")) errors.push(`${label} must not end with a period`)
@@ -58,7 +60,14 @@ export function validatePullRequest({ baseSha, headSha, pullRequestTitle, runGit
 }
 
 function main() {
-  const errors = validatePullRequest({
+  const checksMessageFile = process.argv[2] === "--message-file"
+  const messageFile = checksMessageFile ? process.argv[3] : null
+  if (checksMessageFile && !messageFile) {
+    console.error("Supply the commit message file after --message-file")
+    process.exitCode = 1
+    return
+  }
+  const errors = messageFile ? validateCommitText(readFileSync(messageFile, "utf8")) : validatePullRequest({
     baseSha: process.env.COMMIT_NAMING_BASE_SHA,
     headSha: process.env.COMMIT_NAMING_HEAD_SHA,
     pullRequestTitle: process.env.COMMIT_NAMING_PR_TITLE,

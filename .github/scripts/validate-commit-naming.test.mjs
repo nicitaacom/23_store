@@ -1,7 +1,14 @@
 import assert from "node:assert/strict"
+import { spawnSync } from "node:child_process"
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import path from "node:path"
 import test from "node:test"
+import { fileURLToPath } from "node:url"
 
 import { selectIntroducedCommits, validateCommitText, validatePullRequest } from "./validate-commit-naming.mjs"
+
+const repoRoot = fileURLToPath(new URL("../../", import.meta.url))
 
 test("accepts every allowed commit type", () => {
   for (const type of ["fix", "upd", "style", "docs", "feat", "chore"]) {
@@ -24,6 +31,13 @@ test("accepts the descriptions required by commit-patterns.md", () => {
 
 test("keeps pull request titles on one line", () => {
   assert.match(validateCommitText("feat: message\n\nextra details", "pull request title").join("\n"), /one line/)
+})
+
+test("accepts the user's Merge branch exception for commit subjects", () => {
+  const merge = "Merge branch 'feat/storybook' into development"
+  assert.deepEqual(validateCommitText(merge), [])
+  assert.deepEqual(validateCommitText(`${merge}\n\n- retain merge details`, "commit abc123"), [])
+  assert.match(validateCommitText(merge, "pull request title").join("\n"), /lowercase message/)
 })
 
 test("reads only non-merge commits in the pull request range", () => {
@@ -69,4 +83,36 @@ test("skips commit history when the event has no usable range", () => {
   assert.deepEqual(selectIntroducedCommits("", "head", runGit), [])
   assert.deepEqual(selectIntroducedCommits("000000", "head", runGit), [])
   assert.equal(gitWasRead, false)
+})
+
+test("Husky accepts exactly the six documented types for every developer", context => {
+  const folder = mkdtempSync(path.join(tmpdir(), "23-commit-message-"))
+  context.after(() => rmSync(folder, { recursive: true, force: true }))
+  const messageFile = path.join(folder, "message.txt")
+  for (const type of ["fix", "upd", "style", "docs", "feat", "chore", "test", "build", "perf", "feature"]) {
+    writeFileSync(messageFile, `${type}: valid message\n\n- explain the change\n`)
+    const checked = spawnSync("sh", [".husky/commit-msg", messageFile], {
+      cwd: repoRoot, encoding: "utf8", env: { ...process.env, CLAUDECODE: "" },
+    })
+    const allowed = ["fix", "upd", "style", "docs", "feat", "chore"].includes(type)
+    assert.equal(checked.status, allowed ? 0 : 1, `${type}: ${checked.stderr}`)
+    if (!allowed) assert.match(checked.stderr, /type must be fix, upd, style, docs, feat, chore/)
+  }
+})
+
+test("the commit-message command requires a filename", () => {
+  const checked = spawnSync(process.execPath, [".github/scripts/validate-commit-naming.mjs", "--message-file"], { cwd: repoRoot, encoding: "utf8" })
+  assert.equal(checked.status, 1)
+  assert.match(checked.stderr, /Supply the commit message file/)
+})
+
+test("Husky accepts automatic Merge branch messages without a description", context => {
+  const folder = mkdtempSync(path.join(tmpdir(), "23-merge-message-"))
+  context.after(() => rmSync(folder, { recursive: true, force: true }))
+  const messageFile = path.join(folder, "message.txt")
+  writeFileSync(messageFile, "Merge branch 'feat/storybook' into development\n")
+  const checked = spawnSync("sh", [".husky/commit-msg", messageFile], {
+    cwd: repoRoot, encoding: "utf8", env: { ...process.env, CLAUDECODE: "1" },
+  })
+  assert.equal(checked.status, 0, checked.stderr)
 })
