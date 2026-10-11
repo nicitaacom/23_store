@@ -23,8 +23,7 @@ module.exports = {
   ...require("./one-liner-component-props-interface"),
   ...require("./no-type-export-in-action-or-component"),
   ...require("./imports-order"),
-  // file name differs from the rule id ("envs-order") on purpose - see the header of vars-order.js
-  ...require("./vars-order"),
+  ...require("./envs-order"),
   // same here - the rule id is "no-defined-unused-envs", see the header of unused-declared-vars.js
   ...require("./unused-declared-vars"),
   // runs on package.json through ./json-processor.js, which is registered separately in the config

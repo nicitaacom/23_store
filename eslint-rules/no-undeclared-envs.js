@@ -11,7 +11,7 @@ const path = require("path")
 // environment missing the value, with no signal anywhere until it breaks at runtime.
 //
 // This is the third leg of the env.d.ts / .env.example / app usage triangle - the other two sides are
-// already covered: envs-order (vars-order.js) keeps env.d.ts and .env.example in sync with each other,
+// already covered: envs-order.js keeps env.d.ts and .env.example in sync with each other,
 // no-defined-unused-envs (unused-declared-vars.js) flags an env.d.ts declaration nothing in the app
 // reads. This rule flags the remaining direction: app usage with no env.d.ts declaration at all.
 //
@@ -32,7 +32,7 @@ const DECLARATION_FILE = "env.d.ts"
 // and re-parse env.d.ts once per file linted instead of once per repo.
 const declaredNamesByRepoRoot = new Map()
 
-// Same walk-up as vars-order.js/unused-declared-vars.js - the nearest folder holding a package.json is
+// Same walk-up as envs-order.js/unused-declared-vars.js - the nearest folder holding a package.json is
 // the repo root, and env.d.ts sits directly in it.
 function findRepoRoot(filename) {
   let dir = path.dirname(filename)

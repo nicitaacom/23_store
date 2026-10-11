@@ -5,7 +5,7 @@ const path = require("path")
 
 // This file is named unused-declared-vars.js while the rule id below is "no-defined-unused-envs" -
 // ESLint reads the id from the export key at the bottom, not from the filename. vars-order.js in
-// this same folder uses the id "envs-order" for the same reason.
+// this same folder was renamed to envs-order.js to match its rule id.
 //
 // Why this rule exists: env.d.ts only ever grows. A declaration stays behind long after the code
 // that read it was deleted, and nothing complains - it still type-checks, .env.example still tells
@@ -96,7 +96,7 @@ const SETTLEMENTS =
 const usedNamesByRepoRoot = new Map()
 const exampleNamesByRepoRoot = new Map()
 
-// Same walk-up as vars-order.js - the nearest folder holding a package.json is the repo root, and
+// Same walk-up as envs-order.js - the nearest folder holding a package.json is the repo root, and
 // the declaration file sits directly in it.
 function findRepoRoot(filename) {
   let dir = path.dirname(filename)
@@ -114,7 +114,7 @@ function findRepoRoot(filename) {
 }
 
 // Every name .env.example asks a fresh checkout to fill in - the identifier before the first "=" of
-// each non-comment line, same parse vars-order.js runs. Only the opening sentence of the report
+// each non-comment line, same parse envs-order.js runs. Only the opening sentence of the report
 // depends on this: a name .env.example still lists is the ordinary case and reads as "defined but
 // never used", while a name missing from it is a declaration nothing outside env.d.ts asks for at
 // all. Naming the wrong one sends the owner to a file that has no line to look at.

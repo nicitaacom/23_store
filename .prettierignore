@@ -1,3 +1,6 @@
 app/favicon.ico
 app/components/ui/Buttons/dev_readme.md
 app/components/ui/Inputs/dev_readme.md
+
+# ESLint keeps this file's groups aligned with .env.example; Prettier collapses their blank lines.
+env.d.ts
