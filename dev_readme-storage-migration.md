@@ -17,16 +17,38 @@ The Tables export is a recovery artifact; do not import it over the live databas
    Click **Continue → Connect Domain** and wait for Active. Put its HTTPS origin in
    `NEXT_PUBLIC_R2_PUBLIC_URL`. Keep `r2.dev` disabled for production.
    [Custom domains](https://developers.cloudflare.com/r2/buckets/public-buckets/)
-3. **R2 overview → Account Details → API Tokens → Manage → Create Account API token**:
-   use **Object Read & Write** and scope it only to `23-store-public`.
+   Set the **R2 custom domain's minimum TLS version to 1.3**, following the user's October 11
+   choice. If its form exposes **Minimum TLS version**, select **1.3**. Cloudflare also documents
+   updating the R2 domain through its API with `{"minTLS":"1.3"}`. The general website minimum-TLS
+   setting does not apply to R2 custom domains. TLS 1.3 as a minimum rejects older TLS 1.2-only
+   clients; updated major browsers support TLS 1.3. A successful TLS 1.3 handshake proves support,
+   while a rejected TLS 1.2 handshake verifies the requested minimum. This is a Cloudflare
+   setting and needs no application TLS environment variable.
+   [R2 domain TLS API](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/subresources/domains/subresources/custom/methods/update/),
+   [R2 exception to website TLS settings](https://developers.cloudflare.com/ssl/edge-certificates/additional-options/minimum-tls/),
+   [TLS 1.3 browser support](https://developers.cloudflare.com/ssl/edge-certificates/additional-options/tls-13/)
+3. **Upload credentials — R2 Object Storage → Overview → Manage API Tokens**:
+   return to the R2 bucket list; the bucket's Settings page has no token controls. In the
+   **Account Details** section, click **Manage API Tokens**, as shown in the user's dashboard.
+   In the R2-specific token creator, use
+   **Create Account API token** if available, or **Create User API token**. Select
+   **Object Read & Write** and scope it only to `23-store-public`.
    Copy **Access Key ID**, **Secret Access Key** and the account ID
    into `.env.local` (`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ACCOUNT_ID`). Also set
    `R2_BUCKET=23-store-public`. Save the secret when it is displayed.
    This token does not need bucket-management privileges.
    [R2 credentials](https://developers.cloudflare.com/r2/api/tokens/)
-4. **Account API Tokens → Create Token → Create Custom Token**: name it for storage analytics,
-   grant **Account → Account Analytics → Read**, and scope it to this account. Store its value as
-   `CLOUDFLARE_R2_ANALYTICS_TOKEN`.
+4. **Storage analytics — top-right profile icon → My Profile → API Tokens → Create Token**:
+   on the user's October 11 screenshot (`/profile/api-tokens`), click the blue **Get started**
+   beside **Create Custom Token**, above the templates. Name it `23-store-r2-analytics`, grant
+   **Account → Account Analytics → Read**, and scope account resources to this account.
+   If the middle permissions dropdown currently shows **Workers R2 Storage**, change it to
+   **Account Analytics**; select **Read** in the final dropdown. Change **All accounts** to the
+   specific account that contains `23-store-public`.
+   Click **Continue to summary → Create Token**, then store the token value as
+   `CLOUDFLARE_R2_ANALYTICS_TOKEN`. The account API Tokens page also supports this permission.
+   The profile page is separate from R2's token creator: the analytics token belongs in this
+   single analytics field; R2 uploads need the separate Access Key ID and Secret Access Key.
    [Analytics token](https://developers.cloudflare.com/analytics/graphql-api/getting-started/authentication/api-token-auth/)
 5. Open **23-store-public → Settings → CORS Policy → Add CORS policy → JSON → Save**. The production
    origins below are examples for this shop; use the actual deployed origins and explicit local
@@ -42,6 +64,30 @@ The bucket is public for reads, including incoming `uploads/` objects. Writes st
 server-issued signed request with an authorized key, type and byte count; CORS is not write
 authorization. Completion verifies actual files before updating their final application paths.
 Temporary copies and reserved capacity count toward the same 10 GB cap, including ADMIN.
+
+The local initial-copy settings are below. `.env.local` already has the public bucket/origin;
+the missing fields were prepared on October 11. Fill the four empty values from Cloudflare
+directly in that file. The R2 **Secret Access Key** is the S3 credential shown beside Access Key
+ID; the analytics field takes the separate analytics **token value**. Both credentials stay on
+the server. These variables are already declared in `env.d.ts` and `.env.example`.
+
+```dotenv
+R2_BUCKET='23-store-public'
+NEXT_PUBLIC_R2_PUBLIC_URL='https://files.jokik.fi'
+
+STORAGE_PROVIDER='supabase'
+STORAGE_MIGRATION_PAUSED='false'
+STORAGE_CLEANUP_ENABLED='false'
+R2_ACCOUNT_ID=''
+R2_ACCESS_KEY_ID=''
+R2_SECRET_ACCESS_KEY=''
+R2_ACCOUNT_STANDARD_ONLY='false'
+CLOUDFLARE_R2_ANALYTICS_TOKEN=''
+```
+
+`R2_ACCOUNT_STANDARD_ONLY=false` keeps the account-wide included-storage estimate unconfirmed
+until all account buckets' storage classes have been checked. The application's 10 GB limit
+continues to use actual application inventory and reservations.
 
 Apply `scripts/storage/setup.sql` in the Supabase SQL editor before the new application routes
 are deployed. Schedule cleanup only after the deployment is reachable and Vault contains the
@@ -104,7 +150,8 @@ shared 10 GB limit. Backup copies alone are insufficient because the source may 
 ## 4. Final synchronization and cutover
 
 1. Deploy `STORAGE_MIGRATION_PAUSED=true` while writes still use Supabase. Set the same value
-   locally. Let already issued uploads complete or expire. Staging stays private; cleanup pauses.
+   locally. Let already issued uploads complete or expire. Cleanup pauses; incoming R2 objects
+   remain public under `uploads/` in the same bucket.
 2. Synchronize current source inventory with the saved archive report as the starting report:
 
 ```bash
@@ -177,3 +224,19 @@ At implementation time the R2 bucket, custom domain and credentials were not con
 Storage inspection returned an upstream unavailable response. Record actual inspection, live
 rehearsal, inventory size, cutover time and rollback rehearsal here once completed. The tracker
 remains in progress until those gates pass. Per-user quotas and paid upgrades are plan TODOs.
+
+October 11 setup progress: the user created `23-store-public`. Local bucket/origin values are
+configured, and `files.jokik.fi` answered HTTPS HEAD requests with TLS 1.3 and TLS 1.2 (HTTP 404
+at the root). This proves public HTTPS connectivity, not bucket association or a TLS 1.3 minimum.
+The user selected minimum TLS 1.3; enforcement still needs checking after the Cloudflare change.
+The initial configuration preparation left the R2 account ID, S3 keys and analytics value for
+the user to fill.
+The active provider remains Supabase, with writes open and cleanup disabled. No backup was
+uploaded, database reference relinked, or live provider switched during this setup work.
+
+Later October 11 update: the user confirmed that `23-store-r2-analytics` was successfully created.
+Reuse this token and copy its value from the confirmation page into its local field; creation is
+complete. The user manages `.env.local` and requested that the assistant never read it. Remaining
+dashboard work includes the separate R2 Object Read & Write credentials, CORS and TLS verification.
+A subsequent public TLS recheck timed out for both versions, so it did not verify a changed
+minimum. Verify the requested minimum in the R2 custom-domain settings and by rejecting TLS 1.2.

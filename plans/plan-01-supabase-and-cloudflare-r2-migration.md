@@ -440,7 +440,8 @@ limit remains enforced for ADMIN. The warning threshold is configured at 80%, cu
   Restricted SQL and exact array/reference comparisons were exercised in isolated PostgreSQL 17.
   Scheduling SQL was checked with local API stubs, without activating external webhooks.
 
-**Live gates remaining:** create `23-store-public` and its custom domain, configure CORS/credentials,
+**Live gates remaining:** verify the created `23-store-public` bucket and its custom-domain mapping,
+enforce the selected TLS minimum, configure CORS/credentials,
 apply Supabase setup SQL, inspect actual source access/usage, rehearse uploads and rollback, then
 perform the final live synchronization and deliberate cutover. Source Storage inspection returned
 an upstream unavailable response, so its actual classification is not yet verified. The tracker
@@ -467,3 +468,59 @@ Implementation/configuration: [storage documentation](../dev_readme-storage.md).
   match across declarations, the example and the probe registry. The broader environment-registry
   audit reports eight pre-existing PayPal/Solana names missing from the probe registry; the same
   omissions exist in the preceding commit.
+
+### Cloudflare setup — October 11, 2026 progress
+
+- The user created `23-store-public`, as shown in the bucket settings screenshot. The local
+  bucket name and public origin are configured. A read-only HTTPS check of `files.jokik.fi`
+  negotiated both TLS 1.3 and TLS 1.2 and returned HTTP 404 at the root; actual bucket mapping
+  and TLS minimum remain to be verified in Cloudflare.
+- User preference: **minimum TLS 1.3** for the R2 delivery domain. This requires TLS 1.3 clients,
+  and is set on the R2 custom domain independently of the general website TLS setting. No TLS
+  application environment variable is needed. Preserve this choice in the setup runbook.
+- Prepared the missing local storage fields with Supabase still active, migration pause false,
+  cleanup disabled and account-wide Standard-only assumptions unconfirmed. The R2 account ID,
+  Access Key ID, Secret Access Key and separate analytics token still need the user's dashboard
+  values. Credentials are not included in git or chat.
+- Environment declarations now follow the example's order and group spacing, enforced by the
+  `envs-order` rule. The initial `1d327fd7` (`chore: env.d.ts envs order`) was undone at the user's
+  request on October 11, preserving its working files and the later documentation. The initial
+  38 rule tests, TypeScript and full lint passed, with 26 existing lint warnings; the user's
+  subsequent Ctrl+S report exposed cached editor rules and a conflict with Prettier group spacing.
+- Next setup actions: configure the R2 domain's minimum TLS, create the bucket-scoped Object
+  Read & Write token, save the already-created analytics token locally, configure CORS, and apply the existing
+  Supabase setup SQL. The user retains the selected UI Files → R2 → Import flow. Rehearsal,
+  source reconciliation, reference updates and live cutover remain pending.
+- Clarified token navigation using the user's Profile API Tokens screenshot: **Create Token →
+  Custom token → Get started** creates the analytics token with **Account Analytics / Read**.
+  R2 upload credentials come from the separate R2 token creator. The runbook now distinguishes
+  these pages and follows the visible profile labels instead of implying the R2 controls exist there.
+- Ctrl+S follow-up: kept the user's analytics entry in the upper R2 group and removed its identical
+  duplicate. `env.d.ts` now bypasses Prettier so ESLint preserves the example's exact blank lines.
+  A save regression test failed before this change and passes afterward. All 39 ESLint rule tests
+  and TypeScript pass; the complete ESLint/Prettier save simulation repairs the user's captured
+  file and remains unchanged on a second save, with no lint messages. The user restarted the
+  ESLint server and confirmed that Ctrl+S now works, resolving the old cached group-order warning.
+  The corrected commit was rebased as `f9359b04` (`chore: env.d.ts envs order`) into the original
+  environment commit's position before the setup documentation. It is now updated as `1c0b2334`
+  with the duplicate-entry fix below. Full lint reports zero errors
+  and 26 existing warnings across 749 files; `env.d.ts` has no lint messages.
+- A further Ctrl+S report affected `env.d.ts`: the three R2 credential names were added to the
+  upper example group while their old assignments remained at the bottom. The duplicate-example
+  check stopped the fixer. The rule now follows each name's first position and still fixes the
+  declarations while reporting duplicates, without selecting or changing environment values.
+  Kept the user's upper R2 group and removed the identical duplicate assignments. The regression
+  test fails before this fix and passes afterward; all 40 rule tests and TypeScript pass, and full
+  lint still reports zero errors and 26 existing warnings. The real ESLint/Prettier save simulation
+  repairs shuffled R2 declarations and remains unchanged on a second save. The user confirmed
+  that Ctrl+S ordering works again and asked to include these changes in the same environment
+  commit. Test fixtures also reject private environment reads instead of reading `.env.local`.
+- The user's R2 overview screenshot confirmed the actual button label **Manage API Tokens**
+  under **Account Details**. The runbook now uses that label and distinguishes the overview
+  page from the bucket's Settings page; the user opened the bucket-scoped User API Token form.
+- The user confirmed that `23-store-r2-analytics` was successfully created. Reuse that token;
+  token creation is complete and is not a remaining setup task. The user manages its local value.
+  User constraints: no window activation or keyboard automation, and never read `.env.local`.
+  Continue setup through the user's dashboard and application UI.
+- A later public-domain TLS recheck timed out for both TLS 1.3 and TLS 1.2; this retry did not
+  establish the configured minimum or any change to the earlier successful handshake results.
