@@ -11,7 +11,9 @@ The Tables export is a recovery artifact; do not import it over the live databas
 The application supports **DB Backup → Files → R2 → Import**. The first copy is ready after
 the following setup; completing that copy still leaves final synchronization and cutover.
 
-1. Fill the existing `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY` entries locally.
+1. In **Vercel → Project → Settings → Environment Variables → Production**, set
+   `R2_BUCKET=23-store-public`, `NEXT_PUBLIC_R2_PUBLIC_URL=https://files.jokik.fi`, and fill
+   `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`. Enter each value without quotes.
    Empty strings do not authenticate uploads. Use the already-created analytics token for
    `CLOUDFLARE_R2_ANALYTICS_TOKEN`; creating another analytics token is unnecessary. Analytics
    credentials enable usage cards; upload credentials and the existing Supabase/Upstash
@@ -163,7 +165,8 @@ DbBackupModal has separate **Tables** and **Files** exports. The migration input
 `23_backup-files-<date>.tar.gz`. Keep the table export separately. Replace the example path with
 the real downloaded filename; quote paths containing spaces.
 
-For the user-selected browser flow, configure the public bucket, custom domain, CORS and `.env.local`,
+For the user-selected production browser flow, complete the setup and redeployment described
+above. For a local rehearsal, configure the public bucket, custom domain, CORS and `.env.local`,
 apply the Supabase setup SQL, then restart the app. Open **DB Backup → Files → R2 → Import** and
 choose the Files `.tar.gz`. Export also reads the selected provider. Importing into inactive R2
 leaves live database image URLs unchanged and reports that final synchronization is still needed.

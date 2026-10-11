@@ -569,3 +569,29 @@ Implementation/configuration: [storage documentation](../dev_readme-storage.md).
   pre-push key-check hook reads that file and is skipped for this authorized release push.
 - Corrected the CI naming validator to accept required commit descriptions while retaining
   single-line pull request titles and the existing subject rules. Earlier decision history remains intact.
+
+### Commit checks and release validation — October 11, 2026
+
+- Installed Husky through the package's `prepare` script. Its `commit-msg` hook uses the CI
+  validator and accepts only `fix`, `upd`, `style`, `docs`, `feat` and `chore`. Git supplies the
+  current message to this hook after `pre-commit`. Automatic `Merge branch *` subjects are the
+  user's explicit exception, including `Merge branch 'feat/storybook' into development`; their
+  default messages do not require a description. Pull request titles retain the normal format.
+- Reworded all 12 invalid unpublished subjects with the user's authorization: 11 `test:` subjects
+  now use `chore:`, and one uppercase subject is lowercase. The requested
+  `f4daf31cc7aec4f0c98a4c2ee335b14b7a5214fd` is now
+  `3f94f43472fd50e9010288dbf0686902a6f385cf` (`chore: cover signed-in support mobile layouts`).
+  Audited all 129 unpublished commits: every file tree, author and description stayed unchanged.
+  All subjects in the release range pass the naming validator.
+- Final verification: 388 unit tests across 43 files, 12 commit-validator/Husky tests, TypeScript
+  and lint pass. Lint reports zero errors and 26 existing warnings. The 27 focused backup/export
+  tests and 21 streaming migration/reference tests also passed. The cart state tests now mock
+  their Supabase client instead of requiring credentials. Tests disable environment-file reads;
+  no additional local Next.js build was run because it would read `.env.local`.
+- The working checkout remains `development`. The user authorized publishing the verified code
+  to `production` and pushing both branches. This release does not require a force push because
+  the corrected subjects were unpublished. The environment-reading pre-push hook is skipped
+  only for the assistant's authorized push; Husky remains installed for subsequent commits.
+- Production environment configuration, deployment, the user's UI Files import, live source
+  reconciliation, rollback rehearsal and cutover remain the account-owned steps in
+  `dev_readme-storage-migration.md`. The already-applied setup SQL needs no repeat for this release.
