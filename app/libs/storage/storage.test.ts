@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { cancelStorageCapacity, reserveStorageCapacity, STORAGE_CAPACITY_BYTES } from "./capacity"
-import { completeStorageUpload, prepareBackupStorageUploads, prepareStorageUpload, validateStorageUpload } from "./uploads"
+import { completeBackupStorageUploads, completeStorageUpload, prepareBackupStorageUploads, prepareStorageUpload, validateStorageUpload } from "./uploads"
 import { isStoragePath, resolveStorageReference, STORAGE_BUCKETS, storagePublicUrl } from "./references"
 import type { TStorageActor } from "./authorization"
 import type { IStorageProvider, TStorageObject, TStorageUploadRequest, TStorageUploadSession } from "@/ts/storage"
@@ -25,7 +25,7 @@ const state = vi.hoisted(() => {
       hset: vi.fn(async (key: string, record: Record<string, string>) => { hashes.set(key, { ...hashes.get(key), ...record }); return 1 }),
       hgetall: vi.fn(async (key: string) => hashes.get(key) ?? null),
       hexists: vi.fn(async (key: string, field: string) => Number(Object.hasOwn(hashes.get(key) ?? {}, field))),
-      hdel: vi.fn(async (key: string, field: string) => { const record = hashes.get(key); if (record) delete record[field]; return 1 }),
+      hdel: vi.fn(async (key: string, ...fields: string[]) => { const record = hashes.get(key); for (const field of fields) if (record) delete record[field]; return fields.length }),
       lpush: vi.fn(async () => 1),
     },
   }
@@ -121,6 +121,48 @@ describe("ADMIN backup provider selection", () => {
     await expect(prepareBackupStorageUploads(admin, [input, { ...input, filename: "second.png" }], "r2")).rejects.toThrow("Signing unavailable")
     expect([...state.values.keys()].filter(key => key.startsWith("upload:") || key.startsWith("lock:"))).toEqual([])
     expect([...state.hashes.values()].every(record => Object.keys(record).length === 0)).toBe(true)
+  })
+  it("measures once per batch and atomically enforces capacity for every ADMIN file", async () => {
+    const provider = state.provider!
+    const batch = Array.from({ length: 16 }, (_, index) => ({ ...input, filename: `owner/${index}.png` }))
+    vi.mocked(provider.measureBytes).mockResolvedValue(STORAGE_CAPACITY_BYTES - 16 * input.size * 2)
+    const destinations = await prepareBackupStorageUploads(admin, batch, "r2")
+    expect(provider.measureBytes).toHaveBeenCalledOnce()
+    expect(destinations).toHaveLength(16)
+    expect(destinations.every(destination => (state.values.get(`upload:${destination.uploadId}`) as TStorageUploadSession).stagePath.startsWith("temp-uploads/"))).toBe(true)
+    await expect(prepareBackupStorageUploads(admin, [{ ...input, filename: "extra.png" }], "r2")).rejects.toMatchObject({ status: 413 })
+    expect(provider.signUpload).toHaveBeenCalledTimes(16)
+  })
+  it("rejects an oversized whole batch before signing any file or leaving locks", async () => {
+    vi.mocked(state.provider!.measureBytes).mockResolvedValue(STORAGE_CAPACITY_BYTES - 30)
+    await expect(prepareBackupStorageUploads(admin, [input, { ...input, filename: "second.png" }], "r2")).rejects.toMatchObject({ status: 413 })
+    expect(state.provider!.signUpload).not.toHaveBeenCalled()
+    expect([...state.values.keys()].filter(key => key.startsWith("upload:") || key.startsWith("lock:"))).toEqual([])
+    await expect(prepareBackupStorageUploads(admin, [input, input], "r2")).rejects.toThrow("Duplicate file paths")
+  })
+  it("publishes a bounded batch under one capacity lease, verifies each file and retries idempotently", async () => {
+    const provider = state.provider!
+    const destinations = await prepareBackupStorageUploads(admin, Array.from({ length: 4 }, (_, index) => ({ ...input, filename: `owner/${index}.png` })), "r2")
+    for (const destination of destinations) stage(destination.uploadId)
+    stage(destinations[2].uploadId, { size: input.size + 1 })
+    const completeBackupStorageUploadsResp = await completeBackupStorageUploads(admin, destinations.map(destination => destination.uploadId))
+    expect(completeBackupStorageUploadsResp.filter(result => "publicUrl" in result)).toHaveLength(3)
+    expect(completeBackupStorageUploadsResp.find(result => result.uploadId === destinations[2].uploadId)).toMatchObject({ error: "Stored file does not match the authorized size or image type" })
+    expect(provider.publish).toHaveBeenCalledTimes(3)
+    expect([...state.values.keys()].some(key => key.endsWith(":completing"))).toBe(false)
+    const completedIds = completeBackupStorageUploadsResp.filter(result => "publicUrl" in result).map(result => result.uploadId)
+    expect(await completeBackupStorageUploads(admin, completedIds)).toEqual(expect.arrayContaining(completeBackupStorageUploadsResp.filter(result => "publicUrl" in result)))
+    expect(provider.publish).toHaveBeenCalledTimes(3)
+    expect(provider.measureBytes).toHaveBeenCalledOnce()
+  })
+  it("rejects non-ADMIN, foreign sessions, duplicate ids and more than four completions", async () => {
+    const destinations = await prepareBackupStorageUploads(admin, [input], "r2")
+    const id = destinations[0].uploadId
+    await expect(completeBackupStorageUploads(actor, [id])).rejects.toMatchObject({ status: 403 })
+    expect(await completeBackupStorageUploads({ ...admin, id: "other" }, [id])).toEqual([{ uploadId: id, error: "Upload does not belong to this caller" }])
+    await expect(completeBackupStorageUploads(admin, [id, id])).rejects.toThrow("distinct upload ids")
+    await expect(completeBackupStorageUploads(admin, Array.from({ length: 5 }, (_, index) => `${index}0000000-0000-0000-0000-000000000000`))).rejects.toThrow("distinct upload ids")
+    expect(state.provider!.publish).not.toHaveBeenCalled()
   })
 })
 

@@ -621,3 +621,49 @@ Implementation/configuration: [storage documentation](../dev_readme-storage.md).
   application environment-variable form. Vercel's Production label does not imply a Git branch
   named `production`. Use the latest `development` deployment for the user's UI import test;
   no branch-tracking change or extra default variables are required.
+
+
+### Backup UI and transfer performance — October 11, 2026 user corrections
+
+- The user started the manual production Files import and reported transfer rates around
+  10–102 KB/s despite a 40 Mbps upload speed test. The implementation uploaded and verified
+  one file at a time and measured the entire stored inventory for each prepared file.
+- Removed Current storage, the Files Supabase option and the conditional migration paragraph.
+  **Files shows R2; Tables shows Supabase.** Both Files buttons explicitly use R2. The SDK and
+  local commands retain both providers for rollback. Existing Supabase live writes remain until
+  final synchronization and cutover; this UI simplification does not change the live provider.
+- Added shared transfer progress to the modal and floating card: actual bytes, measured transfer
+  speed, elapsed time and estimated time remaining. Elapsed time includes preparation and freezes
+  on completion/error. Unknown speed leaves the estimate unavailable; verification shows
+  Finalizing after all bytes transfer. English, Russian, Finnish and Swedish labels were updated.
+- Long paths reserve two lines, wrap within available width and retain the percentage inside the
+  dialog. The full path is available on hover. Transfer statistics use two columns with separate
+  label/value lines. Removed the provider-dependent height change. The user rejected a separate
+  backup UI documentation file; notes and current fixture screenshots stay in `dev_readme-backup.md`.
+- Browser import prepares at most 16 files, with one atomic batch reservation and one actual
+  inventory measurement; uploads run up to eight at a time. Completion verifies/publishes up to
+  four files per request in parallel under one capacity lease. The shared 10 GB cap, including
+  ADMIN, remains enforced; whole-batch signing failures release unsent reservations and locks.
+- Metadata routes retain `maxDuration = 60`; archive decompression/compression and file transfers
+  stay outside Vercel. A lost completion response is retried once with the same session IDs.
+  Completed sessions return the existing result without another copy. Small batches bound work
+  but do not guarantee a deadline when provider/Redis requests are unusually slow. Production
+  request durations and improved throughput require the redeployed manual import.
+- The user requested **temp-uploads**. New signed destinations use `temp-uploads/` in the same
+  public bucket. Legacy `uploads/` sessions and cleanup cursors remain supported so current
+  imports continue. Neither temporary prefix belongs in `TBuckets.ts` or Files exports; both
+  count toward capacity. Cleanup retains the existing 24-hour grace period and disabled default;
+  no live objects were renamed or removed during this work.
+- Verification: 396 unit tests across 44 files and TypeScript pass; lint reports zero errors and
+  the same 26 existing warnings. Headless browser checks cover
+  R2 import/export arguments, long-filename height and overflow, elapsed timing and the floating
+  card at 320, 414 and 1280 px in English/Russian. Tests cover eight concurrent uploads, 16-file
+  preparation, four-file completion, actual monotonic bytes after partial failure, the ADMIN
+  quota boundary, signing cleanup and idempotent retries. Verification disables environment-file
+  reads; `.env.local` remains unread and the user's active window and keyboard were untouched.
+- The user asked to cancel the older production import at 17% and retry the updated build.
+  Closing its browser tab stops further client work; already published category files remain.
+  A new import starts from the beginning and overwrites the same keys. Allow up to seven minutes
+  for the last signed upload's file lock to expire before retrying; no R2 folder deletion is needed.
+- Continue on `development` and publish only that branch. The user's latest production import,
+  live source reconciliation, rollback rehearsal and cutover remain the live completion gates.

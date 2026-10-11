@@ -60,6 +60,14 @@ declare namespace API {
     relinkRequired?: boolean
   } | { error: string }
 
+  // ADMIN-only completion verifies at most four direct uploads per request. Retrying is idempotent.
+  type BackupFilesCompleteRequest = { uploadIds: string[] }
+  type BackupFilesCompleteResult = { uploadId: string } & (
+    | { reference: import("@/ts/storage").TStorageReference; publicUrl: string }
+    | { error: string }
+  )
+  type BackupFilesCompleteResponse = { results: BackupFilesCompleteResult[] } | { error: string }
+
   type BackupStorageRelinkTableResult = {
     table: string
     rowsUpdated: number

@@ -1,6 +1,7 @@
 import { BaseSDK } from "../BaseSDK"
 import { isStorageBucket } from "@/libs/storage/references"
 import { storageSDK } from "@/sdk/StorageSDK/StorageSDK"
+import { BACKUP_COMPLETION_BATCH_SIZE, BACKUP_FILE_BATCH_SIZE, BACKUP_UPLOAD_CONCURRENCY } from "@/constants/backupTransfer"
 import {
   BACKUP_TABLES,
   addTarEntry,
@@ -28,7 +29,6 @@ const SPEED_SAMPLE_INTERVAL_MS = 200
 const SPEED_SAMPLE_WEIGHT = 0.3
 
 const ROW_BATCH_SIZE = 500
-const URL_BATCH_SIZE = 4
 const DOWNLOAD_CONCURRENCY = 5
 
 export type TTablesImportResult = {
@@ -342,7 +342,6 @@ export class BackupSDK extends BaseSDK {
    * connection speed shown is measured live from these uploads as they happen.
    */
   async importFiles(file: File, onProgress: (progress: TBackupFilesProgress) => void, provider?: TStorageProviderName): Promise<TFilesImportResult> {
-    const speedTracker = createSpeedTracker()
     onProgress({ bytesDone: 0, bytesTotal: 0, label: "Reading backup file…", speedBytesPerMs: null })
 
     let tarBytes: Uint8Array
@@ -360,21 +359,29 @@ export class BackupSDK extends BaseSDK {
       throw new Error("No storage files found in the backup file — expected storage/23_product-images/… or storage/23_avatar-images/… entries.")
     }
 
-    const byPath = new Map(storedFiles.map(storedFile => [`${storedFile.bucket}/${storedFile.path}`, storedFile]))
     const bucketStats: Record<string, { files: number; failed: number }> = {}
     const firstErrorByBucket: Record<string, string> = {}
 
     const bytesTotal = storedFiles.reduce((sum, storedFile) => sum + storedFile.bytes.length, 0)
-    let bytesUploadedSoFar = 0
+    let bytesTransferred = 0
     let relinkRequired = true
+    const speedTracker = createSpeedTracker()
+    const reportProgress = (label: string) => onProgress({ bytesDone: bytesTransferred, bytesTotal, label,
+      speedBytesPerMs: speedTracker.sample(bytesTransferred) })
 
     const bumpStat = (bucket: string, key: "files" | "failed") => {
       if (!bucketStats[bucket]) bucketStats[bucket] = { files: 0, failed: 0 }
       bucketStats[bucket][key]++
     }
 
-    for (let start = 0; start < storedFiles.length; start += URL_BATCH_SIZE) {
-      const batch = storedFiles.slice(start, start + URL_BATCH_SIZE)
+    const recordFailure = (bucket: string, error: unknown) => {
+      bumpStat(bucket, "failed")
+      if (!firstErrorByBucket[bucket]) firstErrorByBucket[bucket] = error instanceof Error ? error.message : String(error)
+    }
+
+    for (let start = 0; start < storedFiles.length; start += BACKUP_FILE_BATCH_SIZE) {
+      const batch = storedFiles.slice(start, start + BACKUP_FILE_BATCH_SIZE)
+      reportProgress("Preparing uploads…")
 
       const postResp = await this.postJson<API.BackupFilesPostRequest, API.BackupFilesPostResponse>("/api/backup/files", {
         ...(provider ? { provider } : {}),
@@ -385,39 +392,51 @@ export class BackupSDK extends BaseSDK {
       })
       if ("error" in postResp) throw new Error(`Failed to prepare file upload: ${postResp.error}`)
       if (postResp.relinkRequired === false) relinkRequired = false
-
-      for (const destination of postResp.results) {
-        const storedFile = byPath.get(`${destination.bucket}/${destination.path}`)
-
-        if ("skipped" in destination || !storedFile) {
-          bumpStat(destination.bucket, "failed")
-          if (storedFile) bytesUploadedSoFar += storedFile.bytes.length
-          continue
+      const destinations = new Map(postResp.results.map(destination => [`${destination.bucket}/${destination.path}`, destination]))
+      if (destinations.size !== postResp.results.length || postResp.results.length !== batch.length)
+        throw new Error("Upload authorization returned an incomplete or duplicate file batch")
+      let nextIndex = 0
+      const transferred: { uploadId: string; bucket: string }[] = []
+      const worker = async () => {
+        while (nextIndex < batch.length) {
+          const storedFile = batch[nextIndex++]
+          const label = `${storedFile.bucket}/${storedFile.path}`
+          const destination = destinations.get(label)
+          if (!destination || "skipped" in destination) {
+            recordFailure(storedFile.bucket, destination && "skipped" in destination ? destination.reason : "Upload authorization is missing")
+            continue
+          }
+          let fileBytesTransferred = 0
+          const reportFileProgress = (uploadedBytes: number) => {
+            if (!Number.isFinite(uploadedBytes)) return
+            // XHR multipart progress may include form headers; only count authorized file bytes.
+            const count = Math.max(fileBytesTransferred, Math.min(storedFile.bytes.length, Math.max(0, uploadedBytes)))
+            bytesTransferred += count - fileBytesTransferred
+            fileBytesTransferred = count
+            reportProgress(label)
+          }
+          reportProgress(label)
+          try {
+            await storageSDK.transfer(destination, new Blob([storedFile.bytes], { type: storedFile.contentType }), reportFileProgress)
+            reportFileProgress(storedFile.bytes.length)
+            transferred.push({ uploadId: destination.uploadId, bucket: storedFile.bucket })
+          } catch (error) { recordFailure(storedFile.bucket, error) }
         }
+      }
+      await Promise.all(Array.from({ length: Math.min(BACKUP_UPLOAD_CONCURRENCY, batch.length) }, worker))
 
-        onProgress({
-          bytesDone: bytesUploadedSoFar,
-          bytesTotal,
-          label: `${destination.bucket}/${destination.path}`,
-          speedBytesPerMs: speedTracker.sample(bytesUploadedSoFar),
-        })
-        const uploadFileData = new Blob([storedFile.bytes], { type: storedFile.contentType })
+      // Complete four files at a time in separate Vercel requests; all file bytes went directly to storage.
+      for (let offset = 0; offset < transferred.length; offset += BACKUP_COMPLETION_BATCH_SIZE) {
+        const uploads = transferred.slice(offset, offset + BACKUP_COMPLETION_BATCH_SIZE)
+        reportProgress("Verifying uploaded files…")
         try {
-          await storageSDK.transfer(destination, uploadFileData, uploadedBytes =>
-            onProgress({
-              bytesDone: bytesUploadedSoFar + uploadedBytes,
-              bytesTotal,
-              label: `${destination.bucket}/${destination.path}`,
-              speedBytesPerMs: speedTracker.sample(bytesUploadedSoFar + uploadedBytes),
-            }),
-          )
-          await storageSDK.complete(destination.uploadId)
-          bumpStat(destination.bucket, "files")
-        } catch (error) {
-          bumpStat(destination.bucket, "failed")
-          if (!firstErrorByBucket[destination.bucket]) firstErrorByBucket[destination.bucket] = error instanceof Error ? error.message : String(error)
-        }
-        bytesUploadedSoFar += storedFile.bytes.length
+          const response = await this.completeFiles(uploads.map(upload => upload.uploadId))
+          for (const upload of uploads) {
+            const result = response.results.find(result => result.uploadId === upload.uploadId)
+            if (!result || "error" in result) recordFailure(upload.bucket, result && "error" in result ? result.error : "Upload verification is missing")
+            else bumpStat(upload.bucket, "files")
+          }
+        } catch (error) { for (const upload of uploads) recordFailure(upload.bucket, error) }
       }
     }
 
@@ -427,10 +446,26 @@ export class BackupSDK extends BaseSDK {
       throw new Error(firstError ?? "No files were uploaded — every path was skipped.")
     }
 
-    onProgress({ bytesDone: bytesTotal, bytesTotal, label: relinkRequired ? "Relinking image URLs…" : "Files copied; final synchronization is still required", speedBytesPerMs: speedTracker.sample(bytesTotal) })
+    reportProgress(relinkRequired ? "Relinking image URLs…" : "Files copied to R2")
     const relink = relinkRequired ? await this.relinkStorageUrls() : null
-    onProgress({ bytesDone: bytesTotal, bytesTotal, label: "Done", speedBytesPerMs: speedTracker.sample(bytesTotal) })
+    reportProgress("Done")
     return { buckets: Object.entries(bucketStats).map(([bucket, stat]) => ({ bucket, ...stat })), relink }
+  }
+
+  private async completeFiles(uploadIds: string[]): Promise<{ results: API.BackupFilesCompleteResult[] }> {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const response = await this.postJson<API.BackupFilesCompleteRequest, API.BackupFilesCompleteResponse>(
+          "/api/backup/files/complete", { uploadIds }, { signal: AbortSignal.timeout(65000) },
+        )
+        if ("error" in response) throw new Error(response.error)
+        return response
+      } catch (error) {
+        if (attempt >= 1) throw error
+        // Retry the same verified session after a lost response; server completion is idempotent.
+        await new Promise(resolve => setTimeout(resolve, 750))
+      }
+    }
   }
 }
 

@@ -3,16 +3,19 @@
 ADMIN-only feature to export the project's tables and Storage files and import them back. Tables
 and files are two **independent** flows — each has its own export and its own import — and file
 bytes **never pass through a Vercel function**: the browser downloads/uploads Storage objects
-straight to/from the active Supabase or R2 provider. Browser file imports/exports have a 512 MiB
+straight to/from R2 in the Files tab. The provider SDK and local commands retain Supabase support.
+Browser file imports/exports have a 512 MiB
 working-data limit; larger exports and migrations use the local streaming command. This
 replaces an earlier design that streamed a single combined archive through a Vercel function with
 speed-aware chunking to fit the 60s cap — see "Why this design" below.
 
 - Trigger: avatar dropdown → **DB Backup** item, visible only when `roles` includes `"ADMIN"`.
 - Modal: `DbBackupModal` opened via `?modal=DbBackup`, with a Tables / Files tab switch.
-- Files storage: **Current storage**, **Supabase**, or **R2**. Selection applies to file export/import
-  and stays fixed while work runs. Import into an inactive provider copies files without relinking
-  live database URLs. Complete final synchronization in the migration runbook before cutover.
+- **Files: R2. Tables: Supabase.** Each tab shows its provider without a selector. Both Files
+  buttons explicitly use R2. Import into inactive R2 copies files without relinking live database
+  URLs. Complete final synchronization in the migration runbook before cutover.
+- File progress shows transferred bytes, measured transfer speed, elapsed time and estimated time
+  remaining. Long filenames occupy a fixed two-line area; the full name is available on hover.
 - Active work belongs to the global Zustand `useDbBackupState`, so closing the modal keeps the
   export/import running and shows the same progress in a fixed card.
 
@@ -28,16 +31,20 @@ Vercel function, and split the result into speed-sized chunks to stay under the 
 could pull from Storage in the time it had. That approximation is fragile: it does not actually
 guarantee the limit is respected, it only estimates it.
 
-This version removes the limit instead of estimating around it: **no request carries file bytes.**
+The full transfer runs outside the function deadline: **no application request contains file bytes.**
+Metadata operations still run on Vercel with `maxDuration = 60`: preparation covers at most 16 files,
+completion at most four. Slow provider/Redis responses may still time out; bounded batches reduce
+per-request work. A lost completion response is retried once using the same session IDs, without
+another file transfer. Completed sessions return their existing result without another copy.
 - Export: the server returns a file **list** (bucket/path/size/contentType, no bytes). The browser
-  downloads each file directly from the active provider and builds the `.tar.gz` locally.
+  downloads each file directly from R2 and builds the `.tar.gz` locally.
 - Import: the browser decompresses the archive locally, asks the server for a signed upload URL
   per file, then uploads straight to temporary keys in R2's single public bucket or Supabase's
   private staging. Completion verifies metadata and publishes the object through a provider-side copy.
 
 Two things from the old design are kept anyway, because they're independently useful, not because
 they were needed for the timeout problem:
-- **Connection speed display** — shown during the files tab's export/import ("~2.4 MB/s"). Not a
+- **Transfer speed display** — shown during the files tab's export/import ("~2.4 MB/s"). Not a
   separate probe against a fixed asset (an earlier version fetched `/favicon.ico` to measure
   throughput — that file does not exist in this project, so the probe 404'd every time and silently
   fell back to a hardcoded constant, which is why the number never varied). `createSpeedTracker()`
@@ -121,7 +128,8 @@ backups with original `storage/<bucket>/<path>` entries remain supported.
 | Auth-account preparation + source/target UUID map | `app/api/backup/auth-users/route.ts` |
 | Pure source-user validation and row remapping | `app/api/backup/backupAuthRestore.ts` |
 | Rows GET (export) / POST (import, ≤500/batch) | `app/api/backup/rows/route.ts` |
-| Files GET (list, paths only) / POST (signed upload URLs, ≤4/batch) | `app/api/backup/files/route.ts` |
+| Files GET (list, paths only) / POST (signed upload URLs, ≤16/batch) | `app/api/backup/files/route.ts` |
+| Files completion POST (≤4/batch, verified provider-side copies) | `app/api/backup/files/complete/route.ts` |
 | Storage URL relink POST (scan target paths, update rows/Auth metadata) | `app/api/backup/relink-storage-urls/route.ts` |
 | Pure recursive Storage URL parser/relinker | `app/api/backup/backupStorageRelink.ts` |
 | Client SDK — export/import × tables/files, relink finalizer + live speed tracker | `app/sdk/BackupSDK/BackupSDK.ts` |
@@ -141,10 +149,25 @@ Closing and reopening the modal therefore reconnects to the same export/import a
 progress without a React context provider.
 
 During active work, closing the modal shows a non-dismissible bottom-right card with the operation,
-progress, current table/file label, transferred bytes, and connection speed where available. A
+progress, current table/file label, transferred bytes, transfer speed, elapsed time and estimated
+remaining time. A
 `beforeunload` listener also requests the browser's standard confirmation before closing or
 reloading the page. The listener and progress card are removed as soon as the work succeeds or
 fails.
+
+Elapsed time includes preparation and verification, updates once a second and freezes on completion
+or error. Estimated time remaining uses untransferred bytes and measured transfer speed; unknown
+speed shows `—`, and verification shows Finalizing after all bytes transfer. It estimates transfer
+time; provider verification and export compression may extend completion.
+
+`BackupFilesProgress` shares the modal/card presentation. The filename uses two reserved lines
+(`line-clamp-2 min-h-[2rem]`) and wraps within `min-w-0 flex-1`; the percentage uses `shrink-0`.
+A two-column `dl` separates labels from values, keeping English/Russian text within mobile widths.
+The Storybook `Admin/AdminTools → BackupCopyToR2` fixture covers provider labels, long-path height,
+overflow and timing. Browser verification covers import/export and the floating card at 320, 414
+and 1280 px; screenshots use fixture data rather than live transfer measurements.
+
+![Russian transfer progress at 414 px, using fixture data](public/docs/storage/backup-transfer-mobile.png)
 
 <br/>
 
@@ -174,7 +197,7 @@ UUID-looking ids in historical TEXT columns (tickets, messages, category views) 
 history and do not require a still-existing Auth account.
 
 **Files:** `GET /api/backup/files` returns every stored file's bucket/path/size/contentType (no
-bytes and paginated provider download URLs) → the browser downloads each file directly from the selected provider (5 concurrent
+bytes and paginated provider download URLs) → the browser downloads each file directly from R2 (5 concurrent
 downloads) → packs a `.tar.gz` locally → downloads it. Progress is byte-accurate: `bytesDone` sums
 the `size` of each file as its download completes, against `bytesTotal` from the file list.
 
@@ -183,7 +206,7 @@ while the active provider remains Supabase. Export checks all six category prefi
 prefixes and folder markers, and follows every inventory page. Downloads use the configured
 R2 custom domain and its GET CORS policy. The archive preserves original category/path keys,
 file bytes and MIME types, including mapped names for long or Unicode filenames. Temporary
-`uploads/` objects are excluded. Export lists, inspects and downloads files; it creates no R2 objects.
+`temp-uploads/` and retained legacy `uploads/` objects are excluded. Export lists, inspects and downloads files; it creates no R2 objects.
 The downloaded file is `23_backup-files-YYYY-MM-DD.tar.gz`, compatible with either provider's
 Files import. Browser backups are limited to 512 MiB; use the streaming command below for larger backups.
 
@@ -225,11 +248,19 @@ the round trip. For older archives where both forms were unquoted, import restor
 
 **Files:** upload one `.tar.gz` (from export or local repair). The browser decompresses and parses it
 locally, resolves short exported names through `storage-paths.json`, then asks `/api/backup/files`
-for signed temporary upload destinations (up to 4 files per metadata request). R2 uses the same
-public bucket; Supabase uses its private staging bucket. Verified ADMIN authorization and the shared
-10 GB capacity limit apply. The browser PUTs directly to the provider,
-then calls `/api/storage/complete`; only verified length and MIME are published with overwrite
-behavior. Supabase staging permits 50 MiB per file; larger files use the local command.
+for signed temporary upload destinations (up to 16 files per metadata request). The server measures
+inventory once and atomically reserves the entire batch, including temporary/publication copies.
+Verified ADMIN authorization and the shared 10 GB capacity limit apply. The browser runs up to eight
+PUTs directly to R2's `temp-uploads/` prefix in the same public bucket, then calls
+`/api/backup/files/complete` for at most four files per request. Verification and publication run
+with up to four files in parallel under one capacity lease. Only verified size and MIME are published
+with overwrite behavior. Failed files are counted separately; progress includes actual transferred
+bytes and excludes form overhead. Legacy pending `uploads/` sessions still complete safely.
+
+The SDK and local commands retain the Supabase provider for rollback; its staging bucket permits
+50 MiB per browser-uploaded file. Browser archives have a 512 MiB limit; larger backups use the
+local streaming commands. Cleanup remains controlled separately, with a 24-hour temporary-file
+grace period; it is disabled by default during the first migration copy.
 
 **Storage URL relinking:** Tables import and Files import into the active provider finish by calling the ADMIN-only
 `POST /api/backup/relink-storage-urls`. Calling it from both flows makes the restore order

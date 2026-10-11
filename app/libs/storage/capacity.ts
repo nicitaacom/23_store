@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto"
 import { storageRedis } from "./state"
 import { StorageRequestError } from "./errors"
 import { r2Config } from "@/config/r2Config"
+import { BACKUP_METADATA_CONCURRENCY } from "@/constants/backupTransfer"
 import type { IStorageProvider } from "@/ts/storage"
 
 export const STORAGE_CAPACITY_BYTES = r2Config.totalForAllUsersGB * 1000 ** 3
@@ -52,7 +53,14 @@ async function pendingCapacity(provider: IStorageProvider): Promise<number> {
 }
 
 export async function reserveStorageCapacity(provider: IStorageProvider, id: string, bytes: number, stagePath?: string): Promise<void> {
-  if (!Number.isSafeInteger(bytes) || bytes < 1) throw new StorageRequestError("Invalid storage reservation")
+  return reserveStorageCapacityBatch(provider, [{ id, bytes, stagePath }])
+}
+
+export async function reserveStorageCapacityBatch(provider: IStorageProvider, reservations: { id: string; bytes: number; stagePath?: string }[]): Promise<void> {
+  const bytes = reservations.reduce((total, reservation) => total + reservation.bytes, 0)
+  if (!reservations.length || new Set(reservations.map(reservation => reservation.id)).size !== reservations.length ||
+    reservations.some(reservation => !Number.isSafeInteger(reservation.bytes) || reservation.bytes < 1) || !Number.isSafeInteger(bytes))
+    throw new StorageRequestError("Invalid storage reservation")
   await withCapacityLock(provider, async verifyLease => {
     const pending = await pendingCapacity(provider)
     const stored = await provider.measureBytes()
@@ -60,7 +68,8 @@ export async function reserveStorageCapacity(provider: IStorageProvider, id: str
     if (stored + pending + bytes > STORAGE_CAPACITY_BYTES)
       throw new StorageRequestError(`The shared ${r2Config.totalForAllUsersGB} GB upload limit has been reached. Try a smaller file or remove unused files.`, 413)
     await verifyLease()
-    await storageRedis().hset(reservationsKey(provider), { [id]: JSON.stringify({ bytes, stagePath, releaseAfter: Date.now() + 26 * 60 * 60 * 1000 }) })
+    await storageRedis().hset(reservationsKey(provider), Object.fromEntries(reservations.map(reservation =>
+      [reservation.id, JSON.stringify({ bytes: reservation.bytes, stagePath: reservation.stagePath, releaseAfter: Date.now() + 26 * 60 * 60 * 1000 })])))
   })
 }
 
@@ -76,7 +85,29 @@ export async function settleStorageCapacity<T>(provider: IStorageProvider, id: s
 }
 
 export async function cancelStorageCapacity(provider: IStorageProvider, id: string): Promise<void> {
-  await withCapacityLock(provider, () => storageRedis().hdel(reservationsKey(provider), id).then(() => undefined))
+  await cancelStorageCapacityBatch(provider, [id])
+}
+
+export async function cancelStorageCapacityBatch(provider: IStorageProvider, ids: string[]): Promise<void> {
+  if (ids.length) await withCapacityLock(provider, () => storageRedis().hdel(reservationsKey(provider), ...ids).then(() => undefined))
+}
+
+export async function settleStorageCapacityBatch<T>(provider: IStorageProvider, uploads: { id: string; publish: () => Promise<T> }[]): Promise<PromiseSettledResult<T>[]> {
+  return withCapacityLock(provider, async verifyLease => {
+    const results: PromiseSettledResult<T>[] = []
+    for (let start = 0; start < uploads.length; start += BACKUP_METADATA_CONCURRENCY) {
+      results.push(...await Promise.allSettled(uploads.slice(start, start + BACKUP_METADATA_CONCURRENCY).map(async upload => {
+        if (!await storageRedis().hexists(reservationsKey(provider), upload.id))
+          throw new StorageRequestError("Storage capacity reservation expired", 409)
+        await verifyLease()
+        const published = await upload.publish()
+        await verifyLease()
+        await storageRedis().hdel(reservationsKey(provider), upload.id)
+        return published
+      })))
+    }
+    return results
+  })
 }
 
 export async function selectStorageCapacity(provider: IStorageProvider): Promise<number> {

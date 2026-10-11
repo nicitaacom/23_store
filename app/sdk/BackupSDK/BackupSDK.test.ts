@@ -1,7 +1,7 @@
 import { File } from "node:buffer"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { BackupSDK } from "./BackupSDK"
+import { BackupSDK, type TBackupFilesProgress } from "./BackupSDK"
 import { buildStorageTar, readStorageTarEntries } from "@/api/backup/storageFilesTar"
 import { gunzipBufferClient, parseTar } from "@/api/backup/tarClient"
 import { gzipBufferClient } from "@/api/backup/tarClient"
@@ -32,7 +32,8 @@ describe("BackupSDK Storage files", () => {
     const destination = { bucket: "23_product-images", path, uploadId: "upload-r2", method: "PUT", headers: {},
       signedUrl: "https://staging.example/upload", formField: null, expiresAt: "2099-01-01",
       reference: { provider: "r2", bucket: "23_product-images", path } }
-    requestMocks.postJson.mockResolvedValue({ results: [destination], relinkRequired: false })
+    requestMocks.postJson.mockResolvedValueOnce({ results: [destination], relinkRequired: false })
+      .mockResolvedValue({ results: [{ uploadId: destination.uploadId, reference: destination.reference, publicUrl: "https://files.example/file" }] })
     vi.spyOn(storageSDK, "transfer").mockResolvedValue()
     vi.spyOn(storageSDK, "complete").mockResolvedValue({ reference: { provider: "r2", bucket: "23_product-images", path }, publicUrl: "https://files.example/file" })
     const relink = vi.spyOn(sdk, "relinkStorageUrls")
@@ -41,7 +42,8 @@ describe("BackupSDK Storage files", () => {
       provider: "r2", files: [{ bucket: "23_product-images", filename: path, size: bytes.length, contentType: "image/png" }],
     })
     expect(storageSDK.transfer).toHaveBeenCalledWith(destination, expect.any(Blob), expect.any(Function))
-    expect(storageSDK.complete).toHaveBeenCalledWith("upload-r2")
+    expect(storageSDK.complete).not.toHaveBeenCalled()
+    expect(requestMocks.postJson).toHaveBeenCalledWith("/api/backup/files/complete", { uploadIds: ["upload-r2"] }, expect.objectContaining({ signal: expect.any(AbortSignal) }))
     expect(response).toEqual({ buckets: [{ bucket: "23_product-images", files: 1, failed: 0 }], relink: null })
     expect(relink).not.toHaveBeenCalled()
   })
@@ -76,9 +78,9 @@ describe("BackupSDK Storage files", () => {
     requestMocks.getJson.mockResolvedValue({
       files: [{ bucket: "23_product-images", path, size: bytes.length, contentType: "image/avif" }],
     })
-    requestMocks.postJson.mockResolvedValue({
+    requestMocks.postJson.mockResolvedValueOnce({
       results: [{ bucket: "23_product-images", path, signedUrl: "https://destination.example.com/upload", uploadId: "upload-1", method: "PUT", headers: {}, formField: "", expiresAt: "2099-01-01", reference: { provider: "supabase", bucket: "23_product-images", path } }],
-    })
+    }).mockResolvedValue({ results: [{ uploadId: "upload-1", reference: { provider: "supabase", bucket: "23_product-images", path }, publicUrl: "https://destination.example.com/file" }] })
     vi.spyOn(storageSDK, "complete").mockResolvedValue({ reference: { provider: "supabase", bucket: "23_product-images", path }, publicUrl: "https://destination.example.com/file" })
     vi.spyOn(sdk, "relinkStorageUrls").mockResolvedValue({
       rowsUpdated: 0,
@@ -122,5 +124,67 @@ describe("BackupSDK Storage files", () => {
     expect(new Uint8Array(await uploadedImage.arrayBuffer())).toEqual(bytes)
     expect(importFilesResp.buckets).toEqual([{ bucket: "23_product-images", files: 1, failed: 0 }])
     expect(sdk.relinkStorageUrls).toHaveBeenCalledOnce()
+  })
+
+  it("bounds parallel uploads and completion requests and counts only actual transferred bytes", async () => {
+    const sdk = new BackupSDK()
+    const storedFiles = Array.from({ length: 20 }, (_, index) => ({ bucket: "23_product-images", path: `owner/file-${index}.png`, contentType: "image/png", bytes: Buffer.alloc(1000) }))
+    const gzipped = await gzipBufferClient(buildStorageTar(storedFiles))
+    const preparedSizes: number[] = []
+    const completedSizes: number[] = []
+    requestMocks.postJson.mockImplementation(async (path: string, body: API.BackupFilesPostRequest | API.BackupFilesCompleteRequest) => {
+      if (path === "/api/backup/files" && "files" in body) {
+        preparedSizes.push(body.files.length)
+        return { relinkRequired: false, results: body.files.map(file => ({
+          bucket: file.bucket, path: file.filename, uploadId: file.filename, method: "PUT", headers: {}, formField: null,
+          signedUrl: "https://files.example/signed", expiresAt: "2099-01-01",
+          reference: { provider: "r2", bucket: file.bucket, path: file.filename },
+        })) }
+      }
+      if (path === "/api/backup/files/complete" && "uploadIds" in body) {
+        expect(activeTransfers).toBe(0)
+        completedSizes.push(body.uploadIds.length)
+        return { results: body.uploadIds.map(uploadId => ({ uploadId, publicUrl: "https://files.example/final",
+          reference: { provider: "r2", bucket: "23_product-images", path: uploadId } })) }
+      }
+      throw new Error(`Unexpected request ${path}`)
+    })
+    let activeTransfers = 0
+    let maximumTransfers = 0
+    vi.spyOn(storageSDK, "transfer").mockImplementation(async (destination, _file, onProgress) => {
+      activeTransfers++
+      maximumTransfers = Math.max(maximumTransfers, activeTransfers)
+      onProgress?.(327)
+      await new Promise(resolve => setTimeout(resolve, 5))
+      activeTransfers--
+      if (destination.uploadId === storedFiles[0].path) throw new Error("Connection interrupted")
+      onProgress?.(1200) // Form overhead is excluded, and late lower progress events stay monotonic.
+      onProgress?.(900)
+    })
+    const progress: TBackupFilesProgress[] = []
+    const response = await sdk.importFiles(new File([gzipped], "files.tar.gz") as unknown as globalThis.File, update => progress.push(update), "r2")
+    expect(maximumTransfers).toBe(8)
+    expect(preparedSizes).toEqual([16, 4])
+    expect(completedSizes).toEqual([4, 4, 4, 3, 4])
+    expect(response.buckets).toEqual([{ bucket: "23_product-images", files: 19, failed: 1 }])
+    expect(progress.at(-1)?.bytesDone).toBe(19327)
+    expect(progress.at(-1)?.bytesTotal).toBe(20000)
+    expect(progress.every((update, index) => update.bytesDone <= update.bytesTotal && (!index || update.bytesDone >= progress[index - 1].bytesDone))).toBe(true)
+  })
+
+  it("retries the same completion ids after a lost response without transferring files twice", async () => {
+    const sdk = new BackupSDK()
+    const storedFile = { bucket: "23_avatar-images", path: "owner/avatar.png", bytes: Buffer.from([1]), contentType: "image/png" }
+    const gzipped = await gzipBufferClient(buildStorageTar([storedFile]))
+    const destination = { bucket: storedFile.bucket, path: storedFile.path, uploadId: "existing-upload", method: "PUT", headers: {}, formField: null,
+      signedUrl: "https://files.example/signed", reference: { provider: "r2", bucket: storedFile.bucket, path: storedFile.path } }
+    requestMocks.postJson.mockResolvedValueOnce({ results: [destination], relinkRequired: false })
+      .mockRejectedValueOnce(new Error("Response lost"))
+      .mockResolvedValue({ results: [{ uploadId: destination.uploadId, reference: destination.reference, publicUrl: "https://files.example/final" }] })
+    const transfer = vi.spyOn(storageSDK, "transfer").mockResolvedValue()
+    await sdk.importFiles(new File([gzipped], "files.tar.gz") as unknown as globalThis.File, vi.fn(), "r2")
+    expect(transfer).toHaveBeenCalledOnce()
+    const completionRequests = requestMocks.postJson.mock.calls.filter(call => call[0] === "/api/backup/files/complete")
+    expect(completionRequests.map(call => call[1])).toEqual([{ uploadIds: [destination.uploadId] }, { uploadIds: [destination.uploadId] }])
   })
 })

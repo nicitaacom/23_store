@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { BiDownload, BiUpload } from "react-icons/bi"
 
-import { formatBackupBytes, formatBackupSpeed } from "./functions/formatBackupTransfer"
 import { useDbBackup } from "./hooks/useDbBackup"
+import { BackupFilesProgress } from "./BackupFilesProgress"
 import { ModalQueryContainer } from "../ModalContainers/ModalQueryContainer"
 import { useScopedI18n } from "@/locales/client"
 import { Button, ProgressBar } from "@/components/ui"
@@ -46,8 +46,6 @@ export function DbBackupModal() {
   const t = useScopedI18n("backup")
   const {
     isBusy,
-    filesProvider,
-    selectFilesProvider,
     tablesInputRef,
     filesInputRef,
     tablesExportPhase,
@@ -66,6 +64,8 @@ export function DbBackupModal() {
     filesExportBytesTotal,
     filesExportSpeedBytesPerMs,
     filesExportLabel,
+    filesExportStartedAt,
+    filesExportFinishedAt,
     filesExportError,
     startExportFiles,
     filesImportPhase,
@@ -73,6 +73,8 @@ export function DbBackupModal() {
     filesImportBytesTotal,
     filesImportSpeedBytesPerMs,
     filesImportLabel,
+    filesImportStartedAt,
+    filesImportFinishedAt,
     filesImportResult,
     filesImportError,
     handleFilesImportClick,
@@ -117,6 +119,7 @@ export function DbBackupModal() {
 
         {tab === "tables" && (
           <div className="flex flex-col gap-3 rounded border border-border-color/35 bg-foreground/5 p-3">
+            <span className="w-fit rounded border border-success/25 px-2 py-1 text-xs text-success" data-cy="backup-tables-provider">Supabase</span>
             <p className="text-xs text-subTitle">{t("tables_subtitle")}</p>
             <p className="text-xs text-warning">{t("tables_import_notice")}</p>
 
@@ -194,29 +197,7 @@ export function DbBackupModal() {
         {tab === "files" && (
           <div className="flex flex-col gap-3 rounded border border-border-color/35 bg-foreground/5 p-3">
             <p className="text-xs text-subTitle">{t("files_subtitle")}</p>
-            <fieldset className="flex flex-col gap-2" disabled={isBusy}>
-              <legend className="mb-1 text-xs text-subTitle">File storage</legend>
-              <div className="flex gap-1">
-                {(["active", "supabase", "r2"] as const).map(provider => (
-                  <Button
-                    className="flex-1"
-                    key={provider}
-                    type="button"
-                    size="sm"
-                    variant={filesProvider === provider ? "default" : "ghost"}
-                    aria-pressed={filesProvider === provider}
-                    disabled={isBusy}
-                    onClick={() => selectFilesProvider(provider)}>
-                    {provider === "active" ? "Current storage" : provider === "r2" ? "R2" : "Supabase"}
-                  </Button>
-                ))}
-              </div>
-              {filesProvider !== "active" && (
-                <p className="text-xs text-subTitle">
-                  Files use the selected storage. Live uploads stay on the configured provider. A migration still needs final synchronization before switching.
-                </p>
-              )}
-            </fieldset>
+            <span className="w-fit rounded border border-success/25 px-2 py-1 text-xs text-success" data-cy="backup-files-provider">R2</span>
 
             <Button
               className="w-fit"
@@ -229,23 +210,15 @@ export function DbBackupModal() {
               onClick={startExportFiles}>
               {t("export_button")}
             </Button>
-            {isExportingFiles && (
-              <div className="flex flex-col gap-1">
-                <ProgressBar
-                  label={filesExportLabel}
-                  value={filesExportBytesTotal > 0 ? filesExportBytesDone / filesExportBytesTotal : 0}
-                />
-                <div className="flex items-center justify-between text-xs text-subTitle">
-                  <span>
-                    {formatBackupBytes(filesExportBytesDone)} / {formatBackupBytes(filesExportBytesTotal)}
-                  </span>
-                  {filesExportSpeedBytesPerMs !== null && (
-                    <span>
-                      {t("speed_label")}: {formatBackupSpeed(filesExportSpeedBytesPerMs)}
-                    </span>
-                  )}
-                </div>
-              </div>
+            {filesExportPhase !== "idle" && (
+              <BackupFilesProgress
+                bytesDone={filesExportBytesDone}
+                bytesTotal={filesExportBytesTotal}
+                speedBytesPerMs={filesExportSpeedBytesPerMs}
+                label={filesExportLabel}
+                startedAt={filesExportStartedAt}
+                finishedAt={filesExportFinishedAt}
+              />
             )}
             {filesExportPhase === "error" && <p className="text-xs text-danger">{filesExportError}</p>}
 
@@ -262,23 +235,15 @@ export function DbBackupModal() {
               {t("import_button")}
             </Button>
             <input className="hidden" type="file" accept=".tar.gz,.gz,.tgz" ref={filesInputRef} onChange={handleFilesFileChange} />
-            {isImportingFiles && (
-              <div className="flex flex-col gap-1">
-                <ProgressBar
-                  value={filesImportBytesTotal > 0 ? filesImportBytesDone / filesImportBytesTotal : 0}
-                  label={filesImportLabel}
-                />
-                <div className="flex items-center justify-between text-xs text-subTitle">
-                  <span>
-                    {formatBackupBytes(filesImportBytesDone)} / {formatBackupBytes(filesImportBytesTotal)}
-                  </span>
-                  {filesImportSpeedBytesPerMs !== null && (
-                    <span>
-                      {t("speed_label")}: {formatBackupSpeed(filesImportSpeedBytesPerMs)}
-                    </span>
-                  )}
-                </div>
-              </div>
+            {filesImportPhase !== "idle" && (
+              <BackupFilesProgress
+                bytesDone={filesImportBytesDone}
+                bytesTotal={filesImportBytesTotal}
+                speedBytesPerMs={filesImportSpeedBytesPerMs}
+                label={filesImportLabel}
+                startedAt={filesImportStartedAt}
+                finishedAt={filesImportFinishedAt}
+              />
             )}
             {filesImportPhase === "error" && <p className="text-xs text-danger">{filesImportError}</p>}
 
@@ -286,9 +251,9 @@ export function DbBackupModal() {
               <div className="flex flex-col gap-2">
                 <ul className="flex flex-col gap-0.5 border-t border-border-color/35 pt-2">
                   {filesImportResult.buckets.map(bucket => (
-                    <li className="flex items-center justify-between text-xs text-subTitle" key={bucket.bucket}>
-                      <span>{bucket.bucket}</span>
-                      <span>
+                    <li className="flex min-w-0 items-start justify-between gap-2 text-xs text-subTitle" key={bucket.bucket}>
+                      <span className="min-w-0 [overflow-wrap:anywhere]">{bucket.bucket}</span>
+                      <span className="shrink-0">
                         {bucket.files} files{bucket.failed > 0 ? ` (${bucket.failed} failed)` : ""}
                       </span>
                     </li>

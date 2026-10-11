@@ -96,13 +96,14 @@ export function useDbBackup() {
   })
 
   const startExportFiles = useCallback(async () => {
-    const filesProvider = useDbBackupState.getState().filesProvider
     useDbBackupState.setState({
       filesExportPhase: "exporting",
       filesExportBytesDone: 0,
       filesExportBytesTotal: 0,
       filesExportSpeedBytesPerMs: null,
       filesExportLabel: "",
+      filesExportStartedAt: Date.now(),
+      filesExportFinishedAt: null,
       filesExportError: null,
     })
 
@@ -115,25 +116,26 @@ export function useDbBackup() {
           filesExportSpeedBytesPerMs: progress.speedBytesPerMs,
           filesExportLabel: progress.label,
         })
-      }, filesProvider === "active" ? undefined : filesProvider)
+      }, "r2")
       downloadExportFileRef.current(exportFile, fileName)
-      useDbBackupState.setState({ filesExportPhase: "done" })
+      useDbBackupState.setState({ filesExportPhase: "done", filesExportFinishedAt: Date.now() })
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
-      useDbBackupState.setState({ filesExportPhase: "error", filesExportError: message })
+      useDbBackupState.setState({ filesExportPhase: "error", filesExportError: message, filesExportFinishedAt: Date.now() })
       toast.show("error", t("error"), message)
     }
   }, [t, toast])
 
   const startImportFiles = useCallback(
     async (file: File) => {
-      const filesProvider = useDbBackupState.getState().filesProvider
       useDbBackupState.setState({
         filesImportPhase: "importing",
         filesImportBytesDone: 0,
         filesImportBytesTotal: 0,
         filesImportSpeedBytesPerMs: null,
         filesImportLabel: "",
+        filesImportStartedAt: Date.now(),
+        filesImportFinishedAt: null,
         filesImportResult: null,
         filesImportError: null,
       })
@@ -147,8 +149,8 @@ export function useDbBackup() {
             filesImportSpeedBytesPerMs: progress.speedBytesPerMs,
             filesImportLabel: progress.label,
           })
-        }, filesProvider === "active" ? undefined : filesProvider)
-        useDbBackupState.setState({ filesImportResult: response, filesImportPhase: "done" })
+        }, "r2")
+        useDbBackupState.setState({ filesImportResult: response, filesImportPhase: "done", filesImportFinishedAt: Date.now() })
         router.refresh()
         const hasUnresolvedImages = response.relink !== null && response.relink.unresolvedReferences > 0
         const failedUploads = response.buckets.reduce((count, bucket) => count + bucket.failed, 0)
@@ -165,7 +167,7 @@ export function useDbBackup() {
         )
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
-        useDbBackupState.setState({ filesImportPhase: "error", filesImportError: message })
+        useDbBackupState.setState({ filesImportPhase: "error", filesImportError: message, filesImportFinishedAt: Date.now() })
         toast.show("error", t("error"), message)
       }
     },
@@ -195,14 +197,8 @@ export function useDbBackup() {
     useDbBackupState.getState().reset()
   }, [])
 
-  const selectFilesProvider = useCallback((provider: "active" | "supabase" | "r2") => {
-    if (!selectDbBackupIsBusy(useDbBackupState.getState())) useDbBackupState.setState({ filesProvider: provider })
-  }, [])
-
   return {
     isBusy: selectDbBackupIsBusy(backup),
-    filesProvider: backup.filesProvider,
-    selectFilesProvider,
     tablesInputRef,
     filesInputRef,
     tablesExportPhase: backup.tablesExportPhase,
@@ -221,6 +217,8 @@ export function useDbBackup() {
     filesExportBytesTotal: backup.filesExportBytesTotal,
     filesExportSpeedBytesPerMs: backup.filesExportSpeedBytesPerMs,
     filesExportLabel: backup.filesExportLabel,
+    filesExportStartedAt: backup.filesExportStartedAt,
+    filesExportFinishedAt: backup.filesExportFinishedAt,
     filesExportError: backup.filesExportError,
     startExportFiles,
     filesImportPhase: backup.filesImportPhase,
@@ -228,6 +226,8 @@ export function useDbBackup() {
     filesImportBytesTotal: backup.filesImportBytesTotal,
     filesImportSpeedBytesPerMs: backup.filesImportSpeedBytesPerMs,
     filesImportLabel: backup.filesImportLabel,
+    filesImportStartedAt: backup.filesImportStartedAt,
+    filesImportFinishedAt: backup.filesImportFinishedAt,
     filesImportResult: backup.filesImportResult,
     filesImportError: backup.filesImportError,
     handleFilesImportClick,

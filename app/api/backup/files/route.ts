@@ -5,6 +5,7 @@ import { activeStorageProvider } from "@/libs/storage/config"
 import { checkStorageOrigin, storageFailure, StorageRequestError, verifyStorageActor } from "@/libs/storage/authorization"
 import { prepareBackupStorageUploads } from "@/libs/storage/uploads"
 import { storageProvider } from "@/libs/storage/providers"
+import { BACKUP_FILE_BATCH_SIZE } from "@/constants/backupTransfer"
 import { STORAGE_BUCKETS } from "@/libs/storage/references"
 import type { TStorageProviderName } from "@/ts/storage"
 
@@ -49,7 +50,8 @@ export async function POST(request: NextRequest) {
     const actor = await verifyStorageActor(request)
     if (!actor.admin) throw new StorageRequestError("ADMIN role required", 403)
     const { files, provider } = await request.json() as API.BackupFilesPostRequest
-    if (!Array.isArray(files) || files.length < 1 || files.length > 4) throw new StorageRequestError("Supply 1 to 4 files per request")
+    if (!Array.isArray(files) || files.length < 1 || files.length > BACKUP_FILE_BATCH_SIZE)
+      throw new StorageRequestError(`Supply 1 to ${BACKUP_FILE_BATCH_SIZE} files per request`)
     const providerName = selectedProvider(provider)
     const destinations = await prepareBackupStorageUploads(actor, files, providerName)
     return NextResponse.json({

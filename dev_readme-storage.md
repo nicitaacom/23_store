@@ -20,7 +20,7 @@ R2: one public application bucket, 23-store-public
       23_support-images/<existing-path>
       23_support-guest-images/<existing-path>
       23_product-personalization-images/<existing-path>
-      uploads/<upload-id>/<filename> (temporary, also public)
+      temp-uploads/<upload-id>/<filename> (temporary, also public)
 ```
 
 Contracts live in `app/ts/storage.ts` and `app/ts/namespaces/api/storage/api.d.ts`.
@@ -119,7 +119,7 @@ Apply `scripts/storage/schedule.sql` after deployment. It reuses the existing Va
 `keys_webhook_base_url` and `keys_webhook_secret` settings. Guest cleanup starts Sunday 03:05 UTC,
 checks the one-hour grace period and current message references, and deletes through the active
 provider API. Temporary upload cleanup starts daily 03:15 UTC with a 24-hour grace period. On R2
-it lists only `uploads/` inside the public bucket, preserving all final category prefixes; on
+it lists `temp-uploads/` and the retained legacy `uploads/` prefix inside the public bucket, preserving all final category prefixes; on
 Supabase it lists the private staging bucket. At minutes 7, 17, 27, 37, 47 and 57 the
 scheduler resumes existing progress; it does not restart guest cleanup. Unknown timestamps and
 failed reference queries preserve files. Migration pause stops cleanup. Inactive provider source

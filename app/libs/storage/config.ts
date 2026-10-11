@@ -1,7 +1,9 @@
 import type { TStorageProviderName } from "@/ts/storage"
 
 export const UPLOAD_SIGNATURE_SECONDS = 300
-export const R2_UPLOAD_PREFIX = "uploads/"
+export const R2_UPLOAD_PREFIX = "temp-uploads/"
+// Retain existing upload sessions and cleanup inventories through the prefix rename.
+export const R2_UPLOAD_PREFIXES = [R2_UPLOAD_PREFIX, "uploads/"] as const
 export const SUPABASE_STAGING_BUCKET = "23_upload-staging"
 export const SUPABASE_STAGING_MAX_BYTES = 50 * 1024 ** 2
 

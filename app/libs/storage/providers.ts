@@ -6,7 +6,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
 import type { TBuckets } from "@/ts/types/TBuckets"
 import { isStoragePath, STORAGE_BUCKETS, storagePublicUrl } from "./references"
-import { r2Credentials, R2_UPLOAD_PREFIX, SUPABASE_STAGING_BUCKET, UPLOAD_SIGNATURE_SECONDS } from "./config"
+import { r2Credentials, R2_UPLOAD_PREFIXES, SUPABASE_STAGING_BUCKET, UPLOAD_SIGNATURE_SECONDS } from "./config"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import type { IStorageProvider, TStorageObject, TStoragePage, TStorageProviderName, TStorageUploadSession } from "@/ts/storage"
 
@@ -160,7 +160,7 @@ export class R2StorageProvider implements IStorageProvider {
   }
 
   private keyFor(bucket: TBuckets, path: string, staging = false) {
-    if (staging && (!path.startsWith(R2_UPLOAD_PREFIX) || !isStoragePath(path)))
+    if (staging && (!R2_UPLOAD_PREFIXES.some(prefix => path.startsWith(prefix)) || !isStoragePath(path)))
       throw new Error("Invalid temporary upload path")
     return staging ? path : `${bucket}/${path}`
   }
@@ -225,12 +225,20 @@ export class R2StorageProvider implements IStorageProvider {
   }
 
   async listStaging(cursor: string | null = null): Promise<TStoragePage> {
-    const response = await this.client.send(new ListObjectsV2Command({ Bucket: this.config.bucket, Prefix: R2_UPLOAD_PREFIX,
-      ContinuationToken: cursor ?? undefined, MaxKeys: PAGE_SIZE }))
-    return { objects: (response.Contents ?? []).filter(object => object.Key?.startsWith(R2_UPLOAD_PREFIX)).map(object => ({ provider: this.name,
+    // New cursors cover both prefixes; a previous raw R2 cursor continues the legacy prefix.
+    const state: { prefixIndex: number; token?: string } = cursor?.startsWith("r2-temp:")
+      ? JSON.parse(Buffer.from(cursor.slice(8), "base64url").toString("utf8")) : { prefixIndex: cursor ? 1 : 0, token: cursor ?? undefined }
+    const prefix = R2_UPLOAD_PREFIXES[state.prefixIndex]
+    if (!prefix || (state.token !== undefined && typeof state.token !== "string")) throw new Error("Invalid temporary upload cursor")
+    const response = await this.client.send(new ListObjectsV2Command({ Bucket: this.config.bucket, Prefix: prefix,
+      ContinuationToken: state.token, MaxKeys: PAGE_SIZE }))
+    if (response.IsTruncated && !response.NextContinuationToken) throw new Error("Incomplete temporary upload inventory")
+    const next = response.IsTruncated ? { prefixIndex: state.prefixIndex, token: response.NextContinuationToken }
+      : state.prefixIndex + 1 < R2_UPLOAD_PREFIXES.length ? { prefixIndex: state.prefixIndex + 1 } : null
+    return { objects: (response.Contents ?? []).filter(object => object.Key?.startsWith(prefix)).map(object => ({ provider: this.name,
       bucket: "23_support-guest-images", path: object.Key ?? "", size: object.Size ?? 0,
       contentType: "application/octet-stream", updatedAt: object.LastModified?.toISOString() ?? null, etag: object.ETag ?? null })),
-    cursor: response.IsTruncated ? response.NextContinuationToken ?? null : null }
+    cursor: next ? `r2-temp:${Buffer.from(JSON.stringify(next)).toString("base64url")}` : null }
   }
   publicUrl(bucket: TBuckets, path: string) { return storagePublicUrl(this.name, bucket, path) }
   async measureBytes(): Promise<number> {

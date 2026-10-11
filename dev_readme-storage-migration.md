@@ -8,7 +8,7 @@ The Tables export is a recovery artifact; do not import it over the live databas
 
 ## Before importing your existing Files backup
 
-The application supports **DB Backup → Files → R2 → Import**. The first copy is ready after
+The application supports **DB Backup → Files (R2) → Import**. The first copy is ready after
 the following setup; completing that copy still leaves final synchronization and cutover.
 
 1. Application environment variables belong in the **Vercel dashboard → your 23_store project →
@@ -36,7 +36,7 @@ the following setup; completing that copy still leaves final synchronization and
 
    | Optional setting | Default | Behavior during the first import |
    | --- | --- | --- |
-   | `STORAGE_PROVIDER` | `supabase` | Live application writes stay on Supabase; the Files selector can import into R2 |
+   | `STORAGE_PROVIDER` | `supabase` | Live application writes stay on Supabase; the Files tab imports into R2 |
    | `STORAGE_MIGRATION_PAUSED` | `false` | File changes remain available |
    | `STORAGE_CLEANUP_ENABLED` | `false` | Destructive cleanup stays disabled |
    | `R2_ACCOUNT_STANDARD_ONLY` | `false` | Account-wide included-allowance estimates remain unconfirmed; the application 10 GB cap still applies |
@@ -54,7 +54,7 @@ the following setup; completing that copy still leaves final synchronization and
    [R2 prefixes and folders](https://developers.cloudflare.com/r2/objects/#prefixes-and-folders)
 
    After the new production deployment is **Ready**, sign in as **ADMIN**, open **DB Backup → Files**,
-   choose **R2**, then **Import** and select
+   click **Import** and select
    `/home/kali/Downloads/23_backup-files-2026-10-09-extractable.tar.gz`. Keep the Tables archive
    for recovery. For the previously inspected Files export, expect **1,154 product images and
    3 avatars**, with **zero failed uploads**. Importing to inactive R2 preserves live image URLs.
@@ -63,11 +63,30 @@ the following setup; completing that copy still leaves final synchronization and
    reports that final synchronization is still required. Then follow §4 to synchronize current
    Supabase files, verify checksums, update registered references and switch live writes to R2.
 
+Files uploads run eight at a time. Preparation authorizes up to 16 files with one inventory
+measurement; completion verifies at most four files per Vercel request. The full browser operation
+may exceed 60 seconds, while metadata routes retain the 60-second deadline. Slow provider/Redis
+requests may still time out. Retrying completion uses the same sessions and does not copy already
+completed files again. Progress shows actual transfer speed, elapsed time and estimated time left.
+
+New uploads create `temp-uploads/` automatically. This is a temporary internal prefix, separate from
+the six `TBuckets` application categories. Files are checked against their authorized size/type and
+published into their final category. Temporary copies count toward 10 GB and are excluded from
+Files export. Old `uploads/` sessions and cleanup inventories remain supported during the rename.
+Temporary cleanup uses a 24-hour grace period and remains disabled until explicitly configured;
+changing the prefix does not remove files from an ongoing import.
+
+To cancel an older running import, close its browser tab and accept the page-leave confirmation.
+Already published files remain in their category prefixes. Wait up to seven minutes for the last
+pending upload locks to expire, then import the same archive through the latest Ready development
+deployment. The new import starts from the beginning and overwrites the same destination keys;
+no folders need deleting. Do not treat partial files as a completed migration.
+
 The supplied Files archive contains about 100 MB of payload and fits the browser's 512 MiB limit.
 The shared 10 GB limit applies to this ADMIN import. The 1 GB per-user allowance and paid upgrades
 remain the plan's future TODOs; they are separate from the import and shared capacity enforcement.
 
-To download a new R2 backup from the same production build, choose **DB Backup → Files → R2 →
+To download a new R2 backup from the same production build, choose **DB Backup → Files (R2) →
 Export**. All six categories are checked, including those that have no files yet. The browser
 downloads from `files.jokik.fi` and builds `23_backup-files-YYYY-MM-DD.tar.gz` locally; Vercel
 handles bounded metadata requests rather than file bytes or compression. The archive restores
@@ -128,7 +147,7 @@ Use one CORS policy for public downloads and signed browser uploads:
 [{"AllowedOrigins":["https://www.jokik.fi","https://jokik.fi","http://localhost:3023","http://127.0.0.1:3023"],"AllowedMethods":["GET","HEAD","PUT"],"AllowedHeaders":["Range","Content-Type","If-None-Match"],"ExposeHeaders":["ETag","Content-Length"],"MaxAgeSeconds":300}]
 ```
 
-The bucket is public for reads, including incoming `uploads/` objects. Writes still need a
+The bucket is public for reads, including incoming `temp-uploads/` objects. Writes still need a
 server-issued signed request with an authorized key, type and byte count; CORS is not write
 authorization. Completion verifies actual files before updating their final application paths.
 Temporary copies and reserved capacity count toward the same 10 GB cap, including ADMIN.
@@ -167,8 +186,9 @@ the real downloaded filename; quote paths containing spaces.
 
 For the user-selected production browser flow, complete the setup and redeployment described
 above. For a local rehearsal, configure the public bucket, custom domain, CORS and `.env.local`,
-apply the Supabase setup SQL, then restart the app. Open **DB Backup → Files → R2 → Import** and
-choose the Files `.tar.gz`. Export also reads the selected provider. Importing into inactive R2
+apply the Supabase setup SQL, then restart the app. Open **DB Backup → Files (R2) → Import** and
+choose the Files `.tar.gz`. The Files tab always imports into and exports from R2; Tables uses
+Supabase. Importing into inactive R2
 leaves live database image URLs unchanged and reports that final synchronization is still needed.
 Keep `STORAGE_PROVIDER=supabase` during this initial copy. The Tables backup is not imported.
 Before final sync, use the archive command below with `--apply` against the selected R2 bucket
@@ -217,7 +237,7 @@ shared 10 GB limit. Backup copies alone are insufficient because the source may 
 
 1. Deploy `STORAGE_MIGRATION_PAUSED=true` while writes still use Supabase. Set the same value
    locally. Let already issued uploads complete or expire. Cleanup pauses; incoming R2 objects
-   remain public under `uploads/` in the same bucket.
+   remain public under `temp-uploads/` in the same bucket.
 2. Synchronize current source inventory with the saved archive report as the starting report:
 
 ```bash
@@ -243,7 +263,7 @@ pnpm storage:migrate --operation relink --manifest '/absolute/path/cutover.json'
 
 4. Set deployment/local `STORAGE_PROVIDER=r2`; rebuild so the public domain is available to the
    browser. Check the six image flows, ADMIN usage and backup import/export. In browser Network,
-   image GETs must go to the custom domain and upload PUTs to signed `uploads/` keys in the same
+   image GETs must go to the custom domain and upload PUTs to signed `temp-uploads/` keys in the same
    public R2 bucket. Prepare/complete requests carry metadata only.
    Then set `STORAGE_MIGRATION_PAUSED=false` and enable
    configured cleanup. Confirm warnings at 8 GB and blocked uploads at 10 GB, including ADMIN.

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 
-import { formatBackupBytes, formatBackupSpeed } from "./functions/formatBackupTransfer"
+import { BackupFilesProgress } from "./BackupFilesProgress"
 import { selectDbBackupIsBusy, useDbBackupState } from "@/store/ui/useDbBackupState"
 import { useScopedI18n } from "@/locales/client"
 import { ProgressBar } from "@/components/ui"
@@ -67,19 +67,16 @@ export function DbBackupProgressCard() {
       aria-live="polite"
       role="status">
       <h2 className="text-sm font-semibold text-title">{t("title")}</h2>
-      <ProgressBar label={progressLabel} value={progress} />
-      {transferredBytes && (
-        <div className="flex items-center justify-between gap-3 text-xs text-subTitle">
-          <span>
-            {formatBackupBytes(transferredBytes.done)} / {formatBackupBytes(transferredBytes.total)}
-          </span>
-          {speedBytesPerMs !== null && (
-            <span>
-              {t("speed_label")}: {formatBackupSpeed(speedBytesPerMs)}
-            </span>
-          )}
-        </div>
-      )}
+      {transferredBytes ? (
+        <BackupFilesProgress
+          label={progressLabel}
+          bytesDone={transferredBytes.done}
+          bytesTotal={transferredBytes.total}
+          speedBytesPerMs={speedBytesPerMs}
+          startedAt={isExportingFiles ? backup.filesExportStartedAt : backup.filesImportStartedAt}
+          finishedAt={isExportingFiles ? backup.filesExportFinishedAt : backup.filesImportFinishedAt}
+        />
+      ) : <ProgressBar label={progressLabel} value={progress} />}
     </aside>
   )
 }

@@ -193,14 +193,25 @@ export const BackupCopyToR2: Story = {
   render: () => <BackupProgressWorkbench />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    await expect(await canvas.findByText("Supabase")).toBeVisible()
     await userEvent.click(await canvas.findByRole("button", { name: "Files" }))
-    await userEvent.click(canvas.getByRole("button", { name: "R2" }))
-    await expect(canvas.getByRole("button", { name: "R2" })).toHaveAttribute("aria-pressed", "true")
+    await expect(canvas.getByText("R2")).toBeVisible()
+    await expect(canvas.queryByText("Supabase")).not.toBeInTheDocument()
+    await expect(canvas.queryByText("Current storage")).not.toBeInTheDocument()
     const file = new File(["example"], "files.tar.gz", { type: "application/gzip" })
     const fileInput = canvasElement.querySelector<HTMLInputElement>('input[accept=".tar.gz,.gz,.tgz"]')!
     await userEvent.upload(fileInput, file)
     await waitFor(() => expect(backupSDK.importFiles).toHaveBeenLastCalledWith(file, expect.any(Function), "r2"))
-    await expect(canvas.getByRole("button", { name: "Supabase" })).toBeDisabled()
+    await expect(canvas.getByText("Elapsed time")).toBeVisible()
+    await expect(canvas.getByText("Est. time remaining")).toBeVisible()
+    const content = canvasElement.querySelector<HTMLElement>('[data-cy="db-backup-content"]')!
+    const originalHeight = content.getBoundingClientRect().height
+    const longPath = `23_product-images/owner/product/${"very-long-image-name-".repeat(40)}.avif`
+    useDbBackupState.setState({ filesImportLabel: longPath, filesImportStartedAt: Date.now() - 61000 })
+    await waitFor(() => expect(canvas.getByTitle(longPath)).toBeVisible())
+    await expect(content.scrollWidth).toBeLessThanOrEqual(content.clientWidth)
+    await expect(content.getBoundingClientRect().height).toBe(originalHeight)
+    await waitFor(() => expect(canvas.getByText(/00:01:0[12]/)).toBeVisible())
     await userEvent.click(canvas.getByRole("button", { name: "Close modal" }))
     await expect(await canvas.findByRole("status", { name: "Database backup" })).toBeVisible()
     completeFilesImport()
@@ -208,7 +219,8 @@ export const BackupCopyToR2: Story = {
     await userEvent.click(await canvas.findByRole("button", { name: "Reopen backup" }))
     await userEvent.click(await canvas.findByRole("button", { name: "Files" }))
     await expect(canvas.getByText(/Files copied\. Live image URLs/)).toBeVisible()
-    await expect(canvas.getByRole("button", { name: "R2" })).toHaveAttribute("aria-pressed", "true")
+    await expect(canvas.getByText("R2")).toBeVisible()
+    await expect(canvas.queryByText("Supabase")).not.toBeInTheDocument()
   },
 }
 
