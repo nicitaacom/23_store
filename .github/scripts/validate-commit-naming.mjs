@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs"
 import process from "node:process"
 
 const ALLOWED_TYPES = ["fix", "upd", "style", "docs", "feat", "chore"]
-const SUBJECT_PATTERN = /^(fix|upd|style|docs|feat|chore): [a-z0-9].*$/
+const SUBJECT_PATTERN = /^-?(fix|upd|style|docs|feat|chore): [a-zA-Z0-9].*$/
 
 export function validateCommitText(commitText, label = "commit") {
   const lines = commitText.trimEnd().split(/\r?\n/)
@@ -12,16 +12,16 @@ export function validateCommitText(commitText, label = "commit") {
 
   if (label === "pull request title" && lines.length !== 1) errors.push(`${label} must be one line`)
   if (label !== "pull request title" && /^Merge branch .+$/.test(subject)) return errors
-  if (!SUBJECT_PATTERN.test(subject)) errors.push(`${label} must use "type: lowercase message"`)
-  if (/^[a-z]+\(/.test(subject)) errors.push(`${label} must not use a scope`)
+  if (!SUBJECT_PATTERN.test(subject)) errors.push(`${label} must use "type: lowercase message" or "-type: lowercase message" (UI is allowed)`)
+  if (/^-?[a-z]+\(/.test(subject)) errors.push(`${label} must not use a scope`)
   if (subject.endsWith(".")) errors.push(`${label} must not end with a period`)
 
   const separatorIndex = subject.indexOf(": ")
-  const type = separatorIndex === -1 ? subject : subject.slice(0, separatorIndex)
+  const type = (separatorIndex === -1 ? subject : subject.slice(0, separatorIndex)).replace(/^-/, "")
   const message = separatorIndex === -1 ? "" : subject.slice(separatorIndex + 2)
 
   if (!ALLOWED_TYPES.includes(type)) errors.push(`${label} type must be ${ALLOWED_TYPES.join(", ")}`)
-  if (message && message !== message.toLowerCase()) errors.push(`${label} message must be lowercase`)
+  if (message && message.replace(/\bUI\b/g, "ui") !== message.toLowerCase()) errors.push(`${label} message must be lowercase except for UI`)
 
   return [...new Set(errors)]
 }

@@ -1,9 +1,13 @@
 ## Commit naming
 
-Format: `type: message`
+Format: `type: message` or `-type: message` for removal.
 
-Subject: one line, lowercase message, no period at the end, no scope.
+Subject: one line, lowercase message (the acronym `UI` is allowed), no period at the end, no scope.
 Description: **required** — see the 🚨 TODO block below.
+
+The optional leading `-` is shorthand for `rm` (remove). It applies to any of the six types;
+for example, `-docs: UI buying flow` removes documentation and `-upd: buying flow` removes
+existing behavior.
 
 Exception: automatic merge subjects beginning with `Merge branch ` are allowed, including
 `Merge branch 'feat/storybook' into development`. These merge messages do not require a description.
@@ -28,6 +32,8 @@ Exception: automatic merge subjects beginning with `Merge branch ` are allowed, 
 - `upd: J.png is now png (more rich)`
 - `upd: max 300 chars in desc`
 - `docs: no jargon`
+- `-docs: UI buying flow`
+- `-upd: buying flow`
 - `feat: AI iteration mode`
 - `-chore: night-run.sh`
 - `chore: getCached -> getRedis`
@@ -130,7 +136,9 @@ A `command`, a "label" and any path or url are dropped before that out-of-reach 
 
 **2. Husky before Git records the commit.** `.husky/commit-msg` checks every developer's message
 with the same subject/type validator as CI. Only `fix`, `upd`, `style`, `docs`, `feat` and `chore`
-are accepted; `test` is rejected. Automatic `Merge branch *` subjects are the explicit exception.
+are accepted, each with an optional leading `-` for removal; `test` and `-test` are rejected.
+The acronym `UI` is allowed in otherwise lowercase messages. Automatic `Merge branch *`
+subjects are the explicit exception.
 It then runs `.githooks/commit-msg` for the existing description
 and trailer checks. Both hook sources are tracked. Git supplies the new message at `commit-msg`,
 after `pre-commit`; type validation belongs there so it checks the current message.
@@ -155,7 +163,7 @@ Layer 1 comes back with `~/.claude/` — the hooks are also copied to
 
 1. Keep the subject short - one line, plain words, no jargon (see code-patterns Naming conventions).
 2. Renames go `old -> new` (e.g. `chore: fetch -> refetch/select/get`).
-3. Don't prefix the message with a leading `-` (e.g. `-upd:`, `-chore:`) - this has slipped into history but is a typo, not a convention. Just use `type: message`.
+3. Use a leading `-` when the commit removes something (e.g. `-docs: UI buying flow`, `-upd: buying flow`). The type still comes from the six listed above.
 4. Don't invent new types - if none of the 6 fit, ask before adding one.
 5. No scopes (no `fix(dialer): ...`).
 6. Every commit has a description. The `🚨 TODO` block only when a step is waiting that the AI has no

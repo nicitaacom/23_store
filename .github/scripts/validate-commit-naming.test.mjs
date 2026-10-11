@@ -16,11 +16,31 @@ test("accepts every allowed commit type", () => {
   }
 })
 
+test("accepts the removal prefix for every allowed commit type", () => {
+  for (const type of ["fix", "upd", "style", "docs", "feat", "chore"]) {
+    assert.deepEqual(validateCommitText(`-${type}: remove existing code`), [])
+    assert.deepEqual(validateCommitText(`-${type}: remove existing code`, "pull request title"), [])
+  }
+})
+
+test("accepts UI as an acronym while keeping the rest of the message lowercase", () => {
+  assert.deepEqual(validateCommitText("-docs: UI buying flow"), [])
+  assert.deepEqual(validateCommitText("-upd: UI buying flow"), [])
+  assert.deepEqual(validateCommitText("docs: UI buying flow", "pull request title"), [])
+  assert.match(validateCommitText("-docs: UI Buying flow").join("\n"), /lowercase/)
+  assert.match(validateCommitText("-docs: ui BUYING flow").join("\n"), /lowercase/)
+})
+
 test("rejects invalid subject shapes", () => {
   assert.match(validateCommitText("feat(scope): message").join("\n"), /scope/)
   assert.match(validateCommitText("feature: message").join("\n"), /type/)
   assert.match(validateCommitText("feat: Uppercase message").join("\n"), /lowercase/)
   assert.match(validateCommitText("feat: message.").join("\n"), /period/)
+  assert.match(validateCommitText("-upd(scope): message").join("\n"), /scope/)
+  assert.match(validateCommitText("-test: message").join("\n"), /type/)
+  assert.match(validateCommitText("--docs: message").join("\n"), /type/)
+  assert.match(validateCommitText("-docs:").join("\n"), /lowercase message/)
+  assert.match(validateCommitText("-docs: UI buying flow.").join("\n"), /period/)
 })
 
 test("accepts the descriptions required by commit-patterns.md", () => {
@@ -89,14 +109,29 @@ test("Husky accepts exactly the six documented types for every developer", conte
   const folder = mkdtempSync(path.join(tmpdir(), "23-commit-message-"))
   context.after(() => rmSync(folder, { recursive: true, force: true }))
   const messageFile = path.join(folder, "message.txt")
-  for (const type of ["fix", "upd", "style", "docs", "feat", "chore", "test", "build", "perf", "feature"]) {
-    writeFileSync(messageFile, `${type}: valid message\n\n- explain the change\n`)
+  for (const prefix of ["", "-"]) {
+    for (const type of ["fix", "upd", "style", "docs", "feat", "chore", "test", "build", "perf", "feature"]) {
+      writeFileSync(messageFile, `${prefix}${type}: valid message\n\n- explain the change\n`)
+      const checked = spawnSync("sh", [".husky/commit-msg", messageFile], {
+        cwd: repoRoot, encoding: "utf8", env: { ...process.env, CLAUDECODE: "" },
+      })
+      const allowed = ["fix", "upd", "style", "docs", "feat", "chore"].includes(type)
+      assert.equal(checked.status, allowed ? 0 : 1, `${prefix}${type}: ${checked.stderr}`)
+      if (!allowed) assert.match(checked.stderr, /type must be fix, upd, style, docs, feat, chore/)
+    }
+  }
+})
+
+test("Husky accepts the user's removal subjects with descriptions", context => {
+  const folder = mkdtempSync(path.join(tmpdir(), "23-removal-message-"))
+  context.after(() => rmSync(folder, { recursive: true, force: true }))
+  const messageFile = path.join(folder, "message.txt")
+  for (const subject of ["-docs: UI buying flow", "-upd: buying flow"]) {
+    writeFileSync(messageFile, `${subject}\n\n- remove the obsolete buying flow documentation\n`)
     const checked = spawnSync("sh", [".husky/commit-msg", messageFile], {
-      cwd: repoRoot, encoding: "utf8", env: { ...process.env, CLAUDECODE: "" },
+      cwd: repoRoot, encoding: "utf8", env: { ...process.env, CLAUDECODE: "1" },
     })
-    const allowed = ["fix", "upd", "style", "docs", "feat", "chore"].includes(type)
-    assert.equal(checked.status, allowed ? 0 : 1, `${type}: ${checked.stderr}`)
-    if (!allowed) assert.match(checked.stderr, /type must be fix, upd, style, docs, feat, chore/)
+    assert.equal(checked.status, 0, `${subject}: ${checked.stderr}`)
   }
 })
 
