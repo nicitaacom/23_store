@@ -20,7 +20,7 @@ function buildTarHeader(name: string, size: number, type: "0" | "5" = "0"): Buff
   const header = Buffer.alloc(512, 0)
 
   // Encode name (up to 100 bytes). For long names use GNU long-name extension.
-  const nameBytes = Buffer.from(name.slice(0, 100), "utf8")
+  const nameBytes = Buffer.from(name, "utf8").subarray(0, 100)
   nameBytes.copy(header, 0)
 
   // Permissions
@@ -45,7 +45,7 @@ function buildTarHeader(name: string, size: number, type: "0" | "5" = "0"): Buff
   return header
 }
 
-/** Build a GNU long-name header so paths > 100 chars work */
+/** Build a GNU long-name header so paths > 100 bytes work */
 function buildLongNameEntry(name: string): Buffer[] {
   const nameData = Buffer.from(name + "\0", "utf8")
   const padding = (512 - (nameData.length % 512)) % 512
@@ -65,7 +65,7 @@ function buildLongNameEntry(name: string): Buffer[] {
 }
 
 export function addTarEntry(chunks: Buffer[], name: string, data: Buffer): void {
-  if (name.length > 100) {
+  if (Buffer.byteLength(name, "utf8") > 100) {
     buildLongNameEntry(name).forEach(entry => chunks.push(entry))
   }
   chunks.push(buildTarHeader(name, data.length))

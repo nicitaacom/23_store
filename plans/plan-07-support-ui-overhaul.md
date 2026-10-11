@@ -1,4 +1,4 @@
-# plan-06 — Support UI overhaul: one design language for the support dashboard + chat window + contact page
+# plan-07 — Support UI overhaul: one design language for the support dashboard + chat window + contact page
 
 **Priority:** P1
 **Screenshot:** `TODO/04.07.2026 at 16-36.png` — read it first (broken look / missing image fallback). Note: navbar overlap, sidebar hover, UUID titles and a refresh race from that screenshot were already fixed on 05.07.2026 — this plan completes the visual language.
@@ -95,7 +95,7 @@ STOP — show Nikita the diff and wait for his review.
 ### 4. Chat window (SupportButtonDropdown)
 
 - `SupportButtonDropdown.tsx`: panel `rounded-lg border border-border-color/35 bg-modal-surface shadow-compact-lg` (sizes stay `h-[440px] w-[min(92vw,390px)] mobile:h-[540px]`). Header → same gradient signature as task 3 (`particleCount={2}`, `verticalOverflow={12}`): icon chip `flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/16 bg-white/8 text-success-accent`; eyebrow "Support" in the standard recipe; title `text-[16px] font-semibold text-white mobile:text-[18px]`; response-time line `text-[11px] text-white/55`. Hardcoded "Support is ready" → `t("support.ready_title")`. Body, day dividers, `MessageInput` mount, `DragAndDropArea` unchanged.
-- `MarkTicketAsCompletedUser.tsx`: trigger swaps the theme-branched PNG (+ `useDarkModeStore` import) for `FiCheckCircle` in an icon button `flex h-8 w-8 items-center justify-center rounded border border-white/16 bg-white/8 text-white/85 transition-colors duration-150 hover:border-success-accent/40 hover:bg-success-accent/15 hover:text-success-accent` (+ existing disabled state). The 3-step overlay cards unify to `rounded-lg border border-border-color/35 bg-foreground/95 p-4 shadow-compact-lg`; their hardcoded strings stay → plan-08.
+- `MarkTicketAsCompletedUser.tsx`: trigger swaps the theme-branched PNG (+ `useDarkModeStore` import) for `FiCheckCircle` in an icon button `flex h-8 w-8 items-center justify-center rounded border border-white/16 bg-white/8 text-white/85 transition-colors duration-150 hover:border-success-accent/40 hover:bg-success-accent/15 hover:text-success-accent` (+ existing disabled state). The 3-step overlay cards unify to `rounded-lg border border-border-color/35 bg-foreground/95 p-4 shadow-compact-lg`; their hardcoded strings stay → plan-09.
 
 STOP — show Nikita the diff and wait for his review.
 
@@ -134,7 +134,7 @@ STOP — show Nikita the diff and wait for his review.
 
 ### 8. i18n keys + docs (incl. the UI style doc)
 
-- **13 new keys**, appended at IDENTICAL line numbers in all 4 of `app/locales/{en,ru,fi,se}.ts` (each file is exactly 526 lines today; translate matching the existing `support.*` block tone at lines 476-491): `support.search_placeholder`, `no_search_results`, `status_open`, `status_closed`, `opened_on` (`"Opened {date}"`), `ready_title`, `message_placeholder`, `reply_placeholder`, `title`, `subtitle`, `email_us`, `open_live_chat`, `open_telegram`. Pre-existing hardcoded support-dashboard on-screen strings stay untranslated here → plan-08.
+- **13 new keys**, appended at IDENTICAL line numbers in all 4 of `app/locales/{en,ru,fi,se}.ts` (each file is exactly 526 lines today; translate matching the existing `support.*` block tone at lines 476-491): `support.search_placeholder`, `no_search_results`, `status_open`, `status_closed`, `opened_on` (`"Opened {date}"`), `ready_title`, `message_placeholder`, `reply_placeholder`, `title`, `subtitle`, `email_us`, `open_live_chat`, `open_telegram`. Pre-existing hardcoded support-dashboard on-screen strings stay untranslated here → plan-09.
 - **NEW `app/[locale]/(support)/support/dev_readme-ui-support.md`** — the support design language WITH examples, one copy-paste class string per pattern + where it's used (file refs): panel surfaces (`bg-modal-surface` vs `bg-foreground/35`, when each), gradient header signature + `OrganicCanvasBackground` props, eyebrow/micro-label recipes, badge recipe (`border-<color>/20-30 bg-<color>/10-12 text-<color>`), accent button recipe, own/foreign bubble recipes, `.panel-scroll`, and the motion timing table (75-150ms small elements, ~200ms panels — larger surface = longer duration). Add its row to the CLAUDE.md dev_readme map.
 - Update: support dev_readme (send flow via `onSend`), tickets components dev_readme (it documents a `TicketsList.tsx` that does not exist — rewrite for `SidebarTicketRow`, search state, `last_message_at` sourcing, `NoTicketsFound` removal), Inputs dev_readme (`MessageInput` props: omitting `onSend` = customer flow), Skeletons dev_readme (support skeletons are token `animate-pulse`, no `react-loading-skeleton`).
 
@@ -163,7 +163,7 @@ STOP — show Nikita the diff and wait for his review.
 - Motion, verbatim: "no need to freak out with animations too much but make them very short like duration 75ms or 150ms (higher duration is required for bigger components - so if something takes more space on UI it require more animation duration)".
 - Tech: "tailwind + css (Only where tailwind is not enough) + framer-motion".
 - One plan, staged sub-tasks, STOP after each (this file).
-- This plan does NOT translate pre-existing strings (plan-08 does).
+- This plan does NOT translate pre-existing strings (plan-09 does).
 - Sort, verbatim: "actually messages that are unread for shorter time are shown at a top - so count of messages does not affect the order. also need to explain in commented line the reason for that: analogy with Margulan thin-pancakes: you want to eat fresh pancakes instead of 1 day old pancake that is not fresh anymore. second reason is because user might resolved issue themselfs and it's no longer relevant".
 - Unread logic, verbatim: "it's no agents that replies to users - only real human replies to users. unread logic: user msg support -> support unread count bumps; support msg user -> user unread count bumps".
 - Terminology: say "support" (a real human), never "agent".
@@ -179,4 +179,4 @@ STOP — show Nikita the diff and wait for his review.
 
 Read them BEFORE coding; validate each task's diff against them line-by-line before saying done; rewrite touched code to match where a file drifts.
 
-➡️ Next plan: [plan-07-support-prefilled-message.md](plan-07-support-prefilled-message.md)
+➡️ Next plan: [plan-08-support-prefilled-message.md](plan-08-support-prefilled-message.md)

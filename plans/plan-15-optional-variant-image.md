@@ -1,4 +1,4 @@
-# plan-14 — variant image becomes optional
+# plan-15 — variant image becomes optional
 
 **Priority:** P2
 **Screenshot:** the colour swatches on a product page ("Color: Blue 3 Handle+3 Blades") — that look stays for variants that HAVE an image

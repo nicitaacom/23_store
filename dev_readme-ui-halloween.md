@@ -176,7 +176,7 @@ outlines. Keep new Halloween ornament at panel edges so product images and form 
   with no importer. A follow-up plan wires them onto a product card / modal header.
 - **The random storm/grave event.** `HalloweenGraveEvent.tsx` in the portfolio (~600 lines,
   Canvas rain + SVG gravestone reveal) did not get ported. Decision against, in
-  `plans/plan-17-seasonal-themes-halloween-new-year.md` §6: separate plan when Nikita wants it.
+  `plans/plan-18-seasonal-themes-halloween-new-year.md` §6: separate plan when Nikita wants it.
 - **Seasonal audio.** The portfolio plays `/thunderstorm.mp3` and `/creepy-halloween-bells.mp3`
   during the storm event. Not ported — no storm event exists here yet to trigger it.
 

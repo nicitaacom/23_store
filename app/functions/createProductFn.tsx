@@ -31,7 +31,7 @@ import { useLoading } from "@/store/ui/useLoading"
  *
  * Stripe runs before the upload because the productId it returns IS the image folder - building the
  * folder from anything else would leave a product's images spread over a folder shared with every
- * other product. See plan-22 and app/functions/dev_readme-create-product.md.
+ * other product. See plan-23 and app/functions/dev_readme-create-product.md.
  *
  * We use Lambda for translation because Vercel server functions can time out
  * around 60 seconds, while the translation job may take 3-5 minutes.

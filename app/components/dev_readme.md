@@ -12,6 +12,10 @@ The language menu is used in the navbar and mobile sidebar. Its trigger uses `h-
 compact header control; menu rows keep `min-h-[44px]` for selecting a language. The sidebar menu
 opens upward with `isDropUp`.
 
+For authenticated accounts, the menu updates `23_users.preferred_language` before navigating.
+`Layout` restores that preference after login through `useSetLayoutLanguage`, so it survives cleared
+cookies. See `app/locales/dev_readme_i18n.md` for the API and database column.
+
 ## Info about Layout.tsx
 
 I use this file to set dark/light mode based on system settings

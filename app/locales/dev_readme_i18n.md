@@ -12,7 +12,7 @@ the build unless it's translated, marked technical, or the file is on the explic
 Not every string needs a key. Admin-only tools, the support dashboard, auth-callback error screens, and
 internal owner-notification emails are Nikita-only or support-only surfaces - translating them would be
 wasted work with no buyer ever seeing the English. That "translate vs. leave English" split was decided in
-[plans/plan-08-i18n-sweep.md](../../plans/plan-08-i18n-sweep.md); the rule's exception list mechanically
+[plans/plan-09-i18n-sweep.md](../../plans/plan-09-i18n-sweep.md); the rule's exception list mechanically
 encodes that same decision so it survives future refactors instead of relying on someone remembering it.
 
 ## 1. How does it look like?
@@ -30,7 +30,11 @@ encodes that same decision so it survives future refactors instead of relying on
 - Each file calls its `createI18nClient` or `createI18nServer` factory once and exports all hooks from that instance. Keep the hooks and provider together when adding an export.
 - `app/[locale]/` - every route lives under this dynamic segment
 - `proxy.ts` (Next's renamed `middleware.ts`) - runs `createI18nMiddleware` first, then auth/rate-limit/role checks; default locale is hardcoded to `fi` (`resolveLocaleFromRequest: () => "fi"`, browser language is ignored on purpose), `urlMappingStrategy: "rewrite"`
-- Picking a language: `LanguageDropdown.tsx` calls `useChangeLocale()` (next-international's own hook), which pushes a locale-prefixed URL - `proxy.ts`'s `addLocaleToResponse` sets the `Next-Locale` cookie from that URL. There is no hand-written `document.cookie` write anymore (a previous hand-rolled version raced against Next's background prefetching and got silently reverted - see `plans/plan-01-language-switcher.md` if that pattern ever reappears, don't repeat it).
+- Picking a language: `LanguageDropdown.tsx` uses locale-prefixed links and preserves the current path and query parameters. The middleware sets `Next-Locale` from the destination URL. There is no client cookie write; full navigation avoids the earlier cookie/prefetch race described in `plans/plan-02-language-switcher.md`.
+- For authenticated accounts, `useLanguageDropdownHandlers` waits for `AccountSDK.updateLanguage()` to update `23_users.preferred_language` through `/api/account/language` before navigating. A failed update shows an error toast and keeps the current language. Anonymous visitors use the browser cookie.
+- The language API verifies the session with `getUser()` and updates only that user's `preferred_language`. It uses the service-role client for this single column because the users table has no UPDATE policy. The accepted values are `fi`, `en`, `ru`, and `se`.
+- The root layout reads the account preference with the user's profile. `useSetLayoutLanguage` restores it after password or OAuth login and on authenticated page requests, keeping the path, query parameters, and hash. Clearing browser cookies leaves the database preference intact. A null preference keeps the current locale; it is only written when the account's language menu is used.
+- The column SQL is in `dev_readme-supbase-sql.md`. Apply it to the store's Supabase database before using account language updates.
 
 ### 1.2 Types + file pathnames
 
@@ -127,7 +131,7 @@ await createProductFn(t, {...})                      await createProductFn(tGlob
 
 ## 4. TODO / decisions made against
 
-- **`no-untranslated-ui` sweep (this session).** Ran the rule project-wide, scoped it to the plan-08
+- **`no-untranslated-ui` sweep (this session).** Ran the rule project-wide, scoped it to the plan-09
   policy (exception list above), then translated every remaining buyer-facing warning (132 → 0) across
   ~40 files: Navbar, SupportButton widget (not the support dashboard), AdminPanel's non-admin-only forms,
   cart payment buttons, avatar/pagination/slider/timer primitives, the placeholder ecosystem pages, and
@@ -135,7 +139,7 @@ await createProductFn(t, {...})                      await createProductFn(tGlob
   `navbar.*`, `human_check.*` for the new Turnstile challenge screen, `placeholder.*` for the 3 ecosystem
   stub pages). Decided against: translating `CategoriesForm.tsx`, `FormatImagesForm.tsx`,
   `DbBackupModal.tsx`, `UTMDashboard.tsx`, the support dashboard, and both owner-notification emails - see
-  §1.4; these stay on the exception list, not because the rule fails to reach them but because plan-08
+  §1.4; these stay on the exception list, not because the rule fails to reach them but because plan-09
   already closed that decision.
 - **`app/emails/RequestReplanishmentEmail.tsx`** has its own header comment saying it doesn't need
   translation ("old logic" pre-dating the AI e-commerce rewrite) - kept as-is, added to the exception list
@@ -145,6 +149,6 @@ await createProductFn(t, {...})                      await createProductFn(tGlob
   "Some text", ...)`), or a JS template literal is invisible to it. Several such strings still exist
   (e.g. `AdminPanelDeleteConfirmDialog.tsx`'s bulk-delete toast titles use template literals). Not swept
   this session - flagging here rather than silently leaving it undocumented. If this needs closing, it's
-  audit-and-translate work in the same shape as plan-08, not a rule change (widening the rule to catch
+  audit-and-translate work in the same shape as plan-09, not a rule change (widening the rule to catch
   `label`/toast strings would also catch a lot of legitimate non-UI text and needs its own false-positive
   pass first).

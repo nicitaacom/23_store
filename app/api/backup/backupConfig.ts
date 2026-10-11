@@ -91,7 +91,7 @@ function selectOwnerEmailSlug(row: Record<string, unknown>, emailByUserId: Reado
 
 // Column classification derived from app/ts/types_db.ts (not from prose docs, which have drifted
 // before — see plan-00-tracker.md's DEV_README inconsistencies audit). uuidColumns mirrors the
-// live-verified set from the previous backupTables.ts (confirmed against the DB, plan-02, 2026-07-05).
+// live-verified set from the previous backupTables.ts (confirmed against the DB, plan-03, 2026-07-05).
 export const BACKUP_TABLES: TBackupTableConfig[] = [
   {
     name: "23_users",

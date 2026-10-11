@@ -1,4 +1,4 @@
-# plan-09 — UTM stats hardening: geo columns, shared constant, index, SQL aggregation
+# plan-10 — UTM stats hardening: geo columns, shared constant, index, SQL aggregation
 
 **Priority:** P3
 **Screenshot:** — (from `app/[locale]/(site)/stats/dev_readme-utm.md` TODO section)
@@ -51,7 +51,7 @@ totals: N rows -> JS reduce                totals: SQL count/group by, same
 
 ## Decisions made (do not re-open)
 
-- All SQL lands as copy-paste blocks in `dev_readme-supbase-sql.md` (same convention as decision quoted in plan-02: "so if something happens to this supbase I can copy paste SQL and it will work").
+- All SQL lands as copy-paste blocks in `dev_readme-supbase-sql.md` (same convention as decision quoted in plan-03: "so if something happens to this supbase I can copy paste SQL and it will work").
 - Steps 1 and 4 are report-first — nothing changes on a shared table without Nikita seeing the impact numbers.
 
 ## Code patterns to follow
@@ -62,4 +62,4 @@ totals: N rows -> JS reduce                totals: SQL count/group by, same
 
 Read them BEFORE coding; validate each diff line-by-line before saying done; rewrite touched code to match where a file drifts.
 
-➡️ Next plan: [plan-10-faceit-oauth.md](plan-10-faceit-oauth.md)
+➡️ Next plan: [plan-11-faceit-oauth.md](plan-11-faceit-oauth.md)

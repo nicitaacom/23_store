@@ -1,10 +1,10 @@
-# plan-07 — Wire useSupportPrefilledMessage into the support chat composer
+# plan-08 — Wire useSupportPrefilledMessage into the support chat composer
 
 **Priority:** P2
 **Screenshot:** — (from categories dev_readme §5 TODO)
 **Recommended model:** Sonnet · low thinking — one store read on mount, one decided question
 **Status:** see [plan-00-tracker.md](plan-00-tracker.md)
-**Depends on:** plan-06 (MessageInput refactor lands first)
+**Depends on:** plan-07 (MessageInput refactor lands first)
 
 ## §0 Why
 
@@ -18,7 +18,7 @@ Today `app/[locale]/(site)/components/CategoryPillBar.tsx:33` sets the store (`u
 | --- | --- |
 | Store (message / set / clear) | `app/store/ui/useSupportPrefilledMessage.ts` |
 | Writer | `app/[locale]/(site)/components/CategoryPillBar.tsx:12,33` |
-| Reader to add | `app/components/ui/Inputs/MessageInput.tsx` (post plan-06) |
+| Reader to add | `app/components/ui/Inputs/MessageInput.tsx` (post plan-07) |
 | Composer value store | `app/store/ui/useMessagesStore.ts` (`messageBodyValue`) |
 | Chat window open state | `app/store/ui/useSupportDropdown.ts` |
 | Doc §5 TODO to close | `app/[locale]/(site)/components/CategoryPillBar/dev_readme-categories.md` |
@@ -53,4 +53,4 @@ user opens chat: empty composer              already holding that text; store
 
 Read them BEFORE coding; validate the final diff line-by-line before saying done.
 
-➡️ Next plan: [plan-08-i18n-sweep.md](plan-08-i18n-sweep.md)
+➡️ Next plan: [plan-09-i18n-sweep.md](plan-09-i18n-sweep.md)

@@ -3,9 +3,9 @@
 ## Plan file and status
 
 - Write this complete plan to `/STORYBOOK-PLAN.md` at the repository root.
-- Add plan 13 to `plans/plan-00-tracker.md`, linking to `../STORYBOOK-PLAN.md`.
+- Add plan 14 to `plans/plan-00-tracker.md`, linking to `../STORYBOOK-PLAN.md`.
 - Keep implementation status only in `plans/plan-00-tracker.md`, as required by the repository.
-- Do not create a duplicate `plans/plan-13-storybook.md`.
+- Do not create a duplicate `plans/plan-14-storybook.md`.
 - Before implementation, read:
   - `AGENTS.md`
   - `commit-patterns.md`
@@ -72,7 +72,7 @@ The commit list is fixed. A subject may change only if `commit-patterns.md` requ
 - Confirm `feat/cypress-e2e-tests` is clean and all existing work is committed.
 - Create `feat/storybook` from its current HEAD.
 - Add this plan as `/STORYBOOK-PLAN.md`.
-- Add plan 13 to the tracker as `in progress`.
+- Add plan 14 to the tracker as `in progress`.
 - Do not send Storybook changes back to the Cypress branch.
 - Open a draft PR into `development` after the CodeRabbit configuration is committed and pushed.
 
@@ -477,7 +477,7 @@ Run final verification:
 - Chromatic visual approval
 - Clean working tree
 
-Change plan 13 from `in progress` to `done` only when every required check passes and all CodeRabbit discussions are resolved.
+Change plan 14 from `in progress` to `done` only when every required check passes and all CodeRabbit discussions are resolved.
 
 Commit: `docs: storybook`
 

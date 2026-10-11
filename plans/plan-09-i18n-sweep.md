@@ -1,10 +1,10 @@
-# plan-08 — i18n sweep: every user-visible string gets a key in all 4 locales
+# plan-09 — i18n sweep: every user-visible string gets a key in all 4 locales
 
 **Priority:** P2
 **Screenshot:** — (from code TODOs + Nikita: "not only this but also other stuff in this project that is not translated")
 **Recommended model:** Sonnet · medium thinking — mechanical but wide; the risk is locale-file line discipline, not logic
 **Status:** see [plan-00-tracker.md](plan-00-tracker.md)
-**Depends on:** plan-06 (it restyles the same support files; sweeping after avoids double-touching)
+**Depends on:** plan-07 (it restyles the same support files; sweeping after avoids double-touching)
 
 ## §0 Why
 
@@ -43,11 +43,11 @@ auth edge case shows the TODO text ✗     every surface reads from t("...") ✓
 1. **Audit only.** Grep the app for user-visible string literals in JSX and toast calls (exclude: console.log, comments, keys already in `t(...)`, ADMIN-only debug output). Output a table grouped by surface: file:line → string → proposed key name. Mark the internal SUPPORT-role-only strings ("Support inbox" etc.) — Nikita decides include/skip per group at this STOP. No file edits yet. STOP — show Nikita the table and wait for his review.
 2. **Translate per surface (one sub-task per surface group Nikita approved).** For each group: add the keys at identical line numbers in all 4 files, matching the tone of neighboring keys (e.g. the `support.*` block); replace the literals with `t("...")`; fix the source typos while replacing (the key value gets correct English). After each group: `grep -c "" app/locales/*.ts` must print four equal numbers; `pnpm type-check`. STOP after EACH group — show Nikita the diff and wait for his review.
 3. **Remove unused keys.** Delete `category.backfill_button` (same line in all 4 files) and any other keys the audit finds with zero `t(...)` references. Line counts stay equal. STOP — show Nikita the diff and wait for his review.
-4. **Docs.** If plan-01 has not shipped yet: write the locale-line rule into `app/locales/dev_readme_i18n.md` (otherwise verify it reads correctly and skip). STOP — show Nikita the diff and wait for his review.
+4. **Docs.** If plan-02 has not shipped yet: write the locale-line rule into `app/locales/dev_readme_i18n.md` (otherwise verify it reads correctly and skip). STOP — show Nikita the diff and wait for his review.
 
 ## Decisions made (do not re-open)
 
-- One sweep plan covers everything; plan-06 restyles without translating — no overlap.
+- One sweep plan covers everything; plan-07 restyles without translating — no overlap.
 - Nikita, verbatim: "and not only this but also other sutff in this project that is not translated" — the audit is project-wide, not just the quoted anchors.
 - Whether internal SUPPORT-role strings get keys is decided at task 1's STOP (genuine ship-decision: those screens are seen only by Nikita's support role).
 
@@ -55,11 +55,11 @@ auth edge case shows the TODO text ✗     every surface reads from t("...") ✓
 
 - `dev_readme-code-patterns.md` — terminology bans apply to KEY NAMES too (no `popup`, no `saving`); plainest accurate words.
 - `good-bad-examples.md` — naming discipline.
-- `app/locales/dev_readme_i18n.md` — setup + (post plan-01) the locale-line rule.
+- `app/locales/dev_readme_i18n.md` — setup + (post plan-02) the locale-line rule.
 
 Read them BEFORE editing; validate every group diff line-by-line before saying done.
 
-➡️ Next plan: [plan-09-utm-stats-hardening.md](plan-09-utm-stats-hardening.md)
+➡️ Next plan: [plan-10-utm-stats-hardening.md](plan-10-utm-stats-hardening.md)
 
 ## Audit result (project-wide grep, this session)
 

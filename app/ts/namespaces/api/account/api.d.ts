@@ -1,6 +1,12 @@
 // DO NOT import anything here
 
 declare namespace API {
+  type AccountUpdateLanguageRequest = {
+    language: import("@/ts/types/i18n/TLocaleTag").TLocaleTag
+  }
+
+  type AccountUpdateLanguageResponse = { success: true } | { error: string }
+
   type AccountSignInRequest = {
     email: string
   }

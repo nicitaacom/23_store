@@ -1,9 +1,9 @@
-# plan-21 — Relink Storage URLs after cross-project backup restore
+# plan-22 — Relink Storage URLs after cross-project backup restore
 
 **Priority:** P1
 **Recommended model:** GPT-5 · high thinking
 **Status:** see [plan-00-tracker.md](plan-00-tracker.md)
-**Depends on:** plan-11
+**Depends on:** plan-12
 
 ## Why
 

@@ -1,4 +1,4 @@
-# plan-17 — seasonal themes: halloween + new-year (port from 14_portfolio)
+# plan-18 — seasonal themes: halloween + new-year (port from 14_portfolio)
 
 **Priority:** P2
 **Recommended model · thinking:** Sonnet · low — every step below is a file copy or a paste of a block that is already written out here. No design work is left open.
@@ -663,4 +663,4 @@ Repo rules this plan already accounts for, so do not "fix" them back:
 
 ---
 
-➡️ **Next plan:** none yet. The follow-up worth writing is `plan-18-seasonal-ornaments.md` — wire the 7 images onto navbar, product card, footer and modal edges.
+➡️ **Next plan:** none yet. The follow-up worth writing is `plan-19-seasonal-ornaments.md` — wire the 7 images onto navbar, product card, footer and modal edges.

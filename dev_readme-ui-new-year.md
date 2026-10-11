@@ -162,7 +162,7 @@ SeasonalBackdrop -> NewYearScene  (fixed, z-0, pointer-events:none)
   A follow-up plan wires them onto a footer rail / modal edges.
 - **Fireworks event.** `NewYearFireworksEvent.tsx` in the portfolio (Canvas particles + GSAP
   flash) did not get ported. Decision against, in
-  `plans/plan-17-seasonal-themes-halloween-new-year.md` §6: separate plan when Nikita wants it.
+  `plans/plan-18-seasonal-themes-halloween-new-year.md` §6: separate plan when Nikita wants it.
 - **Seasonal audio / jazz player.** The portfolio embeds a lo-fi playlist player. Not ported —
   it comes with embed terms that keep it visible on screen; out of scope for this plan.
 

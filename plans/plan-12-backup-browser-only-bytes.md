@@ -1,4 +1,4 @@
-# plan-11 — Backup feature: rebuild on 19_spotify-clone's browser-only-bytes architecture
+# plan-12 — Backup feature: rebuild on 19_spotify-clone's browser-only-bytes architecture
 
 **Priority:** P1 (explicit ask)
 **Screenshot:** — (explicit ask: "I want 23_store backup to be EXACTLY same as on 19 spotify backup")
@@ -176,7 +176,7 @@ files progress: N / M files                   files progress: 23 MB / 230 MB (by
    already exists before writing a new one) instead of a file count. New locale keys needed (tables
    export/import, files export/import, speed label, per-table/per-bucket result lines) — add to
    `app/locales/en.ts` AND the other 3 locale files at the SAME line numbers (check whatever
-   line-count invariant `plan-01-language-switcher.md` established before touching these files).
+   line-count invariant `plan-02-language-switcher.md` established before touching these files).
    STOP for review.
 
 5. **Delete the old architecture.** Remove `app/api/backup/manifest/route.ts`,
@@ -188,7 +188,7 @@ files progress: N / M files                   files progress: 23 MB / 230 MB (by
    `coerceRowsForImport`-equivalent) before deleting them — `measureSpeedBytesPerMs` is the one
    symbol from the old SDK that's still called (kept per task 3, display-only now). Report (do not
    touch) that `supabaseAdmin.rpc("backup_23_tables")` is now unused — the SQL function itself stays
-   in the DB untouched (shared-DB SQL changes are Nikita's call only, matching plan-09's established
+   in the DB untouched (shared-DB SQL changes are Nikita's call only, matching plan-10's established
    rule), just flag it in the doc as unused. STOP for review.
 
 6. **Rewrite `dev_readme-backup.md`.** Same structure as today's doc (What's in the archive / Files
@@ -220,7 +220,7 @@ files progress: N / M files                   files progress: 23 MB / 230 MB (by
 - Admin-only gate stays exactly `requireAdmin()` as it exists today; no per-row/per-file scoping is
   introduced (23_store has no per-user data model in these tables).
 - `backup_23_tables()` SQL function is left in the DB, unused, not dropped — SQL changes on shared
-  infrastructure need Nikita's explicit sign-off (same rule as plan-09).
+  infrastructure need Nikita's explicit sign-off (same rule as plan-10).
 - UI framework stays 23_store's own (`ModalQueryContainer`, `Button`, `ProgressBar`, `useToast`,
   `useScopedI18n`) — only the underlying SDK/route architecture is replaced, not the whole UI layer
   torn out and replaced with spotify's raw components.

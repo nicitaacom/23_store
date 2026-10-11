@@ -1,4 +1,4 @@
-# plan-18 — wire Solana payments into CartModal
+# plan-19 — wire Solana payments into CartModal
 
 **Priority:** P1
 **Screenshot:** none — triggered by the `no-unused-dependencies` eslint rule flagging `@solana/web3.js` at `package.json:55`; Nikita confirmed it is meant to be used, not removed.

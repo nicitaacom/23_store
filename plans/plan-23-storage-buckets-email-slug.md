@@ -1,4 +1,4 @@
-# plan-22 — Storage buckets by purpose, folders by email, filenames by slug
+# plan-23 — Storage buckets by purpose, folders by email, filenames by slug
 
 ## 0. Why this exists
 
@@ -402,7 +402,7 @@ generator as it stands, no editing needed. They share the same style line so the
 
 **Shared style line** (already repeated at the end of each prompt below): "Deep dark-green
 background, slightly rounded corners, readable in both a light and dark viewer theme, no decorative
-filler — every box and arrow maps to a real step named in plan-22."
+filler — every box and arrow maps to a real step named in plan-23."
 
 ---
 
@@ -433,7 +433,7 @@ filler — every box and arrow maps to a real step named in plan-22."
 > Use one colour for the signed-in lane and a different one for the guest lane, and keep those two
 > colours consistent through their whole lane. Deep dark-green background, slightly rounded corners,
 > readable in both a light and dark viewer theme, no decorative filler — every box and arrow maps to
-> a real step named in plan-22.
+> a real step named in plan-23.
 
 ---
 
@@ -457,7 +457,7 @@ filler — every box and arrow maps to a real step named in plan-22."
 >
 > Every label under 6 words. No decorative filler. Deep dark-green background, slightly rounded
 > corners, readable in both a light and dark viewer theme, no decorative filler — every box and
-> arrow maps to a real step named in plan-22.
+> arrow maps to a real step named in plan-23.
 
 ---
 
@@ -477,7 +477,7 @@ filler — every box and arrow maps to a real step named in plan-22."
 > folder as before".
 >
 > Deep dark-green background, slightly rounded corners, readable in both a light and dark viewer
-> theme, no decorative filler — every box and arrow maps to a real step named in plan-22.
+> theme, no decorative filler — every box and arrow maps to a real step named in plan-23.
 
 ---
 
@@ -508,7 +508,7 @@ filler — every box and arrow maps to a real step named in plan-22."
 > string matching".
 >
 > Deep dark-green background, slightly rounded corners, readable in both a light and dark viewer
-> theme, no decorative filler — every box and arrow maps to a real step named in plan-22.
+> theme, no decorative filler — every box and arrow maps to a real step named in plan-23.
 
 ---
 

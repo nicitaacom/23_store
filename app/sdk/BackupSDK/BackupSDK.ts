@@ -6,6 +6,8 @@ import {
   parseTar,
   gzipBufferClient,
   gunzipBufferClient,
+  buildStorageTar,
+  readStorageTarEntries,
   toCsv,
   parseCsv,
   getPublicUrl,
@@ -342,16 +344,9 @@ export class BackupSDK extends BaseSDK {
 
     await Promise.all(Array.from({ length: Math.min(DOWNLOAD_CONCURRENCY, files.length || 1) }, worker))
 
-    const tarChunks: Buffer[] = []
-    const contentTypes: Record<string, string> = {}
-    for (const { file, downloadedBytes } of packed) {
-      if (!downloadedBytes) continue
-      addTarEntry(tarChunks, `storage/${file.bucket}/${file.path}`, downloadedBytes)
-      contentTypes[`${file.bucket}/${file.path}`] = file.contentType
-    }
-    addTarEntry(tarChunks, "storage-content-types.json", Buffer.from(JSON.stringify(contentTypes), "utf8"))
-
-    const tarBuffer = finalizeTar(tarChunks)
+    const tarBuffer = buildStorageTar(
+      packed.flatMap(({ file, downloadedBytes }) => downloadedBytes ? [{ ...file, bytes: downloadedBytes }] : []),
+    )
     const gzipped = await gzipBufferClient(new Uint8Array(tarBuffer))
     const date = new Date().toISOString().slice(0, 10)
     const fileName = `23_backup-files-${date}.tar.gz`
@@ -381,24 +376,7 @@ export class BackupSDK extends BaseSDK {
 
     const entries = parseTar(Buffer.from(tarBytes))
 
-    const contentTypesEntry = entries.get("storage-content-types.json")
-    const contentTypes: Record<string, string> = contentTypesEntry ? JSON.parse(contentTypesEntry.toString("utf8")) : {}
-
-    const storedFiles: { bucket: string; path: string; bytes: Uint8Array; contentType: string }[] = []
-    for (const [name, entryBuffer] of Array.from(entries)) {
-      if (!name.startsWith("storage/")) continue
-      const withoutPrefix = name.slice("storage/".length)
-      const slashIndex = withoutPrefix.indexOf("/")
-      if (slashIndex === -1) continue
-      const bucket = withoutPrefix.slice(0, slashIndex)
-      const path = withoutPrefix.slice(slashIndex + 1)
-      storedFiles.push({
-        bucket,
-        path,
-        bytes: new Uint8Array(entryBuffer),
-        contentType: contentTypes[`${bucket}/${path}`] ?? "application/octet-stream",
-      })
-    }
+    const storedFiles = readStorageTarEntries(entries)
 
     if (storedFiles.length === 0) {
       throw new Error("No storage files found in the backup file — expected storage/23_product-images/… or storage/23_avatar-images/… entries.")

@@ -1,10 +1,10 @@
-# plan-20 — Buying-flow stats: see where visitors leave before checkout
+# plan-21 — Buying-flow stats: see where visitors leave before checkout
 
 **Priority:** P1
 **Screenshot:** none — asked for in chat with the /stats dashboard open. Goal in Nikita's words: know what users click, get an animated UI picture of what goes wrong in the buying flow (viewing but not buying, not adding to cart, searched a product, found nothing, left).
 **Recommended model:** Opus · high — new table + capture pipeline + animated dashboard section, portable to other projects.
 **Status:** see [plan-00-tracker.md](plan-00-tracker.md)
-**Depends on:** — (plan-19 is done; this records clicks on the buttons it re-grouped)
+**Depends on:** — (plan-20 is done; this records clicks on the buttons it re-grouped)
 
 ## In a nutshell
 
@@ -28,7 +28,7 @@ This repo has rules that block writes and commits. Before coding:
    - `git push` is denied here — commit locally, hand Nikita the push command.
    - Cypress binary fails on this machine — verify browser behaviour with the installed Playwright; still write the Cypress spec for CI.
    - Files named `*env*` are write-blocked; only `env.d.ts` declarations pass. This plan needs NO new env var.
-   - `/stats` is admin-only and stays English (plan-08 decision) — NO locale keys for this UI, so `app/locales/*.ts` stay untouched.
+   - `/stats` is admin-only and stays English (plan-09 decision) — NO locale keys for this UI, so `app/locales/*.ts` stay untouched.
    - No subagents. One plan per chat.
 
 ## §0 Root cause / why this file exists
@@ -218,7 +218,7 @@ export interface IBuyingFlowStats {
 
 ### 5.5 UI — `BuyingFlow.tsx`
 
-- English text, NO locale keys (/stats is admin-only, plan-08 decision).
+- English text, NO locale keys (/stats is admin-only, plan-09 decision).
 - Section card styled like the existing dashboard cards (border, rounded, dark surface). Title "Buying flow".
 - Stage strip: 5 columns from `BUYING_FLOW_STAGES`; per column a bar whose height/width animates from 0 with framer-motion (`initial` → `animate`, stagger ~120ms — framer-motion is already a dashboard dependency), the distinct-visitor number counting up, the stage label under it.
 - Between columns: the % fall badge; the biggest leak gets `bg-danger`-family styling + a framer pulse loop; others stay muted.

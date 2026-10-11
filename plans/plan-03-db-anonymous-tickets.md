@@ -1,4 +1,4 @@
-# plan-02 — DB: let anonymous ticket/message rows exist + monthly cleanup
+# plan-03 — DB: let anonymous ticket/message rows exist + monthly cleanup
 
 **Priority:** P1
 **Screenshot:** `TODO/make-it-so-I-can-change-db.jpg` — read it first
@@ -112,4 +112,4 @@ anonymous ticket idle forever                 pg_cron daily: anonymous-owned tic
 
 Read them BEFORE writing; validate the final diff line-by-line before saying done.
 
-➡️ Next plan: [plan-03-ecosystem-links-icon-utm.md](plan-03-ecosystem-links-icon-utm.md)
+➡️ Next plan: [plan-04-ecosystem-links-icon-utm.md](plan-04-ecosystem-links-icon-utm.md)

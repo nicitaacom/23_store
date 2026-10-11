@@ -61,23 +61,34 @@ they were needed for the timeout problem:
 ```
 
 **Files archive** (`23_backup-files-<date>.tar.gz`) — every object in all 6 buckets, plus a mime-type
-map so import restores the right `contentType`:
+map so import restores the right `contentType`. Paths that exceed local filename/path limits or
+contain characters reserved by Windows use short exported names with an original-path map:
 
 ```
 storage-content-types.json
+storage-paths.json                                 # present when paths were shortened
 storage/23_product-images/<emailSlug>/<productId>/<titleSlug>-1.jpg
 storage/23_ai-product-images/<emailSlug>/generated-image.png
 storage/23_avatar-images/<emailSlug>/avatar.png
 storage/23_support-images/<emailSlug>/2026-07-29_at_22-19-54.png
 storage/23_support-guest-images/<deviceId>/2026-07-29_at_22-20-11.png
 storage/23_product-personalization-images/<emailSlug>/<productId>/my-kovrik.jpg
+storage-files/file-000001.avif                      # shortened entry, original key in storage-paths.json
 ```
+
+`storageFilesTar.ts` keeps exported path components within 200 UTF-8 bytes and paths relative to the
+extraction folder within 240 bytes. A longer or incompatible path becomes
+`storage-files/file-<number>.<extension>`.
+The separate prefix and unique numbers keep files with similar titles distinct. `storage-paths.json`
+maps that exported entry to its original `bucket/path`; content types remain keyed by the original
+`bucket/path`. Import restores the exact original Storage key, so table URLs still match. Older
+backups with original `storage/<bucket>/<path>` entries remain supported.
 
 - **Tables** (`BACKUP_TABLES`, FK-safe order, in `app/api/backup/backupConfig.ts`):
   `23_users → 23_users_cart → 23_categories → 23_category_views → 23_products → 23_ai_price_runs → 23_ai_price_proposals → 23_personalized_designs → 23_tickets → 23_messages`.
   The two AI-pricing tables export as empty CSVs until their manual SQL block has been run.
   `utm_stats` is **excluded** — it is shared across projects 14/23/28/29.
-- **Buckets** (`BACKUP_BUCKETS`, mirrors `app/ts/types/TBuckets.ts`), one per purpose since plan-22:
+- **Buckets** (`BACKUP_BUCKETS`, mirrors `app/ts/types/TBuckets.ts`), one per purpose since plan-23:
   `23_product-images`, `23_ai-product-images`, `23_avatar-images`, `23_support-images`,
   `23_support-guest-images`, `23_product-personalization-images`. The retired `23_public-images` held
   all of them at once and is not exported — relink still reads a path out of an old URL naming it,
@@ -95,6 +106,8 @@ storage/23_product-personalization-images/<emailSlug>/<productId>/my-kovrik.jpg
 | --- | --- |
 | Project-specific config: tables, column classification, buckets, public URL, file listing | `app/api/backup/backupConfig.ts` |
 | Pure tar (.tar) build/parse + browser gzip (no Node deps) | `app/api/backup/tarClient.ts` |
+| Extractable Storage backup paths + original-path map | `app/api/backup/storageFilesTar.ts` |
+| Local repair of existing Files backups | `scripts/repair-backup-files.mjs` |
 | Pure CSV read/write (RFC 4180) | `app/api/backup/csvClient.ts` |
 | Stable re-export shim (routes + SDK import from here) | `app/api/backup/backupTables.ts` |
 | ADMIN gate (string error or null) | `app/api/backup/requireAdmin.ts` |
@@ -140,7 +153,7 @@ change. See the **DB BACKUP FUNCTION** section in `dev_readme-supbase-sql.md` if
 
 ![Backup import / export — export project A, import project B, FK remap, storage URL relink](public/docs/backup/backup-import-export-workflow.png)
 `public/docs/backup/backup-import-export-workflow.png` — export/import + storage URL relink
-(prompt 4 of 4, [plan-22 §5](plans/plan-22-storage-buckets-email-slug.md#5-image-prompts))
+(prompt 4 of 4, [plan-23 §5](plans/plan-23-storage-buckets-email-slug.md#5-image-prompts))
 
 ## Export flow
 
@@ -158,6 +171,28 @@ bytes) → the browser downloads each file directly from Supabase's public CDN (
 downloads) → packs a `.tar.gz` locally → downloads it. Progress is byte-accurate: `bytesDone` sums
 the `size` of each file as its download completes, against `bytesTotal` from the file list.
 
+### Repair an existing backup that fails extraction
+
+The reported aloe-vera filename is **294 bytes**, above the usual 255-byte filename-component limit.
+GNU tar's long-name headers preserve that name inside the backup file, but extraction still needs a name
+the destination filesystem accepts. Clicking **Yes** skips an error; it does not shorten the name.
+
+From the repository root, using the same Node version as `pnpm test:keys`, run:
+
+```bash
+pnpm backup:repair-files ~/Downloads/23_backup-files-2026-10-09.tar.gz
+```
+
+This writes `23_backup-files-2026-10-09-extractable.tar.gz` beside the source, leaving the source
+intact. An optional second argument selects another output path; an existing output file is refused.
+Extract the new `.tar.gz` with the archive manager or `tar -xzf`. Files with short compatible paths
+stay in `storage/`; shortened entries sit in `storage-files/`, with their original keys in
+`storage-paths.json`. To restore into Supabase, select this repaired archive directly in **Files →
+Import**. Both the repair command and the browser use the same path mapping; no Supabase rename,
+table update, SQL, environment change, or network request is required to repair a local backup.
+
+Code changes apply to new exports. Existing downloaded backups need this repair or a fresh export.
+
 <br/>
 
 ## Import flow (upsert — NOT override)
@@ -172,8 +207,9 @@ CSV keeps `null` as an unquoted empty field and `""` as a quoted empty field, so
 the round trip. For older archives where both forms were unquoted, import restores a null
 `23_tickets.last_message_body` to its database default (`""`) before upsert.
 
-**Files:** upload one `.tar.gz` (from export). The browser decompresses and parses it locally (the
-server never sees the archive bytes), asks `/api/backup/files` for a signed upload URL per file
+**Files:** upload one `.tar.gz` (from export or local repair). The browser decompresses and parses it
+locally, resolves short exported names through `storage-paths.json`, then asks `/api/backup/files`
+for a signed upload URL per file
 (≤100 per request; bucket membership is the whole ownership check — this schema has no per-file
 owner column), then PUTs each file's bytes directly to the signed URL with
 `upsert: true` baked into the token, so a re-import overwrites the existing object.
@@ -194,7 +230,7 @@ checks only the configured URL-bearing columns:
 - Supabase Auth `user_metadata.avatar_url`
 
 An old public URL is rewritten to `NEXT_PUBLIC_SUPABASE_URL` when its exact `bucket/path` exists in
-project B's Storage — and, since plan-22, also when the row's own folder holds the file under a
+project B's Storage — and, since plan-23, also when the row's own folder holds the file under a
 different name. Current-project URLs, external/invalid/data URLs, and URLs with neither an exact
 match nor a folder match remain unchanged. Missing references and unique paths are returned as an
 unresolved warning in the modal; they do not fail an otherwise successful import. Re-running the
@@ -203,7 +239,7 @@ server-rendered image data is fetched again.
 
 **Matching by the row's own folder** (`selectStorageFolder` in `backupConfig.ts`,
 `selectRelinkedPathsByFolder` in `backupStorageRelink.ts`). An exact string match alone leaves every
-pre-plan-22 row unresolved: those URLs name `23_public-images/<old auth id>/…`, a bucket and a
+pre-plan-23 row unresolved: those URLs name `23_public-images/<old auth id>/…`, a bucket and a
 folder nothing answers to any more. The restored row itself still says where its images belong now:
 
 | Table | Folder built from the row | Example |
@@ -238,14 +274,14 @@ a different price than the product row it landed on was reported, not uploaded.
 
 That move ran from `backup.ts` at the repo root, written to be deleted once the shop showed its
 images, so this paragraph is the record of it. A later restore needs none of it — every file written
-since plan-22 already sits at the path its row names.
+since plan-23 already sits at the path its row names.
 
 For the 2026-08-03 migration archive, 861 of 1,071 database Storage URL references match the
 current files archive. The remaining 210 references (170 unique paths) point to files absent from
-that export and intentionally stay unchanged. That run predates plan-22, so it was measured on
+that export and intentionally stay unchanged. That run predates plan-23, so it was measured on
 exact-string matching alone, against the 2 buckets of the time.
 
-Since plan-22, a restore needs the 6 buckets to exist in project B first — the **SQL query for
+Since plan-23, a restore needs the 6 buckets to exist in project B first — the **SQL query for
 buckets + policies** section of `dev_readme-supbase-sql.md`, run in the Supabase SQL Editor. No
 environment change beyond `NEXT_PUBLIC_SUPABASE_URL`, which is already set.
 
@@ -330,7 +366,7 @@ An archive exported before missing-profile completion was added must be exported
 the importer cannot recover an email that is absent from the old archive.
 
 `23_tickets.owner_id` is TEXT with no auth FK, confirmed live — those rows always restore.
-`23_messages.sender_id` is **settled: TEXT, no FK**. Nikita read the live constraints (plan-02 task 1)
+`23_messages.sender_id` is **settled: TEXT, no FK**. Nikita read the live constraints (plan-03 task 1)
 and the only ones on these two tables are `23_tickets_pkey`, `23_messages_pkey` and
 `23_messages_ticket_id_fkey` (`ON DELETE CASCADE`) — the `23_messages_sender_id_fkey` from the old
 import screenshot is gone, so anonymous rows (`sender_id = anonymousId_…`) import and restore like any

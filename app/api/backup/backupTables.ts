@@ -24,6 +24,7 @@ export type { TBackupSourceUser, TBackupAuthMapping } from "./backupAuthRestore"
 
 export { addTarEntry, finalizeTar, parseTar, gzipBufferClient, gunzipBufferClient } from "./tarClient"
 export { toCsv, parseCsv } from "./csvClient"
+export { buildStorageTar, readStorageTarEntries } from "./storageFilesTar"
 export {
   selectBackupStoragePath,
   relinkBackupStorageValue,

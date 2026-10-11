@@ -1,4 +1,4 @@
-# plan-05 — AI suggest category: re-suggest after a manual dropdown change
+# plan-06 — AI suggest category: re-suggest after a manual dropdown change
 
 **Priority:** P2
 **Screenshot:** — (from `app/api/ai/suggest-category/dev_readme-ai-suggest-category.md` §5 TODO)
@@ -58,4 +58,4 @@ admin edits title again                       admin edits title again (debounced
 
 Read them BEFORE coding; validate the final diff line-by-line before saying done; rewrite touched code to match where the file drifts.
 
-➡️ Next plan: [plan-06-support-ui-overhaul.md](plan-06-support-ui-overhaul.md)
+➡️ Next plan: [plan-07-support-ui-overhaul.md](plan-07-support-ui-overhaul.md)

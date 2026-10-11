@@ -313,6 +313,7 @@ export type Database = {
           email_confirmed_at: string | null
           id: string
           password_reset_required: boolean
+          preferred_language: string | null
           providers: string[] | null
           roles: string[]
           username: string
@@ -325,6 +326,7 @@ export type Database = {
           email_confirmed_at?: string | null
           id: string
           password_reset_required?: boolean
+          preferred_language?: string | null
           providers?: string[] | null
           roles?: string[]
           username: string
@@ -337,6 +339,7 @@ export type Database = {
           email_confirmed_at?: string | null
           id?: string
           password_reset_required?: boolean
+          preferred_language?: string | null
           providers?: string[] | null
           roles?: string[]
           username?: string

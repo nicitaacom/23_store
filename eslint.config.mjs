@@ -119,7 +119,7 @@ export default [
     ignores: ["eslint-rules/**", "eslint.config.mjs"],
   },
   {
-    // Surfaces decided to stay English on purpose (see plans/plan-08-i18n-sweep.md §0/audit):
+    // Surfaces decided to stay English on purpose (see plans/plan-09-i18n-sweep.md §0/audit):
     // admin-only tools (only Nikita opens them), the support dashboard (support role only),
     // auth-callback error screens (technical, aimed at support, not buyers), global-error
     // (renders outside the locale layout - no i18n provider), and the internal support email.

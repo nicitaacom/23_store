@@ -1,4 +1,4 @@
-# plan-16 — AI price proposals and product workspace improvements
+# plan-17 — AI price proposals and product workspace improvements
 
 ## Summary
 

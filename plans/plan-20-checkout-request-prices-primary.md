@@ -1,4 +1,4 @@
-# plan-19 — Request Better Prices becomes the main checkout action
+# plan-20 — Request Better Prices becomes the main checkout action
 
 **Priority:** P1
 **Screenshot:** none — reported from the running app. Pressing Stripe lands on
@@ -7,7 +7,7 @@ and PayPal does not go through either.
 **Recommended model:** Sonnet · medium — two small defects with a known cause, plus one layout
 change in one aside. No new architecture.
 **Status:** see [plan-00-tracker.md](plan-00-tracker.md)
-**Depends on:** plan-18 (this re-groups the Solana button it added)
+**Depends on:** plan-19 (this re-groups the Solana button it added)
 
 ## §0 Root cause / why this file exists
 
@@ -30,7 +30,7 @@ and `PayWithPaypalButton.tsx:52` the same `router.push`, so PayPal fails the sam
 ### Defect 2 — the aside leads with the wrong action
 
 `ProductsInCart.tsx` puts Request Better Prices and Clear cart in the actions block and (since
-plan-18's fix at `a6284ca4`) renders all 4 payment buttons above them. Nikita's call: Request Better
+plan-19's fix at `a6284ca4`) renders all 4 payment buttons above them. Nikita's call: Request Better
 Prices is the action he wants pressed. The payment options stay reachable, not first.
 
 ## §1 Where it lives / what changes
@@ -137,7 +137,7 @@ Answer with a letter each. Nothing starts until all 4 are answered.
 
 - **Guests get no check offer on Solana.** `DoYouWantReceiveCheckModal.tsx:57` calls
   `sendMoneyWithMetamask` hard-wired. Already written up in `CartModal/dev_readme.md` §5.7.
-- **Server-side check of a Solana signature.** Settled AGAINST in plan-18 decision 4.
+- **Server-side check of a Solana signature.** Settled AGAINST in plan-19 decision 4.
 - **Klarna.** `{/* <PayWithKlarnaButton /> */}` stays commented out in `PaymentButtons.tsx:16`.
 
 ## Code patterns to follow

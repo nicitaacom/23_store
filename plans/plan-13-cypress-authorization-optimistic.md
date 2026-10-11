@@ -1,4 +1,4 @@
-# plan-12 — Cypress: authorization and optimistic product CRUD
+# plan-13 — Cypress: authorization and optimistic product CRUD
 
 **Priority:** P1 (explicit ask)
 **Screenshot:** —

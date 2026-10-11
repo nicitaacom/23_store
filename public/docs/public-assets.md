@@ -99,16 +99,16 @@ These files exist on disk but have no `src` reference in `.tsx` / `.ts` files. S
 | `docs/AdminPanel/AddProduct.png` | dev_readme for admin panel add tab |
 | `docs/AdminPanel/DeleteProduct.png` | dev_readme for admin panel delete tab |
 | `docs/AdminPanel/EditProduct.png` | dev_readme for admin panel edit tab |
-| `docs/auth/avatar-url-workflow.png` | `dev_readme-supbase-sql.md` — avatar URL upload/overwrite/restore diagram, AI-generated from plan-22 §5 prompt 3 |
+| `docs/auth/avatar-url-workflow.png` | `dev_readme-supbase-sql.md` — avatar URL upload/overwrite/restore diagram, AI-generated from plan-23 §5 prompt 3 |
 | `docs/auth/db-23_users.png` | dev_readme for auth — DB screenshot |
-| `docs/backup/backup-import-export-workflow.png` | `dev_readme-backup.md` — export/import + storage URL relink diagram, AI-generated from plan-22 §5 prompt 4 |
+| `docs/backup/backup-import-export-workflow.png` | `dev_readme-backup.md` — export/import + storage URL relink diagram, AI-generated from plan-23 §5 prompt 4 |
 | `docs/cart/CartModal.png` | dev_readme for CartModal — UI screenshot |
 | `docs/cart/db-23_users_cart.png` | dev_readme for cart — DB screenshot |
 | `docs/products/Products.png` | dev_readme for create-product — products UI screenshot |
 | `docs/products/db-23_products.png` | dev_readme for create-product — DB screenshot |
 | `docs/support/db-23_messages.png` | dev_readme for support — DB messages screenshot |
 | `docs/support/db-23_tickets.png` | dev_readme for support — DB tickets screenshot |
-| `docs/support/support-image-upload-workflow.png` | `dev_readme-supbase-sql.md` — support chat images bucket/folder diagram, AI-generated from plan-22 §5 prompt 1 |
+| `docs/support/support-image-upload-workflow.png` | `dev_readme-supbase-sql.md` — support chat images bucket/folder diagram, AI-generated from plan-23 §5 prompt 1 |
 | `docs/customer/how-to-install-metamask/step-1.png` | MetaMask install guide step 1 |
 | `docs/customer/how-to-install-metamask/step-2.jpg` | MetaMask install guide step 2 |
 | `projects/AI.png` | Portfolio project card — AI project |

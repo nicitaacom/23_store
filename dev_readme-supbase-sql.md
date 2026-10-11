@@ -46,7 +46,7 @@ CREATE INDEX IF NOT EXISTS idx_utm_stats_source     ON public.utm_stats(source);
 CREATE INDEX IF NOT EXISTS idx_utm_stats_campaign   ON public.utm_stats(campaign);
 CREATE INDEX IF NOT EXISTS idx_utm_stats_country    ON public.utm_stats(country_code);
 
--- Before/after check for the period scan the stats page runs (plan-09 task 4). The created_at index
+-- Before/after check for the period scan the stats page runs (plan-10 task 4). The created_at index
 -- above already exists, so this is a measurement, not a change:
 --   EXPLAIN ANALYZE SELECT id, user_id, created_at, source, medium, campaign, url, user_agent
 --   FROM public.utm_stats
@@ -132,6 +132,10 @@ CREATE TABLE IF NOT EXISTS public."23_users" (
 -- Existing projects: run once before using cross-project Tables import.
 ALTER TABLE public."23_users"
   ADD COLUMN IF NOT EXISTS password_reset_required BOOLEAN NOT NULL DEFAULT false;
+
+ALTER TABLE public."23_users"
+  ADD COLUMN IF NOT EXISTS preferred_language TEXT
+  CHECK (preferred_language IN ('fi', 'en', 'ru', 'se'));
 
 -- 🔐 RLS Policies for Users
 ALTER TABLE public."23_users" ENABLE ROW LEVEL SECURITY;
@@ -347,17 +351,17 @@ ALTER TABLE utm_stats ENABLE ROW LEVEL SECURITY;
 
 ![Support chat images — bucket + folder split](public/docs/support/support-image-upload-workflow.png)
 `public/docs/support/support-image-upload-workflow.png` — signed-in vs guest bucket, folder, and
-weekly sweep for support-chat images (prompt 1 of 4, [plan-22 §5](plans/plan-22-storage-buckets-email-slug.md#5-image-prompts))
+weekly sweep for support-chat images (prompt 1 of 4, [plan-23 §5](plans/plan-23-storage-buckets-email-slug.md#5-image-prompts))
 
 ![Avatar URL workflow — upload, overwrite, restore](public/docs/auth/avatar-url-workflow.png)
 `public/docs/auth/avatar-url-workflow.png` — single-file-per-account upload/overwrite, and why the
-folder still holds after a restore rewrites `auth.users.id` (prompt 3 of 4, [plan-22 §5](plans/plan-22-storage-buckets-email-slug.md#5-image-prompts))
+folder still holds after a restore rewrites `auth.users.id` (prompt 3 of 4, [plan-23 §5](plans/plan-23-storage-buckets-email-slug.md#5-image-prompts))
 
 One bucket per purpose, and the folder inside it is keyed on the uploader's slugified email
 (`nicitaacom@gmail.com` → `nicitaacomgmailcom`) or, for a visitor who is not signed in, on their
 `deviceId`. `auth.users.id` is never a folder name: it is rewritten to a new uuid whenever a
 `23_users` row is restored into a different Supabase project, and every folder created under the
-old uuid would stay behind. See [plan-22](plans/plan-22-storage-buckets-email-slug.md).
+old uuid would stay behind. See [plan-23](plans/plan-23-storage-buckets-email-slug.md).
 
 | Bucket | Holds | Path inside it |
 | --- | --- | --- |
@@ -434,7 +438,7 @@ END $$;
 
 `23_public-images` held products, personalized designs, support-chat images and AI-generated
 images together, under a name that describes none of them. No code writes to it any more (its last
-reference left the repo with plan-22 stage 1). The block below stays here because the files are
+reference left the repo with plan-23 stage 1). The block below stays here because the files are
 still in it until they are moved by hand into the 6 buckets above — run it only on a project that
 still has to read those old files.
 

@@ -1,4 +1,4 @@
-# plan-04 — RequestReplanishmentButton: email body is empty + request counter
+# plan-05 — RequestReplanishmentButton: email body is empty + request counter
 
 **Priority:** P2
 **Screenshot:** — (from code TODOs)
@@ -12,7 +12,7 @@
 
 - `:17-31` — the email render is commented out behind `// TODO - fix error about keys in react here`, so the `html` state stays `""` forever and `:36-40` sends the owner an **empty email body** today.
 - `:42` — `// 3. TODO - Add amount of requests about replanishment` (GitHub project item linked at `:43`): the owner has no signal how many buyers asked.
-- Side notes for the fix: the effect at `:17-31` has an `eslint-disable exhaustive-deps`, and the toasts at `:26/:46/:48` are hardcoded English with typos ("onwer", "taht") — translating them belongs to plan-08, not here.
+- Side notes for the fix: the effect at `:17-31` has an `eslint-disable exhaustive-deps`, and the toasts at `:26/:46/:48` are hardcoded English with typos ("onwer", "taht") — translating them belongs to plan-09, not here.
 
 ## §1 Where it lives
 
@@ -43,13 +43,13 @@ owner sees no demand signal               owner/UI can read how many buyers aske
    (a) column `replanishment_requests_count INTEGER NOT NULL DEFAULT 0` on `23_products`, increased in the same click handler via an SDK method following the verb table (`updateDB...`);
    (b) separate table with one row per request (needed only if per-user dedupe/history matters).
    Present both with the FOR/AGAINST to Nikita — schema changes only after his pick. STOP — wait for his decision.
-4. **Implement the picked storage + show the number** (e.g. next to the button label), plus the SQL block for `dev_readme-supbase-sql.md` (copy-paste-ready, per the project's SQL-doc convention). Leave the toast strings untouched — plan-08 translates them. STOP — show Nikita the diff and wait for his review.
+4. **Implement the picked storage + show the number** (e.g. next to the button label), plus the SQL block for `dev_readme-supbase-sql.md` (copy-paste-ready, per the project's SQL-doc convention). Leave the toast strings untouched — plan-09 translates them. STOP — show Nikita the diff and wait for his review.
 5. **Docs.** Update `app/emails/dev_readme.md` (if the template changed in task 2) and the product-components docs so the replenishment flow (render → send → counter) is written down and current. STOP — show Nikita the diff and wait for his review.
 
 ## Decisions made (do not re-open)
 
 - Empty-email bug and the counter are fixed in this one plan (both TODOs sit in the same file).
-- Toast/i18n strings here are NOT translated in this plan → plan-08.
+- Toast/i18n strings here are NOT translated in this plan → plan-09.
 - Counter storage shape is decided at task 3's STOP — a genuine ship-decision, kept open on purpose.
 
 ## Code patterns to follow
@@ -60,4 +60,4 @@ owner sees no demand signal               owner/UI can read how many buyers aske
 
 Read them BEFORE coding; validate the final diff line-by-line before saying done; rewrite touched code to match where the file drifts.
 
-➡️ Next plan: [plan-05-ai-suggest-retrigger.md](plan-05-ai-suggest-retrigger.md)
+➡️ Next plan: [plan-06-ai-suggest-retrigger.md](plan-06-ai-suggest-retrigger.md)

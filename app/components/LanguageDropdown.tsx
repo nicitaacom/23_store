@@ -7,6 +7,8 @@ import { TbChevronDown, TbWorld } from "react-icons/tb"
 import { twMerge } from "tailwind-merge"
 
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
+import { useLanguageDropdownHandlers } from "./hooks/useLanguageDropdownHandlers"
+import { getLocalePath } from "@/utils/locale"
 import { useCurrentLocale } from "@/locales/client"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 
@@ -35,6 +37,7 @@ function CurrentLocaleLanguageDropdown(props: Omit<LanguageDropdownProps, "local
 }
 
 function LanguageDropdownContent({ className, isDropUp = false, locale }: LanguageDropdownProps & { locale: TLocaleTag }) {
+  const { handleChangeLanguage, isLocalLoading } = useLanguageDropdownHandlers()
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownContainerRef = useRef<HTMLDivElement>(null)
 
@@ -45,10 +48,8 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
   useOnEscOrClickOutside(dropdownContainerRef, () => setShowDropdown(false), { isHookEnabled: showDropdown })
 
   const getLocaleHref = (code: TLocaleTag) => {
-    const localePrefix = new RegExp(`^/(${locales.map(localeOption => localeOption.code).join("|")})(?=/|$)`)
-    const pathWithoutLocale = pathname.replace(localePrefix, "") || "/"
     const query = searchParams.toString()
-    return `/${code}${pathWithoutLocale}${query ? `?${query}` : ""}`
+    return `${getLocalePath(code, pathname)}${query ? `?${query}` : ""}`
   }
 
   return (
@@ -58,6 +59,7 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
         className="flex h-8 w-full items-center gap-1.5 rounded border border-border-color/35 bg-background/55 px-2.5 py-1
         text-sm text-title transition-colors duration-150 hover:bg-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70"
         data-cy="language-trigger"
+        disabled={isLocalLoading}
         type="button"
         onClick={() => setShowDropdown(!showDropdown)}
         aria-expanded={showDropdown}>
@@ -96,7 +98,11 @@ function LanguageDropdownContent({ className, isDropUp = false, locale }: Langua
             key={localeOption.code}
             href={getLocaleHref(localeOption.code)}
             aria-current={locale === localeOption.code ? "page" : undefined}
-            onClick={() => setShowDropdown(false)}>
+            aria-disabled={isLocalLoading}
+            onClick={e => {
+              void handleChangeLanguage(e, localeOption.code)
+              setShowDropdown(false)
+            }}>
             <Image
               className="w-[18px] h-[13px] rounded-sm object-cover"
               src={localeOption.flag}

@@ -4,9 +4,11 @@ import "../styles/theme-new-year.css"
 import React, { lazy, Suspense } from "react"
 import type { Metadata } from "next"
 
+import type { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 import { UTMTracker } from "./UTMTracker"
 import { getCookie } from "@/utils/helpersSSR"
 import getOwnerProducts from "@/actions/getOwnerProducts"
+import { isLocaleTag } from "@/utils/locale"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { I18nProviderClient } from "@/locales/client"
 import { Layout, OfflineBanner } from "@/components"
@@ -53,9 +55,12 @@ export default async function RootLayout({
   } = await supabase.auth.getUser()
   const normalizedUser = user ?? null
   let roles: string[] = []
+  let preferredLanguage: TLocaleTag | null = null
   if (normalizedUser?.id) {
-    const { data } = await supabase.from("23_users").select("roles").eq("id", normalizedUser.id).single()
+    const { data } = await supabase.from("23_users").select("*").eq("id", normalizedUser.id).single()
     roles = data?.roles ?? []
+    const accountLanguage = data?.preferred_language
+    preferredLanguage = isLocaleTag(accountLanguage) ? accountLanguage : null
   }
   const darkMode = await getCookie("darkMode")
 
@@ -67,7 +72,7 @@ export default async function RootLayout({
       <body>
         <SeasonalThemeLifecycle />
         <I18nProviderClient locale={locale}>
-          <Layout user={normalizedUser}>{children}</Layout>
+          <Layout user={normalizedUser} preferredLanguage={preferredLanguage}>{children}</Layout>
           <Suspense>
             <ModalsQueryProvider ownerProducts={getOwnerProductsResp ?? []} roles={roles} isAuthenticated={!!normalizedUser} />
           </Suspense>

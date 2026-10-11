@@ -97,7 +97,7 @@ visitor action
 
 **TODO**
 
-- Run the SQL from the plan-20 commit body in the Supabase SQL editor.
+- Run the SQL from the plan-21 commit body in the Supabase SQL editor.
 
 **Reproduce**
 

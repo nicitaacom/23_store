@@ -1,6 +1,14 @@
+import type { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 import { BaseSDK } from "@/sdk/BaseSDK"
 
 export class AccountSDK extends BaseSDK {
+  async updateLanguage(language: TLocaleTag): Promise<void> {
+    await this.postVoid<API.AccountUpdateLanguageRequest>(
+      "/api/account/language",
+      { language } satisfies API.AccountUpdateLanguageRequest,
+    )
+  }
+
   async updateAvatarUrl(avatarUrl: string): Promise<API.UpdateAvatarResponse> {
     return this.postJson<API.UpdateAvatarRequest, API.UpdateAvatarResponse>(
       "/api/account/avatar",

@@ -1,4 +1,4 @@
-# plan-03 — HamburgerMenu ecosystem links: transparent Jotion icon + UTM params
+# plan-04 — HamburgerMenu ecosystem links: transparent Jotion icon + UTM params
 
 **Priority:** P2
 **Screenshot:** `TODO/07.04.2026 at 18-41.jpg` — read it first
@@ -48,4 +48,4 @@ BEFORE                                   AFTER
 
 Read them BEFORE coding; validate the final diff line-by-line before saying done.
 
-➡️ Next plan: [plan-04-replenishment-button.md](plan-04-replenishment-button.md)
+➡️ Next plan: [plan-05-replenishment-button.md](plan-05-replenishment-button.md)

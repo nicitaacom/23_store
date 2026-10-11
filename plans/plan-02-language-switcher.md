@@ -1,4 +1,4 @@
-# plan-01 — Language switcher: picking a language changes nothing
+# plan-02 — Language switcher: picking a language changes nothing
 
 **Priority:** P1
 **Screenshot:** `TODO/04.07.2026 at 16-47.png` — read it first
@@ -75,4 +75,4 @@ BEFORE                                          AFTER
 
 Read them BEFORE coding; validate the final diff against them line-by-line before saying done; rewrite touched code to match where the file drifts.
 
-➡️ Next plan: [plan-02-db-anonymous-tickets.md](plan-02-db-anonymous-tickets.md)
+➡️ Next plan: [plan-03-db-anonymous-tickets.md](plan-03-db-anonymous-tickets.md)

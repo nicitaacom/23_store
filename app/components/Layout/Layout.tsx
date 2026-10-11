@@ -3,15 +3,24 @@
 import { useEffect } from "react"
 import { User } from "@supabase/supabase-js"
 
+import type { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
+import { useSetLayoutLanguage } from "./hooks/useSetLayoutLanguage"
 import { useSetUser } from "./hooks/useSetUser"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
 import { SeasonalBackdrop } from "@/components/SeasonalBackdrop"
 
+interface LayoutProps {
+  children: React.ReactNode
+  user: User | null
+  preferredLanguage: TLocaleTag | null
+}
+
 // http://localhost:6006/?path=/story/navigation-navbar--anonymous
-export default function Layout({ children, user }: { children: React.ReactNode; user: User | null }) {
+export default function Layout({ children, user, preferredLanguage }: LayoutProps) {
   const darkMode = useDarkModeStore()
 
   useSetUser(user)
+  useSetLayoutLanguage(user?.id ?? null, preferredLanguage)
 
   //children is a server component
   //more info - https://www.youtube.com/watch?v=9YuHTGAAyu0

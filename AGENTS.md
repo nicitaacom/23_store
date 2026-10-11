@@ -2,7 +2,7 @@
 
 Before coding, read:
 
-- `app/plans/`
+- `plans/`
 - `dev_readme-eslint.md`
 - `commit-patterns.md`
 

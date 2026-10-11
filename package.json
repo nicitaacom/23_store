@@ -8,6 +8,7 @@
     "start": "NODE_OPTIONS=\"${NODE_OPTIONS:+$NODE_OPTIONS }--disable-warning=DEP0040\" next start -p 3023",
     "lint": "eslint .",
     "type-check": "tsc -p tsconfig.json --noEmit",
+    "backup:repair-files": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./tests/alias-hook.mjs scripts/repair-backup-files.mjs",
     "test:commit-naming": "node --test .github/scripts/validate-commit-naming.test.mjs",
     "test:eslint-rules": "node --test eslint-rules/*.test.js",
     "test:keys": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./tests/alias-hook.mjs --env-file=.env.local --test tests/keys.test.mjs",
