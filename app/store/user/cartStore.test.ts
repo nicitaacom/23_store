@@ -15,6 +15,10 @@ vi.mock("./useUser", () => ({
   default: { getState: () => ({ user: null }) },
 }))
 
+vi.mock("@/libs/supabase/supabaseClient", () => ({
+  default: { from: vi.fn() },
+}))
+
 beforeEach(() => {
   useCartStore.setState({ products: {}, productsData: [] })
   trackingState.events.length = 0
