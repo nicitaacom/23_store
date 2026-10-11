@@ -121,7 +121,7 @@ backups with original `storage/<bucket>/<path>` entries remain supported.
 | Auth-account preparation + source/target UUID map | `app/api/backup/auth-users/route.ts` |
 | Pure source-user validation and row remapping | `app/api/backup/backupAuthRestore.ts` |
 | Rows GET (export) / POST (import, ≤500/batch) | `app/api/backup/rows/route.ts` |
-| Files GET (list, paths only) / POST (signed upload URLs, ≤100/batch) | `app/api/backup/files/route.ts` |
+| Files GET (list, paths only) / POST (signed upload URLs, ≤4/batch) | `app/api/backup/files/route.ts` |
 | Storage URL relink POST (scan target paths, update rows/Auth metadata) | `app/api/backup/relink-storage-urls/route.ts` |
 | Pure recursive Storage URL parser/relinker | `app/api/backup/backupStorageRelink.ts` |
 | Client SDK — export/import × tables/files, relink finalizer + live speed tracker | `app/sdk/BackupSDK/BackupSDK.ts` |
@@ -174,9 +174,18 @@ UUID-looking ids in historical TEXT columns (tickets, messages, category views) 
 history and do not require a still-existing Auth account.
 
 **Files:** `GET /api/backup/files` returns every stored file's bucket/path/size/contentType (no
-bytes and paginated provider download URLs) → the browser downloads each file directly from the active provider (5 concurrent
+bytes and paginated provider download URLs) → the browser downloads each file directly from the selected provider (5 concurrent
 downloads) → packs a `.tar.gz` locally → downloads it. Progress is byte-accurate: `bytesDone` sums
 the `size` of each file as its download completes, against `bytesTotal` from the file list.
+
+To export R2 through the UI, sign in as **ADMIN → DB Backup → Files → R2 → Export**. This works
+while the active provider remains Supabase. Export checks all six category prefixes, skips empty
+prefixes and folder markers, and follows every inventory page. Downloads use the configured
+R2 custom domain and its GET CORS policy. The archive preserves original category/path keys,
+file bytes and MIME types, including mapped names for long or Unicode filenames. Temporary
+`uploads/` objects are excluded. Export lists, inspects and downloads files; it creates no R2 objects.
+The downloaded file is `23_backup-files-YYYY-MM-DD.tar.gz`, compatible with either provider's
+Files import. Browser backups are limited to 512 MiB; use the streaming command below for larger backups.
 
 ### Repair an existing backup that fails extraction
 
@@ -222,11 +231,12 @@ public bucket; Supabase uses its private staging bucket. Verified ADMIN authoriz
 then calls `/api/storage/complete`; only verified length and MIME are published with overwrite
 behavior. Supabase staging permits 50 MiB per file; larger files use the local command.
 
-**Storage URL relinking:** both Tables import and Files import finish by calling the ADMIN-only
+**Storage URL relinking:** Tables import and Files import into the active provider finish by calling the ADMIN-only
 `POST /api/backup/relink-storage-urls`. Calling it from both flows makes the restore order
 independent: a Tables-first restore reports paths that are not uploaded yet, and the later Files
-import resolves them; a Files-first restore resolves them when Tables are imported. The route
-lists the objects currently present in all 6 buckets, then recursively
+import resolves them; a Files-first restore resolves them when Tables are imported. Importing Files
+into inactive R2 preserves live URLs and reports that final synchronization is still required.
+The route lists the objects currently present in all six logical categories, then recursively
 checks only the configured URL-bearing columns:
 
 - `23_users.avatar_url`

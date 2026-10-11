@@ -20,10 +20,12 @@ the following setup; completing that copy still leaves final synchronization and
    with bucket access allowed, and save the CORS policy in §1. TLS 1.3 was verified on October 11:
    TLS 1.3 returned HTTP 404 at the root, and TLS 1.2 was rejected with a protocol-version alert.
    The root response does not verify an object's public URL or the bucket/domain association.
-3. Apply the whole [`scripts/storage/setup.sql`](scripts/storage/setup.sql) file in the existing
-   Supabase project's **SQL Editor → New query → Run**. This installs storage helpers and policies;
-   the migration keeps the current application tables and Auth users. Use the new application
-   routes and restart the app after configuring its environment. Keep the initial settings:
+3. The user applied the whole [`scripts/storage/setup.sql`](scripts/storage/setup.sql) file in the
+   existing Supabase project's SQL Editor on October 11 and reported **Success. No rows returned**.
+   This installs storage helpers and policies; application tables and Auth users stay in place.
+   For another deployment, apply this SQL before its first import. Add the initial settings in
+   **Vercel → Project → Settings → Environment Variables → Production**, one name/value per entry
+   with no quotes around the value, then deploy the updated production code:
 
    ```dotenv
    STORAGE_PROVIDER='supabase'
@@ -32,7 +34,22 @@ the following setup; completing that copy still leaves final synchronization and
    R2_ACCOUNT_STANDARD_ONLY='false'
    ```
 
-4. Sign in as **ADMIN**, open **DB Backup → Files**, choose **R2**, then **Import** and select
+   The user will test the redeployed production application, so changing local settings is unnecessary
+   for that test. The application defaults to these values when the four entries are absent.
+   Confirm **Vercel → Project → Settings → Environments → Production → Branch Tracking** is
+   `production`, then select a deployment of the newly pushed commit and redeploy after adding
+   the variables. The release checkout stays on `development`; `production` is the published release.
+   [Vercel production branch](https://vercel.com/docs/git#customizing-the-production-branch)
+   [Environment variables and redeployment](https://vercel.com/docs/environment-variables/managing-environment-variables)
+
+4. No R2 folder creation is required. The six category names are key prefixes inside
+   `23-store-public`; uploading `23_avatar-images/<path>` makes that category visible automatically.
+   Empty categories remain absent from the Objects view. The supplied backup creates product and
+   avatar prefixes; the other four appear when their first files are uploaded.
+   [R2 prefixes and folders](https://developers.cloudflare.com/r2/objects/#prefixes-and-folders)
+
+   After the new production deployment is **Ready**, sign in as **ADMIN**, open **DB Backup → Files**,
+   choose **R2**, then **Import** and select
    `/home/kali/Downloads/23_backup-files-2026-10-09-extractable.tar.gz`. Keep the Tables archive
    for recovery. For the previously inspected Files export, expect **1,154 product images and
    3 avatars**, with **zero failed uploads**. Importing to inactive R2 preserves live image URLs.
@@ -44,6 +61,13 @@ the following setup; completing that copy still leaves final synchronization and
 The supplied Files archive contains about 100 MB of payload and fits the browser's 512 MiB limit.
 The shared 10 GB limit applies to this ADMIN import. The 1 GB per-user allowance and paid upgrades
 remain the plan's future TODOs; they are separate from the import and shared capacity enforcement.
+
+To download a new R2 backup from the same production build, choose **DB Backup → Files → R2 →
+Export**. All six categories are checked, including those that have no files yet. The browser
+downloads from `files.jokik.fi` and builds `23_backup-files-YYYY-MM-DD.tar.gz` locally; Vercel
+handles bounded metadata requests rather than file bytes or compression. The archive restores
+to either Supabase or R2. Backups above 512 MiB use the local streaming export documented in
+[the backup guide](dev_readme-backup.md#interchangeable-storage-and-large-portable-backups).
 
 ## 1. Cloudflare: where to click
 

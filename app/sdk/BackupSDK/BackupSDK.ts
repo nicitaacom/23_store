@@ -275,9 +275,9 @@ export class BackupSDK extends BaseSDK {
 
   /**
    * Export storage files only as one .tar.gz, entirely in the browser: fetch the file list from
-   * the server, download each file directly from Supabase's public CDN, and pack them locally.
-   * The app server never touches Storage bytes, so there is no 60s function timeout regardless of
-   * how large the library is. Progress is byte-accurate (file sizes are known from the list), and
+   * the server, download each file directly from the selected provider's public CDN, and pack them locally.
+   * The app server handles metadata pages; file downloads and compression stay outside its function
+   * timeouts. Progress is byte-accurate (file sizes are known from the list), and
    * the connection speed shown is measured live from these downloads as they happen.
    */
   async exportFiles(onProgress: (progress: TBackupFilesProgress) => void, provider?: TStorageProviderName): Promise<{ fileName: string; exportFile: Blob }> {
@@ -336,7 +336,7 @@ export class BackupSDK extends BaseSDK {
   /**
    * Import storage files from a .tar.gz backup file — entirely client-side. The browser decompresses
    * and parses the backup file locally (no server ever sees the backup file bytes), asks the server for a
-   * signed upload URL per file, then PUTs each file's bytes straight to Supabase. Progress is
+   * signed upload URL per file, then PUTs each file's bytes straight to the selected provider. Progress is
    * byte-accurate: every file's exact size is already known from the parsed backup file, and
    * xhr.upload.onprogress gives real in-flight bytes for the file currently uploading. The
    * connection speed shown is measured live from these uploads as they happen.

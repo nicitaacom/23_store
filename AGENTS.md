@@ -8,4 +8,11 @@ Before coding, read:
 
 Treat all three as mandatory project instructions.
 
-New branch rule: before starting the next plan, leave all completed work committed on the current branch. Create the next plan's branch only from a clean working tree; never carry uncommitted changes from the current branch into the next branch.
+Work on `development`. Do not create or switch to a feature branch for a plan. Before starting
+the next plan, commit all completed work and leave `development` clean. Merge into and push
+`production` when the user requests a production release; keep the working checkout on
+`development`.
+
+Never read `.env.local`, including through test runners, development/build commands or Git hooks.
+Use verification that disables environment-file reads. The pre-push key-check hook reads this file;
+skip that hook for an authorized push without changing the persistent Git hook configuration.
