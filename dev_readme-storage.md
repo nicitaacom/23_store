@@ -70,18 +70,19 @@ The browser backup working data is limited to 512 MiB. Larger backup operations 
 streaming tools. Upload authorization allows 120 requests/minute for authenticated actors and
 8/minute for guests, checked against both the verified actor and IP.
 
-## 3. Required environment and SQL
+## 3. Environment, optional controls and SQL
 
-Keep `STORAGE_PROVIDER=supabase` until the verified cutover. No R2 credentials are required for
-that default. Before deploying the new routes, apply `scripts/storage/setup.sql`: it creates
+The active provider defaults to Supabase when `STORAGE_PROVIDER` is absent. Keep that default
+until the verified cutover. No R2 credentials are required for that default. Before deploying
+the new routes, apply `scripts/storage/setup.sql`: it creates
 private staging, restricts direct anonymous/authenticated Storage writes and staging reads,
 and installs service-only usage, exact comparison and guest-reference functions. Existing
 permissive policies and source SQL stay documented. The service role performs authorized copies.
 
 | Variable | Purpose |
 | --- | --- |
-| `STORAGE_PROVIDER` | `supabase` initially; `r2` only after verified relinking |
-| `STORAGE_MIGRATION_PAUSED` | Blocks ordinary file preparation/deletion during synchronization |
+| `STORAGE_PROVIDER` | Optional; defaults to `supabase`; set `r2` only after verified relinking |
+| `STORAGE_MIGRATION_PAUSED` | Optional; defaults to false; set true to block ordinary file preparation/deletion during synchronization |
 | `STORAGE_CLEANUP_ENABLED` | Explicit opt-in after setup; default false |
 | `NEXT_PUBLIC_R2_PUBLIC_URL` | Production custom domain for public R2 files |
 | `R2_ACCOUNT_ID` | Account ID, 32 hexadecimal characters |
@@ -89,10 +90,16 @@ permissive policies and source SQL stay documented. The service role performs au
 | `R2_BUCKET` | Single public application bucket; use `23-store-public` |
 | `STORAGE_LEGACY_SUPABASE_ORIGINS` | Explicit comma-separated old origins allowed during backup relink |
 | `CLOUDFLARE_R2_ANALYTICS_TOKEN` | Separate Account Analytics Read token |
-| `R2_ACCOUNT_STANDARD_ONLY` | Set true only after confirming every account bucket uses Standard |
+| `R2_ACCOUNT_STANDARD_ONLY` | Optional; defaults to false; set true only after confirming every account bucket uses Standard |
 | `SUPABASE_DATABASE_ALLOWANCE_BYTES`, `SUPABASE_STORAGE_ALLOWANCE_BYTES` | Optional verified plan allowances; unset stays unknown |
 
-Add credentials to `.env.local` and deployment secrets, never to the exported policy file or chat.
+The first R2 backup import needs only the six R2 entries listed in the migration runbook alongside
+the existing application configuration. Do not add the four optional controls merely to repeat
+their defaults. `development` is the main branch and deployment source. Live application
+credentials belong in **Vercel → your project → Settings → Environment Variables**, selecting
+the **Production** deployment environment. Cloudflare's R2 bucket Settings page has no application
+environment-variable form. Local rehearsals use `.env.local`; never put secrets in the exported
+policy file or chat.
 Environment probes treat R2 variables as conditional; omitted R2 analytics and unknown Supabase
 allowances do not fabricate zero measurements. Follow the [migration runbook](dev_readme-storage-migration.md).
 

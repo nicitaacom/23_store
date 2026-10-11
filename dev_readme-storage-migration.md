@@ -11,38 +11,41 @@ The Tables export is a recovery artifact; do not import it over the live databas
 The application supports **DB Backup → Files → R2 → Import**. The first copy is ready after
 the following setup; completing that copy still leaves final synchronization and cutover.
 
-1. In **Vercel → Project → Settings → Environment Variables → Production**, set
-   `R2_BUCKET=23-store-public`, `NEXT_PUBLIC_R2_PUBLIC_URL=https://files.jokik.fi`, and fill
-   `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`. Enter each value without quotes.
-   Empty strings do not authenticate uploads. Use the already-created analytics token for
-   `CLOUDFLARE_R2_ANALYTICS_TOKEN`; creating another analytics token is unnecessary. Analytics
-   credentials enable usage cards; upload credentials and the existing Supabase/Upstash
-   configuration authorize imports and reserve capacity.
-2. In **23-store-public → Settings**, confirm `files.jokik.fi` is an **Active** custom domain
-   with bucket access allowed, and save the CORS policy in §1. TLS 1.3 was verified on October 11:
-   TLS 1.3 returned HTTP 404 at the root, and TLS 1.2 was rejected with a protocol-version alert.
-   The root response does not verify an object's public URL or the bucket/domain association.
+1. Application environment variables belong in the **Vercel dashboard → your 23_store project →
+   Settings → Environment Variables**, with **Production** selected as the deployment environment.
+   They are not configured on Cloudflare's R2 bucket Settings page. Use the existing six entries:
+   `R2_BUCKET`, `NEXT_PUBLIC_R2_PUBLIC_URL`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`,
+   `R2_SECRET_ACCESS_KEY` and `CLOUDFLARE_R2_ANALYTICS_TOKEN`. If they are already set there,
+   no more variables are needed for the first import. Reuse the already-created analytics token.
+   For dashboard entries, enter actual values without quotes. Analytics credentials enable usage
+   cards; upload credentials and the existing Supabase/Upstash configuration authorize imports
+   and reserve capacity.
+   [Vercel environment variables](https://vercel.com/docs/environment-variables/managing-environment-variables)
+2. The user's October 11 screenshot confirms **23-store-public → Settings → Custom Domains →
+   files.jokik.fi** is **Active**, access is **Enabled**, and minimum TLS is **1.3**. Save or check
+   the CORS policy in §1 using **Settings → CORS Policy**. A previous HTTPS check also verified
+   TLS 1.3 connects and TLS 1.2 is rejected. Check an actual imported object's URL after copying.
 3. The user applied the whole [`scripts/storage/setup.sql`](scripts/storage/setup.sql) file in the
    existing Supabase project's SQL Editor on October 11 and reported **Success. No rows returned**.
    This installs storage helpers and policies; application tables and Auth users stay in place.
-   For another deployment, apply this SQL before its first import. Add the initial settings in
-   **Vercel → Project → Settings → Environment Variables → Production**, one name/value per entry
-   with no quotes around the value, then deploy the updated production code:
+   For another Supabase project, apply this SQL before its first import. No repeat is needed for
+   the project where the user has already run it.
 
-   ```dotenv
-   STORAGE_PROVIDER='supabase'
-   STORAGE_MIGRATION_PAUSED='false'
-   STORAGE_CLEANUP_ENABLED='false'
-   R2_ACCOUNT_STANDARD_ONLY='false'
-   ```
+   **Do not add four extra environment entries for this first copy.** The code uses these defaults
+   when the entries are absent:
 
-   The user will test the redeployed production application, so changing local settings is unnecessary
-   for that test. The application defaults to these values when the four entries are absent.
-   Confirm **Vercel → Project → Settings → Environments → Production → Branch Tracking** is
-   `production`, then select a deployment of the newly pushed commit and redeploy after adding
-   the variables. The release checkout stays on `development`; `production` is the published release.
-   [Vercel production branch](https://vercel.com/docs/git#customizing-the-production-branch)
-   [Environment variables and redeployment](https://vercel.com/docs/environment-variables/managing-environment-variables)
+   | Optional setting | Default | Behavior during the first import |
+   | --- | --- | --- |
+   | `STORAGE_PROVIDER` | `supabase` | Live application writes stay on Supabase; the Files selector can import into R2 |
+   | `STORAGE_MIGRATION_PAUSED` | `false` | File changes remain available |
+   | `STORAGE_CLEANUP_ENABLED` | `false` | Destructive cleanup stays disabled |
+   | `R2_ACCOUNT_STANDARD_ONLY` | `false` | Account-wide included-allowance estimates remain unconfirmed; the application 10 GB cap still applies |
+
+   `development` is the main branch and deployment source. In **Vercel → your project →
+   Deployments**, use the latest `development` deployment and redeploy after any environment
+   changes. Keep the existing deployment branch configuration. Vercel's **Production** label
+   selects the live deployment's environment variables; it does not require a Git branch named
+   `production`. Local settings need no changes for this production import test.
 
 4. No R2 folder creation is required. The six category names are key prefixes inside
    `23-store-public`; uploading `23_avatar-images/<path>` makes that category visible automatically.
@@ -130,27 +133,24 @@ server-issued signed request with an authorized key, type and byte count; CORS i
 authorization. Completion verifies actual files before updating their final application paths.
 Temporary copies and reserved capacity count toward the same 10 GB cap, including ADMIN.
 
-Use the initial-copy settings below. The public bucket/origin entries were prepared on October 11;
-the user manages the actual local values. Fill any empty credentials from Cloudflare directly
-in that file. The R2 **Secret Access Key** is the S3 credential shown beside Access Key
-ID; the analytics field takes the separate analytics **token value**. Both credentials stay on
-the server. These variables are already declared in `env.d.ts` and `.env.example`.
+The six existing R2 entries below are sufficient for the first copy, alongside the application's
+existing Supabase/Upstash configuration. The user has already added these entries and manages
+their actual values. On the live application they belong in Vercel's project environment settings;
+local rehearsals use `.env.local`. The R2 **Secret Access Key** is the S3 credential shown beside
+Access Key ID; the analytics field takes the separate analytics **token value**. Both credentials
+stay on the server. These variables are already declared in `env.d.ts` and `.env.example`.
 
 ```dotenv
 R2_BUCKET='23-store-public'
 NEXT_PUBLIC_R2_PUBLIC_URL='https://files.jokik.fi'
 
-STORAGE_PROVIDER='supabase'
-STORAGE_MIGRATION_PAUSED='false'
-STORAGE_CLEANUP_ENABLED='false'
 R2_ACCOUNT_ID=''
 R2_ACCESS_KEY_ID=''
 R2_SECRET_ACCESS_KEY=''
-R2_ACCOUNT_STANDARD_ONLY='false'
 CLOUDFLARE_R2_ANALYTICS_TOKEN=''
 ```
 
-`R2_ACCOUNT_STANDARD_ONLY=false` keeps the account-wide included-storage estimate unconfirmed
+Leaving `R2_ACCOUNT_STANDARD_ONLY` unset keeps the account-wide included-storage estimate unconfirmed
 until all account buckets' storage classes have been checked. The application's 10 GB limit
 continues to use actual application inventory and reservations.
 

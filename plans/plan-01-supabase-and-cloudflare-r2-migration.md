@@ -8,7 +8,7 @@
 **Recommended model:** GPT-6.1-sol · xhigh  
 **Status:** see [plan-00-tracker.md](plan-00-tracker.md)  
 **Decision date:** 2026-10-10  
-**Depends on:** existing completed work committed on its current branch before starting the migration branch
+**Depends on:** existing completed work committed on `development`
 
 ## §1 — Decision and reason
 
@@ -261,11 +261,12 @@ rather than defaulting to an assumed free plan.
 
 ### 1. Establish a clean starting point and preserve this plan
 
-- Review the dirty current branch, including pending backup and language changes. Verify and commit
-  completed work on that branch under repository rules.
-- Preserve unfinished changes on their current branch. Resolve that work before creating the
-  migration branch; do not discard or move it into the next plan.
-- Create `feat/supabase-and-cloudflare-r2-migration` only from a clean working tree.
+- Work on `development`, the main branch and deployment source. Review pending backup and language
+  changes, verify them and commit completed work under repository rules.
+- Preserve unfinished changes on `development`; resolve them before starting the next plan.
+  Do not discard completed work or carry uncommitted changes into the next plan.
+- Include all existing `feat/supabase-and-cloudflare-r2-migration` work in `development`.
+  Do not create another working or release branch. Earlier branch decisions remain in §6 as history.
 - This document occupies `plan-01`. Shift the former plan numbers `01` through `23` up by one,
   preserving gaps and historical contents. Keep `plan-00-tracker.md` unchanged in number.
 - Update filenames, titles, tracker IDs, dependencies, screenshot mappings, and repository
@@ -595,3 +596,28 @@ Implementation/configuration: [storage documentation](../dev_readme-storage.md).
 - Production environment configuration, deployment, the user's UI Files import, live source
   reconciliation, rollback rehearsal and cutover remain the account-owned steps in
   `dev_readme-storage-migration.md`. The already-applied setup SQL needs no repeat for this release.
+
+### Main branch and first-import defaults — October 11, 2026 user correction
+
+- `development` is the main branch and deployment source. The user deleted the mistakenly created
+  `production` branch and rejected changing Vercel to use it. Earlier `production`-branch
+  instructions in this execution history were the assistant's incorrect interpretation and are
+  superseded. Do not create that branch or use `production-vite` or locked branches.
+- Verified all 125 migration-branch commits against the audited rebase: file trees, authors and
+  descriptions match, with only the authorized subject corrections. Aligned the local migration
+  branch from its old `12bb9acd` tip to the identical rewritten `fbf63b2a` tip. The merge into
+  `development` reports **Already up to date**; zero migration commits remain outside
+  `development`, and Git lists the migration branch as merged. The checkout stayed on `development`.
+- The user's Cloudflare screenshot confirms `files.jokik.fi` is attached to `23-store-public`,
+  with **Active** status, **Enabled** access and minimum TLS **1.3**. Check a real object's public
+  URL after import; the CORS policy is configured in the bucket's Settings page.
+- The six existing R2 variables are sufficient for the first import alongside the existing
+  application configuration. Additional `STORAGE_PROVIDER`, `STORAGE_MIGRATION_PAUSED`,
+  `STORAGE_CLEANUP_ENABLED` and `R2_ACCOUNT_STANDARD_ONLY` entries are unnecessary: the code
+  defaults to Supabase, permits file changes, disables cleanup and leaves account Standard-only
+  allowances unconfirmed. The shared 10 GB cap, including ADMIN, still applies.
+- Application variables belong in the Vercel project's **Settings → Environment Variables**,
+  selecting its **Production** deployment environment. Cloudflare's bucket Settings page has no
+  application environment-variable form. Vercel's Production label does not imply a Git branch
+  named `production`. Use the latest `development` deployment for the user's UI import test;
+  no branch-tracking change or extra default variables are required.
