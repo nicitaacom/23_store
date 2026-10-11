@@ -6,6 +6,45 @@ Move files and registered URL references only. Keep the live Supabase database, 
 realtime behavior. Keep both downloaded backups and all Supabase SQL/setup documentation.
 The Tables export is a recovery artifact; do not import it over the live database for this move.
 
+## Before importing your existing Files backup
+
+The application supports **DB Backup → Files → R2 → Import**. The first copy is ready after
+the following setup; completing that copy still leaves final synchronization and cutover.
+
+1. Fill the existing `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY` entries locally.
+   Empty strings do not authenticate uploads. Use the already-created analytics token for
+   `CLOUDFLARE_R2_ANALYTICS_TOKEN`; creating another analytics token is unnecessary. Analytics
+   credentials enable usage cards; upload credentials and the existing Supabase/Upstash
+   configuration authorize imports and reserve capacity.
+2. In **23-store-public → Settings**, confirm `files.jokik.fi` is an **Active** custom domain
+   with bucket access allowed, and save the CORS policy in §1. TLS 1.3 was verified on October 11:
+   TLS 1.3 returned HTTP 404 at the root, and TLS 1.2 was rejected with a protocol-version alert.
+   The root response does not verify an object's public URL or the bucket/domain association.
+3. Apply the whole [`scripts/storage/setup.sql`](scripts/storage/setup.sql) file in the existing
+   Supabase project's **SQL Editor → New query → Run**. This installs storage helpers and policies;
+   the migration keeps the current application tables and Auth users. Use the new application
+   routes and restart the app after configuring its environment. Keep the initial settings:
+
+   ```dotenv
+   STORAGE_PROVIDER='supabase'
+   STORAGE_MIGRATION_PAUSED='false'
+   STORAGE_CLEANUP_ENABLED='false'
+   R2_ACCOUNT_STANDARD_ONLY='false'
+   ```
+
+4. Sign in as **ADMIN**, open **DB Backup → Files**, choose **R2**, then **Import** and select
+   `/home/kali/Downloads/23_backup-files-2026-10-09-extractable.tar.gz`. Keep the Tables archive
+   for recovery. For the previously inspected Files export, expect **1,154 product images and
+   3 avatars**, with **zero failed uploads**. Importing to inactive R2 preserves live image URLs.
+5. Check the imported category prefixes in **R2 → 23-store-public → Objects**, open an actual
+   imported image at `https://files.jokik.fi/<category>/<path>`, and confirm the import result
+   reports that final synchronization is still required. Then follow §4 to synchronize current
+   Supabase files, verify checksums, update registered references and switch live writes to R2.
+
+The supplied Files archive contains about 100 MB of payload and fits the browser's 512 MiB limit.
+The shared 10 GB limit applies to this ADMIN import. The 1 GB per-user allowance and paid upgrades
+remain the plan's future TODOs; they are separate from the import and shared capacity enforcement.
+
 ## 1. Cloudflare: where to click
 
 1. **R2 Object Storage → Create bucket**: name `23-store-public`, select **Automatic** and
@@ -65,9 +104,9 @@ server-issued signed request with an authorized key, type and byte count; CORS i
 authorization. Completion verifies actual files before updating their final application paths.
 Temporary copies and reserved capacity count toward the same 10 GB cap, including ADMIN.
 
-The local initial-copy settings are below. `.env.local` already has the public bucket/origin;
-the missing fields were prepared on October 11. Fill the four empty values from Cloudflare
-directly in that file. The R2 **Secret Access Key** is the S3 credential shown beside Access Key
+Use the initial-copy settings below. The public bucket/origin entries were prepared on October 11;
+the user manages the actual local values. Fill any empty credentials from Cloudflare directly
+in that file. The R2 **Secret Access Key** is the S3 credential shown beside Access Key
 ID; the analytics field takes the separate analytics **token value**. Both credentials stay on
 the server. These variables are already declared in `env.d.ts` and `.env.example`.
 
@@ -240,3 +279,10 @@ complete. The user manages `.env.local` and requested that the assistant never r
 dashboard work includes the separate R2 Object Read & Write credentials, CORS and TLS verification.
 A subsequent public TLS recheck timed out for both versions, so it did not verify a changed
 minimum. Verify the requested minimum in the R2 custom-domain settings and by rejecting TLS 1.2.
+
+Latest October 11 import-readiness check: TLS 1.3 connected to `files.jokik.fi` and returned HTTP
+404 at the root; a request constrained to TLS 1.2 failed with a protocol-version alert. The
+requested TLS minimum is now verified. The 21 streaming migration/reference tests passed again,
+including archive compatibility, stale-backup reconciliation, checksum verification, conflicts
+and rollback of post-cutover changes. These tests use simulated providers. No live import, SQL
+application, reference update or cutover was performed; local credential values remain unread.

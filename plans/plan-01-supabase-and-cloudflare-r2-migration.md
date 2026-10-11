@@ -441,7 +441,7 @@ limit remains enforced for ADMIN. The warning threshold is configured at 80%, cu
   Scheduling SQL was checked with local API stubs, without activating external webhooks.
 
 **Live gates remaining:** verify the created `23-store-public` bucket and its custom-domain mapping,
-enforce the selected TLS minimum, configure CORS/credentials,
+configure CORS/credentials (the selected TLS 1.3 minimum is now verified),
 apply Supabase setup SQL, inspect actual source access/usage, rehearse uploads and rollback, then
 perform the final live synchronization and deliberate cutover. Source Storage inspection returned
 an upstream unavailable response, so its actual classification is not yet verified. The tracker
@@ -524,3 +524,23 @@ Implementation/configuration: [storage documentation](../dev_readme-storage.md).
   Continue setup through the user's dashboard and application UI.
 - A later public-domain TLS recheck timed out for both TLS 1.3 and TLS 1.2; this retry did not
   establish the configured minimum or any change to the earlier successful handshake results.
+
+### Import readiness — October 11, 2026
+
+- The user supplied the six R2 configuration field names and asked for the next import steps.
+  Secret values are user-managed; empty strings are not usable upload credentials. No local
+  credentials were read or validated by inspecting `.env.local`.
+- A new public HTTPS check verified the requested minimum: TLS 1.3 connected to `files.jokik.fi`
+  and returned HTTP 404 at the root; TLS 1.2 was rejected with a protocol-version alert. Actual
+  bucket/domain association and an imported object's URL still need the dashboard/import check.
+- Rechecked the ADMIN browser path: **DB Backup → Files → R2 → Import** accepts the existing
+  Files export and keeps live database URLs unchanged while Supabase remains the active provider.
+  Added an ordered import guide with credentials, CORS, setup SQL, initial provider flags, the
+  supplied archive path and expected success counts. The Tables export remains a recovery copy.
+- All 21 streaming migration/reference tests pass, including portable archives, exact checksum
+  verification, stale source inventory, conflicts, shared capacity and rollback of changed files.
+  Previous application, browser, build, TypeScript and lint checks remain recorded above; no
+  application code changed in this import-readiness update.
+- Live copy, source reconciliation, reference updates, cleanup scheduling and cutover still depend
+  on the user's Cloudflare/Supabase setup and chosen manual import. The plan remains open until
+  those live checks pass. Per-user allowance and subscription implementation remain future TODOs.
