@@ -9,7 +9,7 @@ export function validateCommitText(commitText, label = "commit") {
   const subject = lines[0] ?? ""
   const errors = []
 
-  if (lines.length !== 1) errors.push(`${label} must not have a body`)
+  if (label === "pull request title" && lines.length !== 1) errors.push(`${label} must be one line`)
   if (!SUBJECT_PATTERN.test(subject)) errors.push(`${label} must use "type: lowercase message"`)
   if (/^[a-z]+\(/.test(subject)) errors.push(`${label} must not use a scope`)
   if (subject.endsWith(".")) errors.push(`${label} must not end with a period`)

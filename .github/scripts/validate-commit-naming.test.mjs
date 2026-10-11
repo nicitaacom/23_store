@@ -16,8 +16,14 @@ test("rejects invalid subject shapes", () => {
   assert.match(validateCommitText("feat: message.").join("\n"), /period/)
 })
 
-test("rejects a multiline commit body", () => {
-  assert.match(validateCommitText("feat: message\n\nextra details").join("\n"), /body/)
+test("accepts the descriptions required by commit-patterns.md", () => {
+  const description = "feat: message\n\n🚨 TODO\n\n1. Vercel -> Environment Variables -> add the production credential -> redeploy\n\n- preserve existing behavior"
+  assert.deepEqual(validateCommitText(description), [])
+  assert.deepEqual(validateCommitText(description, "commit abc123"), [])
+})
+
+test("keeps pull request titles on one line", () => {
+  assert.match(validateCommitText("feat: message\n\nextra details", "pull request title").join("\n"), /one line/)
 })
 
 test("reads only non-merge commits in the pull request range", () => {
@@ -42,6 +48,15 @@ test("validates the pull request title and introduced commits", () => {
 
   assert.match(errors.join("\n"), /pull request title/)
   assert.match(errors.join("\n"), /commit def456/)
+})
+
+test("accepts introduced commits with required descriptions", () => {
+  assert.deepEqual(validatePullRequest({
+    baseSha: "base",
+    headSha: "head",
+    pullRequestTitle: "feat: valid title",
+    runGit: () => "abc123\u001ffeat: valid commit\n\n- explain the change\n\0",
+  }), [])
 })
 
 test("skips commit history when the event has no usable range", () => {
