@@ -32,8 +32,8 @@ This version removes the limit instead of estimating around it: **no request car
 - Export: the server returns a file **list** (bucket/path/size/contentType, no bytes). The browser
   downloads each file directly from the active provider and builds the `.tar.gz` locally.
 - Import: the browser decompresses the archive locally, asks the server for a signed upload URL
-  per file, then uploads straight to the chosen provider's private staging. Completion verifies
-  metadata and publishes the object through a provider-side copy.
+  per file, then uploads straight to temporary keys in R2's single public bucket or Supabase's
+  private staging. Completion verifies metadata and publishes the object through a provider-side copy.
 
 Two things from the old design are kept anyway, because they're independently useful, not because
 they were needed for the timeout problem:
@@ -216,8 +216,9 @@ the round trip. For older archives where both forms were unquoted, import restor
 
 **Files:** upload one `.tar.gz` (from export or local repair). The browser decompresses and parses it
 locally, resolves short exported names through `storage-paths.json`, then asks `/api/backup/files`
-for signed private-staging destinations (up to 4 files per metadata request). Verified ADMIN
-authorization and the shared 10 GB capacity limit apply. The browser PUTs directly to the provider,
+for signed temporary upload destinations (up to 4 files per metadata request). R2 uses the same
+public bucket; Supabase uses its private staging bucket. Verified ADMIN authorization and the shared
+10 GB capacity limit apply. The browser PUTs directly to the provider,
 then calls `/api/storage/complete`; only verified length and MIME are published with overwrite
 behavior. Supabase staging permits 50 MiB per file; larger files use the local command.
 
@@ -393,7 +394,7 @@ requirements here.
 
 ## Interchangeable storage and large portable backups
 
-Provider setup, shared capacity, private staging and cleanup are documented in
+Provider setup, shared capacity, temporary upload keys and cleanup are documented in
 [dev_readme-storage.md](dev_readme-storage.md). Follow the
 [migration runbook](dev_readme-storage-migration.md) for the existing Files export, cutover and
 rollback. The per-user 1 GB allowance and $0.30/GB/month upgrades remain plan TODOs; ADMIN is

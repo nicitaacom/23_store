@@ -257,6 +257,7 @@ answers `{"skipped":true,"daysSinceLastRun":0}`.
 Storage defaults to Supabase. R2 connection/public-domain variables are required only when
 `STORAGE_PROVIDER=r2`; unset optional analytics tokens and Supabase plan allowances remain
 unavailable observations. The registry uses `optional` and `requiredWhen` probe metadata.
-Provider credentials, private staging and live permission checks are covered by
+R2 needs one public bucket (`R2_BUCKET=23-store-public`). Provider credentials, temporary upload
+keys and live permission checks are covered by
 [storage setup](../../../../dev_readme-storage.md). Upload policy is exported from
 `app/config/r2Config.ts`, separately from credentials.

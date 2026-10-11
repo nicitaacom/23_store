@@ -46,10 +46,10 @@ export function normalizeR2Usage(analytics: TR2Analytics, applicationBuckets: st
   const bytes = (samples: TR2StorageSample[]) => samples.reduce((total, sample) => total + sample.max.payloadSize + sample.max.metadataSize, 0)
   const storageComplete = analytics.storage.length < SAMPLE_LIMIT && applicationBuckets.every(bucket => latest.has(bucket))
   const metrics: Record<string, TStorageMetric> = {
-    r2Files: storageComplete ? { value: bytes(application), unit: "bytes", source, scope: "Application R2 buckets, including staging", observedAt, status }
-      : unavailable("bytes", source, "Application R2 buckets", "Missing bucket samples or truncated analytics; empty storage requires a provider sample"),
-    r2Objects: storageComplete ? { value: application.reduce((total, sample) => total + sample.max.objectCount, 0), unit: "objects", source, scope: "Application R2 buckets", observedAt, status }
-      : unavailable("objects", source, "Application R2 buckets", "Object count samples are unavailable"),
+    r2Files: storageComplete ? { value: bytes(application), unit: "bytes", source, scope: "Public application R2 bucket, including temporary uploads", observedAt, status }
+      : unavailable("bytes", source, "Public application R2 bucket", "Missing bucket samples or truncated analytics; empty storage requires a provider sample"),
+    r2Objects: storageComplete ? { value: application.reduce((total, sample) => total + sample.max.objectCount, 0), unit: "objects", source, scope: "Public application R2 bucket", observedAt, status }
+      : unavailable("objects", source, "Public application R2 bucket", "Object count samples are unavailable"),
     r2Allowance: latest.size && analytics.storage.length < SAMPLE_LIMIT && process.env.R2_ACCOUNT_STANDARD_ONLY === "true"
       ? { value: bytes(Array.from(latest.values())), unit: "bytes", source, scope: "Account, current Standard storage snapshot", observedAt, status,
         ...allowanceValues(bytes(Array.from(latest.values())), 10 * 1000 ** 3),
@@ -105,7 +105,8 @@ export async function fetchR2Usage(): Promise<Record<string, TStorageMetric>> {
   const account = analytics.data?.viewer?.accounts?.[0]
   if (!response.ok || analytics.errors?.length || !account || !Array.isArray(account.storage) || !Array.isArray(account.operations) || !Array.isArray(account.bandwidth))
     throw new Error("Cloudflare analytics are unavailable; check the restricted token and dataset access")
-  return normalizeR2Usage(account, [process.env.R2_BUCKET, process.env.R2_STAGING_BUCKET, process.env.R2_PRIVATE_BUCKET].filter((bucket): bucket is string => !!bucket), now)
+  if (!process.env.R2_BUCKET) throw new Error("R2 application bucket is not configured")
+  return normalizeR2Usage(account, [process.env.R2_BUCKET], now)
 }
 
 async function selectSupabaseUsage(): Promise<Record<string, TStorageMetric>> {
@@ -132,9 +133,9 @@ export async function selectStorageUsage(): Promise<TStorageUsage> {
   try { previous = await redis.get<TStorageUsage>(USAGE_REDIS_KEY) } catch { /* Metrics stay available when Redis is unavailable. */ }
   if (previous?.provider === provider && Date.now() - Date.parse(previous.refreshedAt) < USAGE_REFRESH_MS) return previous
   const metrics: Record<string, TStorageMetric> = {
-    applicationLimit: unavailable("bytes", "Provider object inventory and reserved uploads", "Active application's buckets, including staging", `The shared ${r2Config.totalForAllUsersGB} GB upload limit is enforced before signing; usage is unavailable`),
-    r2Files: unavailable("bytes", "Cloudflare GraphQL", "Application R2 buckets", "Analytics are unavailable"),
-    r2Objects: unavailable("objects", "Cloudflare GraphQL", "Application R2 buckets", "Analytics are unavailable"),
+    applicationLimit: unavailable("bytes", "Provider object inventory and reserved uploads", "Active application's files, including temporary uploads", `The shared ${r2Config.totalForAllUsersGB} GB upload limit is enforced before signing; usage is unavailable`),
+    r2Files: unavailable("bytes", "Cloudflare GraphQL", "Public application R2 bucket", "Analytics are unavailable"),
+    r2Objects: unavailable("objects", "Cloudflare GraphQL", "Public application R2 bucket", "Analytics are unavailable"),
     r2Allowance: unavailable("bytes", "Cloudflare GraphQL", "Account", "Included allowance comparison is unavailable"),
     r2ClassA: unavailable("requests", "Cloudflare GraphQL", "Account, month to date", "Analytics are unavailable"),
     r2ClassB: unavailable("requests", "Cloudflare GraphQL", "Account, month to date", "Analytics are unavailable"),
@@ -147,7 +148,7 @@ export async function selectStorageUsage(): Promise<TStorageUsage> {
   }
   const selectCapacity = async (): Promise<Record<string, TStorageMetric>> => ({
     applicationLimit: { value: await selectStorageCapacity(storageProvider(activeStorageProvider())), unit: "bytes",
-      source: "Provider object inventory and reserved uploads", scope: "Active application's buckets, including staging",
+      source: "Provider object inventory and reserved uploads", scope: "Active application's files, including temporary uploads",
       observedAt: new Date().toISOString(), status: "available", allowance: STORAGE_CAPACITY_BYTES,
       detail: `Hard ${r2Config.totalForAllUsersGB} GB upload limit, including ADMIN. Temporary files and outstanding reservations count against capacity; conservative reservations can count staged bytes twice. Separate from provider included allowances.` },
   })

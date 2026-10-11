@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto"
 import { S3Client } from "@aws-sdk/client-s3"
 import { Upload } from "@aws-sdk/lib-storage"
 
-import { r2Credentials, privateStorageBuckets } from "@/libs/storage/config"
+import { r2Credentials } from "@/libs/storage/config"
 import { storageProvider, listStorageObjects } from "@/libs/storage/providers"
 import { STORAGE_BUCKETS } from "@/libs/storage/references"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
@@ -17,7 +17,7 @@ export function migrationBackend(name) {
     requestChecksumCalculation: "WHEN_REQUIRED", responseChecksumValidation: "WHEN_REQUIRED" }) : null
   return {
     name,
-    identity: name === "r2" ? `${config.accountId}/${config.bucket}/${config.privateBucket ?? ""}` : process.env.NEXT_PUBLIC_SUPABASE_URL,
+    identity: name === "r2" ? `${config.accountId}/${config.bucket}` : process.env.NEXT_PUBLIC_SUPABASE_URL,
     inspect: (bucket, objectPath) => provider.inspect(bucket, objectPath),
     delete: (bucket, objectPath) => provider.delete(bucket, objectPath),
     async inventory() {
@@ -41,7 +41,7 @@ export function migrationBackend(name) {
       await reserveStorageCapacity(provider, reservation, file.byteCount)
       await settleStorageCapacity(provider, reservation, async () => {
       if (client) {
-        const upload = new Upload({ client, params: { Bucket: privateStorageBuckets().includes(file.bucket) ? config.privateBucket : config.bucket,
+        const upload = new Upload({ client, params: { Bucket: config.bucket,
           Key: file.destinationKey, Body: createReadStream(temporary), ContentType: file.contentType,
           CacheControl: "max-age=0, must-revalidate", Metadata: { sha256: file.checksum } },
         partSize: 8 * 1024 ** 2, queueSize: 2, leavePartsOnError: false })
@@ -61,12 +61,10 @@ export function migrationBackend(name) {
 export async function inspectSourceAccess() {
   const { data: buckets, error } = await supabaseAdmin.storage.listBuckets()
   if (error || !buckets) throw new Error(error?.message ?? "Source bucket inspection failed")
-  const privateBuckets = new Set(privateStorageBuckets())
   for (const bucket of STORAGE_BUCKETS) {
     const actual = buckets.find(candidate => candidate.id === bucket)
     if (!actual) throw new Error(`Missing source bucket: ${bucket}`)
-    if (!actual.public && !privateBuckets.has(bucket)) throw new Error(`Private source bucket needs separate private R2 storage: ${bucket}`)
-    if (actual.public && privateBuckets.has(bucket)) throw new Error(`Source access classification differs from configuration: ${bucket}`)
+    if (!actual.public) throw new Error(`Private source bucket differs from the public-only R2 architecture: ${bucket}`)
   }
   return buckets.filter(bucket => STORAGE_BUCKETS.includes(bucket.id)).map(bucket => ({ bucket: bucket.id, public: bucket.public }))
 }

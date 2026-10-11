@@ -6,7 +6,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
 import type { TBuckets } from "@/ts/types/TBuckets"
 import { isStoragePath, STORAGE_BUCKETS, storagePublicUrl } from "./references"
-import { privateStorageBuckets, r2Credentials, SUPABASE_STAGING_BUCKET, UPLOAD_SIGNATURE_SECONDS } from "./config"
+import { r2Credentials, R2_UPLOAD_PREFIX, SUPABASE_STAGING_BUCKET, UPLOAD_SIGNATURE_SECONDS } from "./config"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import type { IStorageProvider, TStorageObject, TStoragePage, TStorageProviderName, TStorageUploadSession } from "@/ts/storage"
 
@@ -159,14 +159,14 @@ export class R2StorageProvider implements IStorageProvider {
       requestHandler: { connectionTimeout: 10000, requestTimeout: 30000 } })
   }
 
-  private bucketFor(bucket: TBuckets, staging = false): string {
-    return staging ? this.config.stagingBucket : privateStorageBuckets().includes(bucket)
-      ? this.config.privateBucket as string : this.config.bucket
+  private keyFor(bucket: TBuckets, path: string, staging = false) {
+    if (staging && (!path.startsWith(R2_UPLOAD_PREFIX) || !isStoragePath(path)))
+      throw new Error("Invalid temporary upload path")
+    return staging ? path : `${bucket}/${path}`
   }
-  private keyFor(bucket: TBuckets, path: string, staging = false) { return staging ? path : `${bucket}/${path}` }
 
   async list(bucket: TBuckets, prefix = "", cursor: string | null = null): Promise<TStoragePage> {
-    const response = await this.client.send(new ListObjectsV2Command({ Bucket: this.bucketFor(bucket),
+    const response = await this.client.send(new ListObjectsV2Command({ Bucket: this.config.bucket,
       Prefix: `${bucket}/${prefix}${prefix && !prefix.endsWith("/") ? "/" : ""}`,
       ContinuationToken: cursor ?? undefined, MaxKeys: PAGE_SIZE }))
     return { objects: (response.Contents ?? []).filter(object => object.Key && !object.Key.endsWith("/")).map(object => ({
@@ -177,7 +177,7 @@ export class R2StorageProvider implements IStorageProvider {
 
   async inspect(bucket: TBuckets, path: string, staging = false): Promise<TStorageObject | null> {
     try {
-      const response = await this.client.send(new HeadObjectCommand({ Bucket: this.bucketFor(bucket, staging), Key: this.keyFor(bucket, path, staging) }))
+      const response = await this.client.send(new HeadObjectCommand({ Bucket: this.config.bucket, Key: this.keyFor(bucket, path, staging) }))
       return { provider: this.name, bucket, path, size: response.ContentLength ?? 0,
         contentType: response.ContentType ?? "application/octet-stream", updatedAt: response.LastModified?.toISOString() ?? null,
         etag: response.ETag ?? null }
@@ -189,7 +189,8 @@ export class R2StorageProvider implements IStorageProvider {
   }
 
   async signUpload(stagePath: string, contentType: string, size: number) {
-    const getSignedUrlResp = await getSignedUrl(this.client, new PutObjectCommand({ Bucket: this.config.stagingBucket, Key: stagePath,
+    const getSignedUrlResp = await getSignedUrl(this.client, new PutObjectCommand({ Bucket: this.config.bucket,
+      Key: this.keyFor("23_support-guest-images", stagePath, true),
     // eslint-disable-next-line local-rules/no-banned-words -- Required provider freshness metadata.
       ContentType: contentType, ContentLength: size, IfNoneMatch: "*", CacheControl: "no-store" }),
     { expiresIn: UPLOAD_SIGNATURE_SECONDS, signableHeaders: new Set(["content-type", "content-length", "if-none-match"]) })
@@ -197,12 +198,12 @@ export class R2StorageProvider implements IStorageProvider {
   }
 
   async signDownload(bucket: TBuckets, path: string) {
-    return getSignedUrl(this.client, new GetObjectCommand({ Bucket: this.bucketFor(bucket), Key: this.keyFor(bucket, path) }),
+    return getSignedUrl(this.client, new GetObjectCommand({ Bucket: this.config.bucket, Key: this.keyFor(bucket, path) }),
       { expiresIn: UPLOAD_SIGNATURE_SECONDS })
   }
 
   async readSample(bucket: TBuckets, path: string, staging = false): Promise<Uint8Array> {
-    const response = await this.client.send(new GetObjectCommand({ Bucket: this.bucketFor(bucket, staging),
+    const response = await this.client.send(new GetObjectCommand({ Bucket: this.config.bucket,
       Key: this.keyFor(bucket, path, staging), Range: "bytes=0-4095" }))
     return await response.Body?.transformToByteArray() ?? new Uint8Array()
   }
@@ -212,41 +213,36 @@ export class R2StorageProvider implements IStorageProvider {
     const object = await this.inspect(bucket, session.stagePath, true)
     if (!object?.etag) throw new Error("Staged upload is missing")
     if (!session.upsert && await this.inspect(bucket, path)) throw new Error("File already exists; prepare a new filename")
-    await this.client.send(new CopyObjectCommand({ Bucket: this.bucketFor(bucket), Key: this.keyFor(bucket, path),
-      CopySource: `${this.config.stagingBucket}/${session.stagePath.split("/").map(encodeURIComponent).join("/")}`,
+    await this.client.send(new CopyObjectCommand({ Bucket: this.config.bucket, Key: this.keyFor(bucket, path),
+      CopySource: `${this.config.bucket}/${session.stagePath.split("/").map(encodeURIComponent).join("/")}`,
       CopySourceIfMatch: object.etag, MetadataDirective: "REPLACE", ContentType: session.contentType,
       // eslint-disable-next-line local-rules/no-banned-words -- Required provider freshness metadata.
       CacheControl: "max-age=0, must-revalidate", Metadata: { upload: session.stagePath } }))
   }
 
   async delete(bucket: TBuckets, path: string, staging = false) {
-    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucketFor(bucket, staging), Key: this.keyFor(bucket, path, staging) }))
+    await this.client.send(new DeleteObjectCommand({ Bucket: this.config.bucket, Key: this.keyFor(bucket, path, staging) }))
   }
 
   async listStaging(cursor: string | null = null): Promise<TStoragePage> {
-    const response = await this.client.send(new ListObjectsV2Command({ Bucket: this.config.stagingBucket,
+    const response = await this.client.send(new ListObjectsV2Command({ Bucket: this.config.bucket, Prefix: R2_UPLOAD_PREFIX,
       ContinuationToken: cursor ?? undefined, MaxKeys: PAGE_SIZE }))
-    return { objects: (response.Contents ?? []).map(object => ({ provider: this.name,
+    return { objects: (response.Contents ?? []).filter(object => object.Key?.startsWith(R2_UPLOAD_PREFIX)).map(object => ({ provider: this.name,
       bucket: "23_support-guest-images", path: object.Key ?? "", size: object.Size ?? 0,
       contentType: "application/octet-stream", updatedAt: object.LastModified?.toISOString() ?? null, etag: object.ETag ?? null })),
     cursor: response.IsTruncated ? response.NextContinuationToken ?? null : null }
   }
-  publicUrl(bucket: TBuckets, path: string) {
-    if (privateStorageBuckets().includes(bucket)) throw new Error("Private files require an authorized download")
-    return storagePublicUrl(this.name, bucket, path)
-  }
+  publicUrl(bucket: TBuckets, path: string) { return storagePublicUrl(this.name, bucket, path) }
   async measureBytes(): Promise<number> {
     let bytes = 0
-    for (const bucket of [this.config.bucket, this.config.stagingBucket, this.config.privateBucket].filter(Boolean)) {
-      let cursor: string | undefined
-      do {
-        const response = await this.client.send(new ListObjectsV2Command({ Bucket: bucket,
-          ContinuationToken: cursor, MaxKeys: 1000 }))
-        for (const object of response.Contents ?? []) bytes += verifiedByteCount(object.Size)
-        if (response.IsTruncated && !response.NextContinuationToken) throw new Error("Incomplete R2 byte inventory")
-        cursor = response.IsTruncated ? response.NextContinuationToken : undefined
-      } while (cursor)
-    }
+    let cursor: string | undefined
+    do {
+      const response = await this.client.send(new ListObjectsV2Command({ Bucket: this.config.bucket,
+        ContinuationToken: cursor, MaxKeys: 1000 }))
+      for (const object of response.Contents ?? []) bytes += verifiedByteCount(object.Size)
+      if (response.IsTruncated && !response.NextContinuationToken) throw new Error("Incomplete R2 byte inventory")
+      cursor = response.IsTruncated ? response.NextContinuationToken : undefined
+    } while (cursor)
     return verifiedByteCount(bytes)
   }
 }

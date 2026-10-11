@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { requireAdmin } from "../requireAdmin"
-import { activeStorageProvider, privateStorageBuckets } from "@/libs/storage/config"
+import { activeStorageProvider } from "@/libs/storage/config"
 import { checkStorageOrigin, storageFailure, StorageRequestError, verifyStorageActor } from "@/libs/storage/authorization"
 import { prepareBackupStorageUploads } from "@/libs/storage/uploads"
 import { storageProvider } from "@/libs/storage/providers"
@@ -33,9 +33,7 @@ export async function GET(request: NextRequest) {
       files.push(...await Promise.all(page.objects.slice(start, start + 10).map(async object => {
         const metadata = provider.name === "r2" ? await provider.inspect(bucket, object.path) : object
         if (!metadata) throw new Error(`Inventory changed during backup: ${bucket}/${object.path}`)
-        const downloadUrl = privateStorageBuckets().includes(bucket)
-          ? await provider.signDownload(bucket, object.path) : provider.publicUrl(bucket, object.path)
-        return { ...metadata, downloadUrl }
+        return { ...metadata, downloadUrl: provider.publicUrl(bucket, object.path) }
       })))
     }
     return NextResponse.json({ files, cursor: page.cursor,

@@ -51,7 +51,7 @@ declare namespace API {
     files: StoragePrepareRequest[]
     provider?: import("@/ts/storage").TStorageProviderName
   }
-  // Bytes go directly to private staging; completion verifies them before publication.
+  // Bytes go directly to temporary provider keys; completion verifies the final application file.
   type BackupUploadDestination =
     | ({ bucket: string; path: string } & import("@/ts/storage").TStorageUploadDestination)
     | { bucket: string; path: string; skipped: true; reason: string }

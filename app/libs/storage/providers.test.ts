@@ -1,24 +1,24 @@
-import { S3Client, CopyObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3"
+import { S3Client, CopyObjectCommand, DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+
+import { R2StorageProvider, SupabaseStorageProvider } from "./providers"
 
 const mocks = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), createSignedUploadUrl: vi.fn() }))
 vi.mock("@/libs/supabase/supabaseAdmin", () => ({ default: { storage: { from: () => mocks } } }))
-import { R2StorageProvider, SupabaseStorageProvider } from "./providers"
 
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_URL", "https://files.example")
   vi.stubEnv("R2_ACCOUNT_ID", "a".repeat(32)); vi.stubEnv("R2_ACCESS_KEY_ID", "fixture-key"); vi.stubEnv("R2_SECRET_ACCESS_KEY", "fixture-secret")
-  vi.stubEnv("R2_BUCKET", "fixture-files"); vi.stubEnv("R2_STAGING_BUCKET", "fixture-staging")
-  vi.stubEnv("R2_PRIVATE_BUCKET", "fixture-private"); vi.stubEnv("STORAGE_PRIVATE_LOGICAL_BUCKETS", "")
+  vi.stubEnv("R2_BUCKET", "fixture-public")
   vi.clearAllMocks()
 })
 afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks() })
 
 describe("R2 provider", () => {
-  it("signs exact content length, MIME and immutable uploads into private staging", async () => {
+  it("requires only one public bucket and signs exact size, MIME and immutable temporary keys", async () => {
     const upload = await new R2StorageProvider().signUpload("uploads/id/file.png", "image/png", 8)
     const url = new URL(upload.signedUrl)
-    expect(url.pathname).toBe("/fixture-staging/uploads/id/file.png")
+    expect(url.pathname).toBe("/fixture-public/uploads/id/file.png")
     expect(url.searchParams.get("X-Amz-SignedHeaders")?.split(";")).toEqual(expect.arrayContaining(["content-length", "content-type", "if-none-match"]))
     expect(upload.headers).toEqual({ "Content-Type": "image/png", "If-None-Match": "*" })
     expect(upload.formField).toBeNull()
@@ -30,19 +30,46 @@ describe("R2 provider", () => {
     expect(send.mock.calls[0][0]).toBeInstanceOf(ListObjectsV2Command)
     expect((send.mock.calls[0][0] as ListObjectsV2Command).input).toMatchObject({ Prefix: "23_avatar-images/owner/", ContinuationToken: "page-1" })
   })
-  it("measures every physical application bucket, including unfamiliar prefixes", async () => {
-    const send = vi.spyOn(S3Client.prototype, "send").mockImplementation(async () => ({ Contents: [{ Key: "unfamiliar-prefix/file", Size: 100 }] }))
-    expect(await new R2StorageProvider().measureBytes()).toBe(300)
-    expect(send).toHaveBeenCalledTimes(3)
+  it("counts the single bucket once across pages, including temporary and unfamiliar keys", async () => {
+    const send = vi.spyOn(S3Client.prototype, "send")
+      .mockImplementationOnce(async () => ({ Contents: [{ Key: "unfamiliar-prefix/file", Size: 100 }], IsTruncated: true, NextContinuationToken: "page-2" }))
+      .mockImplementation(async () => ({ Contents: [{ Key: "uploads/id/file.png", Size: 8 }] }))
+    expect(await new R2StorageProvider().measureBytes()).toBe(108)
+    expect(send).toHaveBeenCalledTimes(2)
+    expect((send.mock.calls[0][0] as ListObjectsV2Command).input).toEqual({ Bucket: "fixture-public", ContinuationToken: undefined, MaxKeys: 1000 })
+    expect((send.mock.calls[1][0] as ListObjectsV2Command).input.ContinuationToken).toBe("page-2")
     send.mockImplementation(async () => ({ Contents: [{ Key: "file" }] }))
     await expect(new R2StorageProvider().measureBytes()).rejects.toThrow("unknown")
   })
-  it("publishes with a conditional provider copy without reading the payload into the route", async () => {
+  it("copies verified files within the same public bucket while preserving final paths", async () => {
     const send = vi.spyOn(S3Client.prototype, "send").mockImplementation(async () => ({ ContentLength: 8, ContentType: "image/png", ETag: "immutable" }))
     await new R2StorageProvider().publish({ actor: "owner", reference: { provider: "r2", bucket: "23_avatar-images", path: "owner/a.png" },
       stagePath: "uploads/id/a.png", size: 8, contentType: "image/png", upsert: true, expiresAt: new Date().toISOString() })
     const command = send.mock.calls.map(call => call[0]).find(command => command instanceof CopyObjectCommand) as CopyObjectCommand
-    expect(command.input).toMatchObject({ Bucket: "fixture-files", Key: "23_avatar-images/owner/a.png", CopySourceIfMatch: "immutable" })
+    expect(command.input).toMatchObject({ Bucket: "fixture-public", Key: "23_avatar-images/owner/a.png",
+      CopySource: "fixture-public/uploads/id/a.png", CopySourceIfMatch: "immutable" })
+  })
+  it("limits temporary cleanup inventory to the upload prefix and preserves final files", async () => {
+    const send = vi.spyOn(S3Client.prototype, "send").mockImplementation(async () => ({ Contents: [
+      { Key: "uploads/id/a.png", Size: 8 }, { Key: "23_avatar-images/owner/a.png", Size: 8 },
+    ] }))
+    const page = await new R2StorageProvider().listStaging()
+    expect(page.objects.map(object => object.path)).toEqual(["uploads/id/a.png"])
+    expect((send.mock.calls[0][0] as ListObjectsV2Command).input).toMatchObject({ Bucket: "fixture-public", Prefix: "uploads/" })
+  })
+  it("inspects, samples and deletes temporary keys in the public bucket and rejects final-key signing", async () => {
+    const send = vi.spyOn(S3Client.prototype, "send").mockImplementation(async () => ({
+      ContentLength: 8, ContentType: "image/png", ETag: "immutable", Body: { transformToByteArray: async () => new Uint8Array([137, 80]) },
+    }))
+    const provider = new R2StorageProvider()
+    await provider.inspect("23_avatar-images", "uploads/id/a.png", true)
+    await provider.readSample("23_avatar-images", "uploads/id/a.png", true)
+    await provider.delete("23_avatar-images", "uploads/id/a.png", true)
+    expect(send.mock.calls.map(call => call[0].constructor)).toEqual([HeadObjectCommand, GetObjectCommand, DeleteObjectCommand])
+    for (const call of send.mock.calls)
+      expect((call[0] as HeadObjectCommand).input).toMatchObject({ Bucket: "fixture-public", Key: "uploads/id/a.png" })
+    await expect(provider.signUpload("23_avatar-images/owner/a.png", "image/png", 8)).rejects.toThrow("Invalid temporary upload path")
+    await expect(provider.delete("23_avatar-images", "23_avatar-images/owner/a.png", true)).rejects.toThrow("Invalid temporary upload path")
   })
 })
 

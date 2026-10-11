@@ -51,14 +51,11 @@ declare global {
       STORAGE_PROVIDER: string
       STORAGE_MIGRATION_PAUSED: string
       STORAGE_CLEANUP_ENABLED: string
-      STORAGE_PRIVATE_LOGICAL_BUCKETS: string
       NEXT_PUBLIC_R2_PUBLIC_URL: string
       R2_ACCOUNT_ID: string
       R2_ACCESS_KEY_ID: string
       R2_SECRET_ACCESS_KEY: string
       R2_BUCKET: string
-      R2_STAGING_BUCKET: string
-      R2_PRIVATE_BUCKET: string
       R2_ACCOUNT_STANDARD_ONLY: string
       CLOUDFLARE_R2_ANALYTICS_TOKEN: string
     }

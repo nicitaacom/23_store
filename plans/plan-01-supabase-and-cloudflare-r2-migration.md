@@ -66,6 +66,11 @@ The cost wording above records the original estimate; the corrected arithmetic i
 
 > "in order to avoid scam I want to set limit of 10GB for now in total for all users so it not exeed anything"
 
+> Actually "23_avatar-images" is PUBLIC because other users might see reviews and avatars of other users also it's usefull when buyers can see seller avatar
+
+> that's why I think I need only
+> 23-store-public
+
 Interpret `.tag.gz` as the existing `.tar.gz` backup format; inspect archive contents rather than
 assuming the extension proves compatibility.
 
@@ -129,8 +134,10 @@ Next.js application
 Introduce a server-side storage interface with **Supabase and R2 implementations** for listing,
 inspecting, signing uploads/downloads, deleting, and resolving file references.
 
-Use one application-specific R2 bucket with the existing six logical bucket names as object-key
-prefixes:
+Use one application-specific **public** R2 bucket, `23-store-public`, with the existing six logical
+bucket names as object-key prefixes. Avatars are public because reviews and seller profiles show
+them to other users. Public reads and permission to upload/delete are separate: writes still
+require server authorization.
 
 - `23_product-images`
 - `23_ai-product-images`
@@ -147,9 +154,9 @@ Keep current database URL fields compatible. Normalize recognized URLs internall
 Supabase/R2 references during migration and rollback. External URLs remain untouched. Recognize
 only configured storage origins and valid bucket/path forms; avoid guessing from URL suffixes.
 
-Use a production custom domain for currently public files. Preserve existing access classification;
-private files stay in a separate private R2 bucket if source inspection finds any, with authorized
-temporary downloads. A public R2 bucket exposes its objects, so private files must not share it.
+Use a production custom domain for public files. All six application categories are intended to
+be public. No private R2 bucket is required by this architecture. Source inspection still stops
+on any private source category so an access mismatch is resolved explicitly before copying.
 R2's development public endpoint is not the production delivery endpoint.
 [R2 public buckets](https://developers.cloudflare.com/r2/buckets/public-buckets/)
 
@@ -173,10 +180,18 @@ explicit production/development CORS origins and keep credentials server-side.
 [R2 presigned URLs](https://developers.cloudflare.com/r2/api/s3/presigned-urls/)
 
 Preserve existing per-feature file limits, collision handling, upload progress, and error behavior.
-Validate declared size before signing and actual size/content metadata before publishing. Invalid
-uploads remain unpublished and are removed. Apply existing rate limiting to upload authorization,
-especially guest uploads. Use private temporary storage for unverified uploads so a public object
-URL does not bypass completion checks; completion promotes verified files to their final keys.
+Validate declared size and reserve capacity before signing, then verify actual size/content
+metadata before returning an application reference. Apply existing rate limiting to upload
+authorization, especially guest uploads. R2 receives uploads under `uploads/<upload-id>/<filename>`
+inside the same public bucket. Completion copies verified files to their existing final paths,
+preserving filenames, replacement behavior and backup compatibility. Temporary copies count
+toward the shared limit and scheduled cleanup removes them after the signing grace period.
+
+**October 11 architecture clarification:** a separate private upload-staging bucket was the first
+implementation choice, not a requirement for checking free space. The user's choice is one public
+R2 bucket. Temporary R2 objects are also publicly reachable before completion; random upload IDs
+are not access control. Rejected objects are removed, but validation is not a public-read gate.
+Supabase retains its provider-specific private upload staging for rollback compatibility.
 
 ### Upload quotas and paid storage — added October 11, 2026
 
@@ -277,7 +292,9 @@ rather than defaulting to an assumed free plan.
   `dev_readme-supbase-sql.md` and the self-hosted Supabase documentation.
 - Enforce the 10 GB total application limit before signing uploads or copying backup/migration
   files. Reserve capacity atomically, release failed/expired reservations, verify actual bytes,
-  and reject concurrent attempts that would exceed the limit.
+  and reject concurrent attempts that would exceed the limit. R2 requires only `R2_BUCKET`, with
+  incoming and final objects in that one public bucket; no private/staging bucket environment
+  variables or additional R2 buckets are required.
 - **TODO:** implement the 1 GB per-user allowance and the $0.30/GB/month paid upgrade described
   above, with verified billing entitlements and the shared 10 GB limit taking precedence.
 
@@ -320,7 +337,8 @@ rather than defaulting to an assumed free plan.
 - Delete actual objects through the provider API. Database metadata deletion alone is not file
   deletion.
 - Use bounded, resumable cleanup batches and recheck references before deletion. Pause destructive
-  cleanup during migration/rollback. Expire abandoned private upload staging objects separately.
+  cleanup during migration/rollback. Expire temporary upload objects separately: only the
+  `uploads/` prefix in R2's public bucket and Supabase's private staging bucket.
 - Preserve historical cleanup SQL with an explicit explanation of which implementation is active.
 
 ### 5. Validate, cut over, and document rollback
@@ -355,7 +373,9 @@ Required scenarios:
 
 - Supabase and R2 upload/list/delete behavior; filename collisions and overwrites.
 - Unauthorized callers, non-admin usage access, forged owner/guest folders, expired signatures,
-  oversized files, and direct access to unverified uploads.
+  oversized files, and the documented public visibility of incoming R2 uploads.
+- A single configured R2 bucket for signing, final copies, downloads, usage and cleanup; cleanup
+  preserves final category prefixes and existing images when a replacement is rejected.
 - The shared 10 GB limit at its boundary, parallel reservations, overwrite/deletion accounting,
   expired uploads, unknown usage, and backup/migration attempts that exceed remaining capacity.
 - **TODO — paid-storage acceptance:** 1 GB per-user limits, verified upgrades at $0.30/GB/month,
@@ -402,7 +422,8 @@ limit remains enforced for ADMIN. The warning threshold is configured at 80%, cu
 ### Local implementation — October 11, 2026
 
 - Added interchangeable Supabase/R2 providers, typed Storage SDK and authorized metadata routes.
-  Browser uploads go directly to private staging; completion verifies and publishes the file.
+  Browser uploads go directly to the provider; completion verifies and publishes the file.
+  R2 uses temporary keys inside `23-store-public`; Supabase retains private staging.
   Existing image flows and product deletion use the provider abstraction.
 - Exported the requested policy and enforced the shared 10 GB capacity with current inventory,
   persistent reservations and provider leases. ADMIN, guests, restore and migration share the cap.
@@ -419,7 +440,7 @@ limit remains enforced for ADMIN. The warning threshold is configured at 80%, cu
   Restricted SQL and exact array/reference comparisons were exercised in isolated PostgreSQL 17.
   Scheduling SQL was checked with local API stubs, without activating external webhooks.
 
-**Live gates remaining:** create the two R2 buckets and custom domain, configure CORS/credentials,
+**Live gates remaining:** create `23-store-public` and its custom domain, configure CORS/credentials,
 apply Supabase setup SQL, inspect actual source access/usage, rehearse uploads and rollback, then
 perform the final live synchronization and deliberate cutover. Source Storage inspection returned
 an upstream unavailable response, so its actual classification is not yet verified. The tracker
@@ -428,3 +449,21 @@ ADMIN is exempt from both while retaining the shared 10 GB cap.
 
 Click-by-click setup and browser import: [migration runbook](../dev_readme-storage-migration.md).
 Implementation/configuration: [storage documentation](../dev_readme-storage.md).
+
+### Single public R2 bucket — October 11, 2026 clarification
+
+- Changed R2 credentials, direct upload signing, conditional final copies, downloads, usage and
+  cleanup to use one configured public bucket. Removed private/staging R2 environment settings.
+  The six existing category names remain prefixes, including publicly readable avatars.
+- Kept incoming uploads under `uploads/` in that same bucket. This preserves final filenames
+  and existing images during rejected replacements. Incoming objects are publicly reachable;
+  actual-byte verification controls application references, not public reads. Cleanup lists
+  only this temporary prefix and preserves final category prefixes.
+- Shared capacity still counts temporary copies and pending reservations, including ADMIN.
+  Per-user allowances/billing remain TODOs. Updated the Cloudflare click guide and combined
+  download/upload CORS policy for `23-store-public`.
+- Verification: 383 unit tests, 21 streaming CLI tests and six storage-dashboard browser tests
+  passed; TypeScript, production build and lint passed (26 existing warnings). All 11 storage environment names
+  match across declarations, the example and the probe registry. The broader environment-registry
+  audit reports eight pre-existing PayPal/Solana names missing from the probe registry; the same
+  omissions exist in the preceding commit.

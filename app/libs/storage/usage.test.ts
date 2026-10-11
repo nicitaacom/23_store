@@ -15,7 +15,7 @@ function analytics(): TR2Analytics {
   return { storage: [
     { dimensions: { bucketName: "files", datetime: "2026-10-11T10:00:00Z" }, max: { payloadSize: 100, metadataSize: 1, objectCount: 1 } },
     { dimensions: { bucketName: "files", datetime: "2026-10-11T11:00:00Z" }, max: { payloadSize: 200, metadataSize: 2, objectCount: 2 } },
-    { dimensions: { bucketName: "staging", datetime: "2026-10-11T11:00:00Z" }, max: { payloadSize: 30, metadataSize: 1, objectCount: 1 } },
+    { dimensions: { bucketName: "unrelated-bucket", datetime: "2026-10-11T11:00:00Z" }, max: { payloadSize: 30, metadataSize: 1, objectCount: 1 } },
     { dimensions: { bucketName: "another-project", datetime: "2026-10-11T11:00:00Z" }, max: { payloadSize: 1000, metadataSize: 10, objectCount: 9 } },
   ], operations: [{ dimensions: { actionType: "PutObject" }, sum: { requests: 30 } }, { dimensions: { actionType: "GetObject" }, sum: { requests: 400 } }],
   bandwidth: [{ sum: { bytesDownload: 500 } }] }
@@ -31,9 +31,9 @@ afterEach(() => vi.unstubAllEnvs())
 
 describe("storage usage scope and allowances", () => {
   it("takes the latest sample per bucket and separates application from account", () => {
-    const result = normalizeR2Usage(analytics(), ["files", "staging"], now)
-    expect(result.r2Files.value).toBe(233)
-    expect(result.r2Objects.value).toBe(3)
+    const result = normalizeR2Usage(analytics(), ["files"], now)
+    expect(result.r2Files.value).toBe(202)
+    expect(result.r2Objects.value).toBe(2)
     expect(result.r2Allowance.value).toBe(1243)
     expect(result.r2ClassA.remaining).toBe(999970)
     expect(result.r2ClassB.remaining).toBe(9999600)
@@ -45,7 +45,7 @@ describe("storage usage scope and allowances", () => {
   it("keeps missing samples unavailable and old samples stale", () => {
     expect(normalizeR2Usage({ storage: [], operations: [], bandwidth: [] }, ["files"], now).r2Files.value).toBeNull()
     const data = analytics(); data.storage.forEach(sample => { sample.dimensions.datetime = "2026-10-01T00:00:00Z" })
-    expect(normalizeR2Usage(data, ["files", "staging"], now).r2Files.status).toBe("stale")
+    expect(normalizeR2Usage(data, ["files"], now).r2Files.status).toBe("stale")
   })
   it("does not assume included allowances for mixed storage classes or unknown operations", () => {
     vi.stubEnv("R2_ACCOUNT_STANDARD_ONLY", "false")

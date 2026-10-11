@@ -8,41 +8,40 @@ The Tables export is a recovery artifact; do not import it over the live databas
 
 ## 1. Cloudflare: where to click
 
-1. **R2 Object Storage → Create bucket**: name `23-store-files`, select **Automatic** and
+1. **R2 Object Storage → Create bucket**: name `23-store-public`, select **Automatic** and
    **Standard**, then **Create bucket**. The six existing categories become key prefixes inside it.
-2. Repeat with `23-store-upload-staging`. Keep this bucket private: no custom domain and no
-   public development URL. [Bucket setup](https://developers.cloudflare.com/r2/buckets/create-buckets/)
-3. Open **23-store-files → Settings → Custom Domains → Add**. Enter a file subdomain on a domain
+   This is the only R2 bucket required; avatars are public, and temporary uploads share it.
+   [Bucket setup](https://developers.cloudflare.com/r2/buckets/create-buckets/)
+2. Open **23-store-public → Settings → Custom Domains → Add**. Enter a file subdomain on a domain
    managed in this Cloudflare account, for example `files.jokik.fi` if that zone is available.
    Click **Continue → Connect Domain** and wait for Active. Put its HTTPS origin in
    `NEXT_PUBLIC_R2_PUBLIC_URL`. Keep `r2.dev` disabled for production.
    [Custom domains](https://developers.cloudflare.com/r2/buckets/public-buckets/)
-4. **R2 overview → Account Details → API Tokens → Manage → Create Account API token**:
-   use **Object Read & Write** and
-   scope it to the two buckets. Copy **Access Key ID**, **Secret Access Key** and the account ID
+3. **R2 overview → Account Details → API Tokens → Manage → Create Account API token**:
+   use **Object Read & Write** and scope it only to `23-store-public`.
+   Copy **Access Key ID**, **Secret Access Key** and the account ID
    into `.env.local` (`R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ACCOUNT_ID`). Also set
-   `R2_BUCKET=23-store-files`, `R2_STAGING_BUCKET=23-store-upload-staging`. Save the secret when
-   it is displayed. This token does not need bucket-management privileges.
+   `R2_BUCKET=23-store-public`. Save the secret when it is displayed.
+   This token does not need bucket-management privileges.
    [R2 credentials](https://developers.cloudflare.com/r2/api/tokens/)
-5. **Account API Tokens → Create Token → Create Custom Token**: name it for storage analytics,
+4. **Account API Tokens → Create Token → Create Custom Token**: name it for storage analytics,
    grant **Account → Account Analytics → Read**, and scope it to this account. Store its value as
    `CLOUDFLARE_R2_ANALYTICS_TOKEN`.
    [Analytics token](https://developers.cloudflare.com/analytics/graphql-api/getting-started/authentication/api-token-auth/)
-6. In each bucket, open **Settings → CORS Policy → Add CORS policy → JSON → Save**. The production
+5. Open **23-store-public → Settings → CORS Policy → Add CORS policy → JSON → Save**. The production
    origins below are examples for this shop; use the actual deployed origins and explicit local
    ports. Do not use wildcard origins. [CORS setup](https://developers.cloudflare.com/r2/buckets/cors/)
 
-Public application bucket:
+Use one CORS policy for public downloads and signed browser uploads:
 
 ```json
-[{"AllowedOrigins":["https://www.jokik.fi","https://jokik.fi","http://localhost:3023","http://127.0.0.1:3023"],"AllowedMethods":["GET","HEAD"],"AllowedHeaders":["Range"],"ExposeHeaders":["ETag","Content-Length"],"MaxAgeSeconds":300}]
+[{"AllowedOrigins":["https://www.jokik.fi","https://jokik.fi","http://localhost:3023","http://127.0.0.1:3023"],"AllowedMethods":["GET","HEAD","PUT"],"AllowedHeaders":["Range","Content-Type","If-None-Match"],"ExposeHeaders":["ETag","Content-Length"],"MaxAgeSeconds":300}]
 ```
 
-Private staging bucket:
-
-```json
-[{"AllowedOrigins":["https://www.jokik.fi","https://jokik.fi","http://localhost:3023","http://127.0.0.1:3023"],"AllowedMethods":["PUT","HEAD"],"AllowedHeaders":["Content-Type","If-None-Match"],"ExposeHeaders":["ETag","Content-Length"],"MaxAgeSeconds":300}]
-```
+The bucket is public for reads, including incoming `uploads/` objects. Writes still need a
+server-issued signed request with an authorized key, type and byte count; CORS is not write
+authorization. Completion verifies actual files before updating their final application paths.
+Temporary copies and reserved capacity count toward the same 10 GB cap, including ADMIN.
 
 Apply `scripts/storage/setup.sql` in the Supabase SQL editor before the new application routes
 are deployed. Schedule cleanup only after the deployment is reachable and Vault contains the
@@ -55,12 +54,12 @@ DbBackupModal has separate **Tables** and **Files** exports. The migration input
 `23_backup-files-<date>.tar.gz`. Keep the table export separately. Replace the example path with
 the real downloaded filename; quote paths containing spaces.
 
-For the user-selected browser flow, configure the two buckets, custom domain, CORS and `.env.local`,
+For the user-selected browser flow, configure the public bucket, custom domain, CORS and `.env.local`,
 apply the Supabase setup SQL, then restart the app. Open **DB Backup → Files → R2 → Import** and
 choose the Files `.tar.gz`. Export also reads the selected provider. Importing into inactive R2
 leaves live database image URLs unchanged and reports that final synchronization is still needed.
 Keep `STORAGE_PROVIDER=supabase` during this initial copy. The Tables backup is not imported.
-Before final sync, use the archive command below with `--apply` against the selected R2 buckets
+Before final sync, use the archive command below with `--apply` against the selected R2 bucket
 to establish its verified starting report. Files already matching the exported SHA-256 and MIME
 are verified without being uploaded again. Existing different files are preserved as conflicts.
 
@@ -85,9 +84,9 @@ state. Reports and reference journals contain customer paths; keep them private 
 
 ## 3. Rehearse, then copy
 
-Use separate rehearsal application and staging buckets with the same privacy/CORS rules. Point
-only local `.env.local` at them. Test representative files from all six categories and verify a
-complete upload/list/delete and rollback cycle before pointing at production buckets.
+Use one separate rehearsal public bucket with the same CORS rules. Point only local `.env.local`
+at it. Test representative files from all six categories and verify a complete upload/list/delete
+and rollback cycle before pointing at the production bucket.
 Preflight inspects actual Supabase bucket classification; missing/private categories must be
 resolved explicitly, never made public automatically. Record the source usage and the warning's
 actual storage/egress metric in the provider dashboard.
@@ -131,8 +130,9 @@ pnpm storage:migrate --operation relink --manifest '/absolute/path/cutover.json'
 
 4. Set deployment/local `STORAGE_PROVIDER=r2`; rebuild so the public domain is available to the
    browser. Check the six image flows, ADMIN usage and backup import/export. In browser Network,
-   image GETs must go to the custom domain and upload PUTs to signed R2 staging URLs. Prepare/
-   complete requests carry metadata only. Then set `STORAGE_MIGRATION_PAUSED=false` and enable
+   image GETs must go to the custom domain and upload PUTs to signed `uploads/` keys in the same
+   public R2 bucket. Prepare/complete requests carry metadata only.
+   Then set `STORAGE_MIGRATION_PAUSED=false` and enable
    configured cleanup. Confirm warnings at 8 GB and blocked uploads at 10 GB, including ADMIN.
 5. Monitor failures, actual provider usage and Supabase file egress. Included provider allowances
    and the application's limit are separate. Existing monthly egress is not erased by cutover.
@@ -173,7 +173,7 @@ purge or provider switch is performed automatically.
 ## 7. Deployment record
 
 Local implementation and simulated provider/round-trip tests do not prove live Cloudflare setup.
-At implementation time R2 buckets, custom domain and credentials were not configured; source
+At implementation time the R2 bucket, custom domain and credentials were not configured; source
 Storage inspection returned an upstream unavailable response. Record actual inspection, live
 rehearsal, inventory size, cutover time and rollback rehearsal here once completed. The tracker
 remains in progress until those gates pass. Per-user quotas and paid upgrades are plan TODOs.

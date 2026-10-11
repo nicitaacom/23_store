@@ -82,7 +82,7 @@ beforeEach(() => {
   vi.useFakeTimers(); vi.setSystemTime(new Date("2026-10-11T12:00:00Z"))
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://source.example")
   vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_URL", "https://files.example")
-  vi.stubEnv("STORAGE_MIGRATION_PAUSED", "false"); vi.stubEnv("STORAGE_PRIVATE_LOGICAL_BUCKETS", "")
+  vi.stubEnv("STORAGE_MIGRATION_PAUSED", "false")
   state.values.clear(); state.hashes.clear(); files = new Map(); vi.clearAllMocks()
 })
 afterEach(() => { vi.unstubAllEnvs(); vi.useRealTimers() })
@@ -126,7 +126,7 @@ describe("ADMIN backup provider selection", () => {
 
 describe.each(["supabase", "r2"] as const)("%s upload workflow", name => {
   beforeEach(() => { vi.stubEnv("STORAGE_PROVIDER", name); installProvider(name) })
-  it("publishes verified bytes, retains immutable staging and completes idempotently", async () => {
+  it("publishes verified bytes, retains immutable temporary keys and completes idempotently", async () => {
     const prepared = await prepareStorageUpload(actor, input); stage(prepared.uploadId)
     const completed = await completeStorageUpload(actor, prepared.uploadId)
     expect(completed.publicUrl).toContain(`?v=${prepared.uploadId}`)
@@ -168,6 +168,17 @@ describe.each(["supabase", "r2"] as const)("%s upload workflow", name => {
     const prepared = await prepareStorageUpload(actor, { ...input, upsert: true }); stage(prepared.uploadId)
     await completeStorageUpload(actor, prepared.uploadId)
     expect(files.get(`${input.bucket}/verifiedowner/avatar.png`)?.size).toBe(8)
+  })
+  it("preserves the existing avatar when a replacement fails image verification", async () => {
+    const previous: TStorageObject = { provider: name, bucket: input.bucket, path: "verifiedowner/avatar.png",
+      size: 3, contentType: "image/png", etag: "previous", updatedAt: null }
+    files.set(`${input.bucket}/${previous.path}`, previous)
+    const prepared = await prepareStorageUpload(actor, { ...input, upsert: true }); stage(prepared.uploadId)
+    vi.mocked(state.provider!.readSample).mockResolvedValue(new Uint8Array([1, 2, 3]))
+    await expect(completeStorageUpload(actor, prepared.uploadId)).rejects.toMatchObject({ status: 400 })
+    expect(files.get(`${input.bucket}/${previous.path}`)).toEqual(previous)
+    expect([...files.keys()].some(key => key.startsWith("staging/"))).toBe(false)
+    expect(state.provider?.publish).not.toHaveBeenCalled()
   })
 })
 

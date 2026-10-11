@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 
-import { activeStorageProvider, fileChangesPaused, privateStorageBuckets, SUPABASE_STAGING_MAX_BYTES, UPLOAD_SIGNATURE_SECONDS } from "./config"
+import { activeStorageProvider, fileChangesPaused, SUPABASE_STAGING_MAX_BYTES, UPLOAD_SIGNATURE_SECONDS } from "./config"
 import { authorizedStorageFolder, StorageRequestError } from "./authorization"
 import { cancelStorageCapacity, reserveStorageCapacity, settleStorageCapacity } from "./capacity"
 import { fileKey, releaseFileLock, storageRedis, uploadKey } from "./state"
@@ -38,7 +38,6 @@ export async function prepareStorageUpload(actor: TStorageActor, input: TStorage
   if (backup && !actor.admin) throw new StorageRequestError("ADMIN role required", 403)
   if (providerName && !backup) throw new StorageRequestError("Provider selection requires an ADMIN backup import", 403)
   validateStorageUpload(input, backup)
-  if (privateStorageBuckets().includes(input.bucket)) throw new StorageRequestError("Private file categories require a private-reference UI", 503)
   const folder = backup ? "" : await authorizedStorageFolder(actor, input.bucket, input.entityId)
   if (!backup && input.folder && input.folder !== folder && !actor.cookie)
     throw new StorageRequestError("Folder does not match the verified identity", 403)
