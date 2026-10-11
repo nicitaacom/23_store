@@ -9,6 +9,7 @@ import tar from "tar-stream"
 import { copyArchive, inspectArchive, streamDigest } from "./archive.mjs"
 import { synchronize } from "./synchronize.mjs"
 import { exportFiles } from "./export.mjs"
+import { STORAGE_BUCKETS } from "@/libs/storage/references"
 
 async function directory(t) {
   const folder = await mkdtemp(path.join(tmpdir(), "23-storage-test-"))
@@ -120,19 +121,36 @@ test("existing destination changes cause conflicts and are preserved", async t =
   assert.equal(backend.files.get(`${bucket}/a.png`).bytes.toString(), "independent edit")
 })
 
-test("round trip preserves files added, overwritten and deleted after cutover", async t => {
+test("round trip preserves all six categories and files added, overwritten and deleted after cutover", async t => {
   const folder = await directory(t); const source = memoryBackend("supabase"); const r2 = memoryBackend("r2")
-  source.add(bucket, "changed.png", Buffer.from("old")); source.add(bucket, "deleted.png", Buffer.from("remove"))
+  for (const category of STORAGE_BUCKETS) {
+    source.add(category, "owner/changed.png", Buffer.from(`old ${category}`))
+    source.add(category, "owner/deleted.png", Buffer.from(`remove ${category}`))
+  }
   const cutover = path.join(folder, "cutover.json")
   await synchronize(source, r2, cutover, { apply: true })
-  r2.add(bucket, "changed.png", Buffer.from("new bytes")); r2.add("23_avatar-images", "owner/new.png", Buffer.from("new avatar"))
-  await r2.delete(bucket, "deleted.png")
-  const rollback = await synchronize(r2, source, path.join(folder, "rollback.json"), { apply: true, baselinePath: cutover, mirrorDeletions: true })
-  assert.equal(source.files.get(`${bucket}/changed.png`).bytes.toString(), "new bytes")
-  assert.equal(source.files.get("23_avatar-images/owner/new.png").bytes.toString(), "new avatar")
-  assert.equal(source.files.has(`${bucket}/deleted.png`), false)
-  assert.equal(rollback.deletions[0].status, "deleted")
+  for (const category of STORAGE_BUCKETS) {
+    r2.add(category, "owner/changed.png", Buffer.from(`new ${category}`))
+    r2.add(category, "owner/новое фото.webp", Buffer.from(`created ${category}`), "image/webp")
+    await r2.delete(category, "owner/deleted.png")
+  }
+  const report = path.join(folder, "rollback.json")
+  const rollback = await synchronize(r2, source, report, { apply: true, baselinePath: cutover, mirrorDeletions: true })
+  for (const category of STORAGE_BUCKETS) {
+    assert.equal(source.files.get(`${category}/owner/changed.png`).bytes.toString(), `new ${category}`)
+    const createdFile = source.files.get(`${category}/owner/новое фото.webp`)
+    assert.equal(createdFile.bytes.toString(), `created ${category}`)
+    assert.equal(createdFile.contentType, "image/webp")
+    assert.equal(source.files.has(`${category}/owner/deleted.png`), false)
+  }
+  assert.equal(rollback.files.length, STORAGE_BUCKETS.length * 2)
+  assert.equal(rollback.files.every(file => file.status === "verified"), true)
+  assert.equal(rollback.deletions.length, STORAGE_BUCKETS.length)
+  assert.equal(rollback.deletions.every(file => file.status === "deleted"), true)
   assert.ok(rollback.verifiedInventoryAt)
+  const writes = source.writes.length
+  await synchronize(r2, source, report, { apply: true, baselinePath: cutover, mirrorDeletions: true })
+  assert.equal(source.writes.length, writes)
 })
 
 test("synchronization reconciles a stale backup and reports missing source files", async t => {

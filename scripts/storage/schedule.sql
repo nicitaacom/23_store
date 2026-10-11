@@ -13,7 +13,7 @@ $$;
 SELECT cron.unschedule(jobid) FROM cron.job WHERE jobname IN (
   'cleanup_guest_support_images', '23_storage_cleanup_resume', '23_storage_staging_cleanup'
 );
-SELECT cron.schedule('cleanup_guest_support_images', '5 3 * * 0', $$
+SELECT cron.schedule('cleanup_guest_support_images', '0 3 * * 0', $$
   SELECT net.http_post(
     url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'keys_webhook_base_url') || '/api/storage/cleanup',
     headers := jsonb_build_object('Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'keys_webhook_secret'), 'Content-Type', 'application/json'),

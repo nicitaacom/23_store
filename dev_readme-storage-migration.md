@@ -318,7 +318,9 @@ Local implementation and simulated provider/round-trip tests do not prove live C
 At implementation time the R2 bucket, custom domain and credentials were not configured; source
 Storage inspection returned an upstream unavailable response. Record actual inspection, live
 rehearsal, inventory size, cutover time and rollback rehearsal here once completed. The tracker
-remains in progress until those gates pass. Per-user quotas and paid upgrades are plan TODOs.
+recorded the remaining live gates at that time. Current implementation completion is recorded
+in the tracker, with the later acceptance audit below. Per-user quotas and paid upgrades are
+future TODOs; they are not enabled by the exported configuration.
 
 October 11 setup progress: the user created `23-store-public`. Local bucket/origin values are
 configured, and `files.jokik.fi` answered HTTPS HEAD requests with TLS 1.3 and TLS 1.2 (HTTP 404
@@ -342,3 +344,39 @@ requested TLS minimum is now verified. The 21 streaming migration/reference test
 including archive compatibility, stale-backup reconciliation, checksum verification, conflicts
 and rollback of post-cutover changes. These tests use simulated providers. No live import, SQL
 application, reference update or cutover was performed; local credential values remain unread.
+
+### October 11 implementation acceptance audit
+
+The migration implementation passed 408 unit tests, 21 streaming migration/reference tests,
+12 affected Storybook tests, TypeScript and a production Next.js build with fixture configuration
+in an isolated source copy containing no environment files. ESLint reported zero errors and
+26 existing warnings. The rollback rehearsal now covers all six categories, post-cutover additions,
+overwrites and deletions, Unicode/MIME preservation and a repeated run without extra writes.
+Provider fixtures were used; no live production rollback was performed.
+
+Read-only production checks confirmed product images at `files.jokik.fi`: the public page contained
+281 R2 image references, a headless browser rendered 51 R2 images with HTTP 200, and three sampled
+AVIF files supported ranged reads and CORS for `https://www.jokik.fi`. Unauthenticated access to
+`/api/storage/usage` returned HTTP 401. These checks preserve the user's preference to perform
+imports through the UI and leave `.env.local`, the active window and keyboard untouched.
+
+Account-owned acceptance and optional cleanup activation:
+
+- In the deployed ADMIN UI, confirm the Files import reports completed R2 relinking with zero
+  unresolved references. Check representative user/Auth avatars, variants, personalization and
+  support images in addition to the publicly verified product images. Check **Storage & usage**
+  for actual observations or an explicit unavailable/stale explanation.
+- When enabling scheduled cleanup, apply `scripts/storage/schedule.sql` in the Supabase SQL
+  Editor with the existing Vault base URL/CRON_SECRET configured. Confirm the three jobs in
+  `cron.job`: guest cleanup Sunday **03:00 UTC**, temporary cleanup daily **03:15 UTC**, and
+  continuation at minutes **7,17,27,37,47,57**. Reapplying the SQL replaces the named jobs and
+  preserves other schedules. This also replaces the historical metadata-only cleanup job.
+- Cleanup remains disabled unless `STORAGE_CLEANUP_ENABLED=true` is explicitly configured.
+  This opt-in is separate from the six R2 entries needed for imports; no additional setting is
+  required merely to repeat a default. Pausing migration also pauses cleanup.
+- Keep source files for at least 14 days. Follow §§4–6 when reconciling a stale source, rehearsing
+  a live rollback or deliberately deleting retained source files. Public product checks and
+  automated provider fixtures do not certify that these account operations have occurred.
+
+The 1 GB per-user allowance and $0.30/GB/month subscriptions remain future TODO work. ADMIN
+is exempt from those future user limits and fees; the shared 10 GB cap applies now to every role.

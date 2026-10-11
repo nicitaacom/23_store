@@ -193,7 +193,7 @@ export const BackupCopyToR2: Story = {
   render: () => <BackupProgressWorkbench />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(await canvas.findByText("Supabase")).toBeVisible()
+    await waitFor(() => expect(canvas.getByText("Supabase")).toBeVisible())
     await userEvent.click(await canvas.findByRole("button", { name: "Files" }))
     await expect(canvas.getByText("R2")).toBeVisible()
     await expect(canvas.queryByText("Supabase")).not.toBeInTheDocument()

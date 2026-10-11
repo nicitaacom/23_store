@@ -9,7 +9,7 @@ function observation(bytes: number, status: "available" | "stale" = "available")
   const allowance = r2Config.totalForAllUsersGB * 1000 ** 3
   return { provider: "r2", refreshedAt: "2026-10-11T12:00:00Z", metrics: {
     applicationLimit: { value: bytes, unit: "bytes", source: "Provider object inventory and reserved uploads",
-      scope: "Application public and private staging buckets", observedAt: "2026-10-11T12:00:00Z", status,
+      scope: "Public application R2 bucket, including temporary uploads", observedAt: "2026-10-11T12:00:00Z", status,
       allowance, remaining: Math.max(0, allowance - bytes), excess: Math.max(0, bytes - allowance) },
     supabaseDatabase: { value: 0.5 * 1000 ** 3, unit: "bytes", source: "Supabase restricted SQL function",
       scope: "Whole shared database, including other projects", observedAt: "2026-10-11T12:00:00Z", status: "available" },

@@ -713,3 +713,69 @@ Implementation/configuration: [storage documentation](../dev_readme-storage.md).
   unresolved references and `https://files.jokik.fi/` image URLs in Supabase's Table Editor. Keep
   the Tables archive for recovery. Existing backup and storage guides document this workflow;
   the previously rejected separate backup UI documentation file remains absent.
+
+### Completion audit — October 11, 2026
+
+- Audited the implementation tasks against the current `development` code. Supabase/R2 providers,
+  authorized direct uploads, all six categories, image deletion and overwrite URLs, portable
+  browser/streaming backups, skip-existing imports, bounded database/Auth relinking, the shared
+  10 GB cap, the 8 GB ADMIN warning, usage observations and provider-aware cleanup are implemented.
+  Supabase tables/authentication, SQL documentation and restore support remain available.
+- Corrected the weekly guest-cleanup schedule from 03:05 to the plan's Sunday **03:00 UTC**.
+  Temporary cleanup stays daily 03:15 UTC, with resumable batches. PostgreSQL 17 with simulated
+  cron/net/Vault APIs verified all three schedules, repeated application without duplicate jobs,
+  and preservation of existing jobs when a required Vault secret is missing. No live jobs changed.
+- Extended the Supabase → R2 → Supabase rehearsal to **all six categories**, including files
+  created, overwritten and deleted after cutover, Unicode filenames, MIME preservation and an
+  idempotent repeated rollback. This uses simulated providers; no production rollback was run.
+- Read-only production checks of `https://www.jokik.fi/` found 281 product-image references to
+  `files.jokik.fi`. A separate headless browser rendered 51 R2 product images with HTTP 200;
+  three sampled AVIF objects returned HTTP 206 and allowed the production origin through CORS.
+  The production usage endpoint returned HTTP 401 to an unsigned visitor. These observations
+  verify public product delivery and authorization, not every private database/Auth reference.
+- Verification passed: **408 unit tests**, **21 streaming migration/reference tests**,
+  **12 affected Storybook tests**, TypeScript, and the production Next.js build. Full ESLint
+  reported zero errors and 26 existing warnings; changed test/story files have no lint messages.
+  Backup browser checks passed at 320/414/1280 px in English/Russian. The backup Storybook
+  interaction now waits for the modal's entrance animation before asserting visibility.
+- The production build and Storybook runner used an isolated copy with fixture configuration
+  and no environment files. Unit/browser checks disabled environment-file reads. `.env.local`
+  remains unread; the user's active window and keyboard were untouched. Plan links resolve.
+- The **1 GB per-user allowance and $0.30/GB/month subscriptions remain future TODOs**, as
+  originally requested. Their exported configuration does not enable per-user enforcement or
+  billing. They are separate from this completed migration implementation; ADMIN remains exempt
+  from those future limits/fees, while the shared 10 GB limit applies now to every role.
+- Account-owned acceptance remains explicit in the runbook: check the ADMIN import result and
+  private/Auth references, check real usage observations, and activate cleanup only when ready.
+  Keep source files through the 14-day rollback window. Live rollback, source reconciliation,
+  scheduler activation and source deletion were not performed or reported complete by this audit.
+  The tracker records implementation completion; it does not certify those account operations.
+
+### Supabase traffic and R2 — conversation excerpt
+
+Yes. It means **how much data Supabase sends to people using your website**, including:
+
+- Images downloaded from your Supabase buckets when someone views a product.
+- Database results, such as product details and reviews.
+- Login responses and live updates. [Supabase data-transfer guide](<https://supabase.com/docs/guides/platform/manage-your-usage/egress>)
+
+For example, a **1 MB image downloaded 1,000 times sends about 1 GB**. Each new download adds more traffic.
+
+Your screenshot shows **4\.809 GB used out of 5 GB allowed**, leaving about **191 MB**. The allowance resets at the next billing cycle. Stored file size is measured separately. [Supabase usage limits](<https://supabase.com/docs/guides/platform/manage-your-usage/egress>)
+
+Once your image URLs point to **`files.jokik.fi`**, those images come from R2, reducing Supabase traffic. Database responses will still count.
+```
+  Worked for 2m 48s • 8:33 PM
+```
+so with R2 it's no such issue right?  
+
+I’ll check R2’s current charges and limits.
+```
+• Browsing the web
+• Opened https://developers.cloudflare.com/r2/pricing/
+```
+Yes—**for images served from R2, you avoid that 5 GB download-traffic problem.** R2 does not charge for the amount of data visitors download. [Cloudflare pricing](<https://developers.cloudflare.com/r2/pricing/>)
+
+There are still two things to remember:
+
+

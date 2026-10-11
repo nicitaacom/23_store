@@ -117,7 +117,7 @@ this architecture provides no private-read category. File payloads are uploaded,
 delivered by the provider, outside Next.js.
 
 Apply `scripts/storage/schedule.sql` after deployment. It reuses the existing Vault
-`keys_webhook_base_url` and `keys_webhook_secret` settings. Guest cleanup starts Sunday 03:05 UTC,
+`keys_webhook_base_url` and `keys_webhook_secret` settings. Guest cleanup starts Sunday 03:00 UTC,
 checks the one-hour grace period and current message references, and deletes through the active
 provider API. Temporary upload cleanup starts daily 03:15 UTC with a 24-hour grace period. On R2
 it lists `temp-uploads/` and the retained legacy `uploads/` prefix inside the public bucket, preserving all final category prefixes; on
@@ -128,6 +128,9 @@ files are retained; production source purge is a separate explicit CLI operation
 
 The six application categories are intended to be public. Migration preflight checks the real
 source classification and stops on any private category so its access requirement is resolved
-explicitly before copying. Do not make a private source public to continue. Account setup, actual source
-inspection, representative live R2 rehearsal and production cutover remain deployment gates.
+explicitly before copying. Do not make a private source public to continue. Public production
+product images were verified from R2 on October 11. The runbook's implementation acceptance
+record distinguishes these read-only checks and the automated six-category rollback rehearsal
+from account-owned private-reference checks, real usage confirmation, cleanup activation and a
+live rollback. Source deletion remains a separate deliberate operation after the retention window.
 The Supabase usage function reports whole shared-database size; file usage covers this application.
