@@ -4,11 +4,28 @@ type TTestAccount = {
   password: string
 }
 
+type TRunAccounts = Record<"owner" | "other" | "support" | "admin", TTestAccount>
+type TPreparedAccount = { id: string; email: string; role: keyof TRunAccounts }
+
+Cypress.Commands.add("prepareRunAccounts", () => {
+  cy.task("prepareRunAccounts", null, { log: false }).then(accountData => {
+    const accountRecords = accountData as Record<keyof TRunAccounts, TPreparedAccount>
+    const testPassword = String(Cypress.env("E2E_TEST_PASSWORD") ?? "")
+    if (!testPassword) throw new Error("E2E_TEST_PASSWORD is required for run-owned browser accounts")
+    return {
+      owner: { ...accountRecords.owner, password: testPassword },
+      other: { ...accountRecords.other, password: testPassword },
+      support: { ...accountRecords.support, password: testPassword },
+      admin: { ...accountRecords.admin, password: testPassword },
+    }
+  })
+})
+
 Cypress.Commands.add("signIn", (account: TTestAccount) => {
   cy.session(
-    ["authenticated-account", account.id],
+    ["authenticated-account", Cypress.config("baseUrl"), account.id, account.email],
     () => {
-      cy.setCookie("cf_turnstile_verified", "1", { sameSite: "lax" })
+      if (Cypress.env("E2E_SUITE") === "legacy") cy.setCookie("cf_turnstile_verified", "1", { sameSite: "lax" })
       cy.visit("/?modal=AuthModal&variant=login")
       cy.get("#email").type(account.email)
       cy.get("#password").type(account.password, { log: false })
@@ -36,6 +53,7 @@ declare global {
   namespace Cypress {
     interface Chainable {
       signIn(account: TTestAccount): Chainable<void>
+      prepareRunAccounts(): Chainable<TRunAccounts>
     }
   }
 }

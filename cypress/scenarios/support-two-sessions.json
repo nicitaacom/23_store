@@ -1,0 +1,52 @@
+{
+  "id": "support-two-live-browser-sessions",
+  "browser": "chromium",
+  "sessions": [
+    { "name": "customer", "role": "owner", "viewport": { "width": 1440, "height": 900 } },
+    { "name": "support-agent", "role": "support", "viewport": { "width": 1440, "height": 900 } }
+  ],
+  "steps": [
+    { "session": "customer", "type": "goto", "path": "/en" },
+    { "session": "customer", "type": "click", "selector": "[data-cy=\"open-support\"]" },
+    { "session": "customer", "type": "waitFor", "selector": "[data-cy=\"support-chat-panel\"]" },
+    { "session": "customer", "type": "fill", "selector": "[data-cy=\"support-message-input\"]", "value": "E2E concurrent support question {{runId}}" },
+    {
+      "session": "customer",
+      "type": "click",
+      "selector": "[data-cy=\"support-message-send\"]",
+      "responsePaths": ["/api/telegram", "/api/tickets/open", "/api/message/send"]
+    },
+    { "session": "support-agent", "type": "goto", "path": "/en/support/tickets" },
+    {
+      "session": "support-agent",
+      "type": "waitFor",
+      "selector": "[data-cy=\"support-ticket-row\"][data-ticket-id=\"{{ownerId}}\"]"
+    },
+    {
+      "session": "support-agent",
+      "type": "click",
+      "selector": "[data-cy=\"support-ticket-row\"][data-ticket-id=\"{{ownerId}}\"]"
+    },
+    { "session": "support-agent", "type": "fill", "selector": "[data-cy=\"support-message-input\"]", "value": "E2E live-session support reply {{runId}}" },
+    {
+      "session": "support-agent",
+      "type": "click",
+      "selector": "[data-cy=\"support-message-send\"]",
+      "responsePaths": ["/api/message/send"]
+    },
+    {
+      "session": "customer",
+      "type": "waitFor",
+      "selector": "[data-cy=\"support-message\"]",
+      "timeoutMs": 30000
+    }
+  ],
+  "assertions": [
+    {
+      "session": "customer",
+      "selector": "[data-cy=\"support-message\"]",
+      "text": "E2E live-session support reply {{runId}}",
+      "timeoutMs": 30000
+    }
+  ]
+}

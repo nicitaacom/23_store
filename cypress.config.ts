@@ -1,27 +1,140 @@
-import { config as readEnvironment } from "dotenv"
+import { createHash } from "node:crypto"
+import { appendFile, mkdir, readFile } from "node:fs/promises"
+import path from "node:path"
 import { defineConfig } from "cypress"
 import { createClient, User } from "@supabase/supabase-js"
 
-import { decodeDeviceId, isValidDeviceId } from "./app/utils/deviceId"
+import { createPaidBudgetManager } from "./scripts/e2e/paid-budget.mjs"
+import { createMonthlyFixtureManager } from "./scripts/e2e/fixtures.mjs"
 import type { Database, Json } from "./app/ts/types_db"
+import { verifyStorageObjectAbsent, verifyStorageObjectPresent } from "./scripts/e2e/verify-storage-object.mjs"
+import { decodeDeviceId, isValidDeviceId } from "./app/utils/deviceId"
+import {
+  cleanupStripeTestCheckoutSession,
+  verifyStripePriceInactive,
+  verifyStripeResourcesInactive,
+  verifyStripeTestCheckoutSession,
+  verifyStripeTestProduct,
+} from "./scripts/e2e/verify-stripe-test-resources.mjs"
+import { verifyLambdaExecution } from "./scripts/e2e/verify-lambda-execution.mjs"
+import { verifyResendEmail } from "./scripts/e2e/verify-resend-email.mjs"
 
-readEnvironment({ path: ".env.local" })
+function redactEvidence(value: unknown, parentKey = ""): unknown {
+  if (/authorization|cookie|password|secret|token|wallet|signed.?url|reset.?link/i.test(parentKey)) return "[REDACTED]"
+  if (Array.isArray(value)) return value.map(item => redactEvidence(item))
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, redactEvidence(child, key)]))
+  }
+  if (typeof value !== "string") return value
+  return value
+    .replace(/Bearer\s+[^\s,;]+/gi, "Bearer [REDACTED]")
+    .replace(/([?&](?:X-Amz-Signature|X-Amz-Credential|signature|token|access_token)=)[^&\s]+/gi, "$1[REDACTED]")
+}
+
+function matchesInventoryRoute(routePattern: string, actualPath: string) {
+  const segments = routePattern.split("/")
+  let optionalCatchAllSuffix = ""
+  if (segments.at(-1)?.startsWith(":") && segments.at(-1)?.endsWith("*?")) {
+    segments.pop()
+    optionalCatchAllSuffix = "(?:/.*)?"
+  }
+  const pattern = segments.map(segment => {
+    if (segment.startsWith(":")) return segment.endsWith("*") ? ".*" : "[^/]+"
+    return segment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  }).join("/")
+  return new RegExp(`^${pattern}${optionalCatchAllSuffix}$`).test(actualPath)
+}
+
+let requestInventoryPromise: Promise<{ operations: Array<{ operationId: string; operationKind: string; method?: string; route?: string; scenarioId?: string }> }> | null = null
+
+async function attachRouteOperation(record: Record<string, unknown>) {
+  if (record.kind === "scenario-diagnostics" && Array.isArray(record.timeline)) {
+    requestInventoryPromise ??= readFile(path.join(E2E_ARTIFACT_DIRECTORY, "request-inventory.json"), "utf8")
+      .then(inventoryText => JSON.parse(inventoryText))
+      .catch(() => ({ operations: [] }))
+    const inventory = await requestInventoryPromise
+    const timeline = (record.timeline as Array<Record<string, unknown>>).map(timelineRecord => {
+      if (timelineRecord.kind !== "request-finish" || typeof timelineRecord.method !== "string"
+        || typeof timelineRecord.pathname !== "string") return timelineRecord
+      const routeOperation = inventory.operations.find(operation => operation.operationKind === "http-route"
+        && operation.method === timelineRecord.method && operation.route
+        && matchesInventoryRoute(operation.route, timelineRecord.pathname as string))
+      return routeOperation ? {
+        ...timelineRecord,
+        operationId: routeOperation.operationId,
+        sourceScenarioId: routeOperation.scenarioId ?? null,
+      } : timelineRecord
+    })
+    return { ...record, timeline }
+  }
+  return record
+}
 
 const LOCAL_DEV_URL = "http://localhost:3023"
+const E2E_SUITE = process.env.E2E_SUITE ?? "legacy"
 
-// The URL the whole suite runs against. Same source the app uses for its own URL in
-// app/[locale]/layout.tsx: the deployed URL comes from NEXT_PUBLIC_PRODUCTION_URL, and a local run
-// uses the port package.json's `dev` script serves on.
-// Read through a function so the value is typed `string` everywhere: on TS 5.2 an outer-scope
-// `if (!value) throw` still leaves the type `string | undefined` inside the task functions below.
 function getE2EBaseUrl(): string {
-  const baseUrl = process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_PRODUCTION_URL : LOCAL_DEV_URL
-  if (!baseUrl) throw new Error("Cypress requires NEXT_PUBLIC_PRODUCTION_URL when NODE_ENV is production")
+  const productionUrl = process.env.NEXT_PUBLIC_PRODUCTION_URL
+  const explicitUrl = process.env.E2E_BASE_URL
+  const baseUrl = E2E_SUITE === "monthly"
+    ? productionUrl
+    : E2E_SUITE === "replay"
+      ? explicitUrl ?? productionUrl
+      : explicitUrl ?? LOCAL_DEV_URL
+
+  if (!baseUrl) throw new Error(`Cypress suite ${E2E_SUITE} requires NEXT_PUBLIC_PRODUCTION_URL or E2E_BASE_URL`)
+  if (E2E_SUITE === "monthly" && explicitUrl && explicitUrl !== productionUrl) {
+    throw new Error("The monthly suite always runs against NEXT_PUBLIC_PRODUCTION_URL")
+  }
+  if (E2E_SUITE === "replay") {
+    const replayUrl = new URL(baseUrl)
+    const productionOrigin = productionUrl ? new URL(productionUrl).origin : null
+    const isLoopback = ["localhost", "127.0.0.1", "::1", "[::1]"].includes(replayUrl.hostname)
+    if (replayUrl.origin !== productionOrigin && !isLoopback) {
+      throw new Error("Replay must use NEXT_PUBLIC_PRODUCTION_URL or a local production build")
+    }
+  }
 
   return baseUrl
 }
 
 const E2E_BASE_URL = getE2EBaseUrl()
+const E2E_SPEC_PATTERN = E2E_SUITE === "legacy"
+  ? "cypress/e2e/**/*.cy.{ts,tsx}"
+  : "cypress/monthly/**/*.cy.{ts,tsx}"
+const E2E_ARTIFACT_DIRECTORY = path.resolve(process.cwd(), process.env.E2E_ARTIFACT_DIR ?? "artifacts/e2e")
+let monthlyFixtureManager: ReturnType<typeof createMonthlyFixtureManager> | null = null
+let paidBudgetManager: ReturnType<typeof createPaidBudgetManager> | null = null
+
+function getMonthlyFixtureManager() {
+  monthlyFixtureManager ??= createMonthlyFixtureManager(process.env)
+  return monthlyFixtureManager
+}
+
+function getPaidBudgetManager() {
+  paidBudgetManager ??= createPaidBudgetManager(process.env)
+  return paidBudgetManager
+}
+
+function legacyTask<TArguments extends unknown[], TResult>(
+  taskName: string,
+  task: (...arguments_: TArguments) => TResult,
+) {
+  return (...arguments_: TArguments): TResult => {
+    if (E2E_SUITE !== "legacy") throw new Error(`Task ${taskName} is only available in the legacy Cypress suite`)
+    return task(...arguments_)
+  }
+}
+
+function realSuiteTask<TArguments extends unknown[], TResult>(
+  taskName: string,
+  task: (...arguments_: TArguments) => TResult,
+) {
+  return (...arguments_: TArguments): TResult => {
+    if (E2E_SUITE === "legacy") throw new Error(`Task ${taskName} is only available in monthly real-service suites`)
+    return task(...arguments_)
+  }
+}
 
 const TEST_PASSWORD = "CypressTest1#Secure"
 const PRODUCT_PREFIX = "cypress-e2e-"
@@ -347,38 +460,187 @@ async function getBuyingFlowFixtures() {
 
 export default defineConfig({
   allowCypressEnv: false,
+  reporter: E2E_SUITE === "legacy" ? "spec" : "mocha-junit-reporter",
+  reporterOptions: E2E_SUITE === "legacy" ? undefined : {
+    mochaFile: path.join(E2E_ARTIFACT_DIRECTORY, "junit-[hash].xml"),
+    toConsole: true,
+    outputs: true,
+  },
+  retries: { openMode: 0, runMode: 0 },
+  taskTimeout: E2E_SUITE === "legacy" ? 60000 : 660000,
   e2e: {
     baseUrl: E2E_BASE_URL,
+    env: {
+      E2E_SUITE,
+      E2E_RUN_ID: process.env.E2E_RUN_ID,
+      // eslint-disable-next-line local-rules/no-undefined-used-envs -- set internally by scripts/e2e/run-monthly.mjs
+      E2E_RUNNER_SHA: process.env.E2E_RUNNER_SHA,
+      E2E_TEST_PASSWORD: process.env.E2E_TEST_PASSWORD,
+      E2E_SEED: process.env.E2E_SEED,
+      E2E_OPERATION_COST_ESTIMATES_JSON: process.env.E2E_OPERATION_COST_ESTIMATES_JSON,
+      E2E_IMAGE_COMPRESSION_MAX_PROVIDER_CALLS: process.env.E2E_IMAGE_COMPRESSION_MAX_PROVIDER_CALLS,
+      E2E_CATEGORY_SUGGESTION_MAX_PROVIDER_CALLS: process.env.E2E_CATEGORY_SUGGESTION_MAX_PROVIDER_CALLS,
+      E2E_TRANSLATION_MAX_PROVIDER_CALLS: process.env.E2E_TRANSLATION_MAX_PROVIDER_CALLS,
+      E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS: process.env.E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS,
+      E2E_AI_PRICING_MAX_PROVIDER_CALLS: process.env.E2E_AI_PRICING_MAX_PROVIDER_CALLS,
+      E2E_AI_IMAGE_MAX_PROVIDER_CALLS: process.env.E2E_AI_IMAGE_MAX_PROVIDER_CALLS,
+      E2E_PRINT_AREA_MAX_PROVIDER_CALLS: process.env.E2E_PRINT_AREA_MAX_PROVIDER_CALLS,
+      E2E_SALES_CHAT_MAX_PROVIDER_CALLS: process.env.E2E_SALES_CHAT_MAX_PROVIDER_CALLS,
+      E2E_MEMORY_MAX_PROVIDER_CALLS: process.env.E2E_MEMORY_MAX_PROVIDER_CALLS,
+      E2E_PRICE_RESEARCH_MAX_PROVIDER_CALLS: process.env.E2E_PRICE_RESEARCH_MAX_PROVIDER_CALLS,
+      E2E_COINMARKETCAP_MAX_PROVIDER_CALLS: process.env.E2E_COINMARKETCAP_MAX_PROVIDER_CALLS,
+    },
     experimentalWebKitSupport: true,
-    specPattern: "cypress/e2e/**/*.cy.{ts,tsx}",
+    specPattern: E2E_SPEC_PATTERN,
     supportFile: "cypress/support/e2e.ts",
-    video: false,
+    video: E2E_SUITE !== "legacy",
     screenshotOnRunFailure: true,
     defaultCommandTimeout: 10000,
     requestTimeout: 10000,
     responseTimeout: 20000,
     setupNodeEvents(on, cypressConfig) {
       on("task", {
-        prepareFixtures,
-        readUTMVisits,
-        readUTMVisitsForUserId,
-        deleteUTMVisitsForUserId,
-        deleteVisitsFromTodayForTestHost,
-        readBuyingFlowEventsForSession,
-        deleteBuyingFlowEventsForSession,
-        prepareBuyingFlowFixtures: getBuyingFlowFixtures,
-        prepareSupportFixtures: () => {
+        async appendE2EEvidence(evidence: Record<string, unknown>) {
+          const artifactDirectory = path.resolve(process.cwd(), process.env.E2E_ARTIFACT_DIR ?? "artifacts/e2e")
+          await mkdir(artifactDirectory, { recursive: true })
+          const runEvidence = {
+            ...evidence,
+            runId: cypressConfig.env.E2E_RUN_ID,
+            testedCommit: cypressConfig.env.E2E_RUNNER_SHA,
+            target: cypressConfig.baseUrl,
+          }
+          const mappedEvidence = await attachRouteOperation(runEvidence)
+          await appendFile(path.join(artifactDirectory, "coverage-events.jsonl"), `${JSON.stringify(redactEvidence(mappedEvidence))}\n`)
+          return null
+        },
+        async getProductImageFixtureMetadata() {
+          const imageBytes = await readFile(path.join(process.cwd(), "cypress/files/Sour Cream 30% Savya LITOVSKAYA.png"))
+          return { size: imageBytes.length, sha256: createHash("sha256").update(imageBytes).digest("hex") }
+        },
+        async requireVerifiedStripeTestMode() {
+          const summaryPath = path.join(E2E_ARTIFACT_DIRECTORY, "summary.json")
+          const summary = JSON.parse(await readFile(summaryPath, "utf8")) as {
+            providerModes?: { deployedStripe?: string }
+            checks?: Array<{ name?: string; status?: string; mode?: string; resourceVerified?: boolean; cleanupStatus?: string }>
+          }
+          const deployedStripe = summary.checks?.find(check => check.name === "deployed-stripe")
+          if (summary.providerModes?.deployedStripe !== "test" || deployedStripe?.status !== "passed"
+            || deployedStripe.mode !== "test" || deployedStripe.resourceVerified !== true
+            || deployedStripe.cleanupStatus !== "verified") {
+            throw new Error("The deployed Stripe TEST mode and cleanup were not verified by this run's preflight")
+          }
+          return { mode: "test", verificationReference: "monthly-preflight:deployed-stripe:test:cleanup-verified" }
+        },
+        async findRouteOperation(input: { method: string; route: string }) {
+          const inventoryPath = path.join(E2E_ARTIFACT_DIRECTORY, "request-inventory.json")
+          const inventory = JSON.parse(await readFile(inventoryPath, "utf8")) as {
+            operations: Array<{ operationId: string; operationKind: string; method?: string; route?: string; scenarioId?: string }>
+          }
+          const method = input.method.toUpperCase()
+          const routeOperation = inventory.operations.find(operation => operation.operationKind === "http-route"
+            && operation.method === method && operation.route && matchesInventoryRoute(operation.route, input.route))
+          if (!routeOperation) throw new Error(`No inventory operation exists for ${input.method.toUpperCase()} ${input.route}`)
+          return routeOperation
+        },
+        async findServiceOperation(input: { sourcePath: string; functionName: string; callName: string; scenarioId: string }) {
+          const inventoryPath = path.join(E2E_ARTIFACT_DIRECTORY, "request-inventory.json")
+          const inventory = JSON.parse(await readFile(inventoryPath, "utf8")) as {
+            operations: Array<{ operationId: string; operationKind: string; sourcePath: string; functionName: string; callName?: string; scenarioId?: string }>
+            asyncExpressions: Array<{ operationId: string; sourcePath: string; functionName: string; scenarioId?: string; requestOperationIds?: string[] }>
+          }
+          const requestOperation = inventory.operations.find(operation => operation.operationKind === "service-request"
+            && operation.sourcePath === input.sourcePath && operation.functionName === input.functionName
+            && operation.callName === input.callName && operation.scenarioId === input.scenarioId)
+          if (!requestOperation) throw new Error(`No reviewed service operation exists for ${input.sourcePath}:${input.functionName}:${input.callName}`)
+          const asyncOperationIds = inventory.asyncExpressions.filter(operation => operation.sourcePath === input.sourcePath
+            && operation.functionName === input.functionName && operation.scenarioId === input.scenarioId
+            && operation.requestOperationIds?.includes(requestOperation.operationId)).map(operation => operation.operationId)
+          return { operationIds: [requestOperation.operationId, ...asyncOperationIds] }
+        },
+        prepareRunAccounts: () => getMonthlyFixtureManager().createRunAccounts(),
+        createProductFixture: (input: Parameters<ReturnType<typeof createMonthlyFixtureManager>["createProductFixture"]>[0]) =>
+          getMonthlyFixtureManager().createProductFixture(input),
+        recordCreatedResource: (resource: Parameters<ReturnType<typeof createMonthlyFixtureManager>["recordCreatedResource"]>[0]) =>
+          getMonthlyFixtureManager().recordCreatedResource(resource),
+        recordWorkerCompletion: (input: Parameters<ReturnType<typeof createMonthlyFixtureManager>["recordWorkerCompletion"]>[0]) =>
+          getMonthlyFixtureManager().recordWorkerCompletion(input),
+        verifyLambdaExecution: (input: { requestId: string; functionName?: string; region?: string; timeoutMs?: number }) =>
+          verifyLambdaExecution(process.env, input),
+        verifyResendEmail: (input: { emailId: string; to: string; subject: string; timeoutMs?: number }) =>
+          verifyResendEmail(process.env, input),
+        readRunProduct: (productId: string) => getMonthlyFixtureManager().readProduct(productId),
+        readRunUserProfile: (ownerId: string) => getMonthlyFixtureManager().readRunUserProfile(ownerId),
+        restoreRunUserLanguage: (input: { ownerId: string; language: string | null }) =>
+          getMonthlyFixtureManager().restoreRunUserLanguage(input.ownerId, input.language),
+        readRunCategory: (input: { ownerId: string; categoryId: string }) =>
+          getMonthlyFixtureManager().readRunCategory(input),
+        readRunCategoryView: (input: { ownerId: string; categoryId: string }) =>
+          getMonthlyFixtureManager().readRunCategoryView(input),
+        cleanupRunCategoryView: (input: { ownerId: string; categoryId: string }) =>
+          getMonthlyFixtureManager().cleanupRunCategoryView(input),
+        markRunCategoryCleaned: (input: { ownerId: string; categoryId: string }) =>
+          getMonthlyFixtureManager().markRunCategoryCleaned(input),
+        readRunSupportTicket: (input: { ticketId: string; ownerId: string }) =>
+          getMonthlyFixtureManager().readRunSupportTicket(input.ticketId, input.ownerId),
+        cleanupRunSupportTicket: (input: { ticketId: string; ownerId: string }) =>
+          getMonthlyFixtureManager().cleanupRunSupportTicket(input),
+        markRunStorageObjectCleaned: (input: { ownerId: string; reference: { provider: string; bucket: string; path: string } }) =>
+          getMonthlyFixtureManager().markRunStorageObjectCleaned(input),
+        readRunPersonalizedDesign: (input: { ownerId: string; userId: string; productId: string; designId: string }) =>
+          getMonthlyFixtureManager().readRunPersonalizedDesign(input),
+        cleanupRunPersonalizedDesign: (input: { ownerId: string; userId: string; productId: string; designId: string }) =>
+          getMonthlyFixtureManager().cleanupRunPersonalizedDesign(input),
+        readRunAiMemory: (ownerId: string) => getMonthlyFixtureManager().readRunAiMemory(ownerId),
+        captureRunAiMemory: (ownerId: string) => getMonthlyFixtureManager().captureRunAiMemory(ownerId),
+        readRunCart: (ownerId: string) => getMonthlyFixtureManager().readRunCart(ownerId),
+        waitForRunCart: (input: Parameters<ReturnType<typeof createMonthlyFixtureManager>["waitForRunCart"]>[0]) =>
+          getMonthlyFixtureManager().waitForRunCart(input),
+        cleanupRunCart: (ownerId: string) => getMonthlyFixtureManager().cleanupRunCart(ownerId),
+        waitForTranslatedProduct: (input: { productId: string; title: string; description: string; timeoutMs?: number }) =>
+          getMonthlyFixtureManager().waitForTranslatedProduct(input.productId, input),
+        verifyStripeTestProduct: (input: { productId: string; priceId: string; ownerId: string; amountCents?: number; imageUrl?: string; name?: string; description?: string }) =>
+          verifyStripeTestProduct(process.env, input),
+        verifyStripeTestCheckoutSession: (input: {
+          sessionId: string
+          amountCents: number
+          customerEmail: string
+          paymentMethodType?: string
+        }) =>
+          verifyStripeTestCheckoutSession(process.env, input),
+        cleanupStripeTestCheckoutSession: (input: { sessionId: string; expectedCustomerEmail?: string }) =>
+          cleanupStripeTestCheckoutSession(process.env, input),
+        verifyStripeResourcesInactive: (input: { productId: string; priceId: string }) =>
+          verifyStripeResourcesInactive(process.env, input),
+        verifyStripePriceInactive: (priceId: string) => verifyStripePriceInactive(process.env, priceId),
+        verifyStorageObjectAbsent: (reference: { provider: string; bucket: string; path: string }) =>
+          verifyStorageObjectAbsent(process.env, reference),
+        verifyStorageObjectPresent: (input: { reference: { provider: string; bucket: string; path: string }; expected: { size: number; sha256: string } }) =>
+          verifyStorageObjectPresent(process.env, input.reference, input.expected),
+        reservePaidOperation: realSuiteTask("reservePaidOperation", (reservation: Parameters<ReturnType<typeof createPaidBudgetManager>["reserve"]>[0]) =>
+          getPaidBudgetManager().reserve(reservation)),
+        settlePaidOperation: realSuiteTask("settlePaidOperation", (result: Parameters<ReturnType<typeof createPaidBudgetManager>["settle"]>[0]) =>
+          getPaidBudgetManager().settle(result)),
+        readPaidOperationLedger: realSuiteTask("readPaidOperationLedger", () => getPaidBudgetManager().snapshot()),
+        prepareFixtures: legacyTask("prepareFixtures", prepareFixtures),
+        readUTMVisits: legacyTask("readUTMVisits", readUTMVisits),
+        readUTMVisitsForUserId: legacyTask("readUTMVisitsForUserId", readUTMVisitsForUserId),
+        deleteUTMVisitsForUserId: legacyTask("deleteUTMVisitsForUserId", deleteUTMVisitsForUserId),
+        deleteVisitsFromTodayForTestHost: legacyTask("deleteVisitsFromTodayForTestHost", deleteVisitsFromTodayForTestHost),
+        readBuyingFlowEventsForSession: legacyTask("readBuyingFlowEventsForSession", readBuyingFlowEventsForSession),
+        deleteBuyingFlowEventsForSession: legacyTask("deleteBuyingFlowEventsForSession", deleteBuyingFlowEventsForSession),
+        prepareBuyingFlowFixtures: legacyTask("prepareBuyingFlowFixtures", getBuyingFlowFixtures),
+        prepareSupportFixtures: legacyTask("prepareSupportFixtures", () => {
           preparedSupportFixturesPromise ??= prepareSupportFixtures()
           return preparedSupportFixturesPromise
-        },
-        cleanupSupportFixtures,
-        async insertProductWithRls({
+        }),
+        cleanupSupportFixtures: legacyTask("cleanupSupportFixtures", cleanupSupportFixtures),
+        insertProductWithRls: legacyTask("insertProductWithRls", async ({
           account,
           product,
         }: {
           account: { email: string; password: string }
           product: Database["public"]["Tables"]["23_products"]["Insert"]
-        }) {
+        }) => {
           const supabase = getSupabaseRlsClient()
           const { error: signInError } = await supabase.auth.signInWithPassword(account)
           if (signInError) return { product: null, error: signInError.message }
@@ -386,13 +648,13 @@ export default defineConfig({
           const { data, error } = await supabase.from("23_products").insert(product).select("*").single()
           await supabase.auth.signOut()
           return { product: data, error: error?.message ?? null }
-        },
-        async readProduct(productId: string) {
+        }),
+        readProduct: legacyTask("readProduct", async (productId: string) => {
           const supabase = getSupabaseTestClient()
           const { data, error } = await supabase.from("23_products").select("*").eq("id", productId).maybeSingle()
           if (error) throw error
           return data
-        },
+        }),
       })
 
       return cypressConfig

@@ -12,6 +12,7 @@ TODO
 
 # testing
 /coverage
+/artifacts/e2e/
 storybook-static/
 /.cache/
 /cypress/screenshots/

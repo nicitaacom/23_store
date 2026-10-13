@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Each real paid capability is reserved before its first provider request. E2E_OPERATION_COST_ESTIMATES_JSON values estimate one paid downstream call; preflight multiplies them by the configured maximum call count, including SDK retries, worker/model calls and embeddings.",
+  "capabilities": [
+    { "name": "product-image-compression", "estimateName": "product_image_compression", "callCountSetting": "E2E_IMAGE_COMPRESSION_MAX_PROVIDER_CALLS", "scenarioId": "product-create" },
+    { "name": "category-suggestion", "estimateName": "category_suggestion", "callCountSetting": "E2E_CATEGORY_SUGGESTION_MAX_PROVIDER_CALLS", "minimumProviderCalls": 2, "scenarioId": "ai-tools" },
+    { "name": "product-translation-worker", "estimateName": "product_translation_worker", "callCountSetting": "E2E_TRANSLATION_MAX_PROVIDER_CALLS", "scenarioId": "product-create" },
+    { "name": "field-translation", "estimateName": "field_translation", "callCountSetting": "E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS", "minimumProviderCalls": 4, "scenarioId": "product-edit and product-background" },
+    { "name": "price-assistance", "estimateName": "price_assistance", "callCountSetting": "E2E_AI_PRICING_MAX_PROVIDER_CALLS", "scenarioId": "ai-tools" },
+    { "name": "image-generation", "estimateName": "image_generation", "callCountSetting": "E2E_AI_IMAGE_MAX_PROVIDER_CALLS", "scenarioId": "ai-tools" },
+    { "name": "print-area-check", "estimateName": "print_area_check", "callCountSetting": "E2E_PRINT_AREA_MAX_PROVIDER_CALLS", "scenarioId": "ai-tools" },
+    { "name": "sales-chat", "estimateName": "sales_chat", "callCountSetting": "E2E_SALES_CHAT_MAX_PROVIDER_CALLS", "scenarioId": "ai-chat-memory" },
+    { "name": "memory-and-embeddings", "estimateName": "memory_and_embeddings", "callCountSetting": "E2E_MEMORY_MAX_PROVIDER_CALLS", "minimumProviderCalls": 3, "scenarioId": "ai-chat-memory" },
+    { "name": "price-research", "estimateName": "price_research", "callCountSetting": "E2E_PRICE_RESEARCH_MAX_PROVIDER_CALLS", "scenarioId": "pricing-categories" },
+    { "name": "CoinMarketCap conversion", "estimateName": "coinmarketcap_price_conversion", "callCountSetting": "E2E_COINMARKETCAP_MAX_PROVIDER_CALLS", "scenarioId": "analytics-other" }
+  ]
+}

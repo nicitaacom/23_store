@@ -1,0 +1,1317 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Reviewed source-to-scenario map. Every row begins unexercised; only independent browser, service, and readback evidence can change runtime status.",
+  "requiredSpecs": [
+    "product-create.cy.ts",
+    "product-edit.cy.ts",
+    "product-delete.cy.ts",
+    "product-background.cy.ts",
+    "product-races.cy.ts",
+    "ai-tools.cy.ts",
+    "ai-chat-memory.cy.ts",
+    "pricing-categories.cy.ts",
+    "catalog-cart.cy.ts",
+    "support.cy.ts",
+    "notifications.cy.ts",
+    "auth-account.cy.ts",
+    "personalization-storage.cy.ts",
+    "checkout-stripe.cy.ts",
+    "checkout-other.cy.ts",
+    "backup-maintenance.cy.ts",
+    "analytics-other.cy.ts",
+    "seeded-navigation.cy.ts"
+  ],
+  "operations": {},
+  "routes": {},
+  "asyncRules": [
+    {
+      "sourcePattern": "^app/api/",
+      "expressionPattern": ".*",
+      "classification": "request-or-provider",
+      "classificationReason": "This server-side async expression is in a route handler; verify its real database/provider effect against the route's mapped scenario."
+    },
+    {
+      "sourcePattern": "^app/\\[locale\\]/\\(site\\)/page\\.tsx$",
+      "expressionPattern": "selectProducts",
+      "classification": "request-or-provider",
+      "classificationReason": "Loads actual Supabase catalog rows for the current category selection."
+    },
+    {
+      "sourcePattern": "^app/\\[locale\\]/\\(site\\)/popular-products/page\\.tsx$",
+      "expressionPattern": "selectPopularProducts",
+      "classification": "request-or-provider",
+      "classificationReason": "Loads the actual popular-products query result for the public catalog."
+    },
+    {
+      "sourcePattern": "^app/\\[locale\\]/\\(site\\)/products/.*manage/ManageProductView\\.tsx$",
+      "expressionPattern": "postProductUpdate",
+      "classification": "request-or-provider",
+      "classificationReason": "Saves a real product update through the owner API route and provider calls."
+    },
+    {
+      "sourcePattern": "^app/\\[locale\\]/\\(site\\)/products/.*page\\.tsx$",
+      "expressionPattern": "getCategoryById",
+      "classification": "request-or-provider",
+      "classificationReason": "Loads the actual category associated with the displayed product."
+    },
+    {
+      "sourcePattern": "^app/sdk/BackupSDK/BackupSDK\\.ts$",
+      "expressionPattern": ".*",
+      "classification": "request-or-provider",
+      "classificationReason": "This backup SDK await belongs to a real export/import/relink request or storage transfer on the separately verified data destination."
+    },
+    {
+      "sourcePattern": "^app/libs/ai/chatMemory\\.ts$",
+      "expressionPattern": ".*",
+      "classification": "request-or-provider",
+      "classificationReason": "This memory operation uses the configured real embedding, Redis or vector provider."
+    },
+    {
+      "sourcePattern": "^scripts/storage/",
+      "expressionPattern": ".*",
+      "classification": "request-or-provider",
+      "classificationReason": "This storage maintenance await is part of a real provider migration, archive, synchronization or exact readback."
+    },
+    {
+      "sourcePattern": "^scripts/storage-migrate\\.mjs$",
+      "expressionPattern": ".*",
+      "classification": "request-or-provider",
+      "classificationReason": "Orchestrates real storage-provider, Redis and Supabase migration work; apply-mode cases require the verified separate destination."
+    },
+    {
+      "sourcePattern": "^app/\\[locale\\]/\\(site\\)/page\\.tsx$",
+      "expressionPattern": "^query$",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Resolves the page's Next.js search-parameter promise; catalog database reads are inventoried separately."
+    },
+    {
+      "sourcePattern": "^app/api/backup/tarClient\\.ts$",
+      "expressionPattern": ".*",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Reads or cancels a local stream while parsing an archive; any later storage/database request is inventoried separately."
+    },
+    {
+      "sourcePattern": "^app/api/",
+      "expressionPattern": "getResponseErrorMessage",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Reads and formats an already received HTTP error body; the network operation itself is inventoried separately."
+    },
+    {
+      "sourcePattern": "^app/api/popular-products/demo/route\\.ts$",
+      "expressionPattern": "fetchFakeShopProducts",
+      "classification": "request-or-provider",
+      "classificationReason": "Fetches the real demo catalog upstream; any imported rows must be created only for a run-owned account."
+    },
+    {
+      "sourcePattern": "^app/components/SupportButton/components/DragAndDropArea/functions/showToastWarning\\.ts$",
+      "expressionPattern": ".*",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Checks selected image size and resolution locally before any upload call."
+    },
+    {
+      "sourcePattern": "^app/components/SupportButton/components/PastedImagePreview\\.tsx$",
+      "expressionPattern": ".*",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Uses FileReader to preview a selected file in the browser; it has no provider side effect."
+    },
+    {
+      "sourcePattern": "^app/sdk/BackupSDK/BackupSDK\\.ts$",
+      "expressionPattern": "(gzipBufferClient|readCsvEntries)",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Compresses or parses a user-selected backup in the browser; server and storage calls are separate inventory entries."
+    },
+    {
+      "sourcePattern": "^scripts/storage/",
+      "expressionPattern": "(rename|visit|pipeline|walkArchive|streamDigest|inspectArchive|writeManifest|mkdtemp|open|rm|writes\\.then|packed)",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Processes a local archive, stream or manifest; provider reads/writes remain separate mapped expressions."
+    },
+    {
+      "sourcePattern": "^app/libs/ai/chatMemory\\.ts$",
+      "expressionPattern": "getEmbeddingModel",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Resolves the configured embedding model object; actual embedding calls are separate provider operations."
+    },
+    {
+      "sourcePattern": "^app/libs/ai/chatMemory\\.ts$",
+      "expressionPattern": "createEmbeddings",
+      "classification": "request-or-provider",
+      "classificationReason": "Calls the configured embedding provider and stores or searches vectors for the run-owned conversation."
+    }
+  ],
+  "routePatterns": [
+    {
+      "pattern": "^/api/e2e/stripe-mode$",
+      "method": "POST",
+      "scenarioId": "monthly-preflight-stripe-mode",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify deployed Stripe mode through server configuration and provider readback; archive a test product and prove livemode is false."
+    },
+    {
+      "pattern": "^/api/products/translate-field$",
+      "scenarioId": "product-edit",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Real title and description translation for all locales, including saved DB values and pending-dialog interaction."
+    },
+    {
+      "pattern": "^/api/products/(add|translate-insert)$",
+      "scenarioId": "product-create",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Real Stripe TEST product/price, uploaded image, Supabase row, terminal translation worker and Pusher event."
+    },
+    {
+      "pattern": "^/api/products/update$",
+      "scenarioId": "product-edit",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise each supported update field separately and verify DB, Stripe, storage, variants and unrelated-field preservation."
+    },
+    {
+      "pattern": "^/api/products/delete$",
+      "scenarioId": "product-delete",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Delete only run-owned products through the application; verify row, image, Stripe product and price, cart and detail results."
+    },
+    {
+      "pattern": "^/api/products/(ai-pricing|price-proposals/.*)$",
+      "scenarioId": "pricing-categories",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise real pricing proposals and each category/proposal branch with provider and DB readbacks."
+    },
+    {
+      "pattern": "^/api/products/replanishment-requests$",
+      "scenarioId": "notifications",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify run-owned restock request and notification delivery without touching customer rows."
+    },
+    {
+      "pattern": "^/api/(categories/.*|category-views/.*)$",
+      "scenarioId": "pricing-categories",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Create, select, count, update, view, and remove run-owned category records with real database readback."
+    },
+    {
+      "pattern": "^/api/(tinify|storage/.*|personalized-designs)$",
+      "scenarioId": "personalization-storage",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify actual compressed bytes, signed upload completion, personalized-design CRUD, list/download/delete, expiry, authorization and usage."
+    },
+    {
+      "pattern": "^/api/ai/(generate-image|check-print-area|suggest-category)?/?$",
+      "scenarioId": "ai-tools",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise real AI provider calls with fresh inputs and validate image bytes or structured results."
+    },
+    {
+      "pattern": "^/api/(fetch-prices|coinmarketcap)$",
+      "scenarioId": "ai-tools",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise current real pricing/research provider and verify the returned finite business result."
+    },
+    {
+      "pattern": "^/api/rate-limit$",
+      "scenarioId": "ai-tools",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify real account/device rate-limit counters in the configured Redis service and check the boundary response."
+    },
+    {
+      "pattern": "^/api/ai/sales-assistant(/memory)?$",
+      "scenarioId": "ai-chat-memory",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify real chat tool actions, memory, embeddings, Redis and vector readbacks, then remove only run-owned keys."
+    },
+    {
+      "pattern": "^/api/(auth/.*|account/.*)$",
+      "scenarioId": "auth-account",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise real registration, login, recovery, reset, confirmation, session expiry, profile, avatar and authorization paths."
+    },
+    {
+      "pattern": "^/api/(message/.*|messages/.*|tickets/.*|ticket/.*)$",
+      "scenarioId": "support",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise two real authenticated sessions, persisted messages/tickets, Pusher delivery and reconnect state."
+    },
+    {
+      "pattern": "^/api/(send-email.*|telegram)$",
+      "scenarioId": "notifications",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Deliver only to the approved test inbox/chat and record provider acceptance and delivery status."
+    },
+    {
+      "pattern": "^/api/webhooks/paypal$",
+      "scenarioId": "checkout-other",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify a real PayPal sandbox signature and event against a run-owned sandbox order."
+    },
+    {
+      "pattern": "^/api/turnstile/verify$",
+      "scenarioId": "analytics-other",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use a genuine Turnstile challenge result and verify rejection and successful verification without setting a bypass cookie."
+    },
+    {
+      "pattern": "^/api/(create-checkout-session|verify-payment|customer|payment/success)$",
+      "scenarioId": "checkout-stripe",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use Stripe TEST Checkout and a provider test payment; verify session, payment, stock, receipt and duplicate protection."
+    },
+    {
+      "pattern": "^/api/(create-paypal-session|create-klarna-session|coinmarketcap|wallet/.*)$",
+      "scenarioId": "checkout-other",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use actual sandbox/test-network provider sessions and callbacks; unavailable integrations stay incomplete."
+    },
+    {
+      "pattern": "^/api/webhooks/prices$",
+      "scenarioId": "pricing-categories",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Run a real weekly price-research operation on the verified separate data destination and read back every run-owned proposal."
+    },
+    {
+      "pattern": "^/api/backup/.*$",
+      "scenarioId": "backup-maintenance",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Run archive, restore, file and migration cases only on the verified real isolated data destination."
+    },
+    {
+      "pattern": "^/api/(webhooks/.*|popular-products|categories/.*|stats/.*|send-email.*)$",
+      "scenarioId": "analytics-other",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise authorized maintenance, analytics and remaining real routes; include denied and valid branches."
+    }
+  ],
+  "sourceRules": [
+    {
+      "pattern": "^app/components/ui/Modals/AdminPanel/hooks/useSubscribeToProductCreated",
+      "scenarioId": "product-background",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Observe the real worker completion event and ensure it reconciles the matching optimistic product only.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/(functions/createProduct|functions/createProductHelpers|sdk/ProductsSDK)",
+      "scenarioId": "product-create",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map each real request and dependency to a specific create/edit/delete or race case.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/products/translate-field",
+      "scenarioId": "product-edit",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify the actual translation provider response and saved values for every locale from both edit screens.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/products/update",
+      "scenarioId": "product-edit",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map every edit branch to its real database/provider readback.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/products/delete",
+      "scenarioId": "product-delete",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Delete only exact run-owned products and verify related rows, media, cart, and Stripe TEST resources.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/products/(ai-pricing|price-proposals)",
+      "scenarioId": "pricing-categories",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify provider-generated proposals and each decision in the database and Stripe TEST.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/products/replanishment-requests",
+      "scenarioId": "notifications",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use run-owned customer/product data and verify the real notification outcome.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/products/(add|translate-insert)",
+      "scenarioId": "product-create",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Create through the UI and wait for verified storage, Stripe TEST, Supabase, worker, and realtime outcomes.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/(libs/storage|sdk/StorageSDK|api/storage|functions/uploadImageFn)",
+      "scenarioId": "personalization-storage",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map storage API calls and direct signed transfers to actual object verification and exact cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/(sdk/AISDK|api/ai|libs/ai)",
+      "scenarioId": "ai-tools",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map paid AI operations, cache bypass/hit, real provider results and budget evidence.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/(libs/ai/chatMemory|sdk/.*Memory|api/ai/sales-assistant)",
+      "scenarioId": "ai-chat-memory",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map conversation, cache, embeddings and Pinecone/Redis operations independently.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/(sdk/SupportSDK|api/(message|messages|tickets|ticket))",
+      "scenarioId": "support",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map support API and Pusher calls to two-session persistence evidence.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(auth|account)",
+      "scenarioId": "auth-account",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map authentication and profile requests to genuine account journeys and protected failures.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/\\(auth\\)/",
+      "scenarioId": "auth-account",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise real sign-in, signup, recovery, session callback, and authenticated account flows.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(create-checkout-session|verify-payment|customer|payment)",
+      "scenarioId": "checkout-stripe",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map each payment operation to provider test-mode evidence and independent readback.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(create-paypal-session|create-klarna-session|coinmarketcap|wallet)",
+      "scenarioId": "checkout-other",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map each integration to its real sandbox/test network and signed provider response.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/backup|^app/libs/backup|^app/sdk/BackupSDK|^scripts/storage",
+      "scenarioId": "backup-maintenance",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use the verified separate data destination and compare restored rows and object bytes.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/webhooks/prices",
+      "scenarioId": "pricing-categories",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map the real weekly research worker and database writes to the verified separate data destination.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(categories|category-views)/",
+      "scenarioId": "pricing-categories",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Map every category and view operation to a real row and exact cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(send-email|telegram|webhooks|fetch-prices|popular-products|stats)",
+      "scenarioId": "analytics-other",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise the real route and verify its stored/provider outcome.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^proxy\\.ts$",
+      "scenarioId": "auth-account",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise real session loading and protected-route behavior with run-owned Auth accounts.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^scripts/storage/",
+      "scenarioId": "backup-maintenance",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Storage migration operations require the verified separate data destination, outcome readback and exact cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/personalized-designs/",
+      "scenarioId": "personalization-storage",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise each real personalized-design action and verify the owned row and file state.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/e2e/stripe-mode/",
+      "scenarioId": "monthly-preflight-stripe-mode",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Read deployed Stripe account mode, compare account identity, and verify a TEST product is archived.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/turnstile/verify/",
+      "scenarioId": "analytics-other",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use real Turnstile verification and record provider outcome without a test bypass.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/rate-limit/",
+      "scenarioId": "ai-tools",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify real Redis rate-limit decisions and boundaries for a run-owned account/device.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/utils/publicUserSync",
+      "scenarioId": "auth-account",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify profile synchronization for a real run-owned Auth session and denied cross-account cases.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/(hooks/support|\\[locale\\]/\\(support\\)/support)",
+      "scenarioId": "support",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise ticket/message subscriptions and reads from two real accounts, including reconnect and read state.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/libs/(deviceIdRedis|keysCheckRedis)",
+      "scenarioId": "analytics-other",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify only run-owned rate-limit/device keys and maintenance check state; clean exact keys.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/AdminPanel/components/(PricingForm|FormatPriceForm)",
+      "scenarioId": "product-edit",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Change product price through the owner flow and verify Stripe TEST price plus Supabase baseline.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/AdminPanel/components/(CategoriesForm|FormatCategoryForm)",
+      "scenarioId": "pricing-categories",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise category create/select/update/delete and product assignment with exact database readback.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/\\(site\\)/(page|search|products|popular-products)",
+      "scenarioId": "catalog-cart",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise real catalog, search, product detail, category views and popularity reads with run-owned records.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/(store/user/cartStore|components/ui/Modals/CartModal|components/ui/Buttons/AddToCartButton)",
+      "scenarioId": "catalog-cart",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify cart persistence, totals, variants, stock, stale products and exact owned cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/CartModal/PaymentButtons",
+      "scenarioId": "checkout-other",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise actual sandbox and test-network payment actions, including cancellation and rejection.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/actions/(track|insertDBUTM|getUnreadMessages|getInitialTickets|getOwnerProducts|selectTicketId)",
+      "scenarioId": "analytics-other",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Link server-action reads/writes to exact user-owned analytics or support results and cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/libs/pusher",
+      "scenarioId": "product-background",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify a real Pusher subscription receives the matching product completion or support event.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/utils/sendTelegramMessage",
+      "scenarioId": "notifications",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Send only to the configured test chat and record the real Telegram response reference.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/tinify/",
+      "scenarioId": "product-create",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify the real compression response bytes and exact uploaded object readback.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/AdminPanel/components/(FormatImagesForm|PersonalizationForm|VariantsForm)",
+      "scenarioId": "product-edit",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise image, variant, and personalization updates and verify saved data plus provider effects.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/PersonalizeModal/",
+      "scenarioId": "personalization-storage",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Upload and retrieve an owned design, verify real bytes and saved placement, then remove it.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/\\(site\\)/payment/",
+      "scenarioId": "checkout-stripe",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Complete and reconcile payment UI against the real Stripe TEST session and database state.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/Navbar/",
+      "scenarioId": "auth-account",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify real session state and account sign-out after navigating protected and public pages.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/SupportButton/",
+      "scenarioId": "support",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise authenticated support messages, read state, close/reopen and realtime delivery.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/utils/checkEnvs\\.ts$",
+      "scenarioId": "analytics-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Checks the configured provider endpoints and key acceptance without creating business resources.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Run the authorized environment check and verify each provider result without exposing key values.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/DbBackup/",
+      "scenarioId": "backup-maintenance",
+      "classification": "request-or-provider",
+      "classificationReason": "Backup UI calls real archive and restore APIs; its database and storage destination must be isolated.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Export and restore a small real archive on the verified separate destination, then compare rows and file bytes.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/AdminPanel/functions/readPastedImages\\.ts$",
+      "scenarioId": "product-create",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Reads and decodes owner-selected image files locally; the later upload and compression calls are inventoried separately.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Use the supplied real image and verify its final provider object bytes.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/functions/mapWithConcurrency\\.ts$",
+      "scenarioId": "backup-maintenance",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Schedules child operations; each actual child provider call has its own inventory row.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Exercise batching with a small real archive and verify every child result.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/hooks/useLazyLoading\\.ts$",
+      "scenarioId": "seeded-navigation",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Coordinates browser visibility and lazy rendering; any downstream request is inventoried separately.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Scroll through real catalog states and verify loaded content and requests.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/UTMTracker\\.tsx$",
+      "scenarioId": "analytics-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Tracks a real browser visit with a run-owned device/session reference.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify the run-owned visit row and exact cleanup without deleting other visits.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/layout\\.tsx$",
+      "scenarioId": "auth-account",
+      "classification": "request-or-provider",
+      "classificationReason": "Loads the real session and user-facing locale data for authenticated journeys.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify the run-owned session, locale and profile after browser navigation.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/AccountSDK/",
+      "scenarioId": "auth-account",
+      "classification": "request-or-provider",
+      "classificationReason": "Maps account SDK operations to the actual authentication and account API journeys.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise signup, login, recovery, session and profile paths with run-owned accounts.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/CategoriesSDK/",
+      "scenarioId": "pricing-categories",
+      "classification": "request-or-provider",
+      "classificationReason": "Maps category SDK calls to run-owned category and category-view records.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify actual category rows and view counters with exact cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/CategoryViewsSDK/",
+      "scenarioId": "pricing-categories",
+      "classification": "request-or-provider",
+      "classificationReason": "Maps category-view SDK operations to real database readbacks.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Increment and read back only the test scenario's category view.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/EmailsSDK/",
+      "scenarioId": "notifications",
+      "classification": "request-or-provider",
+      "classificationReason": "Sends through the real email application route to the approved test inbox.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Record provider message identity and distinguish acceptance from delivery.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/AIPricingSDK/",
+      "scenarioId": "pricing-categories",
+      "classification": "request-or-provider",
+      "classificationReason": "Uses real pricing proposal endpoints and AI provider evidence.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify the actual proposal, provider result, decision and Stripe TEST state.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/RateLimitSDK/",
+      "scenarioId": "analytics-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Reads and updates the configured real rate-limit service for the test device/account.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify real counter behavior and exact test-key cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/PersonalizedDesignsSDK/",
+      "scenarioId": "personalization-storage",
+      "classification": "request-or-provider",
+      "classificationReason": "Calls the personalized-design API and storage lifecycle for a run-owned user.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify design rows, signed transfers, bytes, usage and cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/BaseSDK\\.ts$",
+      "scenarioId": "seeded-navigation",
+      "classification": "request-or-provider",
+      "classificationReason": "Shared HTTP transport for SDK calls; concrete destinations are inventoried at the calling SDK method.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise the API operations through their owning journeys and retain each concrete route mapping.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/CategoriesSDK/|^app/components/ui/Modals/AdminPanel/components/CategoriesForm",
+      "scenarioId": "pricing-categories",
+      "classification": "request-or-provider",
+      "classificationReason": "Creates or reads actual category records and their assignments.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify each category operation and exact owned row cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/AdminPanel/components/AddProductForm\\.tsx$",
+      "scenarioId": "product-create",
+      "classification": "request-or-provider",
+      "classificationReason": "Runs the owner product creation pipeline and its actual provider/API requests.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Create the product with the supplied image and independently verify each downstream result.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/AdminPanel/components/Format(Description|Title|OnStock)Form\\.tsx$",
+      "scenarioId": "product-edit",
+      "classification": "request-or-provider",
+      "classificationReason": "Saves owner edits through real translation or update routes.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify each supported field, locale, pending state and database readback.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/functions/support/(sendMessageFn|uploadImagesAndSendMessage|reportErrorToSupport)",
+      "scenarioId": "support",
+      "classification": "request-or-provider",
+      "classificationReason": "Creates or uploads real support content for a run-owned support ticket.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify message rows, attachments, realtime delivery and exact cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/\\(site\\)/components/AISearch/",
+      "scenarioId": "ai-chat-memory",
+      "classification": "request-or-provider",
+      "classificationReason": "Runs the actual sales assistant and its real tool/provider calls.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify tool actions, fresh provider output, memory and exact Redis/vector cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/AdminPanel/components/AdminPanelDeleteConfirmDialog\\.tsx$|^app/components/ui/Modals/AreYouSureDeleteProductModal\\.tsx$",
+      "scenarioId": "product-delete",
+      "classification": "request-or-provider",
+      "classificationReason": "Confirms owner-requested deletion of exact run-owned product IDs.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify cancellation has no side effect and confirmed single/bulk deletion is complete.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/Product/RequestReplanishmentButton\\.tsx$",
+      "scenarioId": "notifications",
+      "classification": "request-or-provider",
+      "classificationReason": "Submits an actual restock request for a disposable product and test-owned account.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify the owned request row, notification reference and counter.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Inputs/(MessageInput|MarkdownEditor)\\.tsx$",
+      "scenarioId": "support",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Prepares user-entered message content locally before the real support API call.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Exercise normal text and attachment entry before verifying actual delivery.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/SupportSDK/|^app/\\[locale\\]/\\(support\\)/support/",
+      "scenarioId": "support",
+      "classification": "request-or-provider",
+      "classificationReason": "Maps support SDK, ticket pages and realtime subscriptions to two authenticated sessions.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify persisted ticket/message state, seen/close/reopen and reconnect delivery.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/hooks/useCategoryPreferences\\.ts$|^app/libs/popularProducts\\.ts$|^app/\\[locale\\]/\\(site\\)/components/(ProductLikeButton|CategoryPillBar)\\.tsx$",
+      "scenarioId": "catalog-cart",
+      "classification": "request-or-provider",
+      "classificationReason": "Reads or updates actual catalog preferences, popularity and category views.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify visible catalog results and run-owned counters after navigation and reload.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/store/user/cartStore\\.ts$|^app/components/ui/Modals/CartModal/|^app/components/ui/Buttons/AddToCartButton\\.tsx$",
+      "scenarioId": "catalog-cart",
+      "classification": "request-or-provider",
+      "classificationReason": "Persists actual cart actions and resolves current product/variant state.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify quantities, variants, totals, stock boundaries and stale-product handling.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/CartModal/PaymentButtons/",
+      "scenarioId": "checkout-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Starts an actual configured payment provider or wallet flow.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use real sandbox/test-network responses and record cancellation or final confirmation.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/actions/(getUser|trackVisitAction|insertDBUTMVisitAction|trackBuyingFlowEventAction|getUnreadMessages|getInitialTickets|getOwnerProducts|selectTicketId)\\.ts$",
+      "scenarioId": "analytics-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Server actions read or write real user, support or analytics state; each caller and resource is separately identified.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify exact user-owned reads/writes without broad customer-data deletion.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/libs/pusher\\.ts$",
+      "scenarioId": "product-background",
+      "classification": "request-or-provider",
+      "classificationReason": "Provides the real Pusher connection and subscription used by product and support journeys.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify the expected event arrives in the actual browser session and matches its resource ID.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/utils/sendTelegramMessage\\.ts$",
+      "scenarioId": "notifications",
+      "classification": "request-or-provider",
+      "classificationReason": "Sends real Telegram messages only to the configured test chat.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Record the real provider response and exact test-chat destination.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/storages/DBStorage\\.ts$",
+      "scenarioId": "catalog-cart",
+      "classification": "request-or-provider",
+      "classificationReason": "Reads and writes the authenticated user's actual cart through the database storage adapter; verify the exact run-owned cart row after each browser change.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify the run-owned account cart on add, quantity changes, reload, and clear confirmation.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/storages/LocalStorage\\.ts$",
+      "scenarioId": "catalog-cart",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Uses browser local storage for cart/session state; network persistence is covered separately.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Reload the browser and compare the actual displayed cart with stored server state.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/store/ui/useMessages\\.ts$|^app/hooks/ui/supportButton/",
+      "scenarioId": "support",
+      "classification": "request-or-provider",
+      "classificationReason": "Tracks user-visible support messages and read state around actual API calls.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify read state from the other authenticated session and after reconnect.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/store/user/useUser\\.ts$|^app/components/Layout/hooks/useSetUser\\.ts$|^app/components/hooks/useLanguageDropdownHandlers\\.ts$|^app/components/ui/Modals/UpdateAvatarModal\\.tsx$",
+      "scenarioId": "auth-account",
+      "classification": "request-or-provider",
+      "classificationReason": "Loads or updates the run-owned account profile through real Auth and account APIs.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify persisted account language/avatar and session behavior.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/utils/(getUploadedImageResolution|getOversizedImageWarningValues|computeFingerprint|getResponseErrorMessage)\\.ts$",
+      "scenarioId": "seeded-navigation",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Performs local image, fingerprint or response-body handling; the underlying provider request is separately inventoried.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Exercise real input and response handling without replacing provider results.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/utils/helpersSSR\\.ts$|^app/providers/ModalsQueryProvider\\.tsx$|^app/components/ui/Modals/AdminPanel/functions/showToastWarningFn\\.ts$",
+      "scenarioId": "seeded-navigation",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Resolves framework URL/state or local UI feedback; any service request is inventoried separately.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Exercise route, query and UI state through the real browser.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/utils/trackBuyingFlowEvent\\.ts$|^app/\\[locale\\]/\\(site\\)/stats/",
+      "scenarioId": "analytics-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Writes and reads actual scoped analytics events and reports.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify events and report filters using only test-owned session references.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/\\(site\\)/support/",
+      "scenarioId": "support",
+      "classification": "request-or-provider",
+      "classificationReason": "Loads real support tickets and messages for the authenticated test account.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify the ticket state in the page and database across both test accounts.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/human-check/",
+      "scenarioId": "analytics-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Runs the genuine configured human-verification challenge and provider verification route.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Record an actual successful challenge and a real rejected token response.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/error",
+      "scenarioId": "seeded-navigation",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Renders framework error and recovery UI; it does not itself prove a provider request.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Trigger a real recoverable browser error and verify navigation remains usable.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/\\(site\\)/(jokik-music|jompanion|jotion)/",
+      "scenarioId": "seeded-navigation",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Loads route parameters and localized placeholder content without provider side effects.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Include these public routes in seeded navigation and verify they render.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/libs/supabase/(supabaseRouteHandler|supabaseServer|supabaseServerAction)\\.ts$",
+      "scenarioId": "auth-account",
+      "classification": "request-or-provider",
+      "classificationReason": "Builds authenticated Supabase clients and resolves the real session used by protected routes/actions.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise valid, expired and cross-account sessions through their owning journeys.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^scripts/repair-backup-files\\.mjs$",
+      "scenarioId": "backup-maintenance",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Reads and rewrites an explicit local archive; it does not contact a provider unless invoked by an isolated restore scenario.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Run against a generated disposable archive and compare extracted object paths and bytes.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/libs/storage/(capacity|uploads|providers|cleanup|authorization|backup|usage)\\.ts$|^app/sdk/StorageSDK/|^app/api/storage/|^app/functions/uploadImageFn",
+      "scenarioId": "personalization-storage",
+      "classification": "request-or-provider",
+      "classificationReason": "Performs real storage-provider, Redis journal/capacity or storage API work; every object and key must be run-owned.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify signed transfer bytes, stored object state, Redis journal outcomes and exact cleanup on the configured isolated storage.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^scripts/storage/",
+      "scenarioId": "backup-maintenance",
+      "classification": "request-or-provider",
+      "classificationReason": "Storage migration and synchronization scripts call configured real storage services; local archive parsing remains separately classified by its helper.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise only on the separate real storage destination and verify resulting object bytes and cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/actions/trackVisitAction\\.ts$|^app/actions/(trackVisitAction|insertDBUTMVisitAction|trackBuyingFlowEventAction)\\.ts$",
+      "scenarioId": "analytics-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Writes visit and buying-flow analytics using real session/device state and external storage services.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Read back only events tied to the current run and remove exact test-owned rows/keys.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/utils/publicUserSync\\.ts$",
+      "scenarioId": "auth-account",
+      "classification": "request-or-provider",
+      "classificationReason": "Synchronizes an authenticated Supabase user with this store's public profile row.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify run-owned Auth and public profile data for normal and cross-account cases.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/webhooks/check-envs/",
+      "scenarioId": "analytics-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Runs real read-only provider key probes and stores the maintenance run state.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Exercise the authorized maintenance route and verify provider statuses without including key values.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/sdk/BackupSDK/|^app/api/backup/",
+      "scenarioId": "backup-maintenance",
+      "classification": "request-or-provider",
+      "classificationReason": "Exports, imports, relinks or cleans actual data and files; this suite requires the separate schema-compatible destination.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Restore a small run-owned archive and compare actual rows, auth mapping and file bytes.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(popular-products/demo|popular-products)/",
+      "scenarioId": "catalog-cart",
+      "classification": "request-or-provider",
+      "classificationReason": "Loads the public catalog/popular feed and optional demo import route.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify actual public results and keep any demo import scoped to run-owned records.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/functions/createProduct(Fn|Helpers)\\.tsx?$|^app/api/products/translate-insert/",
+      "scenarioId": "product-create",
+      "classification": "request-or-provider",
+      "classificationReason": "Coordinates actual product creation, external provider writes and the translation worker handoff.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use the supplied image and verify Stripe TEST, storage, Supabase, Lambda logs and Pusher completion.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(ai/|fetch-prices/|coinmarketcap/|products/ai-pricing/)",
+      "scenarioId": "ai-tools",
+      "classification": "request-or-provider",
+      "classificationReason": "Calls actual AI or market-data providers and returns business data.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use fresh run-owned inputs, reserve paid budget and verify provider output plus downstream state.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/ai/sales-assistant/|^app/libs/ai/chatMemory\\.ts$",
+      "scenarioId": "ai-chat-memory",
+      "classification": "request-or-provider",
+      "classificationReason": "Calls real chat/embedding providers and memory/cache/vector services.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify fresh provider calls, cache behavior, tool actions and exact memory cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(categories/|category-views/)|^app/sdk/(CategoriesSDK|CategoryViewsSDK)/",
+      "scenarioId": "pricing-categories",
+      "classification": "request-or-provider",
+      "classificationReason": "Changes category and category-view data for the real generated product scenario.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify each category row and counter, then remove only the exact test records.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/products/delete/|^app/api/products/update/",
+      "scenarioId": "product-edit",
+      "classification": "request-or-provider",
+      "classificationReason": "Runs owner-authorized product updates or deletion and real Stripe/storage/Supabase effects.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify every supported field, authorization result, provider state and row cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(auth/|account/)|^app/\\[locale\\]/\\(auth\\)/|^proxy\\.ts$",
+      "scenarioId": "auth-account",
+      "classification": "request-or-provider",
+      "classificationReason": "Resolves real authentication, callbacks, profiles and protected-route sessions.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use real run-owned accounts and verify valid, expired and denied sessions.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(message/|messages/|tickets/|ticket/)|^app/\\[locale\\]/\\(support\\)/|^app/functions/support/",
+      "scenarioId": "support",
+      "classification": "request-or-provider",
+      "classificationReason": "Reads or changes real support tickets, messages, attachments and realtime events.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify both account views, persistent state, event delivery, reconnect and exact cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(send-email|telegram|products/replanishment-requests)",
+      "scenarioId": "notifications",
+      "classification": "request-or-provider",
+      "classificationReason": "Sends actual provider notifications or records a run-owned restock request.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use only the approved test inbox/chat and record actual provider references and delivery status.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(create-checkout-session|verify-payment|customer|payment/)|^app/\\[locale\\]/\\(site\\)/payment/",
+      "scenarioId": "checkout-stripe",
+      "classification": "request-or-provider",
+      "classificationReason": "Creates or reconciles real Stripe TEST checkout and payment behavior.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Confirm provider session/payment identity, stock, receipt and duplicate protection.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(create-paypal-session|create-klarna-session|webhooks/paypal|wallet/)|^app/components/ui/Modals/CartModal/PaymentButtons/",
+      "scenarioId": "checkout-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Uses actual third-party sandbox or test-network payment behavior.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Record real sandbox transactions, signed callbacks and cancellation/rejection outcomes.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(turnstile/verify|rate-limit/)|^app/sdk/RateLimitSDK/|^app/libs/deviceIdRedis\\.ts$|^app/\\[locale\\]/human-check/",
+      "scenarioId": "analytics-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Uses real challenge/rate-limit services and run-owned device/account state.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify actual service response, exact scoped state and cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/PersonalizeModal/|^app/components/ui/Modals/AdminPanel/components/(FormatImagesForm|PersonalizationForm|VariantsForm)",
+      "scenarioId": "personalization-storage",
+      "classification": "request-or-provider",
+      "classificationReason": "Uploads or edits real owner design, image, variant and print-area data.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify object bytes, design placement, product row and exact cleanup.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/AdminPanel/hooks/useSetStorageUsage\\.ts$",
+      "scenarioId": "personalization-storage",
+      "classification": "request-or-provider",
+      "classificationReason": "Reads actual configured storage usage for the authenticated owner.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Compare displayed usage with the provider's real bytes and run-owned objects.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/AreYouSureMarkTicketAsCompletedSupportModal\\.tsx$",
+      "scenarioId": "support",
+      "classification": "request-or-provider",
+      "classificationReason": "Confirms a real support ticket close action.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify cancel has no side effect and the confirmed exact ticket is closed.",
+      "dependencyReviewStatus": "scenario_linked"
+    }
+  ],
+  "externalWorkers": [
+    {
+      "name": "23-ai-translate",
+      "sourceRepository": "AWS Lambda deployment",
+      "evidenceStatus": "blocked_by_configuration",
+      "evidence": "The deployed function source, revision, destination credentials, logs, and terminal execution access must be verified during preflight."
+    }
+  ],
+  "blockedCapabilities": [
+    {
+      "name": "Klarna sandbox checkout",
+      "status": "blocked_by_application_placeholder",
+      "evidence": "app/api/create-klarna-session/route.ts sends to Klarna's production API host with credentials embedded in source; it is not a verified sandbox integration and must not be called by the monthly suite."
+    },
+    {
+      "name": "Global maintenance data destination",
+      "status": "blocked_by_configuration",
+      "evidence": "Price research, backup/restore, and storage cleanup need a separate real database/storage destination with matching schema; no verified destination is configured in this plan."
+    },
+    {
+      "name": "Interactive OAuth, email-link, and wallet sessions",
+      "status": "blocked_by_configuration",
+      "evidence": "Unattended real OAuth providers, routable verification/reset mailboxes, a wallet extension, and test-network accounts are not configured for browser journeys."
+    }
+  ]
+}

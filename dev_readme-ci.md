@@ -1,14 +1,15 @@
 # GitHub Actions checks
 
-`.github/workflows/ci.yml` runs Quality, Cypress, and Storybook in parallel. `CI required` passes only
-when all three pass. `.github/workflows/chromatic.yml` publishes visual snapshots separately, so a
-single push creates one CI run and one Chromatic run; they are different checks.
+`.github/workflows/ci.yml` runs Quality and Storybook checks on `development` pushes and pull
+requests. Those existing checks remain on pushes; the Plan 25 real-service Cypress suite runs only
+once each month, with no push, pull-request, manual, or deployment trigger. `CI required` passes when
+Quality and Storybook pass. `.github/workflows/chromatic.yml`
+publishes visual snapshots separately, so a single push creates one CI run and one Chromatic run.
 
-The Cypress job first checks that the Actions Supabase credentials reach the store tables. A missing
-`public.23_users` table means the configured project has no store schema or its REST schema cache
-has not picked it up. The preflight reports this before the long browser install and before any
-fixtures are created. Regular runs use Electron; the manual `full_browser_matrix` input adds Chrome,
-Firefox, and WebKit. The initial failed `curl` while Next.js starts is expected during the retry loop.
+The Plan 25 Cypress workflow starts only on the first day of each month. It inventories source and
+checks services before installing Cypress, creating fixtures, or opening a browser. A missing
+`public.23_users` table means the configured project has no store schema or its REST schema cache has
+not picked it up; the monthly preflight records that and stops before browser actions.
 
 Quality runs the repository-wide ESLint rules before type checking. The prior hard-rule failures in
 backup naming and form state names were cleared; `pnpm lint` now completes with warnings only.
@@ -18,3 +19,15 @@ removed from CI because Chromatic performs its own build. `storybook/mocks/failu
 turns the first browser console error into a failing test and prevents the test runner's own error
 report from producing another copy of the same error indefinitely. The first error is the useful
 one to investigate.
+
+The monthly workflow never creates `.env.local`. It receives allowlisted settings from GitHub
+variables and secrets, checks the production deployment and configured providers, and only reaches
+the browser when inventory, mappings, budgets, and service health are ready. It runs on the first day
+of each month and has no push, redeployment, manual, or external trigger. A missing setting or service
+leaves an `INCOMPLETE` result and uploads the report. The current workflow source has not been pushed
+to `development`; all eighteen monthly journey spec files are authored, but several paths remain
+incomplete. The other-checkout spec verifies a PayPal-method Stripe TEST session while Klarna remains
+blocked: its current route uses Klarna's production API host with credentials embedded in source.
+Backup/maintenance checks signed-out guards; positive global
+backup and cleanup operations remain blocked until a separate database and storage target is verified.
+Stripe success/cancel/decline paths and several analytics paths also remain uncovered.
