@@ -37,7 +37,7 @@ function browserRequest<TBody>(url: string, body: Record<string, unknown>): Cypr
 }
 
 function runKey(name: string) {
-  return `${String(Cypress.env("E2E_RUN_ID"))}:ai-chat-memory:${name}`
+  return `${String(Cypress.expose("E2E_RUN_ID"))}:ai-chat-memory:${name}`
 }
 
 describe("monthly real-service sales chat and persistent memory", function () {
@@ -91,7 +91,7 @@ describe("monthly real-service sales chat and persistent memory", function () {
   })
 
   it("answers through the real chat route and reads back both Redis history and Pinecone vectors", () => {
-    const runSuffix = String(Cypress.env("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
+    const runSuffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
     const prompt = `Remember E2E-${runSuffix}: blue ceramic mugs`
     const memoryPrompt = `E2E-${runSuffix} also likes teal bowls`
     const memoryReply = `Saved the E2E-${runSuffix} preference for teal bowls.`

@@ -4,11 +4,6 @@ import path from "node:path"
 import { defineConfig } from "cypress"
 import { createClient, User } from "@supabase/supabase-js"
 
-import { createPaidBudgetManager } from "./scripts/e2e/paid-budget.mjs"
-import { createMonthlyFixtureManager } from "./scripts/e2e/fixtures.mjs"
-import type { Database, Json } from "./app/ts/types_db"
-import { verifyStorageObjectAbsent, verifyStorageObjectPresent } from "./scripts/e2e/verify-storage-object.mjs"
-import { decodeDeviceId, isValidDeviceId } from "./app/utils/deviceId"
 import {
   cleanupStripeTestCheckoutSession,
   verifyStripePriceInactive,
@@ -16,6 +11,11 @@ import {
   verifyStripeTestCheckoutSession,
   verifyStripeTestProduct,
 } from "./scripts/e2e/verify-stripe-test-resources.mjs"
+import { decodeDeviceId, isValidDeviceId } from "./app/utils/deviceId"
+import { verifyStorageObjectAbsent, verifyStorageObjectPresent } from "./scripts/e2e/verify-storage-object.mjs"
+import type { Database, Json } from "./app/ts/types_db"
+import { createMonthlyFixtureManager } from "./scripts/e2e/fixtures.mjs"
+import { createPaidBudgetManager } from "./scripts/e2e/paid-budget.mjs"
 import { verifyLambdaExecution } from "./scripts/e2e/verify-lambda-execution.mjs"
 import { verifyResendEmail } from "./scripts/e2e/verify-resend-email.mjs"
 
@@ -460,6 +460,16 @@ async function getBuyingFlowFixtures() {
 
 export default defineConfig({
   allowCypressEnv: false,
+  expose: {
+    E2E_SUITE,
+    E2E_RUN_ID: process.env.E2E_RUN_ID,
+    // eslint-disable-next-line local-rules/no-undefined-used-envs -- set internally by scripts/e2e/run-monthly.mjs
+    E2E_RUNNER_SHA: process.env.E2E_RUNNER_SHA,
+    E2E_SEED: process.env.E2E_SEED,
+    E2E_OPERATION_COST_ESTIMATES_JSON: process.env.E2E_OPERATION_COST_ESTIMATES_JSON,
+    E2E_TRANSLATION_MAX_PROVIDER_CALLS: process.env.E2E_TRANSLATION_MAX_PROVIDER_CALLS,
+    E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS: process.env.E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS,
+  },
   reporter: E2E_SUITE === "legacy" ? "spec" : "mocha-junit-reporter",
   reporterOptions: E2E_SUITE === "legacy" ? undefined : {
     mochaFile: path.join(E2E_ARTIFACT_DIRECTORY, "junit-[hash].xml"),

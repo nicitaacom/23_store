@@ -41,8 +41,8 @@ export function recordVerifiedRoute(evidence: TRouteCoverageEvidence) {
       ...(evidence.resourceId ? { resourceId: evidence.resourceId } : {}),
       ...(evidence.providerId ? { providerId: evidence.providerId } : {}),
       verificationReference: evidence.verificationReference,
-      runId: Cypress.env("E2E_RUN_ID"),
-      testedCommit: Cypress.env("E2E_RUNNER_SHA"),
+      runId: Cypress.expose("E2E_RUN_ID"),
+      testedCommit: Cypress.expose("E2E_RUNNER_SHA"),
       target: Cypress.config("baseUrl"),
       at: new Date().toISOString(),
       ...(evidence.details ? { details: evidence.details } : {}),
@@ -71,8 +71,8 @@ export function recordVerifiedServiceOperation(evidence: TServiceCoverageEvidenc
         ...(evidence.resourceId ? { resourceId: evidence.resourceId } : {}),
         ...(evidence.providerId ? { providerId: evidence.providerId } : {}),
         verificationReference: evidence.verificationReference,
-        runId: Cypress.env("E2E_RUN_ID"),
-        testedCommit: Cypress.env("E2E_RUNNER_SHA"),
+        runId: Cypress.expose("E2E_RUN_ID"),
+        testedCommit: Cypress.expose("E2E_RUNNER_SHA"),
         target: Cypress.config("baseUrl"),
         at: new Date().toISOString(),
         ...(evidence.details ? { details: evidence.details } : {}),
@@ -97,8 +97,8 @@ export function recordBlockedRoute(
       method: method.toUpperCase(),
       route,
       ...identifiers,
-      runId: Cypress.env("E2E_RUN_ID"),
-      testedCommit: Cypress.env("E2E_RUNNER_SHA"),
+      runId: Cypress.expose("E2E_RUN_ID"),
+      testedCommit: Cypress.expose("E2E_RUNNER_SHA"),
       target: Cypress.config("baseUrl"),
       message: detail,
       at: new Date().toISOString(),
@@ -108,7 +108,7 @@ export function recordBlockedRoute(
 
 export function recordResource(resourceType: string, resourceId: string, ownerId: string, details: Record<string, unknown> = {}) {
   return cy.task("recordCreatedResource", {
-    runId: Cypress.env("E2E_RUN_ID"),
+    runId: Cypress.expose("E2E_RUN_ID"),
     resourceType,
     resourceId,
     ownerId,
@@ -123,7 +123,7 @@ export function reservePaidScenarioOperation(input: {
   estimateName: string
   paidCallCount: number
 }) {
-  const estimatesText = Cypress.env("E2E_OPERATION_COST_ESTIMATES_JSON")
+  const estimatesText = Cypress.expose("E2E_OPERATION_COST_ESTIMATES_JSON")
   if (typeof estimatesText !== "string") throw new Error("E2E_OPERATION_COST_ESTIMATES_JSON is required before paid E2E actions")
   const estimates = JSON.parse(estimatesText) as Record<string, number>
   const estimatedCostPerCallUsd = Number(estimates[input.estimateName])

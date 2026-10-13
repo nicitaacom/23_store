@@ -63,7 +63,7 @@ describe("monthly seeded real-service navigation", function () {
     product = null
     cy.signIn(accounts.owner)
     cy.task("cleanupRunCart", accounts.owner.id).then(() => {
-      const suffix = String(Cypress.env("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-16)
+      const suffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-16)
       const title = `E2E navigation ${suffix}`
       const translations = Object.fromEntries(["en", "fi", "ru", "se"].map(locale => [locale, {
         title,
@@ -102,7 +102,7 @@ describe("monthly seeded real-service navigation", function () {
   it("shuffles visible product, popular-catalog and support actions from the recorded seed", () => {
     if (!product) throw new Error("Run-owned navigation product was not created")
     const fixture = product
-    const seed = String(Cypress.env("E2E_SEED") || Cypress.env("E2E_RUN_ID"))
+    const seed = String(Cypress.expose("E2E_SEED") || Cypress.expose("E2E_RUN_ID"))
     const actions: TNavigationAction[] = [
       {
         name: "open-popular-catalog",

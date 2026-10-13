@@ -66,7 +66,7 @@ function isExpectedRejection(method: string, pathname: string, statusCode: numbe
 }
 
 function installDiagnostics() {
-  if (diagnosticsInstalled || !["monthly", "replay"].includes(String(Cypress.env("E2E_SUITE")))) return
+  if (diagnosticsInstalled || !["monthly", "replay"].includes(String(Cypress.expose("E2E_SUITE")))) return
   diagnosticsInstalled = true
   // eslint-disable-next-line local-rules/no-banned-words -- Cypress event API name
   Cypress.on("window:before:load", (browserWindow: TDiagnosticWindow) => {
@@ -127,7 +127,7 @@ export function beginDiagnostics(scenarioId: string) {
   requestStarts.clear()
   runnerDiagnostics.splice(0, runnerDiagnostics.length)
   requestSequence = 0
-  if (!["monthly", "replay"].includes(String(Cypress.env("E2E_SUITE")))) return
+  if (!["monthly", "replay"].includes(String(Cypress.expose("E2E_SUITE")))) return
 
   cy.intercept({ url: "**" }, request => {
     const requestId = `${scenarioId}-${++requestSequence}`
@@ -169,7 +169,7 @@ export function expectRealRejection(rejection: TExpectedRejection) {
 }
 
 export function finishDiagnostics() {
-  if (!["monthly", "replay"].includes(String(Cypress.env("E2E_SUITE")))) return
+  if (!["monthly", "replay"].includes(String(Cypress.expose("E2E_SUITE")))) return
   cy.window({ log: false }).then(browserWindow => {
     const browserTimeline = (browserWindow as TDiagnosticWindow).__e2eRunTimeline ?? []
     const timeline = [...browserTimeline, ...runnerDiagnostics]

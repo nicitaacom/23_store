@@ -30,7 +30,7 @@ function browserRequest<TBody>(method: string, url: string, body?: Record<string
 }
 
 function runKey(name: string) {
-  return `${String(Cypress.env("E2E_RUN_ID"))}:ai-tools:${name}`
+  return `${String(Cypress.expose("E2E_RUN_ID"))}:ai-tools:${name}`
 }
 
 describe("monthly real-service AI tools", function () {
@@ -87,7 +87,7 @@ describe("monthly real-service AI tools", function () {
       estimateName: "category_suggestion",
       paidCallCount: 1,
     }
-    const suffix = String(Cypress.env("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-16)
+    const suffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-16)
     const title = `E2E ${suffix} dairy sour cream product`
 
     reserve(operation)
@@ -231,7 +231,7 @@ describe("monthly real-service AI tools", function () {
       method: "POST",
       credentials: "include",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ prompt: `A ceramic sour cream container in clean studio light, E2E run ${String(Cypress.env("E2E_RUN_ID"))}` }),
+      body: JSON.stringify({ prompt: `A ceramic sour cream container in clean studio light, E2E run ${String(Cypress.expose("E2E_RUN_ID"))}` }),
     }).then(async response => {
       const bytes = new Uint8Array(await response.arrayBuffer())
       const dimensions = bytes.length >= 24

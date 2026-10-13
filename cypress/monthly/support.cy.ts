@@ -80,8 +80,8 @@ describe("monthly real-service support conversation", function () {
   })
 
   it("opens, replies, marks messages seen, closes and rates its own ticket", () => {
-    const ownerMessage = `E2E support question ${String(Cypress.env("E2E_RUN_ID")).slice(-16)}`
-    const supportReply = `E2E support reply ${String(Cypress.env("E2E_RUN_ID")).slice(-16)}`
+    const ownerMessage = `E2E support question ${String(Cypress.expose("E2E_RUN_ID")).slice(-16)}`
+    const supportReply = `E2E support reply ${String(Cypress.expose("E2E_RUN_ID")).slice(-16)}`
     ticketId = accounts.owner.id
 
     cy.visit("/en")
@@ -143,7 +143,7 @@ describe("monthly real-service support conversation", function () {
       expect(interception.response?.statusCode).to.equal(200)
       expect(interception.request.body).to.include({ ticketId, ownerId: accounts.owner.id, messageBody: ownerMessage })
       return cy.task("recordCreatedResource", {
-        runId: Cypress.env("E2E_RUN_ID"),
+        runId: Cypress.expose("E2E_RUN_ID"),
         resourceType: "support_ticket",
         resourceId: ticketId,
         ownerId: accounts.owner.id,
@@ -183,7 +183,7 @@ describe("monthly real-service support conversation", function () {
       }))
     })
 
-    const attachmentMessage = `E2E support image ${String(Cypress.env("E2E_RUN_ID")).slice(-16)}`
+    const attachmentMessage = `E2E support image ${String(Cypress.expose("E2E_RUN_ID")).slice(-16)}`
     cy.get('[data-cy="support-attachment-drop-zone"]').selectFile(attachmentPath, { action: "drag-drop" })
     cy.wait<Interception>("@prepareSupportAttachment", { timeout: 30000 }).then(interception => {
       expect(interception.response?.statusCode).to.equal(200)
@@ -250,8 +250,8 @@ describe("monthly real-service support conversation", function () {
             resourceId: readback.messages[1].id,
             providerId: attachmentReference?.path,
             verificationReference: `${readback.verificationReference};storage:${attachmentReference?.bucket}/${attachmentReference?.path}:sha-bytes-verified`,
-            runId: Cypress.env("E2E_RUN_ID"),
-            testedCommit: Cypress.env("E2E_RUNNER_SHA"),
+            runId: Cypress.expose("E2E_RUN_ID"),
+            testedCommit: Cypress.expose("E2E_RUNNER_SHA"),
             target: Cypress.config("baseUrl"),
             at: new Date().toISOString(),
           }, { log: false }).then(() => {

@@ -26,7 +26,7 @@ describe("monthly real-service product deletion", function () {
     deleteInterceptions = []
     cy.intercept("POST", "/api/products/delete").as("deleteProduct")
     cy.signIn(accounts.owner)
-    const suffix = String(Cypress.env("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-12)
+    const suffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-12)
     const makeFixture = (key: string, title: string) => cy.task<TProductFixture>("createProductFixture", {
       ownerId: accounts.owner.id,
       key: `${key}-${suffix}`,

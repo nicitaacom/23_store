@@ -40,7 +40,7 @@ function browserRequest<TBody>(method: string, url: string, body?: Record<string
 }
 
 function runKey(name: string) {
-  return `${String(Cypress.env("E2E_RUN_ID"))}:analytics:${name}`
+  return `${String(Cypress.expose("E2E_RUN_ID"))}:analytics:${name}`
 }
 
 describe("monthly analytics and provider-backed utility routes", function () {
@@ -123,7 +123,7 @@ describe("monthly analytics and provider-backed utility routes", function () {
     const ownerFragment = accounts.owner.id.replace(/-/g, "").slice(0, 12)
     const startAt = 72
     const expectedProductId = `demo-popular-product-${ownerFragment}-073`
-    const rowDetails = { fixtureKey: `demo-${String(Cypress.env("E2E_RUN_ID")).slice(-12)}`, source: "popular-products-demo" }
+    const rowDetails = { fixtureKey: `demo-${String(Cypress.expose("E2E_RUN_ID")).slice(-12)}`, source: "popular-products-demo" }
 
     recordResource("product_row", expectedProductId, accounts.owner.id, rowDetails)
       .then(() => browserRequest<TDemoSeedResponse>("POST", "/api/popular-products/demo", { count: 1, startAt }))

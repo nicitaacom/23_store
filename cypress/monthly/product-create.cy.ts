@@ -36,7 +36,7 @@ const scenarioId = "product-create-from-admin-panel"
 const sourceImagePath = "cypress/files/Sour Cream 30% Savya LITOVSKAYA.png"
 
 function runKey(name: string) {
-  return `${String(Cypress.env("E2E_RUN_ID"))}:product-create:${name}`
+  return `${String(Cypress.expose("E2E_RUN_ID"))}:product-create:${name}`
 }
 
 describe("monthly real-service product creation", function () {
@@ -119,15 +119,15 @@ describe("monthly real-service product creation", function () {
   })
 
   it("creates from the supplied image, waits for the real translation worker, verifies services, and deletes its own product", () => {
-    const runId = String(Cypress.env("E2E_RUN_ID"))
+    const runId = String(Cypress.expose("E2E_RUN_ID"))
     const runSuffix = runId.replace(/[^a-zA-Z0-9-]/g, "-").slice(-20)
     const title = `Sour Cream 30% Savya LITOVSKAYA E2E ${runSuffix}`
     const description = "A chilled dairy product with a smooth texture and a mild tang."
     const variantLabel = "500 g container"
     const selectedPrice = 12.5
     const selectedStock = 12
-    const translationCallCount = Number(Cypress.env("E2E_TRANSLATION_MAX_PROVIDER_CALLS"))
-    const fieldTranslationCallCount = Number(Cypress.env("E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS"))
+    const translationCallCount = Number(Cypress.expose("E2E_TRANSLATION_MAX_PROVIDER_CALLS"))
+    const fieldTranslationCallCount = Number(Cypress.expose("E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS"))
 
     expect(translationCallCount, "configured maximum translation-provider calls").to.be.greaterThan(0)
     expect(fieldTranslationCallCount, "configured field-translation calls across edit and pending-dialog cases").to.be.at.least(4)
@@ -320,7 +320,7 @@ describe("monthly real-service product creation", function () {
             }).then(workerReadback => {
               workerExecutionVerificationReference = workerReadback.verificationReference
               return cy.task("recordWorkerCompletion", {
-                runId: Cypress.env("E2E_RUN_ID"),
+                runId: Cypress.expose("E2E_RUN_ID"),
                 resourceId: workerEvidence.workerRequestId,
                 ownerId: accounts.owner.id,
                 details: { productId, workerName: workerEvidence.workerName, terminalLogVerified: true },
@@ -474,7 +474,7 @@ describe("monthly real-service product creation", function () {
                   verificationReference: `supabase:23_products:${productId}:translations:en;${stripeEditReadback.verificationReference}`,
                 }),
               ]
-              const runIdValue = String(Cypress.env("E2E_RUN_ID"))
+              const runIdValue = String(Cypress.expose("E2E_RUN_ID"))
               const routeEvidence = [
                 ...editEvidence,
                 () => recordVerifiedRoute({ method: "POST", route: "/api/ai/suggest-category", scenarioId: "ai-tools", requestId: actualRequestId(categoryInterception), providerId: categoryId, verificationReference: `23_products:${productId}:category_id`, details: { runId: runIdValue } }),

@@ -62,7 +62,7 @@ describe("monthly real-service product response races", function () {
   })
 
   it("keeps the latest stock after a real older response arrives last", () => {
-    const runSuffix = String(Cypress.env("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
+    const runSuffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
 
     cy.task<TProductFixture>("createProductFixture", {
       ownerId: accounts.owner.id,

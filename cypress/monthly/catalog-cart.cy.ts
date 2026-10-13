@@ -38,7 +38,7 @@ describe("monthly real-service catalog and cart", function () {
     cy.intercept({ method: "GET", url: "**/rest/v1/23_users_cart*" }).as("loadRunCart")
     cy.signIn(accounts.owner)
     cy.task("waitForRunCart", { ownerId: accounts.owner.id, expected: {} }).then(() => {
-      const suffix = String(Cypress.env("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
+      const suffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
       return cy.task<TProductFixture>("createProductFixture", {
         ownerId: accounts.owner.id,
         key: `cart-${suffix}`,

@@ -23,7 +23,7 @@ describe("monthly real-service replenishment notification", function () {
     cy.intercept("POST", "/api/send-email/request-replanishment").as("sendReplenishmentEmail")
     cy.intercept("POST", "/api/products/replanishment-requests").as("recordReplenishmentRequest")
     cy.signIn(accounts.owner)
-    const suffix = String(Cypress.env("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
+    const suffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
     cy.task<TProductFixture>("createProductFixture", {
       ownerId: accounts.owner.id,
       key: `replenishment-${suffix}`,

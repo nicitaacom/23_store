@@ -78,11 +78,11 @@ describe("monthly real-service product background work", function () {
   })
 
   it("keeps an unsaved description usable while a real title translation response is pending", () => {
-    const runId = String(Cypress.env("E2E_RUN_ID"))
+    const runId = String(Cypress.expose("E2E_RUN_ID"))
     const suffix = runId.replace(/[^a-z0-9-]/gi, "-").slice(-18)
     const titleOperationKey = `${runId}:product-background:title`
     const descriptionOperationKey = `${runId}:product-background:description`
-    const fieldTranslationCalls = Number(Cypress.env("E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS"))
+    const fieldTranslationCalls = Number(Cypress.expose("E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS"))
 
     expect(fieldTranslationCalls, "configured translation calls for edit and pending-dialog cases").to.be.at.least(4)
 

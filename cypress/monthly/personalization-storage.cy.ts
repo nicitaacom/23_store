@@ -132,7 +132,7 @@ describe("monthly real-service personalization storage", function () {
   })
 
   it("uploads real image bytes, checks ownership and readback, records a design, and cleans exact ids", () => {
-    const suffix = String(Cypress.env("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-16)
+    const suffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-16)
     let uploadId = ""
     let prepareInterception: Interception | null = null
     let uploadDestination: TUploadDestination | null = null

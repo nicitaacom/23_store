@@ -39,7 +39,7 @@ describe("monthly real-service product editing", function () {
     updateInterception = null
     cy.intercept("POST", "/api/products/update").as("updateProduct")
     cy.signIn(accounts.owner)
-    const suffix = String(Cypress.env("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
+    const suffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
     cy.task<TProductFixture>("createProductFixture", {
       ownerId: accounts.owner.id,
       key: `edit-${suffix}`,

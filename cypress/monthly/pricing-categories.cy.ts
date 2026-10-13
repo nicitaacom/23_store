@@ -74,7 +74,7 @@ describe("monthly real-service categories and account-scoped views", function ()
   })
 
   it("creates, lists, counts, renames and deletes one run-owned category and syncs one run user's view counter", () => {
-    const suffix = String(Cypress.env("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
+    const suffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
     const originalName = `E2E category ${suffix}`
     const updatedName = `${originalName} updated`
 
