@@ -7,7 +7,6 @@ export class ProductsSDK extends BaseSDK {
     formData.append("image", imageFile)
 
     const response = await this.postFormData("/api/tinify", formData)
-    // eslint-disable-next-line local-rules/no-banned-words -- Web API binary-body method name
     const compressedImageFile = await response.blob()
 
     return {
@@ -28,8 +27,6 @@ export class ProductsSDK extends BaseSDK {
         productId: request.id,
         imageCount: request.img_url?.length ?? 0,
         variantsCount: request.variants?.length ?? 0,
-        titlePreview: request.title?.slice(0, 120),
-        descriptionPreview: request.description?.slice(0, 120),
       })
       throw error
     }
@@ -107,10 +104,70 @@ export class ProductsSDK extends BaseSDK {
   }
 
   async verifyPayment(request: API.ProductsVerifyPaymentRequest) {
-    return this.postJson<API.ProductsVerifyPaymentRequest, API.ProductsVerifyPaymentResponse>(
-      "/api/verify-payment",
-      request satisfies API.ProductsVerifyPaymentRequest,
+    const timeouts = [15_000, 45_000, 90_000] as const
+    let lastError: unknown
+
+    for (const [index, timeout] of timeouts.entries()) {
+      try {
+        return await this.postJson<API.ProductsVerifyPaymentRequest, API.ProductsVerifyPaymentResponse>(
+          "/api/verify-payment",
+          request satisfies API.ProductsVerifyPaymentRequest,
+          { signal: AbortSignal.timeout(timeout) },
+        )
+      } catch (error) {
+        lastError = error
+        const retryable = error instanceof Error && (
+          error.name === "TimeoutError" || error.name === "AbortError" ||
+          /payment status could not be confirmed|image allowance could not be reset yet/i.test(error.message)
+        )
+        if (!retryable || index === timeouts.length - 1) throw error
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 500 * (index + 1)))
+    }
+
+    throw lastError instanceof Error ? lastError : new Error("Payment verification failed after automatic retries")
+  }
+
+  async createWalletPaymentIntent(request: API.ProductsCreateWalletPaymentIntentRequest) {
+    return this.postJson<API.ProductsCreateWalletPaymentIntentRequest, API.ProductsCreateWalletPaymentIntentResponse>(
+      "/api/wallet-payment/intent",
+      request satisfies API.ProductsCreateWalletPaymentIntentRequest,
     )
+  }
+
+  async verifyWalletPayment(request: API.ProductsVerifyWalletPaymentRequest) {
+    const timeouts = [15_000, 30_000, 55_000] as const
+    let lastError: unknown
+
+    for (const [index, timeout] of timeouts.entries()) {
+      try {
+        const response = await fetch("/api/wallet-payment/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(request satisfies API.ProductsVerifyWalletPaymentRequest),
+          cache: "no-store",
+          signal: AbortSignal.timeout(timeout),
+        })
+        const body = await response.json() as API.ProductsVerifyWalletPaymentResponse & { error?: string; code?: string }
+        if (response.ok) return body
+
+        const retryable = response.status === 425 || response.status === 503 || body.code === "WALLET_TRANSACTION_PENDING"
+        const error = new Error(body.error || `Wallet payment verification failed (${response.status})`)
+        if (!retryable || index === timeouts.length - 1) throw error
+        lastError = error
+      } catch (error) {
+        lastError = error
+        const isTimeout = error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")
+        const isProviderDelay = error instanceof Error && /could not confirm|could not be verified yet/i.test(error.message)
+        if (!isTimeout && !isProviderDelay) throw error
+        if (index === timeouts.length - 1) break
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 500 * (index + 1)))
+    }
+
+    throw lastError instanceof Error ? lastError : new Error("Wallet payment verification failed after automatic retries")
   }
 
   async completePayment(request: API.ProductsPaymentSuccessRequest) {

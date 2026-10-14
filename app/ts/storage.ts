@@ -21,6 +21,7 @@ export type TStorageUploadRequest = {
 export type TStorageUploadDestination = {
   uploadId: string
   signedUrl: string
+  publicUrl?: string
   method: "PUT"
   headers: Record<string, string>
   formField: string | null

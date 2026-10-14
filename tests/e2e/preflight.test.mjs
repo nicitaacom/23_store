@@ -6,7 +6,7 @@ import path from "node:path"
 import test from "node:test"
 import { fileURLToPath } from "node:url"
 
-import { buildPreflight, validatePaidCapabilityBudget } from "../../scripts/e2e/preflight.mjs"
+import { buildPreflight, describeProviderCallPlan } from "../../scripts/e2e/preflight.mjs"
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 
@@ -23,33 +23,24 @@ test("incomplete local setup stops before contacting production or providers", a
   assert.equal(preflight.operationCounts.unexercised, preflight.operationCounts.discovered)
 })
 
-test("paid budget preflight multiplies per-call estimates by the full configured call count", () => {
-  const blockers = []
-  const budget = validatePaidCapabilityBudget({
-    E2E_OPERATION_COST_ESTIMATES_JSON: JSON.stringify({ image_call: 0.25 }),
-    E2E_IMAGE_CALLS: "4",
-    E2E_MAX_PROVIDER_COST_USD: "0.9",
-    E2E_MAX_PAID_OPERATIONS: "3",
-    E2E_REPORT_FROM: "e2e-test-23-store@nicitaa.com",
-    E2E_REPORT_TO: "support@nicitaa.com",
-  }, { capabilities: [{
-    name: "image",
-    estimateName: "image_call",
-    callCountSetting: "E2E_IMAGE_CALLS",
-    minimumProviderCalls: 1,
-  }] }, blockers)
+test("provider actions use production configuration without a separate dollar budget", () => {
+  const callPlan = describeProviderCallPlan({ capabilities: [
+    { name: "image generation", scenarioId: "ai-tools" },
+    { name: "field translation", scenarioId: "product-background" },
+  ] })
 
-  assert.equal(budget.estimatedCostUsd, 1)
-  assert.equal(budget.maxProviderCalls, 4)
-  assert.ok(blockers.some(blocker => blocker.includes("Paid capability estimates total $1.0000")))
-  assert.ok(blockers.some(blocker => blocker.includes("Paid capability call limits total 4")))
+  assert.deepEqual(callPlan.capabilities, [
+    { name: "image generation", scenarioId: "ai-tools" },
+    { name: "field translation", scenarioId: "product-background" },
+  ])
+  assert.match(callPlan.policy, /records real provider attempts/)
 })
 
-test("monthly command records missing target in preflight instead of exiting before its report", async () => {
+test("weekly command records missing target in preflight instead of exiting before its report", async () => {
   const artifactDirectory = await mkdtemp(path.join(os.tmpdir(), "23-store-e2e-preflight-"))
 
   try {
-    const result = spawnSync(process.execPath, ["scripts/e2e/run-monthly.mjs"], {
+    const result = spawnSync(process.execPath, ["scripts/e2e/run-weekly.mjs"], {
       cwd: repositoryRoot,
       env: { PATH: "/usr/bin:/bin", E2E_ARTIFACT_DIR: artifactDirectory },
       encoding: "utf8",

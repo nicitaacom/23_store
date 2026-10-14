@@ -24,17 +24,8 @@ export async function POST(req: Request) {
     (await req.json()) as TAPIMessageSend
 
   if (!ticketId || !senderId || !senderUsername || (!messageBody && !images?.length) || !messageSender) {
-    console.log(
-      27,
-      `API_MESSAGES_SEND_ERROR - missing required fields \n
-       ticketId: ${ticketId} \n
-       senderId: ${senderId} \n
-       senderUsername: ${senderUsername} \n
-       messageBody: ${messageBody}
-       images: ${images} \n
-       messageSender: ${messageSender} \n`,
-    )
-    return NextResponse.json({ status: 400 })
+    console.error("Support message request is missing required fields")
+    return NextResponse.json({ error: "A support message needs a ticket, sender, and text or image." }, { status: 400 })
   }
 
   // dance arounding to insert current date-time
@@ -61,15 +52,8 @@ export async function POST(req: Request) {
   // eslint-disable-next-line local-rules/use-rls-supabase-client -- Required sender and ticket fields authorize this legacy anonymous-support write boundary.
   const { error: messages_error } = await supabaseAdmin.from("23_messages").insert(newMessage)
   if (messages_error) {
-    console.log(64, "error inserting newMessage - ", messages_error.message)
-    if (messages_error.message !== "TypeError: fetch failed") return
-    // fetch failed because internet connection may be not stable
-    return new NextResponse(
-      `Insert message in 'messages' error \n
-                Path:/api/message/send/route.ts \n
-                Error message:\n ${messages_error.message}`,
-      { status: 400 },
-    )
+    console.error("Support message could not be saved", messages_error)
+    return NextResponse.json({ error: "The support message could not be saved. Keep the draft and contact support if this continues." }, { status: 500 })
   }
 
   // 2. Update ticket in DB - last_message_body and is_open
@@ -78,31 +62,34 @@ export async function POST(req: Request) {
     .from("23_tickets")
     .update({ last_message_body: messageBody })
     .eq("id", ticketId)
-  if (tickets_error) {
-    console.log(82, "error updating ticket in DB - last_message_body and is_open - ", tickets_error)
-    return new NextResponse(
-      `Update ticket 'tickets' error \n
-                Path:/api/message/send/route.ts \n
-                Error message:\n ${tickets_error.message}`,
-      { status: 400 },
-    )
-  }
+  if (tickets_error) console.error("Support message was saved but ticket summary update failed", tickets_error)
 
+  let realtimeDelivered = true
+  try {
   // As usually user don't chat from 2 devices at one time so users don't need to immediately see their own messages on another devices
-  if (messageSender === "support") {
-    // 3. Trigger 'messages:new' event in ticketId channel to show unseen messages on user side
-    await pusherServer.trigger(ticketId, "messages:new", newMessage)
-  }
-  if (messageSender === "user") {
-    // 4. Trigger 'tickets:update' event in 'ticekts' channel to show unseen messages in DesktopSidebar on support side
-    await pusherServer.trigger("tickets", "tickets:update", {
-      id: ticketId, // to set messages body and unread for ticket.owner_id
-      last_message_body: messageBody, // to show last_message_body
-      images: images,
-      sender_avatar_url: senderAvatarUrl,
-      seen: false, // to show message as unread on support side
-    })
+    if (messageSender === "support") {
+      // 3. Trigger 'messages:new' event in ticketId channel to show unseen messages on user side
+      await pusherServer.trigger(ticketId, "messages:new", newMessage)
+    }
+    if (messageSender === "user") {
+      // 4. Trigger 'tickets:update' event in 'ticekts' channel to show unseen messages in DesktopSidebar on support side
+      await pusherServer.trigger("tickets", "tickets:update", {
+        id: ticketId, // to set messages body and unread for ticket.owner_id
+        last_message_body: messageBody, // to show last_message_body
+        images: images,
+        sender_avatar_url: senderAvatarUrl,
+        seen: false, // to show message as unread on support side
+      })
+    }
+  } catch (triggerError) {
+    realtimeDelivered = false
+    console.error("Support message was saved but its live update failed", triggerError)
   }
 
-  return NextResponse.json({ status: 200 })
+  return NextResponse.json({
+    status: 200,
+    messageSaved: true,
+    ticketMetadataUpdated: !tickets_error,
+    realtimeDelivered,
+  })
 }

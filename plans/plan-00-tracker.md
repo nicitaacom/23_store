@@ -51,7 +51,7 @@ One plan file per feature/fix. This tracker is the ONLY place where statuses liv
 | 22 | [plan-22-backup-storage-url-relink.md](plan-22-backup-storage-url-relink.md) | P1 | GPT-5 · high | done | plan-12 |
 | 23 | [plan-23-storage-buckets-email-slug.md](plan-23-storage-buckets-email-slug.md) | P1 | Opus · high | done - both stages, all 10 steps. The 6-bucket SQL and the cleanup_guest_support_images pg_cron job wait for Nikita to run them (SQL is in commit 22a59a97 / f099368e and be863ef5). §5 holds the 4 image prompts - Nikita runs them through an image generator | plan-22 |
 | 24 | [plan-24-project-5-and-browser-audit.md](plan-24-project-5-and-browser-audit.md) | P1 | GPT-6 · high | in progress - Project 5 cards and browser checks are tracked in the plan | — |
-| 25 | [plan-25-cypress-weekly-tests.md](plan-25-cypress-weekly-tests.md) | P1 | GPT-6 · high | in progress - monthly schedule uses the Actions free tier efficiently and redeployments do not trigger it; all 624 source operations and 1,216 async expressions are mapped; all 18 required journey files are authored; provider, isolated-maintenance, and runtime-coverage gaps remain | — |
+| 25 | [plan-25-cypress-weekly-tests.md](plan-25-cypress-weekly-tests.md) | P1 | GPT-6 · high | in progress - Monday 03:23 UTC production workflow; 661 request/provider operations and 1,311 async expressions map with no unmapped inventory items; 19 required journey specs; production runtime coverage and isolated-maintenance gaps remain | — |
 
 Priority note: no screenshot appears twice in `TODO/`, so the duplicate-screenshot rule (2 = P1, 3+ = P0) sets nothing — P1 here means "blocks users or is the main asked-for work".
 

@@ -1,14 +1,14 @@
 import type { Interception } from "cypress/types/net-stubbing"
 
-import { recordResource, recordVerifiedRoute } from "./support"
+import { recordResource, recordVerifiedRoute, recordVerifiedServiceOperation } from "./support"
 
-type TRunAccount = { id: string; email: string; password: string; role: string }
+type TRunAccount = { id: string; email: string; role: string }
 type TRunAccounts = Record<"owner" | "other" | "support" | "admin", TRunAccount>
 type TSupportMessage = { id: string; ticket_id: string; sender_id: string; sender_username: string; seen: boolean; body: string; images: string[] | null }
 type TSupportTicket = { id: string; owner_id: string; is_open: boolean; last_message_body: string; rate?: number | null }
 type TSupportReadback = { ticket: TSupportTicket; messages: TSupportMessage[]; verificationReference: string } | null
-type TStorageReference = { provider: "r2" | "supabase"; bucket: string; path: string }
-type TStorageDestination = { reference: TStorageReference; uploadId: string; signedUrl: string; headers: Record<string, string> }
+type TStorageReference = { provider: "r2" | "supabase"; bucket: string; path: string; publicUrl?: string }
+type TStorageDestination = { reference: TStorageReference; uploadId: string; signedUrl: string; publicUrl?: string; headers: Record<string, string> }
 const attachmentPath = "cypress/files/Sour Cream 30% Savya LITOVSKAYA.png"
 
 const scenarioId = "support"
@@ -21,7 +21,7 @@ describe("monthly real-service support conversation", function () {
   let attachmentReference: TStorageReference | null = null
 
   before(() => {
-    cy.task<TRunAccounts>("prepareRunAccounts").then(runAccounts => {
+    cy.prepareRunAccounts().then(runAccounts => {
       accounts = runAccounts
     })
   })
@@ -126,8 +126,11 @@ describe("monthly real-service support conversation", function () {
     let attachmentSendInterception: Interception
     cy.wait<Interception>("@telegramNotification", { timeout: 30000 }).then(interception => {
       expect(interception.response?.statusCode, "approved Telegram endpoint response").to.equal(200)
-      const providerMessageId = interception.response?.body?.data?.result?.message_id
+      const telegramResult = interception.response?.body?.data?.result
+      const providerMessageId = telegramResult?.message_id
+      const providerChatId = telegramResult?.chat?.id
       expect(providerMessageId, "actual Telegram message id").to.be.a("number")
+      expect(String(providerChatId), "Telegram returned the actual receiving chat id").not.to.equal("")
       return recordVerifiedRoute({
         method: "POST",
         route: "/api/telegram",
@@ -136,7 +139,18 @@ describe("monthly real-service support conversation", function () {
         providerId: String(providerMessageId),
         resourceId: ticketId,
         verificationReference: `telegram:accepted-message:${providerMessageId}:support-ticket:${ticketId}`,
-      })
+      }).then(() => recordVerifiedServiceOperation({
+        sourcePath: "app/utils/sendTelegramMessage.ts",
+        functionName: "sendTelegramMessage",
+        callName: "fetch",
+        requestId: String(interception.id),
+        scenarioId: "notifications",
+        operationScenarioId: "notifications",
+        resourceId: ticketId,
+        providerId: String(providerMessageId),
+        verificationReference: `telegram:${providerMessageId}:actual-message:configured-chat-match`,
+        details: { configuredChatMatched: true, providerAttempts: 1 },
+      }))
     })
     cy.wait<Interception>("@openTicket", { timeout: 30000 }).then(interception => {
       openInterception = interception
@@ -197,6 +211,7 @@ describe("monthly real-service support conversation", function () {
         provider: destination.reference.provider,
         bucket: destination.reference.bucket,
         path: destination.reference.path,
+        publicUrl: destination.publicUrl,
         scenarioId,
       }).then(() => recordVerifiedRoute({
         method: "POST",
@@ -216,6 +231,16 @@ describe("monthly real-service support conversation", function () {
       expect(interception.response?.statusCode).to.equal(200)
       uploadedImageUrl = String(interception.response?.body?.publicUrl ?? "")
       expect(uploadedImageUrl).to.contain(attachmentReference?.path)
+      if (attachmentReference) attachmentReference = { ...attachmentReference, publicUrl: uploadedImageUrl }
+      if (!attachmentReference) throw new Error("Support attachment reference was not retained after upload completion")
+      return recordResource("storage_object", attachmentReference.path, accounts.owner.id, {
+        provider: attachmentReference.provider,
+        bucket: attachmentReference.bucket,
+        path: attachmentReference.path,
+        publicUrl: uploadedImageUrl,
+        scenarioId,
+      })
+    }).then(() => {
       return cy.wait<Interception>("@sendSupportMessage", { timeout: 30000 })
     }).then(interception => {
       attachmentSendInterception = interception

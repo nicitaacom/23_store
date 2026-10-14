@@ -6,6 +6,7 @@ import { FiChevronDown } from "react-icons/fi"
 import { requestBetterPrices } from "./functions/requestBetterPrices"
 import { Button } from "../.."
 import { PaymentButtons } from "./PaymentButtons/PaymentButtons"
+import { DeliveryAddressAutocomplete } from "./DeliveryAddressAutocomplete"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import { useAreYouSureClearCartModal } from "@/store/ui/areYouSureClearCartModal"
@@ -19,6 +20,7 @@ import { Product } from "@/[locale]/(site)/components"
 // http://localhost:6006/?path=/story/commerce-cartcomposition--empty
 export function ProductsInCart() {
   const [arePaymentOptionsOpen, setArePaymentOptionsOpen] = useState(false)
+  const [deliveryAddress, setDeliveryAddress] = useState<API.ProductsCheckoutDeliveryAddress | null>(null)
   const t = useI18n()
   const locale = useCurrentLocale()
   const cartStore = useCartStore()
@@ -75,6 +77,8 @@ export function ProductsInCart() {
           </div>
         </div>
 
+        <DeliveryAddressAutocomplete onSelectionChange={setDeliveryAddress} />
+
         {/* 4. Actions — primary first, optional payments second, destructive last */}
         <div className="flex flex-col gap-2 laptop:mt-auto [&_button]:min-h-[44px]">
           <Button
@@ -100,9 +104,9 @@ export function ProductsInCart() {
             {t("product.other_ways_to_pay")}
           </Button>
 
-          {arePaymentOptionsOpen && <PaymentButtons />}
+          {arePaymentOptionsOpen && <PaymentButtons deliveryAddress={deliveryAddress ?? undefined} />}
 
-          <Button className="w-full" variant="danger-outline" size="md" onClick={areYouSureClearCartModal.openModal}>
+          <Button className="w-full" data-cy="clear-cart" variant="danger-outline" size="md" onClick={areYouSureClearCartModal.openModal}>
             {t("product.clear_cart")}
           </Button>
         </div>

@@ -2,16 +2,17 @@ import type { Interception } from "cypress/types/net-stubbing"
 
 import { recordResource, recordVerifiedRoute, reservePaidScenarioOperation, settlePaidScenarioOperation } from "./support"
 
-type TRunAccount = { id: string; email: string; password: string; role: string }
+type TRunAccount = { id: string; email: string; role: string }
 type TRunAccounts = Record<"owner" | "other" | "support" | "admin", TRunAccount>
 type TMemorySnapshot = {
+  requestId: string
   historyKey: string
   history: Array<{ role: "user" | "assistant"; text: string }>
   vectorRecords: Array<{ id: string; role: "user" | "assistant"; text: string }>
   verificationReference: string
 }
 type TChatResponse = {
-  openai?: { choices?: Array<{ message?: { content?: string | null; function_call?: { name?: string } | null } }> }
+  assistantMessage?: { content?: string | null; functionCall?: { name?: string; arguments?: string } }
   memory?: string
   error?: string
   reply?: string
@@ -47,7 +48,7 @@ describe("monthly real-service sales chat and persistent memory", function () {
   let paidOperations: Array<{ operationKey: string; reserved: boolean; attempted: boolean; settled: boolean }> = []
 
   before(() => {
-    cy.task<TRunAccounts>("prepareRunAccounts").then(runAccounts => {
+    cy.prepareRunAccounts().then(runAccounts => {
       accounts = runAccounts
     })
   })
@@ -67,7 +68,17 @@ describe("monthly real-service sales chat and persistent memory", function () {
           const expectedRedisKey = `ai:history:${accounts.owner.id}`
           expect(snapshot.historyKey).to.equal(expectedRedisKey)
           expect(snapshot.vectorRecords.every(record => /^(user|assistant):\d+:[0-9a-f-]+$/i.test(record.id))).to.equal(true)
-          return { cleanupComplete: true as const }
+          return cy.task<{ requestId: string; verificationReference: string }>("clearRunAiMemory", accounts.owner.id, { log: false })
+            .then(cleanup => recordVerifiedRoute({
+              method: "POST",
+              route: "/api/e2e/ai-memory",
+              scenarioId: "ai-chat-memory",
+              requestId: cleanup.requestId,
+              resourceId: accounts.owner.id,
+              verificationReference: cleanup.verificationReference,
+              details: { action: "clear", cleanup: true },
+            }))
+            .then(() => ({ cleanupComplete: true as const }))
         }))
     }
 
@@ -132,26 +143,46 @@ describe("monthly real-service sales chat and persistent memory", function () {
         return recordResource("redis_key", initial.historyKey, accounts.owner.id, {
           provider: "upstash",
           purpose: "sales-assistant-history",
-        })
+        }).then(() => recordVerifiedRoute({
+          method: "POST",
+          route: "/api/e2e/ai-memory",
+          scenarioId: "ai-chat-memory",
+          requestId: initial.requestId,
+          resourceId: accounts.owner.id,
+          verificationReference: `${initial.verificationReference};initial-empty-snapshot`,
+          details: { action: "snapshot" },
+        }))
       })
       .then(() => {
         salesState.attempted = true
-        return browserRequest<TChatResponse>("/api/ai/sales-assistant", {
-          promptValue: prompt,
-          memory: "",
-          conversationHistory: [],
-        })
+        cy.intercept("POST", "/api/ai/sales-assistant").as("salesAssistantFromChatUI")
+        return cy.get("[data-cy=ai-chat-input]").then($input => {
+          if (!$input.is(":visible")) return cy.get("[data-cy=ai-chat-toggle]").click()
+          return cy.wrap(null)
+        }).then(() => cy.get("[data-cy=ai-chat-input]").should("be.enabled").type(prompt))
+          .then(() => cy.get("[data-cy=ai-chat-send]").should("be.enabled").click())
+          .then(() => cy.wait<Interception>("@salesAssistantFromChatUI", { timeout: 180000 }))
+          .then(interception => {
+            const response = interception.response
+            return {
+              statusCode: response?.statusCode ?? 0,
+              body: response?.body as TChatResponse,
+              interception,
+            }
+          })
       })
       .then(chatResult => {
         expect(chatResult.statusCode, "real sales assistant route response").to.equal(200)
         expect(chatResult.body.error).to.equal(undefined)
         expect(chatResult.body.reply).to.equal(undefined)
-        const assistantReply = chatResult.body.openai?.choices?.[0]?.message?.content?.trim() ?? ""
+        const assistantReply = chatResult.body.assistantMessage?.content?.trim() ?? ""
         expect(assistantReply.length, "real nonempty assistant reply").to.be.greaterThan(0)
-        expect(chatResult.body.openai?.choices?.[0]?.message?.function_call?.name).to.equal(undefined)
+        expect(chatResult.body.assistantMessage?.functionCall?.name).to.equal(undefined)
         expect(typeof chatResult.body.memory).to.equal("string")
-        return cy.task<TMemorySnapshot>("captureRunAiMemory", accounts.owner.id, { log: false })
-          .then(snapshot => ({ chatResult, assistantReply, snapshot }))
+        return cy.get("[data-cy=ai-chat-messages]").should("contain.text", assistantReply).then(() =>
+          cy.task<TMemorySnapshot>("captureRunAiMemory", accounts.owner.id, { log: false })
+            .then(snapshot => ({ chatResult, assistantReply, snapshot })),
+        )
       })
       .then(({ chatResult, assistantReply, snapshot }) => {
         const userTurn = snapshot.history.find(message => message.role === "user" && message.text === prompt)
@@ -162,6 +193,14 @@ describe("monthly real-service sales chat and persistent memory", function () {
         expect(matchingVectors, "user and assistant embeddings were independently fetched from Pinecone").to.have.length(2)
         expect(matchingVectors.map(record => record.role)).to.have.members(["user", "assistant"])
         return recordVerifiedRoute({
+          method: "POST",
+          route: "/api/e2e/ai-memory",
+          scenarioId: "ai-chat-memory",
+          requestId: snapshot.requestId,
+          resourceId: accounts.owner.id,
+          verificationReference: `${snapshot.verificationReference};first-user-and-assistant-turn-read-back`,
+          details: { action: "snapshot" },
+        }).then(() => recordVerifiedRoute({
           method: "POST",
           route: "/api/ai/sales-assistant",
           scenarioId: "ai-chat-memory",
@@ -181,7 +220,7 @@ describe("monthly real-service sales chat and persistent memory", function () {
             assistantReply: memoryReply,
             memory: chatResult.body.memory ?? "",
           })
-        })
+        }))
       })
       .then(memoryResult => {
         expect(memoryResult.statusCode, "real persistent-memory route response").to.equal(200)
@@ -196,6 +235,14 @@ describe("monthly real-service sales chat and persistent memory", function () {
         expect(snapshot.vectorRecords.some(record => record.role === "user" && record.text === memoryPrompt)).to.equal(true)
         expect(snapshot.vectorRecords.some(record => record.role === "assistant" && record.text === memoryReply)).to.equal(true)
         return recordVerifiedRoute({
+          method: "POST",
+          route: "/api/e2e/ai-memory",
+          scenarioId: "ai-chat-memory",
+          requestId: snapshot.requestId,
+          resourceId: accounts.owner.id,
+          verificationReference: `${snapshot.verificationReference};second-turn-read-back`,
+          details: { action: "snapshot" },
+        }).then(() => recordVerifiedRoute({
           method: "POST",
           route: "/api/ai/sales-assistant/memory",
           scenarioId: "ai-chat-memory",
@@ -213,7 +260,7 @@ describe("monthly real-service sales chat and persistent memory", function () {
             verifiedPineconeVectors: snapshot.vectorRecords.length,
           },
         }))
-      })
+        )})
       .then(() => {
         salesState.settled = true
         memoryState.settled = true

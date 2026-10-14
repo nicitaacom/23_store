@@ -34,6 +34,7 @@ export function DragAndDropArea() {
               "absolute inset-0 transition-all duration-200",
               isDragging ? "pointer-events-auto" : "pointer-events-none",
             )}
+            data-cy="support-attachment-drop-zone"
             {...dragProps}
             onDrop={event => {
               dragProps.onDrop(event)

@@ -1059,6 +1059,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               </span>
               <input
                 className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/70 focus:border-success-accent/35 focus:bg-white/[0.09]"
+                data-cy="add-product-variant-label"
                 ref={variantLabelInputRef}
                 value={variantLabelValue}
                 onChange={event => changeVariantLabel(event.target.value)}
@@ -1072,6 +1073,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               </span>
               <input
                 className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/70 focus:border-success-accent/35 focus:bg-white/[0.09]"
+                data-cy="add-product-variant-price"
                 value={variantPriceValue}
                 onChange={event => setVariantPriceValue(formatGroupedNumberInput(event.target.value))}
                 placeholder={t("placeholder.price")}
@@ -1085,6 +1087,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               </span>
               <input
                 className="h-10 w-full rounded border border-white/15 bg-white/[0.07] px-3 text-[14px] text-white outline-none transition-colors placeholder:text-white/70 focus:border-success-accent/35 focus:bg-white/[0.09]"
+                data-cy="add-product-variant-quantity"
                 value={variantQuantityValue}
                 onChange={event => setVariantQuantityValue(formatGroupedNumberInput(event.target.value))}
                 placeholder="0"
@@ -1094,6 +1097,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             </label>
             <button
               className="h-10 rounded border border-success-accent/30 bg-success-accent/10 px-4 text-[13px] font-semibold text-success-accent transition-colors tablet:self-end hover:bg-success-accent/15 disabled:cursor-default disabled:opacity-40"
+              data-cy="add-product-variant-submit"
               type="button"
               onClick={addVariant}
               disabled={isLoading || variants.length >= MAX_PRODUCT_VARIANTS}>

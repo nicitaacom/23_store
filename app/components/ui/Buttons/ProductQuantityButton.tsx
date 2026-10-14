@@ -47,6 +47,7 @@ export function ProductQuantityButton({ className, productId, action, variantId 
           className,
         )}
         type="button"
+        data-cy={`product-quantity-${action}-${productId}${variantId ? `-${variantId}` : ""}`}
         aria-label={t(action === "increase" ? "increase_quantity" : "decrease_quantity")}
         onClick={handleClick}>
         {action === "increase" ? "+" : "−"}
@@ -62,6 +63,7 @@ export function ProductQuantityButton({ className, productId, action, variantId 
       size="md"
       rounded="lg"
       shadow="sm"
+      data-cy={`product-quantity-clear-${productId}${variantId ? `-${variantId}` : ""}`}
       rightIcon={<MdOutlineDeleteOutline className="text-danger" />}
       onClick={handleClick}>
       {t("clear")}

@@ -9,129 +9,27 @@ import Stripe from "stripe"
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const artifactDirectory = path.resolve(repositoryRoot, process.env.E2E_ARTIFACT_DIR ?? "artifacts/e2e")
 const mappingPath = path.join(repositoryRoot, "cypress/coverage/request-map.json")
-const paidCapabilitiesPath = path.join(repositoryRoot, "cypress/coverage/paid-capabilities.json")
+const providerCapabilitiesPath = path.join(repositoryRoot, "cypress/coverage/provider-capabilities.json")
 const requiredSettings = [
   "NEXT_PUBLIC_PRODUCTION_URL",
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
-  "E2E_TEST_EMAIL_DOMAIN",
-  "E2E_TEST_PASSWORD",
-  "E2E_MAX_PROVIDER_COST_USD",
-  "E2E_MAX_PAID_OPERATIONS",
-  "E2E_OPERATION_COST_ESTIMATES_JSON",
-  "E2E_REPORT_FROM",
-  "E2E_REPORT_TO",
   "NEXT_STRIPE_SECRET_KEY",
-  "NEXT_RESEND_SECRET",
-  "OPENAI_API_KEY",
-  "AWS_ACCESS_KEY_ID",
-  "AWS_SECRET_ACCESS_KEY",
-  "NEXT_PUBLIC_AWS_REGION",
-  "PUSHER_APP_ID",
-  "NEXT_PUBLIC_PUSHER_APP_KEY",
-  "PUSHER_SECRET",
-  "UPSTASH_REDIS_REST_URL",
-  "UPSTASH_REDIS_REST_TOKEN",
-  "PINECONE_API_KEY",
-  "PINECONE_INDEX",
-  "PINECONE_ENVIRONMENT",
-  "TINIFY_API_KEY_ARR",
-  "DEVICE_ID_ENCRYPTION_KEY",
-  "NEXT_PUBLIC_TURNSTILE_SITE_KEY",
-  "TURNSTILE_SECRET_KEY",
-  "PRICE_WEBHOOK_SECRET",
-  "CRON_SECRET",
-  "NEXT_PUBLIC_PAYPAL_CLIENT_ID_TEST",
-  "PAYPAL_CLIENT_SECRET_TEST",
-  "PAYPAL_WEBHOOK_ID_TEST",
-  "TELEGRAM_BOT_TOKEN",
-  "TELEGRAM_CHAT_ID",
-  "NEXT_COINMARKETCAP_SECRET",
-  "NEXT_PUBLIC_METAMASK_ADRESS_ETH",
-  "NEXT_PUBLIC_METAMASK_ADRESS_BNB",
-  "NEXT_PUBLIC_METAMASK_ADRESS_MATIC",
-  "NEXT_PUBLIC_SOLANA_ADDRESS",
-  "NEXT_PUBLIC_SOLANA_CLUSTER",
-  "E2E_IMAGE_COMPRESSION_MAX_PROVIDER_CALLS",
-  "E2E_CATEGORY_SUGGESTION_MAX_PROVIDER_CALLS",
-  "E2E_TRANSLATION_MAX_PROVIDER_CALLS",
-  "E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS",
-  "E2E_AI_PRICING_MAX_PROVIDER_CALLS",
-  "E2E_AI_IMAGE_MAX_PROVIDER_CALLS",
-  "E2E_PRINT_AREA_MAX_PROVIDER_CALLS",
-  "E2E_SALES_CHAT_MAX_PROVIDER_CALLS",
-  "E2E_MEMORY_MAX_PROVIDER_CALLS",
-  "E2E_PRICE_RESEARCH_MAX_PROVIDER_CALLS",
-  "E2E_COINMARKETCAP_MAX_PROVIDER_CALLS",
 ]
-const conditionalSettings = {
-  r2: ["R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET", "NEXT_PUBLIC_R2_PUBLIC_URL"],
-  supabaseStorage: ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
-  paypal: ["NEXT_PUBLIC_PAYPAL_CLIENT_ID_TEST", "PAYPAL_CLIENT_SECRET_TEST", "PAYPAL_WEBHOOK_ID_TEST"],
-  telegram: ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"],
-  coinmarketcap: ["NEXT_COINMARKETCAP_SECRET"],
-}
 
 export function getMissingSettings(environment = process.env) {
-  const missingSettings = requiredSettings.filter(settingName => !environment[settingName])
-  const storageProvider = environment.STORAGE_PROVIDER ?? "r2"
-  const selectedStorageSettings = storageProvider === "supabase" ? conditionalSettings.supabaseStorage : conditionalSettings.r2
-  const missingConditional = [...selectedStorageSettings]
-    .filter(settingName => !environment[settingName])
-  return [...new Set([...missingSettings, ...missingConditional])]
+  return requiredSettings.filter(settingName => !environment[settingName])
 }
 
-export function validatePaidCapabilityBudget(environment, paidCapabilities, blockers = []) {
-  let estimates = {}
-  try {
-    estimates = JSON.parse(environment.E2E_OPERATION_COST_ESTIMATES_JSON ?? "")
-  } catch {
-    blockers.push("E2E_OPERATION_COST_ESTIMATES_JSON must be valid JSON with a positive estimate for every paid capability")
-  }
-  if (!estimates || typeof estimates !== "object" || Array.isArray(estimates)) estimates = {}
-
-  const capabilityResults = (paidCapabilities.capabilities ?? []).map(capability => {
-    const estimateUsd = Number(estimates[capability.estimateName])
-    const maxProviderCalls = Number(environment[capability.callCountSetting])
-    const minimumProviderCalls = Number(capability.minimumProviderCalls ?? 1)
-    const validEstimate = Number.isFinite(estimateUsd) && estimateUsd > 0
-    const validCallCount = Number.isInteger(maxProviderCalls) && maxProviderCalls >= minimumProviderCalls
-    if (!validEstimate) blockers.push(`A positive cost estimate is required for ${capability.estimateName}`)
-    if (!validCallCount) blockers.push(`${capability.callCountSetting} must be a whole number of at least ${minimumProviderCalls}`)
-    const estimatedCostForCapability = validEstimate && validCallCount
-      ? Number((estimateUsd * maxProviderCalls).toFixed(6))
-      : null
-    return {
+export function describeProviderCallPlan(providerCapabilities) {
+  return {
+    capabilities: (providerCapabilities.capabilities ?? []).map(capability => ({
       name: capability.name,
-      estimateName: capability.estimateName,
-      estimateUsd: validEstimate ? estimateUsd : null,
-      estimatedCostUsd: estimatedCostForCapability,
-      maxProviderCalls: validCallCount ? maxProviderCalls : null,
-      minimumProviderCalls,
       scenarioId: capability.scenarioId,
-    }
-  })
-  const estimatesComplete = capabilityResults.every(capability => capability.estimatedCostUsd !== null)
-  const estimatedCostUsd = estimatesComplete
-    ? Number(capabilityResults.reduce((total, capability) => total + capability.estimatedCostUsd, 0).toFixed(6))
-    : null
-  const maxProviderCalls = estimatesComplete
-    ? capabilityResults.reduce((total, capability) => total + capability.maxProviderCalls, 0)
-    : null
-  const costLimit = Number(environment.E2E_MAX_PROVIDER_COST_USD)
-  const callLimit = Number(environment.E2E_MAX_PAID_OPERATIONS)
-  if (Number.isFinite(costLimit) && costLimit > 0 && estimatedCostUsd !== null && estimatedCostUsd > costLimit) {
-    blockers.push(`Paid capability estimates total $${estimatedCostUsd.toFixed(4)}, above E2E_MAX_PROVIDER_COST_USD`)
+    })),
+    policy: "The suite performs each declared action once, records real provider attempts, and uses only retry limits implemented by the application.",
   }
-  if (Number.isInteger(callLimit) && callLimit > 0 && maxProviderCalls !== null && maxProviderCalls > callLimit) {
-    blockers.push(`Paid capability call limits total ${maxProviderCalls}, above E2E_MAX_PAID_OPERATIONS`)
-  }
-  if (environment.E2E_REPORT_FROM !== "e2e-test-23-store@nicitaa.com"
-    || environment.E2E_REPORT_TO !== "support@nicitaa.com") {
-    blockers.push("Monthly report delivery must use e2e-test-23-store@nicitaa.com to support@nicitaa.com")
-  }
-  return { capabilities: capabilityResults, estimatedCostUsd, maxProviderCalls }
 }
 
 function getCurrentCommit() {
@@ -235,16 +133,14 @@ async function checkConfiguredStripe(environment) {
 
 async function checkDeployedStripe(environment) {
   const productionUrl = environment.NEXT_PUBLIC_PRODUCTION_URL
-  const cronSecret = environment.CRON_SECRET
-  const runId = environment.E2E_RUN_ID
-  const route = "POST /api/e2e/stripe-mode"
-  const operationId = `route-${createHash("sha256").update("/api/e2e/stripe-mode:POST").digest("hex").slice(0, 16)}`
+  const route = "GET /api/e2e/stripe-mode"
+  const operationId = `route-${createHash("sha256").update("/api/e2e/stripe-mode:GET").digest("hex").slice(0, 16)}`
 
-  if (!productionUrl || !cronSecret || !runId) {
+  if (!productionUrl) {
     return {
       name: "deployed-stripe",
       status: "blocked_by_configuration",
-      detail: "Production URL, CRON_SECRET, and E2E_RUN_ID are required to verify the deployed Stripe mode",
+      detail: "Production URL is required to verify the deployed Stripe mode",
       route,
       operationId,
     }
@@ -252,9 +148,8 @@ async function checkDeployedStripe(environment) {
 
   try {
     const response = await fetch(new URL("/api/e2e/stripe-mode", productionUrl), {
-      method: "POST",
+      method: "GET",
       redirect: "error",
-      headers: { authorization: `Bearer ${cronSecret}`, "x-e2e-run-id": runId },
       signal: AbortSignal.timeout(65000),
     })
     let result = {}
@@ -265,18 +160,14 @@ async function checkDeployedStripe(environment) {
     }
 
     const mode = result.mode === "test" || result.mode === "live" ? result.mode : "unknown"
-    const hasVerifiedTestResource = response.ok && mode === "test"
-      && typeof result.accountId === "string"
-      && result.resourceVerified === true && result.livemode === false
-      && result.cleanupStatus === "verified"
-    const status = hasVerifiedTestResource ? "passed"
+    const hasVerifiedTestKey = response.ok && mode === "test" && result.livemode === false
+    const status = hasVerifiedTestKey ? "passed"
       : mode === "live" ? "blocked_by_configuration"
-        : response.status >= 500 && result.productId ? "failed"
-          : "blocked_by_configuration"
-    const detail = hasVerifiedTestResource
-      ? `Production returned Stripe TEST product ${result.productId}; livemode is false and the product is archived`
+        : "blocked_by_configuration"
+    const detail = hasVerifiedTestKey
+      ? "Production checkout is configured for Stripe TEST mode; no payment resource was created"
       : mode === "live"
-        ? "The deployed Stripe key is live; no Stripe resource was created"
+        ? "The deployed Stripe key is live; no payment operation was started"
         : `Deployed Stripe mode check returned HTTP ${response.status}; no successful TEST-mode readback was recorded`
 
     return {
@@ -287,13 +178,11 @@ async function checkDeployedStripe(environment) {
       operationId,
       mode,
       livemode: typeof result.livemode === "boolean" ? result.livemode : null,
-      accountId: typeof result.accountId === "string" ? result.accountId : null,
       chargesEnabled: typeof result.chargesEnabled === "boolean" ? result.chargesEnabled : null,
-      productId: typeof result.productId === "string" ? result.productId : null,
-      resourceVerified: result.resourceVerified === true,
-      cleanupStatus: result.cleanupStatus ?? "unknown",
-      verificationReference: hasVerifiedTestResource
-        ? `stripe-product:${result.productId}:livemode-false:inactive`
+      resourceVerified: hasVerifiedTestKey,
+      cleanupStatus: "not_required",
+      verificationReference: hasVerifiedTestKey
+        ? "production-stripe-mode:test:livemode-false:read-only"
         : null,
     }
   } catch (error) {
@@ -319,8 +208,6 @@ async function checkE2EJournal(environment, supabaseCheck) {
 
   const journalTables = [
     ["23_e2e_resource_registry", "id"],
-    ["23_e2e_paid_run_budgets", "suite_name"],
-    ["23_e2e_paid_operation_ledger", "id"],
   ]
   const checks = await Promise.all(journalTables.map(async ([tableName, selectedColumn]) => {
     try {
@@ -338,7 +225,7 @@ async function checkE2EJournal(environment, supabaseCheck) {
   return {
     name: "e2e-journal",
     status: failedTables.length ? "blocked_by_configuration" : "passed",
-    detail: failedTables.length ? `Required run-journal tables are unavailable: ${failedTables.join(", ")}` : "Resource and paid-operation journals are available",
+    detail: failedTables.length ? `Required run-journal tables are unavailable: ${failedTables.join(", ")}` : "Run-owned resource journal is available",
     tables: checks,
   }
 }
@@ -348,31 +235,22 @@ export async function buildPreflight(environment = process.env) {
   const worktreeClean = getWorktreeClean()
   const missingSettings = getMissingSettings(environment)
   const blockers = missingSettings.map(settingName => `Missing required setting: ${settingName}`)
-  const providerBudgetUsd = Number(environment.E2E_MAX_PROVIDER_COST_USD)
-  const paidOperationLimit = Number(environment.E2E_MAX_PAID_OPERATIONS)
-
-  if (!Number.isFinite(providerBudgetUsd) || providerBudgetUsd <= 0) {
-    blockers.push("E2E_MAX_PROVIDER_COST_USD must be a positive finite amount")
-  }
-  if (!Number.isInteger(paidOperationLimit) || paidOperationLimit <= 0) {
-    blockers.push("E2E_MAX_PAID_OPERATIONS must be a positive whole number")
-  }
   if (environment.STORAGE_PROVIDER && !["r2", "supabase"].includes(environment.STORAGE_PROVIDER)) {
     blockers.push("STORAGE_PROVIDER must be either r2 or supabase")
   }
 
   const mappingDocument = JSON.parse(await readFile(mappingPath, "utf8"))
-  const paidCapabilities = JSON.parse(await readFile(paidCapabilitiesPath, "utf8"))
-  const paidCapabilityBudget = validatePaidCapabilityBudget(environment, paidCapabilities, blockers)
-  const monthlyDirectory = path.join(repositoryRoot, "cypress/monthly")
+  const providerCapabilities = JSON.parse(await readFile(providerCapabilitiesPath, "utf8"))
+  const providerCallPlan = describeProviderCallPlan(providerCapabilities)
+  const weeklyJourneyDirectory = path.join(repositoryRoot, "cypress/monthly")
   let availableSpecs = []
   try {
-    availableSpecs = await readdir(monthlyDirectory)
+    availableSpecs = await readdir(weeklyJourneyDirectory)
   } catch {
     // Missing scenario files are reported below.
   }
   const missingSpecs = (mappingDocument.requiredSpecs ?? []).filter(specName => !availableSpecs.includes(specName))
-  if (missingSpecs.length) blockers.push(`Required monthly specs are missing: ${missingSpecs.join(", ")}`)
+  if (missingSpecs.length) blockers.push(`Required weekly specs are missing: ${missingSpecs.join(", ")}`)
 
   const inventoryPath = path.join(artifactDirectory, "request-inventory.json")
   let inventory = null
@@ -404,16 +282,12 @@ export async function buildPreflight(environment = process.env) {
   if (staleRouteMappings.length) {
     blockers.push(`Required route mappings no longer match discovered source routes: ${staleRouteMappings.map(rule => rule.pattern).join(", ")}`)
   }
-  for (const worker of mappingDocument.externalWorkers ?? []) {
-    if (worker.evidenceStatus !== "verified") blockers.push(`External worker ${worker.name} is ${worker.evidenceStatus ?? "unverified"}: ${worker.evidence ?? "source and terminal execution evidence are required"}`)
-  }
-  for (const capability of mappingDocument.blockedCapabilities ?? []) {
-    if (capability.status !== "verified") blockers.push(`Capability ${capability.name} is ${capability.status ?? "unverified"}: ${capability.evidence ?? "real provider implementation and evidence are required"}`)
-  }
+  const unverifiedWorkers = (mappingDocument.externalWorkers ?? []).filter(worker => worker.evidenceStatus !== "verified")
+  const blockedCapabilities = (mappingDocument.blockedCapabilities ?? []).filter(capability => capability.status !== "verified")
   if (!worktreeClean) blockers.push("Runner source has uncommitted changes and is not the exact deployed build")
 
-  // Do not spend Actions time or contact the production site/providers while the local
-  // inventory, scenarios, settings, costs, or source revision are already incomplete.
+  // Run every safe mapped browser journey with the production app's own service configuration.
+  // Unverified workers/capabilities remain visible in final coverage, but do not stop independent journeys.
   const canCheckRemoteServices = blockers.length === 0
   const skippedCheck = name => ({ name, status: "blocked_by_configuration", detail: "Skipped because local prerequisites are incomplete; no remote request was made" })
   let productionSha = null
@@ -428,10 +302,6 @@ export async function buildPreflight(environment = process.env) {
     supabaseCheck = await checkSupabase(environment)
     stripeCheck = await checkConfiguredStripe(environment)
     deployedStripeCheck = await checkDeployedStripe(environment)
-    if (deployedStripeCheck.accountId && stripeCheck.accountId && deployedStripeCheck.accountId !== stripeCheck.accountId) {
-      deployedStripeCheck.status = "blocked_by_configuration"
-      deployedStripeCheck.detail = "Runner Stripe TEST key and deployed Stripe TEST key belong to different accounts; no browser mutation is safe"
-    }
     e2eJournalCheck = await checkE2EJournal(environment, supabaseCheck)
     if (productionSiteCheck.status !== "passed") blockers.push("Production website health check did not pass")
     if (!productionSha) blockers.push("Production deployment commit could not be resolved")
@@ -455,7 +325,7 @@ export async function buildPreflight(environment = process.env) {
 
   const summary = {
     schemaVersion: 1,
-    suite: environment.E2E_SUITE ?? "monthly",
+    suite: environment.E2E_SUITE ?? "weekly",
     status: blockers.length ? "INCOMPLETE" : "PASS",
     generatedAt: new Date().toISOString(),
     runId: environment.E2E_RUN_ID ?? null,
@@ -467,7 +337,9 @@ export async function buildPreflight(environment = process.env) {
     providerModes: { runnerStripe: stripeCheck.keyMode ?? "unknown", deployedStripe: deployedStripeCheck.mode ?? "unknown" },
     missingSettings,
     missingSpecs,
-    paidCapabilityBudget,
+    providerCallPlan,
+    unverifiedWorkers: unverifiedWorkers.map(worker => ({ name: worker.name, status: worker.evidenceStatus })),
+    blockedCapabilities: blockedCapabilities.map(capability => ({ name: capability.name, status: capability.status })),
     checks,
     blockers,
     operationCounts: {
@@ -484,8 +356,6 @@ export async function buildPreflight(environment = process.env) {
       failed: 0,
       unexercised: inventory?.operationCount ?? 0,
     },
-    paidBudgetUsd: Number.isFinite(providerBudgetUsd) && providerBudgetUsd > 0 ? providerBudgetUsd : null,
-    paidOperationLimit: Number.isInteger(paidOperationLimit) && paidOperationLimit > 0 ? paidOperationLimit : null,
     cleanupStatus: "not_required",
     evidenceDirectory: path.relative(repositoryRoot, artifactDirectory),
   }

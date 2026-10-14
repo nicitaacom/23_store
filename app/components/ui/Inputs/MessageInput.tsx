@@ -9,6 +9,7 @@ import { uploadImagesAndSendMessage } from "@/functions/support/uploadImagesAndS
 import { useI18n } from "@/locales/client"
 import { useMessages } from "@/store/ui/useMessages"
 import { useSupportPrefilledMessage } from "@/store/ui/useSupportPrefilledMessage"
+import useToast from "@/store/ui/useToast"
 import { PastedImagePreview } from "@/components/SupportButton/components/PastedImagePreview"
 
 interface MessageInputProps {
@@ -49,15 +50,23 @@ export function MessageInput({ className, placeholder, onSend }: MessageInputPro
 
     if (onSend) {
       const messageBody = messageBodyValue.trim()
-      setMessageBodyValue("")
-      setHeight(36)
-      await onSend(messageBody, image)
+      try {
+        await onSend(messageBody, image)
+        setMessageBodyValue("")
+        setHeight(36)
+      } catch (error) {
+        console.error("Support reply failed", error)
+        useToast.getState().show("error", t("message.error.not_saved_title"), t("message.error.not_saved_body"))
+      }
       return
     }
 
-    setMessageBodyValue("")
-    setHeight(36)
-    await uploadImagesAndSendMessage(t, setHeight, messageBodyValue.trim(), userId, textareaRef)
+    try {
+      await uploadImagesAndSendMessage(t, setHeight, messageBodyValue.trim(), userId, textareaRef)
+    } catch (error) {
+      console.error("Support message submission failed", error)
+      useToast.getState().show("error", t("message.error.not_saved_title"), t("message.error.not_saved_body"))
+    }
   }
 
   const handleKeyDown = async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {

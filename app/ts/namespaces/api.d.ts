@@ -18,9 +18,19 @@ declare namespace API {
     }>
   }
   type AISalesAssistantRequest = { promptValue: string; memory: string; conversationHistory: TAIChatMessage[] }
-  type AISalesAssistantResponse = { openai: Record<string, unknown>; memory: string; debug?: AISalesAssistantDebug }
+  type AISalesAssistantResponse = {
+    assistantMessage: {
+      content: string
+      functionCall?: { name: string; arguments: string }
+    }
+    memory: string
+    error?: string
+    code?: string
+    warnings?: string[]
+    debug?: AISalesAssistantDebug
+  }
   type AISalesAssistantMemoryRequest = { userPrompt: string; assistantReply: string; memory: string }
-  type AISalesAssistantMemoryResponse = { memory: string; error?: string }
+  type AISalesAssistantMemoryResponse = { memory: string; error?: string; warnings?: string[] }
 
   // api/ai/
   type AIRequest = { prompt: string }
@@ -41,7 +51,7 @@ declare namespace API {
         coveragePct: number
         spillPct: number
       }
-    | { error: string }
+    | { error: string; code?: string }
 
   // /api/rateLimit
   type RateLimitRequest = {

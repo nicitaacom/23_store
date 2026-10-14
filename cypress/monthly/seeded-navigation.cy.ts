@@ -2,7 +2,7 @@ import type { Interception } from "cypress/types/net-stubbing"
 
 import { recordVerifiedRoute, recordVerifiedServiceOperation } from "./support"
 
-type TRunAccount = { id: string; email: string; password: string; role: string }
+type TRunAccount = { id: string; email: string; role: string }
 type TRunAccounts = Record<"owner" | "other" | "support" | "admin", TRunAccount>
 type TProductFixture = {
   id: string
@@ -54,7 +54,7 @@ describe("monthly seeded real-service navigation", function () {
   let product: TProductFixture | null = null
 
   before(() => {
-    cy.task<TRunAccounts>("prepareRunAccounts").then(runAccounts => {
+    cy.prepareRunAccounts().then(runAccounts => {
       accounts = runAccounts
     })
   })

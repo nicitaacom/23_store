@@ -59,6 +59,9 @@ export async function verifyStripeTestCheckoutSession(environment, input) {
   if (session.status !== "open" || session.payment_status !== "unpaid") {
     throw new Error("New Stripe TEST Checkout session is not open and unpaid")
   }
+  if (input.expectedUserId && session.client_reference_id !== input.expectedUserId) {
+    throw new Error("Stripe TEST Checkout account reference differs from the signed-in run-owned user")
+  }
   if (session.currency !== "usd" || session.amount_total !== input.amountCents) {
     throw new Error("Stripe TEST Checkout session total differs from the submitted items")
   }
@@ -77,6 +80,51 @@ export async function verifyStripeTestCheckoutSession(environment, input) {
   if (!session.url?.startsWith("https://checkout.stripe.com/")) {
     throw new Error("Stripe TEST Checkout session did not return its hosted payment page")
   }
+
+  let lineItemReadback = null
+  if (input.expectedLineItem) {
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 })
+    if (lineItems.data.length !== 1) throw new Error("Stripe TEST Checkout line-item count differs from the single run-owned cart product")
+    const [lineItem] = lineItems.data
+    const expected = input.expectedLineItem
+    if (lineItem.description !== expected.name || lineItem.quantity !== expected.quantity
+      || lineItem.price?.unit_amount !== expected.unitAmount) {
+      throw new Error("Stripe TEST Checkout title, quantity, or unit price differs from the cart selection")
+    }
+
+    const productId = typeof lineItem.price?.product === "string"
+      ? lineItem.price.product
+      : lineItem.price?.product?.id
+    const priceId = lineItem.price?.id
+    if (!productId || !priceId) throw new Error("Stripe TEST Checkout line item did not resolve to an exact product and price")
+    const product = await stripe.products.retrieve(productId)
+    if (product.livemode || product.name !== expected.name) {
+      throw new Error("Stripe TEST Checkout product title or mode differs from the cart selection")
+    }
+    if (expected.imageUrl && !product.images.includes(expected.imageUrl)) {
+      throw new Error("Stripe TEST Checkout product image differs from the image selected in the cart")
+    }
+    lineItemReadback = {
+      productId: product.id,
+      priceId,
+      name: product.name,
+      images: product.images,
+      quantity: lineItem.quantity,
+      unitAmount: lineItem.price?.unit_amount,
+      livemode: product.livemode,
+    }
+  }
+
+  if (input.expectedDeliveryAddress) {
+    const expected = input.expectedDeliveryAddress
+    if (session.metadata?.delivery_address !== expected.formattedAddress
+      || session.metadata?.delivery_address_provider !== "yandex-geocoder"
+      || Number(session.metadata?.delivery_latitude) !== expected.latitude
+      || Number(session.metadata?.delivery_longitude) !== expected.longitude) {
+      throw new Error("Stripe TEST Checkout did not retain the selected Yandex address and coordinates")
+    }
+  }
+
   return {
     sessionId: session.id,
     customerId: typeof session.customer === "string" ? session.customer : session.customer?.id ?? null,
@@ -85,6 +133,9 @@ export async function verifyStripeTestCheckoutSession(environment, input) {
     amountCents: session.amount_total,
     currency: session.currency,
     paymentMethodTypes: session.payment_method_types,
+    clientReferenceId: session.client_reference_id,
+    ...(lineItemReadback ? { lineItem: lineItemReadback } : {}),
+    ...(input.expectedDeliveryAddress ? { yandexAddressMetadataVerified: true } : {}),
     urlHost: new URL(session.url).host,
     verificationReference: `stripe-checkout:${session.id}:livemode-false:open:unpaid:${session.amount_total}-usd`,
   }

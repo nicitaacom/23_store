@@ -1,11 +1,13 @@
+import { randomBytes } from "node:crypto"
 import { mkdir, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
-import { DeleteObjectCommand, HeadObjectCommand, S3Client } from "@aws-sdk/client-s3"
-import { Pinecone } from "@pinecone-database/pinecone"
 import { createClient } from "@supabase/supabase-js"
 import Stripe from "stripe"
+
+import { deriveRunTestPassword } from "./run-password.mjs"
+import { verifyStorageObjectAbsent } from "./verify-storage-object.mjs"
 
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
@@ -24,32 +26,58 @@ function getStripeClient() {
   return new Stripe(stripeKey)
 }
 
-function getR2Client() {
-  const accountId = process.env.R2_ACCOUNT_ID
-  const accessKeyId = process.env.R2_ACCESS_KEY_ID
-  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY
-  if (!accountId || !accessKeyId || !secretAccessKey) throw new Error("R2 cleanup settings are missing")
-  return new S3Client({
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    region: "auto",
-    credentials: { accessKeyId, secretAccessKey },
-  })
-}
-
-function getRedisClient() {
-  const apiUrl = process.env.UPSTASH_REDIS_REST_URL
-  const apiToken = process.env.UPSTASH_REDIS_REST_TOKEN
-  if (!apiUrl || !apiToken) throw new Error("Upstash cleanup settings are missing")
-  return { apiUrl, apiToken }
-}
-
 async function assertRunOwnedAccount(supabase, userId, runId) {
   if (!userId) throw new Error("Resource cleanup requires a recorded run-owned account")
   const { data, error } = await supabase.auth.admin.getUserById(userId)
-  const metadata = data?.user?.user_metadata ?? {}
+  const metadata = data?.user?.app_metadata ?? {}
   if (error || !data?.user || metadata.e2e_suite !== "23-store" || metadata.e2e_run_id !== runId) {
     throw new Error("Resource owner does not have the matching 23-store run marker")
   }
+}
+
+async function getRunAccountSession(supabase, ownerId, runId, environment) {
+  const supabaseUrl = environment.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = environment.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !anonKey) throw new Error("Run-owned app cleanup requires Supabase sign-in settings")
+  const { data: userData, error: userError } = await supabase.auth.admin.getUserById(ownerId)
+  const user = userData?.user
+  if (userError || !user?.email || user.app_metadata?.e2e_suite !== "23-store" || user.app_metadata?.e2e_run_id !== runId) {
+    throw new Error("Run-owned app cleanup could not verify its account marker")
+  }
+  const authClient = createClient(supabaseUrl, anonKey, { auth: { autoRefreshToken: false, persistSession: false } })
+  const password = runId === environment.E2E_RUN_ID && environment.E2E_TEST_PASSWORD
+    ? environment.E2E_TEST_PASSWORD
+    : deriveRunTestPassword(environment.SUPABASE_SERVICE_ROLE_KEY, runId)
+  let signInResult = await authClient.auth.signInWithPassword({ email: user.email, password })
+  if (signInResult.error || !signInResult.data.session?.access_token) {
+    // Recover accounts from older runs whose in-memory password was lost when a runner was stopped.
+    const recoveryPassword = randomBytes(32).toString("base64url")
+    const { error: passwordUpdateError } = await supabase.auth.admin.updateUserById(ownerId, { password: recoveryPassword })
+    if (passwordUpdateError) throw new Error("Run-owned account password recovery failed")
+    signInResult = await authClient.auth.signInWithPassword({ email: user.email, password: recoveryPassword })
+  }
+  if (signInResult.error || !signInResult.data.session?.access_token) throw new Error("Run-owned account could not sign in for app cleanup")
+  return { accessToken: signInResult.data.session.access_token, email: user.email }
+}
+
+async function callRunOwnedApp(supabase, resource, runId, environment, pathname, body) {
+  const baseUrl = environment.E2E_BASE_URL ?? environment.NEXT_PUBLIC_PRODUCTION_URL
+  if (!baseUrl) throw new Error("Production URL is required for app-side provider cleanup")
+  const session = await getRunAccountSession(supabase, resource.owner_id, runId, environment)
+  const appUrl = new URL(baseUrl)
+  const response = await fetch(new URL(pathname, appUrl), {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${session.accessToken}`,
+      origin: appUrl.origin,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ ...body, runId }),
+    signal: AbortSignal.timeout(90000),
+  })
+  const result = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(`Production ${pathname} returned HTTP ${response.status}`)
+  return result
 }
 
 async function removeProductRow(supabase, resource) {
@@ -111,65 +139,31 @@ async function removePersonalizedDesign(supabase, resource) {
   return "deleted_by_exact_design_user_owner_and_product_ids"
 }
 
-async function removeStorageObject(supabase, resource) {
+async function removeStorageObject(supabase, resource, runId, environment) {
   const bucketName = resource.details?.bucket
   const objectPath = resource.details?.path ?? resource.resource_id
   if (!bucketName || !objectPath) throw new Error("Storage registry record is missing its bucket or path")
-  if (resource.details?.provider === "r2") {
-    const r2Client = getR2Client()
-    await r2Client.send(new DeleteObjectCommand({ Bucket: bucketName, Key: objectPath }))
-    try {
-      await r2Client.send(new HeadObjectCommand({ Bucket: bucketName, Key: objectPath }))
-      throw new Error("The R2 object still exists after deletion")
-    } catch (error) {
-      if (["NotFound", "NoSuchKey", "404"].includes(error.name) || error.$metadata?.httpStatusCode === 404) {
-        return "deleted_from_r2_and_absence_verified"
-      }
-      throw error
-    }
+  const reference = {
+    provider: resource.details?.provider,
+    bucket: bucketName,
+    path: objectPath,
+    publicUrl: resource.details?.publicUrl,
   }
-  const { error } = await supabase.storage.from(bucketName).remove([objectPath])
-  if (error) throw new Error("Supabase Storage object removal failed")
-  const { error: readbackError } = await supabase.storage.from(bucketName).download(objectPath)
-  if (!readbackError) throw new Error("The Supabase Storage object still exists after deletion")
-  if (readbackError.statusCode !== "404" && readbackError.status !== 404 && !/not found|object not found/i.test(readbackError.message)) {
-    throw new Error("Supabase Storage object absence could not be verified")
-  }
-  return "deleted_from_supabase_storage_and_absence_verified"
+  if (!reference.provider || !reference.publicUrl) throw new Error("Storage cleanup record is missing the production public URL")
+  await callRunOwnedApp(supabase, resource, runId, environment, "/api/storage/delete", { reference })
+  return verifyStorageObjectAbsent(environment, reference)
 }
 
-async function removeRedisKey(resource) {
-  const { apiUrl, apiToken } = getRedisClient()
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers: { authorization: `Bearer ${apiToken}`, "content-type": "application/json" },
-    body: JSON.stringify(["DEL", resource.resource_id]),
-    signal: AbortSignal.timeout(12000),
-  })
-  if (!response.ok) throw new Error(`Upstash key removal returned HTTP ${response.status}`)
-  const verifyResponse = await fetch(apiUrl, {
-    method: "POST",
-    headers: { authorization: `Bearer ${apiToken}`, "content-type": "application/json" },
-    body: JSON.stringify(["EXISTS", resource.resource_id]),
-    signal: AbortSignal.timeout(12000),
-  })
-  const verifyBody = await verifyResponse.json().catch(() => ({}))
-  if (!verifyResponse.ok || verifyBody.result !== 0) throw new Error("Upstash key absence could not be verified")
-  return "deleted_by_exact_key_and_absence_verified"
-}
+const clearedAiMemoryOwners = new Set()
 
-async function removePineconeVector(resource) {
-  const pineconeApiKey = process.env.PINECONE_API_KEY
-  const indexName = resource.details?.index ?? process.env.PINECONE_INDEX
-  const indexHost = resource.details?.host ?? process.env.PINECONE_ENVIRONMENT
-  if (!pineconeApiKey || (!indexName && !indexHost)) throw new Error("Pinecone cleanup settings are missing")
-  const pinecone = new Pinecone({ apiKey: pineconeApiKey })
-  const namespace = resource.details?.namespace ?? ""
-  const index = pinecone.index({ ...(indexName ? { name: indexName } : {}), ...(indexHost ? { host: indexHost } : {}) })
-  await index.namespace(namespace).deleteOne(resource.resource_id)
-  const readback = await index.fetch({ ids: [resource.resource_id], namespace })
-  if (readback.records?.[resource.resource_id]) throw new Error("Pinecone vector still exists after deletion")
-  return "deleted_by_exact_vector_id_and_absence_verified"
+async function clearRunOwnedAiMemory(supabase, resource, runId, environment) {
+  if (clearedAiMemoryOwners.has(resource.owner_id)) return "same run-owned Redis key and Pinecone namespace cleared and verified"
+  const result = await callRunOwnedApp(supabase, resource, runId, environment, "/api/e2e/ai-memory", { action: "clear" })
+  if (result.success !== true || result.historyCount !== 0 || result.vectorCount !== 0) {
+    throw new Error("Production AI memory cleanup did not confirm empty Redis and Pinecone readback")
+  }
+  clearedAiMemoryOwners.add(resource.owner_id)
+  return `production-app-ai-memory:${resource.owner_id}:redis-and-pinecone-empty`
 }
 
 async function archiveStripeResource(resource) {
@@ -224,9 +218,20 @@ async function removeAuthUser(supabase, resource) {
     throw new Error("Run-owned Auth account state could not be verified")
   }
   if (!userData?.user) return "already_absent"
-  const userMetadata = userData.user.user_metadata ?? {}
+  const userMetadata = userData.user.app_metadata ?? {}
   if (userMetadata.e2e_suite !== "23-store" || userMetadata.e2e_run_id !== resource.run_id) {
     throw new Error("Auth user ownership marker differs from the run journal")
+  }
+  const quotaCleanup = await callRunOwnedApp(
+    supabase,
+    { ...resource, owner_id: resource.resource_id },
+    resource.run_id,
+    process.env,
+    "/api/e2e/ai-memory",
+    { action: "clear-image-quota" },
+  )
+  if (quotaCleanup.success !== true || quotaCleanup.count !== 0 || quotaCleanup.keyAbsent !== true || quotaCleanup.dailyKeysAbsent !== true) {
+    throw new Error("Run-owned AI image quota cleanup did not verify the Redis key removal")
   }
   const { error: cartError } = await supabase.from("23_users_cart").delete().eq("id", resource.resource_id)
   if (cartError) throw new Error("Run-owned user cart cleanup failed")
@@ -242,7 +247,7 @@ async function removeAuthUser(supabase, resource) {
   return "deleted_by_run_marker_and_absence_verified"
 }
 
-async function cleanupResource(supabase, resource) {
+async function cleanupResource(supabase, resource, environment) {
   if (resource.resource_type !== "auth_user") {
     await assertRunOwnedAccount(supabase, resource.owner_id, resource.run_id)
   }
@@ -253,9 +258,10 @@ async function cleanupResource(supabase, resource) {
   if (resource.resource_type === "product_row") return removeProductRow(supabase, resource)
   if (resource.resource_type === "personalized_design") return removePersonalizedDesign(supabase, resource)
   if (resource.resource_type === "support_ticket") return removeSupportTicket(supabase, resource)
-  if (resource.resource_type === "storage_object") return removeStorageObject(supabase, resource)
-  if (resource.resource_type === "redis_key") return removeRedisKey(resource)
-  if (resource.resource_type === "pinecone_vector") return removePineconeVector(resource)
+  if (resource.resource_type === "storage_object") return removeStorageObject(supabase, resource, resource.run_id, environment)
+  if (resource.resource_type === "redis_key" || resource.resource_type === "pinecone_vector") {
+    return clearRunOwnedAiMemory(supabase, resource, resource.run_id, environment)
+  }
   if (resource.resource_type.startsWith("stripe_")) return archiveStripeResource(resource)
   if (resource.resource_type === "auth_user") return removeAuthUser(supabase, resource)
   if (["resend_message", "telegram_message", "pusher_event"].includes(resource.resource_type)) return "provider_record_retained_for_audit"
@@ -288,10 +294,9 @@ export async function reconcileResources(environment = process.env) {
   const openResources = resources ?? []
   const eligibleResources = openResources.filter(resource => resource.run_id === runId
     || Date.parse(resource.lease_expires_at) <= now)
-  const orderedEligibleResources = [...eligibleResources].sort((firstResource, secondResource) => {
-    const authPriority = resource => resource.resource_type === "auth_user" ? 1 : 0
-    return authPriority(firstResource) - authPriority(secondResource)
-  })
+  const cleanupOrder = new Map([["storage_object", 0], ["redis_key", 1], ["pinecone_vector", 1], ["personalized_design", 2], ["support_ticket", 2], ["product_row", 3], ["auth_user", 9]])
+  const orderedEligibleResources = [...eligibleResources].sort((firstResource, secondResource) =>
+    (cleanupOrder.get(firstResource.resource_type) ?? 5) - (cleanupOrder.get(secondResource.resource_type) ?? 5))
   const allOpenResources = new Set(openResources.map(resource => resource.id))
   const resourcesById = new Map(openResources.map(resource => [resource.id, resource]))
   const completed = []
@@ -312,7 +317,7 @@ export async function reconcileResources(environment = process.env) {
       }
     }
     try {
-      const cleanupMessage = await cleanupResource(supabase, resource)
+      const cleanupMessage = await cleanupResource(supabase, resource, environment)
       await markResource(supabase, resource, "complete", cleanupMessage)
       completed.push({ resourceType: resource.resource_type, resourceId: resource.resource_id, cleanupMessage })
       allOpenResources.delete(resource.id)

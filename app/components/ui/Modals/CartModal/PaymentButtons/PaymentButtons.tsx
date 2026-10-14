@@ -6,13 +6,13 @@ import { PayWithSolanaButton } from "./components/PayWithSolanaButton"
 import { PayWithStripeButton } from "./components/PayWithStripeButton"
 
 // http://localhost:6006/?path=/story/commerce-checkout--cart
-export function PaymentButtons() {
+export function PaymentButtons({ deliveryAddress }: { deliveryAddress?: API.ProductsCheckoutDeliveryAddress }) {
   return (
     <div className="flex flex-col gap-3">
       <PayWithMetamaskButton />
       <PayWithSolanaButton />
       <PayWithPaypalButton />
-      <PayWithStripeButton />
+      <PayWithStripeButton deliveryAddress={deliveryAddress} />
       {/* <PayWithKlarnaButton /> */}
     </div>
   )

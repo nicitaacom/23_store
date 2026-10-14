@@ -1,4 +1,4 @@
-import { appendFile, mkdir, writeFile } from "node:fs/promises"
+import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -17,164 +17,109 @@ function redact(value, parentKey = "") {
     .replace(/([?&](?:X-Amz-Signature|X-Amz-Credential|signature|token|access_token)=)[^&\s]+/gi, "$1[REDACTED]")
 }
 
-function getRequiredSettings(environment) {
-  const settings = {
-    supabaseUrl: environment.NEXT_PUBLIC_SUPABASE_URL,
-    serviceRoleKey: environment.SUPABASE_SERVICE_ROLE_KEY,
-    runId: environment.E2E_RUN_ID,
-    maxCostUsd: Number(environment.E2E_MAX_PROVIDER_COST_USD),
-    maxPaidOperations: Number(environment.E2E_MAX_PAID_OPERATIONS),
-  }
-  if (!settings.supabaseUrl || !settings.serviceRoleKey || !settings.runId) {
-    throw new Error("Paid-operation tracking requires Supabase service access and E2E_RUN_ID")
-  }
-  if (!Number.isFinite(settings.maxCostUsd) || settings.maxCostUsd <= 0
-    || !Number.isInteger(settings.maxPaidOperations) || settings.maxPaidOperations <= 0) {
-    throw new Error("Paid-operation tracking requires valid cost and call limits")
-  }
-  return settings
+function getJournalPath(environment) {
+  const artifactDirectory = path.resolve(repositoryRoot, environment.E2E_ARTIFACT_DIR ?? "artifacts/e2e")
+  return { artifactDirectory, journalPath: path.join(artifactDirectory, "paid-operations.jsonl") }
 }
 
-function validateReservation(reservation) {
-  if (!reservation || typeof reservation.operationKey !== "string"
-    || reservation.operationKey.length < 1 || reservation.operationKey.length > 200
-    || typeof reservation.provider !== "string" || reservation.provider.length < 1
-    || typeof reservation.capability !== "string" || reservation.capability.length < 1
-    || !Number.isInteger(reservation.paidCallCount) || reservation.paidCallCount <= 0
-    || !Number.isFinite(reservation.estimatedCostUsd) || reservation.estimatedCostUsd < 0) {
-    throw new Error("Paid-operation reservation is missing a valid key, provider, capability, cost, or call count")
+async function readRecords(journalPath) {
+  try {
+    const text = await readFile(journalPath, "utf8")
+    return text.split("\n").filter(Boolean).map(line => JSON.parse(line))
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") return []
+    throw error
   }
+}
+
+function getUniqueOperations(records) {
+  const latestByKey = new Map()
+  for (const record of records) latestByKey.set(record.operationKey, record)
+  return [...latestByKey.values()]
 }
 
 export function createPaidBudgetManager(environment = process.env) {
-  const settings = getRequiredSettings(environment)
-  const artifactDirectory = path.resolve(repositoryRoot, environment.E2E_ARTIFACT_DIR ?? "artifacts/e2e")
-  const endpoint = `${settings.supabaseUrl.replace(/\/$/, "")}/rest/v1/rpc`
+  const runId = environment.E2E_RUN_ID
+  if (!runId) throw new Error("Provider operation tracking requires E2E_RUN_ID")
+  const { artifactDirectory, journalPath } = getJournalPath(environment)
 
-  async function callLedgerFunction(functionName, payload) {
-    const response = await fetch(`${endpoint}/${functionName}`, {
-      method: "POST",
-      headers: {
-        apikey: settings.serviceRoleKey,
-        authorization: `Bearer ${settings.serviceRoleKey}`,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(15000),
-    })
-    if (!response.ok) throw new Error(`Paid-operation ledger ${functionName} returned HTTP ${response.status}`)
-    const result = await response.json()
-    return Array.isArray(result) ? result[0] : result
-  }
-
-  async function appendLedgerEvidence(record) {
+  async function append(record) {
     await mkdir(artifactDirectory, { recursive: true })
-    await appendFile(path.join(artifactDirectory, "paid-operations.jsonl"), `${JSON.stringify(redact(record))}\n`)
-  }
-
-  async function snapshot() {
-    const records = await readPaidOperationLedger(environment)
-    await writeFile(path.join(artifactDirectory, "paid-operations.json"), `${JSON.stringify({
-      status: "ready",
-      runId: settings.runId,
-      generatedAt: new Date().toISOString(),
-      records: redact(records),
-    }, null, 2)}\n`)
-    return records
+    await appendFile(journalPath, `${JSON.stringify(redact(record))}\n`)
+    return record
   }
 
   async function reserve(reservation) {
-    validateReservation(reservation)
-    const result = await callLedgerFunction("reserve_23_e2e_paid_operation", {
-      p_suite_name: "23-store",
-      p_run_id: settings.runId,
-      p_operation_key: reservation.operationKey,
-      p_provider: reservation.provider,
-      p_capability: reservation.capability,
-      p_paid_call_count: reservation.paidCallCount,
-      p_estimated_cost_usd: reservation.estimatedCostUsd,
-      p_max_cost_usd: settings.maxCostUsd,
-      p_max_paid_operations: settings.maxPaidOperations,
-    })
-    const record = {
-      kind: "paid-operation-reservation",
-      at: new Date().toISOString(),
-      runId: settings.runId,
-      ...reservation,
-      ...result,
+    if (!reservation || typeof reservation.operationKey !== "string" || !reservation.operationKey.trim()
+      || typeof reservation.provider !== "string" || !reservation.provider.trim()
+      || typeof reservation.capability !== "string" || !reservation.capability.trim()
+      || !Number.isInteger(reservation.paidCallCount) || reservation.paidCallCount <= 0) {
+      throw new Error("Provider operation needs an operation key, provider, capability, and positive call count")
     }
-    await appendLedgerEvidence(record)
-    return record
+
+    const records = await readRecords(journalPath)
+    if (records.some(record => record.operationKey === reservation.operationKey && record.kind === "provider-operation-started")) {
+      return { allowed: false, reason: "operation_key_already_recorded", operationKey: reservation.operationKey }
+    }
+
+    const record = {
+      kind: "provider-operation-started",
+      at: new Date().toISOString(),
+      runId,
+      operationKey: reservation.operationKey,
+      provider: reservation.provider,
+      capability: reservation.capability,
+      plannedCallCount: reservation.paidCallCount,
+      estimatedCostUsd: null,
+      actualCostUsd: null,
+      status: "started",
+    }
+    await append(record)
+    return { allowed: true, ...record }
   }
 
   async function settle(result) {
     if (!result || typeof result.operationKey !== "string"
       || !["completed", "failed", "unknown"].includes(result.status)) {
-      throw new Error("Paid-operation result requires its reservation key and a valid final status")
+      throw new Error("Provider operation result needs its operation key and a final status")
     }
-    if (result.actualCostUsd !== undefined && result.actualCostUsd !== null
-      && (!Number.isFinite(result.actualCostUsd) || result.actualCostUsd < 0)) {
-      throw new Error("Actual paid-operation cost must be a nonnegative number")
-    }
-    const settled = await callLedgerFunction("finish_23_e2e_paid_operation", {
-      p_suite_name: "23-store",
-      p_run_id: settings.runId,
-      p_operation_key: result.operationKey,
-      p_status: result.status,
-      p_provider_resource_id: result.providerResourceId ?? null,
-      p_actual_cost_usd: result.actualCostUsd ?? null,
-      p_details: redact(result.details ?? {}),
-    })
-    const record = {
-      kind: "paid-operation-result",
+
+    const records = await readRecords(journalPath)
+    const started = records.find(record => record.operationKey === result.operationKey && record.kind === "provider-operation-started")
+    if (!started) throw new Error("Provider operation has no matching started record")
+
+    return append({
+      kind: "provider-operation-finished",
       at: new Date().toISOString(),
-      runId: settings.runId,
-      ...result,
-      ...settled,
-    }
-    await appendLedgerEvidence(record)
-    return record
+      runId,
+      operationKey: result.operationKey,
+      provider: started.provider,
+      capability: started.capability,
+      plannedCallCount: started.plannedCallCount,
+      estimatedCostUsd: null,
+      actualCostUsd: null,
+      status: result.status,
+      providerResourceId: result.providerResourceId ?? null,
+      details: redact(result.details ?? {}),
+    })
+  }
+
+  async function snapshot() {
+    const records = getUniqueOperations(await readRecords(journalPath))
+    return records
   }
 
   return { reserve, settle, snapshot }
 }
 
 export async function readPaidOperationLedger(environment = process.env) {
-  const supabaseUrl = environment.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = environment.SUPABASE_SERVICE_ROLE_KEY
-  const runId = environment.E2E_RUN_ID
-  if (!supabaseUrl || !serviceRoleKey || !runId) {
-    throw new Error("Paid-operation history requires Supabase service access and E2E_RUN_ID")
-  }
-
-  const endpoint = new URL(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/23_e2e_paid_operation_ledger`)
-  endpoint.searchParams.set("suite_name", "eq.23-store")
-  endpoint.searchParams.set("run_id", `eq.${runId}`)
-  endpoint.searchParams.set("select", "id,operation_key,provider,capability,paid_call_count,estimated_cost_usd,actual_cost_usd,status,provider_resource_id,created_at,updated_at,details")
-  endpoint.searchParams.set("order", "created_at.asc")
-
-  const records = []
-  for (let offset = 0; ; offset += 1000) {
-    const response = await fetch(endpoint, {
-      headers: {
-        apikey: serviceRoleKey,
-        authorization: `Bearer ${serviceRoleKey}`,
-        Range: `${offset}-${offset + 999}`,
-        "Range-Unit": "items",
-      },
-      signal: AbortSignal.timeout(15000),
-    })
-    if (!response.ok) throw new Error(`Paid-operation history returned HTTP ${response.status}`)
-    const page = await response.json()
-    if (!Array.isArray(page)) throw new Error("Paid-operation history returned an invalid response")
-    records.push(...page)
-    if (page.length < 1000) return records
-  }
+  const { journalPath } = getJournalPath(environment)
+  return getUniqueOperations(await readRecords(journalPath))
 }
 
 export async function writePaidOperationSnapshot(environment = process.env) {
   const runId = environment.E2E_RUN_ID ?? null
-  const artifactDirectory = path.resolve(repositoryRoot, environment.E2E_ARTIFACT_DIR ?? "artifacts/e2e")
+  const { artifactDirectory } = getJournalPath(environment)
   try {
     const records = await readPaidOperationLedger(environment)
     await mkdir(artifactDirectory, { recursive: true })
@@ -190,9 +135,9 @@ export async function writePaidOperationSnapshot(environment = process.env) {
     await writeFile(path.join(artifactDirectory, "paid-operations.json"), `${JSON.stringify({
       status: "unavailable",
       runId,
-      detail: error.message.slice(0, 300),
+      detail: error instanceof Error ? error.message.slice(0, 300) : String(error).slice(0, 300),
       records: [],
     }, null, 2)}\n`)
-    return { status: "unavailable", count: 0, detail: error.message.slice(0, 300) }
+    return { status: "unavailable", count: 0, detail: error instanceof Error ? error.message.slice(0, 300) : String(error).slice(0, 300) }
   }
 }

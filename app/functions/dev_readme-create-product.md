@@ -224,7 +224,7 @@ AWS Lambda  23-ai-translate  (index.mjs — deployed separately in AWS eu-centra
 
   1. receives payload from Vercel: { id, price_id, owner_id, title, description, ... }
 
-  2. calls OpenAI gpt-5.4-nano
+  2. calls OpenAI gpt-6-luna with xhigh reasoning
      prompt: translate title + description into English, Finnish, Russian, Swedish
      response: { en, fi, ru, se } each with { title, description }
 

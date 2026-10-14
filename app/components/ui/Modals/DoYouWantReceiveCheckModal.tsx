@@ -19,6 +19,15 @@ interface FormData {
   password: string
 }
 
+function getWalletNetwork(chainId: string): "ETH" | "BNB" | "MATIC" | null {
+  switch (chainId.toLowerCase()) {
+    case "0x1": return "ETH"
+    case "0x38": return "BNB"
+    case "0x89": return "MATIC"
+    default: return null
+  }
+}
+
 // http://localhost:6006/?path=/story/commerce-checkout--cart
 export function DoYouWantReceiveCheckModal() {
   const t = useI18n()
@@ -54,7 +63,12 @@ export function DoYouWantReceiveCheckModal() {
         t("modal.do_you_want_receive_check.not_sent_title"),
         t("modal.do_you_want_receive_check.not_sent_body"),
       )
-      sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, recipientAddress, t)
+      const network = getWalletNetwork(wallet.chainId)
+      if (!network) {
+        toast.show("error", t("payment.error.unsupported_network_title"), t("payment.error.unsupported_network_subtitle"))
+        return
+      }
+      void sendMoneyWithMetamask(cartStore.products, wallet, router, t, network)
     }
   }
 
@@ -75,8 +89,13 @@ export function DoYouWantReceiveCheckModal() {
       <Button
         variant="danger-outline"
         onClick={() => {
-          if (!recipientAddress) return console.log(78, "No recipient address")
-          sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, recipientAddress, t)
+          if (!recipientAddress) return console.log(92, "No recipient address")
+          const network = getWalletNetwork(wallet.chainId)
+          if (!network) {
+            toast.show("error", t("payment.error.unsupported_network_title"), t("payment.error.unsupported_network_subtitle"))
+            return
+          }
+          void sendMoneyWithMetamask(cartStore.products, wallet, router, t, network)
           closeModal()
         }}>
         {t("modal.no")}

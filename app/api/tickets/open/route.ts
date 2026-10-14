@@ -18,15 +18,8 @@ export async function POST(req: Request) {
   const { ticketId, ownerId, ownerUsername, messageBody, ownerAvatarUrl } = (await req.json()) as TAPITicketsOpen
 
   if (!ticketId || !ownerId || !ownerUsername || !messageBody) {
-    console.log(
-      21,
-      `API_TICKETS_OPEN_ERROR - missing required fields \n
-       ticketId - ${ticketId} \n
-       ownerId - ${ownerId} \n
-       ownerUsername - ${ownerUsername} \n
-       messageBody - ${messageBody} \n`,
-    )
-    return NextResponse.json({ status: 400 })
+    console.error("Support ticket request is missing required fields")
+    return NextResponse.json({ error: "A support ticket needs an owner, ticket id, and first message." }, { status: 400 })
   }
 
   // dance arounding to insert current date-time
@@ -42,18 +35,27 @@ export async function POST(req: Request) {
     owner_username: ownerUsername,
     owner_avatar_url: ownerAvatarUrl,
   })
-  if (error) return NextResponse.json({ error: `Error in api/tickets/open/route.ts\n ${error.message}` }, { status: 400 })
+  if (error) {
+    console.error("Support ticket could not be saved", error)
+    return NextResponse.json({ error: "The support chat could not be saved. Contact support to send your message another way." }, { status: 500 })
+  }
 
   // 2. Trigger 'tickets:open' event in 'tickets' channel and pass required data
-  await pusherServer.trigger("tickets", "tickets:open", {
-    id: ticketId,
-    created_at: timestampString,
-    owner_id: ownerId,
-    owner_username: ownerUsername,
-    is_open: true,
-    last_message_body: messageBody,
-    owner_avatar_url: ownerAvatarUrl,
-  } as ITicketDB)
+  let realtimeDelivered = true
+  try {
+    await pusherServer.trigger("tickets", "tickets:open", {
+      id: ticketId,
+      created_at: timestampString,
+      owner_id: ownerId,
+      owner_username: ownerUsername,
+      is_open: true,
+      last_message_body: messageBody,
+      owner_avatar_url: ownerAvatarUrl,
+    } as ITicketDB)
+  } catch (triggerError) {
+    realtimeDelivered = false
+    console.error("Support ticket was saved but its live update failed", triggerError)
+  }
 
-  return NextResponse.json({ status: 200 })
+  return NextResponse.json({ status: 200, realtimeDelivered })
 }

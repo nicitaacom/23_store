@@ -68,6 +68,8 @@ export default function Toast() {
         border ${currentConfig.borderColor} bg-foreground/95 px-3 py-2 shadow-compact`}
       {...swipeHandlers}
       data-click-outside-ignore
+      data-cy="app-toast"
+      data-toast-variant={variant}
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ x: "110%", opacity: 0 }}

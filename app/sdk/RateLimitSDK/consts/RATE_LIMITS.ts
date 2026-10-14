@@ -25,9 +25,9 @@ export const RATE_LIMITS = {
     key: () => `ai:prompt`,
   },
   aiGenerateImage: {
-    windowSec: 3600,
-    maxAllowed: 10, // 10 per hour
-    key: () => `ai:image`,
+    windowSec: 86400,
+    maxAllowed: 5, // 5 per user per day
+    key: (userId: string) => `ai:image:${userId}`,
   },
   aiCheckPrintArea: {
     windowSec: 3600,

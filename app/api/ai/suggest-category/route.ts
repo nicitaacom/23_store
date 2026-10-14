@@ -3,6 +3,12 @@ import { headers } from "next/headers"
 import { Redis } from "@upstash/redis"
 import { Ratelimit } from "@upstash/ratelimit"
 
+import {
+  describeOpenAIRequestFailure,
+  OpenAIInvalidOutputError,
+  openAIRequestHeaders,
+  requestOpenAIWithRetry,
+} from "@/libs/ai/openaiRequest"
 import { isValidUUID } from "@/utils/isValidUUID"
 import openai from "@/libs/openai"
 import { selectDBCategories } from "@/api/categories/select/selectDBCategories"
@@ -17,6 +23,8 @@ const limiter = new Ratelimit({
   ),
   analytics: false,
 })
+
+export const maxDuration = 165
 
 export async function POST(req: NextRequest) {
   const reqHeaders = await headers()
@@ -68,7 +76,8 @@ ${categoryLines}`
   const userPrompt = `Product title: "${trimmedTitle}"`
 
   try {
-    const completion = await openai.chat.completions.create({
+    const openAIResult = await requestOpenAIWithRetry(async options => {
+      const completion = await openai.chat.completions.create({
       model: "gpt-6-luna",
       reasoning_effort: "xhigh",
       messages: [
@@ -76,15 +85,25 @@ ${categoryLines}`
         { role: "user", content: userPrompt },
       ],
       max_completion_tokens: 2000,
+      }, options)
+      const rawCategory = completion.choices[0]?.message?.content?.trim() ?? ""
+      const isKnownCategory = isValidUUID(rawCategory) && categoryList.some(category => category.id === rawCategory)
+      if (rawCategory !== "null" && !isKnownCategory) throw new OpenAIInvalidOutputError()
+      return completion
     })
 
-    const raw = completion.choices[0]?.message?.content?.trim() || "null"
+    const raw = openAIResult.response.choices[0]?.message?.content?.trim() || "null"
     const isKnownId = isValidUUID(raw) && categoryList.some(category => category.id === raw)
     const category_id = isKnownId ? raw : null
 
-    return NextResponse.json({ category_id } satisfies API.AISuggestCategoryResponse, { status: 200 })
+    const response = NextResponse.json({ category_id } satisfies API.AISuggestCategoryResponse, { status: 200 })
+    for (const [name, value] of Object.entries(openAIRequestHeaders(openAIResult))) response.headers.set(name, value)
+    return response
   } catch (error) {
-    const msg = error instanceof Error ? error.message : "AI call failed"
-    return NextResponse.json({ error: msg } satisfies API.AISuggestCategoryResponse, { status: 500 })
+    const failure = describeOpenAIRequestFailure(error, "suggest a product category", "No product changes were saved.")
+    return NextResponse.json(
+      { error: failure.message, code: failure.code } satisfies API.AISuggestCategoryResponse,
+      { status: failure.status, headers: openAIRequestHeaders(failure) },
+    )
   }
 }

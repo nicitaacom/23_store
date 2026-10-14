@@ -1,18 +1,10 @@
 # Cypress end-to-end tests
 
-The suite tests customer and owner outcomes rather than page visibility alone. It covers:
+The legacy suite under `cypress/e2e/` covers customer and owner outcomes, including product create,
+edit, delete permissions, optimistic updates, locale behavior, cart totals, checkout, and responsive
+layout. Do not use its fixtures or mocked responses as evidence for Plan 25 production coverage.
 
-- anonymous cart totals, better-price requests, and support messages;
-- product create, read, update, and delete permissions;
-- owner-only update/delete behavior and database deletion confirmation;
-- optimistic price updates, server confirmation, and failure rollback;
-- optimistic deletion and failure rollback;
-- locale key parity, currency formatting, and language persistence;
-- horizontal overflow at six supported viewport widths.
-- Stripe and PayPal success paths through receipt sending, plus visible provider reasons when
-  checkout session creation fails.
-
-## Setup
+## Legacy local suite
 
 Install packages and browser binaries:
 
@@ -21,111 +13,78 @@ pnpm install
 pnpm cypress:install-browsers
 ```
 
-The Cypress Node process requires these environment values:
+The legacy Cypress Node process requires `NEXT_PUBLIC_SUPABASE_URL`,
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`. It receives them from the invoking
+process and never loads `.env.local`. The service-role key stays in Node and is not exposed to the
+browser. The legacy suite has its own fixed fixtures and local-server behavior.
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-
-The Cypress setup reads values from the process environment and never loads `.env.local`. The
-service-role key is read only by Cypress's Node process. Browser test code does not receive it.
-Fixture products use the `cypress-e2e-` prefix, and test setup removes only rows with that prefix.
-
-`prepareFixtures` in `cypress.config.ts` creates or refreshes the confirmed
-`cypress-owner@joki.example` and `cypress-other@joki.example` accounts. Their
-password is the `TEST_PASSWORD` constant in that file. Use the owner account in
-the local Sign In modal to inspect authenticated customer and owner flows. The
-fixture also clears `password_reset_required` after setting the test password,
-so an account restored from a database backup can sign in. These accounts are
-test data; do not reuse them for a real customer.
-
-The regular push and pull request workflow no longer runs Cypress. The Plan 25 Cypress workflow runs
-once monthly after its service and coverage checks pass. Its progress and remaining setup are
-documented below.
-
-## Run
+Run it with:
 
 ```sh
 pnpm test:e2e
 pnpm test:e2e:all-browsers
 ```
 
-Individual browser scripts are available for Electron, Chrome, Chromium, Edge, Firefox, and WebKit.
-The Firefox script uses the modern Firefox binary downloaded by `pnpm cypress:install-browsers`
-instead of relying on the host's potentially outdated Firefox package.
+WebKit exercises the browser engine used by Safari; Cypress does not launch Apple's Safari
+application. WebKit support is experimental and needs Playwright's Linux browser libraries. Firefox
+135 or newer is required. Edge must be installed on the runner. Local runs may use the browsers
+installed on that machine.
 
-WebKit exercises the browser engine used by Safari; Cypress does not launch Apple's Safari application. Cypress WebKit support is experimental and its host needs Playwright's Linux browser libraries. Firefox 135 or newer is required. Edge must be installed on the runner that executes the Edge script.
+## Weekly real-service suite
 
-The full browser matrix is best run in CI images that provide those host browsers and WebKit libraries. Local runs may use only the browsers installed on that machine.
+`pnpm e2e:weekly` targets `NEXT_PUBLIC_PRODUCTION_URL` and never switches to localhost based on
+`NODE_ENV`. The scheduled workflow is `.github/workflows/cypress-weekly.yml`; it runs Monday at
+03:23 UTC with no push, PR, deployment, manual, or external trigger. It checks production SHA and
+read-only service health before any browser writes. A configuration, deployment, mapping, or
+cleanup failure produces an incomplete/failed result and saved evidence.
 
-## Monthly real-service checks
+The runner uses the existing production URL, Supabase URL/anon/service-role access, and matching
+Stripe TEST key. Provider operations use the deployed application's existing runtime credentials.
+Do not configure a second E2E provider account or copy OpenAI, Resend, AWS, R2, Redis, Pinecone,
+Telegram, or Pusher server credentials into Actions. `NEXT_PUBLIC_PUSHER_APP_KEY` is already
+configured. No OpenAI dollar limit is required; the suite runs a finite set of declared actions once
+with application-bounded retries and records observed provider operation ids/outcomes.
 
-`pnpm e2e:monthly` is the scheduled production suite. It uses `NEXT_PUBLIC_PRODUCTION_URL`, checks that the
-deployed commit matches this checkout, inventories runtime requests, and stops before browser writes
-if a required service, budget, request mapping, or journey is missing. It never switches to local
-server mode based on `NODE_ENV`.
+Run-owned accounts use a password derived from the existing Supabase service key and exact run id,
+plus unique addresses based on the production host. This lets a later cleanup recover test accounts
+after an interrupted run without another secret. Apply
+[scripts/e2e/create-test-users.sql](../scripts/e2e/create-test-users.sql) once to install the
+exact-resource cleanup journal. The runner then creates and removes temporary Supabase Auth
+accounts through the real Admin API.
 
-The scheduled workflow is `.github/workflows/cypress-monthly.yml`. It runs once on the first day of
-each month at 03:23 UTC. It has no push, redeployment, manual, or external trigger, so only that
-monthly schedule starts this suite. Its browser job uses the real deployed website. Missing setup
-produces an `INCOMPLETE` report and saved evidence; it does not count
-as a successful test run. `pnpm e2e:replay --spec cypress/monthly/product-edit.cy.ts --seed 250` uses
-the same real services and defaults to production. To replay against a local production build, set
-`E2E_BASE_URL=http://localhost:3023` explicitly and start the build yourself; the runner only
-connects to that server and still uses real backend/provider settings.
+The workflow currently has 19 specs in `cypress/monthly/`: product creation/edit/delete, background
+translations and races, catalog/cart, support with uploaded PNG, real Resend notification, account
+and authorization paths, category and provider pricing, AI tools/chat/memory, personalization
+storage, Stripe TEST, Yandex address lookup, analytics, seeded navigation, and backup/maintenance.
+This is partial coverage until every generated request/provider operation and awaited network call
+has real runtime evidence. Alternative payment methods and wide-scope operations use their actual
+sandbox or exact run-owned destination; if a safe success path is missing, the report stays
+`INCOMPLETE` until the application supports one.
 
-Run-owned browser accounts require `E2E_TEST_EMAIL_DOMAIN` with receiving test addresses and
-`E2E_TEST_PASSWORD`. `scripts/e2e/create-test-users.sql` contains manual reproduction accounts and the
-durable resource journal schema. Check this project's Supabase Auth schema before running the SQL;
-the current Supabase endpoint was unavailable during setup, so the SQL has not been run or verified.
-The runner journals exact account, product, file, support, AI-memory, worker, and Stripe TEST resource
-IDs for cleanup. It does not delete by a broad product prefix or reset shared customer data.
-Paid requests must reserve their estimated cost and downstream call count in the run's Supabase
-ledger before starting. The same key cannot reserve a second call after a workflow retry. The report
-shows actual provider cost only when it was observed; the configured estimate is not a billing cap.
+The actual requests and responses must be used. `cy.intercept` may observe a request and continue it,
+or delay the unchanged response for a race test; it may not return a fixture or alter the response.
+`pnpm test:e2e-infra` rejects API-response stubs in weekly specs.
+
+Redis/Pinecone and Resend readbacks use authenticated `/api/e2e/*` routes and deployed runtime
+credentials. Storage bytes are checked through their real public URL and deleted through the
+owner-authorized storage route. Stripe TEST resources and exact run-owned Supabase rows are read back
+and cleaned. The app routes verify admin-controlled account metadata and reject other accounts.
 
 `pnpm e2e:inventory` writes the AST request inventory to ignored `artifacts/e2e/`. Every operation
-starts unmapped and untested. Only a reviewed mapping plus browser/request evidence, a real provider
-or database ID, and an independent readback can count as passed. All 18 required journey files
-are now authored: product create/edit/delete, background updates, races, catalog/cart, support with a real
-uploaded PNG, account login/language/access checks, categories with account-scoped view counters,
-replenishment email delivery to the run-owned account, AI tools and chat/memory, personalization storage,
-Stripe TEST session creation, analytics/provider utilities, seeded navigation, a PayPal-method Stripe
-TEST session, and signed-out backup/maintenance authorization checks.
-The seeded navigation journey shuffles real product/cart, popular-catalog, and support-panel paths from
-the recorded seed and saves the actual path sequence with its database checks.
-The AI chat/memory journey checks a real assistant reply and the separate memory route, then reads the
-conversation from Upstash and its vectors from that run-owned Pinecone namespace. It reserves one chat
-call and three embedding requests before provider work. The product creation journey uses
-`cypress/files/Sour Cream 30% Savya LITOVSKAYA.png`. All required spec files exist, but coverage is still
-incomplete. The other-checkout spec leaves Klarna blocked because the current application route sends
-requests to Klarna's production API host with credentials embedded in source; it has not been verified
-against Klarna's sandbox and is never called by the suite. The backup/maintenance spec checks signed-out denials and records
-the positive global operations as blocked until a separate database/storage target is available. The Stripe spec
-currently verifies creation and rejection of an unpaid TEST session; successful, cancelled, and declined
-card transactions still need coverage. Analytics currently verifies a real CoinMarketCap quote and one
-run-owned demo import; admin stats, Turnstile, and remaining analytics operations still need coverage.
-The authored account journey still needs signup, recovery, reset, avatar, and verification-email
-coverage. The AI-tools spec checks category suggestions, price
-research, AI price output, print-area analysis, and generated image bytes. The personalization-storage
-spec uploads, reads and removes exact fixture bytes, checks a second account's denial, and verifies the
-personalized-design insert. The app still has no owner-facing design read/delete route. No monthly
-browser/service run has been performed.
-The support journey also has a Playwright companion that keeps the customer and support accounts
-open at the same time to check a live reply without reloading the customer page.
+begins unmapped and untested. Only a reviewed mapping plus real runtime evidence and independent
+readback can pass it. Reports include request coverage, awaited-work coverage, cleanup status,
+diagnostics, JUnit, screenshots, videos, and a repair handoff. GitHub artifacts are retained for 14
+days; the job does not email reports.
 
-The latest local AST inventory finds 624 operations: 75 route handlers, 63 SDK operations, 446
-service operations, and 40 realtime subscriptions. It maps all 624 operations and 1,216 async
-expressions to reviewed scenarios; this is source mapping only, not runtime coverage. The expressions
-include 1,078 awaits, 56 returned calls, 43 promise chains, 30 Promise.all groups, 4 fire-and-forget
-calls, and 12 subscriptions. Lambda source and terminal execution evidence remain blocked by external
-access, and the monthly preflight remains incomplete until its required real settings and services
-are available.
-Do not use the legacy Cypress suite as evidence for the real-service report; it keeps its existing
-fixtures and local-server behavior.
+Use the production site for a replay:
 
-Reports include request coverage, cleanup status, sanitized diagnostics, JUnit output, screenshots,
-videos, and a repair handoff. The monthly Actions job sends the single report through Resend and records
-whether Resend accepted it and whether its email-status API later showed delivery. Test/provider
-spending requires `E2E_MAX_PROVIDER_COST_USD` and `E2E_MAX_PAID_OPERATIONS`; missing limits stop the
-suite before any browser writes. Never read or upload `.env.local` or a full database export.
+```sh
+pnpm e2e:replay --spec cypress/monthly/product-edit.cy.ts --seed 250
+```
+
+For an explicit local production build, set `E2E_BASE_URL=http://localhost:3023` and start that
+build yourself. It must still use real Supabase and real provider services. Never read or upload
+`.env.local` or a full database export.
+
+No production run should be described as passing until the production commit matches the runner,
+runtime provider readbacks are present, and the cleanup report confirms no run-owned resources remain.

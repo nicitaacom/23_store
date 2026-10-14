@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Inventory of real external provider and service actions exercised by the Cypress specs, whether paid or free. The runner records actual request ids, attempts, and independent outcomes. It does not require a spending cap or duplicate provider credentials.",
+  "capabilities": [
+    { "name": "Supabase Auth login, signup, recovery, reset, OAuth, and profile sync", "scenarioId": "auth-account", "sourcePaths": ["app/[locale]/(auth)/", "app/api/auth/", "app/api/account/"] },
+    { "name": "Supabase product, cart, category, support, personalization, and run-owned database operations", "scenarioId": "product-edit and support and pricing-categories and catalog-cart", "sourcePaths": ["app/api/", "app/sdk/"] },
+    { "name": "Cloudflare Turnstile verification", "scenarioId": "auth-account", "sourcePaths": ["app/api/turnstile/verify/route.ts"] },
+    { "name": "Google OAuth authorization", "scenarioId": "auth-account", "sourcePaths": ["app/[locale]/(auth)/AuthModal/components/ContinueWithButton.tsx"] },
+    { "name": "Stripe TEST product and price create, update, archive, and readback", "scenarioId": "product-create and product-edit and product-delete", "sourcePaths": ["app/api/products/add/route.ts", "app/api/products/update/route.ts", "app/api/products/delete/route.ts"] },
+    { "name": "Stripe TEST checkout, payment verification, webhook, and unpaid-session cleanup", "scenarioId": "checkout-stripe and checkout-other", "sourcePaths": ["app/api/create-checkout-session/route.ts", "app/api/verify-payment/route.ts", "app/api/payment/success/"] },
+    { "name": "PayPal sandbox checkout and real webhook completion", "scenarioId": "checkout-other", "sourcePaths": ["app/api/create-paypal-session/route.ts", "app/api/webhooks/paypal/route.ts"] },
+    { "name": "MetaMask and Solana wallet payment requests on a safe test network", "scenarioId": "checkout-other", "sourcePaths": ["app/components/ui/Modals/CartModal/PaymentButtons/"] },
+    { "name": "Yandex address suggestions and geocoding", "scenarioId": "address-geocoding", "sourcePaths": ["app/libs/yandex/addressProvider.ts", "app/api/address/"] },
+    { "name": "OpenAI product category suggestion", "scenarioId": "product-create and ai-tools", "sourcePaths": ["app/api/ai/suggest-category/route.ts"] },
+    { "name": "OpenAI title and description translation with bounded increasing-timeout retry", "scenarioId": "product-edit and product-background", "sourcePaths": ["app/api/products/translate-field/route.ts"] },
+    { "name": "OpenAI product price assistance and print-area analysis", "scenarioId": "ai-tools", "sourcePaths": ["app/api/ai/route.ts", "app/api/ai/check-print-area/route.ts"] },
+    { "name": "OpenAI image generation and generated-image download", "scenarioId": "ai-tools", "sourcePaths": ["app/api/ai/generate-image/route.ts"] },
+    { "name": "OpenAI sales chat text and real function-tool calls", "scenarioId": "ai-chat-memory", "sourcePaths": ["app/api/ai/sales-assistant/route.ts"] },
+    { "name": "OpenAI embeddings", "scenarioId": "ai-chat-memory", "sourcePaths": ["app/libs/ai/chatMemory.ts"] },
+    { "name": "Upstash Redis rate limits, AI history, storage state, and cleanup", "scenarioId": "ai-tools and ai-chat-memory and personalization-storage", "sourcePaths": ["app/libs/ai/chatMemory.ts", "app/libs/storage/"] },
+    { "name": "Pinecone semantic search, vector upsert, readback, and deletion", "scenarioId": "ai-chat-memory", "sourcePaths": ["app/libs/ai/chatMemory.ts"] },
+    { "name": "AWS Lambda translation worker completion", "scenarioId": "product-create", "sourcePaths": ["app/api/products/translate-insert/invokeTranslateProductLambda.ts"] },
+    { "name": "Pusher product and support events", "scenarioId": "product-create and support", "sourcePaths": ["app/libs/pusher.ts", "app/api/message/", "app/api/tickets/"] },
+    { "name": "Resend customer email delivery", "scenarioId": "notifications", "sourcePaths": ["app/api/send-email/", "app/api/e2e/resend-status/route.ts"] },
+    { "name": "Telegram support notifications", "scenarioId": "support", "sourcePaths": ["app/api/telegram/", "app/api/message/"] },
+    { "name": "R2 or Supabase Storage object upload, download, and exact deletion", "scenarioId": "personalization-storage and product-create and support", "sourcePaths": ["app/libs/storage/", "app/api/storage/"] },
+    { "name": "Google price research", "scenarioId": "pricing-categories and ai-tools", "sourcePaths": ["app/api/fetch-prices/route.ts"] },
+    { "name": "CoinMarketCap conversion and run-owned import", "scenarioId": "analytics-other", "sourcePaths": ["app/api/coinmarketcap/route.ts"] }
+  ]
+}

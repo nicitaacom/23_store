@@ -71,7 +71,14 @@ async function createUploadSession(actor: TStorageActor, input: TStorageUploadRe
 async function signStorageUpload(provider: IStorageProvider, uploadId: string, session: TStorageUploadSession): Promise<TStorageUploadDestination> {
   const destination = await provider.signUpload(session.stagePath, session.contentType, session.size)
   await storageRedis().set(uploadKey(uploadId), session, { ex: 24 * 60 * 60 })
-  return { uploadId, method: "PUT", ...destination, expiresAt: session.expiresAt, reference: session.reference }
+  return {
+    uploadId,
+    method: "PUT",
+    ...destination,
+    expiresAt: session.expiresAt,
+    reference: session.reference,
+    publicUrl: provider.publicUrl(session.reference.bucket, session.reference.path),
+  }
 }
 
 export async function prepareStorageUpload(actor: TStorageActor, input: TStorageUploadRequest, backup = false, providerName?: TStorageProviderName): Promise<TStorageUploadDestination> {

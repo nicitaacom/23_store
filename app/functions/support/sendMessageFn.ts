@@ -7,15 +7,19 @@ import { getDisplayUsername } from "@/utils/getDisplayUsername"
 import { getUserId } from "@/utils/getUserId"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
 import { useMessages } from "@/store/ui/useMessages"
+import useToast from "@/store/ui/useToast"
 import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
+
+const ticketCreationInFlight = new Map<string, Promise<boolean>>()
+const ticketNotificationPending = new Set<string>()
 
 export async function sendMessageFn(t: TI18nFunction, messageBody: string, sender_id: string, imageUrl: string | null) {
   // Don't allow to send empty message (just with spaces and/or newlines)
-  if (messageBody.trim().length === 0 && !imageUrl) return
+  if (messageBody.trim().length === 0 && !imageUrl) return false
 
-  const { messages, setMessages, ticketId: ticketIdState, setTicketId } = useMessages.getState()
+  const toast = useToast.getState()
+  const { setMessages, ticketId: ticketIdState, setTicketId } = useMessages.getState()
 
-  const isFirstMessage = messages.length === 0
   const ticketId = ticketIdState || getUserId()
   const senderUsername = getDisplayUsername(sender_id)
 
@@ -31,32 +35,42 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
     ticket_id: ticketId,
   }
 
-  setMessages([...messages, message]) // optimistically set state
+  const currentMessages = useMessages.getState().messages
+  setMessages([...currentMessages, message]) // optimistically set state
 
   const rateLimitSDK = new RateLimitSDK()
+  let realtimeDelivered = true
 
-  if (isFirstMessage) {
+  if (!ticketIdState) {
+    let ticketCreation = ticketCreationInFlight.get(ticketId)
+    if (!ticketCreation) {
+      ticketCreation = (async () => {
+        if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newTicket")
+
+        const response = await supportSDK.openTicket({
+          ticketId: message.ticket_id,
+          ownerId: sender_id,
+          ownerUsername: senderUsername,
+          messageBody: messageBody || t("message.image_sent"),
+          ownerAvatarUrl: null,
+        })
+        setTicketId(ticketId)
+        ticketNotificationPending.add(ticketId)
+        return response.realtimeDelivered !== false
+      })()
+      ticketCreationInFlight.set(ticketId, ticketCreation)
+    }
+
     try {
-      if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newTicket")
-
-      setTicketId(ticketId)
-      console.log(43, "messages - ", messages)
-
-      // 1. Send message in telegram
-      await emailsSDK.sendTelegramMessage(messageBody || t("message.image_sent"))
-
-      // 2. Insert row in table 'tickets'
-      await supportSDK.openTicket({
-        ticketId: message.ticket_id,
-        ownerId: sender_id,
-        ownerUsername: senderUsername,
-        messageBody: messageBody || t("message.image_sent"),
-        ownerAvatarUrl: null,
-      })
+      realtimeDelivered = await ticketCreation
     } catch (error) {
-      console.log(57, t("message.error.image_sent"), error)
-      setMessages([])
-      setTicketId("")
+      console.error("Support ticket creation failed", error)
+      const currentMessages = useMessages.getState().messages
+      useMessages.getState().setMessages(currentMessages.filter(currentMessage => currentMessage.id !== message.id))
+      toast.show("error", t("message.error.ticket_open_title"), t("message.error.ticket_open_body"))
+      return false
+    } finally {
+      if (ticketCreationInFlight.get(ticketId) === ticketCreation) ticketCreationInFlight.delete(ticketId)
     }
   }
 
@@ -64,7 +78,7 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
     if (process.env.NODE_ENV === "production") await rateLimitSDK.rateLimit(t, "newMessage")
 
     // 3. Insert message in table 'messages'
-    await supportSDK.sendMessage({
+    const response = await supportSDK.sendMessage({
       id: message.id,
       ticketId: message.ticket_id,
       senderId: message.sender_id,
@@ -74,8 +88,32 @@ export async function sendMessageFn(t: TI18nFunction, messageBody: string, sende
       images: imageUrl ? [imageUrl] : undefined,
       messageSender: "user",
     })
+    if (response.realtimeDelivered === false || response.ticketMetadataUpdated === false) {
+      realtimeDelivered = false
+    }
   } catch (error) {
-    console.log(78, t("message.error.message_sent"), error)
-    setMessages(messages.slice(0, -1)) // delete last message and keep other
+    console.error("Support message delivery failed", error)
+    const currentMessages = useMessages.getState().messages
+    useMessages.getState().setMessages(currentMessages.filter(currentMessage => currentMessage.id !== message.id))
+    toast.show("error", t("message.error.not_saved_title"), t("message.error.not_saved_body"))
+    return false
   }
+
+  // The chat write is authoritative. A Telegram notification failure must not make the user retry
+  // and create a duplicate message after the database already accepted it.
+  if (ticketNotificationPending.has(ticketId)) {
+    ticketNotificationPending.delete(ticketId)
+    try {
+      await emailsSDK.sendTelegramMessage(messageBody || t("message.image_sent"))
+    } catch (error) {
+      console.error("Support message was saved but Telegram notification failed", error)
+      realtimeDelivered = false
+    }
+  }
+
+  if (!realtimeDelivered) {
+    toast.show("warning", t("message.warning.notification_title"), t("message.warning.notification_body"))
+  }
+
+  return true
 }

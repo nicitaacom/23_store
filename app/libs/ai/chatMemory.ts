@@ -1,9 +1,9 @@
 import "server-only"
-
 import { Pinecone, type Index } from "@pinecone-database/pinecone"
 import { Redis } from "@upstash/redis"
 
 import type { TAIChatMessage } from "@/ts/types/TAIChatMessage"
+import { describeOpenAIRequestFailure, OpenAIInvalidOutputError, OpenAIRequestFailure, requestOpenAIWithRetry } from "@/libs/ai/openaiRequest"
 
 const RECENT_HISTORY_LIMIT = 10
 const RECENT_HISTORY_PROMPT_LIMIT = 4
@@ -163,6 +163,16 @@ type GetSalesAssistantContextParams = {
   promptValue: string
   memory: string
   conversationHistory: TAIChatMessage[]
+}
+
+type TEmbeddingEvidence = { requestIds: string[]; attemptCount: number }
+type TEmbeddingResult = TEmbeddingEvidence & { vectors: number[][] }
+
+class SemanticMemoryWriteError extends Error {
+  constructor(readonly cause: unknown, readonly embeddingEvidence: TEmbeddingEvidence) {
+    super("Semantic conversation memory could not be saved")
+    this.name = "SemanticMemoryWriteError"
+  }
 }
 
 let redisClient: Redis | null = null
@@ -435,41 +445,64 @@ async function getEmbeddingModel(): Promise<typeof DEFAULT_EMBEDDING_MODEL | typ
   return embeddingModelPromise
 }
 
-async function createEmbeddings(inputs: string[]): Promise<number[][]> {
+async function createEmbeddings(inputs: string[]): Promise<TEmbeddingResult> {
   const cleanedInputs = inputs.map(input => clipText(normalizeText(input), EMBEDDING_INPUT_CHAR_LIMIT)).filter(Boolean)
 
-  if (!cleanedInputs.length) return []
+  if (!cleanedInputs.length) return { vectors: [], requestIds: [], attemptCount: 0 }
   if (!process.env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured.")
 
   const getEmbeddingModelResp = await getEmbeddingModel()
 
-  const response = await fetch("https://api.openai.com/v1/embeddings", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: getEmbeddingModelResp,
-      input: cleanedInputs,
-    }),
+  const openAIResult = await requestOpenAIWithRetry(async ({ timeout }) => {
+    const response = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({ model: getEmbeddingModelResp, input: cleanedInputs }),
+      signal: AbortSignal.timeout(timeout),
+      cache: "no-store",
+    })
+    const requestId = response.headers.get("x-request-id") ?? undefined
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null) as { error?: { code?: unknown; message?: unknown } } | null
+      const providerError = Object.assign(
+        new Error(typeof payload?.error?.message === "string" ? payload.error.message : "OpenAI embedding request failed"),
+        {
+          status: response.status,
+          code: typeof payload?.error?.code === "string" ? payload.error.code : undefined,
+          request_id: requestId,
+          headers: response.headers,
+        },
+      )
+      throw providerError
+    }
+
+    let payload: { data?: Array<{ embedding?: number[] }> }
+    try {
+      payload = await response.json() as { data?: Array<{ embedding?: number[] }> }
+    } catch {
+      throw new OpenAIInvalidOutputError(requestId)
+    }
+
+    const vectors = payload.data?.map(item => item.embedding ?? []) ?? []
+    if (
+      vectors.length !== cleanedInputs.length ||
+      vectors.some(vector => !vector.length || vector.some(value => !Number.isFinite(value)))
+    ) {
+      throw new OpenAIInvalidOutputError(requestId)
+    }
+
+    return { vectors, _request_id: requestId }
   })
 
-  if (!response.ok) {
-    throw new Error(await response.text())
+  return {
+    vectors: openAIResult.response.vectors,
+    requestIds: openAIResult.requestIds,
+    attemptCount: openAIResult.attemptCount,
   }
-
-  const data = (await response.json()) as {
-    data?: Array<{ embedding?: number[] }>
-  }
-
-  const embeddings = data.data?.map(item => item.embedding ?? []) ?? []
-
-  if (!embeddings.length || embeddings.length !== cleanedInputs.length) {
-    throw new Error("OpenAI embeddings response did not match the expected record count.")
-  }
-
-  return embeddings
 }
 
 function getHistoryKey(userId: string): string {
@@ -589,7 +622,7 @@ async function persistSemanticMemory(
   userPrompt: string,
   assistantReply: string,
   _memorySummary: string,
-): Promise<void> {
+): Promise<TEmbeddingEvidence> {
   const now = Date.now()
   const records = [
     {
@@ -608,24 +641,33 @@ async function persistSemanticMemory(
     },
   ].filter(record => record.text && record.text.length > 8)
 
-  if (!records.length) return
+  if (!records.length) return { requestIds: [], attemptCount: 0 }
 
   const createEmbeddingsResp = await createEmbeddings(records.map(record => record.text))
 
-  await getPineconeIndex()
-    .namespace(getMemoryNamespace(userId))
-    .upsert({
-      records: records.map((record, index) => ({
-        id: record.id,
-        values: createEmbeddingsResp[index],
-        metadata: {
-          text: record.text,
-          role: record.role,
-          kind: record.kind,
-          createdAt: record.createdAt,
-        },
-      })),
+  try {
+    await getPineconeIndex()
+      .namespace(getMemoryNamespace(userId))
+      .upsert({
+        records: records.map((record, index) => ({
+          id: record.id,
+          values: createEmbeddingsResp.vectors[index],
+          metadata: {
+            text: record.text,
+            role: record.role,
+            kind: record.kind,
+            createdAt: record.createdAt,
+          },
+        })),
+      })
+  } catch (error) {
+    throw new SemanticMemoryWriteError(error, {
+      requestIds: createEmbeddingsResp.requestIds,
+      attemptCount: createEmbeddingsResp.attemptCount,
     })
+  }
+
+  return { requestIds: createEmbeddingsResp.requestIds, attemptCount: createEmbeddingsResp.attemptCount }
 }
 
 export async function getRelevantSemanticContext({
@@ -635,64 +677,65 @@ export async function getRelevantSemanticContext({
 }: Pick<GetSalesAssistantContextParams, "userId" | "promptValue" | "memory">): Promise<{
   semanticContext: string
   pineconeMatches: TSalesAssistantDebugContext["pineconeMatches"]
+  embeddingRequestIds: string[]
+  embeddingAttemptCount: number
 }> {
   const searchText = normalizeText([memory, promptValue].filter(Boolean).join("\n"))
 
-  if (!searchText) return { semanticContext: "", pineconeMatches: [] }
-  if (!shouldQuerySemanticMemory(promptValue, memory)) return { semanticContext: "", pineconeMatches: [] }
+  if (!searchText || !shouldQuerySemanticMemory(promptValue, memory)) {
+    return { semanticContext: "", pineconeMatches: [], embeddingRequestIds: [], embeddingAttemptCount: 0 }
+  }
 
-  try {
-    const [queryEmbedding] = await createEmbeddings([searchText])
-    const response = await getPineconeIndex().namespace(getMemoryNamespace(userId)).query({
-      vector: queryEmbedding,
-      topK: SEMANTIC_TOP_K,
-      includeMetadata: true,
+  const createEmbeddingsResp = await createEmbeddings([searchText])
+  const [queryEmbedding] = createEmbeddingsResp.vectors
+  const response = await getPineconeIndex().namespace(getMemoryNamespace(userId)).query({
+    vector: queryEmbedding,
+    topK: SEMANTIC_TOP_K,
+    includeMetadata: true,
+  })
+
+  const pineconeMatches: TSalesAssistantDebugContext["pineconeMatches"] = []
+  const seen = new Set<string>()
+
+  for (const match of response.matches) {
+    const metadata = match.metadata
+    const text = clipText(normalizeText(String(metadata?.text ?? "")), 220)
+
+    if (!text || seen.has(text.toLowerCase()) || text === normalizeText(promptValue)) continue
+
+    pineconeMatches.push({
+      kind: "message",
+      role: metadata?.role === "assistant" ? "assistant" : "user",
+      text,
     })
+    seen.add(text.toLowerCase())
 
-    const pineconeMatches: TSalesAssistantDebugContext["pineconeMatches"] = []
-    const seen = new Set<string>()
+    if (pineconeMatches.length >= SEMANTIC_TOP_K) break
+  }
 
-    for (const match of response.matches) {
-      const metadata = match.metadata
-      const text = clipText(normalizeText(String(metadata?.text ?? "")), 220)
+  const summaryParts: string[] = []
+  let currentLength = 0
 
-      if (!text || seen.has(text.toLowerCase()) || text === normalizeText(promptValue)) continue
+  for (const match of pineconeMatches) {
+    const text = match.text
 
-      pineconeMatches.push({
-        kind: "message",
-        role: metadata?.role === "assistant" ? "assistant" : "user",
-        text,
-      })
-      seen.add(text.toLowerCase())
+    if (!text) continue
 
-      if (pineconeMatches.length >= SEMANTIC_TOP_K) break
-    }
+    const line =
+      match.role === "assistant" ? `Earlier suggestion: ${clipText(text, 120)}` : `Earlier user need: ${clipText(text, 120)}`
 
-    const summaryParts: string[] = []
-    let currentLength = 0
+    if (summaryParts.includes(line)) continue
+    if (currentLength + line.length > SEMANTIC_CONTEXT_CHAR_LIMIT) break
 
-    for (const match of pineconeMatches) {
-      const text = match.text
+    summaryParts.push(line)
+    currentLength += line.length + 1
+  }
 
-      if (!text) continue
-
-      const line =
-        match.role === "assistant" ? `Earlier suggestion: ${clipText(text, 120)}` : `Earlier user need: ${clipText(text, 120)}`
-
-      if (summaryParts.includes(line)) continue
-      if (currentLength + line.length > SEMANTIC_CONTEXT_CHAR_LIMIT) break
-
-      summaryParts.push(line)
-      currentLength += line.length + 1
-    }
-
-    return {
-      semanticContext: summaryParts.join("\n"),
-      pineconeMatches,
-    }
-  } catch (error) {
-    console.error("Failed to query Pinecone semantic memory.", error)
-    return { semanticContext: "", pineconeMatches: [] }
+  return {
+    semanticContext: summaryParts.join("\n"),
+    pineconeMatches,
+    embeddingRequestIds: createEmbeddingsResp.requestIds,
+    embeddingAttemptCount: createEmbeddingsResp.attemptCount,
   }
 }
 
@@ -706,6 +749,8 @@ export async function getSalesAssistantContext({
   semanticContext: string
   recentSource: RecentMessageSource
   pineconeMatches: TSalesAssistantDebugContext["pineconeMatches"]
+  embeddingRequestIds: string[]
+  embeddingAttemptCount: number
 }> {
   const fallbackHistory = buildFallbackConversationHistory(conversationHistory, promptValue)
   const [storedHistory, semanticResult] = await Promise.all([
@@ -722,6 +767,8 @@ export async function getSalesAssistantContext({
     semanticContext: semanticResult.semanticContext,
     recentSource,
     pineconeMatches: semanticResult.pineconeMatches,
+    embeddingRequestIds: semanticResult.embeddingRequestIds,
+    embeddingAttemptCount: semanticResult.embeddingAttemptCount,
   }
 }
 
@@ -744,23 +791,113 @@ export async function persistConversationTurn({
   userPrompt,
   assistantReply,
   memorySummary,
-}: PersistConversationTurnParams): Promise<void> {
+}: PersistConversationTurnParams): Promise<TEmbeddingEvidence & { warnings: string[] }> {
   const normalizedUserPrompt = clipText(normalizeText(userPrompt), EMBEDDING_INPUT_CHAR_LIMIT)
   const normalizedAssistantReply = clipText(normalizeText(assistantReply), EMBEDDING_INPUT_CHAR_LIMIT)
   const normalizedMemorySummary = clipText(normalizeWorkingMemory(memorySummary), EMBEDDING_INPUT_CHAR_LIMIT)
 
-  const tasks = [
+  const [historyResult, semanticResult] = await Promise.allSettled([
     persistRecentHistory(userId, normalizedUserPrompt, normalizedAssistantReply),
     persistSemanticMemory(userId, normalizedUserPrompt, normalizedAssistantReply, normalizedMemorySummary),
-  ]
+  ] as const)
+  const warnings: string[] = []
+  let embeddingEvidence: TEmbeddingEvidence = { requestIds: [], attemptCount: 0 }
 
-  const response = await Promise.allSettled(tasks)
+  if (historyResult.status === "rejected") {
+    console.error("Failed to persist recent AI conversation history.", {
+      errorName: historyResult.reason instanceof Error ? historyResult.reason.name : "UnknownError",
+    })
+    warnings.push("Your AI reply was delivered, but recent conversation history was not saved. Contact the store owner if this continues.")
+  }
 
-  response.forEach(settledResult => {
-    if (settledResult.status === "rejected") {
-      console.error("Failed to persist AI memory state.", settledResult.reason)
+  if (semanticResult.status === "fulfilled") {
+    embeddingEvidence = semanticResult.value
+  } else {
+    const error = semanticResult.reason
+    if (error instanceof OpenAIRequestFailure) {
+      embeddingEvidence = { requestIds: error.requestIds, attemptCount: error.attemptCount }
+      warnings.push(describeOpenAIRequestFailure(
+        error,
+        "save conversation memory",
+        "Your AI reply was delivered, but conversation memory may be incomplete.",
+      ).message)
+    } else if (error instanceof SemanticMemoryWriteError) {
+      embeddingEvidence = error.embeddingEvidence
+      console.error("Failed to persist semantic AI conversation memory.", {
+        errorName: error.cause instanceof Error ? error.cause.name : "UnknownError",
+      })
+      warnings.push("Your AI reply was delivered, but related recommendations could not be saved to conversation memory. Contact the store owner if this continues.")
+    } else {
+      console.error("Failed to persist semantic AI conversation memory.", {
+        errorName: error instanceof Error ? error.name : "UnknownError",
+      })
+      warnings.push("Your AI reply was delivered, but related recommendations could not be saved to conversation memory. Contact the store owner if this continues.")
     }
-  })
+  }
+
+  return { ...embeddingEvidence, warnings }
+}
+
+export async function readRunOwnedConversationMemory(userId: string) {
+  const rawHistory = await getRedisClient().lrange<string>(getHistoryKey(userId), 0, -1)
+  const history = rawHistory.map(entry => {
+    try {
+      const parsed = JSON.parse(entry) as RecentHistoryMessage
+      if (!["user", "assistant"].includes(parsed.role) || typeof parsed.text !== "string") return null
+      return { role: parsed.role, text: parsed.text }
+    } catch {
+      return null
+    }
+  }).filter((entry): entry is { role: AssistantRole; text: string } => Boolean(entry))
+
+  const index = getPineconeIndex()
+  const vectorIds: string[] = []
+  let paginationToken: string | undefined
+  for (let pageNumber = 0; pageNumber < 20; pageNumber += 1) {
+    const page = await index.namespace(getMemoryNamespace(userId)).listPaginated({
+      limit: 100,
+      ...(paginationToken ? { paginationToken } : {}),
+    })
+    vectorIds.push(...(page.vectors ?? []).map(vector => vector.id).filter((id): id is string => typeof id === "string"))
+    paginationToken = page.pagination?.next
+    if (!paginationToken) break
+    if (pageNumber === 19) throw new Error("Run-owned AI memory exceeds the readback limit")
+  }
+
+  const vectorRecords: Array<{ id: string; role: AssistantRole; text: string }> = []
+  for (let offset = 0; offset < vectorIds.length; offset += 100) {
+    const ids = vectorIds.slice(offset, offset + 100)
+    const response = await index.fetch({ ids, namespace: getMemoryNamespace(userId) })
+    for (const [id, record] of Object.entries(response.records ?? {})) {
+      const metadata = (record.metadata ?? {}) as Partial<MemoryRecordMetadata>
+      if (!/^(user|assistant):\d+:[0-9a-f-]+$/i.test(id)
+        || !["user", "assistant"].includes(String(metadata.role)) || typeof metadata.text !== "string") {
+        throw new Error("Run-owned AI memory contains an unrecognized vector record")
+      }
+      vectorRecords.push({ id, role: metadata.role as AssistantRole, text: metadata.text })
+    }
+  }
+
+  return { historyKey: getHistoryKey(userId), history, vectorRecords }
+}
+
+export async function clearRunOwnedConversationMemory(userId: string) {
+  const historyKey = getHistoryKey(userId)
+  const namespace = getMemoryNamespace(userId)
+  await Promise.all([
+    getRedisClient().del(historyKey),
+    getPineconeIndex().deleteAll({ namespace }),
+  ])
+
+  let latest = await readRunOwnedConversationMemory(userId)
+  for (let attempt = 0; attempt < 5 && (latest.history.length || latest.vectorRecords.length); attempt += 1) {
+    await new Promise(resolve => setTimeout(resolve, 250 * (2 ** attempt)))
+    latest = await readRunOwnedConversationMemory(userId)
+  }
+  if (latest.history.length || latest.vectorRecords.length) {
+    throw new Error("Run-owned AI memory remains after the cleanup request")
+  }
+  return { historyKey, namespace, historyCount: 0, vectorCount: 0 }
 }
 
 function shouldQuerySemanticMemory(promptValue: string, memory: string): boolean {

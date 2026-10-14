@@ -47,7 +47,7 @@ export default function SupportButtonDropdown() {
   })
 
   return (
-    <section className="support-chat-panel relative flex h-[440px] max-h-[calc(100dvh-96px)] w-[min(92vw,390px)] flex-col overflow-hidden rounded-lg border border-border-color/35 bg-modal-surface shadow-compact-lg mobile:h-[540px]">
+    <section className="support-chat-panel relative flex h-[440px] max-h-[calc(100dvh-96px)] w-[min(92vw,390px)] flex-col overflow-hidden rounded-lg border border-border-color/35 bg-modal-surface shadow-compact-lg mobile:h-[540px]" data-cy="support-chat-panel">
       <OrganicCanvasBackground
         className="h-auto shrink-0 overflow-hidden border-b border-border-color/30 bg-[radial-gradient(circle_at_top_left,rgba(63,224,107,0.06),transparent_30%),linear-gradient(135deg,rgba(17,20,26,0.98),rgba(23,29,38,0.96))]"
         parentClassName="relative flex items-start justify-between gap-2 px-3 py-3"

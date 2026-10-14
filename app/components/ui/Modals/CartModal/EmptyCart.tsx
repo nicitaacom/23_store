@@ -6,7 +6,7 @@ import { useScopedI18n } from "@/locales/client"
 export default function EmptyCart() {
   const t = useScopedI18n("product")
   return (
-    <div className="flex flex-col justify-center items-center">
+    <div className="flex flex-col justify-center items-center" data-cy="empty-cart">
       <Image src="/empty-cart.png" alt="" width={256} height={256} />
       <h1 className="text-4xl">{t("empty_cart")}</h1>
     </div>

@@ -31,6 +31,8 @@ export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps
       widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
         sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
         theme: "auto",
+        retry: "auto",
+        "retry-interval": 12_000,
         callback: async (token: string) => {
           setStatus("verifying")
           setErrorMessage(null)
@@ -55,7 +57,7 @@ export function TurnstileChallenge({ locale, nextPath }: TurnstileChallengeProps
         },
         "error-callback": () => {
           setStatus("error")
-          setErrorMessage("Cloudflare Turnstile did not initialize correctly. Please try again.")
+          setErrorMessage("The security check is retrying automatically. Contact support if it remains unavailable.")
         },
         "expired-callback": () => {
           setStatus("idle")

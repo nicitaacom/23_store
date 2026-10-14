@@ -8,8 +8,8 @@
 //   setErrorMessage("Unexpected system error.")
 //   toast.show("error", "Failed to fetch raw JSON data", "")
 // Good:
-//   setErrorMessage("Internet connection lost. DNC results not fetched. Please retry or contact support")
-//   toast.show("error", "Internet connection lost", "Emails not fetched - please retry or contact support")
+//   setErrorMessage("Internet connection lost. DNC results were not fetched. Contact support to restore access")
+//   toast.show("error", "Internet connection lost", "Emails were not fetched. Contact support to restore access")
 //
 // Fires on the 3 places a user actually reads an error in this codebase:
 //   1. the 5-states error state - setError / setErrorMessage / setLocalError / setPhoneError (any
@@ -19,12 +19,13 @@
 //   3. JSX styled className="text-danger" - <p className="text-danger">Something went wrong</p>,
 //      including a {message ? message : "..."} fallback the way NoCodeFoundError.tsx reads it
 //
-// 3 checks, reported highest-priority-first so one call site produces one message, never three:
+// 4 checks, reported highest-priority-first so one call site produces one message:
 //   1. fillerMessage  - the whole message is filler ("something went wrong", "unknown error")
 //   2. developerTerm  - it shows a word out of the code, not out of the user's world (JSON, null,
 //      connectionRef, NEXT_PUBLIC_WS_URL)
-//   3. noNextStep     - nothing in it says what to do (retry / reload the page / contact support /
-//      the exact value to enter)
+//   3. userRetryInstruction - it asks the user to retry; transient failures need a bounded automatic
+//      retry in code, while permanent failures need a step that resolves the cause
+//   4. noNextStep     - nothing in it says what to do (contact support / reload the page / enter a value)
 //
 // Only STATIC text gets checked - a `${}` interpolation or a variable (error.message, response) is
 // whatever the server returned at runtime and this rule has no way to read it. A toast whose
@@ -100,16 +101,14 @@ const ENV_VAR_IDENTIFIER = /\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b/
 // DEVELOPER_TERMS is gibberish to the user quoted or not.
 const QUOTED_VALUE = /"[^"]*"|'[^']*'|`[^`]*`/g
 
-// The step out of the error, in the user's hands. A message holding one of these gives them
-// something to do; a message without one leaves them holding a fact and nothing else. Matched on
+// A real recovery step in the user's hands. Retrying is intentionally absent: transient failures
+// should be retried by the application with a bounded timeout, not delegated to the user. Matched on
 // word boundaries, so "Wait!" counts and "settings"/"user"/"address" never stand in for
 // "set"/"use"/"add". The base verb form only - "Error deleting metric" is the system reporting,
 // "Delete the row first" is the user's move.
 // "must"/"required" count - "End hour must be after start hour" IS the instruction, phrased as the
 // rule. "please" counts - every "please X" in this codebase is followed by a real action.
 const NEXT_STEP_WORDS = [
-  "retry",
-  "try again",
   "reload",
   "refresh",
   "contact support",
@@ -158,6 +157,11 @@ const NEXT_STEP_WORDS = [
   "update",
   "please",
 ]
+
+// A retry instruction asks the user to repeat the action. The application owns transient retries;
+// permanent failures need a corrective step such as changing a value or contacting support.
+const USER_RETRY_INSTRUCTION =
+  /\bplease\s+(?:try again|retry|attempt again)\b|\b(?:you can|you may|you should|you need to|feel free to)\s+(?:retry|try again|attempt again)\b|(?:^|[.!?;:,—–-]\s*)(?:try again|retry|attempt again)\b|\b(?:and|or|then|to)\s+(?:try again|retry|attempt again)\b/
 
 // "Failed to select accounts" and "Error checking attachments" report what the SYSTEM tried, not
 // what the user should do - the verb right behind "failed to"/"error" belongs to the code, so it
@@ -271,7 +275,7 @@ function getJSXStaticParts(jsxElement) {
   return { staticParts: staticParts.filter(part => part.text.length > 0), hasRuntimePart }
 }
 
-// The 3 checks (filler/developer-term/no-next-step), reported highest-priority-first, shared by every
+// The 4 checks (filler/developer-term/user-retry/no-next-step), reported highest-priority-first, shared by every
 // place a user reads an error - a setter call, a toast call, or text-danger JSX.
 function checkStaticParts(context, staticParts, hasRuntimePart) {
   if (staticParts.length === 0) return
@@ -288,6 +292,10 @@ function checkStaticParts(context, staticParts, hasRuntimePart) {
   const developerTerm = findDeveloperTerm(lowercasedText, text)
   if (developerTerm) {
     return context.report({ node: reportNode, messageId: "developerTerm", data: { text: forReport(text), term: developerTerm } })
+  }
+
+  if (USER_RETRY_INSTRUCTION.test(lowercasedText)) {
+    return context.report({ node: reportNode, messageId: "userRetryInstruction", data: { text: forReport(text) } })
   }
 
   // The next-step check needs the WHOLE message in hand - when part of it is a runtime value, the
@@ -308,11 +316,13 @@ module.exports = {
       schema: [],
       messages: {
         fillerMessage:
-          'Error message "{{text}}" says nothing the user can act on - name what actually failed, what they lost, and what to do now (e.g. "Internet connection lost. Emails not fetched. Please retry or contact support").',
+          'Error message "{{text}}" says nothing the user can act on - name what actually failed, what they lost, and what to do now (e.g. "Internet connection lost. Emails were not fetched. Contact support to restore access").',
         developerTerm:
-          'Error message "{{text}}" shows "{{term}}" - a word out of the code, not out of the user\'s world. Rewrite it in what they see on screen (e.g. "Internet connection lost. Emails not fetched. Please retry or contact support").',
+          'Error message "{{text}}" shows "{{term}}" - a word out of the code, not out of the user\'s world. Rewrite it in what they see on screen (e.g. "Internet connection lost. Emails were not fetched. Contact support to restore access").',
+        userRetryInstruction:
+          'Error message "{{text}}" asks the user to retry. Implement a bounded automatic retry with a longer timeout for transient failures; for permanent failures, give the user a step that fixes the cause.',
         noNextStep:
-          'Error message "{{text}}" never says what to do next - end it with the step out: retry, reload the page, contact support, or the exact value to enter.',
+          'Error message "{{text}}" never says what to do next - give the user a recovery step such as correcting a value, reloading the page, or contacting support. Retry transient failures in code.',
       },
     },
     create(context) {

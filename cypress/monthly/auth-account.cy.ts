@@ -3,7 +3,7 @@ import type { Interception } from "cypress/types/net-stubbing"
 import { expectRealRejection } from "../support/diagnostics"
 import { recordVerifiedRoute } from "./support"
 
-type TRunAccount = { id: string; email: string; password: string; role: string }
+type TRunAccount = { id: string; email: string; role: string }
 type TRunAccounts = Record<"owner" | "other" | "support" | "admin", TRunAccount>
 type TRunProfile = {
   profile: { id: string; preferred_language: string | null; avatar_url: string | null }
@@ -18,7 +18,7 @@ describe("monthly real-service account session and language", function () {
   let originalProfileSnapshotReady = false
 
   before(() => {
-    cy.task<TRunAccounts>("prepareRunAccounts").then(runAccounts => {
+    cy.prepareRunAccounts().then(runAccounts => {
       accounts = runAccounts
     })
   })

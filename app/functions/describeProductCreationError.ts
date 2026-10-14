@@ -5,8 +5,8 @@ export function describeProductCreationError(error: unknown, stage: string, isOn
   }
 
   const connectionHint = isOnline
-    ? "The connection or service may be unavailable. Check your connection and try again."
-    : "Your device reports no internet connection. Reconnect and try again."
+    ? "The connection or service may be unavailable. Check the product list before starting another creation, and contact the store administrator if the product is missing."
+    : "Your device reports no internet connection. Reconnect, then check the product list before starting another creation. Contact the store administrator if the product is missing."
 
-  return `No response while ${stage}. ${connectionHint} Check the product list before retrying to avoid duplicates.`
+  return `No response while ${stage}. ${connectionHint}`
 }

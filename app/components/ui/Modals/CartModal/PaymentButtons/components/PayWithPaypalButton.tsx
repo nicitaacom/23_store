@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation"
 import { FaPaypal } from "react-icons/fa"
 import { twMerge } from "tailwind-merge"
 
-import { buildStripeLineName } from "../functions/buildStripeLineName"
-import { getVariantImageUrl } from "@/utils/cartProducts"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import useCartStore from "@/store/user/cartStore"
@@ -23,17 +21,6 @@ export function PayWithPaypalButton() {
   const cartStore = useCartStore()
   const { user } = useUser()
   const { isLoading, setIsLoading } = useLoading()
-
-  const payPalProductsQuery = encodeURIComponent(
-    JSON.stringify(
-      cartStore.productsData.map(product => ({
-        imageUrl: getVariantImageUrl(product, product.selectedVariant),
-        name: buildStripeLineName(product),
-        quantity: product.quantity,
-        unitAmount: Math.max(1, Math.round(product.price * 100)),
-      })),
-    ),
-  )
 
   async function createPayPalSessionWithStripe() {
     trackBuyingFlowEvent({ event: "checkout_click", checkoutKind: "paypal" })
@@ -54,7 +41,12 @@ export function PayWithPaypalButton() {
 
       // redirect user to session.url on client side to avoid 'blocked by CORS' error
       const response = await productsSDK.createPayPalSession({
-        payPalProductsQuery,
+        products: Object.values(cartStore.products).map(product => ({
+          productId: product.id,
+          variantId: product.variantId ?? null,
+          designId: product.designId ?? null,
+          quantity: product.quantity,
+        })),
         email: user?.email || null,
       })
       router.push(response)

@@ -3,6 +3,12 @@ import { headers } from "next/headers"
 import { Redis } from "@upstash/redis"
 import { Ratelimit } from "@upstash/ratelimit"
 
+import {
+  describeOpenAIRequestFailure,
+  OpenAIInvalidOutputError,
+  openAIRequestHeaders,
+  requestOpenAIWithRetry,
+} from "@/libs/ai/openaiRequest"
 import { getPrintAreaOverlap, isMarkedAreaOnProduct } from "@/utils/printMetrics"
 import openai from "@/libs/openai"
 import { RATE_LIMITS } from "@/sdk/RateLimitSDK/consts/RATE_LIMITS"
@@ -13,6 +19,8 @@ const limiter = new Ratelimit({
   limiter: Ratelimit.fixedWindow(RATE_LIMITS.aiCheckPrintArea.maxAllowed, `${RATE_LIMITS.aiCheckPrintArea.windowSec} s`),
   analytics: false,
 })
+
+export const maxDuration = 165
 
 // The model is asked for one thing it is good at - WHERE the printable surface is in the photo. The
 // verdict itself is arithmetic in getPrintAreaOverlap, so it is repeatable and explainable.
@@ -74,39 +82,46 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-6-luna",
-      reasoning_effort: "xhigh",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `This product is printed at ${body.printArea.widthMm} x ${body.printArea.heightMm} mm. Return the box around its printable surface.`,
-            },
-            { type: "image_url", image_url: { url: body.mockupUrl } },
-          ],
-        },
-      ],
-      max_completion_tokens: 2000,
+    const openAIResult = await requestOpenAIWithRetry(async options => {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-6-luna",
+        reasoning_effort: "xhigh",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `This product is printed at ${body.printArea.widthMm} x ${body.printArea.heightMm} mm. Return the box around its printable surface.`,
+              },
+              { type: "image_url", image_url: { url: body.mockupUrl } },
+            ],
+          },
+        ],
+        max_completion_tokens: 2000,
+      }, options)
+      const rawAnswer = completion.choices[0]?.message?.content?.trim() || "null"
+      if (rawAnswer !== "null" && !parseProductRect(rawAnswer)) throw new OpenAIInvalidOutputError()
+      return completion
     })
 
-    const productRect = parseProductRect(completion.choices[0]?.message?.content?.trim() || "null")
+    const productRect = parseProductRect(openAIResult.response.choices[0]?.message?.content?.trim() || "null")
 
     // No surface found means nothing to compare against - reported as a mismatch so the owner picks a
     // photo that actually shows the product, which is the same fix either way.
     if (!productRect) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { isMatching: false, productRect: null, coveragePct: 0, spillPct: 100 } satisfies API.AICheckPrintAreaResponse,
         { status: 200 },
       )
+      for (const [name, value] of Object.entries(openAIRequestHeaders(openAIResult))) response.headers.set(name, value)
+      return response
     }
 
     const overlap = getPrintAreaOverlap(body.mockupRect, productRect)
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         isMatching: isMarkedAreaOnProduct(overlap),
         productRect,
@@ -115,8 +130,13 @@ export async function POST(req: NextRequest) {
       } satisfies API.AICheckPrintAreaResponse,
       { status: 200 },
     )
+    for (const [name, value] of Object.entries(openAIRequestHeaders(openAIResult))) response.headers.set(name, value)
+    return response
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Print area check failed"
-    return NextResponse.json({ error: errorMessage } satisfies API.AICheckPrintAreaResponse, { status: 500 })
+    const failure = describeOpenAIRequestFailure(error, "check the printable area", "The product was not changed.")
+    return NextResponse.json(
+      { error: failure.message, code: failure.code } satisfies API.AICheckPrintAreaResponse,
+      { status: failure.status, headers: openAIRequestHeaders(failure) },
+    )
   }
 }

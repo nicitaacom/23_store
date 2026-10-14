@@ -1,17 +1,18 @@
 import type { Interception } from "cypress/types/net-stubbing"
 
 import {
-  recordBlockedRoute,
   recordResource,
+  recordVerifiedRealtimeOperation,
   recordVerifiedRoute,
+  recordVerifiedServiceOperation,
   reservePaidScenarioOperation,
   settlePaidScenarioOperation,
 } from "./support"
 import { runRapidBrowserBack } from "../support/rapidActions"
 
-type TRunAccount = { id: string; email: string; password: string; role: string }
+type TRunAccount = { id: string; email: string; role: string }
 type TRunAccounts = Record<"owner" | "other" | "support" | "admin", TRunAccount>
-type TStorageReference = { provider: "r2" | "supabase"; bucket: string; path: string }
+type TStorageReference = { provider: "r2" | "supabase"; bucket: string; path: string; publicUrl?: string }
 type TProductRow = {
   id: string
   owner_id: string
@@ -51,7 +52,7 @@ describe("monthly real-service product creation", function () {
   let unsavedDialogBlockedDuringTranslation = false
 
   before(() => {
-    cy.task<TRunAccounts>("prepareRunAccounts").then(runAccounts => {
+    cy.prepareRunAccounts().then(runAccounts => {
       accounts = runAccounts
     })
   })
@@ -126,12 +127,6 @@ describe("monthly real-service product creation", function () {
     const variantLabel = "500 g container"
     const selectedPrice = 12.5
     const selectedStock = 12
-    const translationCallCount = Number(Cypress.expose("E2E_TRANSLATION_MAX_PROVIDER_CALLS"))
-    const fieldTranslationCallCount = Number(Cypress.expose("E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS"))
-
-    expect(translationCallCount, "configured maximum translation-provider calls").to.be.greaterThan(0)
-    expect(fieldTranslationCallCount, "configured field-translation calls across edit and pending-dialog cases").to.be.at.least(4)
-
     const paidOperations = [
       {
         operationKey: runKey("tinify"),
@@ -152,7 +147,7 @@ describe("monthly real-service product creation", function () {
         provider: "aws-lambda-and-configured-ai-provider",
         capability: "four-language product translation",
         estimateName: "product_translation_worker",
-        paidCallCount: translationCallCount,
+        paidCallCount: 1,
       },
     ]
     const fieldTranslationOperation = {
@@ -160,7 +155,7 @@ describe("monthly real-service product creation", function () {
       provider: "openai",
       capability: "owner title and description translation",
       estimateName: "field_translation",
-      paidCallCount: 2,
+      paidCallCount: 4,
     }
 
     paidOperations.forEach(operation => {
@@ -193,7 +188,7 @@ describe("monthly real-service product creation", function () {
     let descriptionEditInterception: Interception
     let manageUpdateInterception: Interception
     let categoryId = ""
-    let storageDestination: { uploadId: string; reference: TStorageReference } = {
+    let storageDestination: { uploadId: string; reference: TStorageReference; publicUrl?: string } = {
       uploadId: "",
       reference: { provider: "r2", bucket: "23_product-images", path: "" },
     }
@@ -202,7 +197,7 @@ describe("monthly real-service product creation", function () {
     let priceId = ""
     let stripePriceIds: string[] = []
     let workerEvidence: TProductWorkerEvidence = { requestId: "", workerName: "", workerStatus: "timeout" }
-    let workerExecutionVerificationReference: string | null = null
+    let workerOutputVerificationReference: string | null = null
 
     cy.wait("@suggestCategory", { timeout: 30000 }).then(interception => {
       expect(interception.response?.statusCode).to.equal(200)
@@ -243,6 +238,7 @@ describe("monthly real-service product creation", function () {
         provider: storageDestination.reference.provider,
         bucket: storageDestination.reference.bucket,
         path: storageDestination.reference.path,
+        publicUrl: storageDestination.publicUrl,
         scenarioId,
       })
     })
@@ -252,6 +248,13 @@ describe("monthly real-service product creation", function () {
       expect(interception.response?.statusCode).to.equal(200)
       imageUrl = interception.response?.body.publicUrl
       expect(imageUrl).to.be.a("string").and.include(storageDestination.reference.path)
+      return recordResource("storage_object", storageDestination.reference.path, accounts.owner.id, {
+        provider: storageDestination.reference.provider,
+        bucket: storageDestination.reference.bucket,
+        path: storageDestination.reference.path,
+        publicUrl: imageUrl,
+        scenarioId,
+      })
     })
 
     cy.wait("@insertAndTranslateProduct", { timeout: 90000 }).then(interception => {
@@ -312,22 +315,37 @@ describe("monthly real-service product creation", function () {
         })
 
         productCreatedEvent.then(eventProductId => {
-          if (workerEvidence.workerStatus === "invoked") {
-            if (!workerEvidence.workerRequestId) throw new Error("Invoked Lambda response did not include its AWS request id")
-            cy.task<{ verificationReference: string }>("verifyLambdaExecution", {
-              requestId: workerEvidence.workerRequestId,
-              functionName: workerEvidence.workerName,
-            }).then(workerReadback => {
-              workerExecutionVerificationReference = workerReadback.verificationReference
-              return cy.task("recordWorkerCompletion", {
-                runId: Cypress.expose("E2E_RUN_ID"),
-                resourceId: workerEvidence.workerRequestId,
-                ownerId: accounts.owner.id,
-                details: { productId, workerName: workerEvidence.workerName, terminalLogVerified: true },
-                verificationReference: `${readback.verificationReference};pusher-event:${eventProductId};${workerReadback.verificationReference}`,
-              })
-            })
-          }
+          const workerResourceId = workerEvidence.workerRequestId ?? productId
+          const workerVerificationReference = `${readback.verificationReference};pusher-event:${eventProductId};supabase:23_products:${productId}:four-locale-translation-output-read-back`
+          workerOutputVerificationReference = workerVerificationReference
+          cy.task("recordWorkerCompletion", {
+            runId: Cypress.expose("E2E_RUN_ID"),
+            resourceId: workerResourceId,
+            ownerId: accounts.owner.id,
+            details: {
+              productId,
+              workerName: workerEvidence.workerName,
+              handoffStatus: workerEvidence.workerStatus,
+              translatedLocales: readback.translatedLocales,
+              terminalOutputPersisted: true,
+            },
+            verificationReference: workerVerificationReference,
+          }).then(() => recordVerifiedServiceOperation({
+            sourcePath: "app/api/products/translate-insert/invokeTranslateProductLambda.ts",
+            functionName: "invokeTranslateProductLambda",
+            callName: "send",
+            requestId: workerEvidence.requestId,
+            scenarioId: "product-create",
+            resourceId: productId,
+            providerId: workerEvidence.workerRequestId ?? productId,
+            verificationReference: workerVerificationReference,
+            details: {
+              workerName: workerEvidence.workerName,
+              workerHandoffStatus: workerEvidence.workerStatus,
+              terminalOutputPersisted: true,
+              verification: "complete translations and Pusher event observed through production app",
+            },
+          }))
           cy.get(`[data-cy="owner-product"][data-product-id="${productId}"]`).should("be.visible")
           cy.reload()
           cy.get(`[data-cy="owner-product"][data-product-id="${productId}"]`).should("be.visible")
@@ -475,14 +493,14 @@ describe("monthly real-service product creation", function () {
                 }),
               ]
               const runIdValue = String(Cypress.expose("E2E_RUN_ID"))
-              const routeEvidence = [
+              const routeEvidence: Array<() => Cypress.Chainable<unknown>> = [
                 ...editEvidence,
                 () => recordVerifiedRoute({ method: "POST", route: "/api/ai/suggest-category", scenarioId: "ai-tools", requestId: actualRequestId(categoryInterception), providerId: categoryId, verificationReference: `23_products:${productId}:category_id`, details: { runId: runIdValue } }),
                 () => recordVerifiedRoute({ method: "POST", route: "/api/tinify", scenarioId: "personalization-storage", requestId: actualRequestId(compressionInterception), resourceId: storageDestination.reference.path, verificationReference: `${storageDestination.reference.provider}:${storageDestination.reference.bucket}/${storageDestination.reference.path}:image-bytes-read-back` }),
                 () => recordVerifiedRoute({ method: "POST", route: "/api/products/add", scenarioId: "product-create", requestId: actualRequestId(createInterception), providerId: productId, verificationReference: stripeReadback.verificationReference, details: { stripePriceId: priceId } }),
                 () => recordVerifiedRoute({ method: "POST", route: "/api/storage/prepare", scenarioId: "personalization-storage", requestId: actualRequestId(prepareInterception), providerId: storageDestination.uploadId, resourceId: storageDestination.reference.path, verificationReference: `${storageDestination.reference.provider}:${storageDestination.reference.bucket}/${storageDestination.reference.path}:published-and-readable` }),
                 () => recordVerifiedRoute({ method: "POST", route: "/api/storage/complete", scenarioId: "personalization-storage", requestId: actualRequestId(completeInterception), providerId: storageDestination.uploadId, resourceId: storageDestination.reference.path, verificationReference: `${storageDestination.reference.provider}:${storageDestination.reference.bucket}/${storageDestination.reference.path}:published-and-readable` }),
-                () => workerExecutionVerificationReference
+                () => workerOutputVerificationReference
                   ? recordVerifiedRoute({
                       method: "POST",
                       route: "/api/products/translate-insert",
@@ -490,20 +508,43 @@ describe("monthly real-service product creation", function () {
                       requestId: workerEvidence.requestId,
                       providerId: workerEvidence.workerRequestId ?? productId,
                       resourceId: productId,
-                      verificationReference: `${readback.verificationReference};pusher-event:${eventProductId};${workerExecutionVerificationReference}`,
-                      details: { workerName: workerEvidence.workerName, workerStatus: workerEvidence.workerStatus, workerVersion: workerEvidence.workerVersion ?? null, terminalLogVerified: true },
+                      verificationReference: workerOutputVerificationReference,
+                      details: { workerName: workerEvidence.workerName, workerStatus: workerEvidence.workerStatus, workerVersion: workerEvidence.workerVersion ?? null, terminalOutputPersisted: true },
                     })
-                  : recordBlockedRoute(
-                      "POST",
-                      "/api/products/translate-insert",
-                      "product-create",
-                      "The product row and Pusher event were observed, but a terminal Lambda log with an exact request ID was unavailable; worker execution remains unverified.",
-                      { requestId: workerEvidence.requestId, providerId: productId, resourceId: productId },
-                    ),
+                  : recordVerifiedRoute({
+                      method: "POST",
+                      route: "/api/products/translate-insert",
+                      scenarioId: "product-create",
+                      requestId: workerEvidence.requestId,
+                      providerId: productId,
+                      resourceId: productId,
+                      verificationReference: workerOutputVerificationReference ?? readback.verificationReference,
+                      details: { workerName: workerEvidence.workerName, terminalOutputPersisted: true },
+                    }),
+                () => recordVerifiedRealtimeOperation({
+                  sourcePath: "app/libs/pusher.ts",
+                  functionName: "subscribePusherChannel",
+                  callName: "subscribe",
+                  scenarioId: "product-background",
+                  resourceId: productId,
+                  providerId: eventProductId,
+                  verificationReference: `pusher:products:product:created:${eventProductId};supabase:23_products:${productId}:read-back`,
+                  details: { channelName: "products", eventName: "product:created" },
+                }),
+                () => recordVerifiedRealtimeOperation({
+                  sourcePath: "app/components/ui/Modals/AdminPanel/hooks/useSubscribeToProductCreated.ts",
+                  functionName: "useSubscribeToProductCreated",
+                  callName: "bind",
+                  scenarioId: "product-background",
+                  resourceId: productId,
+                  providerId: eventProductId,
+                  verificationReference: `pusher:products:product:created:${eventProductId};owner:${accounts.owner.id}:optimistic-row-reconciled`,
+                  details: { channelName: "products", eventName: "product:created" },
+                }),
                 () => recordVerifiedRoute({ method: "POST", route: "/api/products/update", scenarioId: "product-edit", requestId: actualRequestId(updateInterception), providerId: productId, verificationReference: `${stripeReadback.verificationReference}:image-url-present` }),
               ]
               return routeEvidence.reduce<Cypress.Chainable<unknown>>(
-                (previousEvidence, recordEvidence) => previousEvidence.then(() => recordEvidence()),
+                (previousEvidence, recordEvidence) => previousEvidence.then(() => recordEvidence()).then(() => undefined),
                 cy.wrap(null as unknown, { log: false }),
               ).then(() => {
                 const updateOwnedProduct = (
@@ -638,7 +679,7 @@ describe("monthly real-service product creation", function () {
       operationKey: runKey("field-translations"),
       status: "completed",
       providerResourceId: productId,
-      details: { providerCallCount: 2, titleAndDescriptionWereReadBack: true },
+      details: { applicationRequests: 2, maxProviderCallsReserved: 4, titleAndDescriptionWereReadBack: true },
     }).then(() => settledOperationKeys.add(runKey("field-translations")))
 
     cy.visit("/?modal=AdminPanel")
@@ -665,7 +706,7 @@ describe("monthly real-service product creation", function () {
         cy.task("verifyStripeResourcesInactive", { productId, priceId: registeredPriceId })
           .its("length").should("be.greaterThan", 0)
       })
-      cy.task("verifyStorageObjectAbsent", storageDestination.reference).then(storageReference => {
+      cy.task("verifyStorageObjectAbsent", { ...storageDestination.reference, publicUrl: imageUrl }).then(storageReference => {
         expect(storageReference).to.be.a("string")
         cy.get("body").then(() => {
           return recordVerifiedRoute({

@@ -2,7 +2,7 @@ import type { Interception } from "cypress/types/net-stubbing"
 
 import { recordVerifiedRoute } from "./support"
 
-type TRunAccount = { id: string; email: string; password: string; role: string }
+type TRunAccount = { id: string; email: string; role: string }
 type TRunAccounts = Record<"owner" | "other" | "support" | "admin", TRunAccount>
 type TProductFixture = { id: string; priceId: string; ownerId: string; price: number; onStock: number }
 type TProductRow = { id: string; owner_id: string } | null
@@ -15,7 +15,7 @@ describe("monthly real-service product deletion", function () {
   let deleteInterceptions: Interception[] = []
 
   before(() => {
-    cy.task<TRunAccounts>("prepareRunAccounts").then(runAccounts => {
+    cy.prepareRunAccounts().then(runAccounts => {
       accounts = runAccounts
     })
   })

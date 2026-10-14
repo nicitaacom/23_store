@@ -16,7 +16,6 @@ import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui/Button"
 
-// Only EVM-compatible chains work with MetaMask
 const WALLET_ADDRESSES = {
   ETH: process.env.NEXT_PUBLIC_METAMASK_ADRESS_ETH,
   BNB: process.env.NEXT_PUBLIC_METAMASK_ADRESS_BNB,
@@ -36,20 +35,6 @@ const CHAIN_CONFIG = {
     text: "text-black",
   },
 } as const
-
-// 1. checksum address function (EIP-55)
-function toChecksumAddress(address: string): string {
-  address = address.toLowerCase().replace("0x", "")
-  const hash = Array.from(address)
-    .map(char => char.charCodeAt(0))
-    .reduce((acc, code) => ((acc << 5) - acc + code) | 0, 0)
-    .toString(16)
-  let checksumAddress = "0x"
-  for (let index = 0; index < address.length; index++) {
-    checksumAddress += parseInt(hash[index % hash.length], 16) > 7 ? address[index].toUpperCase() : address[index]
-  }
-  return checksumAddress
-}
 
 // http://localhost:6006/?path=/story/commerce-checkout--cart
 export function PayWithMetamaskButton() {
@@ -123,36 +108,12 @@ export function PayWithMetamaskButton() {
   async function sendMoneyWithMetamaskFunction() {
     trackBuyingFlowEvent({ event: "checkout_click", checkoutKind: "metamask" })
     setIsLoading(true)
-    const recipientAddress = WALLET_ADDRESSES[selectedChain]
-
-    // 1. validate address exists
-    if (!recipientAddress || !recipientAddress.trim()) {
-      toast.show("error", st("error.configuration_title"), st("error.configuration_subtitle", { selectedChain }))
-      setIsLoading(false)
-      return
-    }
-
-    const trimmedAddress = recipientAddress.trim()
-
-    // 2. validate ethereum address format (starts with 0x and 42 chars)
-    if (!/^0x[a-fA-F0-9]{40}$/.test(trimmedAddress)) {
-      toast.show(
-        "error",
-        st("error.invalid_address_format_title"),
-        st("error.invalid_address_format_subtitle", { trimmedAddressLength: trimmedAddress.length, trimmedAddress }),
-      )
-      setIsLoading(false)
-      return
-    }
-
-    // 3. convert to checksum address (EIP-55)
-    const checksummedAddress = toChecksumAddress(trimmedAddress)
 
     try {
       if (!user) {
-        openDoYouWantRecieveCheckModal(checksummedAddress)
+        openDoYouWantRecieveCheckModal(WALLET_ADDRESSES[selectedChain] || "")
       } else {
-        await sendMoneyWithMetamask(cartStore.getProductsPrice(), wallet, router, checksummedAddress, t)
+        await sendMoneyWithMetamask(cartStore.products, wallet, router, t, selectedChain)
       }
     } catch (error) {
       console.error(st("error.sending_money_with_metamask"), error)

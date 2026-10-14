@@ -8,7 +8,6 @@ import { getAiImageFolder } from "@/functions/uploadImageFolder"
 import { getTimestampFileName } from "@/functions/support/image/getTimestampFileName"
 import { uploadImageFn } from "@/functions/uploadImageFn"
 import useCartStore from "@/store/user/cartStore"
-import { RateLimitSDK } from "@/sdk/RateLimitSDK/RateLimitSDK"
 
 type FunctionResult = {
   success: boolean
@@ -66,9 +65,6 @@ async function generateImageHandler(args: HandlerArgs): Promise<FunctionResult> 
   if (!prompt) return { success: false, message: "Missing prompt for image generation." }
 
   try {
-    const rateLimitSDK = new RateLimitSDK()
-    await rateLimitSDK.rateLimit(i18n, "aiGenerateImage")
-
     // ⚡ Combine memory + current prompt to generate accurate image
     const fullPrompt = [memory, prompt].filter(Boolean).join(" - ")
 

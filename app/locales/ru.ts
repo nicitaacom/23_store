@@ -295,12 +295,15 @@ export default {
   // =================        =================
   //                   aichat
   // =================        =================
-  "aichat.error": "Ошибка сервиса. Попробуйте снова и свяжитесь с поддержкой",
-  "aichat.error.with_reason": 'Упс, "{message}". Попробуйте снова.',
-  "aichat.error.no_reply_data": "Нет ответов?.[0]?.message?.content – свяжитесь с поддержкой",
+  "aichat.error": "ИИ-помощник не смог выполнить запрос",
+  "aichat.error.with_reason": 'ИИ-помощник не смог выполнить запрос: "{message}". Проверьте вопрос или обратитесь в поддержку.',
+  "aichat.error.no_reply_data": "ИИ-помощник не вернул ответ. Обратитесь в поддержку, если проблема повторится.",
+  "aichat.memory_warning_title": "Ответ отправлен, но история беседы сохранена не полностью",
   "aichat.generate_image": "Создать изображение",
   "aichat.generate_image_completed": "Вот, пожалуйста",
   "aichat.error.generate_image": "Ошибка генерации изображения",
+  "aichat.error.generate_image_with_reason": "Не удалось создать изображение: {message}",
+  "aichat.error.generate_image_unknown": "Не удалось создать изображение. Если проблема повторится, обратитесь к владельцу магазина.",
   "aichat.add_to_cart": "Добавить в корзину",
   "aichat.header_title": "AI Ассистент покупок",
   "aichat.header_subtitle": "Найдите идеальный продукт за секунды",
@@ -418,6 +421,19 @@ export default {
   "product.changes_saved": "Изменения сохранены",
   "product.manage_product_success": "Изменения товара опубликованы.",
   "product.manage_product_error": "Не удалось обновить товар",
+  "product.delivery_address_label": "Улица и дом",
+  "product.delivery_address_placeholder": "Начните вводить улицу и номер дома",
+  "product.delivery_address_help": "Выберите вариант Yandex, чтобы подтвердить адрес. Stripe попросит подтвердить данные доставки при оформлении заказа.",
+  "product.delivery_address_searching": "Ищем адреса…",
+  "product.delivery_address_geocoding": "Подтверждаем выбранный адрес…",
+  "product.delivery_address_no_results": "Yandex не нашёл подходящих адресов. Проверьте написание или введите адрес в Stripe при оформлении заказа.",
+  "product.delivery_address_selected": "Адрес подтверждён через Yandex",
+  "product.delivery_address_config_missing": "Автоподбор адресов не настроен. Вы можете ввести адрес в Stripe при оформлении заказа.",
+  "product.delivery_address_key_rejected": "Yandex отклонил API-ключ. Вы можете ввести адрес в Stripe при оформлении заказа; владельцу магазина нужно восстановить доступ к Yandex.",
+  "product.delivery_address_rate_limited": "После автоматического повтора Yandex всё ещё ограничивает поиск адресов. Введите адрес в Stripe при оформлении заказа.",
+  "product.delivery_address_timeout": "Поиск адреса в Yandex не завершился после автоматического повтора. Введите адрес в Stripe при оформлении заказа.",
+  "product.delivery_address_unavailable": "После автоматического повтора магазину не удалось связаться с Yandex. Введите адрес в Stripe и обратитесь в магазин, если проблема повторится.",
+  "product.delivery_address_search_error": "Не удалось подтвердить этот адрес. Выберите другой вариант или введите адрес в Stripe при оформлении заказа.",
   "product.confirm_delete_product": "Удалить этот товар безвозвратно?",
   "product.delete_product_error": "Не удалось удалить товар",
   "product.product_deleted": "Товар удален",
@@ -526,8 +542,12 @@ export default {
   //                   message
   // =================        =================
   "message.image_sent": "изображение отправлено",
-  "message.error.image_sent": "ошибка при отправке изображения",
-  "message.error.message_sent": "ошибка при отправке сообщения",
+  "message.error.ticket_open_title": "Не удалось открыть чат поддержки",
+  "message.error.ticket_open_body": "Ваше сообщение осталось в поле ввода. Отправьте его в службу поддержки по электронной почте.",
+  "message.error.not_saved_title": "Сообщение в поддержку не сохранено",
+  "message.error.not_saved_body": "Ваше сообщение осталось в поле ввода. Если проблема повторится, напишите в службу поддержки по электронной почте.",
+  "message.warning.notification_title": "Сообщение сохранено без мгновенного уведомления",
+  "message.warning.notification_body": "Сообщение сохранено в чате поддержки, но команда не получила мгновенное уведомление. Если вопрос срочный, напишите в поддержку по электронной почте.",
 
   // =================        =================
   //                   payment
@@ -634,7 +654,8 @@ export default {
   "support.no_messages_yet": "Пока нет сообщений",
   "support.error.filename_must_contain_dot": "Имя файла должно содержать одну точку перед расширением (например 'file.jpg')",
   "support.error.file_extension_is_required": "Требуется расширение файла для загрузки в bucket БД",
-  "support.error.uploading_image": "Ошибка загрузки изображения",
+  "support.error.uploading_image": "Не удалось загрузить изображение",
+  "support.error.uploading_image_body": "Изображение и сообщение остались прикреплены. Если проблема повторится, напишите в поддержку по электронной почте.",
   "support.search_placeholder": "Поиск тикетов",
   "support.no_search_results": "Нет тикетов по вашему запросу",
   "support.status_open": "Открыт",

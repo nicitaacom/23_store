@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server"
 
-import { deleteDBProduct, insertDBProduct } from "./insertDBProduct"
+import { deleteDBProduct, insertDBProduct, type TProductInsertPayload } from "./insertDBProduct"
 import { invokeTranslateProductLambda } from "./invokeTranslateProductLambda"
-import type { TProductInsertPayload } from "./insertDBProduct"
+import { cleanVariantOptions } from "@/utils/variantOptions"
 import { getRunPersonalizationSqlMessage, isMissingSchemaError } from "@/utils/personalizationSchema"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
-import { cleanVariantOptions } from "@/utils/variantOptions"
 
 export const runtime = "nodejs"
 export const maxDuration = 30
@@ -193,7 +192,24 @@ export async function POST(req: Request) {
       ownerId: parsedPayload.owner_id,
     })
 
-    return NextResponse.json({ ok: true } satisfies API.ProductsTranslateAndInsertResponse, { status: 200 })
+    return NextResponse.json({
+      ok: true,
+      evidence: {
+        requestId,
+        workerName: invokeTranslateProductLambdaResponse.functionName,
+        workerStatus: invokeTranslateProductLambdaResponse.status,
+        ...(invokeTranslateProductLambdaResponse.status === "invoked"
+          ? {
+              ...(invokeTranslateProductLambdaResponse.requestId
+                ? { workerRequestId: invokeTranslateProductLambdaResponse.requestId }
+                : {}),
+              ...(invokeTranslateProductLambdaResponse.executedVersion
+                ? { workerVersion: invokeTranslateProductLambdaResponse.executedVersion }
+                : {}),
+            }
+          : {}),
+      },
+    } satisfies API.ProductsTranslateAndInsertResponse, { status: 200 })
   } catch (error) {
     const errorMessage = getErrorMessage(error)
 

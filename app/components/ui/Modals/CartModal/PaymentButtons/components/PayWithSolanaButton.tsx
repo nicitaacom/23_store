@@ -95,7 +95,7 @@ export function PayWithSolanaButton() {
       // 4. connect and pay in the same click - the button says Solana, so it pays with Solana.
       // An already trusted wallet resolves without showing a second prompt
       const connectResp = await window.solana.connect()
-      await sendMoneyWithSolana(cartStore.getProductsPrice(), connectResp.publicKey.toBase58(), router, trimmedAddress, t)
+      await sendMoneyWithSolana(cartStore.products, connectResp.publicKey.toBase58(), router, t)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
       console.error(st("error.sending_money_with_solana"), error)

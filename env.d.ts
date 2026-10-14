@@ -46,6 +46,8 @@ declare global {
 
       NEXT_PUBLIC_TURNSTILE_SITE_KEY: string
       TURNSTILE_SECRET_KEY: string
+      YANDEX_GEOCODING_API_KEY: string
+      NEXT_PUBLIC_YANDEX_GEOCODING_API_KEY: string
 
 
       PINECONE_INDEX: string
@@ -89,34 +91,10 @@ declare global {
       E2E_RUN_ID: string
       E2E_SEED: string
       E2E_TEST_PASSWORD: string
-      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/fixtures.mjs and supplied by .github/workflows/cypress-monthly.yml
+      // eslint-disable-next-line local-rules/no-defined-unused-envs -- derived by scripts/e2e/run-weekly.mjs from the production URL
       E2E_TEST_EMAIL_DOMAIN: string
-      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/preflight.mjs and supplied by .github/workflows/cypress-monthly.yml
-      E2E_MAX_PROVIDER_COST_USD: string
-      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/preflight.mjs and supplied by .github/workflows/cypress-monthly.yml
-      E2E_MAX_PAID_OPERATIONS: string
-      E2E_OPERATION_COST_ESTIMATES_JSON: string
-      E2E_IMAGE_COMPRESSION_MAX_PROVIDER_CALLS: string
-      E2E_CATEGORY_SUGGESTION_MAX_PROVIDER_CALLS: string
-      E2E_TRANSLATION_MAX_PROVIDER_CALLS: string
-      E2E_TRANSLATE_FIELD_MAX_PROVIDER_CALLS: string
-      E2E_AI_PRICING_MAX_PROVIDER_CALLS: string
-      E2E_AI_IMAGE_MAX_PROVIDER_CALLS: string
-      E2E_PRINT_AREA_MAX_PROVIDER_CALLS: string
-      E2E_SALES_CHAT_MAX_PROVIDER_CALLS: string
-      E2E_MEMORY_MAX_PROVIDER_CALLS: string
-      E2E_PRICE_RESEARCH_MAX_PROVIDER_CALLS: string
-      E2E_COINMARKETCAP_MAX_PROVIDER_CALLS: string
-      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/run-monthly.mjs and supplied by .github/workflows/cypress-monthly.yml
+      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/run-weekly.mjs and supplied by .github/workflows/cypress-weekly.yml
       E2E_BROWSER: string
-      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/run-monthly.mjs and supplied by .github/workflows/cypress-monthly.yml
-      E2E_SEND_REPORT: string
-      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/send-report.mjs and supplied by .github/workflows/cypress-monthly.yml
-      E2E_REPORT_FROM: string
-      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/send-report.mjs and supplied by .github/workflows/cypress-monthly.yml
-      E2E_REPORT_TO: string
-      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/send-report.mjs and supplied by .github/workflows/cypress-monthly.yml
-      E2E_REPORT_DELIVERY_TIMEOUT_SECONDS: string
       E2E_ARTIFACT_DIR: string
     }
   }
@@ -154,6 +132,8 @@ declare global {
           "error-callback"?: () => void
           "expired-callback"?: () => void
           theme?: "light" | "dark" | "auto"
+          retry?: "auto" | "never"
+          "retry-interval"?: number
         },
       ) => string
       reset: (widgetId?: string) => void

@@ -118,6 +118,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
             : "border-border-color/20 bg-background/40 hover:border-success/30 hover:bg-success/5",
         )}
         key={variant.id}
+        data-cy={`product-variant-${variant.id}`}
         type="button"
         onClick={() => handleSelectVariant(variant.id)}>
         {variant.image_url && (

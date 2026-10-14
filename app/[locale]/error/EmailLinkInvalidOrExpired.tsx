@@ -23,8 +23,8 @@ export function EmailLinkInvalidOrExpired() {
           height={386}
         />
       </div>
-      <p className="text-danger">Email link is invalid or has expired - try again</p>
-      <p className="text-center">Use a fresh link within a few minutes of receiving it</p>
+      <p className="text-danger">Email link is invalid or has expired. Request a fresh link and open it within a few minutes.</p>
+      <p className="text-center">Do not reuse a link that you have already opened</p>
       <p className="text-center">Also don&apos;t use link that you already used</p>
       <BackToMainButton />
     </div>

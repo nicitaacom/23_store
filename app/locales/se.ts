@@ -294,12 +294,15 @@ export default {
   // =================        =================
   //                   aichat
   // =================        =================
-  "aichat.error": "Tjänstfel. Försök igen och kontakta support",
-  "aichat.error.with_reason": 'Hoppsan, "{message}". Försök igen.',
-  "aichat.error.no_reply_data": "Inga svar?.[0]?.message?.content – kontakta support",
+  "aichat.error": "AI-assistenten kunde inte slutföra begäran",
+  "aichat.error.with_reason": 'AI-assistenten kunde inte slutföra begäran: "{message}". Kontrollera frågan eller kontakta supporten.',
+  "aichat.error.no_reply_data": "AI-assistenten returnerade inget svar. Kontakta supporten om problemet fortsätter.",
+  "aichat.memory_warning_title": "Svaret skickades, men konversationsminnet är ofullständigt",
   "aichat.generate_image": "Generera bild",
   "aichat.generate_image_completed": "Varsågod",
   "aichat.error.generate_image": "Fel vid bildgenerering",
+  "aichat.error.generate_image_with_reason": "Bildgenereringen misslyckades: {message}",
+  "aichat.error.generate_image_unknown": "Bilden kunde inte skapas. Kontakta butiksägaren om problemet fortsätter.",
   "aichat.add_to_cart": "Lägg i kundvagn",
   "aichat.header_title": "AI Shopping-assistent",
   "aichat.header_subtitle": "Hitta din perfekta produkt på sekunder",
@@ -417,6 +420,19 @@ export default {
   "product.changes_saved": "Ändringarna sparades",
   "product.manage_product_success": "Produktuppdateringarna är nu live.",
   "product.manage_product_error": "Det gick inte att uppdatera produkten",
+  "product.delivery_address_label": "Gatuadress",
+  "product.delivery_address_placeholder": "Börja skriva gata och husnummer",
+  "product.delivery_address_help": "Välj ett Yandex-förslag för att bekräfta platsen. Stripe ber dig bekräfta leveransuppgifterna i kassan.",
+  "product.delivery_address_searching": "Söker adresser…",
+  "product.delivery_address_geocoding": "Bekräftar den valda adressen…",
+  "product.delivery_address_no_results": "Yandex hittade inga adresser. Kontrollera stavningen eller ange adressen i Stripe-kassan.",
+  "product.delivery_address_selected": "Adressen har bekräftats av Yandex",
+  "product.delivery_address_config_missing": "Adressförslag är inte konfigurerade. Du kan ange adressen i Stripe-kassan.",
+  "product.delivery_address_key_rejected": "Yandex avvisade API-nyckeln. Du kan ange adressen i Stripe-kassan; butiksägaren behöver återställa Yandex-åtkomsten.",
+  "product.delivery_address_rate_limited": "Yandex begränsar fortfarande adressökningen efter ett automatiskt nytt försök. Ange adressen i Stripe-kassan.",
+  "product.delivery_address_timeout": "Yandex adressökning tog för lång tid efter ett automatiskt nytt försök. Ange adressen i Stripe-kassan.",
+  "product.delivery_address_unavailable": "Butiken kunde inte nå Yandex efter ett automatiskt nytt försök. Ange adressen i Stripe-kassan och kontakta butiken om problemet fortsätter.",
+  "product.delivery_address_search_error": "Adressen kunde inte bekräftas. Välj ett annat förslag eller ange adressen i Stripe-kassan.",
   "product.confirm_delete_product": "Ta bort produkten permanent?",
   "product.delete_product_error": "Det gick inte att ta bort produkten",
   "product.product_deleted": "Produkten har tagits bort",
@@ -525,8 +541,12 @@ export default {
   //                   message
   // =================        =================
   "message.image_sent": "bild skickad",
-  "message.error.image_sent": "fel vid skickande av bild",
-  "message.error.message_sent": "fel vid skickande av meddelande",
+  "message.error.ticket_open_title": "Supportchatten kunde inte öppnas",
+  "message.error.ticket_open_body": "Ditt meddelande finns kvar i skrivfältet. Skicka det via e-post till supporten.",
+  "message.error.not_saved_title": "Supportmeddelandet sparades inte",
+  "message.error.not_saved_body": "Ditt meddelande finns kvar i skrivfältet. Kontakta supporten via e-post om problemet fortsätter.",
+  "message.warning.notification_title": "Meddelandet sparades utan direktavisering",
+  "message.warning.notification_body": "Ditt meddelande är sparat i supportchatten, men teamet fick ingen direktavisering. Kontakta supporten via e-post om det är brådskande.",
 
   // =================        =================
   //                   payment
@@ -633,7 +653,8 @@ export default {
   "support.no_messages_yet": "Inga meddelanden ännu",
   "support.error.filename_must_contain_dot": "Filnamn måste innehålla en punkt innan filändelsen (t.ex. 'file.jpg')",
   "support.error.file_extension_is_required": "Filändelse krävs för att sätta in i DB-bucket",
-  "support.error.uploading_image": "Fel vid uppladdning av bild",
+  "support.error.uploading_image": "Bilden kunde inte laddas upp",
+  "support.error.uploading_image_body": "Bilden och meddelandet finns fortfarande bifogade. Kontakta supporten via e-post om problemet fortsätter.",
   "support.search_placeholder": "Sök ärenden",
   "support.no_search_results": "Inga ärenden matchar din sökning",
   "support.status_open": "Öppet",

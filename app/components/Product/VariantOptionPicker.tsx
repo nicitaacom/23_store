@@ -10,6 +10,7 @@ interface VariantOptionPickerProps {
   onSelect: (variantId: string) => void
 }
 
+// http://localhost:6006/?path=/story/commerce-product--normal
 export function VariantOptionPicker({ variants, selectedVariant, onSelect }: VariantOptionPickerProps) {
   const t = useScopedI18n("product")
   const relatedVariants = selectedVariant?.group_id
@@ -30,10 +31,11 @@ export function VariantOptionPicker({ variants, selectedVariant, onSelect }: Var
               const isSelected = selectedVariant?.options?.[group.name] === value
               return (
                 <button
-                  aria-pressed={isSelected}
                   className={isSelected
                     ? "rounded border-2 border-success bg-success/15 px-3 py-1.5 text-sm font-semibold text-title shadow-[0_0_0_2px_rgba(34,197,94,0.15)]"
                     : "rounded border border-border-color/40 bg-background/50 px-3 py-1.5 text-sm text-subTitle hover:border-success/50"}
+                  data-cy={`product-variant-option-${group.name}-${value}`}
+                  aria-pressed={isSelected}
                   key={value}
                   onClick={() => {
                     const nextVariant = chooseVariantForOption(variants, selectedVariant, group.name, value)

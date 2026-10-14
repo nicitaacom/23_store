@@ -1,0 +1,84 @@
+name: Cypress weekly real-service checks
+
+on:
+  schedule:
+    - cron: "23 3 * * 1"
+
+permissions:
+  contents: read
+  deployments: read
+
+concurrency:
+  group: 23-store-weekly-real-service-tests
+  cancel-in-progress: false
+
+jobs:
+  production-weekly:
+    if: github.run_attempt == 1
+    name: Production inventory, preflight, and browser journeys
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CYPRESS_INSTALL_BINARY: "0"
+      NEXT_PUBLIC_PRODUCTION_URL: ${{ vars.NEXT_PUBLIC_PRODUCTION_URL || secrets.NEXT_PUBLIC_PRODUCTION_URL }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_STRIPE_SECRET_KEY: ${{ secrets.NEXT_STRIPE_SECRET_KEY }}
+      E2E_RUN_ID: gha-${{ github.run_id }}
+      E2E_ARTIFACT_DIR: artifacts/e2e
+
+    steps:
+      - name: Check out development
+        uses: actions/checkout@v4
+        with:
+          ref: development
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Cache Cypress browser binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Inventory, preflight, and run the weekly production suite
+        id: weekly
+        continue-on-error: true
+        run: pnpm e2e:weekly
+
+      - name: Upload weekly evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-weekly-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            artifacts/e2e
+            cypress/screenshots
+            cypress/videos
+            cypress/results
+
+      - name: Fail the job when checks or reporting failed
+        if: always() && steps.weekly.outcome != 'success'
+        run: exit 1

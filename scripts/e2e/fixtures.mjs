@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
-import { Pinecone } from "@pinecone-database/pinecone"
 import Stripe from "stripe"
+
+import { deriveRunTestPassword } from "./run-password.mjs"
 
 const fixtureRoles = [
   { name: "owner", username: "e2e_owner", roles: ["USER"] },
@@ -39,11 +40,9 @@ export function createMonthlyFixtureManager(environment = process.env, { account
   const supabase = getSupabaseAdmin(environment)
   const runId = environment.E2E_RUN_ID
   const emailDomain = environment.E2E_TEST_EMAIL_DOMAIN?.toLowerCase()
-  const testPassword = environment.E2E_TEST_PASSWORD
-  if (!runId || !emailDomain || !testPassword) {
-    throw new Error("Run id, a routable test email domain, and E2E_TEST_PASSWORD are required")
-  }
-  if (testPassword.length < 16) throw new Error("E2E_TEST_PASSWORD must contain at least 16 characters")
+  if (!runId || !emailDomain) throw new Error("Run id and a routable test email domain are required")
+  const testPassword = environment.E2E_TEST_PASSWORD ?? deriveRunTestPassword(environment.SUPABASE_SERVICE_ROLE_KEY, runId)
+  if (testPassword.length < 16) throw new Error("Run-owned account password must contain at least 16 characters")
   const safeRunId = normalizeRunId(runId)
   const accountRunSuffix = accountNamespace ? normalizeRunId(`${safeRunId}-${accountNamespace}`) : safeRunId
   const runAccountIds = new Set()
@@ -76,11 +75,8 @@ export function createMonthlyFixtureManager(environment = process.env, { account
         email,
         password: testPassword,
         email_confirm: true,
-        user_metadata: {
-          username: `${accountDefinition.username}_${safeRunId.slice(-12)}`,
-          e2e_suite: "23-store",
-          e2e_run_id: runId,
-        },
+        user_metadata: { username: `${accountDefinition.username}_${safeRunId.slice(-12)}` },
+        app_metadata: { e2e_suite: "23-store", e2e_run_id: runId },
       })
       if (error || !data.user) throw new Error(`Run-owned ${accountDefinition.name} account creation failed`)
 
@@ -139,6 +135,17 @@ export function createMonthlyFixtureManager(environment = process.env, { account
       || !Number.isFinite(variant.price) || variant.price <= 0 || !Number.isSafeInteger(variant.quantity) || variant.quantity < 0))) {
       throw new Error("Product fixture variants require exact ids, labels, positive prices, and non-negative whole-number stock")
     }
+    const imageUrls = input.imageUrls ?? []
+    if (!Array.isArray(imageUrls) || imageUrls.some(imageUrl => {
+      if (typeof imageUrl !== "string") return true
+      try {
+        return new URL(imageUrl).protocol !== "https:"
+      } catch {
+        return true
+      }
+    })) {
+      throw new Error("Product fixture image URLs must be absolute HTTPS URLs")
+    }
 
     const stripe = getStripeTestClient(environment)
     const fixtureSuffix = `${safeRunId}-${input.key}`
@@ -150,6 +157,7 @@ export function createMonthlyFixtureManager(environment = process.env, { account
     const stripeProduct = await stripe.products.create({
       name: translations.fi.title,
       description: translations.fi.description,
+      ...(imageUrls.length ? { images: imageUrls.slice(0, 8) } : {}),
       active: true,
       metadata: { storage_owner_id: input.ownerId, e2e_suite: "23-store", e2e_run_id: runId },
     }, { idempotencyKey: `${idempotencyKey}-product` })
@@ -175,7 +183,7 @@ export function createMonthlyFixtureManager(environment = process.env, { account
       ai_price_baseline: input.price,
       ai_pricing_enabled: false,
       on_stock: input.onStock,
-      img_url: [],
+      img_url: imageUrls,
       variants,
       category_id: null,
       translations,
@@ -195,6 +203,7 @@ export function createMonthlyFixtureManager(environment = process.env, { account
       onStock: input.onStock,
       translations,
       variants,
+      imageUrls,
     }
   }
 
@@ -453,69 +462,17 @@ export function createMonthlyFixtureManager(environment = process.env, { account
 
   async function readRunAiMemory(ownerId) {
     if (!runAccountIds.has(ownerId)) throw new Error("AI memory readback requires an account created by this run")
-
-    const redisUrl = environment.UPSTASH_REDIS_REST_URL
-    const redisToken = environment.UPSTASH_REDIS_REST_TOKEN
-    if (!redisUrl || !redisToken) throw new Error("AI memory readback requires Upstash REST settings")
-    const historyKey = `ai:history:${ownerId}`
-    const redisResponse = await fetch(redisUrl, {
-      method: "POST",
-      headers: { authorization: `Bearer ${redisToken}`, "content-type": "application/json" },
-      body: JSON.stringify(["LRANGE", historyKey, "0", "-1"]),
-      signal: AbortSignal.timeout(12000),
-    })
-    const redisBody = await redisResponse.json().catch(() => ({}))
-    if (!redisResponse.ok || !Array.isArray(redisBody.result)) throw new Error("Run-owned AI history readback failed")
-    const history = redisBody.result.map(entry => {
-      try {
-        const parsed = JSON.parse(entry)
-        if (!["user", "assistant"].includes(parsed.role) || typeof parsed.text !== "string") {
-          throw new Error("Invalid history entry")
-        }
-        return { role: parsed.role, text: parsed.text }
-      } catch {
-        throw new Error("Run-owned AI history contains an invalid record")
-      }
-    })
-
-    const pineconeApiKey = environment.PINECONE_API_KEY
-    const indexName = environment.PINECONE_INDEX
-    const indexHost = environment.PINECONE_ENVIRONMENT
-    if (!pineconeApiKey || (!indexName && !indexHost)) throw new Error("AI memory readback requires Pinecone settings")
-    const indexOptions = {}
-    if (indexHost) indexOptions.host = indexHost
-    if (indexName) indexOptions.name = indexName
-    const index = new Pinecone({ apiKey: pineconeApiKey }).index(indexOptions)
-    const namespace = index.namespace(ownerId)
-    const vectorIds = []
-    let paginationToken
-    for (let pageNumber = 0; pageNumber < 20; pageNumber++) {
-      const page = await namespace.listPaginated({ limit: 100, ...(paginationToken ? { paginationToken } : {}) })
-      vectorIds.push(...(page.vectors ?? []).map(vector => vector.id))
-      paginationToken = page.pagination?.next
-      if (!paginationToken) break
-      if (pageNumber === 19) throw new Error("Run-owned Pinecone namespace is larger than the readback limit")
+    const accounts = await createRunAccounts()
+    const account = Object.values(accounts).find(candidate => candidate.id === ownerId)
+    if (!account) throw new Error("AI memory readback could not locate this run-owned account")
+    const snapshot = await callRunMemoryEndpoint(account, "snapshot")
+    if (!Array.isArray(snapshot.history) || !Array.isArray(snapshot.vectorRecords)) {
+      throw new Error("Production AI memory endpoint returned an incomplete readback")
     }
-
-    const vectorRecords = []
-    for (let offset = 0; offset < vectorIds.length; offset += 100) {
-      const batchIds = vectorIds.slice(offset, offset + 100)
-      const response = await index.fetch({ ids: batchIds, namespace: ownerId })
-      for (const [id, record] of Object.entries(response.records ?? {})) {
-        const metadata = record.metadata ?? {}
-        if (!/^(user|assistant):\d+:[0-9a-f-]+$/i.test(id)
-          || !["user", "assistant"].includes(metadata.role) || typeof metadata.text !== "string") {
-          throw new Error("Run-owned Pinecone namespace contains an unrecognized AI memory record")
-        }
-        vectorRecords.push({ id, role: metadata.role, text: metadata.text })
-      }
-    }
-
     return {
-      historyKey,
-      history,
-      vectorRecords,
-      verificationReference: `upstash:${historyKey}:read-back;pinecone:${ownerId}:${vectorRecords.length}-vectors-read-back`,
+      ...snapshot,
+      requestId: snapshot.requestId,
+      verificationReference: `production-app:${new URL(environment.E2E_BASE_URL).host}/api/e2e/ai-memory;redis:${snapshot.historyKey}:read-back;pinecone:${ownerId}:${snapshot.vectorRecords.length}-vectors-read-back`,
     }
   }
 
@@ -525,13 +482,84 @@ export function createMonthlyFixtureManager(environment = process.env, { account
     for (const vector of memory.vectorRecords) {
       await recordResource("pinecone_vector", vector.id, ownerId, {
         provider: "pinecone",
-        index: environment.PINECONE_INDEX,
-        host: environment.PINECONE_ENVIRONMENT,
         namespace: ownerId,
         role: vector.role,
       })
     }
     return memory
+  }
+
+  async function clearRunAiMemory(ownerId) {
+    if (!runAccountIds.has(ownerId)) throw new Error("AI memory cleanup requires an account created by this run")
+    const accounts = await createRunAccounts()
+    const account = Object.values(accounts).find(candidate => candidate.id === ownerId)
+    if (!account) throw new Error("AI memory cleanup could not locate this run-owned account")
+    const result = await callRunMemoryEndpoint(account, "clear")
+    const { error } = await supabase.from("23_e2e_resource_registry").update({
+      status: "cleaned",
+      updated_at: new Date().toISOString(),
+      details: { cleanup_status: "complete", cleanup_message: "cleared_by_run_owned_production_app_route_and_readback" },
+    }).eq("suite_name", "23-store").eq("run_id", runId).eq("owner_id", ownerId)
+      .in("resource_type", ["redis_key", "pinecone_vector"]).in("status", ["active", "cleanup_required"])
+    if (error) throw new Error("AI memory cleanup status could not be recorded")
+    return {
+      requestId: result.requestId,
+      verificationReference: `production-app:ai-memory:${ownerId}:redis-history-and-pinecone-namespace-cleared-and-read-back`,
+    }
+  }
+
+  async function verifyRunOwnedEmail(ownerId, input) {
+    if (!runAccountIds.has(ownerId)) throw new Error("Email readback requires an account created by this run")
+    const accounts = await createRunAccounts()
+    const account = Object.values(accounts).find(candidate => candidate.id === ownerId)
+    if (!account) throw new Error("Email readback could not locate this run-owned account")
+    const anonKey = environment.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabaseUrl = environment.NEXT_PUBLIC_SUPABASE_URL
+    const baseUrl = environment.E2E_BASE_URL
+    if (!anonKey || !supabaseUrl || !baseUrl) throw new Error("Email readback requires the app URL and Supabase sign-in settings")
+    const authClient = createClient(supabaseUrl, anonKey, { auth: { autoRefreshToken: false, persistSession: false } })
+    const { data, error } = await authClient.auth.signInWithPassword({ email: account.email, password: testPassword })
+    if (error || !data.session?.access_token) throw new Error("Run-owned account could not sign in for provider email readback")
+
+    const statusUrl = new URL("/api/e2e/resend-status", baseUrl)
+    statusUrl.searchParams.set("emailId", input.emailId)
+    statusUrl.searchParams.set("runId", runId)
+    statusUrl.searchParams.set("subject", input.subject)
+    statusUrl.searchParams.set("timeoutMs", String(input.timeoutMs ?? 30000))
+    const response = await fetch(statusUrl, {
+      headers: { authorization: `Bearer ${data.session.access_token}` },
+      signal: AbortSignal.timeout(70000),
+    })
+    const result = await response.json().catch(() => ({}))
+    if (!response.ok || result.emailId !== input.emailId || result.recipientMatched !== true) {
+      throw new Error(`Production Resend readback returned HTTP ${response.status}`)
+    }
+    return {
+      ...result,
+      requestId: response.headers.get("x-application-request-id"),
+      verificationReference: `production-app-resend:${result.emailId}:recipient-and-subject-matched:event:${result.lastEvent}`,
+    }
+  }
+
+  async function callRunMemoryEndpoint(account, action) {
+    const anonKey = environment.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const baseUrl = environment.E2E_BASE_URL
+    const supabaseUrl = environment.NEXT_PUBLIC_SUPABASE_URL
+    if (!anonKey || !baseUrl || !supabaseUrl) throw new Error("Run-owned AI memory verification requires the public app URL and Supabase settings")
+    const authClient = createClient(supabaseUrl, anonKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+    const { data, error } = await authClient.auth.signInWithPassword({ email: account.email, password: testPassword })
+    if (error || !data.session?.access_token) throw new Error("Run-owned account could not sign in for production AI memory readback")
+    const response = await fetch(new URL("/api/e2e/ai-memory", baseUrl), {
+      method: "POST",
+      headers: { authorization: `Bearer ${data.session.access_token}`, "content-type": "application/json" },
+      body: JSON.stringify({ action, runId }),
+      signal: AbortSignal.timeout(90000),
+    })
+    const body = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(`Production AI memory ${action} returned HTTP ${response.status}`)
+    return { ...body, requestId: response.headers.get("x-application-request-id") }
   }
 
   async function readRunCart(ownerId) {
@@ -618,6 +646,8 @@ export function createMonthlyFixtureManager(environment = process.env, { account
     cleanupRunPersonalizedDesign,
     readRunAiMemory,
     captureRunAiMemory,
+    clearRunAiMemory,
+    verifyRunOwnedEmail,
     waitForTranslatedProduct,
     readRunCart,
     waitForRunCart,

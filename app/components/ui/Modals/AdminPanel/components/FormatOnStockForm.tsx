@@ -61,7 +61,6 @@ export function FormatOnStockForm({ id, onStock, isDerivedFromVariants = false }
   const {
     register,
     handleSubmit,
-    // eslint-disable-next-line local-rules/no-banned-words -- React Hook Form exposes this exact field name.
     formState: { errors, isDirty: hasChanges },
   } = useForm<IFormDataAddProduct>()
 
@@ -123,6 +122,7 @@ export function FormatOnStockForm({ id, onStock, isDerivedFromVariants = false }
                   "w-full border-border-color/50 bg-background/60 text-start",
                   isLoading && "animate-pulse",
                 )}
+                data-cy="product-stock-input"
                 id="onStock"
                 type="numeric"
                 numericFormat="grouped"
@@ -135,7 +135,7 @@ export function FormatOnStockForm({ id, onStock, isDerivedFromVariants = false }
             </div>
           </form>
         ) : (
-          <button className="flex items-center gap-1.5 rounded p-1 transition-colors duration-150 hover:bg-warning/20" type="button" onClick={enableInput}>
+          <button className="flex items-center gap-1.5 rounded p-1 transition-colors duration-150 hover:bg-warning/20" data-cy="edit-product-stock" type="button" onClick={enableInput}>
             <span className="text-sm font-medium text-title">{formatNumber(onStock) || onStock}</span>
             <CiEdit className="text-subTitle" />
           </button>

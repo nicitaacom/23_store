@@ -81,6 +81,7 @@ export function DeleteProductForm({
                 <label className="flex shrink-0 cursor-pointer items-center gap-2 pl-0.5">
                   <input
                     className="h-4 w-4 cursor-pointer accent-danger"
+                    data-cy="bulk-delete-select-all"
                     type="checkbox"
                     checked={allSelected}
                     ref={el => {
@@ -103,6 +104,7 @@ export function DeleteProductForm({
                 <>
                   <Button
                     className="shrink-0 gap-1.5"
+                    data-cy="bulk-delete-request"
                     size="sm"
                     variant="danger"
                     disabled={selectedIds.size === 0}
@@ -123,7 +125,7 @@ export function DeleteProductForm({
                   </Button>
                 </>
               ) : (
-                <Button className="shrink-0 gap-1.5" size="sm" variant="default-outline" onClick={() => setIsBulkMode(true)}>
+                <Button className="shrink-0 gap-1.5" data-cy="bulk-delete-mode" size="sm" variant="default-outline" onClick={() => setIsBulkMode(true)}>
                   <MdChecklist size={15} />
                   {t("select_action")}
                 </Button>

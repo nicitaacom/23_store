@@ -38,6 +38,7 @@ export function ChatInput({
         <div className="flex items-center gap-2">
           <Button
             className="text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-700/40 transition-colors"
+            data-cy="ai-chat-generate-image"
             variant="ghost"
             size="icon-md"
             rounded="lg"
@@ -47,7 +48,14 @@ export function ChatInput({
             <HiOutlineSparkles className="text-xl" />
           </Button>
 
-          <Button variant="ghost" size="icon-md" rounded="lg" onClick={addToCart} disabled={isLoading} title={t("add_to_cart")}>
+          <Button
+            data-cy="ai-chat-add-to-cart"
+            variant="ghost"
+            size="icon-md"
+            rounded="lg"
+            onClick={addToCart}
+            disabled={isLoading}
+            title={t("add_to_cart")}>
             <BsCart3 className="text-xl" />
           </Button>
 
@@ -61,6 +69,7 @@ export function ChatInput({
         <textarea
           className="hide-scrollbar min-h-[40px] leading-5 max-h-[120px] flex-1 bg-transparent
           text-title placeholder:text-subTitle outline-none text-[15px] resize-none overflow-y-auto"
+          data-cy="ai-chat-input"
           ref={inputRef}
           placeholder={t("describe_placeholder")}
           value={promptValue}
@@ -83,6 +92,7 @@ export function ChatInput({
 
           <Button
             className="disabled:border-border-color/35 disabled:bg-background/55 disabled:text-subTitle"
+            data-cy="ai-chat-send"
             variant="success"
             size="md"
             rounded="lg"

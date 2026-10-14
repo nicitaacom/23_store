@@ -3,7 +3,7 @@ import type { Interception } from "cypress/types/net-stubbing"
 import { expectRealRejection } from "../support/diagnostics"
 import { recordVerifiedRoute } from "./support"
 
-type TRunAccount = { id: string; email: string; password: string; role: string }
+type TRunAccount = { id: string; email: string; role: string }
 type TRunAccounts = Record<"owner" | "other" | "support" | "admin", TRunAccount>
 type TProductFixture = {
   id: string
@@ -29,7 +29,7 @@ describe("monthly real-service product editing", function () {
   let updateInterception: Interception | null = null
 
   before(() => {
-    cy.task<TRunAccounts>("prepareRunAccounts").then(runAccounts => {
+    cy.prepareRunAccounts().then(runAccounts => {
       accounts = runAccounts
     })
   })

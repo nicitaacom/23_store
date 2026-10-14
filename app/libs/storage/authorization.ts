@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
 
 import type { TBuckets } from "@/ts/types/TBuckets"
 import { isStorageBucket, isStoragePath } from "./references"
@@ -11,7 +12,7 @@ import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 
 export { StorageRequestError } from "./errors"
 
-export type TStorageActor = { id: string; email: string | null; admin: boolean; guest: boolean; guestFolder: string | null; cookie?: string }
+export type TStorageActor = { id: string; email: string | null; admin: boolean; guest: boolean; guestFolder: string | null; cookie?: string; accessToken?: string }
 
 export function storageFailure(error: unknown) {
   return NextResponse.json({ error: error instanceof Error ? error.message : "Storage request failed" },
@@ -25,13 +26,26 @@ export function checkStorageOrigin(request: NextRequest) {
 
 export async function verifyStorageActor(request: NextRequest, allowNewGuest = false): Promise<TStorageActor> {
   const supabase = await supabaseRouteHandler()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user: cookieUser }, error: authError } = await supabase.auth.getUser()
+  let user = cookieUser
+  let bearerSupabase: ReturnType<typeof createClient> | null = null
   if (user && authError) throw new StorageRequestError("Unauthorized", 401)
+  const bearerToken = request.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1]
+  if (!user && bearerToken) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (!supabaseUrl || !anonKey) throw new StorageRequestError("Storage authentication is unavailable", 503)
+    bearerSupabase = createClient(supabaseUrl, anonKey, { auth: { autoRefreshToken: false, persistSession: false } })
+    const { data, error } = await bearerSupabase.auth.getUser(bearerToken)
+    if (error || !data.user) throw new StorageRequestError("Unauthorized", 401)
+    user = data.user
+  }
   if (user) {
-    const { data: profile, error } = await supabase.from("23_users").select("roles").eq("id", user.id).maybeSingle()
+    const actorSupabase = bearerSupabase ?? supabase
+    const { data: profile, error } = await actorSupabase.from("23_users").select("roles").eq("id", user.id).maybeSingle()
     if (error) throw new Error(error.message)
     return { id: user.id, email: user.email ?? null, admin: profile?.roles?.includes("ADMIN") ?? false,
-      guest: false, guestFolder: null }
+      guest: false, guestFolder: null, ...(bearerToken && bearerSupabase ? { accessToken: bearerToken } : {}) }
   }
   const currentId = decryptDeviceId(request.cookies.get(DEVICE_ID_COOKIE_NAME)?.value)
   const deviceId = currentId && isValidDeviceId(currentId) ? currentId : allowNewGuest ? createDeviceId() : null
@@ -57,7 +71,12 @@ export async function authorizedStorageFolder(actor: TStorageActor, bucket: TBuc
   const folder = slugifyEmail(actor.email)
   if (bucket !== "23_product-images" && bucket !== "23_product-personalization-images") return folder
   if (!entityId || !/^[a-zA-Z0-9_-]{1,160}$/.test(entityId)) throw new StorageRequestError("A valid product id is required")
-  const supabase = await supabaseRouteHandler()
+  const supabase = actor.accessToken
+    ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+        auth: { autoRefreshToken: false, persistSession: false },
+        global: { headers: { authorization: `Bearer ${actor.accessToken}` } },
+      })
+    : await supabaseRouteHandler()
   const { data: product, error } = await supabase.from("23_products").select("id, owner_id").eq("id", entityId).maybeSingle()
   if (error) throw new Error(error.message)
   if (bucket === "23_product-personalization-images") {

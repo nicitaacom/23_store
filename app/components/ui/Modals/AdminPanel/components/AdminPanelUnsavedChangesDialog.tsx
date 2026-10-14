@@ -25,8 +25,10 @@ export function AdminPanelUnsavedChangesDialog({
       primaryButtonAction={onDiscard}
       primaryButtonLabel={t("modal.admin_panel.discard")}
       primaryButtonVariant="danger"
+      primaryButtonDataCy="unsaved-discard"
       secondaryButtonAction={onKeepEditing}
       secondaryButtonLabel={t("modal.admin_panel.keep_editing")}
+      secondaryButtonDataCy="unsaved-keep-editing"
     />
   )
 }

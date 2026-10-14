@@ -60,9 +60,14 @@ export function useAIChat() {
         assistantReply,
         memory: baseMemory,
       })
+      response?.warnings?.forEach(warning => toast.show("warning", t("aichat.memory_warning_title"), warning))
       return response?.memory || null
     } catch (error) {
       console.error("Failed to sync AI function-call memory.", error)
+      const message = error instanceof Error
+        ? error.message
+        : "The reply is visible, but the saved conversation history may be incomplete. Contact the store owner if this continues."
+      toast.show("warning", t("aichat.memory_warning_title"), message)
       return null
     }
   }
@@ -99,22 +104,9 @@ export function useAIChat() {
         conversationHistory: newConversation,
       })
       if (response?.debug) setDebugContext(response.debug)
-      const openAIMessage = (
-        response?.openai as
-          | {
-              choices?: Array<{
-                message?: {
-                  content?: string
-                  function_call?: {
-                    name?: string
-                    arguments?: string
-                  }
-                }
-              }>
-            }
-          | undefined
-      )?.choices?.[0]?.message
-      const functionCall = openAIMessage?.function_call
+      response?.warnings?.forEach(warning => toast.show("warning", t("aichat.memory_warning_title"), warning))
+      const assistantMessage = response?.assistantMessage
+      const functionCall = assistantMessage?.functionCall
 
       if (functionCall?.name) {
         const functionArgs = (() => {
@@ -160,7 +152,7 @@ export function useAIChat() {
         return
       }
 
-      const aiReply = openAIMessage?.content || t("aichat.error.no_reply_data")
+      const aiReply = assistantMessage?.content || t("aichat.error.no_reply_data")
       setConversation([...newConversation, { role: "ai", text: aiReply }])
 
       if (response?.memory) setMemory(response.memory)
@@ -181,8 +173,6 @@ export function useAIChat() {
     setIsLoading(true)
 
     try {
-      await rateLimitSDK.rateLimit(t, "aiGenerateImage")
-
       const generatedImage = await aiSDK.generateImageBuffer(`${memory} - generate image for this product`)
 
       // The assistant hands back bytes and a content type, no name - so the name is the moment it
@@ -208,8 +198,15 @@ export function useAIChat() {
       ])
       setPromptValue("")
     } catch (error) {
+      const errorMessage = error instanceof Error && error.message.trim()
+        ? error.message
+        : t("aichat.error.generate_image_unknown")
       console.error(`${t("aichat.error.generate_image")}:`, error)
-      setConversation([...conversation, { role: "ai", text: `${t("aichat.error.generate_image")}:` }])
+      toast.show("error", t("aichat.error.generate_image"), errorMessage)
+      setConversation([...conversation, {
+        role: "ai",
+        text: t("aichat.error.generate_image_with_reason", { message: errorMessage }),
+      }])
     } finally {
       setIsLoading(false)
     }

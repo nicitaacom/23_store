@@ -2,7 +2,7 @@ import type { Interception } from "cypress/types/net-stubbing"
 
 import { recordResource, recordVerifiedRoute } from "./support"
 
-type TRunAccount = { id: string; email: string; password: string; role: string }
+type TRunAccount = { id: string; email: string; role: string }
 type TRunAccounts = Record<"owner" | "other" | "support" | "admin", TRunAccount>
 type TCategory = { id: string; name: string; parent_id: string | null }
 type TRouteResult<TBody> = { statusCode: number; body: TBody; interception: Interception }
@@ -28,7 +28,7 @@ describe("monthly real-service categories and account-scoped views", function ()
   let categoryViewJournaled = false
 
   before(() => {
-    cy.task<TRunAccounts>("prepareRunAccounts").then(runAccounts => {
+    cy.prepareRunAccounts().then(runAccounts => {
       accounts = runAccounts
     })
   })

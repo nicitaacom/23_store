@@ -17,6 +17,7 @@
     "personalization-storage.cy.ts",
     "checkout-stripe.cy.ts",
     "checkout-other.cy.ts",
+    "address-geocoding.cy.ts",
     "backup-maintenance.cy.ts",
     "analytics-other.cy.ts",
     "seeded-navigation.cy.ts"
@@ -29,6 +30,12 @@
       "expressionPattern": ".*",
       "classification": "request-or-provider",
       "classificationReason": "This server-side async expression is in a route handler; verify its real database/provider effect against the route's mapped scenario."
+    },
+    {
+      "sourcePattern": "^app/libs/yandex/addressProvider\\.ts$",
+      "expressionPattern": "pauseBeforeRetry",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Waits for the bounded backoff before the separately inventoried real Yandex fetch; this delay has no provider side effect."
     },
     {
       "sourcePattern": "^app/\\[locale\\]/\\(site\\)/page\\.tsx$",
@@ -141,19 +148,67 @@
   ],
   "routePatterns": [
     {
-      "pattern": "^/api/e2e/stripe-mode$",
-      "method": "POST",
-      "scenarioId": "monthly-preflight-stripe-mode",
+      "pattern": "^/api/address/suggestions$",
+      "method": "GET",
+      "scenarioId": "address-geocoding",
       "required": true,
       "disposition": "not_exercised",
-      "expectation": "Verify deployed Stripe mode through server configuration and provider readback; archive a test product and prove livemode is false."
+      "expectation": "Use the real Yandex Geosuggest API; record provider attempts and actual results without stubbing the response."
+    },
+    {
+      "pattern": "^/api/address/geocode$",
+      "method": "GET",
+      "scenarioId": "address-geocoding",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Resolve a selected real Yandex suggestion to its actual formatted address and WGS84 coordinates."
+    },
+    {
+      "pattern": "^/api/create-checkout-session$",
+      "method": "POST",
+      "scenarioId": "checkout-stripe",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Create a real Stripe TEST Checkout Session from the cart and verify item title, quantity, price, image, Yandex address metadata and livemode false."
+    },
+    {
+      "pattern": "^/api/e2e/stripe-mode$",
+      "method": "GET",
+      "scenarioId": "weekly-preflight-stripe-mode",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Read the deployed Stripe mode and stop before checkout if production is not configured for TEST."
+    },
+    {
+      "pattern": "^/api/e2e/ai-memory$",
+      "method": "POST",
+      "scenarioId": "ai-chat-memory",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Use the production app's Redis and Pinecone credentials to read back or clear only the authenticated, admin-marked account for this run."
+    },
+    {
+      "pattern": "^/api/e2e/ai-image-quota$",
+      "method": "POST",
+      "scenarioId": "ai-tools",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Prepare and read actual Redis quota state only for an authenticated run-owned account; verify image limits without mocking provider responses."
+    },
+    {
+      "pattern": "^/api/e2e/resend-status$",
+      "method": "GET",
+      "scenarioId": "notifications",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Read the actual Resend delivery event with the production app's provider credential and verify the run-owned recipient and subject."
     },
     {
       "pattern": "^/api/products/translate-field$",
       "scenarioId": "product-edit",
       "required": true,
       "disposition": "not_exercised",
-      "expectation": "Real title and description translation for all locales, including saved DB values and pending-dialog interaction."
+      "expectation": "Real title and description translation for all locales, including OpenAI request ids and actual attempt counts, saved DB values and pending-dialog interaction."
     },
     {
       "pattern": "^/api/products/(add|translate-insert)$",
@@ -275,7 +330,7 @@
       "expectation": "Use Stripe TEST Checkout and a provider test payment; verify session, payment, stock, receipt and duplicate protection."
     },
     {
-      "pattern": "^/api/(create-paypal-session|create-klarna-session|coinmarketcap|wallet/.*)$",
+      "pattern": "^/api/(create-paypal-session|create-klarna-session|coinmarketcap|wallet-payment/.*|wallet/.*)$",
       "scenarioId": "checkout-other",
       "required": true,
       "disposition": "not_exercised",
@@ -304,6 +359,22 @@
     }
   ],
   "sourceRules": [
+    {
+      "pattern": "^app/libs/yandex/addressProvider\\.ts$",
+      "scenarioId": "address-geocoding",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Observe actual Yandex HTTP calls, bounded retries and provider request identifiers when supplied; verify the route's real results.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/components/ui/Modals/CartModal/DeliveryAddressAutocomplete\\.tsx$",
+      "scenarioId": "address-geocoding",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Type rapidly, choose actual Yandex suggestions and verify stale responses cannot replace the latest input.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
     {
       "pattern": "^app/components/ui/Modals/AdminPanel/hooks/useSubscribeToProductCreated",
       "scenarioId": "product-background",
@@ -361,6 +432,14 @@
       "dependencyReviewStatus": "scenario_linked"
     },
     {
+      "pattern": "^app/api/(send-email|telegram)",
+      "scenarioId": "notifications",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Link the actual Resend or Telegram provider request id to delivery readback in the run-owned destination.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
       "pattern": "^app/api/products/(add|translate-insert)",
       "scenarioId": "product-create",
       "required": true,
@@ -381,11 +460,11 @@
       "scenarioId": "ai-tools",
       "required": true,
       "disposition": "not_exercised",
-      "expectation": "Map paid AI operations, cache bypass/hit, real provider results and budget evidence.",
+      "expectation": "Map each AI operation, cache bypass/hit, real provider result, attempt count, and downstream state.",
       "dependencyReviewStatus": "scenario_linked"
     },
     {
-      "pattern": "^app/(libs/ai/chatMemory|sdk/.*Memory|api/ai/sales-assistant)",
+      "pattern": "^app/api/ai/sales-assistant/route\\.ts$|^app/api/ai/sales-assistant/memory/route\\.ts$|^app/libs/ai/chatMemory\\.ts$",
       "scenarioId": "ai-chat-memory",
       "required": true,
       "disposition": "not_exercised",
@@ -425,7 +504,17 @@
       "dependencyReviewStatus": "scenario_linked"
     },
     {
-      "pattern": "^app/api/(create-paypal-session|create-klarna-session|coinmarketcap|wallet)",
+      "pattern": "^app/libs/payment/getAuthenticatedPaymentUserId\\.ts$",
+      "scenarioId": "checkout-other",
+      "classification": "request-or-provider",
+      "classificationReason": "Reads the signed-in Supabase identity used to bind a real Stripe or wallet purchase to its account.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify the server-resolved account through the real checkout session's client reference or bound wallet intent.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/(create-paypal-session|create-klarna-session|coinmarketcap|wallet-payment|wallet)",
       "scenarioId": "checkout-other",
       "required": true,
       "disposition": "not_exercised",
@@ -457,7 +546,7 @@
       "dependencyReviewStatus": "scenario_linked"
     },
     {
-      "pattern": "^app/api/(send-email|telegram|webhooks|fetch-prices|popular-products|stats)",
+      "pattern": "^app/api/(webhooks|fetch-prices|popular-products|stats)",
       "scenarioId": "analytics-other",
       "required": true,
       "disposition": "not_exercised",
@@ -490,10 +579,36 @@
     },
     {
       "pattern": "^app/api/e2e/stripe-mode/",
-      "scenarioId": "monthly-preflight-stripe-mode",
+      "scenarioId": "weekly-preflight-stripe-mode",
       "required": true,
       "disposition": "not_exercised",
       "expectation": "Read deployed Stripe account mode, compare account identity, and verify a TEST product is archived.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/e2e/ai-memory/|^app/libs/e2e/runAccount\\.ts$",
+      "scenarioId": "ai-chat-memory",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify Redis/Pinecone readback and cleanup using production app credentials; authorization is limited to admin-marked run accounts.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/e2e/ai-image-quota/",
+      "scenarioId": "ai-tools",
+      "classification": "request-or-provider",
+      "classificationReason": "Reads and prepares real per-user image quota state in Redis through the run-account-authenticated application route.",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify daily and purchase-cycle boundaries from actual run-owned Redis state without calling Redis directly from Cypress.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/api/e2e/resend-status/|^app/libs/e2e/runAccount\\.ts$",
+      "scenarioId": "notifications",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Verify actual delivery status against the run-owned email id, account recipient, and subject using production app credentials.",
       "dependencyReviewStatus": "scenario_linked"
     },
     {
@@ -1165,7 +1280,7 @@
       "classificationReason": "Calls actual AI or market-data providers and returns business data.",
       "required": true,
       "disposition": "not_exercised",
-      "expectation": "Use fresh run-owned inputs, reserve paid budget and verify provider output plus downstream state.",
+      "expectation": "Use fresh run-owned inputs, execute each declared provider action once, and verify output plus downstream state.",
       "dependencyReviewStatus": "scenario_linked"
     },
     {
@@ -1239,7 +1354,7 @@
       "dependencyReviewStatus": "scenario_linked"
     },
     {
-      "pattern": "^app/api/(create-paypal-session|create-klarna-session|webhooks/paypal|wallet/)|^app/components/ui/Modals/CartModal/PaymentButtons/",
+      "pattern": "^app/api/(create-paypal-session|create-klarna-session|webhooks/paypal|wallet-payment/|wallet/)|^app/components/ui/Modals/CartModal/PaymentButtons/",
       "scenarioId": "checkout-other",
       "classification": "request-or-provider",
       "classificationReason": "Uses actual third-party sandbox or test-network payment behavior.",
@@ -1301,7 +1416,7 @@
     {
       "name": "Klarna sandbox checkout",
       "status": "blocked_by_application_placeholder",
-      "evidence": "app/api/create-klarna-session/route.ts sends to Klarna's production API host with credentials embedded in source; it is not a verified sandbox integration and must not be called by the monthly suite."
+      "evidence": "app/api/create-klarna-session/route.ts sends to Klarna's production API host with credentials embedded in source; it is not a verified sandbox integration and must not be called by the weekly suite."
     },
     {
       "name": "Global maintenance data destination",

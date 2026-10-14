@@ -61,6 +61,7 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
       <button
         className="inline-flex h-11 min-w-[44px] shrink-0 items-center justify-center rounded transition-transform duration-150 hover:scale-105"
         aria-label={`Rate ${ratingValue} out of 5`}
+        data-cy={`rate-support-ticket-${ratingValue}`}
         key={ratingValue}
         onMouseEnter={() => setHover(ratingValue)}
         onMouseLeave={() => setHover(null)}
@@ -89,6 +90,7 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
           messagesLength === 0 && "cursor-not-allowed opacity-55",
         )}
         disabled={messagesLength === 0}
+        data-cy="close-support-ticket"
         aria-label={messagesLength === 0 ? "Close unavailable for empty ticket" : "Close ticket"}
         onClick={() => messagesLength !== 0 && setShowMarkTicketAsCompleted(true)}
         title={messagesLength === 0 ? "I don't let you close empty ticket" : "Close ticket"}
@@ -101,10 +103,10 @@ export function MarkTicketAsCompletedUser({ isClosedBySupport, ticketId, message
           <h1 className="text-base font-semibold text-title">{t("close_ticket_confirm_title")}</h1>
           <p className="mt-2 text-sm text-subTitle">{t("close_ticket_confirm_subtitle")}</p>
           <div className="mt-3 flex justify-center gap-2">
-            <Button className="min-h-[44px] min-w-[44px] w-fit" variant="success-outline" size="sm" onClick={closeTicket}>
+            <Button className="min-h-[44px] min-w-[44px] w-fit" data-cy="confirm-close-support-ticket" variant="success-outline" size="sm" onClick={closeTicket}>
               {t("yes")}
             </Button>
-            <Button className="min-h-[44px] min-w-[44px] w-fit" variant="danger-outline" size="sm" onClick={() => setShowMarkTicketAsCompleted(false)}>
+            <Button className="min-h-[44px] min-w-[44px] w-fit" data-cy="cancel-close-support-ticket" variant="danger-outline" size="sm" onClick={() => setShowMarkTicketAsCompleted(false)}>
               {t("no")}
             </Button>
           </div>

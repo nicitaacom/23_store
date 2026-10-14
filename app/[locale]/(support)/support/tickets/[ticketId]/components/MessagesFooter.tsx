@@ -44,11 +44,14 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
         ...getSupportImageBucketAndFolder(),
         fileName: getTimestampFileName(image.name),
       })
-      if (typeof uploadImageResp === "string") return toast.show("error", t("support.error.uploading_image"), uploadImageResp)
+      if (typeof uploadImageResp === "string") {
+        console.error("Support reply image upload failed", uploadImageResp)
+        throw new Error("Support reply image upload failed")
+      }
       images = [uploadImageResp.publicUrl]
     }
 
-    await supportSDK.sendMessage({
+    const response = await supportSDK.sendMessage({
       messageBody,
       ticketId: ticket_id,
       senderId: user?.id || "",
@@ -57,6 +60,9 @@ export function MessagesFooter({ ticket_id }: { ticket_id: string }) {
       images,
       messageSender: "support",
     })
+    if (response.realtimeDelivered === false || response.ticketMetadataUpdated === false) {
+      toast.show("warning", t("message.warning.notification_title"), t("message.warning.notification_body"))
+    }
     setImage(null)
     clearDraft(ticket_id)
   }

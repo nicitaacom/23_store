@@ -114,6 +114,7 @@ export function AIInputSearch() {
       {...swipeHandlers}>
       <button
         className="flex h-12 w-full items-center gap-3 border-b border-success/10 px-3 text-left"
+        data-cy="ai-chat-toggle"
         type="button"
         onClick={() => setIsExpanded(current => !current)}
         aria-expanded={isExpanded}>

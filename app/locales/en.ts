@@ -294,12 +294,15 @@ export default {
   // =================        =================
   //                   aichat
   // =================        =================
-  "aichat.error": "Service error. Try again then contact support",
-  "aichat.error.with_reason": 'Error: "{message}". Try again.',
-  "aichat.error.no_reply_data": "It's no choices?.[0]?.message?.content - contact support",
+  "aichat.error": "The AI assistant could not complete the request",
+  "aichat.error.with_reason": 'The AI assistant could not complete the request: "{message}". Check your question or contact support.',
+  "aichat.error.no_reply_data": "The AI assistant returned no answer. Contact support if this continues.",
+  "aichat.memory_warning_title": "Reply sent, conversation memory incomplete",
   "aichat.generate_image": "Generate image",
   "aichat.generate_image_completed": "Here you go",
   "aichat.error.generate_image": "Image generation error",
+  "aichat.error.generate_image_with_reason": "Image generation failed: {message}",
+  "aichat.error.generate_image_unknown": "The image could not be generated. Contact the store owner if this continues.",
   "aichat.add_to_cart": "Add to Cart",
   "aichat.header_title": "AI Shopping Assistant",
   "aichat.header_subtitle": "Find your perfect product in seconds",
@@ -418,6 +421,19 @@ export default {
   "product.changes_saved": "Changes saved",
   "product.manage_product_success": "Your product updates are live.",
   "product.manage_product_error": "Could not update product",
+  "product.delivery_address_label": "Street address",
+  "product.delivery_address_placeholder": "Start typing a street and house number",
+  "product.delivery_address_help": "Choose a Yandex suggestion to confirm the location. Stripe will collect your final shipping details at checkout.",
+  "product.delivery_address_searching": "Searching addresses…",
+  "product.delivery_address_geocoding": "Confirming the selected address…",
+  "product.delivery_address_no_results": "Yandex found no matching addresses. Check the spelling or enter your address in Stripe Checkout.",
+  "product.delivery_address_selected": "Address confirmed by Yandex",
+  "product.delivery_address_config_missing": "Address suggestions are not configured. You can enter your address in Stripe Checkout.",
+  "product.delivery_address_key_rejected": "Yandex rejected its API key. You can enter your address in Stripe Checkout; the store owner needs to restore Yandex access.",
+  "product.delivery_address_rate_limited": "Yandex address search is still rate-limited after an automatic retry. Enter your address in Stripe Checkout.",
+  "product.delivery_address_timeout": "Yandex address search timed out after an automatic retry. Enter your address in Stripe Checkout.",
+  "product.delivery_address_unavailable": "The store could not reach Yandex after an automatic retry. Enter your address in Stripe Checkout and contact the store owner if this continues.",
+  "product.delivery_address_search_error": "Address search could not confirm this result. Choose another suggestion or enter your address in Stripe Checkout.",
   "product.confirm_delete_product": "Delete this product permanently?",
   "product.delete_product_error": "Could not delete product",
   "product.product_deleted": "Product deleted",
@@ -527,8 +543,12 @@ export default {
   //                   message
   // =================        =================
   "message.image_sent": "image sent",
-  "message.error.image_sent": "error sending image",
-  "message.error.message_sent": "error sending new message",
+  "message.error.ticket_open_title": "Support chat could not be opened",
+  "message.error.ticket_open_body": "Your message is still in the composer. Contact support by email to send it another way.",
+  "message.error.not_saved_title": "Support message was not saved",
+  "message.error.not_saved_body": "Your message is still in the composer. Contact support by email if this keeps happening.",
+  "message.warning.notification_title": "Message saved without an instant notification",
+  "message.warning.notification_body": "Your message is saved in the support chat, but the team did not receive an instant notification. Contact support by email if this is urgent.",
 
   // =================        =================
   //                   payment
@@ -635,7 +655,8 @@ export default {
   "support.no_messages_yet": "No messages yet",
   "support.error.filename_must_contain_dot": "Filename must contain one dot before file extension (e.g. 'file.jpg')",
   "support.error.file_extension_is_required": "File extension is required to insert in DB bucket",
-  "support.error.uploading_image": "Error uploading image",
+  "support.error.uploading_image": "Image could not be uploaded",
+  "support.error.uploading_image_body": "Your image and message are still attached. Contact support by email if this keeps happening.",
   "support.search_placeholder": "Search tickets",
   "support.no_search_results": "No tickets match your search",
   "support.status_open": "Open",

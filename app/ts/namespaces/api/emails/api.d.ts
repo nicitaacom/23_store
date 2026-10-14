@@ -10,6 +10,7 @@ declare namespace API {
 
   type EmailsSendResponse = {
     status: number
+    resendId?: string
   }
 
   type EmailsRequestReplanishmentRequest = {
@@ -20,5 +21,6 @@ declare namespace API {
 
   type EmailsRequestReplanishmentResponse = {
     status: number
+    resendId?: string
   }
 }

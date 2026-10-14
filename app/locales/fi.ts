@@ -294,12 +294,15 @@ export default {
   // =================        =================
   //                   aichat
   // =================        =================
-  "aichat.error": "Palveluvirhe. Yritä uudelleen ja ota yhteyttä tukeen",
-  "aichat.error.with_reason": 'Hups, "{message}". Yritä uudelleen.',
-  "aichat.error.no_reply_data": "Ei vastauksia?.[0]?.message?.content – ota yhteyttä tukeen",
+  "aichat.error": "Tekoälyavustaja ei voinut käsitellä pyyntöä",
+  "aichat.error.with_reason": 'Tekoälyavustaja ei voinut käsitellä pyyntöä: "{message}". Tarkista kysymyksesi tai ota yhteyttä tukeen.',
+  "aichat.error.no_reply_data": "Tekoälyavustaja ei palauttanut vastausta. Ota yhteyttä tukeen, jos ongelma jatkuu.",
+  "aichat.memory_warning_title": "Vastaus lähetettiin, mutta keskustelumuisti jäi puutteelliseksi",
   "aichat.generate_image": "Luo kuva",
   "aichat.generate_image_completed": "Ole hyvä",
   "aichat.error.generate_image": "Kuvan luontivirhe",
+  "aichat.error.generate_image_with_reason": "Kuvan luonti epäonnistui: {message}",
+  "aichat.error.generate_image_unknown": "Kuvaa ei voitu luoda. Ota yhteyttä kaupan ylläpitäjään, jos ongelma jatkuu.",
   "aichat.add_to_cart": "Lisää ostoskoriin",
   "aichat.header_title": "AI-ostosassistentti",
   "aichat.header_subtitle": "Löydä täydellinen tuote sekunneissa",
@@ -418,6 +421,19 @@ export default {
   "product.changes_saved": "Muutokset tallennettu",
   "product.manage_product_success": "Tuotepäivitykset ovat nyt näkyvissä.",
   "product.manage_product_error": "Tuotteen päivitys epäonnistui",
+  "product.delivery_address_label": "Katuosoite",
+  "product.delivery_address_placeholder": "Aloita kirjoittamalla katu ja talonumero",
+  "product.delivery_address_help": "Vahvista sijainti valitsemalla Yandexin ehdotus. Stripe pyytää toimitustiedot lopuksi kassalla.",
+  "product.delivery_address_searching": "Osoitteita haetaan…",
+  "product.delivery_address_geocoding": "Valittua osoitetta vahvistetaan…",
+  "product.delivery_address_no_results": "Yandex ei löytänyt osoitteita. Tarkista kirjoitusasu tai lisää osoite Stripen kassalla.",
+  "product.delivery_address_selected": "Yandex vahvisti osoitteen",
+  "product.delivery_address_config_missing": "Osoite-ehdotuksia ei ole määritetty. Voit kirjoittaa osoitteen Stripen kassalla.",
+  "product.delivery_address_key_rejected": "Yandex hylkäsi API-avaimen. Voit kirjoittaa osoitteen Stripen kassalla; kaupan omistajan on palautettava Yandex-yhteys.",
+  "product.delivery_address_rate_limited": "Yandexin osoitehaku on edelleen rajoitettu automaattisen uuden yrityksen jälkeen. Kirjoita osoite Stripen kassalla.",
+  "product.delivery_address_timeout": "Yandexin osoitehaku aikakatkaistiin automaattisen uuden yrityksen jälkeen. Kirjoita osoite Stripen kassalla.",
+  "product.delivery_address_unavailable": "Kauppa ei saanut yhteyttä Yandexiin automaattisen uuden yrityksen jälkeen. Kirjoita osoite Stripen kassalla ja ota yhteyttä kauppaan, jos ongelma jatkuu.",
+  "product.delivery_address_search_error": "Osoitetta ei voitu vahvistaa. Valitse toinen ehdotus tai kirjoita osoite Stripen kassalla.",
   "product.confirm_delete_product": "Poistetaanko tämä tuote pysyvästi?",
   "product.delete_product_error": "Tuotteen poistaminen epäonnistui",
   "product.product_deleted": "Tuote poistettu",
@@ -527,8 +543,12 @@ export default {
   //                   message
   // =================        =================
   "message.image_sent": "kuva lähetetty",
-  "message.error.image_sent": "virhe kuvan lähetyksessä",
-  "message.error.message_sent": "virhe uuden viestin lähetyksessä",
+  "message.error.ticket_open_title": "Tukikeskustelua ei voitu avata",
+  "message.error.ticket_open_body": "Viestisi on edelleen kirjoituskentässä. Lähetä se sähköpostitse tukeen.",
+  "message.error.not_saved_title": "Tukiviestiä ei tallennettu",
+  "message.error.not_saved_body": "Viestisi on edelleen kirjoituskentässä. Ota yhteyttä tukeen sähköpostitse, jos ongelma jatkuu.",
+  "message.warning.notification_title": "Viesti tallennettiin ilman pikailmoitusta",
+  "message.warning.notification_body": "Viesti on tallennettu tukikeskusteluun, mutta tiimi ei saanut siitä pikailmoitusta. Ota kiireellisissä asioissa yhteyttä tukeen sähköpostitse.",
 
   // =================        =================
   //                   payment
@@ -635,7 +655,8 @@ export default {
   "support.no_messages_yet": "Ei viestejä vielä",
   "support.error.filename_must_contain_dot": "Tiedostonimessä täytyy olla yksi piste ennen päätettä (esim. 'tiedosto.jpg')",
   "support.error.file_extension_is_required": "Tiedostopääte vaaditaan tietokantaan lisäämiseksi",
-  "support.error.uploading_image": "Virhe kuvan latauksessa",
+  "support.error.uploading_image": "Kuvaa ei voitu ladata",
+  "support.error.uploading_image_body": "Kuva ja viesti ovat edelleen liitettyinä. Ota yhteyttä tukeen sähköpostitse, jos ongelma jatkuu.",
   "support.search_placeholder": "Hae tikettejä",
   "support.no_search_results": "Hakuasi vastaavia tikettejä ei löytynyt",
   "support.status_open": "Avoin",

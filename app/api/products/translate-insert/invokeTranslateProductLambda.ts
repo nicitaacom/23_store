@@ -8,7 +8,9 @@ const lambdaInvokeTimeoutMs = 20_000
 
 const lambda = new LambdaClient({
   region: lambdaRegion,
-  maxAttempts: 3,
+  // An invocation can update the product and emit a Pusher event. Do not let the SDK
+  // silently submit the same worker request again when its first outcome is uncertain.
+  maxAttempts: 1,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -50,17 +52,18 @@ export async function invokeTranslateProductLambda(
 ): Promise<TInvokeTranslateProductLambdaResponse | string> {
   try {
     if (!lambdaRegion) throw new Error("Missing AWS region for translate lambda")
-    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_ACCESS_KEY_ID.endsWith("P54S"))
-      throw new Error("Missing AWS_ACCESS_KEY_ID if it does not ends with P54S")
-    if (!process.env.AWS_SECRET_ACCESS_KEY || !process.env.AWS_SECRET_ACCESS_KEY.endsWith("kSRb"))
-      throw new Error("Missing AWS_SECRET_ACCESS_KEY or it does not ends with kSRb")
-    if (!process.env.NEXT_PUBLIC_AWS_REGION || process.env.NEXT_PUBLIC_AWS_REGION !== "eu-central-1")
-      throw new Error("Missing NEXT_PUBLIC_AWS_REGION or it's not eu-central-1")
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY)
+      throw new Error("AWS translation-worker credentials are not configured")
+    if (!process.env.NEXT_PUBLIC_AWS_REGION)
+      throw new Error("AWS translation-worker region is not configured")
 
     const lambdaPayload = buildLambdaPayload(payload)
 
-    console.info(`[products/translate-insert] invoking lambda with payload ${JSON.stringify(lambdaPayload)}`)
-    console.info("[lambda] config:", { lambdaRegion, lambdaFnName })
+    console.info("[products/translate-insert] invoking translation worker", {
+      productId: payload.id,
+      functionName: lambdaFnName,
+      region: lambdaRegion,
+    })
 
     const response = await Promise.race<TInvokeTranslateProductLambdaResponse>([
       lambda
@@ -73,14 +76,13 @@ export async function invokeTranslateProductLambda(
         )
         .then(response => {
           if (response.FunctionError) {
-            const payloadText = response.Payload ? new TextDecoder().decode(response.Payload) : ""
-            throw new Error(payloadText || `Lambda execution failed with ${response.FunctionError}`)
+            throw new Error(`Translation worker returned ${response.FunctionError}`)
           }
 
-          console.info("[lambda] response:", {
+          console.info("[products/translate-insert] translation worker accepted", {
             statusCode: response.StatusCode,
-            functionError: response.FunctionError,
-            payload: response.Payload ? new TextDecoder().decode(response.Payload) : null,
+            requestId: response.$metadata.requestId,
+            executedVersion: response.ExecutedVersion,
           })
 
           return {
@@ -108,7 +110,17 @@ export async function invokeTranslateProductLambda(
 
     return response
   } catch (error) {
-    if (error instanceof Error) return error.message
-    return String(error)
+    const errorName = error instanceof Error ? error.name : ""
+    const errorMessage = error instanceof Error ? error.message : ""
+    const safeFailure = /credentials are not configured|region is not configured/i.test(errorMessage)
+      ? "Product translation could not start because the server's AWS worker configuration is incomplete. Check the product list before starting another creation, and contact the store administrator to configure AWS credentials and region."
+      : /AccessDenied|UnauthorizedOperation/i.test(errorName)
+        ? "Product translation could not start because AWS denied access to the translation worker. Check the product list before starting another creation, and contact the store administrator to restore Lambda invoke permission."
+        : /CredentialsProvider|InvalidClientToken|UnrecognizedClient|ExpiredToken|SignatureDoesNotMatch/i.test(`${errorName} ${errorMessage}`)
+          ? "Product translation could not start because AWS rejected the server credentials. Check the product list before starting another creation, and contact the store administrator to restore AWS credentials."
+        : /ResourceNotFound|FunctionError|Translation worker returned/i.test(`${errorName} ${errorMessage}`)
+          ? "The AWS translation worker is unavailable or returned an execution error. Check the product list before starting another creation, and contact the store administrator to check the worker deployment."
+          : "AWS did not confirm whether product translation started. Check the product list before starting another creation, and contact the store administrator to check AWS worker access."
+    return safeFailure
   }
 }

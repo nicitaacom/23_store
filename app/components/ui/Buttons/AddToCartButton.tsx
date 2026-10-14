@@ -39,6 +39,7 @@ export function AddToCartButton({ productId, categoryId, className, variantId }:
   return (
     <Button
       className={twMerge("h-11 w-full mobile:w-fit rounded font-medium", className)}
+      data-cy={`add-to-cart-${productId}${variantId ? `-${variantId}` : ""}`}
       variant="success"
       size="md"
       rounded="lg"

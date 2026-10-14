@@ -228,7 +228,7 @@ function buildMarkdown(summary, coverage, counts, asyncCoverage, evidenceRecords
     "## Coverage",
     "",
     `Discovered ${coverage.length}; mapped ${counts.mapped}; required ${counts.required}; passed ${counts.passed}; failed ${counts.failed}; not exercised ${counts.not_exercised}; blocked by configuration ${counts.blocked_by_configuration}.`,
-    `Required monthly journeys: ${summary.requiredMonthlySpecs ?? 0}; missing journey files: ${(summary.missingRequiredSpecs ?? []).join(", ") || "none"}.`,
+    `Required weekly journeys: ${summary.requiredWeeklySpecs ?? 0}; missing journey files: ${(summary.missingRequiredSpecs ?? []).join(", ") || "none"}.`,
     "",
     "### Failed operations",
     "",
@@ -256,8 +256,7 @@ function buildMarkdown(summary, coverage, counts, asyncCoverage, evidenceRecords
     "## Timing and cost",
     "",
     `Recorded timing failures: ${evidenceRecords.filter(evidence => evidence.timingStatus === "failed").length}`,
-    `Paid-operation history: ${summary.paidLedgerStatus ?? "unavailable"}; ${summary.paidOperationCount ?? "unknown"} downstream calls; estimated spend: $${summary.estimatedCostUsd ?? "unknown"}; actual spend: ${summary.actualCostUsd ?? "unknown"}.`,
-    `Configured limit: ${summary.paidOperationLimit ?? "not configured"} downstream calls; $${summary.paidBudgetUsd ?? "not configured"} estimated maximum. This is a runner estimate, not a provider billing cap.`,
+    `Real provider action journal: ${summary.providerOperationJournalStatus ?? "unavailable"}; ${summary.providerOperationCount ?? "unknown"} distinct actions recorded. No dollar cap is required; retries are bounded by the application.`,
     `Cleanup: ${summary.cleanupStatus ?? "not started"}`,
     "",
     "## Observed failures",
@@ -310,17 +309,17 @@ export async function createE2EReport() {
   const mappingDocument = await readJson(mappingPath, null)
   if (!mappingDocument) summary.blockers = [...(summary.blockers ?? []), "Reviewed request mapping is unavailable"]
   const requiredSpecs = mappingDocument?.requiredSpecs ?? []
-  let availableMonthlySpecs = []
+  let availableWeeklySpecs = []
   try {
-    availableMonthlySpecs = await readdir(path.join(repositoryRoot, "cypress/monthly"))
+    availableWeeklySpecs = await readdir(path.join(repositoryRoot, "cypress/monthly"))
   } catch {
     // Missing test files are reported as required-spec blockers below.
   }
-  const missingRequiredSpecs = requiredSpecs.filter(specName => !availableMonthlySpecs.includes(specName))
+  const missingRequiredSpecs = requiredSpecs.filter(specName => !availableWeeklySpecs.includes(specName))
   if (missingRequiredSpecs.length) {
-    summary.blockers = [...(summary.blockers ?? []), `Required monthly specs are missing: ${missingRequiredSpecs.join(", ")}`]
+    summary.blockers = [...(summary.blockers ?? []), `Required weekly specs are missing: ${missingRequiredSpecs.join(", ")}`]
   }
-  summary.requiredMonthlySpecs = requiredSpecs.length
+  summary.requiredWeeklySpecs = requiredSpecs.length
   summary.missingRequiredSpecs = missingRequiredSpecs
   const unverifiedWorkers = (mappingDocument?.externalWorkers ?? []).filter(worker => worker.evidenceStatus !== "verified")
   if (unverifiedWorkers.length) {
@@ -347,32 +346,24 @@ export async function createE2EReport() {
   } catch {
     // The database snapshot remains authoritative if the local event file was not written.
   }
-  const hasCurrentPaidSnapshot = paidSnapshot?.runId === summary.runId
-  const paidRows = hasCurrentPaidSnapshot ? paidSnapshot.records ?? [] : []
-  const paidCallCount = paidRows.reduce((total, row) => total + (Number(row.paid_call_count) || 0), 0)
-  const estimatedCostUsd = paidRows.reduce((total, row) => total + (Number(row.estimated_cost_usd) || 0), 0)
-  const actualCosts = paidRows.map(row => row.actual_cost_usd === null || row.actual_cost_usd === undefined
-    ? null
-    : Number(row.actual_cost_usd))
-  const paidLedgerBlockers = []
-  if (["monthly", "replay"].includes(summary.suite) && currentCleanupStatus !== "not_required"
-    && (!hasCurrentPaidSnapshot || paidSnapshot.status !== "ready")) {
-    paidLedgerBlockers.push("Paid-operation history could not be read from the run journal")
+  const hasCurrentProviderSnapshot = paidSnapshot?.runId === summary.runId
+  const providerRows = hasCurrentProviderSnapshot ? paidSnapshot.records ?? [] : []
+  const providerJournalBlockers = []
+  if (["weekly", "replay"].includes(summary.suite) && currentCleanupStatus !== "not_required"
+    && (!hasCurrentProviderSnapshot || paidSnapshot.status !== "ready")) {
+    providerJournalBlockers.push("Provider action history could not be read from the run journal")
   }
-  if (paidRows.some(row => ["started", "unknown"].includes(row.status))) {
-    paidLedgerBlockers.push("One or more paid operations have an unsettled or unknown outcome")
+  if (providerRows.some(row => ["started", "unknown"].includes(row.status))) {
+    providerJournalBlockers.push("One or more real provider actions have an unsettled or unknown outcome")
   }
-  if (paidEvents.some(event => event.kind === "paid-operation-reservation" && event.allowed === false)) {
-    paidLedgerBlockers.push("A paid operation was stopped by the budget or an earlier reservation")
-  }
-  for (const row of paidRows) {
+  for (const row of providerRows) {
     if (row.status === "failed") {
-      evidenceRecords.push({ kind: "paid-operation", status: "failed", message: `Paid capability ${row.capability} failed` })
+      evidenceRecords.push({ kind: "provider-operation", status: "failed", message: `Real provider action ${row.capability} failed` })
     }
   }
   for (const event of paidEvents) {
-    if (event.kind === "paid-operation-result" && event.status === "failed") {
-      evidenceRecords.push({ kind: "paid-operation", status: "failed", message: `Paid capability ${event.capability} failed` })
+    if (event.kind === "provider-operation-finished" && event.status === "failed") {
+      evidenceRecords.push({ kind: "provider-operation", status: "failed", message: `Real provider action ${event.capability} failed` })
     }
   }
   const coverage = buildCoverage(inventory, evidenceRecords)
@@ -380,13 +371,13 @@ export async function createE2EReport() {
   const counts = countCoverage(coverage)
   summary.cleanupStatus = currentCleanupStatus
   if (cleanupSummary?.pending?.length) summary.blockers = [...(summary.blockers ?? []), `${cleanupSummary.pending.length} run-owned resources still need cleanup`]
-  summary.blockers = [...new Set([...(summary.blockers ?? []), ...paidLedgerBlockers])]
-  summary.paidLedgerStatus = hasCurrentPaidSnapshot ? paidSnapshot.status : (summary.cleanupStatus === "not_required" ? "not_started" : "unavailable")
-  summary.paidOperationCount = hasCurrentPaidSnapshot && paidSnapshot.status === "ready" ? paidCallCount : null
-  summary.estimatedCostUsd = hasCurrentPaidSnapshot && paidSnapshot.status === "ready" ? Number(estimatedCostUsd.toFixed(6)) : null
-  summary.actualCostUsd = !hasCurrentPaidSnapshot || paidSnapshot.status !== "ready" ? null
-    : paidRows.length === 0 ? 0
-      : actualCosts.every(Number.isFinite) ? Number(actualCosts.reduce((total, cost) => total + cost, 0).toFixed(6)) : null
+  summary.blockers = [...new Set([...(summary.blockers ?? []), ...providerJournalBlockers])]
+  summary.providerOperationJournalStatus = hasCurrentProviderSnapshot
+    ? paidSnapshot.status
+    : (summary.cleanupStatus === "not_required" ? "not_started" : "unavailable")
+  summary.providerOperationCount = hasCurrentProviderSnapshot && paidSnapshot.status === "ready"
+    ? providerRows.length
+    : null
   summary.asyncCounts = {
     ...(inventory.asyncSummary ?? {}),
     listedAwaitExpressions: asyncCoverage.length,

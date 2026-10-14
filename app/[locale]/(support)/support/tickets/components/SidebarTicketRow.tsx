@@ -39,6 +39,8 @@ export function SidebarTicketRow({ ticket, unseenMessagesAmount, onClick }: Side
           isActive && "border-border-color/45 bg-background/60",
         )}
         href={`/support/tickets/${ticket.id}`}
+        data-cy="support-ticket-row"
+        data-ticket-id={ticket.id}
         onClick={onClick}>
         <ImageWithFallback
           className="h-10 w-10 rounded-md object-cover"

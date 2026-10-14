@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation"
 import { FaStripeS } from "react-icons/fa"
 import { twMerge } from "tailwind-merge"
 
-import { buildStripeLineName } from "../functions/buildStripeLineName"
-import { getVariantImageUrl } from "@/utils/cartProducts"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { trackBuyingFlowEvent } from "@/utils/trackBuyingFlowEvent"
 import useCartStore from "@/store/user/cartStore"
@@ -16,7 +14,7 @@ import useUser from "@/store/user/useUser"
 import { Button } from "@/components/ui"
 
 // http://localhost:6006/?path=/story/commerce-checkout--cart
-export function PayWithStripeButton() {
+export function PayWithStripeButton({ deliveryAddress }: { deliveryAddress?: API.ProductsCheckoutDeliveryAddress }) {
   const t = useScopedI18n("payment")
   const router = useRouter()
   const toast = useToast()
@@ -24,16 +22,12 @@ export function PayWithStripeButton() {
   const { user } = useUser()
   const { isLoading, setIsLoading } = useLoading()
 
-  const stripeProductsQuery = encodeURIComponent(
-    JSON.stringify(
-      cartStore.productsData.map(product => ({
-        imageUrl: getVariantImageUrl(product, product.selectedVariant),
-        name: buildStripeLineName(product),
-        quantity: product.quantity,
-        unitAmount: Math.max(1, Math.round(product.price * 100)),
-      })),
-    ),
-  )
+  const products = cartStore.productsData.map(product => ({
+    productId: product.id,
+    variantId: product.variantId ?? null,
+    designId: product.designId ?? null,
+    quantity: product.quantity,
+  }))
 
   async function createCheckoutSession() {
     trackBuyingFlowEvent({ event: "checkout_click", checkoutKind: "stripe" })
@@ -54,8 +48,9 @@ export function PayWithStripeButton() {
 
       //redirect user to session.url on client side to avoid 'blocked by CORS' error
       const response = await productsSDK.createCheckoutSession({
-        stripeProductsQuery,
+        products,
         email: user?.email || null,
+        ...(deliveryAddress ? { deliveryAddress } : {}),
       })
       router.push(response)
     } catch (error) {

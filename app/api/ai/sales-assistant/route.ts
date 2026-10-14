@@ -1,16 +1,36 @@
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import type { FunctionTool, ResponseFunctionToolCall } from "openai/resources/responses/responses"
 
+import {
+  describeOpenAIRequestFailure,
+  OpenAIInvalidOutputError,
+  OpenAIRequestFailure,
+  openAIRequestHeaders,
+  requestOpenAIWithRetry,
+} from "@/libs/ai/openaiRequest"
 import { getSalesAssistantContext, persistConversationTurn, updateWorkingMemory } from "@/libs/ai/chatMemory"
+import openai from "@/libs/openai"
 
 type Message = { role: "system" | "user" | "assistant"; content: string }
 
+export const maxDuration = 165
+
 export async function POST(req: Request) {
   let requestBody: API.AISalesAssistantRequest | null = null
-
   try {
     requestBody = (await req.json()) as API.AISalesAssistantRequest
+  } catch {
+    return NextResponse.json({ error: "The sales assistant could not read your message. Enter a message and submit it again." }, { status: 400 })
+  }
+
+  if (typeof requestBody.promptValue !== "string" || !requestBody.promptValue.trim()) {
+    return NextResponse.json({ error: "Enter a message before contacting the sales assistant." }, { status: 400 })
+  }
+
+  let operationStage = "read your conversation"
+  try {
     const { promptValue, memory, conversationHistory = [] } = requestBody
 
     const supabase = createRouteHandlerClient(
@@ -25,12 +45,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized", memory }, { status: 401 })
     }
 
-    const { recentMessages, semanticContext, recentSource, pineconeMatches } = await getSalesAssistantContext({
-      userId: user.id,
-      promptValue,
-      memory,
-      conversationHistory,
-    })
+    const {
+      recentMessages,
+      semanticContext,
+      recentSource,
+      pineconeMatches,
+      embeddingRequestIds,
+      embeddingAttemptCount,
+    } = await getSalesAssistantContext({ userId: user.id, promptValue, memory, conversationHistory })
 
     const systemPrompt = `You are a sales assistant for Joki e-commerce.
 Reply in the user's latest language.
@@ -53,17 +75,21 @@ ${semanticContext || "none"}`
       { role: "user", content: promptValue },
     ]
 
-    // -- functions: addProductToCart + generateImage
-    const functions = [
+    // The Responses API supports GPT-6 Luna function tools with xhigh reasoning.
+    const tools: FunctionTool[] = [
       {
+        type: "function",
+        strict: true,
         name: "addProductToCart",
         description: "Add a product to cart with detailed information",
         parameters: {
           type: "object",
+          additionalProperties: false,
           properties: {
             product: {
               type: "object",
               description: "Product details",
+              additionalProperties: false,
               properties: {
                 title: { type: "string" },
                 subtitle: { type: "string" },
@@ -71,53 +97,53 @@ ${semanticContext || "none"}`
               },
               required: ["title", "subtitle", "price"],
             },
-            quantity: { type: "number", default: 1 },
-            note: { type: "string" },
-            t: { type: "string", description: "optional i18n key function name" },
+            quantity: { type: "number", description: "Quantity to add" },
+            note: { type: ["string", "null"] },
+            t: { type: ["string", "null"], description: "optional i18n key function name" },
           },
-          required: ["product"],
+          required: ["product", "quantity", "note", "t"],
         },
       },
       {
+        type: "function",
+        strict: true,
         name: "generateImage",
         description: "Generate an image for a product or idea. Returns { prompt, note }.",
         parameters: {
           type: "object",
+          additionalProperties: false,
           properties: {
             prompt: { type: "string", description: "Image prompt for the generator" },
-            memory: { type: "string", description: "Short context or memory to use in prompt" },
+            memory: { type: ["string", "null"], description: "Short context or memory to use in prompt" },
           },
-          required: ["prompt"],
+          required: ["prompt", "memory"],
         },
       },
     ]
 
-    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-5.4-nano",
-        messages,
-        functions,
-        function_call: "auto",
-        max_tokens: 220,
-        temperature: 0.4,
-      }),
+    operationStage = "generate a reply"
+    const openAIResult = await requestOpenAIWithRetry(async options => {
+      const response = await openai.responses.create({
+      model: "gpt-6-luna",
+      reasoning: { effort: "xhigh" },
+      input: messages,
+      tools,
+      tool_choice: "auto",
+      parallel_tool_calls: false,
+      max_output_tokens: 3000,
+      }, options)
+      const hasToolCall = response.output.some(item => item.type === "function_call")
+      if (!hasToolCall && !response.output_text.trim()) throw new OpenAIInvalidOutputError()
+      return response
     })
 
-    if (!openaiResponse.ok) {
-      const text = await openaiResponse.text()
-      return NextResponse.json({ error: text }, { status: openaiResponse.status })
-    }
-
-    const openaiData = await openaiResponse.json()
-    const firstChoice = openaiData?.choices?.[0] ?? null
-    const aiMessage = firstChoice?.message ?? null
-    const assistantReply = typeof aiMessage?.content === "string" ? aiMessage.content.trim() : ""
-    const hasFunctionCall = Boolean(aiMessage?.function_call?.name)
+    const openaiResponse = openAIResult.response
+    const functionCall = openaiResponse.output.find(
+      (item): item is ResponseFunctionToolCall => item.type === "function_call",
+    )
+    const assistantReply = openaiResponse.output_text.trim()
+    const hasFunctionCall = Boolean(functionCall)
+    operationStage = "prepare the reply"
     const response = await updateWorkingMemory({
       currentMemory: memory,
       userPrompt: promptValue,
@@ -125,8 +151,10 @@ ${semanticContext || "none"}`
       semanticContext,
     })
 
+    let memoryWriteEvidence = { requestIds: [] as string[], attemptCount: 0, warnings: [] as string[] }
     if (!hasFunctionCall && assistantReply) {
-      await persistConversationTurn({
+      operationStage = "save the conversation"
+      memoryWriteEvidence = await persistConversationTurn({
         userId: user.id,
         userPrompt: promptValue,
         assistantReply,
@@ -134,9 +162,18 @@ ${semanticContext || "none"}`
       })
     }
 
-    return NextResponse.json({
-      openai: openaiData,
+    const routeResponse = NextResponse.json({
+      assistantMessage: {
+        content: assistantReply,
+        ...(functionCall ? {
+          functionCall: {
+            name: functionCall.name,
+            arguments: functionCall.arguments,
+          },
+        } : {}),
+      },
       memory: response,
+      warnings: memoryWriteEvidence.warnings,
       debug:
         process.env.NODE_ENV === "development"
           ? {
@@ -147,10 +184,24 @@ ${semanticContext || "none"}`
             }
           : undefined,
     } as API.AISalesAssistantResponse)
+    for (const [name, value] of Object.entries(openAIRequestHeaders(openAIResult))) routeResponse.headers.set(name, value)
+    const embeddingIds = [...new Set([...embeddingRequestIds, ...memoryWriteEvidence.requestIds])]
+    routeResponse.headers.set("x-openai-embedding-attempt-count", String(embeddingAttemptCount + memoryWriteEvidence.attemptCount))
+    if (embeddingIds.length) routeResponse.headers.set("x-openai-embedding-request-ids", JSON.stringify(embeddingIds))
+    return routeResponse
   } catch (error) {
+    if (error instanceof OpenAIRequestFailure || error instanceof OpenAIInvalidOutputError) {
+      const failure = describeOpenAIRequestFailure(error, "answer your message", "Your message was not added to the conversation.")
+      return NextResponse.json({
+        error: failure.message,
+        code: failure.code,
+        memory: requestBody.memory ?? "",
+      }, { status: failure.status, headers: openAIRequestHeaders(failure) })
+    }
+
     return NextResponse.json({
-      reply: error instanceof Error ? error.message : String(error),
-      memory: requestBody?.memory ?? "",
-    })
+      error: `The sales assistant could not ${operationStage}. Your message was not added to the conversation. Contact the store owner if this continues.`,
+      memory: requestBody.memory ?? "",
+    }, { status: 503 })
   }
 }

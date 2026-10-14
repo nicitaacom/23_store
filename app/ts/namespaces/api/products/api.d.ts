@@ -40,6 +40,13 @@ declare namespace API {
     ok: boolean
     error?: string
     translations?: ProductsTranslations
+    evidence?: {
+      requestId: string
+      workerName: string
+      workerStatus: "invoked" | "timeout"
+      workerRequestId?: string
+      workerVersion?: string
+    }
   }
 
   type ProductsFetchSuggestedPriceRequest = {
@@ -128,18 +135,53 @@ declare namespace API {
   }
 
   type ProductsCreateCheckoutSessionRequest = {
-    stripeProductsQuery: string
+    products: Array<{
+      productId: string
+      variantId?: string | null
+      designId?: string | null
+      quantity: number
+    }>
     email: string | null | undefined
+    deliveryAddress?: ProductsCheckoutDeliveryAddress
   }
 
   type ProductsCreateCheckoutSessionResponse = { url: string }
 
   type ProductsCreatePayPalSessionRequest = {
-    payPalProductsQuery: string
+    products: Array<{
+      productId: string
+      variantId?: string | null
+      designId?: string | null
+      quantity: number
+    }>
     email: string | null | undefined
   }
 
   type ProductsCreatePayPalSessionResponse = { url: string }
+
+  type ProductsWalletPaymentNetwork = "ETH" | "BNB" | "MATIC" | "SOL"
+  type ProductsCreateWalletPaymentIntentRequest = {
+    network: ProductsWalletPaymentNetwork
+    senderAddress: string
+    products: Array<{ productId: string; variantId?: string | null; quantity: number }>
+  }
+  type ProductsCreateWalletPaymentIntentResponse = {
+    intentId: string
+    network: ProductsWalletPaymentNetwork
+    recipient: string
+    tokenUnits: string
+    transactionData: string
+    chainId: string | null
+    solanaCluster: string | null
+  }
+  type ProductsVerifyWalletPaymentRequest = { intentId: string; transactionHash: string }
+  type ProductsVerifyWalletPaymentResponse = {
+    valid: true
+    quotaReset: boolean
+    accountImageLimit: number
+    accountImageRemaining?: number
+    accountImageEpoch: number
+  }
 
   type ProductsCreateKlarnaSessionResponse = Record<string, unknown>
 

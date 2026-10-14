@@ -2,7 +2,7 @@ import type { Interception } from "cypress/types/net-stubbing"
 
 import { recordResource, recordVerifiedRoute, reservePaidScenarioOperation, settlePaidScenarioOperation } from "./support"
 
-type TRunAccount = { id: string; email: string; password: string; role: string }
+type TRunAccount = { id: string; email: string; role: string }
 type TRunAccounts = Record<"owner" | "other" | "support" | "admin", TRunAccount>
 type TRouteResult<TBody> = { statusCode: number; body: TBody; interception: Interception }
 type TPriceConversion = {
@@ -49,7 +49,7 @@ describe("monthly analytics and provider-backed utility routes", function () {
   let paidReservation: { operationKey: string; reserved: boolean; attempted: boolean; settled: boolean } | null = null
 
   before(() => {
-    cy.task<TRunAccounts>("prepareRunAccounts").then(runAccounts => {
+    cy.prepareRunAccounts().then(runAccounts => {
       accounts = runAccounts
     })
   })

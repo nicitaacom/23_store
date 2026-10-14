@@ -7,13 +7,16 @@ describe("describeProductCreationError", () => {
     const message = describeProductCreationError(new TypeError("Image 1: Failed to fetch"), "compressing product images", false)
     expect(message).toContain("No response while compressing product images")
     expect(message).toContain("device reports no internet connection")
+    expect(message).toContain("check the product list before starting another creation")
     expect(message).not.toContain("Failed to fetch")
+    expect(message).not.toMatch(/try again|retry/i)
   })
 
   it("does not claim the device is offline when the browser reports online", () => {
     const message = describeProductCreationError(new TypeError("Failed to fetch"), "publishing the product", true)
     expect(message).toContain("connection or service may be unavailable")
-    expect(message).toContain("Check the product list before retrying")
+    expect(message).toContain("Check the product list before starting another creation")
+    expect(message).not.toMatch(/try again|retry/i)
   })
 
   it("keeps a specific server error", () => {

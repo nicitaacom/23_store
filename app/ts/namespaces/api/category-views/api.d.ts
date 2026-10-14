@@ -10,5 +10,5 @@ declare namespace API {
   type CategoryViewsSyncResponse = { ok: boolean } | { error: string }
 
   type AISuggestCategoryRequest = { title: string }
-  type AISuggestCategoryResponse = { category_id: string | null } | { error: string }
+  type AISuggestCategoryResponse = { category_id: string | null } | { error: string; code?: string }
 }

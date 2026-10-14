@@ -17,6 +17,9 @@ declare namespace API {
     status?: number
     message?: string
     error?: string
+    messageSaved?: boolean
+    ticketMetadataUpdated?: boolean
+    realtimeDelivered?: boolean
   }
 
   type SupportSendMessageRequest = {

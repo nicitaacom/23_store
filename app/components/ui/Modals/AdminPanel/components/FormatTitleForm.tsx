@@ -10,7 +10,6 @@ import { IFormDataAddProduct } from "@/ts/product/IFormDataAddProduct"
 import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import { useLoading } from "@/store/ui/useLoading"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import useToast from "@/store/ui/useToast"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
@@ -27,29 +26,33 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const locale = useCurrentLocale()
   const toast = useToast()
   const [isEditing, setIsEditing] = useState(false)
+  const [isTranslating, setIsTranslating] = useState(false)
   const isEditingRef = useRef(false)
-  const { isLoading, setIsLoading } = useLoading()
+  const isTranslatingRef = useRef(false)
   const currentTranslation = translations[locale] ?? translations.fi
   const { replaceProduct, updateProduct } = useOwnerProductsStore()
 
   useEffect(() => {
-    if (!isLoading) return
+    if (!isTranslating) return
     const handler = (e: BeforeUnloadEvent) => {
       e.preventDefault()
       e.returnValue = ""
     }
     window.addEventListener("beforeunload", handler)
     return () => window.removeEventListener("beforeunload", handler)
-  }, [isLoading])
+  }, [isTranslating])
 
   async function updateTitle(title: string) {
+    if (isTranslatingRef.current) return
+    isTranslatingRef.current = true
+
     updateProduct(id, product => ({
       ...product,
       translations: { ...translations, [locale]: { ...currentTranslation, title } },
     }))
     isEditingRef.current = false
     setIsEditing(false)
-    setIsLoading(true)
+    setIsTranslating(true)
 
     try {
       const response = await productsSDK.translateField({ productId: id, field: "title", value: title, translations })
@@ -57,10 +60,22 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
       replaceProduct(id, response.product)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
-      updateProduct(id, product => ({ ...product, translations }))
+      updateProduct(id, product => {
+        const currentLocaleTranslation = product.translations[locale] ?? product.translations.fi
+        if (currentLocaleTranslation.title !== title) return product
+
+        return {
+          ...product,
+          translations: {
+            ...product.translations,
+            [locale]: { ...currentLocaleTranslation, title: currentTranslation.title },
+          },
+        }
+      })
       toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error), 10000)
     } finally {
-      setIsLoading(false)
+      isTranslatingRef.current = false
+      setIsTranslating(false)
     }
   }
 
@@ -68,11 +83,10 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
     register,
     handleSubmit,
     reset,
-    // eslint-disable-next-line local-rules/no-banned-words -- React Hook Form exposes this exact field name.
     formState: { errors, isDirty: hasChanges },
   } = useForm<IFormDataAddProduct>()
 
-  useAdminPanelChanged(`edit-product-${id}-title`, (isEditing && hasChanges) || isLoading)
+  useAdminPanelChanged(`edit-product-${id}-title`, (isEditing && hasChanges) || isTranslating)
 
   const onSubmit = (data: IFormDataAddProduct) => {
     updateTitle(data.title)
@@ -117,11 +131,12 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   }, [])
 
   return (
-    <div className="min-w-0 flex-1" ref={containerRef}>
+    <div className="min-w-0 flex-1" data-cy="product-title-form" ref={containerRef}>
       {isEditing ? (
         <form onSubmit={event => handleSubmit(onSubmit)(event)}>
           <ProductInput
-            className={twMerge("w-full border-border-color/50 bg-background/60 text-start", isLoading && "animate-pulse")}
+            className={twMerge("w-full border-border-color/50 bg-background/60 text-start", isTranslating && "animate-pulse")}
+            data-cy="product-title-input"
             id="title"
             register={register}
             errors={errors}
@@ -139,8 +154,9 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
             </button>
             <button
               className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50"
+              data-cy="save-product-title"
               type="submit"
-              disabled={isLoading}>
+              disabled={isTranslating}>
               {tCommon("save")}
             </button>
           </div>
@@ -148,6 +164,8 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
       ) : (
         <button
           className="flex w-full min-w-0 items-center gap-2 rounded px-1 py-1 text-left transition-colors duration-150 hover:bg-warning/20"
+          data-cy="edit-product-title"
+          disabled={isTranslating}
           type="button"
           onClick={enableInput}>
           <span className="truncate text-base font-semibold text-title">{currentTranslation.title}</span>

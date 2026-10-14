@@ -24,8 +24,10 @@ export function AreYouSureClearCartModal() {
       primaryButtonVariant="danger"
       primaryButtonAction={clearCart}
       primaryButtonLabel={t("are_you_sure_clear_cart.primary_button")}
+      primaryButtonDataCy="confirm-clear-cart"
       secondaryButtonAction={areYouSuteClearCartModal.closeModal}
       secondaryButtonLabel={t("are_you_sure_clear_cart.secondary_button")}
+      secondaryButtonDataCy="cancel-clear-cart"
     />
   )
 }

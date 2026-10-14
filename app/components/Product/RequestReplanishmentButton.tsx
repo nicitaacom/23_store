@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { renderAsync } from "@react-email/render"
 import { HiOutlineRefresh } from "react-icons/hi"
 import { twMerge } from "tailwind-merge"
@@ -18,14 +18,18 @@ export function RequestReplanishmentButton({ product, className }: { product: TP
   const toast = useToast()
   const t = useScopedI18n("product")
   const [requestsAmount, setRequestsAmount] = useState(product.replanishment_requests_count ?? 0)
+  const requestInFlight = useRef(false)
 
   async function requestReplanishment() {
-    if (!product.owner_id) {
-      toast.show("error", t("error.no_owner_id_title"), t("error.no_owner_id_body"))
-      return
-    }
+    if (requestInFlight.current) return
+    requestInFlight.current = true
 
     try {
+      if (!product.owner_id) {
+        toast.show("error", t("error.no_owner_id_title"), t("error.no_owner_id_body"))
+        return
+      }
+
       // 1. Render TSX to html - on click, like requestBetterPrices does, so the body is never empty
       const html = await renderAsync(<RequestReplanishmentEmail product={product} />, { pretty: true })
 
@@ -46,12 +50,16 @@ export function RequestReplanishmentButton({ product, className }: { product: TP
       toast.show("success", t("success.replenishment_title"), t("success.replenishment_body"))
     } catch (error) {
       toast.show("error", t("error.replenishment_title"), error instanceof Error ? error.message : String(error))
+    } finally {
+      requestInFlight.current = false
     }
   }
 
   return (
     <Button
       className={twMerge("min-h-[44px] text-base font-medium", className)}
+      data-cy="request-product-replenishment"
+      data-product-id={product.id}
       variant="info-outline"
       size="lg"
       rounded="sm"

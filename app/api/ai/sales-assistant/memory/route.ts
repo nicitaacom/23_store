@@ -9,6 +9,19 @@ export async function POST(req: Request) {
 
   try {
     requestBody = (await req.json()) as API.AISalesAssistantMemoryRequest
+  } catch {
+    return NextResponse.json({ error: "The conversation update could not be read. Contact the store owner if your chat history is incomplete." }, { status: 400 })
+  }
+
+  if (
+    typeof requestBody.userPrompt !== "string" ||
+    typeof requestBody.assistantReply !== "string" ||
+    typeof requestBody.memory !== "string"
+  ) {
+    return NextResponse.json({ error: "The conversation update is incomplete. Send the message again from the chat." }, { status: 400 })
+  }
+
+  try {
     const { userPrompt, assistantReply, memory } = requestBody
 
     const supabase = createRouteHandlerClient(
@@ -23,31 +36,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const response = await updateWorkingMemory({
+    const updateWorkingMemoryResp = await updateWorkingMemory({
       currentMemory: memory,
       userPrompt,
       assistantReply,
     })
 
-    await persistConversationTurn({
+    const persistence = await persistConversationTurn({
       userId: user.id,
       userPrompt,
       assistantReply,
-      memorySummary: response,
+      memorySummary: updateWorkingMemoryResp,
     })
 
-    return NextResponse.json({
-      memory: response,
+    const routeResponse = NextResponse.json({
+      memory: updateWorkingMemoryResp,
+      warnings: persistence.warnings,
     } as API.AISalesAssistantMemoryResponse)
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-
+    routeResponse.headers.set("x-openai-embedding-attempt-count", String(persistence.attemptCount))
+    if (persistence.requestIds.length) {
+      routeResponse.headers.set("x-openai-embedding-request-ids", JSON.stringify(persistence.requestIds))
+    }
+    return routeResponse
+  } catch {
     return NextResponse.json(
       {
-        error: errorMessage,
+        error: "Conversation memory could not be updated. Your reply is still visible, but saved history may be incomplete. Contact the store owner if this continues.",
         memory: requestBody?.memory ?? "",
       } as API.AISalesAssistantMemoryResponse,
-      { status: 400 },
+      { status: 503 },
     )
   }
 }

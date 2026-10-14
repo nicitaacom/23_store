@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
@@ -10,11 +10,14 @@ import { substractOnStockFromQuantityFn } from "../functions/substractOnStockFro
 import { verifySessionIdFn } from "../functions/verifySessionIdFn"
 import { formatDeliveryDate } from "@/utils/formatDeliveryDate"
 import { personalizedDesignsSDK } from "@/sdk/PersonalizedDesignsSDK/PersonalizedDesignsSDK"
+import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useCartStore from "@/store/user/cartStore"
 import { useCurrentLocale, useI18n } from "@/locales/client"
 import { useLoading } from "@/store/ui/useLoading"
 import usePurchasedProductsStore from "@/store/user/usePurchasedProductsStore"
 import useUser from "@/store/user/useUser"
+
+type TPaymentVerificationResult = { error: unknown | null }
 
 export const usePaymentSteps = (status: string | null, sessionId: string | null) => {
   const router = useRouter()
@@ -26,6 +29,7 @@ export const usePaymentSteps = (status: string | null, sessionId: string | null)
   const [currentStep, setCurrentStep] = useState(() => (status === "success" ? 2 : 0))
   const [customerEmail, setCustomerEmail] = useState<string | null>(null)
   const [receiptProducts, setReceiptProducts] = useState<TProductAfterDB[]>([])
+  const paymentVerificationPromiseRef = useRef<Promise<TPaymentVerificationResult> | null>(null)
   const deliveryDate = formatDeliveryDate()
   const t = useI18n()
   const locale = useCurrentLocale()
@@ -40,7 +44,16 @@ export const usePaymentSteps = (status: string | null, sessionId: string | null)
   useEffect(() => {
     switch (currentStep) {
       case 2:
+        if (sessionId && !paymentVerificationPromiseRef.current) {
+          paymentVerificationPromiseRef.current = productsSDK.verifyPayment({ session_id: sessionId }).then(
+            () => ({ error: null }),
+            error => ({ error }),
+          )
+        }
         getCustomerEmailFn(t, user?.email || null, sessionId, setCustomerEmail, setCurrentStep)
+        break
+      case 5:
+        void verifySessionIdFn(sessionId, setCurrentStep, t, paymentVerificationPromiseRef.current)
         break
       case 3:
         selectProductsDataForReceipt(
@@ -54,9 +67,6 @@ export const usePaymentSteps = (status: string | null, sessionId: string | null)
         break
       case 4:
         renderEmailFn(receiptProducts, locale, deliveryDate, setHtml, setCurrentStep, t)
-        break
-      case 5:
-        verifySessionIdFn(sessionId, setCurrentStep, t)
         break
       case 6:
         sendEmailFn(emailData, setCurrentStep, t)

@@ -9,7 +9,6 @@ import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { RichTextToolbar } from "./RichTextToolbar"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import { useLoading } from "@/store/ui/useLoading"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import useToast from "@/store/ui/useToast"
 import { validateDescription } from "@/utils/productValidation"
@@ -27,11 +26,12 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   const tCommon = useScopedI18n("common")
   const locale = useCurrentLocale()
   const toast = useToast()
-  const { isLoading, setIsLoading } = useLoading()
   const { replaceProduct, updateProduct } = useOwnerProductsStore()
   const currentTranslation = translations[locale] ?? translations.fi
 
   const [isEditing, setIsEditing] = useState(false)
+  const [isTranslating, setIsTranslating] = useState(false)
+  const isTranslatingRef = useRef(false)
   const [value, setValue] = useState(currentTranslation.description ?? "")
   const [error, setError] = useState<string | null>(null)
   const descriptionRef = useRef<HTMLDivElement | null>(null)
@@ -39,7 +39,7 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   const editorContainerRef = useRef<HTMLDivElement | null>(null)
   const valueRef = useRef(value)
   const hasChanges = isEditing && value.trim() !== (currentTranslation.description ?? "").trim()
-  useAdminPanelChanged(`edit-product-${id}-description`, hasChanges || isLoading)
+  useAdminPanelChanged(`edit-product-${id}-description`, hasChanges || isTranslating)
   useEffect(() => {
     valueRef.current = value
   }, [value])
@@ -58,6 +58,8 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   }
 
   const handleSave = async () => {
+    if (isTranslatingRef.current) return
+
     const current = valueRef.current
     const validation = validateDescription(current)
     if (validation !== true) {
@@ -71,12 +73,13 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
       return
     }
 
+    isTranslatingRef.current = true
     updateProduct(id, product => ({
       ...product,
       translations: { ...translations, [locale]: { ...currentTranslation, description: trimmed } },
     }))
     setIsEditing(false)
-    setIsLoading(true)
+    setIsTranslating(true)
 
     try {
       const response = await productsSDK.translateField({ productId: id, field: "description", value: trimmed, translations })
@@ -84,15 +87,27 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
       replaceProduct(id, response.product)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
-      updateProduct(id, product => ({ ...product, translations }))
+      updateProduct(id, product => {
+        const currentLocaleTranslation = product.translations[locale] ?? product.translations.fi
+        if (currentLocaleTranslation.description !== trimmed) return product
+
+        return {
+          ...product,
+          translations: {
+            ...product.translations,
+            [locale]: { ...currentLocaleTranslation, description: currentTranslation.description ?? "" },
+          },
+        }
+      })
       toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error), 10000)
     } finally {
-      setIsLoading(false)
+      isTranslatingRef.current = false
+      setIsTranslating(false)
     }
   }
 
   return (
-    <div className="rounded border border-border-color/30 bg-background/70 p-3 shadow-none">
+    <div className="rounded border border-border-color/30 bg-background/70 p-3 shadow-none" data-cy="product-description-form">
       <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("description")}</p>
       {isEditing ? (
         <div className="flex flex-col gap-1" ref={editorContainerRef}>
@@ -107,23 +122,25 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
               </button>
               <button
                 className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50"
+                data-cy="save-product-description"
                 type="button"
                 onClick={handleSave}
-                disabled={isLoading}>
+                disabled={isTranslating}>
                 {tCommon("save")}
               </button>
             </div>
           </div>
           <MarkdownEditor
-            className={twMerge(isLoading && "animate-pulse")}
+            className={twMerge(isTranslating && "animate-pulse")}
             ref={descriptionRef}
             onWrapRef={wrapRef}
             value={value}
+            id="product-description-input"
             onChange={nextValue => {
               setValue(nextValue)
               setError(null)
             }}
-            disabled={isLoading}
+            disabled={isTranslating}
             placeholder={t("placeholder.description")}
           />
           {error && <p className="text-xs text-danger">{error}</p>}
@@ -131,6 +148,8 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
       ) : (
         <button
           className="flex w-full min-w-0 items-start gap-2 rounded p-1 text-left transition-colors duration-150 hover:bg-warning/20"
+          data-cy="edit-product-description"
+          disabled={isTranslating}
           type="button"
           onClick={enableInput}>
           <h2 className="line-clamp-3 min-w-0 flex-1 break-words text-sm leading-6 text-subTitle">

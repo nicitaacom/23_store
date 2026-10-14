@@ -16,8 +16,6 @@ export async function uploadImagesAndSendMessage(
   textareaRef: RefObject<HTMLTextAreaElement | null>,
 ) {
   const toast = useToast.getState()
-  const { setMessageBodyValue } = useMessages.getState()
-  setMessageBodyValue("") // Clear the textarea after sending the message
   let imageUrl: string | null = null
   const { image, setImage } = useMessages.getState()
 
@@ -28,12 +26,22 @@ export async function uploadImagesAndSendMessage(
       ...getSupportImageBucketAndFolder(),
       fileName: getTimestampFileName(image.name),
     })
-    if (response === undefined) return
-    if (typeof response === "string") return toast.show("error", t("support.error.uploading_image"), response)
+    if (response === undefined) {
+      toast.show("error", t("support.error.uploading_image"), t("support.error.uploading_image_body"))
+      return false
+    }
+    if (typeof response === "string") {
+      console.error("Support image upload failed", response)
+      toast.show("error", t("support.error.uploading_image"), t("support.error.uploading_image_body"))
+      return false
+    }
 
     imageUrl = response.publicUrl
   }
-  await sendMessageFn(t, messageBody.trim(), userId, imageUrl)
+  const sent = await sendMessageFn(t, messageBody.trim(), userId, imageUrl)
+  if (!sent) return false
+
+  useMessages.getState().setMessageBodyValue("")
   setImage(null)
   setHeight(38) // Reset height to initial value after message is sent
 
@@ -42,4 +50,5 @@ export async function uploadImagesAndSendMessage(
     textareaRef.current.value = ""
     textareaRef.current.setSelectionRange(0, 0)
   }
+  return true
 }

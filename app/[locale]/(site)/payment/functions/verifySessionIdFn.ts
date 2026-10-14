@@ -5,16 +5,26 @@ import { logFn } from "@/utils/logFn"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import useToast from "@/store/ui/useToast"
 
+type TPaymentVerificationResult = { error: unknown | null }
+
 export async function verifySessionIdFn(
   session_id: string | null,
   setCurrentStep: Dispatch<SetStateAction<number>>,
   t: TI18nFunction,
+  verificationPromise?: Promise<TPaymentVerificationResult> | null,
 ) {
   const toast = useToast.getState()
 
   if (session_id) {
     try {
-      await productsSDK.verifyPayment({ session_id })
+      const verification = verificationPromise
+        ? await verificationPromise
+        : await productsSDK.verifyPayment({ session_id }).then(
+            () => ({ error: null }),
+            error => ({ error }),
+          )
+      if (verification.error) throw verification.error
+
       logFn(t("payment.session_id_is_valid"))
       setCurrentStep(6)
     } catch (error) {
@@ -24,5 +34,9 @@ export async function verifySessionIdFn(
         toast.show("error", t("payment.error.session_id_is_valid_title"), error.message)
       }
     }
+    return
   }
+
+  // Wallet methods confirm the actual transfer before they navigate to the success page.
+  setCurrentStep(6)
 }
