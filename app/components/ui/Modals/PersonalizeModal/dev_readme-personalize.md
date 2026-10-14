@@ -357,7 +357,7 @@ and PostgREST's `PGRST204` / `PGRST205`, so a missing column and a missing table
       the file and those two surfaces upload through `FormatImagesForm` instead. Wiring it there means
       an upload + `updateProduct({ images })` from inside the print-area editor.
 - [ ] **The vision model id is one line.** `app/api/ai/check-print-area/route.ts` sends the photo to
-      `gpt-5-nano`, matching the other GPT routes in this project. If that model has no image input on
+      `gpt-6-luna` with xhigh reasoning, matching the other GPT routes in this project. If that model has no image input on
       this account the route answers 500, the verdict becomes `failed`, and the owner is not blocked —
       change the model id in that one place.
 - [ ] **The image model is looked up, not hardcoded.** `app/api/ai/generate-image/route.ts` tries

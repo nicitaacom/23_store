@@ -69,7 +69,8 @@ ${categoryLines}`
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-5-nano",
+      model: "gpt-6-luna",
+      reasoning_effort: "xhigh",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },

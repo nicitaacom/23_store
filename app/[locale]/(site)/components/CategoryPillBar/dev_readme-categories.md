@@ -80,8 +80,8 @@ useCategoriesStore (in-memory, no persistence)
 - **Parent category** — root-level group (Beauty & Health, Electronics, …). `parent_id = NULL`.
 - **Subcategory** — child of a parent (Hair Care under Beauty & Health). Has `parent_id`.
 - **FEATURED** — special root category. Admin manually assigns `category_id = featuredId` to highlight products.
-- **Auto-assign** — gpt-5-nano picks `category_id` based on the product title + description when admin types in AddProductForm (800ms debounce, ≥10 chars).
-- **Backfill** — one-time admin action that loops all products with `category_id IS NULL` and assigns them via gpt-5-nano.
+- **Auto-assign** — GPT-6 Luna picks `category_id` based on the product title + description when admin types in AddProductForm (800ms debounce, ≥10 chars).
+- **Backfill** — one-time admin action that loops all products with `category_id IS NULL` and assigns them via GPT-6 Luna.
 
 ---
 
@@ -104,7 +104,7 @@ User clicks "Beauty & Health" pill
 Admin types title (≥10 chars, debounced 800ms)
 → aiSDK.suggestCategory({ title, description })
   → POST /api/ai/suggest-category
-    → selectDBCategories() → gpt-5-nano (temperature:0, max_tokens:40)
+    → selectDBCategories() → GPT-6 Luna (xhigh reasoning, max_completion_tokens:2000)
       → returns UUID or "null"
         → validate UUID + check it's a known category ID
           → setCategoryId() + setAutoAssignedName()
@@ -135,7 +135,7 @@ Admin opens Categories tab → sees "X products have no category"
   → POST /api/admin/backfill-categories (ADMIN only)
     → fetches all categories once
     → loops products with category_id IS NULL, 150ms delay between calls
-    → gpt-5-nano assigns each
+    → GPT-6 Luna assigns each
     → supabaseAdmin updates rows
       → returns { processed: N, failed: [...] }
         → DELETE route file + button after successful run

@@ -37,7 +37,7 @@
 | Payments            | Stripe · PayPal · MetaMask                                        |
 | State               | Zustand                                                           |
 | Real-time           | Pusher                                                            |
-| AI                  | OpenAI gpt-5.4-nano and gpt-5-nano on AWS Lambda for product i18n |
+| AI                  | OpenAI GPT-5.4-nano on AWS Lambda for new-product i18n; GPT-6 Luna for product-text edits, category suggestions, and print-area checks |
 | Email               | Resend                                                            |
 | Price data          | CoinMarketCap API                                                 |
 | Infra               | Vercel (web) + Docker (local)                                     |
