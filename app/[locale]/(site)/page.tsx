@@ -1,14 +1,15 @@
 import { cache } from "react"
-import { notFound } from "next/navigation"
 import Link from "next/link"
 import { BiWindowOpen } from "react-icons/bi"
 
 import { TCategory } from "@/ts/categories/TCategory"
+import { selectCatalogProducts } from "./functions/selectCatalogProducts"
 import { AIInputSearch } from "./components/AISearch/AIInputSearch"
 import { CatalogAddProductButton } from "./components/CatalogAddProductButton"
 import { CatalogSearchForm } from "./components/CatalogSearchForm"
 import { CategoryPillBar } from "./components/CategoryPillBar"
 import { SortedProducts } from "./components/SortedProducts"
+import { CatalogUnavailable } from "./components/CatalogUnavailable/CatalogUnavailable"
 import { defaultPerPage, perPage as perPageOptions } from "@/constant/perPage"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import { getScopedI18n } from "@/locales/server"
@@ -22,25 +23,16 @@ interface SearchProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-const selectProducts = cache(async (categoryIds?: string[]) => {
-  const supabase = await supabaseServer()
-  let query = supabase.from("23_products").select("*").order("price", { ascending: true })
-  if (categoryIds && categoryIds.length > 0) {
-    query = query.in("category_id", categoryIds)
-  }
-  const products = await query
-  if (!products) notFound()
-  return products
-})
+const selectProducts = cache(selectCatalogProducts)
 
-const selectCategories = cache(async (): Promise<TCategory[]> => {
+const selectCategories = cache(async () => {
   const supabase = await supabaseServer()
-  const { data } = await supabase
+  const selectCategoriesResp = await supabase
     .from("23_categories")
     .select("id, name, parent_id")
     .order("parent_id", { ascending: true, nullsFirst: true })
     .order("name", { ascending: true })
-  return (data ?? []) as TCategory[]
+  return { ...selectCategoriesResp, data: (selectCategoriesResp.data ?? []) as TCategory[] }
 })
 
 export default async function Home({ params: paramsPromise, searchParams: searchParamsPromise }: SearchProps) {
@@ -57,7 +49,8 @@ export default async function Home({ params: paramsPromise, searchParams: search
   const viewsPromise = user
     ? supabase.from("23_category_views").select("category_id, view_count").eq("user_id", user.id)
     : Promise.resolve({ data: null })
-  const [categories, viewsResult] = await Promise.all([selectCategories(), viewsPromise])
+  const [selectCategoriesResp, viewsResult] = await Promise.all([selectCategories(), viewsPromise])
+  const categories = selectCategoriesResp.data
   const serverViews: Record<string, number> = {}
   if (viewsResult.data) {
     for (const row of viewsResult.data) serverViews[row.category_id] = row.view_count
@@ -84,8 +77,11 @@ export default async function Home({ params: paramsPromise, searchParams: search
   }
 
   const selectProductsResp = await selectProducts(categoryIds)
-  if (selectProductsResp.error) throw selectProductsResp.error
-  const products = normalizeProducts(selectProductsResp.data)
+  const databaseError = selectProductsResp.error ?? selectCategoriesResp.error
+  const databaseStatus = selectProductsResp.error ? selectProductsResp.status : selectCategoriesResp.status
+  if (databaseError)
+    console.error("[catalog.database]", { status: databaseStatus, message: databaseError.message, code: databaseError.code })
+  const products = normalizeProducts(selectProductsResp.data ?? [])
   const filteredProducts = searchQuery ? filterProductsBySearchQuery(products, searchQuery) : products
 
   //Logic for pagination
@@ -154,7 +150,13 @@ export default async function Home({ params: paramsPromise, searchParams: search
             </section>
 
             <section className="min-h-0 flex-1 pr-1 laptop:overflow-x-hidden laptop:overflow-y-auto laptop:[scrollbar-gutter:stable]">
-              {totalItems === 0 ? (
+              {databaseError ? (
+                <CatalogUnavailable
+                  databaseMessage={databaseError.message.trim()}
+                  databaseStatus={databaseStatus}
+                  autoRecover={[0, 502, 503, 504, 520].includes(databaseStatus)}
+                />
+              ) : totalItems === 0 ? (
                 <div className="flex min-h-full items-center justify-center rounded-[4px] border border-dashed border-success/20 bg-background/60 px-6 py-12 text-center text-base text-subTitle">
                   {t("no_products_found")}
                 </div>
@@ -163,20 +165,22 @@ export default async function Home({ params: paramsPromise, searchParams: search
               )}
             </section>
 
-            <div className="shrink-0 border-t border-success/15 pt-2">
-              <div className="flex items-center justify-between gap-2">
-                <PaginationControls
-                  hasNextPage={end < totalItems}
-                  hasPrevPage={start > 0}
-                  currentPage={page}
-                  totalPages={totalPages}
-                  perPage={perPage}
-                  basePath={`/${params.locale}`}
-                  query={searchQuery}
-                />
-                <ProductsPerPage />
+            {!databaseError && (
+              <div className="shrink-0 border-t border-success/15 pt-2">
+                <div className="flex items-center justify-between gap-2">
+                  <PaginationControls
+                    hasNextPage={end < totalItems}
+                    hasPrevPage={start > 0}
+                    currentPage={page}
+                    totalPages={totalPages}
+                    perPage={perPage}
+                    basePath={`/${params.locale}`}
+                    query={searchQuery}
+                  />
+                  <ProductsPerPage />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 

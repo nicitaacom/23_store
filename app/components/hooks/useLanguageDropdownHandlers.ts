@@ -3,30 +3,32 @@ import type { MouseEvent } from "react"
 
 import type { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 import { accountSDK } from "@/sdk/AccountSDK/AccountSDK"
-import { useI18n } from "@/locales/client"
-import useToast from "@/store/ui/useToast"
 import useUser from "@/store/user/useUser"
+import { TEMPORARY_LOCALE_OVERRIDE_SESSION_KEY } from "@/utils/locale"
 
 export function useLanguageDropdownHandlers() {
-  const toast = useToast()
-  const t = useI18n()
   const [isLocalLoading, setIsLocalLoading] = useState(false)
 
-  async function handleChangeLanguage(e: MouseEvent<HTMLAnchorElement>, language: TLocaleTag) {
-    if (!useUser.getState().user) return
+  function handleChangeLanguage(e: MouseEvent<HTMLAnchorElement>, language: TLocaleTag) {
     e.preventDefault()
     if (isLocalLoading) return
 
     const href = e.currentTarget.href
+    const isAuthenticated = Boolean(useUser.getState().user)
     setIsLocalLoading(true)
     try {
-      await accountSDK.updateLanguage(language)
-      window.location.assign(href)
+      window.sessionStorage.setItem(TEMPORARY_LOCALE_OVERRIDE_SESSION_KEY, language)
     } catch (error) {
-      toast.show("error", t("toast.error.title"), error instanceof Error ? error.message : String(error))
-    } finally {
-      setIsLocalLoading(false)
+      console.error("The browser did not store the selected language for this tab.", error)
     }
+
+    if (isAuthenticated) {
+      void accountSDK.updateLanguage(language).catch(error => {
+        console.error("Could not save the account language preference; keeping the selected locale for this tab.", error)
+      })
+    }
+
+    window.location.assign(href)
   }
 
   return { handleChangeLanguage, isLocalLoading }

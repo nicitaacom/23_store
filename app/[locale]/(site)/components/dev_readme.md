@@ -24,6 +24,19 @@ Because its 3 different components
 
 Leave it as is without separated components for Product.tsx (exept edit product)
 
+## Catalog database failures
+
+`CatalogUnavailable` renders in the product section when the homepage's product or category query
+fails. It names the database failure in the current locale and keeps the navbar and language selector
+available. Known configuration, credential, connection, service, and query failures have translated
+descriptions and error details in all four locales. The original response stays in developer diagnostics;
+the visible error uses one language. Development additionally shows the database variable names to check.
+
+`selectCatalogProducts` retries transient read failures twice, after 250 ms and 750 ms. The recovery
+hook then refreshes the route at most three times, after 5, 10, and 20 seconds, and cancels its timer
+when products replace the error state. Permanent query failures need support; they skip automatic
+refreshes. The refresh button starts another bounded recovery sequence.
+
 ## A variant needs a label and a price — the image is optional
 
 `image_url` is `string | null | undefined` on `TProductVariant`. Colour variants have their own photo

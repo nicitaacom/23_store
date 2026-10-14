@@ -1,12 +1,16 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import type { MouseEvent } from "react"
 import { FiRefreshCw } from "react-icons/fi"
 import { MdCheck, MdContentCopy, MdOutlineEmail } from "react-icons/md"
 
+import type { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
+import { getLocalePath } from "@/utils/locale"
 import { reportErrorToSupport } from "@/functions/support/reportErrorToSupport"
-import { useI18n, useScopedI18n } from "@/locales/client"
+import { useCurrentLocale, useI18n, useScopedI18n } from "@/locales/client"
 import { useIsOnline } from "@/hooks/useIsOnline"
+import { useLanguageDropdownHandlers } from "@/components/hooks/useLanguageDropdownHandlers"
 import { Button } from "@/components/ui"
 
 type ErrorBoundaryProps = {
@@ -16,6 +20,13 @@ type ErrorBoundaryProps = {
 
 type TReportStatus = "idle" | "sending" | "sent" | "failed"
 
+const localeOptions: { code: TLocaleTag; name: string }[] = [
+  { code: "en", name: "English" },
+  { code: "fi", name: "Suomi" },
+  { code: "ru", name: "Русский" },
+  { code: "se", name: "Svenska" },
+]
+
 // Recoverable boundary for the locale segment. Replaces Next.js's bare
 // "Application error" page so a transient failure (e.g. a request made while
 // the connection dropped) shows a branded message + retry instead of an empty stop.
@@ -23,6 +34,8 @@ export default function LocaleError({ error, reset }: ErrorBoundaryProps) {
   const t = useScopedI18n("common")
   const tGlobal = useI18n()
   const isOnline = useIsOnline()
+  const locale = useCurrentLocale()
+  const { handleChangeLanguage, isLocalLoading } = useLanguageDropdownHandlers()
   const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL
   const [reportStatus, setReportStatus] = useState<TReportStatus>("idle")
   const [isCopied, setIsCopied] = useState(false)
@@ -47,8 +60,29 @@ export default function LocaleError({ error, reset }: ErrorBoundaryProps) {
     setTimeout(() => setIsCopied(false), 2000)
   }
 
+  function handleLocaleChange(event: MouseEvent<HTMLAnchorElement>, nextLocale: TLocaleTag) {
+    const { pathname, search, hash } = window.location
+    event.currentTarget.href = `${getLocalePath(nextLocale, pathname)}${search}${hash}`
+    void handleChangeLanguage(event, nextLocale)
+  }
+
   return (
-    <main className="grid min-h-[60vh] place-items-center p-6">
+    <main className="relative grid min-h-[60vh] place-items-center p-6 pt-16">
+      <nav
+        className="absolute right-6 top-4 flex items-center gap-3 text-sm text-subTitle"
+        aria-label={tGlobal("navbar.language")}>
+        {localeOptions.map(language => (
+          <a
+            className={locale === language.code ? "font-semibold text-title" : "underline underline-offset-2 hover:text-title"}
+            aria-current={locale === language.code ? "page" : undefined}
+            aria-disabled={isLocalLoading}
+            href={`/${language.code}`}
+            key={language.code}
+            onClick={event => handleLocaleChange(event, language.code)}>
+            {language.name}
+          </a>
+        ))}
+      </nav>
       <div className="flex flex-col items-center gap-3 text-center">
         <h1 className="text-xl font-semibold text-title">{t("something_went_wrong")}</h1>
         {!isOnline && <p className="text-sm text-danger">{t("no_internet_connection")}</p>}

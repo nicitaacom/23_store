@@ -6,6 +6,8 @@
 **Status:** see [plan-00-tracker.md](plan-00-tracker.md)
 **Depends on:** —
 
+**Superseding decision (2026-10-14):** At the user's request, unprefixed routes now default to English. The `fi` default described below records the earlier behavior; explicit locale URLs and saved account preferences remain supported.
+
 ## §0 Why
 
 **CORRECTED DIAGNOSIS (05.07.2026, proven via source + live production repro — see below). The original root-cause candidate below is DISPROVEN. Do not implement the original fix in §4 task 2 as originally written.**

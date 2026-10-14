@@ -6,6 +6,7 @@ export class AccountSDK extends BaseSDK {
     await this.postVoid<API.AccountUpdateLanguageRequest>(
       "/api/account/language",
       { language } satisfies API.AccountUpdateLanguageRequest,
+      { keepalive: true },
     )
   }
 

@@ -32,9 +32,9 @@ import { TURNSTILE_COOKIE_NAME, TURNSTILE_COOKIE_VALUE, TURNSTILE_PATH_SEGMENT, 
 // ---------- i18n setup ----------
 const I18nMiddleware = createI18nMiddleware({
   locales: ["fi", "en", "ru", "se"] as TLocaleTag[],
-  defaultLocale: "fi" as TLocaleTag,
+  defaultLocale: "en" as TLocaleTag,
   urlMappingStrategy: "rewrite",
-  resolveLocaleFromRequest: () => "fi", // bybass default broser language settings to set default locale to be "fi"
+  resolveLocaleFromRequest: () => "en", // Keep unprefixed routes in English; browser language is ignored.
 })
 
 // ---------- role-based protected routes ----------
@@ -79,7 +79,7 @@ function getClientIp(request: NextRequest) {
 function getLocalePrefix(pathname: string) {
   const matchedPrefix = LOCALE_PATH_PREFIXES.find(prefix => pathname === prefix || pathname.startsWith(`${prefix}/`))
 
-  return matchedPrefix || "/fi"
+  return matchedPrefix || "/en"
 }
 
 function isHumanCheckPath(pathname: string) {
@@ -169,7 +169,7 @@ export async function proxy(request: NextRequest) {
 
   if (turnstileEnabled) {
     if (isHumanCheckPath(pathname) && hasVerifiedTurnstile) {
-      const safeNextPath = getSafeNextPath(request.nextUrl.searchParams.get("next"), request.nextUrl.locale || "fi")
+      const safeNextPath = getSafeNextPath(request.nextUrl.searchParams.get("next"), request.nextUrl.locale || "en")
       const nextUrl = new URL(safeNextPath, request.nextUrl.origin)
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = nextUrl.pathname
@@ -220,7 +220,7 @@ export async function proxy(request: NextRequest) {
   // unauthenticated access to user-protected pages
   if (!user && isRouteProtectedForUser(pathname, "user")) {
     const url = request.nextUrl.clone()
-    url.pathname = `/${request.nextUrl.locale || "fi"}/login`
+    url.pathname = `/${request.nextUrl.locale || "en"}/login`
     return NextResponse.redirect(url)
   }
 
