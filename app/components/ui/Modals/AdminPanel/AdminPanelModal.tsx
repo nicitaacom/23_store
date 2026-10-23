@@ -38,7 +38,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
 
   const [panelAction, setPanelAction] = useState<TPanelAction>(PANEL_ACTIONS.add)
   const [productSort, setProductSort] = useState<TAdminProductSort>(ADMIN_PRODUCT_SORTS.createdDesc)
-  const [pendingDeleteProduct, setPendingDeleteProduct] = useState<IPendingDeleteProduct | IPendingDeleteProduct[] | null>(null)
+  const [pendingRemoval, setPendingRemoval] = useState<IPendingDeleteProduct | IPendingDeleteProduct[] | null>(null)
   const [changedSections, setChangedSections] = useState<Record<string, boolean>>({})
   const [pendingDiscardAction, setPendingDiscardAction] = useState<(() => void) | null>(null)
   const hasUnsavedChangesRef = useRef(false)
@@ -206,7 +206,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
         "laptop:w-[min(92vw,1100px)] desktop:w-[min(90vw,1400px)]",
       )}
       hideCloseButton
-      disableDismiss={!!pendingDeleteProduct || !!pendingDiscardAction}
+      disableDismiss={!!pendingRemoval || !!pendingDiscardAction}
       ignoreInputs={false}
       onCloseRequest={requestGuardedAction}
       modalQuery="AdminPanel">
@@ -225,7 +225,8 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
             }}
             onActionChange={handlePanelActionChange}
             onClose={closeModal}
-            disabled={isLoading || !!pendingDeleteProduct || !!pendingDiscardAction}
+            disabled={isLoading || !!pendingRemoval || !!pendingDiscardAction}
+            closeDisabled={!!pendingRemoval || !!pendingDiscardAction}
             roles={roles}
           />
 
@@ -248,7 +249,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
               <div className="panel-scroll h-full overflow-y-auto pr-1">
                 <DeleteProductForm
                   ownerProducts={hydratedOwnerProducts}
-                  onRequestDelete={setPendingDeleteProduct}
+                  onRequestDelete={setPendingRemoval}
                   productSort={productSort}
                   onProductSortChange={setProductSort}
                 />
@@ -269,7 +270,7 @@ export function AdminPanelModal({ ownerProducts, roles, isAuthenticated }: Admin
             )}
           </div>
 
-          <AdminPanelDeleteConfirmDialog product={pendingDeleteProduct} onClose={() => setPendingDeleteProduct(null)} />
+          <AdminPanelDeleteConfirmDialog product={pendingRemoval} onClose={() => setPendingRemoval(null)} />
           <AdminPanelUnsavedChangesDialog
             isOpen={!!pendingDiscardAction}
             onDiscard={handleDiscard}

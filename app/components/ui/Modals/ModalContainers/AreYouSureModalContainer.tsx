@@ -67,6 +67,8 @@ interface AreYouSureModalContainerProps {
   secondaryButtonSize?: ButtonProps["size"]
   primaryButtonDataCy?: string
   secondaryButtonDataCy?: string
+  // Omit to follow the global loading flag. false keeps a local choice, such as discarding a draft, usable during a background request.
+  actionsDisabled?: boolean
 }
 
 // http://localhost:6006/?path=/story/ui-overlays-modal-containers-modalcontainer--open
@@ -94,22 +96,24 @@ export function AreYouSureModalContainer({
   secondaryButtonSize = "md",
   primaryButtonDataCy,
   secondaryButtonDataCy,
+  actionsDisabled,
 }: AreYouSureModalContainerProps) {
   useModalScrollLock(isOpen)
 
   const t = useScopedI18n("modal")
   const { isLoading } = useLoading()
+  const areActionsDisabled = actionsDisabled ?? isLoading
   const titleId = useId()
   const primaryButtonRef = useRef<HTMLButtonElement>(null)
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null)
 
   function closeModal() {
-    if (isLoading) return
+    if (areActionsDisabled) return
     secondaryButtonAction()
   }
 
   function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "Escape" && !isLoading) {
+    if (event.key === "Escape" && !areActionsDisabled) {
       event.stopImmediatePropagation()
       closeModal()
     }
@@ -141,7 +145,7 @@ export function AreYouSureModalContainer({
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, isOpen])
+  }, [areActionsDisabled, isOpen])
 
   /* for e.stopPropagation when mousedown on modal and mouseup on modalBg */
   const modalBgHandler = useSwipeable({
@@ -188,10 +192,10 @@ export function AreYouSureModalContainer({
               className={twMerge(
                 "absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded border border-border-color/35 bg-background/55 text-icon-color transition-colors duration-150 hover:bg-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70",
                 closeButtonClassName,
-                isLoading && "opacity-50 cursor-default pointer-events-none",
+                areActionsDisabled && "opacity-50 cursor-default pointer-events-none",
               )}
               aria-label={t("close_confirmation")}
-              disabled={isLoading}
+              disabled={areActionsDisabled}
               onClick={closeModal}
               type="button">
               <IoMdClose size={22} />
@@ -214,7 +218,7 @@ export function AreYouSureModalContainer({
                   variant={secondaryButtonVariant ? secondaryButtonVariant : "default-outline"}
                   size={secondaryButtonSize}
                   onClick={secondaryButtonAction}
-                  disabled={isLoading}>
+                  disabled={areActionsDisabled}>
                   {secondaryButtonLabel} {SecondaryButtonIcon && <SecondaryButtonIcon />}
                 </Button>
                 <Button
@@ -227,7 +231,7 @@ export function AreYouSureModalContainer({
                   variant={primaryButtonVariant ? primaryButtonVariant : "info"}
                   size={primaryButtonSize}
                   onClick={primaryButtonAction}
-                  disabled={isLoading}>
+                  disabled={areActionsDisabled}>
                   {primaryButtonLabel} {PrimaryButtonIcon && <PrimaryButtonIcon />}
                 </Button>
               </div>

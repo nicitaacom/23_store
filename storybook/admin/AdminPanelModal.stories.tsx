@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { useLoading } from "@/store/ui/useLoading";
 import { HttpResponse, http } from "msw";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 
@@ -221,6 +222,35 @@ export const UnsavedChanges: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Keep editing" }));
     await waitFor(() => expect(canvas.queryByText("Discard unsaved changes?")).not.toBeInTheDocument());
     await expect(canvas.getByPlaceholderText("Product title")).toHaveValue("Unsaved product");
+  },
+};
+
+export const DiscardDraftDuringPendingRequest: Story = {
+  parameters: { a11y: { test: "todo" } },
+  play: async ({ canvasElement }) => {
+    useLoading.setState({ isLoading: true });
+    try {
+      const canvas = within(canvasElement);
+      const titleInput = await waitFor(() => {
+        const input = canvasElement.querySelector<HTMLInputElement>("#title");
+        if (!input) throw new Error("Title field is not ready");
+        return input;
+      });
+      await userEvent.type(titleInput, "Unsaved draft");
+      const heading = await canvas.findByRole("heading", { level: 1 });
+      const closeButton = heading.parentElement?.parentElement?.querySelector("button");
+      if (!closeButton) throw new Error("Close control is not ready");
+      await expect(closeButton).toBeEnabled();
+      await userEvent.click(closeButton);
+      await waitFor(() => expect(canvas.getByText("Discard unsaved changes?")).toBeVisible());
+      const discardButton = canvas.getByRole("button", { name: "Discard changes" });
+      await expect(discardButton).toBeEnabled();
+      await expect(canvas.getByRole("button", { name: "Keep editing" })).toBeEnabled();
+      await userEvent.click(discardButton);
+      await waitFor(() => expect(canvas.queryByRole("heading", { level: 1 })).not.toBeInTheDocument());
+    } finally {
+      useLoading.setState({ isLoading: false });
+    }
   },
 };
 

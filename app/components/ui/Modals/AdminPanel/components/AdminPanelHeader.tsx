@@ -28,6 +28,7 @@ interface AdminPanelHeaderProps {
   onActionChange: (action: TPanelAction) => void
   onClose: () => void
   disabled?: boolean
+  closeDisabled?: boolean
   roles: string[]
 }
 
@@ -49,6 +50,7 @@ export function AdminPanelHeader({
   onActionChange,
   onClose,
   disabled,
+  closeDisabled = disabled,
   roles,
 }: AdminPanelHeaderProps) {
   const t = useScopedI18n("product")
@@ -77,7 +79,7 @@ export function AdminPanelHeader({
           data-cy="admin-panel-close"
           type="button"
           onClick={onClose}
-          disabled={disabled}
+          disabled={closeDisabled}
           aria-label={t("close_admin_panel")}>
           <IoMdClose size={20} />
         </button>

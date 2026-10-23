@@ -29,6 +29,7 @@ export function AdminPanelUnsavedChangesDialog({
       secondaryButtonAction={onKeepEditing}
       secondaryButtonLabel={t("modal.admin_panel.keep_editing")}
       secondaryButtonDataCy="unsaved-keep-editing"
+      actionsDisabled={false}
     />
   )
 }

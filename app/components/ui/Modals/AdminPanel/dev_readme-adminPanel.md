@@ -44,7 +44,9 @@ on the image upload control and warning toast keep the panel open. Closing remov
 query value through the App Router, keeping the URL and visible modal in sync while preserving
 catalog filters.
 While the discard dialog is open, the outer modal's dismiss handler is disabled so Escape reaches
-the dialog. Its X and Escape both act like **Keep editing** and preserve the draft.
+the dialog. Its X and Escape both act like **Keep editing** and preserve the draft. A background
+create leaves that dialog and the workspace close button usable. Discarding the current draft
+closes the workspace immediately, and the in-flight create keeps running.
 
 Submitting **Create product** scrolls the Add tab's details pane back to the top. A successful submit
 therefore opens the cleared form at its title field, while a rejected submit exposes its topmost errors.
@@ -176,6 +178,8 @@ Tabs are workspace navigation, not modal dismissal. They call `setPanelAction` d
 Add to Delete never opens the discard dialog. The dialog belongs to the workspace close path and appears
 only when a mounted form reports a real draft, such as typed text or an uploaded image. A submitted product
 that is still translating in the background is no longer a draft and does not keep the close guard active.
+The global loading flag still locks the workspace tabs during an edit save. It leaves the close
+button usable, and the discard dialog ignores it, so canceling an Add-tab draft stays immediate.
 
 ## 3b. FormatTitleForm — inline edit pattern
 
