@@ -13,6 +13,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
+import { presentStoredUpdateError } from "@/utils/presentStoredUpdateError"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 
 interface FormatPriceFormProps {
@@ -49,7 +50,7 @@ export function FormatPriceForm({ id, price }: FormatPriceFormProps) {
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
       updateProduct(id, product => ({ ...product, price }))
-      toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error))
+      toast.show("error", t("manage_product_error"), presentStoredUpdateError(error instanceof Error ? error.message : String(error), t("manage_update_kept")))
     } finally {
       setIsLoading(false)
     }

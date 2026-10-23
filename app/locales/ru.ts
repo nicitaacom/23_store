@@ -435,6 +435,7 @@ export default {
   "product.changes_saved": "Изменения сохранены",
   "product.manage_product_success": "Изменения товара опубликованы.",
   "product.manage_product_error": "Не удалось обновить товар",
+  "product.manage_update_kept": "Изменение не сохранилось. Напишите в поддержку, если это повторится.",
   "product.delivery_address_label": "Улица и дом",
   "product.delivery_address_placeholder": "Начните вводить улицу и номер дома",
   "product.delivery_address_help": "Выберите вариант Yandex, чтобы подтвердить адрес. Stripe попросит подтвердить данные доставки при оформлении заказа.",

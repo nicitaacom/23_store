@@ -16,6 +16,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
+import { presentStoredUpdateError } from "@/utils/presentStoredUpdateError"
 import { Button } from "@/components/ui"
 import { MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 import { VariantOptionsEditor } from "@/components/ui/VariantOptionsEditor"
@@ -145,7 +146,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
       setDrafts(toDrafts(response.product.variants ?? null))
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorMessage = presentStoredUpdateError(error instanceof Error ? error.message : String(error), t("manage_update_kept"))
       toast.show("error", t("manage_product_error"), errorMessage)
     } finally {
       setIsLoading(false)

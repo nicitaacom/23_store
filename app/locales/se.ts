@@ -434,6 +434,7 @@ export default {
   "product.changes_saved": "Ändringarna sparades",
   "product.manage_product_success": "Produktuppdateringarna är nu live.",
   "product.manage_product_error": "Det gick inte att uppdatera produkten",
+  "product.manage_update_kept": "Ändringen sparades inte. Kontakta supporten om det fortsätter.",
   "product.delivery_address_label": "Gatuadress",
   "product.delivery_address_placeholder": "Börja skriva gata och husnummer",
   "product.delivery_address_help": "Välj ett Yandex-förslag för att bekräfta platsen. Stripe ber dig bekräfta leveransuppgifterna i kassan.",

@@ -12,6 +12,7 @@ import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import useToast from "@/store/ui/useToast"
+import { presentStoredUpdateError } from "@/utils/presentStoredUpdateError"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 
 interface FormatTitleFormProps {
@@ -72,7 +73,7 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
           },
         }
       })
-      toast.show("error", t("manage_product_error"), error instanceof Error ? error.message : String(error), 10000)
+      toast.show("error", t("manage_product_error"), presentStoredUpdateError(error instanceof Error ? error.message : String(error), t("manage_update_kept")), 10000)
     } finally {
       isTranslatingRef.current = false
       setIsTranslating(false)

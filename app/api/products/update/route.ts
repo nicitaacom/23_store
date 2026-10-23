@@ -7,6 +7,7 @@ import { TProductVariant } from "@/ts/product/TProductVariant"
 import { getRunPersonalizationSqlMessage, isMissingSchemaError } from "@/utils/personalizationSchema"
 import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 import { normalizeProductImageUrls } from "@/utils/product"
+import { recoverStoredUpdateError } from "@/utils/presentStoredUpdateError"
 import { stripe } from "@/libs/stripe"
 import { supabaseAdmin } from "@/libs/supabase/supabaseAdmin"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
@@ -288,17 +289,17 @@ export async function POST(req: Request) {
       return getUpdatedProductResponse(productId)
     }
 
-    return NextResponse.json({ error: "No valid update payload provided" }, { status: 400 })
+    return NextResponse.json({ error: recoverStoredUpdateError("") }, { status: 400 })
   } catch (error) {
     if (error instanceof Stripe.errors.StripeError) {
       console.log("PRODUCT_UPDATE_ERROR\n(stripe)\n", error.message)
-      return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 })
+      return NextResponse.json({ error: recoverStoredUpdateError(error.message) }, { status: error.statusCode || 500 })
     }
     if (error instanceof Error) {
       console.log("PRODUCT_UPDATE_ERROR\n(error)\n", error.message)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: recoverStoredUpdateError(error.message) }, { status: 500 })
     }
 
-    return NextResponse.json({ error: "Unknown product update error" }, { status: 500 })
+    return NextResponse.json({ error: recoverStoredUpdateError("") }, { status: 500 })
   }
 }

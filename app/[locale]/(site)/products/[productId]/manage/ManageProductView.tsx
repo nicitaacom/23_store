@@ -14,6 +14,7 @@ import { TProductDB } from "@/ts/product/TProductDB"
 import { expandVariantOptionValues, getVariantGroupLabel, getVariantGroupOptions, groupVariantDrafts, toVariantOptionValues, updateVariantGroupOptions } from "@/utils/variantOptions"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
+import { presentStoredUpdateError } from "@/utils/presentStoredUpdateError"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
@@ -304,7 +305,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
 
         router.refresh()
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
+        const errorMessage = presentStoredUpdateError(error instanceof Error ? error.message : String(error), t("manage_update_kept"))
         toast.show("error", t("manage_product_error"), errorMessage)
       } finally {
         setIsUpdatingProduct(false)
@@ -335,7 +336,7 @@ export function ManageProductView({ product }: ManageProductViewProps) {
       router.push(`/${locale}`)
       router.refresh()
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorMessage = presentStoredUpdateError(error instanceof Error ? error.message : String(error), t("manage_update_kept"))
       toast.show("error", t("manage_product_error"), errorMessage)
     } finally {
       setIsUpdatingProduct(false)

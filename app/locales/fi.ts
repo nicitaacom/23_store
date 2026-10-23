@@ -435,6 +435,7 @@ export default {
   "product.changes_saved": "Muutokset tallennettu",
   "product.manage_product_success": "Tuotepäivitykset ovat nyt näkyvissä.",
   "product.manage_product_error": "Tuotteen päivitys epäonnistui",
+  "product.manage_update_kept": "Muutosta ei tallennettu. Ota yhteyttä tukeen, jos tämä toistuu.",
   "product.delivery_address_label": "Katuosoite",
   "product.delivery_address_placeholder": "Aloita kirjoittamalla katu ja talonumero",
   "product.delivery_address_help": "Vahvista sijainti valitsemalla Yandexin ehdotus. Stripe pyytää toimitustiedot lopuksi kassalla.",

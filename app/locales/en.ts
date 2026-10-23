@@ -435,6 +435,7 @@ export default {
   "product.changes_saved": "Changes saved",
   "product.manage_product_success": "Your product updates are live.",
   "product.manage_product_error": "Could not update product",
+  "product.manage_update_kept": "This change was not saved. Contact support if this continues.",
   "product.delivery_address_label": "Street address",
   "product.delivery_address_placeholder": "Start typing a street and house number",
   "product.delivery_address_help": "Choose a Yandex suggestion to confirm the location. Stripe will collect your final shipping details at checkout.",
