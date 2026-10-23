@@ -2,11 +2,11 @@
 
 `.github/workflows/ci.yml` runs Quality and Storybook checks on `development` pushes and pull
 requests. Those existing checks remain on pushes; the Plan 25 real-service Cypress suite runs only
-once each week, with no push, pull-request, manual, or deployment trigger. `CI required` passes when
+once each month, with no push, pull-request, manual, or deployment trigger. `CI required` passes when
 Quality and Storybook pass. `.github/workflows/chromatic.yml`
 publishes visual snapshots separately, so a single push creates one CI run and one Chromatic run.
 
-The Plan 25 Cypress workflow starts every Monday at 03:23 UTC. It inventories source and
+The Plan 25 Cypress workflow starts at 03:23 UTC on the 1st of each month. It inventories source and
 checks services before installing Cypress, creating fixtures, or opening a browser. A missing
 `public.23_users` table means the configured project has no store schema or its REST schema cache has
 not picked it up; the weekly preflight records that and stops before browser actions.
@@ -20,10 +20,11 @@ turns the first browser console error into a failing test and prevents the test 
 report from producing another copy of the same error indefinitely. The first error is the useful
 one to investigate.
 
-The weekly workflow never creates `.env.local`. It receives allowlisted settings from GitHub
+The monthly workflow never creates `.env.local`. It receives allowlisted settings from GitHub
 variables and secrets, checks the production deployment and configured providers, and only reaches
-the browser when inventory, mappings, budgets, and service health are ready. It runs every Monday
-and has no push, redeployment, manual, or external trigger. A missing setting or service
+the browser when inventory, mappings, budgets, and service health are ready. It runs on the 1st
+and has no push, redeployment, manual, or external trigger. When Supabase or Redis settings are
+absent, the suite starts the self-hosted containers in `docker/e2e-weekly/docker-compose.yml`. A missing setting or service
 leaves an `INCOMPLETE` result and uploads the report. The current workflow source has not been pushed
 to `development`; all nineteen weekly journey spec files are authored, but several paths remain
 incomplete. The other-checkout spec verifies a PayPal-method Stripe TEST session while Klarna remains

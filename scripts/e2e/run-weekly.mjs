@@ -6,6 +6,7 @@ import path from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
 import { createE2EReport } from "./build-report.mjs"
+import { ensureDataServices } from "./ensure-data-services.mjs"
 import { writePaidOperationSnapshot } from "./paid-budget.mjs"
 import { buildPreflight } from "./preflight.mjs"
 import { deriveRunTestPassword } from "./run-password.mjs"
@@ -76,7 +77,7 @@ async function runWeekly() {
   const options = parseRunArguments(process.argv.slice(2))
   const specPath = validateSpec(options.spec)
   const runId = process.env.E2E_RUN_ID
-    ?? (process.env.GITHUB_RUN_ID ? `gha-${process.env.GITHUB_RUN_ID}` : `${new Date().toISOString().replace(/[-:.TZ]/g, "")}-${randomUUID().slice(0, 8)}`)
+    ?? `${new Date().toISOString().replace(/[-:.TZ]/g, "")}-${randomUUID().slice(0, 8)}`
   const runEnvironment = {
     ...process.env,
     E2E_RUN_ID: runId,
@@ -86,12 +87,15 @@ async function runWeekly() {
   }
   if (options.seed !== null) runEnvironment.E2E_SEED = options.seed
   if (options.suite === "weekly") {
-    // Let preflight write the normal INCOMPLETE report when the target is not configured.
+    // Let preflight write the normal INCOMPLETE report when the production URL is not configured.
     // The browser runner is reachable only after preflight passes, which already requires this value.
     runEnvironment.E2E_BASE_URL = runEnvironment.NEXT_PUBLIC_PRODUCTION_URL ?? ""
   }
   if (options.suite === "replay" && !runEnvironment.E2E_BASE_URL) {
     runEnvironment.E2E_BASE_URL = runEnvironment.NEXT_PUBLIC_PRODUCTION_URL
+  }
+  if (runEnvironment.NEXT_PUBLIC_PRODUCTION_URL || (options.suite === "replay" && runEnvironment.E2E_BASE_URL)) {
+    Object.assign(runEnvironment, await ensureDataServices(runEnvironment))
   }
   if (runEnvironment.E2E_BASE_URL) {
     const targetHost = new URL(runEnvironment.E2E_BASE_URL).hostname.replace(/^www\./, "")

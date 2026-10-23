@@ -93,7 +93,7 @@ declare global {
       E2E_TEST_PASSWORD: string
       // eslint-disable-next-line local-rules/no-defined-unused-envs -- derived by scripts/e2e/run-weekly.mjs from the production URL
       E2E_TEST_EMAIL_DOMAIN: string
-      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/run-weekly.mjs and supplied by .github/workflows/cypress-weekly.yml
+      // eslint-disable-next-line local-rules/no-defined-unused-envs -- read by scripts/e2e/run-weekly.mjs and supplied by .github/workflows/cypress-monthly.yml
       E2E_BROWSER: string
       E2E_ARTIFACT_DIR: string
     }

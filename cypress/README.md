@@ -30,18 +30,18 @@ application. WebKit support is experimental and needs Playwright's Linux browser
 135 or newer is required. Edge must be installed on the runner. Local runs may use the browsers
 installed on that machine.
 
-## Weekly real-service suite
+## Monthly real-service suite
 
 `pnpm e2e:weekly` targets `NEXT_PUBLIC_PRODUCTION_URL` and never switches to localhost based on
-`NODE_ENV`. The scheduled workflow is `.github/workflows/cypress-weekly.yml`; it runs Monday at
-03:23 UTC with no push, PR, deployment, manual, or external trigger. It checks production SHA and
+`NODE_ENV`. The schedule is `.github/workflows/cypress-monthly.yml`; it runs at
+03:23 UTC on the 1st of each month with no push, PR, deployment, manual, or external trigger. It checks production SHA and
 read-only service health before any browser writes. A configuration, deployment, mapping, or
 cleanup failure produces an incomplete/failed result and saved evidence.
 
 The runner uses the existing production URL, Supabase URL/anon/service-role access, and matching
 Stripe TEST key. Provider operations use the deployed application's existing runtime credentials.
 Do not configure a second E2E provider account or copy OpenAI, Resend, AWS, R2, Redis, Pinecone,
-Telegram, or Pusher server credentials into Actions. `NEXT_PUBLIC_PUSHER_APP_KEY` is already
+Telegram, or Pusher server credentials into the job. `NEXT_PUBLIC_PUSHER_APP_KEY` is already
 configured. No OpenAI dollar limit is required; the suite runs a finite set of declared actions once
 with application-bounded retries and records observed provider operation ids/outcomes.
 
@@ -73,8 +73,8 @@ and cleaned. The app routes verify admin-controlled account metadata and reject 
 `pnpm e2e:inventory` writes the AST request inventory to ignored `artifacts/e2e/`. Every operation
 begins unmapped and untested. Only a reviewed mapping plus real runtime evidence and independent
 readback can pass it. Reports include request coverage, awaited-work coverage, cleanup status,
-diagnostics, JUnit, screenshots, videos, and a repair handoff. GitHub artifacts are retained for 14
-days; the job does not email reports.
+diagnostics, JUnit, screenshots, videos, and a repair handoff. GitHub Actions keeps them for 14
+days and does not email reports.
 
 Use the production site for a replay:
 

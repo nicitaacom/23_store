@@ -1,19 +1,20 @@
-name: Cypress weekly real-service checks
+name: Cypress monthly real-service checks
 
 on:
   schedule:
-    - cron: "23 3 * * 1"
+    # 03:23 UTC on the 1st of each month. No push, pull request, or manual trigger.
+    - cron: "23 3 1 * *"
 
 permissions:
   contents: read
   deployments: read
 
 concurrency:
-  group: 23-store-weekly-real-service-tests
+  group: 23-store-monthly-real-service-tests
   cancel-in-progress: false
 
 jobs:
-  production-weekly:
+  production-monthly:
     if: github.run_attempt == 1
     name: Production inventory, preflight, and browser journeys
     runs-on: ubuntu-latest
@@ -44,33 +45,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
-
-      - name: Cache Cypress browser binary
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/Cypress
-          key: cypress-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-
-      - name: Cache Playwright Chromium
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Inventory, preflight, and run the weekly production suite
-        id: weekly
+      - name: Inventory, preflight, and run the production suite
+        id: monthly
         continue-on-error: true
         run: pnpm e2e:weekly
 
-      - name: Upload weekly evidence
+      - name: Upload monthly evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-weekly-${{ github.run_id }}-${{ github.run_attempt }}
+          name: cypress-monthly-${{ github.run_id }}-${{ github.run_attempt }}
           if-no-files-found: warn
           retention-days: 14
           path: |
@@ -80,5 +68,5 @@ jobs:
             cypress/results
 
       - name: Fail the job when checks or reporting failed
-        if: always() && steps.weekly.outcome != 'success'
+        if: always() && steps.monthly.outcome != 'success'
         run: exit 1

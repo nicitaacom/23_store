@@ -41,7 +41,13 @@
       "sourcePattern": "^app/\\[locale\\]/\\(site\\)/page\\.tsx$",
       "expressionPattern": "selectProducts",
       "classification": "request-or-provider",
-      "classificationReason": "Loads actual Supabase catalog rows for the current category selection."
+      "classificationReason": "Reads actual Supabase catalog rows for the current category selection."
+    },
+    {
+      "sourcePattern": "^app/\\[locale\\]/\\(site\\)/functions/selectCatalogProducts\\.ts$",
+      "expressionPattern": "^query$",
+      "classification": "request-or-provider",
+      "classificationReason": "Reads the actual catalog rows, including the bounded retry after a transient failure."
     },
     {
       "sourcePattern": "^app/\\[locale\\]/\\(site\\)/popular-products/page\\.tsx$",
@@ -1001,6 +1007,14 @@
       "required": true,
       "disposition": "not_exercised",
       "expectation": "Verify persisted ticket/message state, seen/close/reopen and reconnect delivery.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/\\[locale\\]/\\(site\\)/functions/selectCatalogProducts\\.ts$",
+      "scenarioId": "catalog-cart",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Read the public catalog rows for the selected categories and retry a transient database failure.",
       "dependencyReviewStatus": "scenario_linked"
     },
     {

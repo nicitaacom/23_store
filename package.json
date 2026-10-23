@@ -33,6 +33,7 @@
     "e2e:inventory": "node scripts/e2e/inventory-requests.mjs",
     "e2e:preflight": "node scripts/e2e/preflight.mjs",
     "e2e:weekly": "node scripts/e2e/run-weekly.mjs --suite weekly",
+    "e2e:data-services": "node scripts/e2e/ensure-data-services.mjs",
     "e2e:replay": "node scripts/e2e/run-weekly.mjs --suite replay",
     "e2e:cleanup": "node scripts/e2e/cleanup.mjs",
     "e2e:report": "node scripts/e2e/build-report.mjs",

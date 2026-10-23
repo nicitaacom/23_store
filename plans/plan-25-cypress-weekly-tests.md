@@ -1,10 +1,10 @@
-# Plan 25 — Weekly Cypress checks against production services
+# Plan 25 — Monthly Cypress checks against production services
 
 **Target:** `plans/plan-25-cypress-weekly-tests.md`
 **Executor:** GPT-6-luna, xhigh reasoning
 **Branch:** `development`
-**Schedule:** Monday, 03:23 UTC
-**Workflow:** `.github/workflows/cypress-weekly.yml`
+**Schedule:** 03:23 UTC on the 1st of each month
+**Schedule:** `.github/workflows/cypress-monthly.yml`
 
 ## Goal
 
@@ -17,8 +17,9 @@ The scope is every network request, provider operation, realtime subscription, a
 found by `scripts/e2e/inventory-requests.mjs`, including every awaited call and returned promise that
 reaches those operations. The inventory is regenerated from the current source on every run; do not
 freeze the current operation count or declare a route covered from its source mapping alone. The
-latest source inventory found 661 request/provider operations and 1,080 required network/provider
-async expressions (1,311 total async expressions). The report must show runtime evidence for each
+latest source inventory found 661 request/provider operations and 1,082 required network/provider
+async expressions (1,313 total async expressions). Every discovered operation has a reviewed scenario
+mapping. The report must show runtime evidence for each
 required operation id. An operation that is missing, skipped, blocked, mapped without execution, or
 lacking independent verification keeps the run `INCOMPLETE`.
 
@@ -38,9 +39,9 @@ about 250 ms between actions without waiting for animations or disabled states t
    guards every weekly spec.
 3. Keep provider keys in the deployed application's existing runtime configuration. Do not create a
    second E2E provider account or copy OpenAI, Resend, AWS, R2, Redis, Pinecone, Telegram, or Pusher
-   server credentials into GitHub Actions. The already configured `NEXT_PUBLIC_PUSHER_APP_KEY` is
+   server credentials into the monthly job. The already configured `NEXT_PUBLIC_PUSHER_APP_KEY` is
    sufficient for browser subscriptions; server publishing uses the deployed application's config.
-4. The Actions runner needs only the existing production URL, Supabase URL/anon/service-role access,
+4. The monthly job needs only the existing production URL, Supabase URL/anon/service-role access,
    and a Stripe TEST secret key. The Stripe TEST key must match the deployed application's TEST
    Stripe account. The suite must stop before any payment or Stripe mutation if production reports
    live mode or if TEST-account readback fails.
@@ -85,7 +86,8 @@ about 250 ms between actions without waiting for animations or disabled states t
 - Reviewed scenarios and request mappings: `cypress/coverage/request-map.json`
 - Provider action inventory: `cypress/coverage/provider-capabilities.json`
 - Coverage report and repair handoff: `scripts/e2e/build-report.mjs`
-- Weekly schedule: `.github/workflows/cypress-weekly.yml`
+- Monthly schedule: `.github/workflows/cypress-monthly.yml`
+- Self-hosted Supabase and Redis, started only when those settings are absent: `docker/e2e-weekly/docker-compose.yml`
 - Product translation retry and validation: `app/api/products/translate-field/route.ts`
 - Product background worker invocation: `app/api/products/translate-insert/invokeTranslateProductLambda.ts`
 - Real storage authorization, upload, and cleanup: `app/libs/storage/authorization.ts`,
@@ -122,12 +124,14 @@ about 250 ms between actions without waiting for animations or disabled states t
    `app_metadata` run marker before exposing or deleting the signed-in account's own data.
 6. `GET /api/e2e/stripe-mode` is read-only. Preflight must confirm both the deployed app and runner
    use Stripe TEST before the browser starts. Never attempt a live payment.
-7. The scheduled workflow uses the existing GitHub repository secrets for the production URL,
-   Supabase, and Stripe TEST. Those runner credentials are already present; `NEXT_PUBLIC_PUSHER_APP_KEY`
-   is also configured. Do not ask for a duplicate E2E account, provider key, or OpenAI spending cap.
+7. GitHub Actions reads the production URL, Supabase, and Stripe TEST from the workflow
+   environment. It does not read `.env.local`. The cron is 03:23 UTC on the 1st, with no weekly cron.
+   When Supabase or Redis settings are absent, `scripts/e2e/ensure-data-services.mjs` starts the
+   self-hosted stack in `docker/e2e-weekly/docker-compose.yml`. `NEXT_PUBLIC_PUSHER_APP_KEY` stays on the deployed site.
+   Do not ask for a duplicate E2E account, provider key, or OpenAI spending cap.
    OpenAI, Yandex, AWS/Lambda, Resend, Pusher, Redis, Pinecone, S3-compatible storage, Telegram,
    PayPal, CoinMarketCap, and Turnstile calls must use the real credentials already configured in
-   the deployed application. Do not copy server-side provider keys into Actions.
+   the deployed application. Do not copy server-side provider keys into the monthly job.
 8. The real production run requires this checkout's deployed commit to match the production
    deployment. If not, report the deployment mismatch and stop before writes. Do not claim that
    unshipped local changes were exercised.
@@ -161,7 +165,7 @@ about 250 ms between actions without waiting for animations or disabled states t
   exhaust the owner's OpenAI credit or invalidate production credentials to force an error.
 - For background translation, wait for the translated product to appear in Supabase and the real
   Pusher event to arrive. A Lambda acceptance response alone is not completion. Do not require
-  CloudWatch credentials in Actions; the persisted translated output and event are the application
+  CloudWatch credentials in the monthly job; the persisted translated output and event are the application
   result being tested.
 - For email, the actual send request returns a Resend id. Verify delivery through
   `/api/e2e/resend-status`, which uses the deployed runtime credential and checks the exact run
@@ -184,7 +188,7 @@ about 250 ms between actions without waiting for animations or disabled states t
   run-account-authenticated `/api/e2e/ai-image-quota` fixture action, which derives the current limit
   server-side and prepares only that disposable account at limit-minus-one; then make one real image
   generation and confirm the next request is rejected before OpenAI. Read Redis-backed state through
-  the same app route. Cypress and Actions must not access Redis directly, alter ordinary accounts,
+  the same app route. Cypress and the monthly job must not access Redis directly, alter ordinary accounts,
   or stub image results. Guests do not receive a registered-account quota. Cleanup clears the exact
   run-owned account's image quota before deleting its Auth account.
 - For backup, restore, maintenance, and other wide-scope operations, create or use a run-owned target
@@ -199,27 +203,27 @@ Each spec below must use the production UI and real app endpoints. Keep the run 
 values. Use `cy.wait(250)` or the rapid action helper only to create the requested user cadence; do
 not wait for an animation or request spinner before the next click.
 
-| Spec | Real actions and required readback |
-| --- | --- |
-| `cypress/monthly/product-create.cy.ts` | Create a product from the Admin Panel using the supplied image. Exercise category suggestion, compression, Stripe TEST product/price, signed upload, real translation worker, Supabase row, four locale translations, and Pusher event. Edit title/description while navigating back at 250 ms; keep the unsaved dialog controls enabled. Exercise stock, price, variant, image, and personalization updates, then delete and verify each exact resource is absent. |
-| `cypress/monthly/product-background.cy.ts` | Run actual title and description translations. While title translation is pending, press Browser Back and verify “Keep editing” stays enabled and the independent description draft remains. Check actual response, retry evidence, and Supabase state. |
-| `cypress/monthly/product-races.cy.ts` | Send older and newer stock updates about 250 ms apart while the real older response is delayed. The final UI and database must match the latest accepted value. |
-| `cypress/monthly/product-edit.cy.ts` | Edit title, description, price, stock, variants, category, images, and personalization on a run-owned product. Confirm saved state after reload and reject cross-account edits. |
-| `cypress/monthly/product-delete.cy.ts` | Cancel a delete, confirm a single delete, and delete selected run-owned products in bulk. Verify no unrelated row or Stripe TEST resource changes. |
-| `cypress/monthly/catalog-cart.cy.ts` | Add real products and variants, hit stock limits, try a sold-out variant, update quantities rapidly, reload, verify Supabase cart/totals, clear cancellation, and confirmed clear. Report cart/business-rule defects instead of changing server data to make the test pass. |
-| `cypress/monthly/support.cy.ts` | Open a ticket, attach the real PNG, send customer and support replies from two browser sessions, mark messages seen, close/rate, and verify rows, event delivery, exact file deletion, and account isolation. |
-| `cypress/monthly/notifications.cy.ts` | Use a run-owned out-of-stock product. Click replenishment three times 250 ms apart; expect one actual send and one counter update. Read its Resend id and delivery event through the production app. |
-| `cypress/monthly/pricing-categories.cy.ts` | Create/rename/delete a unique category, verify its product count, and test run-account category-view increment/synchronization with stale and fresh updates. Include a real price research result. |
-| `cypress/monthly/auth-account.cy.ts` | Test login, signup, recovery/reset, confirmation, language persistence, avatar upload, session expiry, authorization denial, and account separation with real Supabase/Auth calls. |
-| `cypress/monthly/ai-tools.cy.ts` | Exercise real category suggestion, price research, AI price estimate, and print-area analysis. On isolated run-owned accounts, generate five real images and assert a sixth click on the real assistant button is rejected before OpenAI with its specific error visible in the toast and conversation; prepare a second account through `/api/e2e/ai-image-quota`, generate its 50th image once, assert the next request is rejected, and independently read both counters from Redis through the app. Verify downloaded bytes and actual OpenAI request ids for every generated image. |
-| `cypress/monthly/ai-chat-memory.cy.ts` | Sign in as the run-owned account, expand the chat panel if needed, type in `[data-cy="ai-chat-input"]`, click `[data-cy="ai-chat-send"]`, and observe the real Responses API request. Assert the assistant reply is visible, then independently read the exact Redis/Pinecone messages and vectors through the production app route. Exercise both model tool calls from the UI (add-to-cart and image generation), verify their real downstream writes, and remove exact run-owned resources. |
-| `cypress/monthly/personalization-storage.cy.ts` | Upload the exact fixture bytes, list and download them, verify byte size/hash, reject another account, create/read the real personalization row, and remove exact resources. |
-| `cypress/monthly/checkout-stripe.cy.ts` | Create an actual Stripe TEST Checkout session from a run-owned cart. Verify product, price, image, address, amount, and `livemode === false`; retain the unpaid-session rejection case. Complete one provider TEST payment on an account with existing image usage, call the real payment verification route, independently verify its 50-image cycle count resets to zero, and refund/archive only that exact TEST payment resource during cleanup. |
-| `cypress/monthly/checkout-other.cy.ts` | Exercise Stripe TEST checkout with each configured alternative method, including PayPal, and verify actual session state and exact run-owned item metadata. Complete PayPal only through its real Stripe TEST sandbox flow and verify the same account quota reset. Use only provider sandbox behavior; never call a live payment endpoint. Any configured method without a real sandbox success/readback stays incomplete. |
-| `cypress/monthly/address-geocoding.cy.ts` | Type an address at about 250 ms per key, call the real Yandex suggestion/geocoder routes, select a result, and verify address/coordinates in an actual Stripe TEST session. Exercise bounded retry and malformed/unavailable provider responses through real service conditions only. |
-| `cypress/monthly/analytics-other.cy.ts` | Call real CoinMarketCap data and import only one run-owned demo row. Verify provider response and exact row cleanup. Never mutate global statistics or customer rows. |
-| `cypress/monthly/seeded-navigation.cy.ts` | Use a recorded seed to vary real catalog, cart, popular products, and support-panel navigation. Save the actual path sequence and assert requests/UI remain usable during rapid navigation. |
-| `cypress/monthly/backup-maintenance.cy.ts` | Verify real signed-out and non-admin denials, then exercise each authorized operation against an exact run-owned backup/restore/maintenance target. Check before/after state and clean up the exact target. If a safe target does not exist, report the positive route as incomplete and implement scoped support before acceptance. |
+| Spec                                            | Real actions and required readback                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cypress/monthly/product-create.cy.ts`          | Create a product from the Admin Panel using the supplied image. Exercise category suggestion, compression, Stripe TEST product/price, signed upload, real translation worker, Supabase row, four locale translations, and Pusher event. Edit title/description while navigating back at 250 ms; keep the unsaved dialog controls enabled. Exercise stock, price, variant, image, and personalization updates, then delete and verify each exact resource is absent.                                                                                                                      |
+| `cypress/monthly/product-background.cy.ts`      | Run actual title and description translations. While title translation is pending, press Browser Back and verify “Keep editing” stays enabled and the independent description draft remains. Check actual response, retry evidence, and Supabase state.                                                                                                                                                                                                                                                                                                                                  |
+| `cypress/monthly/product-races.cy.ts`           | Send older and newer stock updates about 250 ms apart while the real older response is delayed. The final UI and database must match the latest accepted value.                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `cypress/monthly/product-edit.cy.ts`            | Edit title, description, price, stock, variants, category, images, and personalization on a run-owned product. Confirm saved state after reload and reject cross-account edits.                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `cypress/monthly/product-delete.cy.ts`          | Cancel a delete, confirm a single delete, and delete selected run-owned products in bulk. Verify no unrelated row or Stripe TEST resource changes.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `cypress/monthly/catalog-cart.cy.ts`            | Add real products and variants, hit stock limits, try a sold-out variant, update quantities rapidly, reload, verify Supabase cart/totals, clear cancellation, and confirmed clear. Report cart/business-rule defects instead of changing server data to make the test pass.                                                                                                                                                                                                                                                                                                              |
+| `cypress/monthly/support.cy.ts`                 | Open a ticket, attach the real PNG, send customer and support replies from two browser sessions, mark messages seen, close/rate, and verify rows, event delivery, exact file deletion, and account isolation.                                                                                                                                                                                                                                                                                                                                                                            |
+| `cypress/monthly/notifications.cy.ts`           | Use a run-owned out-of-stock product. Click replenishment three times 250 ms apart; expect one actual send and one counter update. Read its Resend id and delivery event through the production app.                                                                                                                                                                                                                                                                                                                                                                                     |
+| `cypress/monthly/pricing-categories.cy.ts`      | Create/rename/delete a unique category, verify its product count, and test run-account category-view increment/synchronization with stale and fresh updates. Include a real price research result.                                                                                                                                                                                                                                                                                                                                                                                       |
+| `cypress/monthly/auth-account.cy.ts`            | Test login, signup, recovery/reset, confirmation, language persistence, avatar upload, session expiry, authorization denial, and account separation with real Supabase/Auth calls.                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `cypress/monthly/ai-tools.cy.ts`                | Exercise real category suggestion, price research, AI price estimate, and print-area analysis. On isolated run-owned accounts, generate five real images and assert a sixth click on the real assistant button is rejected before OpenAI with its specific error visible in the toast and conversation; prepare a second account through `/api/e2e/ai-image-quota`, generate its 50th image once, assert the next request is rejected, and independently read both counters from Redis through the app. Verify downloaded bytes and actual OpenAI request ids for every generated image. |
+| `cypress/monthly/ai-chat-memory.cy.ts`          | Sign in as the run-owned account, expand the chat panel if needed, type in `[data-cy="ai-chat-input"]`, click `[data-cy="ai-chat-send"]`, and observe the real Responses API request. Assert the assistant reply is visible, then independently read the exact Redis/Pinecone messages and vectors through the production app route. Exercise both model tool calls from the UI (add-to-cart and image generation), verify their real downstream writes, and remove exact run-owned resources.                                                                                           |
+| `cypress/monthly/personalization-storage.cy.ts` | Upload the exact fixture bytes, list and download them, verify byte size/hash, reject another account, create/read the real personalization row, and remove exact resources.                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `cypress/monthly/checkout-stripe.cy.ts`         | Create an actual Stripe TEST Checkout session from a run-owned cart. Verify product, price, image, address, amount, and `livemode === false`; retain the unpaid-session rejection case. Complete one provider TEST payment on an account with existing image usage, call the real payment verification route, independently verify its 50-image cycle count resets to zero, and refund/archive only that exact TEST payment resource during cleanup.                                                                                                                                     |
+| `cypress/monthly/checkout-other.cy.ts`          | Exercise Stripe TEST checkout with each configured alternative method, including PayPal, and verify actual session state and exact run-owned item metadata. Complete PayPal only through its real Stripe TEST sandbox flow and verify the same account quota reset. Use only provider sandbox behavior; never call a live payment endpoint. Any configured method without a real sandbox success/readback stays incomplete.                                                                                                                                                              |
+| `cypress/monthly/address-geocoding.cy.ts`       | Type an address at about 250 ms per key, call the real Yandex suggestion/geocoder routes, select a result, and verify address/coordinates in an actual Stripe TEST session. Exercise bounded retry and malformed/unavailable provider responses through real service conditions only.                                                                                                                                                                                                                                                                                                    |
+| `cypress/monthly/analytics-other.cy.ts`         | Call real CoinMarketCap data and import only one run-owned demo row. Verify provider response and exact row cleanup. Never mutate global statistics or customer rows.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `cypress/monthly/seeded-navigation.cy.ts`       | Use a recorded seed to vary real catalog, cart, popular products, and support-panel navigation. Save the actual path sequence and assert requests/UI remain usable during rapid navigation.                                                                                                                                                                                                                                                                                                                                                                                              |
+| `cypress/monthly/backup-maintenance.cy.ts`      | Verify real signed-out and non-admin denials, then exercise each authorized operation against an exact run-owned backup/restore/maintenance target. Check before/after state and clean up the exact target. If a safe target does not exist, report the positive route as incomplete and implement scoped support before acceptance.                                                                                                                                                                                                                                                     |
 
 ### Explicit route-gap review
 
@@ -290,14 +294,15 @@ open the deployed site and observe live changes; it cannot replace the Cypress A
 
 ## Workflow and reporting
 
-- `.github/workflows/cypress-weekly.yml` runs only on the Monday 03:23 UTC schedule. No push,
-  deployment, pull-request, manual, or external trigger. Serialize runs and skip repeated GitHub
-  attempts so paid actions are not automatically repeated.
+- `.github/workflows/cypress-monthly.yml` runs at 03:23 UTC on the 1st of each month. No push,
+  deployment, pull-request, manual, or external trigger. A second attempt of that scheduled job
+  skips the suite so paid actions are not repeated. Supabase and Redis containers start only when
+  those settings are absent.
 - Check out `development`; compare the target production deployment SHA before any writes.
 - Generate the AST inventory, run read-only preflight, then run the production browser journeys only
   if URL, Supabase, deployed Stripe TEST, schema/journal, and deployment checks pass.
-- Upload sanitized JSON, JUnit, screenshots, videos, coverage, cleanup, and repair handoff as a
-  14-day GitHub Actions artifact. Do not email a report or require another Resend key.
+- Keep sanitized JSON, JUnit, screenshots, videos, coverage, cleanup, and the repair handoff for
+  14 days. Do not email a report or require another Resend key.
 - Distinguish `PASS`, `FAIL`, and `INCOMPLETE`. Missing mappings, skipped journeys, production SHA
   mismatch, no runtime evidence, or pending cleanup cannot be reported as a pass.
 - Include exact scenario/spec, route/source path, current and expected values, run-owned resource id,
@@ -306,7 +311,7 @@ open the deployed site and observe live changes; it cannot replace the Cypress A
 
 ## Acceptance checklist
 
-- [ ] The scheduled workflow runs against the configured production URL and verifies its deployed
+- [ ] The monthly GitHub Actions job runs against the configured production URL and verifies its deployed
       SHA before creating disposable resources.
 - [ ] All weekly specs are guarded against mocked API responses; provider and application calls are
       real and use deployed runtime credentials.
@@ -333,9 +338,9 @@ open the deployed site and observe live changes; it cannot replace the Cypress A
 
 ## Current implementation status
 
-The workflow and 19 journey specs exist in the repository. They are a partial implementation, not
+The monthly GitHub Actions workflow and 19 journey specs exist in the repository. They are a partial implementation, not
 coverage completion: the latest source audit found 661 request/provider operations, 539 service
-requests, and 1,080 required network/provider async expressions, with no passing runtime evidence yet
+requests, and 1,082 required network/provider async expressions, with zero unmapped rows and no passing runtime evidence yet
 for this worktree. The app-side AI memory and Resend readback routes, scoped
 cleanup changes, and fixes must be deployed before production can exercise those changes. The
 production suite has not been verified against a matching deployed revision. Do not claim passing

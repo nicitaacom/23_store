@@ -208,9 +208,7 @@ function renderUnmappedRows(coverage, limit = 30) {
 
 function buildMarkdown(summary, coverage, counts, asyncCoverage, evidenceRecords) {
   const failureRecords = evidenceRecords.filter(evidence => evidence.status === "failed")
-  const artifactUrl = process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
-    ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
-    : "Unavailable for this local run"
+  const artifactUrl = process.env.E2E_ARTIFACT_DIR ?? "artifacts/e2e"
   const failedRows = renderCoverageRows(coverage, "failed")
   const incompleteRows = renderCoverageRows(coverage, "not_exercised")
   const unmappedRows = renderUnmappedRows(coverage)
@@ -223,7 +221,7 @@ function buildMarkdown(summary, coverage, counts, asyncCoverage, evidenceRecords
     `Production commit: ${summary.productionSha ?? "unknown"}`,
     `Runner commit: ${summary.runnerSha ?? "unknown"}`,
     `Provider modes: ${JSON.stringify(summary.providerModes ?? {})}`,
-    `Actions evidence: ${artifactUrl}`,
+    `Saved evidence: ${artifactUrl}`,
     "",
     "## Coverage",
     "",

@@ -1,13 +1,13 @@
-# Weekly Cypress production checks
+# Monthly Cypress production checks
 
 The Plan 25 suite uses a real browser against `NEXT_PUBLIC_PRODUCTION_URL`, real production app
 requests, real Supabase records, the deployed application's provider credentials, and Stripe TEST.
-It does not mock API responses. The schedule is Monday at 03:23 UTC in
-`.github/workflows/cypress-weekly.yml`.
+It does not mock API responses. GitHub Actions runs it at 03:23 UTC on the 1st of each month in
+`.github/workflows/cypress-monthly.yml`. There is no weekly cron.
 
-## What Actions needs
+## What the monthly job needs
 
-The runner uses the existing GitHub configuration for:
+The job reads these values from the process environment when they are already present:
 
 - `NEXT_PUBLIC_PRODUCTION_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
@@ -16,7 +16,7 @@ The runner uses the existing GitHub configuration for:
 - `NEXT_STRIPE_SECRET_KEY`, which must be a Stripe TEST key matching the deployed app's TEST account
 
 The deployed production app performs OpenAI, Resend, AWS/Lambda, storage, Redis, Pinecone, Telegram,
-and Pusher work using its existing runtime configuration. Do not copy those credentials into Actions
+and Pusher work using its existing runtime configuration. Do not copy those credentials into the job
 or create a second provider account for E2E. `NEXT_PUBLIC_PUSHER_APP_KEY` is already configured;
 the browser subscribes through the real deployed client and the server publishes through its runtime
 configuration.
@@ -25,10 +25,12 @@ There is no OpenAI spending cap prerequisite. The suite runs its finite declared
 once, Cypress retries are disabled, and retries are limited by application code. The local provider
 action journal records operation, attempts, ids, and outcome; it does not estimate or cap dollars.
 
-The workflow has no push, PR, deployment, manual, or external trigger. It checks out `development`,
-compares the checkout SHA to the production deployment, performs read-only preflight, runs the
-browser journeys, and uploads sanitized artifacts for 14 days. A repeated attempt of the same GitHub
-run skips the job to avoid repeating provider actions.
+The job has no push, PR, deployment, manual, or external trigger. It compares the checkout SHA
+to the production deployment, performs read-only preflight, runs the browser journeys, and keeps
+sanitized JSON, screenshots, and videos for 14 days. A second attempt of the same scheduled job skips
+the suite so provider actions are not repeated. When Supabase or Redis settings are absent,
+`pnpm e2e:data-services` starts the self-hosted Postgres, GoTrue, PostgREST, gateway, Redis, and
+Redis HTTP services in `docker/e2e-weekly/docker-compose.yml`.
 
 ## Supabase setup and run-owned data
 
@@ -44,7 +46,7 @@ dependent resources are cleaned.
 
 The resource registry records exact product, support, storage, AI-memory, worker, category, and
 Stripe TEST ids. Cleanup uses exact owner/run markers and verifies absence. It refuses live or paid
-Stripe sessions, keeps an Auth user while dependent cleanup remains, and fails the workflow when a
+Stripe sessions, keeps an Auth user while dependent cleanup remains, and fails the job when a
 resource remains unresolved.
 
 ## Real provider verification and cleanup
@@ -52,7 +54,7 @@ resource remains unresolved.
 - `GET /api/e2e/stripe-mode` is a read-only mode check. The runner and deployed app must both pass
   Stripe TEST checks before any write.
 - Product translation completion is proved by actual translated Supabase values and the actual
-  Pusher event. Actions does not need CloudWatch access.
+  Pusher event. The job does not need CloudWatch access.
 - Email status is checked by `/api/e2e/resend-status`, which authenticates the run account and uses
   the deployed Resend key to verify exact provider id, recipient, subject, and delivery event.
 - AI memory readback and cleanup use `/api/e2e/ai-memory`, which authenticates an account using its
@@ -60,7 +62,7 @@ resource remains unresolved.
   account's key and namespace.
 - Storage uploads return their public URL. Cypress verifies exact bytes and SHA-256 through the real
   URL, deletes through the owner-authorized `/api/storage/delete` route, and verifies public absence.
-  Cleanup does not need R2 credentials in Actions.
+  Cleanup does not need R2 credentials in the job.
 - Stripe TEST product, price, and Checkout readback/cleanup continue through the runner's existing
   Stripe TEST key and exact run-owned ids.
 
@@ -95,8 +97,8 @@ services. Do not use local mocks as evidence for the weekly real-service report.
 ## Coverage status
 
 The source inventory in `artifacts/e2e/request-inventory.json` records actual route/provider
-operations and awaited expressions. The latest audit found 636 request/provider operations and
-1,019 required network/provider async expressions; the inventory regenerates every run and counts
+operations and awaited expressions. The latest audit found 661 request/provider operations and
+1,082 required network/provider async expressions, with zero unmapped rows; the inventory regenerates every run and counts
 may change with source. Reviewed mappings live in `cypress/coverage/request-map.json`. The 19 current
 journeys are under `cypress/monthly/`, but they are not full coverage by themselves. A source mapping
 is not runtime proof; every required operation needs a real result and independent verification.
