@@ -92,6 +92,7 @@ export function AuthModal() {
       className={twMerge(
         "max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] overflow-y-auto rounded-3xl transition-all duration-300 mobile:w-[500px]",
         modalHeightTailwind(queryParams, errors),
+        "tablet:h-auto tablet:max-h-none tablet:overflow-y-hidden",
       )}
       closeButtonClassName="right-4 top-4 rounded-xl p-1"
       modalQuery="AuthModal">

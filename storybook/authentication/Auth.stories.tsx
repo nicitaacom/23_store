@@ -4,6 +4,7 @@ import { expect, fn, userEvent, waitFor, within } from "storybook/test"
 
 import type { IAuthFormData } from "@/ts/interfaces/IAuthFormData"
 import { AuthForm } from "@/[locale]/(auth)/AuthModal/components/AuthForm"
+import { AuthModal } from "@/[locale]/(auth)/AuthModal/AuthModal"
 import { OpenAuthModalButton } from "@/components/Navbar/components/OpenAuthModalButton"
 import { Timer } from "@/components/ui/Timer"
 
@@ -83,6 +84,36 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const SignIn: Story = {}
+
+export const SignInDialog: Story = {
+  parameters: {
+    layout: "fullscreen",
+    viewport: { defaultViewport: "laptop" },
+    nextjs: { navigation: { pathname: "/en", query: { modal: "AuthModal", variant: "login" } } },
+    a11y: { test: "todo" },
+  },
+  render: () => <AuthModal />,
+  play: async ({ canvasElement }) => {
+    const dialog = await within(canvasElement).findByRole("dialog")
+    await expect(getComputedStyle(dialog).overflowY).toBe("hidden")
+    await expect(dialog.scrollHeight).toBeLessThanOrEqual(dialog.clientHeight)
+  },
+}
+
+export const SignInDialogOnPhone: Story = {
+  parameters: {
+    layout: "fullscreen",
+    viewport: { defaultViewport: "mobileShort" },
+    nextjs: { navigation: { pathname: "/en", query: { modal: "AuthModal", variant: "login" } } },
+    a11y: { test: "todo" },
+  },
+  render: () => <AuthModal />,
+  play: async ({ canvasElement }) => {
+    const dialog = await within(canvasElement).findByRole("dialog")
+    await expect(getComputedStyle(dialog).overflowY).toBe("auto")
+    await expect(dialog.scrollHeight).toBeGreaterThan(dialog.clientHeight)
+  },
+}
 export const Registration: Story = { args: { variant: "register" } }
 export const PasswordRecovery: Story = { args: { variant: "recover" } }
 export const PasswordReset: Story = { args: { variant: "resetPassword" } }
