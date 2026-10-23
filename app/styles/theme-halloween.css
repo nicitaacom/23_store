@@ -155,6 +155,16 @@
   outline-offset: 2px;
 }
 
+/* The composer shell is rounded. Draw the focus on that shell so it keeps the same radius. */
+:root[data-theme="halloween"] .support-composer:has(textarea:focus-visible) {
+  outline: 2px solid #ffbd78;
+  outline-offset: 2px;
+}
+
+:root[data-theme="halloween"] .support-composer textarea:focus-visible {
+  outline: none;
+}
+
 /* ── Graveyard scene — verbatim from 14_portfolio/app/styles/theme-halloween.css:101-122,228-244 */
 
 .halloween-scene {

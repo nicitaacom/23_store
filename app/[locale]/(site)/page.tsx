@@ -99,9 +99,9 @@ export default async function Home({ params: paramsPromise, searchParams: search
   const entries = filteredProducts.slice(start, end)
 
   return (
-    <div className="mx-auto min-h-[calc(100dvh-64px)] w-full px-3 pb-24 pt-2 text-2xl text-title laptop:h-[calc(100vh-64px)] laptop:overflow-hidden laptop:px-4 laptop:pb-2">
-      <section className="mx-auto grid w-full max-w-[2200px] grid-cols-1 gap-1 laptop:h-full laptop:grid-cols-[minmax(0,1fr)_minmax(420px,30%)] 4xl:max-w-[3000px]">
-        <div className="min-h-0 min-w-0 overflow-hidden rounded-[4px] border border-success/15 bg-gradient-to-br from-success/5 via-background to-background px-4 py-2 shadow-2xl shadow-success/5">
+    <div className="mx-auto flex h-[calc(100dvh-64px)] w-full flex-col overflow-hidden px-3 pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-2 text-2xl text-title laptop:h-[calc(100vh-64px)] laptop:px-4 laptop:pb-2">
+      <section className="mx-auto grid min-h-0 w-full flex-1 max-w-[2200px] grid-cols-1 grid-rows-1 gap-1 laptop:grid-cols-[minmax(0,1fr)_minmax(420px,30%)] 4xl:max-w-[3000px]">
+        <div className="h-full min-h-0 min-w-0 overflow-y-auto rounded-[4px] border border-success/15 bg-gradient-to-br from-success/5 via-background to-background px-4 py-2 shadow-2xl shadow-success/5 laptop:overflow-hidden">
           <div className="flex min-h-0 flex-col gap-[2px] laptop:h-full">
             <section className="shrink-0 flex flex-col gap-[2px]">
               <div className="flex flex-col gap-3">

@@ -33,7 +33,7 @@ export function ChatInput({
 }: Props) {
   const t = useScopedI18n("aichat")
   return (
-    <div className="rounded-xl border-2 border-border-color bg-foreground-accent hover:border-success/50 focus-within:border-success transition-colors duration-200">
+    <div className="shrink-0 rounded-xl border-2 border-border-color bg-foreground-accent hover:border-success/50 focus-within:border-success transition-colors duration-200">
       <div className="flex items-center gap-3 px-4 py-3">
         <div className="flex items-center gap-2">
           <Button

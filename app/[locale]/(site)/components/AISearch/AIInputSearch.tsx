@@ -101,19 +101,22 @@ export function AIInputSearch() {
     )
   }
 
-  // Reserve 56px for the fixed support button and 16px for the page paddings around the sheet.
+  // Leave 56px for the fixed support button and 16px for the page padding beside the sheet.
   const mobileSheetWidth = "calc(100% - 56px - 16px)"
+  // dvh follows the visible viewport, so the open sheet stays above the browser chrome.
+  const openSheetHeight = "min(72dvh, 680px, calc(100dvh - 4.5rem - max(1rem, env(safe-area-inset-bottom))))"
 
   return (
     <div
-      style={{ width: mobileSheetWidth }}
-      className={twMerge(
-        "fixed bottom-4 left-4 z-[110] overflow-hidden rounded-[4px] border border-border-color/30 bg-background/95 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-[height,transform] duration-300 laptop:hidden",
-        isExpanded ? "h-[min(72vh,680px)] tablet:h-[min(62vh,720px)]" : "h-[48px]",
-      )}
+      style={{
+        width: mobileSheetWidth,
+        bottom: "max(1rem, env(safe-area-inset-bottom))",
+        height: isExpanded ? openSheetHeight : "3rem",
+      }}
+      className="fixed left-4 z-[110] flex flex-col overflow-hidden rounded-[4px] border border-border-color/30 bg-background/95 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-[height] duration-300 laptop:hidden"
       {...swipeHandlers}>
       <button
-        className="flex h-12 w-full items-center gap-3 border-b border-success/10 px-3 text-left"
+        className="flex h-12 w-full shrink-0 items-center gap-3 border-b border-success/10 px-3 text-left"
         data-cy="ai-chat-toggle"
         type="button"
         onClick={() => setIsExpanded(current => !current)}
@@ -132,7 +135,7 @@ export function AIInputSearch() {
         </div>
       </button>
 
-      <div className={twMerge("min-h-0 flex-1 flex-col gap-3 px-2 pb-2 pt-2", isExpanded ? "flex" : "hidden")}>
+      <div className={twMerge("min-h-0 flex-1 flex-col gap-3 overflow-hidden px-2 pb-2 pt-2", isExpanded ? "flex" : "hidden")}>
         {assistantBody}
       </div>
     </div>
