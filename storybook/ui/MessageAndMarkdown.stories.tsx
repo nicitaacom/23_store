@@ -51,6 +51,28 @@ export const Message: Story = {
 
 export const Markdown: Story = { render: MarkdownExample };
 
+export const MarkdownSaveChord: Story = {
+  render: function MarkdownSaveChordExample() {
+    const [savedLabel, setSavedLabel] = useState("");
+    return (
+      <div className="bg-modal-surface p-3">
+        <MarkdownEditor value="Hello snack" onChange={fn()} onSaveChord={() => setSavedLabel("saved")} />
+        <output>{savedLabel}</output>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const editor = await waitFor(() => {
+      const node = canvasElement.querySelector("[contenteditable='true']");
+      if (!(node instanceof HTMLElement)) throw new Error("Editor is missing");
+      return node;
+    });
+    editor.focus();
+    await userEvent.keyboard("{Control>}{Enter}{/Control}");
+    await expect(await within(canvasElement).findByText("saved")).toBeVisible();
+  },
+};
+
 export const DisabledMarkdown: Story = {
   render: function DisabledMarkdownExample() {
     return <div className="bg-modal-surface p-3"><MarkdownEditor disabled value="**Read only**" onChange={fn()} /></div>;

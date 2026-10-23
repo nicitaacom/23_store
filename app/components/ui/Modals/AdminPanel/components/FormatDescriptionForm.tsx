@@ -137,6 +137,9 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
             onWrapRef={wrapRef}
             value={value}
             id="product-description-input"
+            onSaveChord={() => {
+              void handleSave()
+            }}
             onChange={nextValue => {
               setValue(nextValue)
               setError(null)

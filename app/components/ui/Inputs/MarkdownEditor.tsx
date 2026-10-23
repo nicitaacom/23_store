@@ -5,6 +5,7 @@ import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { twMerge } from "tailwind-merge"
 
+import { isSaveChord } from "@/utils/isSaveChord"
 import { markdownToTiptap, tiptapToMarkdown } from "@/utils/markdownTiptap"
 
 interface MarkdownEditorProps {
@@ -12,6 +13,7 @@ interface MarkdownEditorProps {
   onChange: (value: string) => void
   onBlur?: () => void
   onTabAtEnd?: () => void
+  onSaveChord?: () => void
   onWrapRef?: React.MutableRefObject<((marker: string) => void) | null>
   id?: string
   ariaLabelledBy?: string
@@ -28,7 +30,7 @@ const MARKER_TO_COMMAND = {
 
 // http://localhost:6006/?path=/story/ui-inputs-messageinput--message
 export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
-  ({ value, onChange, onBlur, onTabAtEnd, onWrapRef, id, ariaLabelledBy, placeholder, disabled }, ref) => {
+  ({ value, onChange, onBlur, onTabAtEnd, onSaveChord, onWrapRef, id, ariaLabelledBy, placeholder, disabled }, ref) => {
     const suppressUpdateRef = useRef(false)
 
     const initialValueRef = useRef(value)
@@ -93,6 +95,12 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
           disabled && "pointer-events-none cursor-not-allowed bg-foreground/45",
         )}
         onKeyDownCapture={event => {
+          if (onSaveChord && isSaveChord(event)) {
+            event.preventDefault()
+            event.stopPropagation()
+            onSaveChord()
+            return
+          }
           if (event.key !== "Tab" || event.shiftKey || !onTabAtEnd || !editor || event.target !== editor.view.dom) return
 
           const { doc, selection } = editor.state
