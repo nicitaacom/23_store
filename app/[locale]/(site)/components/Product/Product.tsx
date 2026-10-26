@@ -73,7 +73,7 @@ function Product({ ...product }: Props) {
     // 1. Card — soft accent gradient + animated left accent bar that grows on hover
     <article
       className={twMerge(
-        "halloween-product-card group relative flex flex-col overflow-hidden rounded-md tablet:flex-row border border-border-color/20 bg-gradient-to-br from-foreground/5 to-transparent transition-colors duration-300",
+        "halloween-product-card group relative flex flex-col overflow-hidden rounded-md laptop:flex-row border border-border-color/20 bg-gradient-to-br from-foreground/5 to-transparent transition-colors duration-300",
         "hover:border-success/30 hover:from-success/10 hover:to-transparent",
         // before:z-10 - the media div below is positioned too, so without it the accent bar paints
         // under the product image and the hover effect is only visible next to the text
@@ -81,35 +81,35 @@ function Product({ ...product }: Props) {
         product.containerClassName,
       )}>
 
-      {/* 2. Media — square above the title on a phone, wider beside the text from tablet up */}
-      <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-foreground/10 tablet:aspect-auto tablet:w-[240px] tablet:self-stretch">
+      {/* 2. Media — square above the title through tablet, wider beside the text from laptop up */}
+      <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-foreground/10 laptop:aspect-auto laptop:w-[240px] laptop:self-stretch">
         <ProductImage key={selectedVariant?.id ?? "base"} imgUrl={displayedImages} productTitle={translation.title} />
         <ProductLikeButton className="absolute right-2 top-2 z-[90]" productId={product.id} categoryId={product.category_id} />
       </div>
 
       {/* 3. Content */}
-      <div className="flex min-w-0 flex-1 flex-col gap-2 p-2 tablet:gap-3 tablet:p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-2 p-2 laptop:gap-3 laptop:p-4">
 
         {/* 4. Title + colored price pill */}
         <div className="flex flex-col gap-2 tablet:flex-row tablet:items-start tablet:justify-between">
-          <Link className="line-clamp-2 min-w-0 text-base font-semibold leading-snug text-title transition-colors duration-300 hover:text-success tablet:text-lg" href={`/${locale}/products/${product.id}`}>
+          <Link className="line-clamp-2 min-w-0 text-sm font-semibold leading-snug text-title transition-colors duration-300 hover:text-success laptop:text-lg" href={`/${locale}/products/${product.id}`}>
             {translation.title}
           </Link>
           <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded border border-success/20 bg-success/10 px-2.5 py-1">
-            <span className="hidden text-[11px] font-medium uppercase tracking-[0.14em] text-subTitle tablet:inline">{t("price")}</span>
-            <span className="whitespace-nowrap text-base font-bold tracking-tight text-success tablet:text-lg">
+            <span className="hidden text-[11px] font-medium uppercase tracking-[0.14em] text-subTitle laptop:inline">{t("price")}</span>
+            <span className="whitespace-nowrap text-sm font-bold tracking-tight text-success laptop:text-lg">
               {formatCurrency(selectedPrice)}
             </span>
           </span>
         </div>
 
         {/* 5. Description */}
-        <p className="hidden overflow-hidden text-sm leading-relaxed text-subTitle tablet:line-clamp-2 tablet:block [&_span]:contents">
+        <p className="hidden overflow-hidden text-sm leading-relaxed text-subTitle laptop:line-clamp-2 laptop:block [&_span]:contents">
           <MarkdownText text={translation.description ?? ""} />
         </p>
 
         {/* 6. Stock + locked-variant badges */}
-        <div className="hidden flex-wrap items-center gap-2 tablet:flex">
+        <div className="hidden flex-wrap items-center gap-2 laptop:flex">
           <span
             className={twMerge(
               "inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-[11px] font-medium uppercase tracking-[0.16em]",
@@ -128,7 +128,7 @@ function Product({ ...product }: Props) {
           )}
         </div>
 
-        <div className="hidden tablet:flex tablet:flex-col tablet:gap-2">
+        <div className="hidden laptop:flex laptop:flex-col laptop:gap-2">
         {!isVariantSelectionLocked && (
           <VariantOptionPicker variants={variants} selectedVariant={selectedVariant} onSelect={setSelectedVariantId} />
         )}
@@ -167,7 +167,7 @@ function Product({ ...product }: Props) {
         )}
 
         </div>
-        <section className="mt-auto hidden flex-wrap items-center justify-between gap-3 pt-1 tablet:flex">
+        <section className="mt-auto hidden flex-wrap items-center justify-between gap-3 pt-1 laptop:flex">
           {!isOutOfStock && (
             <ProductQuantity productId={product.id} productPrice={selectedPrice} variantId={selectedVariant?.id} />
           )}
