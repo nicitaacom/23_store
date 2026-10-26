@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { getUrlWithoutModal, openModalOnCurrentPage } from "./modalQuery"
+import { closeModalOnCurrentPage, getUrlWithoutModal, openModalOnCurrentPage } from "./modalQuery"
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -13,6 +13,37 @@ describe("getUrlWithoutModal", () => {
   it("keeps another open modal", () => {
     expect(getUrlWithoutModal("https://jokik.fi/ru?modal=AdminPanel&modal=CartModal", "AdminPanel"))
       .toBe("/ru?modal=CartModal")
+  })
+})
+
+describe("closeModalOnCurrentPage", () => {
+  it("removes the closed modal without a route request", () => {
+    const replaceState = vi.fn()
+    vi.stubGlobal("window", {
+      location: { href: "https://jokik.fi/?modal=CartModal", pathname: "/", search: "?modal=CartModal", hash: "" },
+      history: { state: { __NA: true }, replaceState },
+    })
+
+    closeModalOnCurrentPage("CartModal")
+
+    expect(replaceState).toHaveBeenCalledWith(null, "", "/")
+  })
+
+  it("keeps catalog filters and a second open modal", () => {
+    const replaceState = vi.fn()
+    vi.stubGlobal("window", {
+      location: {
+        href: "https://jokik.fi/ru?query=tea&modal=CartModal&modal=AuthModal&page=2",
+        pathname: "/ru",
+        search: "?query=tea&modal=CartModal&modal=AuthModal&page=2",
+        hash: "",
+      },
+      history: { replaceState },
+    })
+
+    closeModalOnCurrentPage("CartModal")
+
+    expect(replaceState).toHaveBeenCalledWith(null, "", "/ru?query=tea&page=2&modal=AuthModal")
   })
 })
 

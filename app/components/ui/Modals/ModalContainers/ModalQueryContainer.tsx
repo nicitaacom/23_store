@@ -1,14 +1,14 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { IoMdClose } from "react-icons/io"
 import { useSwipeable } from "react-swipeable"
 import { twMerge } from "tailwind-merge"
 import { AnimatePresence, motion } from "framer-motion"
 
 import { useModalScrollLock } from "./useModalScrollLock"
-import { getUrlWithoutModal } from "@/utils/modalQuery"
+import { closeModalOnCurrentPage } from "@/utils/modalQuery"
 import useOnEscOrClickOutside from "@/hooks/useOnEscOrClickOutside"
 import { useScopedI18n } from "@/locales/client"
 
@@ -39,10 +39,10 @@ export function ModalQueryContainer({
   onCloseRequest,
 }: ModalQueryContainerProps) {
   const t = useScopedI18n("modal")
-  const router = useRouter()
   const queryParams = useSearchParams()
   const modalRef = useRef<HTMLDivElement | null>(null)
   const backdropRef = useRef<HTMLDivElement | null>(null)
+  const [closeRequested, setCloseRequested] = useState(false)
 
   const isModalInQuery = queryParams?.getAll("modal").includes(modalQuery) ?? false
   const [shouldClose, setShouldClose] = useState(false)
@@ -61,19 +61,27 @@ export function ModalQueryContainer({
     return () => onVisibilityChange?.(false)
   }, [onVisibilityChange, showModal])
 
-  // Close modal: animate out, then remove its query value through the App Router so the URL and
-  // useSearchParams agree. Keep unrelated catalog filters and query values in place.
+  // Close modal: animate out, then drop its query value. router.replace leaves ?modal= on the
+  // unprefixed locale URL, which hides the dialog and leaves the address bar saying it is open.
+  // History replace keeps catalog filters and any other modal query.
   // A pending request (`isLoading`) must NOT block the close - only `disableDismiss` does,
   // which is what the flows that truly must not be interrupted set.
   const closeModal = useCallback(() => {
     if (disableDismiss) return
     setShouldClose(true)
-    setTimeout(() => {
+    setCloseRequested(true)
+  }, [disableDismiss])
+
+  useEffect(() => {
+    if (!closeRequested) return
+    const timer = setTimeout(() => {
       setIsDismissed(true)
-      router.replace(getUrlWithoutModal(window.location.href, modalQuery), { scroll: false })
+      closeModalOnCurrentPage(modalQuery)
       setShouldClose(false)
+      setCloseRequested(false)
     }, 260)
-  }, [disableDismiss, modalQuery, router])
+    return () => clearTimeout(timer)
+  }, [closeRequested, modalQuery])
 
   const requestClose = useCallback(() => {
     if (disableDismiss) return

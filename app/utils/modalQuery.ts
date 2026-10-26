@@ -17,3 +17,12 @@ export function openModalOnCurrentPage(modalQuery: string, variant?: string) {
   // internal state changed the address bar without mounting the modal in browser testing.
   startTransition(() => window.history.pushState(null, "", `${url.pathname}${url.search}${url.hash}`))
 }
+
+// router.replace("/") on the unprefixed default locale leaves the current search string in place.
+// The dialog then hides while ?modal= stays in the address bar, and the next open is ignored.
+export function closeModalOnCurrentPage(modalQuery: string) {
+  const nextUrl = getUrlWithoutModal(window.location.href, modalQuery)
+  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
+  if (nextUrl === currentUrl) return
+  startTransition(() => window.history.replaceState(null, "", nextUrl))
+}

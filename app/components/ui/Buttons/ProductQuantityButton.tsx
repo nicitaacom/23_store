@@ -5,6 +5,8 @@ import { MdOutlineDeleteOutline } from "react-icons/md"
 import { twMerge } from "tailwind-merge"
 
 import { Button } from ".."
+import { MinusDecreaseQuantityButton } from "./MinusDecreaseQuantityButton"
+import { PlusIncreaseQuantityButton } from "./PlusIncreaseQuantityButton"
 import useCartStore from "@/store/user/cartStore"
 import { useScopedI18n } from "@/locales/client"
 
@@ -20,39 +22,18 @@ interface ProductQuantityButtonProps {
 // http://localhost:6006/?path=/story/ui-controls-selectioncontrols--selection
 export function ProductQuantityButton({ className, productId, action, variantId }: ProductQuantityButtonProps) {
   const t = useScopedI18n("common")
-  const { increaseProductQuantity, decreaseProductQuantity, clearProductQuantity } = useCartStore()
+  const { clearProductQuantity } = useCartStore()
 
-  // 1. Handle button click based on action type
-  const handleClick = useCallback(() => {
-    if (action === "increase") {
-      increaseProductQuantity(productId, variantId)
-      return
-    }
-
-    if (action === "decrease") {
-      decreaseProductQuantity(productId, variantId)
-      return
-    }
-
+  const handleClear = useCallback(() => {
     clearProductQuantity(productId, variantId)
-  }, [action, productId, variantId, increaseProductQuantity, decreaseProductQuantity, clearProductQuantity])
+  }, [clearProductQuantity, productId, variantId])
 
-  // 2. Stepper buttons (+/−) share icon-button primitive with no outer border (parent provides the border)
-  if (action === "increase" || action === "decrease") {
-    return (
-      <button
-        className={twMerge(
-          "inline-flex h-11 w-11 items-center justify-center bg-background/55 text-sm font-semibold text-icon-color transition-colors duration-150 hover:bg-foreground/50",
-          action === "increase" ? "text-success" : "text-danger",
-          className,
-        )}
-        type="button"
-        data-cy={`product-quantity-${action}-${productId}${variantId ? `-${variantId}` : ""}`}
-        aria-label={t(action === "increase" ? "increase_quantity" : "decrease_quantity")}
-        onClick={handleClick}>
-        {action === "increase" ? "+" : "−"}
-      </button>
-    )
+  if (action === "increase") {
+    return <PlusIncreaseQuantityButton className={className} productId={productId} variantId={variantId} />
+  }
+
+  if (action === "decrease") {
+    return <MinusDecreaseQuantityButton className={className} productId={productId} variantId={variantId} />
   }
 
   // 3. Clear — danger icon button
@@ -65,7 +46,7 @@ export function ProductQuantityButton({ className, productId, action, variantId 
       shadow="sm"
       data-cy={`product-quantity-clear-${productId}${variantId ? `-${variantId}` : ""}`}
       rightIcon={<MdOutlineDeleteOutline className="text-danger" />}
-      onClick={handleClick}>
+      onClick={handleClear}>
       {t("clear")}
     </Button>
   )
