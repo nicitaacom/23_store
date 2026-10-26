@@ -31,7 +31,7 @@ export function EditProductForm({ ownerProducts, productSort, onProductSortChang
   const filteredProducts = sortAdminProducts(matchingProducts, productSort, locale)
 
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-[1080px] flex-col">
+    <div className="pinned-search-host mx-auto flex h-full min-h-0 w-full max-w-[1080px] flex-col">
       {ownerProducts.length > 0 ? (
         <>
           <div className="shrink-0 pb-2">
@@ -49,13 +49,13 @@ export function EditProductForm({ ownerProducts, productSort, onProductSortChang
           </div>
 
           {filteredProducts.length > 0 ? (
-            <div className="flex flex-col gap-2 pb-1">
+            <div className="catalog-scroll flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-1 pr-1">
               {filteredProducts.map(ownerProduct => (
                 <OwnerProduct {...ownerProduct} key={ownerProduct.id} />
               ))}
             </div>
           ) : (
-            <div className="flex flex-1 items-center justify-center">
+            <div className="flex min-h-0 flex-1 items-center justify-center">
               <div
                 className={twMerge(
                   "mx-auto flex w-full max-w-[440px] flex-col items-center justify-center gap-4 rounded bg-background/35 px-4 py-5 text-center",
