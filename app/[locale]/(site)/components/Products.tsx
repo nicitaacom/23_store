@@ -18,7 +18,7 @@ function Products({ products }: ProductsProps) {
   return (
     <div className="w-full min-w-0 rounded mobile:border-[1px] broder-border-color">
       <motion.ul
-        className="flex flex-col gap-y-8"
+        className="grid grid-cols-2 gap-2 tablet:flex tablet:flex-col tablet:gap-y-8"
         initial={false}
         animate="visible"
         variants={{

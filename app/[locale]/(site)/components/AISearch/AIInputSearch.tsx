@@ -101,8 +101,8 @@ export function AIInputSearch() {
     )
   }
 
-  // Leave 56px for the fixed support button and 16px for the page padding beside the sheet.
-  const mobileSheetWidth = "calc(100% - 56px - 16px)"
+  // 16px inset, 48px chat button, 12px gap, so the sheet ends before the button.
+  const mobileSheetWidth = "calc(100% - 16px - 48px - 12px)"
   // dvh follows the visible viewport, so the open sheet stays above the browser chrome.
   const openSheetHeight = "min(72dvh, 680px, calc(100dvh - 4.5rem - max(1rem, env(safe-area-inset-bottom))))"
 
