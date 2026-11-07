@@ -63,8 +63,8 @@ describe("R2 Files export through the API and browser SDK", () => {
     const downloadUrls: string[] = []
     const requests: URL[] = []
     vi.stubGlobal("fetch", vi.fn().mockImplementation(async (input: string) => {
-      const url = new URL(input)
-      if (url.origin === "https://shop.example" && url.pathname === "/api/backup/files") {
+      const url = new URL(input, "http://localhost:3023")
+      if (url.pathname === "/api/backup/files") {
         expect(url.searchParams.get("provider")).toBe("r2")
         requests.push(url)
         return GET(new NextRequest(url))
