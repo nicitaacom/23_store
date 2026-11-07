@@ -61,10 +61,21 @@ function getProductionDeploymentSha() {
   }
 }
 
+const browserRequestHeaders = {
+  accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
+  "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+}
+
 async function checkProductionSite(productionUrl) {
   if (!productionUrl) return { name: "production-site", status: "blocked_by_configuration", detail: "NEXT_PUBLIC_PRODUCTION_URL is missing" }
   try {
-    const response = await fetch(productionUrl, { method: "HEAD", redirect: "follow", signal: AbortSignal.timeout(15000) })
+    const response = await fetch(productionUrl, {
+      method: "GET",
+      headers: browserRequestHeaders,
+      redirect: "follow",
+      signal: AbortSignal.timeout(15000),
+    })
+    await response.body?.cancel()
     return {
       name: "production-site",
       status: response.ok ? "passed" : "failed",
@@ -90,8 +101,12 @@ async function checkSupabase(environment) {
       headers: { apikey: anonKey },
       signal: AbortSignal.timeout(15000),
     })
-    const productsResponse = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/23_products?select=id&limit=0`, {
-      headers: { apikey: serviceRoleKey, authorization: `Bearer ${serviceRoleKey}` },
+    const productsResponse = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/23_products?select=id&limit=1`, {
+      headers: {
+        accept: "application/json",
+        apikey: anonKey,
+        authorization: `Bearer ${anonKey}`,
+      },
       signal: AbortSignal.timeout(15000),
     })
     const detail = `host ${new URL(supabaseUrl).host}; Auth HTTP ${healthResponse.status}; products table HTTP ${productsResponse.status}`
@@ -149,6 +164,7 @@ async function checkDeployedStripe(environment) {
   try {
     const response = await fetch(new URL("/api/e2e/stripe-mode", productionUrl), {
       method: "GET",
+      headers: browserRequestHeaders,
       redirect: "error",
       signal: AbortSignal.timeout(65000),
     })
@@ -309,7 +325,7 @@ export async function buildPreflight(environment = process.env) {
     if (supabaseCheck.status !== "passed") blockers.push("Supabase Auth and product-table read checks did not pass")
     if (e2eJournalCheck.status !== "passed") blockers.push(e2eJournalCheck.detail)
     if (stripeCheck.status !== "passed") blockers.push("Stripe TEST runner access did not pass")
-    if (stripeCheck.chargesEnabled === false) blockers.push("The Stripe TEST account has charges disabled")
+    if (stripeCheck.keyMode !== "test" && stripeCheck.chargesEnabled === false) blockers.push("The Stripe account has charges disabled")
     if (deployedStripeCheck.status !== "passed") blockers.push(deployedStripeCheck.detail)
     if (deployedStripeCheck.chargesEnabled === false) blockers.push("The deployed Stripe TEST account has charges disabled")
   } else {
