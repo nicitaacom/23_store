@@ -19,19 +19,26 @@ function hasRedis(environment) {
   return Boolean(environment.UPSTASH_REDIS_REST_URL && environment.UPSTASH_REDIS_REST_TOKEN)
 }
 
-async function waitForHttp(url, acceptStatus) {
+async function waitForHttp(url, acceptStatus, headers) {
   const host = new URL(url).host
+  let lastStatus = 0
   for (let attempt = 0; attempt < 90; attempt += 1) {
     try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(2000) })
+      const response = await fetch(url, {
+        ...(headers ? { headers } : {}),
+        signal: AbortSignal.timeout(2000),
+      })
+      lastStatus = response.status
       await response.body?.cancel()
       if (acceptStatus(response.status)) return
     } catch {
       // The container is still starting.
+      lastStatus = 0
     }
     await new Promise(resolve => setTimeout(resolve, 2000))
   }
-  throw new Error(`No answer from ${host}`)
+  const detail = lastStatus ? `HTTP ${lastStatus}` : "no HTTP response"
+  throw new Error(`No answer from ${host} (${detail})`)
 }
 
 function redact(detail, secrets) {
@@ -76,7 +83,15 @@ export async function ensureDataServices(environment = process.env) {
     nextEnvironment.UPSTASH_REDIS_REST_URL = localRedisReady ? nextEnvironment.E2E_LOCAL_REDIS_URL : "http://127.0.0.1:8079"
     nextEnvironment.UPSTASH_REDIS_REST_TOKEN = localRedisReady ? nextEnvironment.REDIS_HTTP_TOKEN : secrets.REDIS_HTTP_TOKEN
   }
-  await waitForHttp(`${nextEnvironment.NEXT_PUBLIC_SUPABASE_URL.replace(/\/$/, "")}/auth/v1/health`, status => status >= 200 && status < 300)
+  // Hosted Auth answers /auth/v1/health with HTTP 401 unless the anon key is sent.
+  const supabaseHeaders = nextEnvironment.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ? { apikey: nextEnvironment.NEXT_PUBLIC_SUPABASE_ANON_KEY }
+    : undefined
+  await waitForHttp(
+    `${nextEnvironment.NEXT_PUBLIC_SUPABASE_URL.replace(/\/$/, "")}/auth/v1/health`,
+    status => status >= 200 && status < 300,
+    supabaseHeaders,
+  )
   await waitForHttp(nextEnvironment.UPSTASH_REDIS_REST_URL, status => status < 500)
   return nextEnvironment
 }
