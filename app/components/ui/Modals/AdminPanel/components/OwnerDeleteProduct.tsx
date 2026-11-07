@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 
 import { TProductDB } from "@/ts/product/TProductDB"
 import { DeleteProductHeader } from "./DeleteProductHeader"
-import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
+import { ProductImageSlider } from "./ProductImageSlider"
 import { useCurrentLocale } from "@/locales/client"
 import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
 
@@ -38,7 +38,7 @@ export function OwnerDeleteProduct({ onRequestDelete, isBulkMode, isSelected, on
       onClick={isBulkMode ? () => onToggleSelect?.(ownerProduct.id) : undefined}>
       <div className="flex flex-col tablet:flex-row">
         <div className="shrink-0 border-b border-border-color/35 bg-foreground/[0.02] tablet:border-b-0 tablet:border-r">
-          <OwnerProductImageSlider
+          <ProductImageSlider
             images={ownerProduct.img_url}
             title={translation.title}
             onClickSlide={isBulkMode ? e => e.stopPropagation() : undefined}

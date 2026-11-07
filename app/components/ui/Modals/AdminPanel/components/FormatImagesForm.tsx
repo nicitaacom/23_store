@@ -14,6 +14,7 @@ import { useLoading } from "@/store/ui/useLoading"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useScopedI18n, useI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
+import { confirmImages, confirmVariants } from "@/utils/confirmStoredFields"
 import { presentStoredUpdateError } from "@/utils/presentStoredUpdateError"
 import { MAX_IMAGE_FILE_SIZE_BYTES, MAX_PRODUCT_IMAGES, MIN_IMAGE_RESOLUTION } from "@/constants/uploadLimits"
 
@@ -34,7 +35,7 @@ export function FormatImagesForm({ id, title, imgUrl, selectedIndex, onSelect, o
   const tGlobal = useI18n()
   const toast = useToast()
   const { isLoading, setIsLoading } = useLoading()
-  const { replaceProduct, updateProduct } = useOwnerProductsStore()
+  const { updateProduct } = useOwnerProductsStore()
   const [newImages, setNewImages] = useState<ImageListType>([])
   const [pendingCount, setPendingCount] = useState(0)
   const [deletingUrls, setDeletingUrls] = useState<Set<string>>(new Set())
@@ -46,7 +47,7 @@ export function FormatImagesForm({ id, title, imgUrl, selectedIndex, onSelect, o
   const snapshotRef = useRef<string[]>([])
   useAdminPanelChanged(
     `edit-product-${id}-images`,
-    newImages.length > 0 || deletingUrls.size > 0 || pendingCount > 0 || isLoading,
+    newImages.length > 0 || deletingUrls.size > 0 || pendingCount > 0,
   )
 
   // Warn on navigation while a save is in flight
@@ -84,8 +85,8 @@ export function FormatImagesForm({ id, title, imgUrl, selectedIndex, onSelect, o
       setPendingCount(count => count + 1)
       try {
         const response = await productsSDK.updateProduct({ productId: id, images: nextUrls })
-        if (typeof response === "string") throw new Error(response)
-        replaceProduct(id, response.product)
+        if (typeof response === "string" || !response?.product) throw new Error(typeof response === "string" ? response : "Image update returned no row")
+        updateProduct(id, current => confirmImages(current, response.product))
         setDeletingUrls(new Set())
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
@@ -117,8 +118,8 @@ export function FormatImagesForm({ id, title, imgUrl, selectedIndex, onSelect, o
       })
 
       const response = await productsSDK.updateProduct({ productId: id, images: finalUrls })
-      if (typeof response === "string") throw new Error(response)
-      replaceProduct(id, response.product)
+      if (typeof response === "string" || !response?.product) throw new Error(typeof response === "string" ? response : "Image update returned no row")
+      updateProduct(id, current => confirmImages(current, response.product))
 
       // Remap variant image_url fields to new uploaded URLs (positional: old imgUrl[i] → finalUrls[i])
       const updatedProduct = response.product
@@ -130,7 +131,9 @@ export function FormatImagesForm({ id, title, imgUrl, selectedIndex, onSelect, o
           image_url: variant.image_url ? (urlMap.get(variant.image_url) ?? variant.image_url) : null,
         }))
         const updateProductResp = await productsSDK.updateProduct({ productId: id, variants: remappedVariants })
-        if (typeof updateProductResp !== "string") replaceProduct(id, updateProductResp.product)
+        if (typeof updateProductResp !== "string" && updateProductResp.product) {
+          updateProduct(id, current => confirmVariants(current, updateProductResp.product))
+        }
       }
 
       setNewImages([])

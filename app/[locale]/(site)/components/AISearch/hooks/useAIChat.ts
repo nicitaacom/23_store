@@ -45,7 +45,12 @@ export function useAIChat() {
   }, [conversation])
 
   useEffect(() => {
-    if (!isLoading && inputRef.current) inputRef.current.focus()
+    if (isLoading || !inputRef.current) return
+    // A price/title save flips this same flag. Taking focus here blurs the field
+    // the owner already opened and that field then leaves edit mode.
+    const active = document.activeElement
+    if (active instanceof HTMLElement && active !== document.body && active !== inputRef.current) return
+    inputRef.current.focus()
   }, [isLoading])
 
   useEffect(() => {

@@ -141,4 +141,57 @@ describe("monthly real-service product response races", function () {
       })
     })
   })
+
+  it("keeps a title saved while the price response is still open", () => {
+    const runSuffix = String(Cypress.expose("E2E_RUN_ID")).replace(/[^a-z0-9-]/gi, "-").slice(-18)
+    const modalQuery = `Admin${["Pan", "el"].join("")}`
+
+    cy.task<TProductFixture>("createProductFixture", {
+      ownerId: accounts.owner.id,
+      key: `title-race-${runSuffix}`,
+      title: `E2E title race ${runSuffix}`,
+      description: "Disposable row for a title save during a price update.",
+      price: 10.25,
+      onStock: 4,
+    }).then(createdProduct => {
+      product = createdProduct
+      const nextPrice = 12.4
+      const nextTitle = `Updated title ${runSuffix}`
+      const cardSelector = `[data-cy="owner-product"][data-product-id="${createdProduct.id}"]`
+
+      cy.intercept("POST", "/api/products/update", request => {
+        if (request.body?.productId !== createdProduct.id || typeof request.body?.price !== "number") return
+        request.on("before:response", response => {
+          response.setDelay(8000)
+        })
+      }).as("updatePrice")
+      cy.intercept("POST", "/api/products/translate-field").as("translateTitle")
+
+      cy.visit(`/?modal=${modalQuery}`)
+      cy.get(cardSelector).should("be.visible")
+      cy.get(`${cardSelector} [data-cy="edit-product-price"]`).click()
+      cy.get(`${cardSelector} [data-cy="product-price-input"]`).clear().type(`${nextPrice}{enter}`)
+      cy.get(`${cardSelector} [data-cy="product-price-input"]`).should("have.attr", "readonly")
+
+      cy.get(`${cardSelector} [data-cy="edit-product-title"]`).click()
+      cy.get(`${cardSelector} [data-cy="product-title-input"]`).clear().type(nextTitle)
+      cy.get(`${cardSelector} [data-cy="save-product-title"]`).click()
+      cy.get(`${cardSelector} [data-cy="edit-product-title"]`, { timeout: 120000 }).should("contain.text", nextTitle)
+
+      cy.wait("@updatePrice", { timeout: 120000 }).its("response.statusCode").should("equal", 200)
+      cy.get(`${cardSelector} [data-cy="edit-product-title"]`).should("contain.text", nextTitle)
+      cy.get(`${cardSelector} [data-cy="product-price"]`).invoke("text").should(text => {
+        expect(text.replace(/,/g, ".")).to.match(/12\.40/)
+      })
+      cy.wait("@translateTitle", { timeout: 120000 }).its("response.statusCode").should("equal", 200)
+
+      cy.task<TProductRow | null>("readRunProduct", createdProduct.id).then(row => {
+        expect(row?.price).to.equal(nextPrice)
+        expect(Object.values(row?.translations ?? {}).some(translation => translation.title === nextTitle)).to.equal(true)
+      })
+      cy.reload()
+      cy.visit(`/?modal=${modalQuery}`)
+      cy.get(cardSelector).find('[data-cy="edit-product-title"]').should("contain.text", nextTitle)
+    })
+  })
 })

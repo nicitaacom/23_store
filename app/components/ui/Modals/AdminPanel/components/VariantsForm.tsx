@@ -1,22 +1,24 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Image from "next/image"
-import { BiCheck, BiPlus, BiTrash } from "react-icons/bi"
+import { BiCheck, BiTrash } from "react-icons/bi"
 import { FiSave } from "react-icons/fi"
 import { twMerge } from "tailwind-merge"
 
 import { TProductVariant, TVariantOptionValues } from "@/ts/product/TProductVariant"
 import { useAdminPanelChanged } from "../AdminPanelChangedContext"
+import { AddProductVariantButton } from "./AddProductVariantButton"
 import { BaseInput } from "../../../Inputs/BaseInput"
 import { expandVariantOptionValues, getVariantGroupLabel, getVariantGroupOptions, groupVariantDrafts, toVariantOptionValues, updateVariantGroupOptions } from "@/utils/variantOptions"
 import { formatGroupedNumberInput, parseFormattedNumber } from "@/utils/numberFormatter"
+import { confirmVariants } from "@/utils/confirmStoredFields"
+import { presentStoredUpdateError } from "@/utils/presentStoredUpdateError"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLoading } from "@/store/ui/useLoading"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useScopedI18n } from "@/locales/client"
 import useToast from "@/store/ui/useToast"
-import { presentStoredUpdateError } from "@/utils/presentStoredUpdateError"
 import { Button } from "@/components/ui"
 import { MAX_PRODUCT_VARIANTS } from "@/constants/uploadLimits"
 import { VariantOptionsEditor } from "@/components/ui/VariantOptionsEditor"
@@ -72,13 +74,21 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
   const t = useScopedI18n("product")
   const toast = useToast()
   const { isLoading, setIsLoading } = useLoading()
-  const { replaceProduct } = useOwnerProductsStore()
+  const { updateProduct } = useOwnerProductsStore()
 
   const [drafts, setDrafts] = useState<VariantDraft[]>(() => toDrafts(variants))
+  const [highlightedId, setHighlightedId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!highlightedId) return
+    document.querySelector(`[data-variant-id="${highlightedId}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" })
+    const timeout = window.setTimeout(() => setHighlightedId(current => current === highlightedId ? null : current), 1800)
+    return () => window.clearTimeout(timeout)
+  }, [highlightedId])
 
   const persistedSignature = useMemo(() => signature(toDrafts(variants)), [variants])
   const hasVariantChanges = signature(drafts) !== persistedSignature
-  useAdminPanelChanged(`edit-product-${id}-variants`, hasVariantChanges || isLoading)
+  useAdminPanelChanged(`edit-product-${id}-variants`, hasVariantChanges)
 
   // 1. Per-field draft mutations
   const updateDraft = useCallback((variantId: string, patch: Partial<VariantDraft>) => {
@@ -103,6 +113,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
     }
     const id = crypto.randomUUID()
     setDrafts(current => [...current, { id, label: "", image_url: null, options: {}, group_id: id, priceInput: "", quantityInput: "0" }])
+    setHighlightedId(id)
   }, [drafts.length, t, toast])
 
   // 2. Resolve drafts → persistable variants (label required; an image the gallery no longer holds
@@ -141,8 +152,8 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
     setIsLoading(true)
     try {
       const response = await productsSDK.updateProduct({ productId: id, variants: resolved.length ? resolved : null })
-      if (typeof response === "string") throw new Error(response)
-      replaceProduct(id, response.product)
+      if (typeof response === "string" || !response?.product) throw new Error(typeof response === "string" ? response : "Variant update returned no row")
+      updateProduct(id, current => confirmVariants(current, response.product))
       setDrafts(toDrafts(response.product.variants ?? null))
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
@@ -151,19 +162,13 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
     } finally {
       setIsLoading(false)
     }
-  }, [drafts, id, imgUrl, price, replaceProduct, setIsLoading, t, toast])
+  }, [drafts, id, imgUrl, price, setIsLoading, t, toast, updateProduct])
 
   return (
     <section className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-subTitle">{t("variant")}</p>
-        <button
-          className="inline-flex items-center gap-1 rounded border border-border-color/35 bg-background/55 px-2 py-1 text-[11px] font-medium text-icon-color transition-colors duration-150 hover:bg-foreground/50 disabled:opacity-40"
-          type="button"
-          onClick={addDraft}
-          disabled={isLoading}>
-          <BiPlus size={14} /> {t("add_variant_action")}
-        </button>
+        <AddProductVariantButton disabled={isLoading} onClick={addDraft} />
       </div>
 
       {!drafts.length ? (
@@ -171,7 +176,7 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
           {t("manage_variant_empty")}
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {groupVariantDrafts(drafts).map(group => {
             const draft = group[0]
             const groupId = draft.group_id ?? draft.id
@@ -197,23 +202,80 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                   isImageMissing ? "border-warning/40" : "border-border-color/35",
                 )}
                 key={groupId}>
-                <div className="flex flex-col gap-2 tablet:flex-row">
-                  <div className="flex min-w-0 flex-1 flex-col gap-2">
-                    <div className="flex items-center gap-2">
-                      <BaseInput
-                        className="min-w-0 flex-1 border-border-color/60 focus:border-success focus:ring-success/60"
-                        value={groupLabel}
-                        onChange={event => updateGroup(groupId, { label: event.target.value })}
-                        disabled={isLoading}
-                        placeholder={t("variant_label")}
-                      />
-                      {isSoldOut && (
-                        <span className="shrink-0 rounded border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-warning">
-                          {t("out_of_stock_label")}
-                        </span>
-                      )}
+                <div
+                  className={twMerge("flex flex-col gap-3 rounded", highlightedId === groupId && "ring-2 ring-success ring-offset-2 ring-offset-background")}
+                  data-variant-id={groupId}>
+                  <div className="flex items-center gap-2">
+                    <BaseInput
+                      className="min-w-0 flex-1 border-border-color/60 focus:border-success focus:ring-success/60"
+                      value={groupLabel}
+                      onChange={event => updateGroup(groupId, { label: event.target.value })}
+                      disabled={isLoading}
+                      placeholder={t("variant_label")}
+                    />
+                    {isSoldOut && (
+                      <span className="shrink-0 rounded border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-warning">
+                        {t("out_of_stock_label")}
+                      </span>
+                    )}
+                    <button
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded border border-border-color/35 bg-background/55 text-danger transition-colors duration-150 hover:bg-danger/10 disabled:opacity-40"
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => removeDraft(groupId)}
+                      disabled={isLoading}
+                      title={t("remove")}>
+                      <BiTrash size={14} />
+                    </button>
+                  </div>
+                  <div>
+                    <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.16em] text-subTitle">
+                      {t("selected_variant")}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        className={twMerge(
+                          "h-12 shrink-0 rounded border px-2 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors duration-150",
+                          draft.image_url
+                            ? "border-border-color/30 text-subTitle hover:border-brand/40"
+                            : "border-brand/60 text-title ring-1 ring-brand/40",
+                        )}
+                        type="button"
+                        tabIndex={-1}
+                        onClick={() => updateGroup(groupId, { image_url: null })}
+                        disabled={isLoading}>
+                        {t("variant_no_image")}
+                      </button>
+                      {imgUrl.map((url, index) => {
+                        const isActive = url === draft.image_url
+                        return (
+                          <button
+                            className={twMerge(
+                              "relative h-12 w-12 shrink-0 overflow-hidden rounded border transition-colors duration-150",
+                              isActive
+                                ? "border-success ring-2 ring-success ring-offset-2 ring-offset-background"
+                                : "border-border-color/30 hover:border-success/60",
+                            )}
+                            key={`${url}-${index}`}
+                            type="button"
+                            tabIndex={-1}
+                            aria-pressed={isActive}
+                            onClick={() => updateGroup(groupId, { image_url: url })}
+                            disabled={isLoading}>
+                            <Image className="object-cover" src={url} alt={`variant-image-${index + 1}`} fill sizes="48px" />
+                            {isActive && (
+                              <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-tl bg-success text-background">
+                                <BiCheck size={14} />
+                              </span>
+                            )}
+                          </button>
+                        )
+                      })}
                     </div>
-                    <VariantOptionsEditor
+                    <p className="mt-1 text-[11px] text-subTitle">{t("variant_image_matches_hint")}</p>
+                    {isImageMissing && <p className="mt-1 text-[11px] text-warning">{t("manage_variant_help")}</p>}
+                  </div>
+                  <VariantOptionsEditor
                       variantLabel={groupLabel}
                       options={groupOptions}
                       onChange={options => {
@@ -261,68 +323,6 @@ export function VariantsForm({ id, imgUrl, variants, price }: VariantsFormProps)
                         )
                       })}
                     </div>
-                  </div>
-                  <button
-                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded border border-border-color/35 bg-background/55 text-danger transition-colors duration-150 hover:bg-danger/10 disabled:opacity-40"
-                    type="button"
-                    tabIndex={-1}
-                    onClick={() => removeDraft(groupId)}
-                    disabled={isLoading}
-                    title={t("remove")}>
-                    <BiTrash size={14} />
-                  </button>
-                </div>
-
-                {/* 4. Image picker — choose which current product image this variant uses, or none:
-                    size variants (S/M/L) look the same in a photo and show as a text chip */}
-                <div className="mt-2">
-                  <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.16em] text-subTitle">
-                    {t("selected_variant")}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    <button
-                      className={twMerge(
-                        "h-12 shrink-0 rounded border px-2 text-[10px] font-medium uppercase tracking-[0.14em] transition-colors duration-150",
-                        draft.image_url
-                          ? "border-border-color/30 text-subTitle hover:border-brand/40"
-                          : "border-brand/60 text-title ring-1 ring-brand/40",
-                      )}
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => updateGroup(groupId, { image_url: null })}
-                      disabled={isLoading}>
-                      {t("variant_no_image")}
-                    </button>
-                    {imgUrl.map((url, index) => {
-                      const isActive = url === draft.image_url
-                      return (
-                        <button
-                          className={twMerge(
-                            "relative h-12 w-12 shrink-0 overflow-hidden rounded border transition-colors duration-150",
-                            isActive
-                              ? "border-success ring-2 ring-success ring-offset-2 ring-offset-background"
-                              : "border-border-color/30 hover:border-success/60",
-                          )}
-                          key={`${url}-${index}`}
-                          type="button"
-                          tabIndex={-1}
-                          aria-pressed={isActive}
-                          onClick={() => updateGroup(groupId, { image_url: url })}
-                          disabled={isLoading}>
-                          <Image className="object-cover" src={url} alt={`variant-image-${index + 1}`} fill sizes="48px" />
-                          {isActive && (
-                            <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-tl bg-success text-background">
-                              <BiCheck size={14} />
-                            </span>
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  {/* The print area is measured against the picked photo, so a variant showing another
-                      variant's photo makes the buyer's preview lie about what gets printed */}
-                  <p className="mt-1 text-[11px] text-subTitle">{t("variant_image_matches_hint")}</p>
-                  {isImageMissing && <p className="mt-1 text-[11px] text-warning">{t("manage_variant_help")}</p>}
                 </div>
               </div>
             )

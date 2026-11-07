@@ -121,6 +121,7 @@ declare namespace API {
     field: "title" | "description"
     value: string
     translations: ProductsTranslations
+    locale?: "en" | "fi" | "ru" | "se"
   }
 
   type ProductsTranslateFieldResponse = { product: ProductsUpdateResponse["product"] } | { error: string }

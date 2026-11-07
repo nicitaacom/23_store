@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useState } from "react"
 import Image from "next/image"
 import { twMerge } from "tailwind-merge"
 
@@ -14,8 +14,7 @@ import { sortAdminProducts } from "@/utils/adminProductSort"
 import { toProductLocale } from "@/utils/product"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import useDarkModeStore from "@/store/ui/useDarkModeStore"
-
-const PAGE_SIZE = 20
+import { NearRows } from "@/components/ui/NearRows"
 
 interface EditProductForm {
   ownerProducts: TProductDB[]
@@ -29,38 +28,16 @@ export function EditProductForm({ ownerProducts, productSort, onProductSortChang
   const locale = toProductLocale(useCurrentLocale())
   const isDarkMode = useDarkModeStore().isDarkMode
   const [searchQuery, setSearchQuery] = useState("")
-  const [shownCount, setShownCount] = useState(PAGE_SIZE)
-  const [sentinel, setSentinel] = useState<HTMLDivElement | null>(null)
-  const listRef = useRef<HTMLDivElement | null>(null)
+  const [span, setSpan] = useState({ from: 1, to: 40 })
+  const reportSpan = useCallback((from: number, to: number) => {
+    setSpan(current => (current.from === from && current.to === to ? current : { from, to }))
+  }, [])
   const matchingProducts = searchQuery.trim() ? filterProductsBySearchQuery(ownerProducts, searchQuery) : ownerProducts
   const filteredProducts = sortAdminProducts(matchingProducts, productSort, locale)
-
-  const rowOrderKey = filteredProducts.map(row => row.id).join("\0")
-  const shownRows = filteredProducts.slice(0, shownCount)
-  const [appliedOrderKey, setAppliedOrderKey] = useState(rowOrderKey)
-  if (rowOrderKey !== appliedOrderKey) {
-    setAppliedOrderKey(rowOrderKey)
-    setShownCount(PAGE_SIZE)
-  }
-
-  useEffect(() => {
-    listRef.current?.scrollTo({ top: 0 })
-  }, [appliedOrderKey])
-
-  useEffect(() => {
-    if (!sentinel) return
-    const root = listRef.current
-    if (!root) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return
-        setShownCount(count => count + PAGE_SIZE)
-      },
-      { root, rootMargin: "320px" },
-    )
-    observer.observe(sentinel)
-    return () => observer.disconnect()
-  }, [sentinel, shownCount, rowOrderKey])
+  const rangeRows = filteredProducts.map(row => ({
+    id: row.id,
+    node: <OwnerProduct {...row} />,
+  }))
 
   return (
     <div className="pinned-search-host mx-auto flex h-full min-h-0 w-full max-w-[1080px] flex-col">
@@ -73,7 +50,9 @@ export function EditProductForm({ ownerProducts, productSort, onProductSortChang
                   query={searchQuery}
                   onQueryChange={setSearchQuery}
                   visibleCount={filteredProducts.length}
-                  totalCount={ownerProducts.length}
+                  totalCount={filteredProducts.length}
+                  fromIndex={filteredProducts.length === 0 ? 0 : span.from}
+                  toIndex={filteredProducts.length === 0 ? 0 : Math.min(span.to, filteredProducts.length)}
                 />
               </div>
               <AdminPanelProductSort value={productSort} onChange={onProductSortChange} />
@@ -81,12 +60,7 @@ export function EditProductForm({ ownerProducts, productSort, onProductSortChang
           </div>
 
           {filteredProducts.length > 0 ? (
-            <div className="catalog-scroll flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-1 pr-1" ref={listRef}>
-              {shownRows.map(ownerProduct => (
-                <OwnerProduct {...ownerProduct} key={ownerProduct.id} />
-              ))}
-              {shownRows.length < filteredProducts.length ? <div className="h-px shrink-0" ref={setSentinel} /> : null}
-            </div>
+            <NearRows rows={rangeRows} onSpan={reportSpan} />
           ) : (
             <div className="flex min-h-0 flex-1 items-center justify-center">
               <div

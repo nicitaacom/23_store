@@ -7,6 +7,7 @@ import { TMockupRect, TPersonalizationConfig, TPersonalizationDraftState, TProdu
 import { useAdminPanelChanged } from "../AdminPanelChangedContext"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 import { formatPrintSize, getAspectCorrectHeightPct, getAspectDrift, MAX_ASPECT_DRIFT } from "@/utils/printMetrics"
+import { confirmPersonalization } from "@/utils/confirmStoredFields"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import { useScopedI18n } from "@/locales/client"
@@ -46,7 +47,7 @@ export function PersonalizationForm({
 }: PersonalizationFormProps) {
   const t = useScopedI18n("personalize")
   const toast = useToast()
-  const { replaceProduct } = useOwnerProductsStore()
+  const { updateProduct } = useOwnerProductsStore()
   const dragStartRef = useRef<{ xPct: number; yPct: number } | null>(null)
 
   const savedConfig = personalization?.defaultConfig ?? null
@@ -230,7 +231,7 @@ export function PersonalizationForm({
       })
       // Keeps the admin panel's product row in step with what was written; a no-op on the manage
       // page, where this product is not in the owner products store.
-      replaceProduct(productId, response.product)
+      if (response?.product) updateProduct(productId, current => confirmPersonalization(current, response.product))
       toast.show("success", t("admin_updated_title"), t("admin_updated_subtitle"))
     } catch (error) {
       toast.show("error", t("admin_failed_title"), error instanceof Error ? error.message : String(error))

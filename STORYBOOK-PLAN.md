@@ -159,7 +159,7 @@ Install with pnpm:
 - `@storybook/nextjs-vite`.
 - Docs, themes, accessibility, and Vitest addons.
 - Compatible Vitest browser and Playwright dependencies.
-- MSW and `msw-storybook-addon`.
+- Story request handlers in `storybook/mocks/requestHandlers.ts`.
 - Chromatic.
 
 Configure:

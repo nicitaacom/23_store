@@ -14,14 +14,11 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getAvailableStock, getProductPriceForVariant, getVariantImageUrl } from "@/utils/cartProducts"
 import { getProductGalleryImages } from "@/utils/product"
-import { getProductVariantGroupLabel, getProductVariantSelectionLabel, groupProductVariants } from "@/utils/variantOptions"
+import { getProductVariantSelectionLabel } from "@/utils/variantOptions"
 import { resolvePersonalizationConfig } from "@/utils/printMetrics"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
-import { MarkdownText } from "@/components/ui/MarkdownText"
 import { PersonalizeButton } from "@/components/ui/Buttons/PersonalizeButton"
 import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
-import { VariantOptionPicker } from "@/components/Product/VariantOptionPicker"
-
 function VariantImage({ src, alt }: { src: string; alt: string }) {
   const [errored, setErrored] = useState(false)
   if (errored) return (
@@ -103,12 +100,7 @@ function Product({ ...product }: Props) {
           </span>
         </div>
 
-        {/* 5. Description */}
-        <p className="hidden overflow-hidden text-sm leading-relaxed text-subTitle laptop:line-clamp-2 laptop:block [&_span]:contents">
-          <MarkdownText text={translation.description ?? ""} />
-        </p>
-
-        {/* 6. Stock + locked-variant badges */}
+        {/* 5. Stock + locked-variant badges */}
         <div className="hidden flex-wrap items-center gap-2 laptop:flex">
           <span
             className={twMerge(
@@ -128,46 +120,7 @@ function Product({ ...product }: Props) {
           )}
         </div>
 
-        <div className="hidden laptop:flex laptop:flex-col laptop:gap-2">
-        {!isVariantSelectionLocked && (
-          <VariantOptionPicker variants={variants} selectedVariant={selectedVariant} onSelect={setSelectedVariantId} />
-        )}
-        {variants.length > 0 && !isVariantSelectionLocked && (
-          <div className="flex flex-row gap-2 overflow-x-auto pb-1">
-            {groupProductVariants(variants).map(group => {
-              const variant = group.find(row => row.quantity > 0) ?? group[0]
-              const isActive = group.some(row => row.id === selectedVariant?.id)
-              const isVariantSoldOut = group.every(row => row.quantity === 0)
-              return (
-                <button
-                  className={twMerge(
-                    // min-h matches the swatch chip, so a row mixing both keeps one height
-                    "flex min-h-[3.375rem] shrink-0 items-center gap-2 rounded-md border px-2 py-1.5 text-left transition-colors duration-200",
-                    isActive
-                      ? "border-success/40 bg-success/10 text-title"
-                      : "border-border-color/20 bg-background/40 text-subTitle hover:border-success/25 hover:bg-success/5",
-                    isVariantSoldOut && "opacity-55",
-                  )}
-                  key={variant.id}
-                  type="button"
-                  onClick={() => setSelectedVariantId(variant.id)}>
-                  {variant.image_url && <VariantImage src={variant.image_url} alt={variant.label} />}
-                  <div className="min-w-0">
-                    <span className="block max-w-[120px] truncate text-sm font-medium leading-4">{getProductVariantGroupLabel(variant)}</span>
-                    {isVariantSoldOut ? (
-                      <span className="text-xs font-medium text-warning">{t("out_of_stock_label")}</span>
-                    ) : (
-                      <span className="text-xs text-success">{formatCurrency(variant.price)}</span>
-                    )}
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-        )}
-
-        </div>
-        <section className="mt-auto hidden flex-wrap items-center justify-between gap-3 pt-1 laptop:flex">
+        <section className="mt-auto hidden flex-wrap items-center gap-2 pt-1 laptop:flex">
           {!isOutOfStock && (
             <ProductQuantity productId={product.id} productPrice={selectedPrice} variantId={selectedVariant?.id} />
           )}
@@ -178,7 +131,7 @@ function Product({ ...product }: Props) {
           ) : (
             <>
               {personalizationConfig && (
-                <PersonalizeButton className="h-9" productId={product.id} variantId={selectedVariant?.id} />
+                <PersonalizeButton className="h-8 min-h-0 px-2 text-xs" productId={product.id} variantId={selectedVariant?.id} />
               )}
               <ProductButtons
                 ownerId={product.owner_id}

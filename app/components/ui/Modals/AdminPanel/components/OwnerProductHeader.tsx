@@ -1,9 +1,9 @@
 import { TProductTranslations } from "@/ts/product/TProductDB"
-import { FormatCategoryForm } from "./FormatCategoryForm"
-import { FormatDescriptionForm } from "./FormatDescriptionForm"
-import { FormatOnStockForm } from "./FormatOnStockForm"
-import { FormatPriceForm } from "./FormatPriceForm"
-import { FormatTitleForm } from "./FormatTitleForm"
+import { EditProductCategory } from "./EditProductCategory"
+import { EditProductDescription } from "./EditProductDescription"
+import { EditProductOnStock } from "./EditProductOnStock"
+import { EditProductPrice } from "./EditProductPrice"
+import { EditProductTitle } from "./EditProductTitle"
 
 interface OwnerProductHeaderProps {
   id: string
@@ -19,12 +19,12 @@ export function OwnerProductHeader({ id, translations, price, onStock, hasVarian
   return (
     <section className="flex min-w-0 flex-col gap-y-3">
       <div className="flex min-w-0 flex-col gap-2 tablet:flex-row tablet:items-center tablet:justify-between">
-        <FormatTitleForm id={id} translations={translations} />
-        <FormatPriceForm id={id} price={price} />
+        <EditProductTitle id={id} translations={translations} />
+        <EditProductPrice id={id} price={price} />
       </div>
-      <FormatDescriptionForm id={id} translations={translations} />
-      <FormatOnStockForm id={id} onStock={onStock} isDerivedFromVariants={hasVariants} />
-      <FormatCategoryForm id={id} category_id={category_id} />
+      <EditProductDescription id={id} translations={translations} />
+      <EditProductOnStock id={id} onStock={onStock} isDerivedFromVariants={hasVariants} />
+      <EditProductCategory id={id} category_id={category_id} />
     </section>
   )
 }

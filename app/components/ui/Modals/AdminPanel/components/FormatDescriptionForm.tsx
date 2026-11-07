@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { BiLoaderAlt } from "react-icons/bi"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 
@@ -11,6 +12,7 @@ import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import useToast from "@/store/ui/useToast"
+import { claimFieldRevision, confirmDescription, isLatestFieldRevision } from "@/utils/confirmStoredFields"
 import { presentStoredUpdateError } from "@/utils/presentStoredUpdateError"
 import { validateDescription } from "@/utils/productValidation"
 import { MarkdownEditor } from "@/components/ui/Inputs/MarkdownEditor"
@@ -27,14 +29,17 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   const tCommon = useScopedI18n("common")
   const locale = useCurrentLocale()
   const toast = useToast()
-  const { replaceProduct, updateProduct } = useOwnerProductsStore()
-  const currentTranslation = translations[locale] ?? translations.fi
+  const { updateProduct } = useOwnerProductsStore()
+  const storedTranslations = useOwnerProductsStore(state => state.products.find(item => item.id === id)?.translations)
+  const visibleTranslations = storedTranslations ?? translations
+  const currentTranslation = visibleTranslations[locale] ?? visibleTranslations.fi
 
   const [isEditing, setIsEditing] = useState(false)
   const [isTranslating, setIsTranslating] = useState(false)
   const isTranslatingRef = useRef(false)
   const [value, setValue] = useState(currentTranslation.description ?? "")
   const [error, setError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const descriptionRef = useRef<HTMLDivElement | null>(null)
   const wrapRef = useRef<((marker: string) => void) | null>(null)
   const editorContainerRef = useRef<HTMLDivElement | null>(null)
@@ -48,13 +53,16 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
   const enableInput = () => {
     setValue(currentTranslation.description ?? "")
     setError(null)
+    setSaveError(null)
     setIsEditing(true)
     requestAnimationFrame(() => descriptionRef.current?.focus())
   }
 
   const handleCancel = () => {
+    if (isTranslatingRef.current) return
     setValue(currentTranslation.description ?? "")
     setError(null)
+    setSaveError(null)
     setIsEditing(false)
   }
 
@@ -74,20 +82,42 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
       return
     }
 
+    const revision = claimFieldRevision(id, "description")
     isTranslatingRef.current = true
-    updateProduct(id, product => ({
-      ...product,
-      translations: { ...translations, [locale]: { ...currentTranslation, description: trimmed } },
-    }))
-    setIsEditing(false)
+    setSaveError(null)
     setIsTranslating(true)
+    updateProduct(id, current => ({
+      ...current,
+      translations: {
+        ...current.translations,
+        [locale]: { ...(current.translations[locale] ?? current.translations.fi), description: trimmed },
+      },
+    }))
 
     try {
-      const response = await productsSDK.translateField({ productId: id, field: "description", value: trimmed, translations })
-      if ("error" in response) throw new Error(response.error)
-      replaceProduct(id, response.product)
+      const response = await productsSDK.translateField({ productId: id, field: "description", value: trimmed, locale, translations: visibleTranslations })
+      if (!isLatestFieldRevision(id, "description", revision)) return
+      if (!response || typeof response !== "object" || !("product" in response) || !response.product) {
+        const errorText = response && typeof response === "object" && "error" in response ? String(response.error) : "Description update returned no row"
+        throw new Error(errorText)
+      }
+      updateProduct(id, current => {
+        const confirmed = confirmDescription(current, response.product)
+        const localeTranslation = confirmed.translations[locale] ?? confirmed.translations.fi
+        return {
+          ...confirmed,
+          translations: {
+            ...confirmed.translations,
+            [locale]: { ...localeTranslation, description: trimmed },
+          },
+        }
+      })
+      setIsEditing(false)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
+      if (!isLatestFieldRevision(id, "description", revision)) return
+      const errorMessage = presentStoredUpdateError(error instanceof Error ? error.message : String(error), t("manage_update_kept"))
+      setSaveError(errorMessage)
       updateProduct(id, product => {
         const currentLocaleTranslation = product.translations[locale] ?? product.translations.fi
         if (currentLocaleTranslation.description !== trimmed) return product
@@ -100,39 +130,58 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
           },
         }
       })
-      toast.show("error", t("manage_product_error"), presentStoredUpdateError(error instanceof Error ? error.message : String(error), t("manage_update_kept")), 10000)
+      toast.show("error", t("manage_product_error"), errorMessage, 10000)
     } finally {
+      if (!isLatestFieldRevision(id, "description", revision)) return
       isTranslatingRef.current = false
       setIsTranslating(false)
     }
   }
 
   return (
-    <div className="rounded border border-border-color/30 bg-background/70 p-3 shadow-none" data-cy="product-description-form">
+    <div
+      className={twMerge(
+        "rounded border bg-background/70 p-3 shadow-none",
+        saveError ? "border-danger" : isTranslating ? "cursor-progress border-brand" : "border-border-color/30",
+      )}
+      data-cy="product-description-form"
+      aria-busy={isTranslating}>
       <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-subTitle">{t("description")}</p>
       {isEditing ? (
         <div className="flex flex-col gap-1" ref={editorContainerRef}>
           <div className="flex items-center justify-between">
-            <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
+            <RichTextToolbar onWrap={marker => {
+              if (isTranslatingRef.current) return
+              wrapRef.current?.(marker)
+            }} />
             <div className="flex gap-1">
               <button
-                className="rounded px-2 py-0.5 text-xs text-white/70 transition-colors hover:text-white/80"
+                className={twMerge(
+                  "rounded px-2 py-0.5 text-xs text-white/70 transition-colors hover:text-white/80",
+                  isTranslating && "cursor-progress",
+                )}
                 type="button"
                 onClick={handleCancel}>
                 {tCommon("cancel")}
               </button>
               <button
-                className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50"
+                className={twMerge(
+                  "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs text-brand",
+                  isTranslating ? "cursor-progress bg-brand/20" : "bg-brand/20 hover:bg-brand/30",
+                )}
                 data-cy="save-product-description"
                 type="button"
-                onClick={handleSave}
-                disabled={isTranslating}>
+                onClick={handleSave}>
+                {isTranslating && <BiLoaderAlt className="animate-spin" size={12} aria-hidden />}
                 {tCommon("save")}
               </button>
             </div>
           </div>
           <MarkdownEditor
-            className={twMerge(isTranslating && "animate-pulse")}
+            className={twMerge(
+              isTranslating && "border-brand bg-background/60 cursor-progress",
+              saveError && "border-danger bg-background/60",
+            )}
             ref={descriptionRef}
             onWrapRef={wrapRef}
             value={value}
@@ -143,11 +192,14 @@ export function FormatDescriptionForm({ id, translations }: FormatDescriptionFor
             onChange={nextValue => {
               setValue(nextValue)
               setError(null)
+              if (isTranslatingRef.current || nextValue === valueRef.current) return
+              setSaveError(null)
             }}
             disabled={isTranslating}
             placeholder={t("placeholder.description")}
           />
           {error && <p className="text-xs text-danger">{error}</p>}
+          {saveError && <p className="text-xs text-danger" role="alert">{saveError}</p>}
         </div>
       ) : (
         <button

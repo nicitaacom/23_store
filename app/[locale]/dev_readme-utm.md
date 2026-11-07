@@ -270,7 +270,7 @@ first assertion while every page still renders.
 | Clocks go back (autumn)                             | the window covers 23h, so a visit in that first local hour can produce a second row |
 | The cookie's last base64url character rewritten     | 15 of the alternatives decode to the identical ciphertext, so the same id is read back — the auth tag judges tampering, not the text |
 | The action fails (no env key, Redis down)           | `UTMTracker` catches it, logs, and the URL cleanup still runs — the page is unaffected |
-| Storybook                                           | the `VisitTracking` story renders the tracker with an msw handler, so no visit escapes |
+| Storybook                                           | the `VisitTracking` story renders the tracker with a story request handler, so no visit escapes |
 
 <br/>
 

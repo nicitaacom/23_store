@@ -1,6 +1,6 @@
 import { useState } from "react"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
-import { HttpResponse, http } from "msw"
+import { HttpResponse, http } from "../mocks/requestHandlers"
 import { expect, userEvent, waitFor, within } from "storybook/test"
 
 import { fixtureCategories, headphonesProduct, soldOutProduct } from "../fixtures"

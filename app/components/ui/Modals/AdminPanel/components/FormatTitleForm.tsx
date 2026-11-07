@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { BiLoaderAlt } from "react-icons/bi"
 import { CiEdit } from "react-icons/ci"
 import { twMerge } from "tailwind-merge"
 import { useForm } from "react-hook-form"
@@ -12,6 +13,7 @@ import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { useOwnerProductsStore } from "@/store/user/ownerProductsStore"
 import useToast from "@/store/ui/useToast"
+import { claimFieldRevision, confirmTitle, isLatestFieldRevision } from "@/utils/confirmStoredFields"
 import { presentStoredUpdateError } from "@/utils/presentStoredUpdateError"
 import { ProductInput } from "@/components/ui/Inputs/Validation"
 
@@ -28,10 +30,13 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
   const toast = useToast()
   const [isEditing, setIsEditing] = useState(false)
   const [isTranslating, setIsTranslating] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const isEditingRef = useRef(false)
   const isTranslatingRef = useRef(false)
-  const currentTranslation = translations[locale] ?? translations.fi
-  const { replaceProduct, updateProduct } = useOwnerProductsStore()
+  const { updateProduct } = useOwnerProductsStore()
+  const storedTranslations = useOwnerProductsStore(state => state.products.find(item => item.id === id)?.translations)
+  const visibleTranslations = storedTranslations ?? translations
+  const currentTranslation = visibleTranslations[locale] ?? visibleTranslations.fi
 
   useEffect(() => {
     if (!isTranslating) return
@@ -45,22 +50,51 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
 
   async function updateTitle(title: string) {
     if (isTranslatingRef.current) return
+    const revision = claimFieldRevision(id, "title")
+    const previousTitle = currentTranslation.title
     isTranslatingRef.current = true
-
-    updateProduct(id, product => ({
-      ...product,
-      translations: { ...translations, [locale]: { ...currentTranslation, title } },
-    }))
-    isEditingRef.current = false
-    setIsEditing(false)
+    setSaveError(null)
     setIsTranslating(true)
 
+    updateProduct(id, current => ({
+      ...current,
+      translations: {
+        ...current.translations,
+        [locale]: { ...(current.translations[locale] ?? current.translations.fi), title },
+      },
+    }))
+
     try {
-      const response = await productsSDK.translateField({ productId: id, field: "title", value: title, translations })
-      if ("error" in response) throw new Error(response.error)
-      replaceProduct(id, response.product)
+      const response = await productsSDK.translateField({
+        productId: id,
+        field: "title",
+        value: title,
+        locale,
+        translations: visibleTranslations,
+      })
+      if (!isLatestFieldRevision(id, "title", revision)) return
+      if (!response || typeof response !== "object" || !("product" in response) || !response.product) {
+        const errorText = response && typeof response === "object" && "error" in response ? String(response.error) : "Title update returned no row"
+        throw new Error(errorText)
+      }
+      updateProduct(id, current => {
+        const confirmed = confirmTitle(current, response.product)
+        const localeTranslation = confirmed.translations[locale] ?? confirmed.translations.fi
+        return {
+          ...confirmed,
+          translations: {
+            ...confirmed.translations,
+            [locale]: { ...localeTranslation, title },
+          },
+        }
+      })
+      isEditingRef.current = false
+      setIsEditing(false)
       toast.show("success", t("changes_saved"), t("manage_product_success"), 3000)
     } catch (error) {
+      if (!isLatestFieldRevision(id, "title", revision)) return
+      const errorMessage = presentStoredUpdateError(error instanceof Error ? error.message : String(error), t("manage_update_kept"))
+      setSaveError(errorMessage)
       updateProduct(id, product => {
         const currentLocaleTranslation = product.translations[locale] ?? product.translations.fi
         if (currentLocaleTranslation.title !== title) return product
@@ -69,12 +103,13 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
           ...product,
           translations: {
             ...product.translations,
-            [locale]: { ...currentLocaleTranslation, title: currentTranslation.title },
+            [locale]: { ...currentLocaleTranslation, title: previousTitle },
           },
         }
       })
-      toast.show("error", t("manage_product_error"), presentStoredUpdateError(error instanceof Error ? error.message : String(error), t("manage_update_kept")), 10000)
+      toast.show("error", t("manage_product_error"), errorMessage, 10000)
     } finally {
+      if (!isLatestFieldRevision(id, "title", revision)) return
       isTranslatingRef.current = false
       setIsTranslating(false)
     }
@@ -95,69 +130,104 @@ export function FormatTitleForm({ id, translations }: FormatTitleFormProps) {
 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Set only by a real click or Tab outside this field. A finished price save moves
+  // focus on its own, and that must not close an edit the owner already opened.
+  const dismissOnBlurRef = useRef(false)
 
   const enableInput = () => {
     reset({ title: currentTranslation.title })
     isEditingRef.current = true
+    dismissOnBlurRef.current = false
+    setSaveError(null)
     setIsEditing(true)
     requestAnimationFrame(() => containerRef.current?.querySelector("input")?.focus())
   }
 
   const cancelInput = () => {
+    if (isTranslatingRef.current) return
     isEditingRef.current = false
+    dismissOnBlurRef.current = false
     setIsEditing(false)
   }
 
   const handleInputBlur = () => {
     if (blurTimerRef.current) clearTimeout(blurTimerRef.current)
     blurTimerRef.current = setTimeout(() => {
+      if (isTranslatingRef.current) return
       // If focus stayed inside the container (e.g. error message clicked), keep editing
       if (containerRef.current?.contains(document.activeElement)) return
+      if (!dismissOnBlurRef.current) return
       cancelInput()
     }, 150)
   }
 
-  const disableInput = (event: KeyboardEvent) => {
-    if (!isEditingRef.current) return
-    if (event.key === "Escape") {
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      if (!isEditingRef.current) return
+      const clickedNode = event.composedPath()[0]
+      dismissOnBlurRef.current = !(clickedNode instanceof Node && containerRef.current?.contains(clickedNode))
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!isEditingRef.current || isTranslatingRef.current) return
+      if (event.key === "Tab") dismissOnBlurRef.current = true
+      if (event.key !== "Escape") return
       event.stopImmediatePropagation()
       cancelInput()
     }
-  }
-
-  useEffect(() => {
-    document.addEventListener("keydown", disableInput, true)
-    return () => document.removeEventListener("keydown", disableInput, true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    document.addEventListener("pointerdown", onPointerDown, true)
+    document.addEventListener("keydown", onKeyDown, true)
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true)
+      document.removeEventListener("keydown", onKeyDown, true)
+    }
   }, [])
 
   return (
-    <div className="min-w-0 flex-1" data-cy="product-title-form" ref={containerRef}>
+    <div
+      className={twMerge(
+        "min-w-0 flex-1 rounded",
+        saveError && "ring-1 ring-danger",
+        isTranslating && "cursor-progress ring-1 ring-brand",
+      )}
+      data-cy="product-title-form"
+      aria-busy={isTranslating}
+      ref={containerRef}>
       {isEditing ? (
         <form onSubmit={event => handleSubmit(onSubmit)(event)}>
           <ProductInput
-            className={twMerge("w-full border-border-color/50 bg-background/60 text-start", isTranslating && "animate-pulse")}
+            className={twMerge(
+              "w-full border-border-color/50 bg-background/60 text-start",
+              isTranslating && "border-brand opacity-100 cursor-progress",
+              saveError && "border-danger opacity-100",
+            )}
             data-cy="product-title-input"
             id="title"
             register={register}
             errors={errors}
             placeholder={currentTranslation.title}
             required
+            readOnly={isTranslating}
             onBlur={handleInputBlur}
             autoFocus
           />
           <div className="mt-1 flex justify-end gap-1">
             <button
-              className="rounded px-2 py-0.5 text-xs text-white/70 transition-colors hover:text-white/80"
+              className={twMerge(
+                "rounded px-2 py-0.5 text-xs text-white/70 transition-colors hover:text-white/80",
+                isTranslating && "cursor-progress",
+              )}
               type="button"
               onClick={cancelInput}>
               {tCommon("cancel")}
             </button>
             <button
-              className="rounded bg-brand/20 px-2 py-0.5 text-xs text-brand transition-colors hover:bg-brand/30 disabled:opacity-50"
+              className={twMerge(
+                "inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs text-brand",
+                isTranslating ? "cursor-progress bg-brand/20" : "bg-brand/20 hover:bg-brand/30",
+              )}
               data-cy="save-product-title"
-              type="submit"
-              disabled={isTranslating}>
+              type="submit">
+              {isTranslating && <BiLoaderAlt className="animate-spin" size={12} aria-hidden />}
               {tCommon("save")}
             </button>
           </div>

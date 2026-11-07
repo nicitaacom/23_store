@@ -30,7 +30,7 @@ const MARKER_TO_COMMAND = {
 
 // http://localhost:6006/?path=/story/ui-inputs-messageinput--message
 export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
-  ({ value, onChange, onBlur, onTabAtEnd, onSaveChord, onWrapRef, id, ariaLabelledBy, placeholder, disabled }, ref) => {
+  ({ value, onChange, onBlur, onTabAtEnd, onSaveChord, onWrapRef, id, ariaLabelledBy, placeholder, disabled, className }, ref) => {
     const suppressUpdateRef = useRef(false)
 
     const initialValueRef = useRef(value)
@@ -93,6 +93,7 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
         className={twMerge(
           "relative overflow-hidden rounded border border-border-color/30 bg-background/60 px-3 py-2 text-sm text-title transition-colors duration-150 focus-within:border-brand/40 focus-within:bg-background",
           disabled && "pointer-events-none cursor-not-allowed bg-foreground/45",
+          className,
         )}
         onKeyDownCapture={event => {
           if (onSaveChord && isSaveChord(event)) {

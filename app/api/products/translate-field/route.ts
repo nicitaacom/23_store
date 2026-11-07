@@ -379,11 +379,18 @@ export async function POST(req: Request) {
     }
 
     const currentTranslations = productWithCurrentTranslations.translations
+    const sourceLocale = LOCALES.find(locale => locale === body.locale)
     const mergedTranslations: API.ProductsTranslations = {
       en: { ...currentTranslations.en, [body.field]: translated.en },
       fi: { ...currentTranslations.fi, [body.field]: translated.fi },
       ru: { ...currentTranslations.ru, [body.field]: translated.ru },
       se: { ...currentTranslations.se, [body.field]: translated.se },
+    }
+    if (sourceLocale) {
+      mergedTranslations[sourceLocale] = {
+        ...mergedTranslations[sourceLocale],
+        [body.field]: body.value.trim(),
+      }
     }
 
     const { data: updatedProduct, error: updateError } = await supabase

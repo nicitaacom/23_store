@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
-import { HttpResponse, http } from "msw"
+import { HttpResponse, http } from "../mocks/requestHandlers"
 import { expect, waitFor, within } from "storybook/test"
 
 import { AuthModal } from "@/[locale]/(auth)/AuthModal/AuthModal"

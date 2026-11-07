@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useLoading } from "@/store/ui/useLoading";
-import { HttpResponse, http } from "msw";
+import { HttpResponse, http } from "../mocks/requestHandlers";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 
 import { fixtureCategories, headphonesProduct } from "../fixtures";

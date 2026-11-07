@@ -2,24 +2,11 @@ import "../app/globals.css";
 import "../app/styles/theme-halloween.css";
 import "../app/styles/theme-new-year.css";
 import type { Preview } from "@storybook/nextjs-vite";
-import { initialize, mswLoader } from "msw-storybook-addon";
 
+import { installRequestHandlers, type RequestHandler } from "../storybook/mocks/requestHandlers";
 import { reportStorybookFailures } from "../storybook/mocks/failureReporting";
 import { resetStorybookStores } from "../storybook/store/resetStorybookStores";
 import { StorybookProvider } from "./StorybookProvider";
-
-initialize({
-  onUnhandledRequest(request, report) {
-    const requestUrl = new URL(request.url);
-    if (requestUrl.origin === window.location.origin && requestUrl.pathname.startsWith("/api/")) {
-      report.error();
-      return;
-    }
-  },
-  serviceWorker: {
-    url: "/mockServiceWorker.js",
-  },
-});
 
 reportStorybookFailures();
 
@@ -34,7 +21,12 @@ const preview: Preview = {
       </StorybookProvider>
     ),
   ],
-  loaders: [mswLoader],
+  loaders: [
+    async context => {
+      const handlers = (context.parameters.msw as { handlers?: RequestHandler[] } | undefined)?.handlers ?? [];
+      installRequestHandlers(handlers);
+    },
+  ],
   initialGlobals: {
     locale: "en",
     theme: "light",

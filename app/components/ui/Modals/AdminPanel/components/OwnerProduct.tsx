@@ -5,8 +5,8 @@ import { useState } from "react"
 import { TProductDB } from "@/ts/product/TProductDB"
 import { FormatImagesForm } from "./FormatImagesForm"
 import { OwnerProductHeader } from "./OwnerProductHeader"
-import { OwnerProductImageSlider } from "./OwnerProductImageSlider"
 import { PersonalizationForm } from "./PersonalizationForm"
+import { ProductImageSlider } from "./ProductImageSlider"
 import { VariantsForm } from "./VariantsForm"
 import { useCurrentLocale } from "@/locales/client"
 import { useLazyVisible } from "@/hooks/ui/useLazyVisible"
@@ -29,7 +29,7 @@ export function OwnerProduct({ ...ownerProduct }: TProductDB) {
       data-product-id={ownerProduct.id}>
       <div className="flex flex-col tablet:flex-row">
         <div className="group shrink-0 border-b border-border-color/35 bg-foreground/[0.02] tablet:border-b-0 tablet:border-r">
-          <OwnerProductImageSlider
+          <ProductImageSlider
             images={ownerProduct.img_url}
             title={translation.title}
             selectedIndex={selectedImageIndex}

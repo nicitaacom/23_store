@@ -28,27 +28,27 @@ export function ProductButtons({ productId, ownerId, showViewButton = true, vari
   return (
     // 1. Actions row — standardized icon buttons, grouped by intent
     <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
-      <ManageProductButton className="rounded" productId={productId} ownerId={ownerId} />
+      <ManageProductButton className="h-8 min-h-0 rounded px-2 text-xs" size="sm" productId={productId} ownerId={ownerId} />
 
       {quantity === 0 ? (
-        <AddToCartButton productId={productId} variantId={variantId} categoryId={categoryId} />
+        <AddToCartButton className="h-8 min-h-0 px-2 text-xs" productId={productId} variantId={variantId} categoryId={categoryId} />
       ) : (
         <>
           {/* 2. Quantity stepper — segmented pair */}
           <div className="flex items-center rounded border border-border-color/35 overflow-hidden">
-            <ProductQuantityButton action="decrease" productId={productId} variantId={variantId} />
-            <div className="h-6 w-px bg-border-color/35" />
-            <ProductQuantityButton action="increase" productId={productId} variantId={variantId} />
+            <ProductQuantityButton className="h-8 w-8" action="decrease" productId={productId} variantId={variantId} />
+            <div className="h-4 w-px bg-border-color/35" />
+            <ProductQuantityButton className="h-8 w-8" action="increase" productId={productId} variantId={variantId} />
           </div>
 
           {/* 3. Destructive action — clear */}
-          <ProductQuantityButton action="clear" productId={productId} variantId={variantId} />
+          <ProductQuantityButton className="h-8 min-h-0 px-2 text-xs" action="clear" productId={productId} variantId={variantId} />
         </>
       )}
 
       {showViewButton && (
         <Button
-          className="h-11 w-full mobile:w-fit rounded font-medium"
+          className="h-8 min-h-0 w-full rounded px-2 text-xs font-medium mobile:w-fit"
           href={`/${locale}/products/${productId}`}
           variant="info-outline"
           size="md"

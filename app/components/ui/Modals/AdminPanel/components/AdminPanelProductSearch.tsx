@@ -10,6 +10,8 @@ interface AdminPanelProductSearchProps {
   onQueryChange: (query: string) => void
   visibleCount: number
   totalCount: number
+  fromIndex?: number
+  toIndex?: number
 }
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
@@ -18,6 +20,8 @@ export function AdminPanelProductSearch({
   onQueryChange,
   visibleCount,
   totalCount,
+  fromIndex,
+  toIndex,
 }: AdminPanelProductSearchProps) {
   const t = useScopedI18n("product")
 
@@ -37,7 +41,7 @@ export function AdminPanelProductSearch({
         />
       </div>
       <span className="shrink-0 text-xs font-medium tabular-nums text-subTitle/70">
-        {visibleCount}
+        {fromIndex != null && toIndex != null ? `${fromIndex}-${toIndex}` : visibleCount}
         <span className="mx-0.5 text-border-color/40">/</span>
         {totalCount}
       </span>

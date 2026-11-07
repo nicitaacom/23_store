@@ -1,0 +1,58 @@
+diff --git a/lib/core/handlers/GraphQLHandler.js b/lib/core/handlers/GraphQLHandler.js
+index 725f7bfe24e11786f4fbed4e6352f889e50f9bcc..bb9236235e1ae955d6bd6f8817d100e9daec68ed 100644
+--- a/lib/core/handlers/GraphQLHandler.js
++++ b/lib/core/handlers/GraphQLHandler.js
+@@ -22,7 +22,6 @@ __export(GraphQLHandler_exports, {
+   isDocumentNode: () => isDocumentNode
+ });
+ module.exports = __toCommonJS(GraphQLHandler_exports);
+-var import_graphql = require("graphql");
+ var import_RequestHandler = require("./RequestHandler");
+ var import_getTimestamp = require("../utils/logging/getTimestamp");
+ var import_getStatusCodeColor = require("../utils/logging/getStatusCodeColor");
+@@ -64,7 +63,7 @@ class GraphQLHandler extends import_RequestHandler.RequestHandler {
+       return getOperationName((0, import_parseGraphQLRequest.parseDocumentNode)(predicate));
+     }
+     if (isDocumentTypeDecoration(predicate)) {
+-      const documentNode = (0, import_graphql.parse)(predicate.toString());
++      const documentNode = require("graphql").parse(predicate.toString());
+       (0, import_outvariant.invariant)(
+         isDocumentNode(documentNode),
+         "Failed to create a GraphQL handler: given TypedDocumentString (%s) does not produce a valid DocumentNode",
+diff --git a/lib/core/handlers/GraphQLHandler.mjs b/lib/core/handlers/GraphQLHandler.mjs
+index 4af43ad067c85feae16086acf43e673e88c51626..b033a54707b386716e259c045f46d4b20bf2fe33 100644
+--- a/lib/core/handlers/GraphQLHandler.mjs
++++ b/lib/core/handlers/GraphQLHandler.mjs
+@@ -1,9 +1,8 @@
+-import {
+-  parse
+-} from "graphql";
++import { createRequire } from "node:module";
+ import {
+   RequestHandler
+ } from './RequestHandler.mjs';
++const require = createRequire(import.meta.url);
+ import { getTimestamp } from '../utils/logging/getTimestamp.mjs';
+ import { getStatusCodeColor } from '../utils/logging/getStatusCodeColor.mjs';
+ import { serializeRequest } from '../utils/logging/serializeRequest.mjs';
+@@ -47,7 +46,7 @@ class GraphQLHandler extends RequestHandler {
+       return getOperationName(parseDocumentNode(predicate));
+     }
+     if (isDocumentTypeDecoration(predicate)) {
+-      const documentNode = parse(predicate.toString());
++      const documentNode = require("graphql").parse(predicate.toString());
+       invariant(
+         isDocumentNode(documentNode),
+         "Failed to create a GraphQL handler: given TypedDocumentString (%s) does not produce a valid DocumentNode",
+diff --git a/package.json b/package.json
+index 520821263afd4eed5d4687626038598e53070936..90391096ecb0af04d7bb203e3c0339a8c3937cb3 100644
+--- a/package.json
++++ b/package.json
+@@ -219,7 +219,6 @@
+     "@open-draft/deferred-promise": "^2.2.0",
+     "@types/statuses": "^2.0.6",
+     "cookie": "^1.0.2",
+-    "graphql": "^16.12.0",
+     "headers-polyfill": "^4.0.2",
+     "is-node-process": "^1.2.0",
+     "outvariant": "^1.4.3",

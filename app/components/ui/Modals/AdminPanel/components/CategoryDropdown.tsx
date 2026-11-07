@@ -13,12 +13,13 @@ interface CategoryDropdownProps {
   value: string | null
   onChange: (id: string | null) => void
   disabled?: boolean
+  busy?: boolean
   uncategorizedLabel: string
   ariaLabelledBy?: string
 }
 
 // http://localhost:6006/?path=/story/admin-adminpanelmodal--add-product
-export function CategoryDropdown({ categories, value, onChange, disabled, uncategorizedLabel, ariaLabelledBy }: CategoryDropdownProps) {
+export function CategoryDropdown({ categories, value, onChange, disabled, busy, uncategorizedLabel, ariaLabelledBy }: CategoryDropdownProps) {
   const t = useScopedI18n("category")
   const [open, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
@@ -80,11 +81,16 @@ export function CategoryDropdown({ categories, value, onChange, disabled, uncate
           "hover:border-white/25 hover:bg-white/[0.09] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand",
           open && "border-success-accent/35 bg-white/[0.09]",
           disabled && "cursor-default opacity-50",
+          busy && "cursor-progress border-brand",
         )}
         type="button"
         ref={triggerRef}
         disabled={disabled}
-        onClick={() => setOpen(prevOpen => !prevOpen)}
+        aria-busy={busy}
+        onClick={() => {
+          if (busy) return
+          setOpen(prevOpen => !prevOpen)
+        }}
         aria-expanded={open}
         aria-labelledby={ariaLabelledBy}
         data-cy="category-dropdown-trigger">
