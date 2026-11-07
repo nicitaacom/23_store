@@ -1,6 +1,4 @@
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import { clusterApiUrl, Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js"
-import { Buffer } from "buffer"
 
 import { TRecordCartProduct } from "@/ts/product/TRecordCartProduct"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
@@ -30,6 +28,9 @@ export async function sendMoneyWithSolana(
         quantity: product.quantity,
       })),
     })
+    // Storybook's browser runner rejects the Node buffer package at import time. The cart
+    // stories render this button, so the chain client stays inside the click handler.
+    const { clusterApiUrl, Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction } = await import("@solana/web3.js")
     const cluster = SOLANA_CLUSTERS.find(clusterName => clusterName === createWalletPaymentIntentResp.solanaCluster) ?? "devnet"
     const connection = new Connection(clusterApiUrl(cluster), "confirmed")
     const lamports = Number(BigInt(createWalletPaymentIntentResp.tokenUnits))
@@ -46,7 +47,7 @@ export async function sendMoneyWithSolana(
       new TransactionInstruction({
         keys: [],
         programId: new PublicKey(SOLANA_MEMO_PROGRAM_ID),
-        data: Buffer.from(createWalletPaymentIntentResp.intentId, "utf8"),
+        data: new TextEncoder().encode(createWalletPaymentIntentResp.intentId) as unknown as Buffer,
       }),
     )
 
