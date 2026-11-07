@@ -27,6 +27,17 @@ function AvatarModalExample() {
   return <UpdateAvatarModal />;
 }
 
+function LightAvatarModal() {
+  useLayoutEffect(() => {
+    document.documentElement.dataset.theme = "default";
+    document.documentElement.classList.remove("dark");
+    useUser.setState({ user: customerUser });
+    useUpdateAvatarModal.getState().openModal(FIXTURE_IMAGES.avatar);
+  }, []);
+
+  return <UpdateAvatarModal />;
+}
+
 const meta = {
   title: "UI/Overlays/Application modals/CtrlKModal",
   component: SearchModalExample,
@@ -49,9 +60,26 @@ export const Search: Story = {
     await waitFor(() => expect(canvas.queryByRole("dialog")).not.toBeInTheDocument());
   },
 };
-export const AvatarUpdate: Story = { render: AvatarModalExample, globals: { theme: "dark" } };
-export const AvatarUpdateMobileControls: Story = {
+async function waitUntilOpaque(element: HTMLElement) {
+  await waitFor(() => {
+    let node: HTMLElement | null = element
+    while (node && node !== element.ownerDocument.body) {
+      if (Number(getComputedStyle(node).opacity) < 0.99) throw new Error("modal is still fading in")
+      node = node.parentElement
+    }
+  })
+}
+
+export const AvatarUpdate: Story = {
   render: AvatarModalExample,
+  globals: { theme: "dark" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await waitUntilOpaque(await canvas.findByText("Live preview"))
+  },
+}
+export const AvatarUpdateMobileControls: Story = {
+  render: LightAvatarModal,
   globals: { theme: "light" },
   parameters: { viewport: { defaultViewport: "mobileSmall" } },
   play: async ({ canvasElement }) => {
@@ -71,5 +99,6 @@ export const AvatarUpdateMobileControls: Story = {
     }
 
     await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(320)
+    await waitUntilOpaque(canvas.getByText("Live preview"))
   },
 }
