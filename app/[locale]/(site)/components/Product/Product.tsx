@@ -14,11 +14,13 @@ import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
 import { getAvailableStock, getProductPriceForVariant, getVariantImageUrl } from "@/utils/cartProducts"
 import { getProductGalleryImages } from "@/utils/product"
-import { getProductVariantSelectionLabel } from "@/utils/variantOptions"
+import { getProductVariantGroupLabel, getVariantOptionGroups, groupProductVariants, getProductVariantSelectionLabel } from "@/utils/variantOptions"
 import { resolvePersonalizationConfig } from "@/utils/printMetrics"
 import { useCurrentLocale, useScopedI18n } from "@/locales/client"
 import { PersonalizeButton } from "@/components/ui/Buttons/PersonalizeButton"
 import { RequestReplanishmentButton } from "@/components/Product/RequestReplanishmentButton"
+import { VariantOptionPicker } from "@/components/Product/VariantOptionPicker"
+
 function VariantImage({ src, alt }: { src: string; alt: string }) {
   const [errored, setErrored] = useState(false)
   if (errored) return (
@@ -99,6 +101,57 @@ function Product({ ...product }: Props) {
             </span>
           </span>
         </div>
+
+        {variants.length > 0 && !isVariantSelectionLocked && (
+          <div className="grid gap-2">
+            {groupProductVariants(variants).some(group => group.length > 1 || group[0]?.group_id) && (
+              <div className="flex flex-wrap gap-1.5">
+                {groupProductVariants(variants).map(group => {
+                  const activeRow = group.find(row => row.id === selectedVariant?.id) ?? group[0]
+                  const label = getProductVariantGroupLabel(activeRow)
+                  const optionText = Object.values(activeRow.options ?? {}).filter(value => typeof value === "string" && value).join(" ")
+                  const isSelected = group.some(row => row.id === selectedVariant?.id)
+                  return (
+                    <button
+                      className={isSelected
+                        ? "rounded border-2 border-success bg-success/15 px-3 py-1.5 text-sm font-semibold text-title"
+                        : "rounded border border-border-color/40 bg-background/50 px-3 py-1.5 text-sm text-subTitle"}
+                      aria-pressed={isSelected}
+                      key={activeRow.group_id ?? activeRow.id}
+                      type="button"
+                      onClick={() => setSelectedVariantId((group.find(row => row.quantity > 0) ?? group[0]).id)}>
+                      {optionText ? `${label} ${optionText}` : label}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+            {getVariantOptionGroups(selectedVariant?.group_id
+              ? variants.filter(row => row.group_id === selectedVariant.group_id)
+              : variants).length > 0 ? (
+              <VariantOptionPicker variants={variants} selectedVariant={selectedVariant} onSelect={setSelectedVariantId} />
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {variants.map(variant => {
+                  const isSelected = variant.id === selectedVariant?.id
+                  return (
+                    <button
+                      className={isSelected
+                        ? "rounded border-2 border-success bg-success/15 px-3 py-1.5 text-sm font-semibold text-title"
+                        : "rounded border border-border-color/40 bg-background/50 px-3 py-1.5 text-sm text-subTitle"}
+                      aria-pressed={isSelected}
+                      key={variant.id}
+                      type="button"
+                      onClick={() => setSelectedVariantId(variant.id)}>
+                      {variant.label}
+                      <span className="ml-2 text-success">{formatCurrency(variant.price)}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 5. Stock + locked-variant badges */}
         <div className="hidden flex-wrap items-center gap-2 laptop:flex">

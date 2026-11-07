@@ -76,7 +76,7 @@ export const SoldOutVariant: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await waitFor(() => canvas.getByRole("button", { name: /Silver/ })));
-    await waitFor(() => expect(canvas.getByText("$159.99")).toBeVisible());
+    await waitFor(() => expect(canvas.getAllByText("$159.99").length).toBeGreaterThan(0));
     await expect(canvas.getAllByText(/out of stock/i).length).toBeGreaterThan(0);
     await expect(canvas.getByRole("button", { name: /request replenishment/i })).toBeVisible();
   },
