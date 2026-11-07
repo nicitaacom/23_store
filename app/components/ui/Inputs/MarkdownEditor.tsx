@@ -32,6 +32,9 @@ const MARKER_TO_COMMAND = {
 export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
   ({ value, onChange, onBlur, onTabAtEnd, onSaveChord, onWrapRef, id, ariaLabelledBy, placeholder, disabled, className }, ref) => {
     const suppressUpdateRef = useRef(false)
+    const emittedValueRef = useRef(value)
+    const keystrokeRevisionRef = useRef(0)
+    const appliedKeystrokeRevisionRef = useRef(0)
 
     const initialValueRef = useRef(value)
 
@@ -44,7 +47,10 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
       editable: !disabled,
       onUpdate: ({ editor }) => {
         if (suppressUpdateRef.current) return
-        onChange(tiptapToMarkdown(editor.getJSON() as Parameters<typeof tiptapToMarkdown>[0]))
+        const markdown = tiptapToMarkdown(editor.getJSON() as Parameters<typeof tiptapToMarkdown>[0])
+        keystrokeRevisionRef.current += 1
+        emittedValueRef.current = markdown
+        onChange(markdown)
       },
       onBlur: () => onBlur?.(),
       editorProps: {
@@ -62,9 +68,17 @@ export const MarkdownEditor = forwardRef<HTMLDivElement, MarkdownEditorProps>(
     useEffect(() => {
       if (!editor) return
       if (isFirstSyncRef.current) { isFirstSyncRef.current = false; return }
+      if (value === emittedValueRef.current) {
+        appliedKeystrokeRevisionRef.current = keystrokeRevisionRef.current
+        return
+      }
       const current = tiptapToMarkdown(editor.getJSON() as Parameters<typeof tiptapToMarkdown>[0])
       if (current === value) return
+      // A parent render can still hold the previous keystroke. Replacing the document then drops the newer letter.
+      if (editor.isFocused && keystrokeRevisionRef.current !== appliedKeystrokeRevisionRef.current) return
       suppressUpdateRef.current = true
+      emittedValueRef.current = value
+      appliedKeystrokeRevisionRef.current = keystrokeRevisionRef.current
       editor.commands.setContent(markdownToTiptap(value))
       Promise.resolve().then(() => { suppressUpdateRef.current = false })
     }, [value, editor])
