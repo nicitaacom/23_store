@@ -15,7 +15,7 @@ import openai from "@/libs/openai"
 
 type Message = { role: "system" | "user" | "assistant"; content: string }
 
-export const maxDuration = 165
+export const maxDuration = 60
 
 export async function POST(req: Request) {
   let requestBody: API.AISalesAssistantRequest | null = null

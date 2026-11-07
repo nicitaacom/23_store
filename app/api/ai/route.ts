@@ -8,7 +8,7 @@ import {
 } from "@/libs/ai/openaiRequest"
 import openai from "@/libs/openai"
 
-export const maxDuration = 165
+export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
   let prompt: unknown

@@ -21,7 +21,7 @@ import {
 } from "@/libs/ai/imageGenerationQuota"
 
 export const runtime = "nodejs"
-export const maxDuration = 165
+export const maxDuration = 60
 
 // Which image model an account has differs, and asking for one it does not have answers
 // "The model 'x' does not exist". So the first candidate that answers wins, newest first.

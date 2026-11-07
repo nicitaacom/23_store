@@ -20,7 +20,7 @@ const limiter = new Ratelimit({
   analytics: false,
 })
 
-export const maxDuration = 165
+export const maxDuration = 60
 
 // The model is asked for one thing it is good at - WHERE the printable surface is in the photo. The
 // verdict itself is arithmetic in getPrintAreaOverlap, so it is repeatable and explainable.

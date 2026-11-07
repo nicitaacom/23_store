@@ -30,7 +30,7 @@ const TRANSLATION_RESPONSE_FORMAT = {
 const MIN_PROVIDER_RETRY_DELAY_MS = 500
 const MAX_PROVIDER_RETRY_DELAY_MS = 15_000
 
-export const maxDuration = 165
+export const maxDuration = 60
 
 type ProviderErrorDetails = {
   name: string
