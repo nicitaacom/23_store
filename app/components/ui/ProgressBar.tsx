@@ -20,7 +20,7 @@ export function ProgressBar({ className, labelClassName, value, label }: Progres
           <span className="shrink-0 tabular-nums">{percent}%</span>
         </div>
       )}
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-border-color/25" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-border-color/25" role="progressbar" aria-label={label || "Progress"} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
         <div style={{ width: `${percent}%` }} className="h-full rounded-full bg-success transition-[width] duration-150" />
       </div>
     </div>
