@@ -240,12 +240,10 @@ Label R2's 10 GB as an **included allowance**, not a hard capacity limit. Show z
 allowance and a separate excess value above it. Show the separately enforced **10 GB application
 upload limit** and its remaining capacity; new uploads are blocked when that limit is reached.
 
-Fetch R2 metrics server-side through Cloudflare GraphQL. Use the latest storage sample per bucket,
-never the sum of historical storage snapshots. Keep application usage separate from account-wide
+Read R2 file bytes and object counts from the configured bucket inventory. Use the current object
+list, never the sum of historical storage snapshots. Keep this bucket separate from account-wide
 allowance consumption. Show source, scope, observation time, and stale/unavailable states. Cache
-successful metrics for five minutes; failed refreshes must not turn usage into zero. Cloudflare's
-bandwidth dataset omits transfers below 100 KiB, so label it as reported analytics rather than
-invoice-exact traffic.
+successful metrics for five minutes; failed refreshes must not turn usage into zero. Request totals and download totals stay unavailable because a bucket listing does not include them.
 [R2 metrics documentation](https://developers.cloudflare.com/r2/platform/metrics-analytics/)
 
 Distinguish current bytes from monthly billed GB-month. Any cost projection is an estimate, not an

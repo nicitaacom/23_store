@@ -145,7 +145,7 @@ to either Supabase or R2. Backups above 512 MiB use the local streaming export d
    `CLOUDFLARE_R2_ANALYTICS_TOKEN`. The account API Tokens page also supports this permission.
    The profile page is separate from R2's token creator: the analytics token belongs in this
    single analytics field; R2 uploads need the separate Access Key ID and Secret Access Key.
-   [Analytics token](https://developers.cloudflare.com/analytics/graphql-api/getting-started/authentication/api-token-auth/)
+   [Account API tokens](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)
 5. Open **23-store-public → Settings → CORS Policy → Add CORS policy → JSON → Save**. The production
    origins below are examples for this shop; use the actual deployed origins and explicit local
    ports. Do not use wildcard origins. [CORS setup](https://developers.cloudflare.com/r2/buckets/cors/)

@@ -20,7 +20,7 @@ Stale, NonAdmin and Mobile). Stories use labelled fixture measurements, not live
 ![The same warning at 320 px](public/docs/storage/storage-warning-mobile.png)
 
 ```text
-GET /api/storage/usage → Cloudflare GraphQL + restricted Supabase SQL + provider inventory
+GET /api/storage/usage → R2 bucket inventory + restricted Supabase SQL + provider inventory
     Redis storage:23:usage: last successful observations, refreshed every five minutes
     StorageSDK.usage() → useSetStorageUsage → Zustand useStorageUsage → StorageUsage cards
 ```
@@ -40,8 +40,8 @@ the shared limit remains. Per-user/paid-storage controls are still plan TODOs.
 R2 **included allowance** is a billing comparison for the entire account. Its 10 GB-month value
 is separate from the application's hard limit. Current bytes are a snapshot, not monthly billed
 GB-month. Latest bucket observations are selected once; historical snapshots are never summed.
-Class A/B requests and reported downloads cover the current month. Reported downloads omit
-transfers below 100 KiB. Unknown storage classes leave Standard allowance comparisons unknown.
+Class A/B requests and download totals stay unavailable. The bucket inventory does not include
+them. Unknown storage classes leave Standard allowance comparisons unknown.
 
 Supabase database size covers the shared database, including other projects. Legacy-file usage
 counts this application's six buckets. Supabase egress is separate and has an explicit provider
@@ -49,11 +49,11 @@ dashboard link when reliable telemetry is absent. Unknown plan allowances stay u
 
 ## 3. States and responsive behavior
 
-Every card shows source, scope, observation time, value and available/stale/unavailable state.
+Cards with a measurement show a ring or a bar. A measurement with no number is omitted.
 Refresh preserves previous successful measurements when provider refresh fails. The initial
 skeleton shows Checking storage usage; the empty state offers Refresh; request errors are alerts.
-Warnings use the theme's accessible warning color. One column at 320 px expands to two on tablets
-and three on larger screens. Cards wrap scope text and the header wraps its refresh control.
+Warnings use the theme's accessible warning color. The upload limit is a ring and a bar.
+Other measurements sit in one column at 320 px and two columns from tablet width up.
 
 ## 4. Verification and deployment
 

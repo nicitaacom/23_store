@@ -30,7 +30,8 @@ export const Available: Story = {
     const canvas = within(canvasElement)
     await expect(await canvas.findByRole("heading", { name: "Storage & usage" })).toBeVisible()
     await expect(canvas.getByText("0 GB", { exact: true })).toBeVisible()
-    await expect(canvas.getByText("Unavailable", { exact: true })).toBeVisible()
+    await expect(canvas.getByText("0.5 GB", { exact: true })).toBeVisible()
+    await expect(canvas.queryByText("Unavailable")).not.toBeInTheDocument()
   },
 }
 export const WarningAtEightGB: Story = { args: { initialUsage: observation(8 * 1000 ** 3) },

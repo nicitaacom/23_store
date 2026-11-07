@@ -6,7 +6,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
 import type { TBuckets } from "@/ts/types/TBuckets"
 import { isStoragePath, STORAGE_BUCKETS, storagePublicUrl } from "./references"
-import { r2Credentials, R2_UPLOAD_PREFIXES, SUPABASE_STAGING_BUCKET, UPLOAD_SIGNATURE_SECONDS } from "./config"
+import { r2Credentials, R2_UPLOAD_PREFIXES, SUPABASE_STAGING_BUCKET, SUPABASE_STAGING_MAX_BYTES, UPLOAD_SIGNATURE_SECONDS } from "./config"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import type { IStorageProvider, TStorageObject, TStoragePage, TStorageProviderName, TStorageUploadSession } from "@/ts/storage"
 
@@ -15,6 +15,32 @@ const PAGE_SIZE = 100
 async function requireResponse(response: Response): Promise<Response> {
   if (!response.ok) throw new Error(`Storage request failed (${response.status})`)
   return response
+}
+
+function storageErrorMessage(error: unknown): string {
+  if (typeof error === "string") return error
+  if (error instanceof Error) return error.message
+  if (error && typeof error === "object" && "message" in error && typeof error.message === "string") return error.message
+  return ""
+}
+
+function missingStorageResource(error: unknown): boolean {
+  return /related resource does not exist|bucket not found|specified bucket does not exist|resource was not found|nosuchbucket/i.test(storageErrorMessage(error))
+}
+
+function missingStoredObject(error: unknown): boolean {
+  if (!error || typeof error !== "object") return missingStorageResource(error)
+  const metadata = "$metadata" in error ? error.$metadata : undefined
+  const status = metadata && typeof metadata === "object" && "httpStatusCode" in metadata ? metadata.httpStatusCode : undefined
+  const name = "name" in error && typeof error.name === "string" ? error.name : ""
+  return status === 404 || name === "NotFound" || name === "NoSuchKey" || missingStorageResource(error)
+}
+
+async function createPrivateUploadBucket(): Promise<void> {
+  const { error } = await supabaseAdmin.storage.createBucket(SUPABASE_STAGING_BUCKET, {
+    public: false, fileSizeLimit: SUPABASE_STAGING_MAX_BYTES,
+  })
+  if (error && !/already exists|resourcealreadyexists|duplicate/i.test(error.message)) throw new Error(error.message)
 }
 
 export class SupabaseStorageProvider implements IStorageProvider {
@@ -61,7 +87,11 @@ export class SupabaseStorageProvider implements IStorageProvider {
     for (let offset = 0; ; offset += PAGE_SIZE) {
       const { data: entries, error } = await supabaseAdmin.storage.from(storageBucket).list(folder,
         { search: name, offset, limit: PAGE_SIZE, sortBy: { column: "name", order: "asc" } })
-      if (error) throw new Error(error.message)
+      if (error) {
+        if (!missingStorageResource(error)) throw new Error(error.message)
+        if (storageBucket === SUPABASE_STAGING_BUCKET) await createPrivateUploadBucket()
+        return null
+      }
       const entry = entries?.find(entry => entry.name === name && entry.id)
       if (entry) return { provider: this.name, bucket, path, size: Number(entry.metadata?.size ?? NaN),
         contentType: entry.metadata?.mimetype ?? "application/octet-stream", updatedAt: entry.updated_at ?? null,
@@ -70,8 +100,16 @@ export class SupabaseStorageProvider implements IStorageProvider {
     }
   }
 
-  async signUpload(stagePath: string, _contentType: string, _size: number) {
-    const { data: upload, error } = await supabaseAdmin.storage.from(SUPABASE_STAGING_BUCKET).createSignedUploadUrl(stagePath)
+  async signUpload(uploadPath: string, _contentType: string, _size: number) {
+    return this.signPreparedUpload(uploadPath)
+  }
+
+  private async signPreparedUpload(uploadPath: string, created = false) {
+    const { data: upload, error } = await supabaseAdmin.storage.from(SUPABASE_STAGING_BUCKET).createSignedUploadUrl(uploadPath)
+    if (error && missingStorageResource(error) && !created) {
+      await createPrivateUploadBucket()
+      return this.signPreparedUpload(uploadPath, true)
+    }
     if (error || !upload) throw new Error(error?.message ?? "Upload signing failed")
     // eslint-disable-next-line local-rules/no-banned-words -- Required HTTP freshness header.
     return { signedUrl: upload.signedUrl, headers: { "cache-control": "max-age=0" }, formField: "" }
@@ -135,11 +173,16 @@ export class SupabaseStorageProvider implements IStorageProvider {
     let bytes = 0
     for (const bucket of [...STORAGE_BUCKETS, SUPABASE_STAGING_BUCKET]) {
       let cursor: string | null = null
-      do {
-        const page = await this.listBucket(bucket, "", cursor)
-        for (const object of page.objects) bytes += verifiedByteCount(object.size)
-        cursor = page.cursor
-      } while (cursor)
+      try {
+        do {
+          const page = await this.listBucket(bucket, "", cursor)
+          for (const object of page.objects) bytes += verifiedByteCount(object.size)
+          cursor = page.cursor
+        } while (cursor)
+      } catch (error) {
+        if (!missingStorageResource(error)) throw error
+        if (bucket === SUPABASE_STAGING_BUCKET) await createPrivateUploadBucket()
+      }
     }
     return verifiedByteCount(bytes)
   }
@@ -182,8 +225,7 @@ export class R2StorageProvider implements IStorageProvider {
         contentType: response.ContentType ?? "application/octet-stream", updatedAt: response.LastModified?.toISOString() ?? null,
         etag: response.ETag ?? null }
     } catch (error) {
-      if (error && typeof error === "object" && "$metadata" in error &&
-        (error.$metadata as { httpStatusCode?: number }).httpStatusCode === 404) return null
+      if (missingStoredObject(error)) return null
       throw error
     }
   }
@@ -241,17 +283,25 @@ export class R2StorageProvider implements IStorageProvider {
     cursor: next ? `r2-temp:${Buffer.from(JSON.stringify(next)).toString("base64url")}` : null }
   }
   publicUrl(bucket: TBuckets, path: string) { return storagePublicUrl(this.name, bucket, path) }
-  async measureBytes(): Promise<number> {
+  async inventoryTotals(): Promise<{ bytes: number; objects: number }> {
     let bytes = 0
+    let objects = 0
     let cursor: string | undefined
     do {
       const response = await this.client.send(new ListObjectsV2Command({ Bucket: this.config.bucket,
         ContinuationToken: cursor, MaxKeys: 1000 }))
-      for (const object of response.Contents ?? []) bytes += verifiedByteCount(object.Size)
+      for (const object of response.Contents ?? []) {
+        bytes += verifiedByteCount(object.Size)
+        objects += 1
+      }
       if (response.IsTruncated && !response.NextContinuationToken) throw new Error("Incomplete R2 byte inventory")
       cursor = response.IsTruncated ? response.NextContinuationToken : undefined
     } while (cursor)
-    return verifiedByteCount(bytes)
+    return { bytes: verifiedByteCount(bytes), objects }
+  }
+
+  async measureBytes(): Promise<number> {
+    return (await this.inventoryTotals()).bytes
   }
 }
 

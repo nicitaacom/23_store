@@ -49,7 +49,7 @@ future per-user limits and fees. Individual file validation and ownership checks
 Capacity is checked against a current provider inventory and persistent Redis reservations under
 a renewable shared lease. R2 counts all objects in the configured public bucket, including
 temporary uploads and unfamiliar prefixes. Supabase counts the six application buckets and staging.
-Unknown sizes or unavailable inventory block new authorizations. Migration copies use the same
+Unknown sizes or an inventory request that fails for another reason block new authorizations. A Supabase bucket reported missing counts as zero bytes. `signUpload` creates the private upload bucket from `scripts/storage/setup.sql` when that bucket is the missing one. Migration copies use the same
 capacity helper. Each provider retains its own physical inventory during the rollback period;
 the Supabase recovery copy is not included in R2's physical limit.
 

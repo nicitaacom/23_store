@@ -2,9 +2,10 @@ import { S3Client, CopyObjectCommand, DeleteObjectCommand, GetObjectCommand, Hea
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { R2StorageProvider, SupabaseStorageProvider } from "./providers"
+import { SUPABASE_STAGING_BUCKET, SUPABASE_STAGING_MAX_BYTES } from "./config"
 
-const mocks = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), createSignedUploadUrl: vi.fn() }))
-vi.mock("@/libs/supabase/supabaseAdmin", () => ({ default: { storage: { from: () => mocks } } }))
+const mocks = vi.hoisted(() => ({ list: vi.fn(), remove: vi.fn(), createSignedUploadUrl: vi.fn(), createBucket: vi.fn() }))
+vi.mock("@/libs/supabase/supabaseAdmin", () => ({ default: { storage: { from: () => mocks, createBucket: mocks.createBucket } } }))
 
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_R2_PUBLIC_URL", "https://files.example")
@@ -79,6 +80,12 @@ describe("R2 provider", () => {
     await expect(provider.signUpload("23_avatar-images/owner/a.png", "image/png", 8)).rejects.toThrow("Invalid temporary upload path")
     await expect(provider.delete("23_avatar-images", "23_avatar-images/owner/a.png", true)).rejects.toThrow("Invalid temporary upload path")
   })
+  it("reads a missing object as absent when head returns the storage 404 sentence", async () => {
+    vi.spyOn(S3Client.prototype, "send").mockRejectedValue(Object.assign(new Error("The related resource does not exist"), {
+      name: "NotFound", $metadata: { httpStatusCode: 400 },
+    }))
+    await expect(new R2StorageProvider().inspect("23_avatar-images", "temp-uploads/id/a.png", true)).resolves.toBeNull()
+  })
 })
 
 describe("Supabase provider", () => {
@@ -102,5 +109,24 @@ describe("Supabase provider", () => {
   it("treats missing object sizes as unknown capacity instead of zero", async () => {
     mocks.list.mockResolvedValue({ data: [{ id: "file", name: "a.png", metadata: {} }], error: null })
     await expect(new SupabaseStorageProvider().measureBytes()).rejects.toThrow("unknown")
+  })
+  it("creates the private upload bucket when signing reports it missing", async () => {
+    mocks.createSignedUploadUrl
+      .mockResolvedValueOnce({ data: null, error: { message: "The related resource does not exist" } })
+      .mockResolvedValueOnce({ data: { signedUrl: "https://private.example/signed" }, error: null })
+    mocks.createBucket.mockResolvedValue({ data: { name: "bucket" }, error: null })
+    expect((await new SupabaseStorageProvider().signUpload("temp-uploads/id/a.png", "image/png", 8)).formField).toBe("")
+    expect(mocks.createBucket).toHaveBeenCalledWith(SUPABASE_STAGING_BUCKET, { public: false, fileSizeLimit: SUPABASE_STAGING_MAX_BYTES })
+    expect(mocks.createSignedUploadUrl).toHaveBeenCalledTimes(2)
+  })
+  it("counts a missing bucket as zero bytes and still returns a total", async () => {
+    let calls = 0
+    mocks.list.mockImplementation(async () => {
+      calls += 1
+      if (calls === 1) return { data: null, error: { message: "The related resource does not exist" } }
+      return { data: [], error: null }
+    })
+    mocks.createBucket.mockResolvedValue({ data: { name: "bucket" }, error: null })
+    await expect(new SupabaseStorageProvider().measureBytes()).resolves.toBe(0)
   })
 })

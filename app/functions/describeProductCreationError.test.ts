@@ -19,6 +19,16 @@ describe("describeProductCreationError", () => {
     expect(message).not.toMatch(/try again|retry/i)
   })
 
+  it("replaces the storage 404 sentence with the lost file and the next step", () => {
+    const message = describeProductCreationError(new Error("The related resource does not exist"), "uploading product images", true)
+    expect(message).toContain("uploading product images")
+    expect(message).toContain("could not find the upload location")
+    expect(message).toContain("this step was not saved")
+    expect(message).toContain("Check the product list before starting another creation")
+    expect(message).toContain("contact the store administrator")
+    expect(message).not.toMatch(/try again|retry/i)
+  })
+
   it("keeps a specific server error", () => {
     expect(describeProductCreationError(new Error("Image 2: size exceeds 1 MB"), "compressing product images", true)).toBe(
       "compressing product images: Image 2: size exceeds 1 MB",

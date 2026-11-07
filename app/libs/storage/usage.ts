@@ -6,15 +6,9 @@ import { r2Config } from "@/config/r2Config"
 import supabaseAdmin from "@/libs/supabase/supabaseAdmin"
 import type { TStorageMetric, TStorageUsage } from "@/ts/storage"
 
-export type TR2StorageSample = { dimensions: { bucketName: string; datetime: string }; max: { payloadSize: number; metadataSize: number; objectCount: number } }
-export type TR2OperationSample = { dimensions: { actionType: string }; sum: { requests: number } }
-export type TR2Analytics = { storage: TR2StorageSample[]; operations: TR2OperationSample[]; bandwidth: { sum: { bytesDownload: number } }[] }
+const R2_SOURCE = "R2 bucket inventory"
 const USAGE_REDIS_KEY = "storage:23:usage"
 const USAGE_REFRESH_MS = 5 * 60 * 1000
-const SAMPLE_LIMIT = 10000
-const CLASS_A = new Set(["listbuckets", "putbucket", "listobjects", "listobjectsv2", "putobject", "copyobject", "completemultipartupload", "createmultipartupload", "lifecyclestoragetiertransition", "listmultipartuploads", "uploadpart", "uploadpartcopy", "listparts", "putbucketencryption", "putbucketcors", "putbucketlifecycleconfiguration"])
-const CLASS_B = new Set(["headbucket", "headobject", "getobject", "usagesummary", "getbucketencryption", "getbucketcors", "getbucketlifecycleconfiguration", "getbucketlocation"])
-const FREE = new Set(["deleteobject", "deleteobjects", "deletebucket", "abortmultipartupload"])
 
 export function allowanceValues(value: number, allowance: number) {
   return { allowance, remaining: Math.max(0, allowance - value), excess: Math.max(0, value - allowance) }
@@ -30,83 +24,43 @@ function configuredAllowance(value: string | undefined): number | null {
   return Number.isFinite(number) && number >= 0 ? number : null
 }
 
-export function normalizeR2Usage(analytics: TR2Analytics, applicationBuckets: string[], now = new Date()): Record<string, TStorageMetric> {
-  const latest = new Map<string, TR2StorageSample>()
-  for (const sample of analytics.storage) {
-    if (!sample.dimensions?.bucketName || !Number.isFinite(Date.parse(sample.dimensions.datetime)) ||
-      [sample.max?.payloadSize, sample.max?.metadataSize, sample.max?.objectCount].some(value => !Number.isFinite(value) || value < 0))
-      throw new Error("Cloudflare returned invalid storage samples")
-    const previous = latest.get(sample.dimensions.bucketName)
-    if (!previous || Date.parse(sample.dimensions.datetime) > Date.parse(previous.dimensions.datetime)) latest.set(sample.dimensions.bucketName, sample)
+export function summarizeR2Inventory(bytes: number, objects: number, standardOnly: boolean, now = new Date()): Record<string, TStorageMetric> {
+  if (!Number.isSafeInteger(bytes) || bytes < 0 || !Number.isSafeInteger(objects) || objects < 0) {
+    throw new Error("R2 inventory returned invalid measurements")
   }
-  const source = "Cloudflare GraphQL"
-  const observedAt = latest.size ? new Date(Math.min(...Array.from(latest.values(), sample => Date.parse(sample.dimensions.datetime)))).toISOString() : null
-  const status = observedAt && now.getTime() - Date.parse(observedAt) <= 24 * 60 * 60 * 1000 ? "available" : "stale"
-  const application = Array.from(latest.values()).filter(sample => applicationBuckets.includes(sample.dimensions.bucketName))
-  const bytes = (samples: TR2StorageSample[]) => samples.reduce((total, sample) => total + sample.max.payloadSize + sample.max.metadataSize, 0)
-  const storageComplete = analytics.storage.length < SAMPLE_LIMIT && applicationBuckets.every(bucket => latest.has(bucket))
+  const observedAt = now.toISOString()
   const metrics: Record<string, TStorageMetric> = {
-    r2Files: storageComplete ? { value: bytes(application), unit: "bytes", source, scope: "Public application R2 bucket, including temporary uploads", observedAt, status }
-      : unavailable("bytes", source, "Public application R2 bucket", "Missing bucket samples or truncated analytics; empty storage requires a provider sample"),
-    r2Objects: storageComplete ? { value: application.reduce((total, sample) => total + sample.max.objectCount, 0), unit: "objects", source, scope: "Public application R2 bucket", observedAt, status }
-      : unavailable("objects", source, "Public application R2 bucket", "Object count samples are unavailable"),
-    r2Allowance: latest.size && analytics.storage.length < SAMPLE_LIMIT && process.env.R2_ACCOUNT_STANDARD_ONLY === "true"
-      ? { value: bytes(Array.from(latest.values())), unit: "bytes", source, scope: "Account, current Standard storage snapshot", observedAt, status,
-        ...allowanceValues(bytes(Array.from(latest.values())), 10 * 1000 ** 3),
-        detail: "Snapshot comparison with the 10 GB-month included allowance. Monthly billed GB-month depends on daily peaks; this is a current-byte estimate, not an invoice or capacity limit." }
-      : unavailable("bytes", source, "Account included Standard allowance", "Confirm R2_ACCOUNT_STANDARD_ONLY after checking all account buckets. Missing samples and other storage classes leave this comparison unavailable."),
+    r2Files: { value: bytes, unit: "bytes", source: R2_SOURCE, scope: "Configured R2 bucket, including temporary uploads", observedAt, status: "available" },
+    r2Objects: { value: objects, unit: "objects", source: R2_SOURCE, scope: "Configured R2 bucket", observedAt, status: "available" },
+    r2Allowance: standardOnly
+      ? { value: bytes, unit: "bytes", source: R2_SOURCE, scope: "Configured bucket, current inventory", observedAt, status: "available",
+        ...allowanceValues(bytes, 10 * 1000 ** 3),
+        detail: "Compares this bucket's current bytes with the 10 GB included allowance. Other buckets are not included. Monthly billed GB-month depends on daily peaks; this is not an invoice." }
+      : unavailable("bytes", R2_SOURCE, "Account included Standard allowance", "Confirm R2_ACCOUNT_STANDARD_ONLY after checking every account bucket. This inventory covers the configured bucket only."),
+    r2ClassA: unavailable("requests", R2_SOURCE, "Account, month to date", "Request totals are not part of the bucket inventory"),
+    r2ClassB: unavailable("requests", R2_SOURCE, "Account, month to date", "Request totals are not part of the bucket inventory"),
+    r2Bandwidth: unavailable("bytes", R2_SOURCE, "Account, month to date", "Download totals are not part of the bucket inventory"),
   }
-  let classA = 0
-  let classB = 0
-  let unknownOperations = false
-  for (const operation of analytics.operations) {
-    const action = operation.dimensions.actionType.replace(/^r2\./i, "").toLowerCase()
-    if (!Number.isFinite(operation.sum.requests) || operation.sum.requests < 0) throw new Error("Invalid request metrics")
-    if (CLASS_A.has(action)) classA += operation.sum.requests
-    else if (CLASS_B.has(action)) classB += operation.sum.requests
-    else if (!FREE.has(action)) unknownOperations = true
-  }
-  for (const [name, value, allowance] of [["r2ClassA", classA, 1_000_000], ["r2ClassB", classB, 10_000_000]] as const) {
-    metrics[name] = unknownOperations || analytics.operations.length >= SAMPLE_LIMIT
-      ? unavailable("requests", source, "Account, month to date", "Unknown operation classes or truncated analytics")
-      : { value, unit: "requests", source, scope: "Account, month to date; reported operations", observedAt: now.toISOString(), status: "available",
-        ...(process.env.R2_ACCOUNT_STANDARD_ONLY === "true" ? allowanceValues(value, allowance) : { allowance: null }),
-        detail: "Standard request allowances apply only after all account storage classes are confirmed. Invoice rounding may differ." }
-  }
-  metrics.r2Bandwidth = { value: analytics.bandwidth.reduce((total, sample) => total + sample.sum.bytesDownload, 0),
-    unit: "bytes", source, scope: "Account, month to date", observedAt: now.toISOString(), status: "available",
-    detail: "Reported analytics exclude transfers below 100 KiB; this is not invoice-exact traffic." }
-  if (!Number.isFinite(metrics.r2Bandwidth.value) || (metrics.r2Bandwidth.value ?? 0) < 0) throw new Error("Invalid bandwidth metrics")
   return metrics
 }
 
-// eslint-disable-next-line local-rules/sdk-method-naming -- This sends a request to the external Cloudflare analytics API.
+function unavailableR2Metrics(): Record<string, TStorageMetric> {
+  return {
+    r2Files: unavailable("bytes", R2_SOURCE, "Configured R2 bucket", "Bucket inventory is unavailable"),
+    r2Objects: unavailable("objects", R2_SOURCE, "Configured R2 bucket", "Bucket inventory is unavailable"),
+    r2Allowance: unavailable("bytes", R2_SOURCE, "Configured bucket", "Included allowance comparison is unavailable"),
+    r2ClassA: unavailable("requests", R2_SOURCE, "Account, month to date", "Request totals are not part of the bucket inventory"),
+    r2ClassB: unavailable("requests", R2_SOURCE, "Account, month to date", "Request totals are not part of the bucket inventory"),
+    r2Bandwidth: unavailable("bytes", R2_SOURCE, "Account, month to date", "Download totals are not part of the bucket inventory"),
+  }
+}
+
 export async function fetchR2Usage(): Promise<Record<string, TStorageMetric>> {
-  if (!process.env.CLOUDFLARE_R2_ANALYTICS_TOKEN || !process.env.R2_ACCOUNT_ID) throw new Error("R2 analytics credentials are not configured")
-  const now = new Date()
-  const startDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString()
-  const storageStart = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
-  const response = await fetch("https://api.cloudflare.com/client/v4/graphql", {
-    method: "POST", headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_R2_ANALYTICS_TOKEN}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ query: `query StorageUsage($accountTag: string!, $startDate: Time!, $endDate: Time!, $storageStart: Time!) {
-      viewer { accounts(filter: {accountTag: $accountTag}) {
-        storage: r2StorageAdaptiveGroups(limit: 10000, filter: {datetime_geq: $storageStart, datetime_leq: $endDate}, orderBy: [datetime_DESC]) {
-          max { payloadSize metadataSize objectCount } dimensions { bucketName datetime }
-        }
-        operations: r2OperationsAdaptiveGroups(limit: 10000, filter: {datetime_geq: $startDate, datetime_leq: $endDate}) {
-          sum { requests } dimensions { actionType }
-        }
-        bandwidth: r2BandwidthUsageAdaptiveGroups(limit: 1, filter: {datetime_geq: $startDate, datetime_lt: $endDate}) { sum { bytesDownload } }
-      }}
-    }`, variables: { accountTag: process.env.R2_ACCOUNT_ID, startDate, endDate: now.toISOString(), storageStart } }),
-    cache: "no-store", signal: AbortSignal.timeout(15000),
-  })
-  const analytics: { data?: { viewer?: { accounts?: TR2Analytics[] } }; errors?: { message: string }[] } = await response.json()
-  const account = analytics.data?.viewer?.accounts?.[0]
-  if (!response.ok || analytics.errors?.length || !account || !Array.isArray(account.storage) || !Array.isArray(account.operations) || !Array.isArray(account.bandwidth))
-    throw new Error("Cloudflare analytics are unavailable; check the restricted token and dataset access")
-  if (!process.env.R2_BUCKET) throw new Error("R2 application bucket is not configured")
-  return normalizeR2Usage(account, [process.env.R2_BUCKET], now)
+  if (activeStorageProvider() !== "r2") return unavailableR2Metrics()
+  const provider = storageProvider("r2") as { inventoryTotals?: () => Promise<{ bytes: number; objects: number }> }
+  if (typeof provider.inventoryTotals !== "function") return unavailableR2Metrics()
+  const totals = await provider.inventoryTotals()
+  return summarizeR2Inventory(totals.bytes, totals.objects, process.env.R2_ACCOUNT_STANDARD_ONLY === "true")
 }
 
 async function selectSupabaseUsage(): Promise<Record<string, TStorageMetric>> {
@@ -134,12 +88,12 @@ export async function selectStorageUsage(): Promise<TStorageUsage> {
   if (previous?.provider === provider && Date.now() - Date.parse(previous.refreshedAt) < USAGE_REFRESH_MS) return previous
   const metrics: Record<string, TStorageMetric> = {
     applicationLimit: unavailable("bytes", "Provider object inventory and reserved uploads", "Active application's files, including temporary uploads", `The shared ${r2Config.totalForAllUsersGB} GB upload limit is enforced before signing; usage is unavailable`),
-    r2Files: unavailable("bytes", "Cloudflare GraphQL", "Public application R2 bucket", "Analytics are unavailable"),
-    r2Objects: unavailable("objects", "Cloudflare GraphQL", "Public application R2 bucket", "Analytics are unavailable"),
-    r2Allowance: unavailable("bytes", "Cloudflare GraphQL", "Account", "Included allowance comparison is unavailable"),
-    r2ClassA: unavailable("requests", "Cloudflare GraphQL", "Account, month to date", "Analytics are unavailable"),
-    r2ClassB: unavailable("requests", "Cloudflare GraphQL", "Account, month to date", "Analytics are unavailable"),
-    r2Bandwidth: unavailable("bytes", "Cloudflare GraphQL", "Account, month to date", "Analytics are unavailable"),
+    r2Files: unavailable("bytes", R2_SOURCE, "Configured R2 bucket", "Bucket inventory is unavailable"),
+    r2Objects: unavailable("objects", R2_SOURCE, "Configured R2 bucket", "Bucket inventory is unavailable"),
+    r2Allowance: unavailable("bytes", R2_SOURCE, "Configured bucket", "Included allowance comparison is unavailable"),
+    r2ClassA: unavailable("requests", R2_SOURCE, "Account, month to date", "Request totals are not part of the bucket inventory"),
+    r2ClassB: unavailable("requests", R2_SOURCE, "Account, month to date", "Request totals are not part of the bucket inventory"),
+    r2Bandwidth: unavailable("bytes", R2_SOURCE, "Account, month to date", "Download totals are not part of the bucket inventory"),
     supabaseDatabase: unavailable("bytes", "Supabase restricted SQL function", "Whole shared database", "Apply the restricted storage usage function"),
     supabaseFiles: unavailable("bytes", "Supabase Storage metadata", "Application buckets", "Storage metadata is unavailable"),
     // eslint-disable-next-line local-rules/no-banned-words -- Exact Supabase billing metric name.
