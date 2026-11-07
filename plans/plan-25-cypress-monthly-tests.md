@@ -1,6 +1,6 @@
 # Plan 25 — Monthly Cypress checks against production services
 
-**Target:** `plans/plan-25-cypress-weekly-tests.md`
+**Target:** `plans/plan-25-cypress-monthly-tests.md`
 **Executor:** GPT-6-luna, xhigh reasoning
 **Branch:** `development`
 **Schedule:** 03:23 UTC on the 1st of each month
@@ -199,9 +199,22 @@ about 250 ms between actions without waiting for animations or disabled states t
 
 ## Required browser journeys
 
-Each spec below must use the production UI and real app endpoints. Keep the run id in unique test
+Each spec below must use the production UI and real site endpoints. Keep the run id in unique test
 values. Use `cy.wait(250)` or the rapid action helper only to create the requested user cadence; do
 not wait for an animation or request spinner before the next click.
+
+The six named groups use the specs in the table below, plus the checks added for the gaps:
+
+| Group | Specs |
+| --- | --- |
+| payments | `checkout-stripe.cy.ts`, `checkout-other.cy.ts`, `payments.cy.ts` |
+| support-chat | `support-chat.cy.ts` |
+| ai-requests | `ai-tools.cy.ts`, `ai-chat-memory.cy.ts`, `ai-requests.cy.ts` |
+| products-crud | `product-create.cy.ts`, `product-edit.cy.ts`, `product-delete.cy.ts`, `product-background.cy.ts`, `product-races.cy.ts`, `catalog-cart.cy.ts`, `products-crud.cy.ts` |
+| i18n | `i18n.cy.ts` |
+| responsiveness | `responsiveness.cy.ts` |
+
+`products-crud.cy.ts` checks the catalog form, the search page, and admin edit and delete search, including a name match, a description-only match, and a variant label. `payments.cy.ts` opens the canceled payment screen after a real cart add. Stripe TEST session creation stays in the checkout specs, so this file does not open a second session. `ai-requests.cy.ts` checks rejected AI input before a provider call. Successful OpenAI calls stay in `ai-tools.cy.ts` and `ai-chat-memory.cy.ts`.
 
 | Spec                                            | Real actions and required readback                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -211,7 +224,7 @@ not wait for an animation or request spinner before the next click.
 | `cypress/monthly/product-edit.cy.ts`            | Edit title, description, price, stock, variants, category, images, and personalization on a run-owned product. Confirm saved state after reload and reject cross-account edits.                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `cypress/monthly/product-delete.cy.ts`          | Cancel a delete, confirm a single delete, and delete selected run-owned products in bulk. Verify no unrelated row or Stripe TEST resource changes.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `cypress/monthly/catalog-cart.cy.ts`            | Add real products and variants, hit stock limits, try a sold-out variant, update quantities rapidly, reload, verify Supabase cart/totals, clear cancellation, and confirmed clear. Report cart/business-rule defects instead of changing server data to make the test pass.                                                                                                                                                                                                                                                                                                              |
-| `cypress/monthly/support.cy.ts`                 | Open a ticket, attach the real PNG, send customer and support replies from two browser sessions, mark messages seen, close/rate, and verify rows, event delivery, exact file deletion, and account isolation.                                                                                                                                                                                                                                                                                                                                                                            |
+| `cypress/monthly/support-chat.cy.ts`            | Open a ticket, attach the real PNG, send customer and support replies from two browser sessions, mark messages seen, close/rate, and verify rows, event delivery, exact file deletion, and account isolation.                                                                                                                                                                                                                                                                                                                                                                            |
 | `cypress/monthly/notifications.cy.ts`           | Use a run-owned out-of-stock product. Click replenishment three times 250 ms apart; expect one actual send and one counter update. Read its Resend id and delivery event through the production app.                                                                                                                                                                                                                                                                                                                                                                                     |
 | `cypress/monthly/pricing-categories.cy.ts`      | Create/rename/delete a unique category, verify its product count, and test run-account category-view increment/synchronization with stale and fresh updates. Include a real price research result.                                                                                                                                                                                                                                                                                                                                                                                       |
 | `cypress/monthly/auth-account.cy.ts`            | Test login, signup, recovery/reset, confirmation, language persistence, avatar upload, session expiry, authorization denial, and account separation with real Supabase/Auth calls.                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -295,8 +308,8 @@ open the deployed site and observe live changes; it cannot replace the Cypress A
 ## Workflow and reporting
 
 - `.github/workflows/cypress-monthly.yml` runs at 03:23 UTC on the 1st of each month. No push,
-  deployment, pull-request, manual, or external trigger. A second attempt of that scheduled job
-  skips the suite so paid actions are not repeated. Supabase and Redis containers start only when
+  deployment, or pull-request trigger. One typed `run-monthly-once` dispatch starts a single suite.
+  A second attempt skips the suite so paid actions are not repeated. Supabase and Redis containers start only when
   those settings are absent.
 - Check out `development`; compare the target production deployment SHA before any writes.
 - Generate the AST inventory, run read-only preflight, then run the production browser journeys only
@@ -338,7 +351,7 @@ open the deployed site and observe live changes; it cannot replace the Cypress A
 
 ## Current implementation status
 
-The monthly GitHub Actions workflow and 19 journey specs exist in the repository. They are a partial implementation, not
+The monthly GitHub Actions workflow and 24 journey specs exist in the repository. They are a partial implementation, not
 coverage completion: the latest source audit found 661 request/provider operations, 539 service
 requests, and 1,082 required network/provider async expressions, with zero unmapped rows and no passing runtime evidence yet
 for this worktree. The app-side AI memory and Resend readback routes, scoped

@@ -25,7 +25,7 @@ There is no OpenAI spending cap prerequisite. The suite runs its finite declared
 once, Cypress retries are disabled, and retries are limited by application code. The local provider
 action journal records operation, attempts, ids, and outcome; it does not estimate or cap dollars.
 
-The job has no push, PR, deployment, manual, or external trigger. It compares the checkout SHA
+The job has no push, PR, or deployment trigger. One typed run-monthly-once starts a single suite. It compares the checkout SHA
 to the production deployment, performs read-only preflight, runs the browser journeys, and keeps
 sanitized JSON, screenshots, and videos for 14 days. A second attempt of the same scheduled job skips
 the suite so provider actions are not repeated. When Supabase or Redis settings are absent,

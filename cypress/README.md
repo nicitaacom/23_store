@@ -34,7 +34,7 @@ installed on that machine.
 
 `pnpm e2e:weekly` targets `NEXT_PUBLIC_PRODUCTION_URL` and never switches to localhost based on
 `NODE_ENV`. The schedule is `.github/workflows/cypress-monthly.yml`; it runs at
-03:23 UTC on the 1st of each month with no push, PR, deployment, manual, or external trigger. It checks production SHA and
+03:23 UTC on the 1st of each month with no push, PR, or deployment trigger. One typed run-monthly-once starts a single suite. It checks production SHA and
 read-only service health before any browser writes. A configuration, deployment, mapping, or
 cleanup failure produces an incomplete/failed result and saved evidence.
 
