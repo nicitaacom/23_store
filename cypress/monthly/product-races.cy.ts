@@ -19,6 +19,7 @@ type TProductRow = {
   owner_id: string
   price: number
   on_stock: number
+  translations: Record<string, { title: string; description: string }>
 }
 
 const scenarioId = "product-races"

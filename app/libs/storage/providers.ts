@@ -104,7 +104,7 @@ export class SupabaseStorageProvider implements IStorageProvider {
     return this.signPreparedUpload(uploadPath)
   }
 
-  private async signPreparedUpload(uploadPath: string, created = false) {
+  private async signPreparedUpload(uploadPath: string, created = false): Promise<{ signedUrl: string; headers: Record<string, string>; formField: string }> {
     const { data: upload, error } = await supabaseAdmin.storage.from(SUPABASE_STAGING_BUCKET).createSignedUploadUrl(uploadPath)
     if (error && missingStorageResource(error) && !created) {
       await createPrivateUploadBucket()
