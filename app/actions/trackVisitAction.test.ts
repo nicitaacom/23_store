@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { trackVisitAction } from "./trackVisitAction"
 import { createDeviceId, decodeDeviceId, encodeDeviceId, isValidDeviceId } from "@/utils/deviceId"
 import { encryptDeviceId } from "@/utils/deviceIdCookie"
+import type { IUTMVisitMetadata } from "@/utils/utmVisitMetadata"
 
 // A throwaway fixture key, never the deployed one - do not copy it into .env.local
 process.env.DEVICE_ID_ENCRYPTION_KEY = "c1c47798479b34c3848fe8e89362e2e27bd2a3e6093db4b07799b6831241db45"
@@ -31,7 +32,7 @@ const actionState = vi.hoisted(() => ({
   existingVisit: null as { id: string } | null,
   visitReadError: null as { message: string } | null,
   dedupFilters: [] as { userId: string; since: string }[],
-  insertedVisits: [] as { userId: string; utmParams: Record<string, string | undefined>; pageUrl: string | null }[],
+  insertedVisits: [] as { userId: string; utmParams: Record<string, string | undefined>; metadata: IUTMVisitMetadata; pageUrl: string | null }[],
 }))
 
 vi.mock("next/headers", () => ({
@@ -85,10 +86,10 @@ vi.mock("@/actions/insertDBUTMVisitAction", () => ({
   insertDBUTMVisitAction: async (
     userId: string,
     utmParams: Record<string, string | undefined>,
-    _metadata: unknown,
+    metadata: IUTMVisitMetadata,
     pageUrl: string | null,
   ) => {
-    actionState.insertedVisits.push({ userId, utmParams, pageUrl })
+    actionState.insertedVisits.push({ userId, utmParams, metadata, pageUrl })
   },
 }))
 
@@ -546,6 +547,35 @@ describe("layer 4 — the fingerprint", () => {
 })
 
 describe("the utm_stats row", () => {
+  it("uses Cloudflare's Finnish visitor country when Vercel reports the US", async () => {
+    Object.assign(actionState.requestHeaders, {
+      "cf-ray": "fixture-HEL",
+      "cf-ipcountry": "FI",
+      "x-vercel-ip-country": "US",
+      "x-vercel-ip-city": "Ashburn",
+      "x-vercel-ip-country-region": "VA",
+    })
+    await trackVisitAction(encodeDeviceId(createDeviceId()), {}, "https://www.jokik.fi/", HELSINKI)
+
+    expect(actionState.insertedVisits[0].metadata).toMatchObject({
+      countryCode: "FI", country: "Finland", geoSource: "cloudflare", city: null, region: null,
+    })
+  })
+
+  it("uses Vercel geography when the request does not have Cloudflare proxy headers", async () => {
+    Object.assign(actionState.requestHeaders, { "x-vercel-ip-country": "FI", "x-vercel-ip-city": "Helsinki" })
+    await trackVisitAction(encodeDeviceId(createDeviceId()), {}, "https://www.jokik.fi/", HELSINKI)
+
+    expect(actionState.insertedVisits[0].metadata).toMatchObject({ countryCode: "FI", city: "Helsinki", geoSource: "vercel" })
+  })
+
+  it("leaves the country unset when Cloudflare reports an unknown visitor country", async () => {
+    Object.assign(actionState.requestHeaders, { "cf-ray": "fixture-HEL", "cf-ipcountry": "XX", "x-vercel-ip-country": "US" })
+    await trackVisitAction(encodeDeviceId(createDeviceId()), {}, "https://www.jokik.fi/", HELSINKI)
+
+    expect(actionState.insertedVisits[0].metadata).toMatchObject({ countryCode: null, geoSource: null })
+  })
+
   it("defaults to organic / direct when the URL had no utm params", async () => {
     await trackVisitAction(encodeDeviceId(createDeviceId()), {}, "http://localhost:3023/en", HELSINKI)
 

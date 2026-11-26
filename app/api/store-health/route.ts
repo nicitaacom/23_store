@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto"
 import { NextResponse } from "next/server"
 
 import { reportSupabaseOutage } from "@/libs/storeAlerts"
+import { readUTMVisitGeography } from "@/utils/utmVisitMetadata"
 
 export const dynamic = "force-dynamic"
 
@@ -14,6 +15,11 @@ function authorizeCheck(header: string | null) {
 
 export async function GET(request: Request) {
   if (!authorizeCheck(request.headers.get("authorization"))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+  if (new URL(request.url).searchParams.get("check") === "visitor-country") {
+    const { cloudflareCountryCode, vercelCountryCode, visitMetadata } = readUTMVisitGeography(request.headers)
+    return NextResponse.json({ cloudflareCountryCode, vercelCountryCode, selectedCountryCode: visitMetadata.countryCode, source: visitMetadata.geoSource })
+  }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY

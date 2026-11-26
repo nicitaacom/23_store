@@ -6,7 +6,7 @@ import { TTrackVisitResult } from "@/ts/types/TTrackVisitResult"
 import { createDeviceId, decodeDeviceId, encodeDeviceId, isValidDeviceId } from "@/utils/deviceId"
 import { decryptDeviceId, DEVICE_ID_COOKIE_NAME, encryptDeviceId } from "@/utils/deviceIdCookie"
 import { getCookie, setCookie } from "@/utils/helpersSSR"
-import { getCountryNameFromCode, IUTMVisitMetadata } from "@/utils/utmVisitMetadata"
+import { readUTMVisitGeography } from "@/utils/utmVisitMetadata"
 import {
   getRedisDeviceIdByFingerprint,
   getRedisDeviceIdByIp,
@@ -50,17 +50,8 @@ function extractUTMParams(searchParams: { [key: string]: string | undefined } = 
   }
 }
 
-async function getVisitMetadata(): Promise<IUTMVisitMetadata> {
-  const requestHeaders = await headers()
-  const countryCode = requestHeaders.get("x-vercel-ip-country") || requestHeaders.get("cf-ipcountry")
-
-  return {
-    userAgent: requestHeaders.get("user-agent"),
-    countryCode,
-    country: getCountryNameFromCode(countryCode),
-    region: requestHeaders.get("x-vercel-ip-country-region"),
-    city: requestHeaders.get("x-vercel-ip-city"),
-  }
+async function getVisitMetadata() {
+  return readUTMVisitGeography(await headers()).visitMetadata
 }
 
 /** The signed-in account, read from the verified session - never a value the browser sent. */

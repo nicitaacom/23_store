@@ -81,7 +81,7 @@ disappearing from the address bar a moment after the page appears.
 ### Types
 
 - [TTrackVisitResult](../ts/types/TTrackVisitResult.ts) — `{ needsFingerprint: true } | { storedDeviceId: string }`
-- [IUTMVisitMetadata](../utils/utmVisitMetadata.ts) — `{ userAgent, countryCode, country, region, city }`
+- [IUTMVisitMetadata](../utils/utmVisitMetadata.ts) — `{ userAgent, countryCode, country, region, city, geoSource }`
 
 ### What lands in which column
 
@@ -97,8 +97,15 @@ disappearing from the address bar a moment after the page appears.
 | —              | `user_agent`       | JSON of `IUTMVisitMetadata`, not just the UA string          |
 | —              | `country_code` / `country` / `region` / `city` | from the edge headers below |
 
-Geo comes from headers the platform adds, so locally they are all absent and the columns stay NULL:
-`x-vercel-ip-country` (or `cf-ipcountry`), `x-vercel-ip-country-region`, `x-vercel-ip-city`.
+Requests with `cf-ray` and `cf-ipcountry` use Cloudflare's visitor country. The app uses Cloudflare city
+and region when present. Requests without a Cloudflare country header use the Vercel geography headers.
+An unknown Cloudflare country leaves geography unset. The JSON includes `geoSource` for each new visit.
+
+To compare the signals after deployment, request `/api/store-health?check=visitor-country` with the
+existing `CRON_SECRET` as bearer authorization, from the network you want to test. The response shows
+both provider country codes and the one selected by `trackVisitAction`. It works while Supabase is
+restricted. Compare against `loc` on `/cdn-cgi/trace` from the same network. Use a distinct UTM campaign
+from a fresh device or visitor day to check what gets stored once Supabase is available again.
 
 **`url` is not decoration.** The dashboard scopes rows to this project with
 `url ilike %://localhost:3023/%` and the three live hosts (`PROJECT_URL_FRAGMENTS` in

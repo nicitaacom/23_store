@@ -49,7 +49,7 @@ object to a client component.
 | **visit**            | one row in `utm_stats`. Deduped to max 1 per `user_id` per visitor day.                |
 | **UTM params**       | `utm_source`, `utm_medium`, `utm_campaign` read from the URL query string.             |
 | **organic / direct** | fallback values when the URL has no UTM params (`source=organic`, `medium=direct`).    |
-| **visit metadata**   | geo + user-agent JSON: `{ userAgent, countryCode, country, region, city }`.            |
+| **visit metadata**   | geo + user-agent JSON: `{ userAgent, countryCode, country, region, city, geoSource }`. |
 | **aggregated stats** | `IUTMAggregatedStats` — the rolled-up object the dashboard renders (counts, not rows). |
 | **chartData**        | `{ date, visits }[]` — visits grouped by `YYYY-MM-DD` for the Daily Visits chart.      |
 | **period**           | the year + month selected in the date picker (`month = 0` means "Entire Year").        |
@@ -246,8 +246,8 @@ UTMTracker (useEffect)
                     syncDeviceIdLayers → writes it back to every layer
                     extractUTMParams → {source:"ig"}
                     getVisitMetadata → reads edge headers
-                       x-vercel-ip-country = FI
-                       x-vercel-ip-city    = Helsinki
+                       cf-ipcountry = FI when Cloudflare provides it
+                       cf-ipcity    = Helsinki when location headers are enabled
                     dedupe check: any row today? ── no ─┐
                                                         ▼
                     insertDBUTMVisitAction ───────────────▶ INSERT utm_stats
@@ -258,6 +258,11 @@ UTMTracker (useEffect)
   ▼
 history.replaceState → strips ?utm_source=ig from the address bar (clean URL)
 ```
+
+The Supabase API log country describes the connection to Supabase, which can come from the Vercel
+server in the US. The dashboard uses the country saved from the visitor's request to the storefront.
+New `user_agent` JSON records which provider supplied that country in `geoSource`. Older rows only
+retained the chosen country, so verifying their original visitor country requires separate edge logs.
 
 ### B. Viewing a period in the dashboard
 

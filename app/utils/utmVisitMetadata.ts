@@ -4,6 +4,7 @@ export interface IUTMVisitMetadata {
   country: string | null
   region: string | null
   city: string | null
+  geoSource?: "cloudflare" | "vercel" | null
 }
 
 function normalizeString(value: unknown): string | null {
@@ -37,6 +38,30 @@ export function getCountryNameFromCode(countryCode: string | null): string | nul
   }
 }
 
+function readCountryCode(value: string | null): string | null {
+  const code = value?.trim().toUpperCase()
+  return code && /^[A-Z]{2}$/.test(code) && code !== "XX" ? code : null
+}
+
+export function readUTMVisitGeography(requestHeaders: Headers) {
+  const cloudflareCountryHeader = requestHeaders.has("cf-ray") ? requestHeaders.get("cf-ipcountry") : null
+  const cloudflareCountryCode = readCountryCode(cloudflareCountryHeader)
+  const vercelCountryCode = readCountryCode(requestHeaders.get("x-vercel-ip-country"))
+  const countryCode = cloudflareCountryHeader ? cloudflareCountryCode : vercelCountryCode
+  const geoSource = countryCode ? cloudflareCountryHeader ? "cloudflare" : "vercel" : null
+  const visitMetadata: IUTMVisitMetadata = {
+    userAgent: requestHeaders.get("user-agent"),
+    countryCode,
+    country: getCountryNameFromCode(countryCode),
+    region: geoSource === "cloudflare" ? requestHeaders.get("cf-region") :
+      geoSource === "vercel" ? requestHeaders.get("x-vercel-ip-country-region") : null,
+    city: geoSource === "cloudflare" ? requestHeaders.get("cf-ipcity") :
+      geoSource === "vercel" ? requestHeaders.get("x-vercel-ip-city") : null,
+    geoSource,
+  }
+  return { cloudflareCountryCode, vercelCountryCode, visitMetadata }
+}
+
 export function serializeUTMVisitMetadata(metadata: IUTMVisitMetadata): string {
   return JSON.stringify({
     userAgent: normalizeString(metadata.userAgent),
@@ -44,6 +69,7 @@ export function serializeUTMVisitMetadata(metadata: IUTMVisitMetadata): string {
     country: normalizeReadableString(metadata.country),
     region: normalizeReadableString(metadata.region),
     city: normalizeReadableString(metadata.city),
+    geoSource: metadata.geoSource ?? null,
   })
 }
 
@@ -68,6 +94,7 @@ export function parseUTMVisitMetadata(value: string | null): IUTMVisitMetadata {
       country: normalizeReadableString(parsed.country) || getCountryNameFromCode(parsedCountryCode),
       region: normalizeReadableString(parsed.region),
       city: normalizeReadableString(parsed.city),
+      geoSource: parsed.geoSource === "cloudflare" || parsed.geoSource === "vercel" ? parsed.geoSource : null,
     }
   } catch {
     return {
