@@ -1,9 +1,11 @@
 import { create } from "zustand"
 
 import { TMessageDB } from "@/ts/support/TMessageDB"
+import { getAnonymousId } from "@/functions/getAnonymousId"
 import { getUserId } from "@/utils/getUserId"
 import selectTicketId from "@/actions/selectTicketId"
 import { supportSDK } from "@/sdk/SupportSDK/SupportSDK"
+import useUser from "@/store/user/useUser"
 
 type MessagesStore = {
   messages: TMessageDB[]
@@ -50,11 +52,13 @@ export const useMessages = create<MessagesStore>()((set, get) => ({
     }
 
     const state = get()
+    const hasPreviousIdentity = Boolean(useUser.getState().user?.id || getAnonymousId())
     const userId = getUserId()
-    // get userId based on authenticaed user on not
-    if (!userId) {
+    if (!hasPreviousIdentity) {
       set(() => ({
+        messages: [],
         unseenMessagesNumber: 0,
+        ticketId: null,
       }))
       return
     }

@@ -59,10 +59,15 @@ setTimeout(() => {
     async () => {
       const { setHasCartStoreInitialized } = useLoading.getState()
       setHasCartStoreInitialized(false) // show InitialPageLoadingSkeleton and wait until data will set in products state
-      await useCartStore.getState().initialize()
-      await useMessages.getState().initialize() // init messages store as well
-      // init other stores if needed
-      setHasCartStoreInitialized(true)
+      try {
+        await useCartStore.getState().initialize()
+        await useMessages.getState().initialize() // init messages store as well
+        // init other stores if needed
+      } catch {
+        console.error("[store] Cart or support initialization failed")
+      } finally {
+        setHasCartStoreInitialized(true)
+      }
     },
     { fireImmediately: true },
   )
