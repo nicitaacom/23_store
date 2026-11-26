@@ -191,6 +191,8 @@ each returned HTTP 200 and opened `checkout.stripe.com`. Stripe accepted PayPal 
 
 Both hosted checkout sessions collect a Finnish shipping address. The optional Yandex address
 search also targets Finland. Shoppers can enter their address directly in Stripe Checkout.
+The PayPal route starts the Checkout Session directly. Stripe collects the buyer's email in Checkout
+and includes it in the completed session. Starting checkout does not create a separate Customer.
 
 ## 7. PayPal webhook notifications
 

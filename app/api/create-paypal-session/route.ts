@@ -129,16 +129,15 @@ export async function POST(request: Request) {
     }
 
     const lineItems = buildPayPalLineItems(cart, productRows as TPayPalProductRow[], designs)
-    const customer = await stripe.customers.create({ email: typeof body.email === "string" ? body.email : undefined })
     const checkoutSession = await stripe.checkout.sessions.create({
       payment_method_types: ["paypal"],
       mode: "payment",
       ...(getAuthenticatedPaymentUserIdResp ? { client_reference_id: getAuthenticatedPaymentUserIdResp } : {}),
-      customer: customer.id,
+      customer_email: typeof body.email === "string" ? body.email.trim() || undefined : undefined,
       line_items: lineItems,
       shipping_address_collection: { allowed_countries: ["FI"] },
       success_url: `${getURL()}payment/?status=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${getURL()}/payment/?status=canceled`,
+      cancel_url: `${getURL()}payment/?status=canceled`,
     })
 
     if (!checkoutSession.url) {
@@ -147,7 +146,6 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json({ url: checkoutSession.url } satisfies API.ProductsCreatePayPalSessionResponse)
     response.headers.set("x-stripe-request-id", checkoutSession.lastResponse.requestId)
-    response.headers.set("x-stripe-customer-request-id", customer.lastResponse.requestId)
     response.headers.set("x-application-request-id", crypto.randomUUID())
     return response
   } catch (error) {

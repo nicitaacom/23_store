@@ -34,7 +34,6 @@ describe("monthly other checkout providers", function () {
   let accounts: TRunAccounts
   let sessionId = ""
   let stripeRequestId = ""
-  let stripeCustomerRequestId = ""
   let product: TProductFixture | null = null
 
   before(() => {
@@ -46,7 +45,6 @@ describe("monthly other checkout providers", function () {
   beforeEach(() => {
     sessionId = ""
     stripeRequestId = ""
-    stripeCustomerRequestId = ""
     product = null
     cy.visit("/")
   })
@@ -146,10 +144,9 @@ describe("monthly other checkout providers", function () {
         sessionId = sessionMatch[1]
         const applicationRequestId = interception.response.headers["x-application-request-id"]
         stripeRequestId = String(interception.response.headers["x-stripe-request-id"] ?? "")
-        stripeCustomerRequestId = String(interception.response.headers["x-stripe-customer-request-id"] ?? "")
         expect(applicationRequestId.length, "the app exposes a correlation id for account and product reads").to.be.greaterThan(0)
         expect(stripeRequestId.length, "Stripe exposes the real Checkout creation request id").to.be.greaterThan(0)
-        expect(stripeCustomerRequestId.length, "Stripe exposes the real test customer creation request id").to.be.greaterThan(0)
+        expect(interception.response.headers["x-stripe-customer-request-id"]).to.equal(undefined)
         checkoutRequestId = String(applicationRequestId)
         checkoutLineName = createdProduct.translations.fi.title
         return recordResource("stripe_checkout_session", sessionId, accounts.owner.id, {
@@ -184,7 +181,7 @@ describe("monthly other checkout providers", function () {
           clientReferenceId: accounts.owner.id,
         })
         expect(stripeReadback.paymentMethodTypes).to.include("paypal")
-        expect(stripeReadback.customerId, "Stripe TEST session identifies the exact disposable customer").to.be.a("string")
+        expect(stripeReadback.customerId, "an open session has no pre-created Stripe customer").to.equal(null)
         expect(stripeReadback.verificationReference).to.include("livemode-false")
         return recordResource("stripe_product", stripeReadback.lineItem.productId, accounts.owner.id, {
           provider: "stripe",
@@ -229,17 +226,6 @@ describe("monthly other checkout providers", function () {
           sourcePath: "app/api/create-paypal-session/route.ts",
           functionName: "POST",
           callName: "create",
-          fingerprint: 'stripe.customers.create({ email: typeof body.email === "string" ? body.email : undefined })',
-          requestId: String(stripeCustomerRequestId),
-          scenarioId: "checkout-other",
-          resourceId: accounts.owner.id,
-          providerId: stripeReadback.customerId ?? undefined,
-          verificationReference: `stripe-test-customer:${stripeReadback.customerId}:email:${accounts.owner.email}:mode-test`,
-        })).then(() => recordVerifiedServiceOperation({
-          sourcePath: "app/api/create-paypal-session/route.ts",
-          functionName: "POST",
-          callName: "create",
-          fingerprint: 'stripe.checkout.sessions.create({ payment_method_types: ["paypal"], mode: "payment", ...(getAuthenticatedPaymentUserIdResp ? { client_reference_id: getAuthenticatedPaymentUserIdResp } : {}), customer: customer.id, line_items: lineItems, success_url: `${getURL()}payment/?status=success&session_id={CHECKOUT_SESSION_ID}`, cancel_url: `${getURL()}/payment/?status=canceled`, })',
           requestId: String(stripeRequestId),
           scenarioId: "checkout-other",
           resourceId: accounts.owner.id,
