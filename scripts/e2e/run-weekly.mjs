@@ -138,6 +138,10 @@ async function runWeekly() {
     ] }, null, 2)}\n`)
     let summary = await createE2EReport()
     console.log(JSON.stringify({ status: summary.status, blockers: preflight.blockers }, null, 2))
+    if (process.env.GITHUB_STEP_SUMMARY) {
+      await appendFile(process.env.GITHUB_STEP_SUMMARY,
+        `### Cypress preflight stopped the run\n\n${preflight.blockers.map(blocker => `- ${blocker.replace(/[\r\n]+/g, " ")}`).join("\n")}\n`)
+    }
     process.exitCode = 2
     return
   }

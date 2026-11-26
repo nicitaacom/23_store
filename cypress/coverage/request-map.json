@@ -31,6 +31,18 @@
   "routes": {},
   "asyncRules": [
     {
+      "sourcePattern": "^app/\\[locale\\]/\\(site\\)/search/page\\.tsx$",
+      "expressionPattern": "^selectCatalogProducts\\(",
+      "classification": "request-or-provider",
+      "classificationReason": "Reads the shared catalog response before applying the search filter."
+    },
+    {
+      "sourcePattern": "^app/store/ui/useToast\\.ts$",
+      "expressionPattern": "crypto\\.subtle\\.digest",
+      "classification": "local-or-framework-work",
+      "classificationReason": "Computes a fingerprint in the browser before sending the operational event."
+    },
+    {
       "sourcePattern": "^app/api/",
       "expressionPattern": ".*",
       "classification": "request-or-provider",
@@ -158,6 +170,13 @@
     }
   ],
   "routePatterns": [
+    {
+      "pattern": "^/api/store-(health|errors)$",
+      "scenarioId": "store-health",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Check catalog health through the separate workflow and verify notification limits with the production bot disconnected."
+    },
     {
       "pattern": "^/api/address/suggestions$",
       "method": "GET",
@@ -370,6 +389,24 @@
     }
   ],
   "sourceRules": [
+    {
+      "pattern": "^app/(api/store-(health|errors)/route|libs/storeAlerts|store/ui/useToast)\\.ts$",
+      "scenarioId": "store-health",
+      "classification": "request-or-provider",
+      "classificationReason": "Checks the catalog or records notification counts and uses Telegram for operational alerts.",
+      "required": false,
+      "disposition": "not_exercised",
+      "expectation": "Verify the health endpoint from its own workflow and check alert delivery controls with a test destination.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
+    {
+      "pattern": "^app/libs/publicCatalog\\.ts$",
+      "scenarioId": "catalog-cart",
+      "required": true,
+      "disposition": "not_exercised",
+      "expectation": "Read public catalog data through repeated catalog, search and product requests.",
+      "dependencyReviewStatus": "scenario_linked"
+    },
     {
       "pattern": "^app/libs/yandex/addressProvider\\.ts$",
       "scenarioId": "address-geocoding",

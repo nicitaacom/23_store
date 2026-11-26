@@ -307,6 +307,18 @@ open the deployed site and observe live changes; it cannot replace the Cypress A
 
 ## Workflow and reporting
 
+The Actions job summary lists the preflight blockers, including the Supabase Auth and catalog
+HTTP statuses. A Supabase check that returns HTTP 402 reports a usage or billing restriction.
+
+Store health runs separately from the monthly browser suite. Add the same `CRON_SECRET` in Vercel
+Production and GitHub Actions, and point `NEXT_PUBLIC_PRODUCTION_URL` at the canonical storefront
+hostname so the authenticated request follows no redirects. The Store health workflow makes one
+catalog read every 15 minutes, even when nobody visits the store. The Vercel Production deployment
+uses its existing `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, and Upstash settings. A failing health
+check reports the provider status in GitHub and sends a Telegram alert once per issue per Helsinki day.
+Storefront errors send only a hash of the notification title. The 11th matching error in a Helsinki
+day alerts once for that title, with at most three storefront-error alerts per day.
+
 - `.github/workflows/cypress-monthly.yml` runs at 03:23 UTC on the 1st of each month. No push,
   deployment, or pull-request trigger. One typed `run-monthly-once` dispatch starts a single suite.
   A second attempt skips the suite so paid actions are not repeated. Supabase and Redis containers start only when

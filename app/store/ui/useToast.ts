@@ -16,11 +16,21 @@ message.show('success','custom title','custom subTitle',3000) //disashow after 3
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
+async function trackErrorToast(title?: string) {
+  if (process.env.NODE_ENV !== "production" || typeof window === "undefined" || !window.crypto?.subtle) return
+  const normalizedTitle = title?.trim().toLowerCase() || "untitled error"
+  const digest = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(normalizedTitle))
+  const fingerprint = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("")
+  await fetch("/api/store-errors", { method: "POST", body: fingerprint, keepalive: true })
+}
+
 export const useToast = create<IToast>(set => ({
   isOpen: false,
   variant: "success",
 
   show: (status, title, subTitle, timeoutInMs = 8000) => {
+    if (status === "error") void trackErrorToast(title).catch(() => {})
+
     if (toastTimer) {
       clearTimeout(toastTimer)
       toastTimer = null

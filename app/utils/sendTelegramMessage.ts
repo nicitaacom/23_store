@@ -13,7 +13,7 @@ export type TTelegramSendResult = {
   data: unknown
 }
 
-export async function sendTelegramMessage(message: string): Promise<TTelegramSendResult> {
+export async function sendTelegramMessage(message: string, signal?: AbortSignal): Promise<TTelegramSendResult> {
   const botToken = process.env.TELEGRAM_BOT_TOKEN
   const chatId = process.env.TELEGRAM_CHAT_ID
   if (!botToken) return { ok: false, description: "No telegram token", status: 500, statusText: "", data: null }
@@ -21,6 +21,7 @@ export async function sendTelegramMessage(message: string): Promise<TTelegramSen
 
   const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: "POST",
+    signal,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ chat_id: chatId, parse_mode: "html", text: message }),
   })

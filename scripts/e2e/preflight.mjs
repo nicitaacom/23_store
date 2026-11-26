@@ -322,7 +322,11 @@ export async function buildPreflight(environment = process.env) {
     if (productionSiteCheck.status !== "passed") blockers.push("Production website health check did not pass")
     if (!productionSha) blockers.push("Production deployment commit could not be resolved")
     else if (productionSha !== currentCommit) blockers.push(`Runner source ${currentCommit} differs from production ${productionSha}`)
-    if (supabaseCheck.status !== "passed") blockers.push("Supabase Auth and product-table read checks did not pass")
+    if (supabaseCheck.status !== "passed") {
+      const supabaseStatuses = [supabaseCheck.authStatus, supabaseCheck.productsStatus]
+      const reason = supabaseStatuses.includes(402) ? "Supabase blocked requests under a usage or billing restriction" : "Supabase read checks failed"
+      blockers.push(`${reason}. Auth HTTP ${supabaseCheck.authStatus ?? "unavailable"}, products HTTP ${supabaseCheck.productsStatus ?? "unavailable"}.`)
+    }
     if (e2eJournalCheck.status !== "passed") blockers.push(e2eJournalCheck.detail)
     if (stripeCheck.status !== "passed") blockers.push("Stripe TEST runner access did not pass")
     if (stripeCheck.keyMode !== "test" && stripeCheck.chargesEnabled === false) blockers.push("The Stripe account has charges disabled")
