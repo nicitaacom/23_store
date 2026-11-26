@@ -20,7 +20,7 @@ declare namespace API {
       city: string
       region: string
       postalCode: string
-      countryCode: "DE"
+      countryCode: "FI"
     }
     coordinates: { longitude: number; latitude: number }
   }

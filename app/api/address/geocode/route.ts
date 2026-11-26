@@ -41,7 +41,7 @@ function getGeocodedAddress(data: unknown): API.YandexAddressGeocodeResponse["ad
   const region = textValue(findComponent(components, "province", "area", "region"))
   const postalCode = textValue(providerAddress.postal_code) || textValue(findComponent(components, "postal_code"))
   const rawCountryCode = textValue(providerAddress.country_code).toUpperCase()
-  const countryCode = rawCountryCode === "DEU" || rawCountryCode === "DE" ? "DE" : ""
+  const countryCode = rawCountryCode === "FIN" || rawCountryCode === "FI" ? "FI" : ""
 
   if (!formattedAddress || !line1 || !countryCode) return null
   return { formattedAddress, line1, city, region, postalCode, countryCode }

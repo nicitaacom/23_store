@@ -136,6 +136,7 @@ export async function POST(request: Request) {
       ...(getAuthenticatedPaymentUserIdResp ? { client_reference_id: getAuthenticatedPaymentUserIdResp } : {}),
       customer: customer.id,
       line_items: lineItems,
+      shipping_address_collection: { allowed_countries: ["FI"] },
       success_url: `${getURL()}payment/?status=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${getURL()}/payment/?status=canceled`,
     })

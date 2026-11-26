@@ -65,7 +65,7 @@ export async function GET(request: Request) {
       lang: "en",
       results: "7",
       types: "house,street",
-      countries: "de",
+      countries: "fi",
       print_address: "1",
       attrs: "uri",
     }, data => getSuggestions(data) !== null)

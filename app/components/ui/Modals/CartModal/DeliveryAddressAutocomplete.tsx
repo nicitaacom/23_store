@@ -148,7 +148,7 @@ export function DeliveryAddressAutocomplete({
       if (sequence !== sequenceRef.current) return
       if (
         body.provider !== "yandex-geocoder" ||
-        body.address?.countryCode !== "DE" ||
+        body.address?.countryCode !== "FI" ||
         !Number.isFinite(body.coordinates?.longitude) ||
         !Number.isFinite(body.coordinates?.latitude)
       ) {

@@ -201,7 +201,7 @@ describe("weekly real Yandex address autocomplete and Stripe TEST checkout", fun
           return cy.visit("/en/?modal=CartModal")
         })
         .then(() => cy.get('[data-cy="cart-total"]', { timeout: 30000 }).should("be.visible"))
-        .then(() => cy.get('[data-cy="delivery-address-input"]').type("Berlin", { delay: 250, timeout: 30000 }))
+        .then(() => cy.get('[data-cy="delivery-address-input"]').type("Helsinki", { delay: 250, timeout: 30000 }))
         .then(() => cy.wait<Interception>("@yandexAddressSuggestions", { timeout: 30000 }))
         .then(interception => {
           const response = interception.response?.body as TYandexSuggestions
@@ -224,7 +224,7 @@ describe("weekly real Yandex address autocomplete and Stripe TEST checkout", fun
               verificationReference: `yandex:geosuggest:${requestId}:actual-result-count:${response.suggestions.length}`,
             }))
         })
-        .then(() => cy.get('[data-cy="delivery-address-input"]').clear().type("Berlin Alexanderplatz 1", { delay: 250, timeout: 30000 }))
+        .then(() => cy.get('[data-cy="delivery-address-input"]').clear().type("Helsinki Mannerheimintie 30", { delay: 250, timeout: 30000 }))
         .then(() => cy.wait<Interception>("@yandexAddressSuggestions", { timeout: 30000 }))
         .then(interception => {
           const response = interception.response?.body as TYandexSuggestions
@@ -256,7 +256,7 @@ describe("weekly real Yandex address autocomplete and Stripe TEST checkout", fun
           expect(interception.response?.statusCode).to.equal(200)
           expect(response.provider).to.equal("yandex-geocoder")
           expect(response.address.formattedAddress.trim().length).to.be.greaterThan(0)
-          expect(response.address.countryCode).to.equal("DE")
+          expect(response.address.countryCode).to.equal("FI")
           expect(response.coordinates.longitude).to.be.within(-180, 180)
           expect(response.coordinates.latitude).to.be.within(-90, 90)
           expect(response.providerAttempts).to.be.within(1, 2)

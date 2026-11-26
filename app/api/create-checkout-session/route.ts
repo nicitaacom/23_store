@@ -45,7 +45,7 @@ function getDeliveryAddressMetadata(deliveryAddress: API.ProductsCheckoutDeliver
   const { coordinates, countryCode, formattedAddress, providerUri } = deliveryAddress
   const isValidAddress =
     typeof formattedAddress === "string" && formattedAddress.trim().length > 0 && formattedAddress.length <= 500 &&
-    countryCode === "DE" &&
+    countryCode === "FI" &&
     typeof providerUri === "string" && providerUri.startsWith("ymapsbm1://geo?data=") && providerUri.length <= 2_048 &&
     Number.isFinite(coordinates?.latitude) && coordinates.latitude >= -90 && coordinates.latitude <= 90 &&
     Number.isFinite(coordinates?.longitude) && coordinates.longitude >= -180 && coordinates.longitude <= 180
@@ -228,7 +228,7 @@ export async function POST(request: Request) {
       success_url: `${getURL()}payment/?status=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${getURL()}payment/?status=canceled`,
       shipping_address_collection: {
-        allowed_countries: ["DE"],
+        allowed_countries: ["FI"],
       },
       ...(deliveryAddressMetadata ? { metadata: deliveryAddressMetadata } : {}),
     })

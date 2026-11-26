@@ -189,6 +189,9 @@ Guest checkout sends `email: null`; the routes convert that absence to `undefine
 Stripe. On 2026-08-03, both buttons were tested from the cart with a $1.37 item: Stripe and PayPal
 each returned HTTP 200 and opened `checkout.stripe.com`. Stripe accepted PayPal for this account.
 
+Both hosted checkout sessions collect a Finnish shipping address. The optional Yandex address
+search also targets Finland. Shoppers can enter their address directly in Stripe Checkout.
+
 ## 7. PayPal webhook notifications
 
 PayPal sends the configured checkout events to `POST /api/webhooks/paypal`. The route:
