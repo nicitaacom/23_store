@@ -11,7 +11,7 @@ import { AreYouSureClearCartModal } from "@/components/ui/Modals/AreYouSureClear
 import { AreYouSureDeleteProductModal } from "@/components/ui/Modals/AreYouSureDeleteProductModal"
 import { AreYouSureMarkTicketAsCompletedSupportModal } from "@/components/ui/Modals/AreYouSureMarkTicketAsCompletedSupportModal"
 import { FileImagePreview, GlobalImagePreviewPortal } from "@/components/GlobalImagePreviewPortal"
-import { PortalWrapper } from "@/components/PortalWrapper"
+import { BodyPortal } from "@/components/BodyPortal"
 
 const previewFile = new File(["storybook"], "preview.png", { type: "image/png" })
 
@@ -83,13 +83,13 @@ export const PastedImageThumbnail: Story = {
 
 export const PortalDestination: Story = {
   render: () => (
-    <PortalWrapper>
+    <BodyPortal>
       <p className="fixed bottom-4 right-4 rounded border border-border-color bg-foreground p-3 text-title">
-        This paragraph is rendered through PortalWrapper into document.body.
+        This paragraph is rendered through BodyPortal into document.body.
       </p>
-    </PortalWrapper>
+    </BodyPortal>
   ),
   play: async () => {
-    await waitFor(() => expect(document.body.textContent).toContain("rendered through PortalWrapper"))
+    await waitFor(() => expect(document.body.textContent).toContain("rendered through BodyPortal"))
   },
 }

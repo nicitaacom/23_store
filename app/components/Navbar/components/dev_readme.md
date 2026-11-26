@@ -14,7 +14,7 @@ That gives me:
 
 ## Files in this folder
 
-### `NavbarWrapper.tsx`
+### `NavbarFrame.tsx`
 
 Top-level wrapper for navbar content.
 

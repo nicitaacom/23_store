@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { IoClose } from "react-icons/io5"
 
 import { OrganicCanvasBackground } from "./OrganicCanvasBackground"
-import { PortalWrapper } from "./PortalWrapper"
+import { BodyPortal } from "./BodyPortal"
 import { useGlobalImagePreview } from "@/store/ui/useGlobalImagePreview"
 import { useScopedI18n } from "@/locales/client"
 
@@ -61,7 +61,7 @@ export function FileImagePreview({
   return (
     <AnimatePresence>
       {image && imageUrl && isFullscreen && isShowImage && (
-        <PortalWrapper>
+        <BodyPortal>
           <motion.div
             className="fixed inset-0 z-[2100] flex items-center justify-center backdrop-blur-[10px]"
             initial={{ opacity: 0 }}
@@ -107,7 +107,7 @@ export function FileImagePreview({
               </div>
             </OrganicCanvasBackground>
           </motion.div>
-        </PortalWrapper>
+        </BodyPortal>
       )}
     </AnimatePresence>
   )

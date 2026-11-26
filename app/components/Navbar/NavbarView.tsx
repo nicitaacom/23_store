@@ -3,7 +3,7 @@ import type { User } from "@supabase/supabase-js"
 import { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 import { AvatarDropdown, CartIcon, HamburgerMenu, Logo, MobileSearchButton, OpenAuthModalButton } from "./components"
 import { ContactButton } from "./components/ContactButton"
-import { NavbarWrapper } from "./components/NavbarWrapper"
+import { NavbarFrame } from "./components/NavbarFrame"
 import { DarkModeRadioButton } from "@/components"
 import { LanguageDropdown } from "@/components/LanguageDropdown"
 
@@ -19,7 +19,7 @@ interface NavbarViewProps {
 // http://localhost:6006/?path=/story/navigation-navbar--anonymous
 export function NavbarView({ avatarUrl, cartQuantity, darkModeLabel, locale, roles, user }: NavbarViewProps) {
   return (
-    <NavbarWrapper>
+    <NavbarFrame>
       <div className="flex flex-row items-center gap-x-4">
         <HamburgerMenu />
         <Logo />
@@ -32,6 +32,6 @@ export function NavbarView({ avatarUrl, cartQuantity, darkModeLabel, locale, rol
         <ContactButton />
         {user ? <AvatarDropdown roles={roles} avatarUrlServer={avatarUrl} /> : <OpenAuthModalButton />}
       </div>
-    </NavbarWrapper>
+    </NavbarFrame>
   )
 }

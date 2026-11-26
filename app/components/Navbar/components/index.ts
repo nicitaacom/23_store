@@ -5,7 +5,7 @@ import { HamburgerMenu } from "./HamburgerMenu"
 import { Logo } from "./Logo"
 import { LogoutDropdownItem } from "./LogoutDropdownItem"
 import { MobileSearchButton } from "./MobileSearchButton"
-import { NavbarWrapper } from "./NavbarWrapper"
+import { NavbarFrame } from "./NavbarFrame"
 import { OpenAuthModalButton } from "./OpenAuthModalButton"
 import { CtrlKBadge } from "./CtrlKBadge"
 
@@ -20,6 +20,6 @@ export {
   Logo,
   MobileSearchButton,
   LogoutDropdownItem,
-  NavbarWrapper,
+  NavbarFrame,
   OpenAuthModalButton,
 }

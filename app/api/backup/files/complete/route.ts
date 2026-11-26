@@ -7,7 +7,7 @@ export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
-// Four files per request keep verification and provider-side copies bounded independently of archive size.
+// Four files per request keep verification and provider-side copies bounded independently of import size.
 export async function POST(request: NextRequest) {
   try {
     checkStorageOrigin(request)

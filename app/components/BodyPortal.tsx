@@ -5,7 +5,7 @@ import { createPortal } from "react-dom"
 import { useHasMounted } from "@/hooks/useHasMounted"
 
 // http://localhost:6006/?path=/story/ui-overlays-confirmations--clear-cart
-export function PortalWrapper({ children }: { children: ReactNode }) {
+export function BodyPortal({ children }: { children: ReactNode }) {
   const mounted = useHasMounted()
 
   return mounted ? createPortal(children, document.body) : null
