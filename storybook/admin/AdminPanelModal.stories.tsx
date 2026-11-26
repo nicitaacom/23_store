@@ -107,7 +107,7 @@ export const MultipleValuesForOneOption: Story = {
     const optionValue = canvas.getByPlaceholderText("Value (Blue, XL, 2.5 kg...)");
 
     await expect(optionName).not.toBeVisible();
-    await userEvent.click(canvas.getByRole("button", { name: "Options for this new variant" }));
+    await userEvent.click(canvas.getByText("Options for this new variant", { selector: "summary" }));
 
     await userEvent.type(variantLabel, "Blue");
     await expect(canvas.getByText("Options for Blue")).toBeVisible();
@@ -393,6 +393,7 @@ export const StructuredVariantOptions: Story = {
   parameters: { a11y: { test: "todo" } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByText("Options for this new variant", { selector: "summary" }));
     await userEvent.type(await canvas.findByPlaceholderText(/Option \(Color/), "Color");
     await userEvent.type(canvas.getByPlaceholderText(/Value \(Blue/), "Blue");
     await userEvent.click(canvas.getByRole("button", { name: "Add option" }));
