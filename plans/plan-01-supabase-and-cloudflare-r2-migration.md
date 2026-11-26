@@ -749,6 +749,28 @@ Implementation/configuration: [storage documentation](../dev_readme-storage.md).
   scheduler activation and source deletion were not performed or reported complete by this audit.
   The tracker records implementation completion; it does not certify those account operations.
 
+### Checking egress after moving images to R2
+
+The catalog, search, product details and category endpoint reuse successful public reads in the
+Next.js Data Cache. The cache uses the public Supabase role and a five-minute revalidation interval.
+Product and category edits through the management routes expire the cache. Direct database edits and
+updates from the translation worker are picked up on timed revalidation. Checkout reads current
+prices and variants from Supabase. If the visit lookup fails, tracking skips the write for that visit.
+
+1. In Supabase **Usage → Egress**, select the billing period and open the per-day service breakdown.
+   Check all projects in the organization. Compare Database, Storage and Shared Pooler egress first.
+2. In the `jokik` Logs Explorer, choose a period before the restriction. Compare successful requests
+   to `/rest/v1/23_products`, `/rest/v1/23_categories`, `/rest/v1/utm_stats` and `/storage/v1/`.
+   Group by path and compare response bytes where the logs include a content length. The Usage page
+   reports billed egress across services. HTTP 402 entries show when the restriction blocked access.
+3. After deploying, browse a product, switch catalog pages and run a search, then repeat. The same
+   public queries should stop appearing on every navigation. Edit a test product or category and
+   check the next visit shows the edit. Compare daily Database Egress and request counts over several
+   days. Investigate any remaining Storage Egress by checking which URLs still use Supabase Storage.
+
+See the [Supabase egress guide](https://supabase.com/docs/guides/platform/manage-your-usage/egress)
+and the [Next.js fetch cache reference](https://nextjs.org/docs/app/api-reference/functions/fetch).
+
 ### Supabase traffic and R2 — conversation excerpt
 
 Yes. It means **how much data Supabase sends to people using your website**, including:

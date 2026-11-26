@@ -4,6 +4,7 @@ import { insertDBCategory } from "./insertDBCategory"
 import { isValidCategoryName } from "@/utils/categoryValidation"
 import { isValidUUID } from "@/utils/isValidUUID"
 import { requireAdmin } from "@/api/backup/requireAdmin"
+import { revalidatePublicCatalog } from "@/libs/publicCatalog"
 
 export async function POST(req: Request) {
   const body = (await req.json()) as API.CategoriesInsertRequest
@@ -28,5 +29,6 @@ export async function POST(req: Request) {
   if (typeof response === "string")
     return NextResponse.json({ error: response } satisfies API.CategoriesInsertResponse, { status: 500 })
 
+  revalidatePublicCatalog()
   return NextResponse.json({ category: response } satisfies API.CategoriesInsertResponse, { status: 201 })
 }

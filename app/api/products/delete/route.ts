@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
 
+import { revalidatePublicCatalog } from "@/libs/publicCatalog"
 import { activeStorageProvider, fileChangesPaused } from "@/libs/storage/config"
 import { deleteStorageObject } from "@/libs/storage/operations"
 import { listStorageObjects, storageProvider } from "@/libs/storage/providers"
@@ -98,6 +99,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    revalidatePublicCatalog()
     return NextResponse.json({ id }, { status: 200 })
   } catch (error: unknown) {
     if (error instanceof Stripe.errors.StripeError) {

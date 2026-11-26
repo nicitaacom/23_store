@@ -29,6 +29,7 @@ const actionState = vi.hoisted(() => ({
   fingerprintWrites: [] as { fingerprint: string; deviceId: string }[],
   cookieWrites: [] as { name: string; value: string; options: Record<string, unknown> }[],
   existingVisit: null as { id: string } | null,
+  visitReadError: null as { message: string } | null,
   dedupFilters: [] as { userId: string; since: string }[],
   insertedVisits: [] as { userId: string; utmParams: Record<string, string | undefined>; pageUrl: string | null }[],
 }))
@@ -109,7 +110,7 @@ vi.mock("@/libs/supabase/supabaseServer", () => ({
         limit: () => queryBuilder,
         maybeSingle: async () => {
           actionState.dedupFilters.push({ ...dedupFilter })
-          return { data: actionState.existingVisit }
+          return { data: actionState.existingVisit, error: actionState.visitReadError }
         },
       }
 
@@ -146,6 +147,7 @@ beforeEach(() => {
   actionState.dedupFilters.length = 0
   actionState.insertedVisits.length = 0
   actionState.existingVisit = null
+  actionState.visitReadError = null
 })
 
 afterEach(() => {
@@ -601,6 +603,17 @@ describe("the utm_stats row", () => {
 })
 
 describe("one row per device per visitor day", () => {
+  it("keeps the device id and skips the insert when Supabase rejects the visit lookup", async () => {
+    const deviceId = createDeviceId()
+    actionState.visitReadError = { message: "Organization egress limit exceeded" }
+
+    const trackVisitResp = await trackVisitAction(encodeDeviceId(deviceId), {}, "http://localhost:3023/fi", HELSINKI)
+
+    expect(resolveDeviceId(trackVisitResp)).toBe(deviceId)
+    expect(actionState.dedupFilters).toHaveLength(1)
+    expect(actionState.insertedVisits).toHaveLength(0)
+  })
+
   it("skips the insert when a row already exists for this visitor day", async () => {
     actionState.existingVisit = { id: "existing-row" }
     const deviceId = createDeviceId()

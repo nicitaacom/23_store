@@ -7,6 +7,7 @@ import { BiArrowBack, BiChevronRight } from "react-icons/bi"
 import type { TCategory } from "@/ts/categories/TCategory"
 import { ProductDetailView } from "./ProductDetailView"
 import { getScopedI18n } from "@/locales/server"
+import { createPublicCatalogClient } from "@/libs/publicCatalog"
 import { normalizeProduct } from "@/utils/productVariants"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import { toProductLocale } from "@/utils/product"
@@ -19,7 +20,7 @@ interface ProductPageProps {
 }
 
 const getProductById = cache(async (productId: string) => {
-  const supabase = await supabaseServer()
+  const supabase = createPublicCatalogClient()
   const productResponse = await supabase.from("23_products").select("*").eq("id", productId).maybeSingle()
 
   if (productResponse.error) {
@@ -36,7 +37,7 @@ const getProductById = cache(async (productId: string) => {
 const getCategoryById = cache(async (categoryId: string | null): Promise<TCategory | null> => {
   if (!categoryId) return null
 
-  const supabase = await supabaseServer()
+  const supabase = createPublicCatalogClient()
   const categoryResponse = await supabase
     .from("23_categories")
     .select("id, name, parent_id")

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 
 import { normalizeProduct } from "@/utils/productVariants"
 import openai from "@/libs/openai"
+import { revalidatePublicCatalog } from "@/libs/publicCatalog"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 
 const LOCALES = ["en", "fi", "ru", "se"] as const
@@ -415,6 +416,7 @@ export async function POST(req: Request) {
       )
     }
 
+    revalidatePublicCatalog()
     return withProviderRequestEvidence(
       NextResponse.json({ product: normalizeProduct(updatedProduct) } satisfies API.ProductsTranslateFieldResponse, {
         status: 200,

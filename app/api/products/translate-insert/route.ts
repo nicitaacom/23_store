@@ -4,6 +4,7 @@ import { deleteDBProduct, insertDBProduct, type TProductInsertPayload } from "./
 import { invokeTranslateProductLambda } from "./invokeTranslateProductLambda"
 import { cleanVariantOptions } from "@/utils/variantOptions"
 import { getRunPersonalizationSqlMessage, isMissingSchemaError } from "@/utils/personalizationSchema"
+import { revalidatePublicCatalog } from "@/libs/publicCatalog"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 
 export const runtime = "nodejs"
@@ -155,6 +156,7 @@ export async function POST(req: Request) {
     const invokeTranslateProductLambdaResponse = await invokeTranslateProductLambda(parsedPayload)
     if (typeof invokeTranslateProductLambdaResponse === "string") {
       const deleteDBProductResp = await deleteDBProduct(supabase, parsedPayload.id)
+      revalidatePublicCatalog()
 
       console.error("[products/translate-insert] lambda invoke failed after product insert", {
         requestId,
@@ -192,6 +194,7 @@ export async function POST(req: Request) {
       ownerId: parsedPayload.owner_id,
     })
 
+    revalidatePublicCatalog()
     return NextResponse.json({
       ok: true,
       evidence: {

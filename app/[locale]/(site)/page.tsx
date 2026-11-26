@@ -2,7 +2,6 @@ import { cache } from "react"
 import Link from "next/link"
 import { BiWindowOpen } from "react-icons/bi"
 
-import { TCategory } from "@/ts/categories/TCategory"
 import { selectCatalogProducts } from "./functions/selectCatalogProducts"
 import { AIInputSearch } from "./components/AISearch/AIInputSearch"
 import { CatalogAddProductButton } from "./components/CatalogAddProductButton"
@@ -13,6 +12,7 @@ import { CatalogUnavailable } from "./components/CatalogUnavailable/CatalogUnava
 import { defaultPerPage, perPage as perPageOptions } from "@/constant/perPage"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import { getScopedI18n } from "@/locales/server"
+import { selectPublicCatalogCategories } from "@/libs/publicCatalog"
 import { normalizeProducts } from "@/utils/productVariants"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import PaginationControls from "@/components/PaginationControls"
@@ -24,16 +24,6 @@ interface SearchProps {
 }
 
 const selectProducts = cache(selectCatalogProducts)
-
-const selectCategories = cache(async () => {
-  const supabase = await supabaseServer()
-  const selectCategoriesResp = await supabase
-    .from("23_categories")
-    .select("id, name, parent_id")
-    .order("parent_id", { ascending: true, nullsFirst: true })
-    .order("name", { ascending: true })
-  return { ...selectCategoriesResp, data: (selectCategoriesResp.data ?? []) as TCategory[] }
-})
 
 export default async function Home({ params: paramsPromise, searchParams: searchParamsPromise }: SearchProps) {
   const params = await paramsPromise
@@ -49,8 +39,8 @@ export default async function Home({ params: paramsPromise, searchParams: search
   const viewsPromise = user
     ? supabase.from("23_category_views").select("category_id, view_count").eq("user_id", user.id)
     : Promise.resolve({ data: null })
-  const [selectCategoriesResp, viewsResult] = await Promise.all([selectCategories(), viewsPromise])
-  const categories = selectCategoriesResp.data
+  const [selectCategoriesResp, viewsResult] = await Promise.all([selectPublicCatalogCategories(), viewsPromise])
+  const categories = selectCategoriesResp.data ?? []
   const serverViews: Record<string, number> = {}
   if (viewsResult.data) {
     for (const row of viewsResult.data) serverViews[row.category_id] = row.view_count

@@ -1,10 +1,10 @@
-import supabaseServer from "@/libs/supabase/supabaseServer"
+import { createPublicCatalogClient } from "@/libs/publicCatalog"
 
 const RETRY_DELAYS_MS = [250, 750]
 const TEMPORARY_FAILURE_STATUSES = [0, 502, 503, 504, 520]
 
 export async function selectCatalogProducts(categoryIds?: string[]) {
-  const supabase = await supabaseServer()
+  const supabase = createPublicCatalogClient()
 
   for (let attempt = 0; ; attempt += 1) {
     let query = supabase.from("23_products").select("*").order("price", { ascending: true })

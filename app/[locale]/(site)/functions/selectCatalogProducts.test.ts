@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { selectCatalogProducts } from "./selectCatalogProducts"
-import supabaseServer from "@/libs/supabase/supabaseServer"
+import { createPublicCatalogClient } from "@/libs/publicCatalog"
 
-vi.mock("@/libs/supabase/supabaseServer", () => ({ default: vi.fn() }))
+vi.mock("@/libs/publicCatalog", () => ({ createPublicCatalogClient: vi.fn() }))
 
 type TCatalogResponse = Awaited<ReturnType<typeof selectCatalogProducts>>
 const responses: TCatalogResponse[] = []
@@ -37,7 +37,7 @@ describe("catalog database reads", () => {
       filterCategories.mockReturnValue(query)
       return query
     })
-    vi.mocked(supabaseServer).mockResolvedValue({ from: selectTable } as unknown as Awaited<ReturnType<typeof supabaseServer>>)
+    vi.mocked(createPublicCatalogClient).mockReturnValue({ from: selectTable } as unknown as ReturnType<typeof createPublicCatalogClient>)
   })
 
   afterEach(() => vi.useRealTimers())
@@ -74,7 +74,7 @@ describe("catalog database reads", () => {
   })
 
   it("does not retry a permanent query failure", async () => {
-    const failure = failedResponse(400)
+    const failure = failedResponse(402)
     responses.push(failure)
 
     expect(await selectCatalogProducts()).toBe(failure)

@@ -2,11 +2,11 @@ import { Metadata } from "next"
 
 import { NoProductsFound } from "./NoProductsFound"
 import { Products } from "../components"
+import { selectCatalogProducts } from "../functions/selectCatalogProducts"
 import { SearchTracker } from "./SearchTracker"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import { getI18n } from "@/locales/server"
 import { normalizeProducts } from "@/utils/productVariants"
-import supabaseServer from "@/libs/supabase/supabaseServer"
 
 interface SearchPageProps {
   searchParams: Promise<{ query: string }>
@@ -29,10 +29,9 @@ export async function generateMetadata({ searchParams: searchParamsPromise }: Se
 
 export default async function SearchPage({ searchParams: searchParamsPromise }: SearchPageProps) {
   const { query } = await searchParamsPromise
-  const supabase = await supabaseServer()
-  const products_response = await supabase.from("23_products").select("*").order("price", { ascending: true })
-  if (products_response.error) throw products_response.error
-  const products = filterProductsBySearchQuery(normalizeProducts(products_response.data), query)
+  const selectCatalogProductsResp = await selectCatalogProducts()
+  if (selectCatalogProductsResp.error) throw selectCatalogProductsResp.error
+  const products = filterProductsBySearchQuery(normalizeProducts(selectCatalogProductsResp.data), query)
 
   if (products.length === 0) {
     return (

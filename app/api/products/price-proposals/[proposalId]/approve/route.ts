@@ -4,6 +4,7 @@ import Stripe from "stripe"
 import { getAIPriceBand, roundPrice } from "@/utils/aiPricing"
 import { normalizeAIPriceProposal } from "@/utils/normalizeAIPriceProposal"
 import { normalizeProduct } from "@/utils/productVariants"
+import { revalidatePublicCatalog } from "@/libs/publicCatalog"
 import { stripe } from "@/libs/stripe"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
 
@@ -77,6 +78,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
 
     if (approveProposalError) throw approveProposalError
     databaseCommitted = true
+    revalidatePublicCatalog()
 
     const [updatedProductResp, approvedProposalResp] = await Promise.all([
       supabase.from("23_products").select("*").eq("id", product.id).single(),
@@ -125,6 +127,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
       // restoring the stale price id read at the start of this request.
       if (latestProduct?.price_id === createdPriceId) {
         databaseCommitted = true
+        revalidatePublicCatalog()
       } else {
         if (changedStripeDefault) {
           try {

@@ -170,7 +170,7 @@ async function insertDBVisitOncePerDay(
   const hasUTMParams = Object.values(utmParams).some(param => param !== undefined)
   const supabase = await supabaseServer()
 
-  const { data: recentVisit } = await supabase
+  const { data: recentVisit, error } = await supabase
     .from("utm_stats")
     .select("id, created_at")
     .eq("user_id", deviceId)
@@ -179,7 +179,7 @@ async function insertDBVisitOncePerDay(
     .limit(1)
     .maybeSingle()
 
-  if (recentVisit) return
+  if (error || recentVisit) return
 
   const finalParams = hasUTMParams
     ? utmParams

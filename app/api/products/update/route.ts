@@ -8,6 +8,7 @@ import { getRunPersonalizationSqlMessage, isMissingSchemaError } from "@/utils/p
 import { normalizeProduct, normalizeProductVariants } from "@/utils/productVariants"
 import { normalizeProductImageUrls } from "@/utils/product"
 import { recoverStoredUpdateError } from "@/utils/presentStoredUpdateError"
+import { revalidatePublicCatalog } from "@/libs/publicCatalog"
 import { stripe } from "@/libs/stripe"
 import { supabaseAdmin } from "@/libs/supabase/supabaseAdmin"
 import { supabaseRouteHandler } from "@/libs/supabase/supabaseRouteHandler"
@@ -97,6 +98,7 @@ export async function POST(req: Request) {
           `update product images \n Path:/api/products/update/route.ts \n Error message:\n ${updateImagesError.message}`,
         )
 
+      revalidatePublicCatalog()
       //Active product if it not active
       if (!productResponse.active) {
         await stripe.products.update(productId, { active: true })
@@ -135,6 +137,7 @@ export async function POST(req: Request) {
         )
       }
 
+      revalidatePublicCatalog()
       if (!productResponse.active) {
         await stripe.products.update(productId, { active: true })
       }
@@ -161,6 +164,7 @@ export async function POST(req: Request) {
           `update product variants \n Path:/api/products/update/route.ts \n Error message:\n ${updateVariantsError.message}`,
         )
 
+      revalidatePublicCatalog()
       return getUpdatedProductResponse(productId)
     }
 
@@ -173,6 +177,7 @@ export async function POST(req: Request) {
           `update product on_stock \n Path:/api/products/update/route.ts \n Error message:\n ${updateOnStockError.message}`,
         )
 
+      revalidatePublicCatalog()
       return getUpdatedProductResponse(productId)
     }
 
@@ -212,6 +217,7 @@ export async function POST(req: Request) {
           throw updatePriceError
         }
         databaseCommitted = true
+        revalidatePublicCatalog()
 
         // eslint-disable-next-line local-rules/use-rls-supabase-client -- owner was verified above; only the server may expire proposal state
         await supabaseAdmin
@@ -271,6 +277,7 @@ export async function POST(req: Request) {
           `update product personalization \n Path:/api/products/update/route.ts \n Error message:\n ${updatePersonalizationError.message}`,
         )
 
+      revalidatePublicCatalog()
       return getUpdatedProductResponse(productId)
     }
 
@@ -286,6 +293,7 @@ export async function POST(req: Request) {
           `update product category_id \n Path:/api/products/update/route.ts \n Error message:\n ${updateCategoryError.message}`,
         )
 
+      revalidatePublicCatalog()
       return getUpdatedProductResponse(productId)
     }
 
