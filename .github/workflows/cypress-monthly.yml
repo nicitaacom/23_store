@@ -75,4 +75,6 @@ jobs:
 
       - name: Fail the job when checks or reporting failed
         if: always() && steps.monthly.outcome != 'success'
-        run: exit 1
+        run: |
+          echo '::error title=Cypress monthly checks incomplete::See the job summary and monthly evidence for the provider statuses, failing scenario, or reporting error.'
+          exit 1

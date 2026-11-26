@@ -40,9 +40,10 @@ test("weekly command records missing target in preflight instead of exiting befo
   const artifactDirectory = await mkdtemp(path.join(os.tmpdir(), "23-store-e2e-preflight-"))
 
   try {
+    const jobSummaryPath = path.join(artifactDirectory, "job-summary.md")
     const result = spawnSync(process.execPath, ["scripts/e2e/run-weekly.mjs"], {
       cwd: repositoryRoot,
-      env: { PATH: "/usr/bin:/bin", E2E_ARTIFACT_DIR: artifactDirectory },
+      env: { PATH: "/usr/bin:/bin", E2E_ARTIFACT_DIR: artifactDirectory, GITHUB_STEP_SUMMARY: jobSummaryPath },
       encoding: "utf8",
       timeout: 30000,
     })
@@ -55,6 +56,7 @@ test("weekly command records missing target in preflight instead of exiting befo
     assert.ok(summary.missingSettings.includes("NEXT_PUBLIC_PRODUCTION_URL"))
     assert.ok(summary.checks.every(check => check.status === "blocked_by_configuration"
       && check.detail.includes("no remote request was made")))
+    assert.match(await readFile(jobSummaryPath, "utf8"), /Cypress preflight stopped the run[\s\S]+Missing required setting: NEXT_PUBLIC_PRODUCTION_URL/)
   } finally {
     await rm(artifactDirectory, { recursive: true, force: true })
   }

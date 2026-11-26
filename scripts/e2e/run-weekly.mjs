@@ -136,12 +136,12 @@ async function runWeekly() {
     await writeFile(path.join(artifactDirectory, "job-results.json"), `${JSON.stringify({ runId, jobs: [
       { name: "inventory-and-preflight", status: "incomplete", detail: "Browser journeys were stopped before any writes because required checks did not pass" },
     ] }, null, 2)}\n`)
-    let summary = await createE2EReport()
-    console.log(JSON.stringify({ status: summary.status, blockers: preflight.blockers }, null, 2))
+    console.log(JSON.stringify({ status: preflight.status, blockers: preflight.blockers }, null, 2))
     if (process.env.GITHUB_STEP_SUMMARY) {
       await appendFile(process.env.GITHUB_STEP_SUMMARY,
         `### Cypress preflight stopped the run\n\n${preflight.blockers.map(blocker => `- ${blocker.replace(/[\r\n]+/g, " ")}`).join("\n")}\n`)
     }
+    await createE2EReport()
     process.exitCode = 2
     return
   }
