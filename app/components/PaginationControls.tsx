@@ -1,6 +1,7 @@
 "use client"
 
 import { BiChevronLeft, BiChevronRight } from "react-icons/bi"
+import Link from "next/link"
 import { twMerge } from "tailwind-merge"
 
 import { useScopedI18n } from "@/locales/client"
@@ -14,6 +15,7 @@ interface PaginationControlsProps {
   totalPages: number
   perPage: number
   basePath: string
+  categoryId?: string | null
   query?: string
 }
 
@@ -53,6 +55,7 @@ function PaginationControls({
   totalPages,
   perPage,
   basePath,
+  categoryId,
   query,
 }: PaginationControlsProps) {
   const t = useScopedI18n("common")
@@ -66,6 +69,7 @@ function PaginationControls({
     if (query?.trim()) {
       params.set("query", query.trim())
     }
+    if (categoryId) params.set("category", categoryId)
 
     return `${basePath}?${params.toString()}`
   }
@@ -74,13 +78,16 @@ function PaginationControls({
   return (
     <div className="flex min-w-0 flex-col items-center gap-2 tablet:items-start">
       <nav className="flex items-center justify-center gap-1.5 rounded border border-success/18 bg-[#111315]/92 p-1.5 shadow-[0_10px_28px_rgba(0,0,0,0.22)] tablet:gap-2 tablet:p-2" aria-label={t("pagination")}>
-        <a
+        <Link
           className={twMerge(controlBaseClassName, !hasPrevPage && "pointer-events-none opacity-35")}
           aria-disabled={!hasPrevPage}
           aria-label={t("previous_page")}
-          href={hasPrevPage ? createPageHref(currentPage - 1) : undefined}>
+          href={createPageHref(hasPrevPage ? currentPage - 1 : currentPage)}
+          prefetch={false}
+          scroll={false}
+          tabIndex={hasPrevPage ? undefined : -1}>
           <BiChevronLeft className="text-lg text-success" />
-        </a>
+        </Link>
 
         <span className="min-w-12 text-center text-xs font-semibold text-title tablet:hidden">
           {t("page_compact", { current: currentPage, total: totalPages })}
@@ -89,7 +96,7 @@ function PaginationControls({
         <div className="hidden items-center gap-2 tablet:flex">
           {paginationItems.map((item, index) =>
             typeof item === "number" ? (
-              <a
+              <Link
                 className={twMerge(
                   controlBaseClassName,
                   item === currentPage
@@ -98,9 +105,11 @@ function PaginationControls({
                 )}
                 key={`${item}-${index}`}
                 aria-current={item === currentPage ? "page" : undefined}
-                href={createPageHref(item)}>
+                href={createPageHref(item)}
+                prefetch={false}
+                scroll={false}>
                 {item}
-              </a>
+              </Link>
             ) : (
               <span
                 className="inline-flex h-11 min-w-[44px] items-center justify-center rounded border border-white/8 bg-[#15181b] px-3 text-sm text-subTitle"
@@ -111,13 +120,16 @@ function PaginationControls({
           )}
         </div>
 
-        <a
+        <Link
           className={twMerge(controlBaseClassName, !hasNextPage && "pointer-events-none opacity-35")}
           aria-disabled={!hasNextPage}
           aria-label={t("next_page")}
-          href={hasNextPage ? createPageHref(currentPage + 1) : undefined}>
+          href={createPageHref(hasNextPage ? currentPage + 1 : currentPage)}
+          prefetch={false}
+          scroll={false}
+          tabIndex={hasNextPage ? undefined : -1}>
           <BiChevronRight className="text-lg text-success" />
-        </a>
+        </Link>
       </nav>
 
       <p className="hidden px-1 text-xs uppercase tracking-[0.18em] text-subTitle tablet:block">

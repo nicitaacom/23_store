@@ -23,7 +23,7 @@ export default function SupportButton() {
 
   return (
     <div
-      className={`fixed bottom-4 right-4 ${isDropdown ? "z-[1500]" : "z-[120]"} mobile:bottom-5 mobile:right-5`}
+      className={`fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 ${isDropdown ? "z-[1500]" : "z-[120]"} laptop:bottom-5 laptop:right-5`}
       ref={dropdownRef}>
       <AnimatePresence>
         {isDropdown && (

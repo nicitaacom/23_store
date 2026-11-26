@@ -68,8 +68,8 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
   })
 
   const translation = product.translations[locale] ?? product.translations.fi
-  const isOutOfStock = (product.on_stock ?? 0) <= 0
-  const isLowStock = (product.on_stock ?? 0) < 50 && !isOutOfStock
+  const stock = selectedVariant?.quantity ?? product.on_stock ?? 0
+  const isOutOfStock = stock <= 0
   const selectedPrice = getProductPriceForVariant(product, selectedVariant?.id)
   const personalizationConfig = resolvePersonalizationConfig(product, selectedVariant?.id)
   const quantity = products?.[createCartProductKey(product.id, selectedVariant?.id)]?.quantity ?? 0
@@ -77,7 +77,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
   const categoryHref = category ? `/${locale}?category=${category.id}&page=1` : `/${locale}`
   const availabilityLabel = isOutOfStock
     ? t("out_of_stock_label")
-    : t("units_available", { count: formatNumber(product.on_stock ?? 0) })
+    : t("units_available", { count: formatNumber(stock) })
   const highlights = useMemo(
     () => [
       { icon: FiTruck, label: t("fast_delivery") },
@@ -155,7 +155,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
 
   return (
     <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] items-start gap-3 laptop:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-      {/* Left column: gallery + gif */}
+      {/* Left column: gallery */}
       <section className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2 tablet:grid-cols-[72px_minmax(0,1fr)]">
         <div className="order-2 tablet:order-1">
           <div className="flex gap-2 overflow-x-auto pb-1 tablet:flex-col tablet:overflow-y-auto tablet:pb-0">
@@ -164,7 +164,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
         </div>
 
         <div className="order-1 flex min-w-0 flex-col gap-2 tablet:order-2">
-          <div className="halloween-panel overflow-hidden rounded-[2px] border border-success/20 bg-foreground/5">
+          <div className="overflow-hidden rounded-lg border border-border-color/25 bg-foreground">
             <div className="relative aspect-square w-full max-h-[480px]">
               <Image
                 className="object-contain p-4 mobile:p-6"
@@ -180,26 +180,12 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
           <VariantOptionPicker variants={variants} selectedVariant={selectedVariant} onSelect={handleSelectVariant} />
           {variants.length > 0 && <div className="flex flex-wrap items-stretch gap-2">{renderedVariants}</div>}
 
-          {isLowStock && (
-            <div className="w-full overflow-hidden rounded-[2px] border border-warning/30 bg-warning/5">
-              <p className="px-3 py-2 text-sm font-medium text-warning">
-                {t("low_stock_hurry", { count: product.on_stock ?? 0 })}
-              </p>
-              <Image
-                className="mx-auto h-auto w-full max-w-[320px]"
-                src="/banners/run-to-grab-discount.gif"
-                alt={t("hurry_alt")}
-                width={800}
-                height={600}
-              />
-            </div>
-          )}
         </div>
       </section>
 
       {/* Right column: product info */}
       <aside className="flex min-w-0 flex-col gap-2">
-        <section className="halloween-panel flex flex-col gap-2 rounded-[2px] border border-success/20 bg-foreground/5 p-3">
+        <section className="flex flex-col gap-3 rounded-lg border border-border-color/25 bg-foreground p-4">
           {/* Badges row */}
           <div className="flex flex-wrap items-center gap-2">
             <span
@@ -285,7 +271,7 @@ export function ProductDetailView({ category, product, isAuthenticated }: Produc
         </section>
 
         {/* Product details */}
-        <section className="halloween-panel flex flex-col gap-2 rounded-[2px] border border-border-color/20 bg-foreground/5 p-3">
+        <section className="flex flex-col gap-3 rounded-lg border border-border-color/25 bg-foreground p-4">
           <h2 className="text-sm font-semibold text-title">{t("product_details")}</h2>
           <p className="text-sm leading-6 text-subTitle">
             <MarkdownText text={translation.description} />

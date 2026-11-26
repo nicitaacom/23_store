@@ -106,6 +106,9 @@ export const MultipleValuesForOneOption: Story = {
     const optionName = await canvas.findByPlaceholderText("Option (Color, Size, Weight...)");
     const optionValue = canvas.getByPlaceholderText("Value (Blue, XL, 2.5 kg...)");
 
+    await expect(optionName).not.toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Options for this new variant" }));
+
     await userEvent.type(variantLabel, "Blue");
     await expect(canvas.getByText("Options for Blue")).toBeVisible();
     await userEvent.type(optionName, "Size");

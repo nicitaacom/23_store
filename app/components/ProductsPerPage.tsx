@@ -15,6 +15,7 @@ export default function ProductsPerPage({ className }: { className?: string }) {
   const pathname = usePathname()
   const selectedPerPage = Number(searchParams?.get("perPage") || defaultPerPage)
   const selectedQuery = searchParams?.get("query")?.trim() || ""
+  const selectedCategory = searchParams?.get("category")
 
   /* for close on clicking outside */
   const dropdownContainerRef = useRef<HTMLDivElement>(null)
@@ -70,6 +71,7 @@ export default function ProductsPerPage({ className }: { className?: string }) {
     if (selectedQuery) {
       params.set("query", selectedQuery)
     }
+    if (selectedCategory) params.set("category", selectedCategory)
 
     return `${pathname}?${params.toString()}`
   }
@@ -116,6 +118,8 @@ export default function ProductsPerPage({ className }: { className?: string }) {
               setShowDropdown(false)
             }}
             href={createHref(perPage)}
+            prefetch={false}
+            scroll={false}
             data-cy="products-per-page-option"
             key={perPage}>
             {perPage}

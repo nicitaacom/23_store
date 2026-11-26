@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from "react"
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
-import { renderAsync } from "@react-email/render"
+import { renderToStaticMarkup } from "react-dom/server"
 import { expect, waitFor, within } from "storybook/test"
 
 import { cartHeadphonesProduct, headphonesProduct } from "../fixtures"
@@ -8,7 +8,7 @@ import { CheckEmail } from "@/emails/CheckEmail"
 import { RequestBetterPricesEmail } from "@/emails/RequestBetterPricesEmail"
 import { RequestReplanishmentEmail } from "@/emails/RequestReplanishmentEmail"
 
-// The templates render a whole <Html> document, so they go through renderAsync (the same call the
+// The templates render a whole <Html> document, so they go through renderToStaticMarkup (the same call the
 // send paths use) and the resulting markup is shown in an iframe - mounting <Html> inside the story
 // div would be invalid nesting and would hide exactly the markup that reaches the mailbox.
 function EmailPreview({ template }: { template: ReactElement }) {
@@ -16,7 +16,7 @@ function EmailPreview({ template }: { template: ReactElement }) {
 
   useEffect(() => {
     let isActive = true
-    renderAsync(template, { pretty: true }).then(rendered => {
+    Promise.resolve().then(() => renderToStaticMarkup(template)).then(rendered => {
       if (isActive) setHtml(rendered)
     })
     return () => {
@@ -49,7 +49,6 @@ export const OrderConfirmation: Story = {
         <CheckEmail
           allRightsReserved="All rights reserved."
           deliveryDate="February 18"
-          feedbackText="Feedback"
           locale="en"
           needHelpText="Need help with your order?"
           orderConfirmed="Your order is confirmed"
@@ -61,7 +60,7 @@ export const OrderConfirmation: Story = {
           trackYourOrder="Track your order"
           variantLabel="Variant"
           weKeepYouUpdated="We keep you updated at every step."
-          willBeDelivered="Your order will be delivered on"
+          willBeDelivered="Estimated delivery"
         />
       }
     />

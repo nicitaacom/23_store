@@ -82,8 +82,8 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
     : `/${params.locale}`
 
   return (
-    <div className="min-h-[calc(100vh-64px)] w-full px-4 py-6 text-title max-[767px]:px-0 max-[767px]:py-2">
-      <section className="flex flex-col gap-5 max-[767px]:gap-2">
+    <div className="min-h-[calc(100dvh-64px)] w-full bg-background px-3 py-4 text-title tablet:px-6 tablet:py-6">
+      <section className="mx-auto flex w-full max-w-[1440px] flex-col gap-3">
         <nav className="flex flex-wrap items-center gap-2 text-sm text-subTitle">
           <Link className="transition-colors duration-200 hover:text-success" href={categoryHref}>
             {getCategoryByIdResp?.name ?? tCategory("uncategorized")}

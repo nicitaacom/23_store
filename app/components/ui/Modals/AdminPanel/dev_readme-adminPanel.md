@@ -21,6 +21,10 @@ fixed — see [VariantsForm.tsx](components/VariantsForm.tsx) and the per-varian
 
 ### 1.1 UI + file pathnames
 
+The add form shows the category selector and read-only price and stock at the top. The product preview
+below the gallery updates with the title, category, first variant price and total variant stock.
+Open the variant options disclosure to edit option values or change image attachment.
+
 - Modal shell — [AdminPanelModal.tsx](AdminPanelModal.tsx)
 - Tab header (Add / Edit / Delete) — [components/AdminPanelHeader.tsx](components/AdminPanelHeader.tsx)
 - Add tab — [components/AddProductForm.tsx](components/AddProductForm.tsx)

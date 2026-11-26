@@ -17,7 +17,6 @@ import { twMerge } from "tailwind-merge"
 import { TProductAfterDB } from "../ts/product/TProductAfterDB"
 import { formatCurrency } from "../utils/currencyFormatter"
 import { getProductVariantSelectionLabel } from "@/utils/variantOptions"
-import { getURL } from "@/utils/helpers"
 import { getVariantImageUrl } from "@/utils/cartProducts"
 import { toProductLocale } from "@/utils/product"
 
@@ -33,10 +32,19 @@ interface CheckEmailProps {
   trackYourOrder: string
   weKeepYouUpdated: string
   supportText: string
-  feedbackText: string
   allRightsReserved: string
   variantLabel: string
   needHelpText: string
+}
+
+const JOKI_STOREFRONT = "https://www.jokik.fi/"
+
+function getReceiptImageUrl(imageUrl: string) {
+  try {
+    const image = new URL(imageUrl, JOKI_STOREFRONT)
+    if (image.protocol === "https:") return image.href
+  } catch {}
+  return new URL("no-image-fallback.png", JOKI_STOREFRONT).href
 }
 
 // http://localhost:6006/?path=/story/foundations-emails--order-confirmation
@@ -52,7 +60,6 @@ export function CheckEmail({
   trackYourOrder,
   weKeepYouUpdated,
   supportText,
-  feedbackText,
   allRightsReserved,
   variantLabel,
   needHelpText,
@@ -79,7 +86,7 @@ export function CheckEmail({
           <Head />
           <Preview>{previewText}</Preview>
 
-          <Body style={{ width: "600px", margin: "0 auto", padding: "40px 20px" }} className="bg-[#f9fafb]">
+          <Body style={{ width: "100%", maxWidth: "600px", margin: "0 auto", padding: "24px 12px" }} className="bg-[#f9fafb]">
             {/* HEADER */}
             <Section
               style={{
@@ -87,10 +94,17 @@ export function CheckEmail({
                 maxWidth: "600px",
                 background: "#ffffff",
                 borderRadius: "12px",
-                padding: "40px",
+                padding: "24px",
                 marginBottom: "24px",
               }}>
-              <Heading style={{ lineHeight: "1.3" }} className="m-0 text-[32px] font-bold text-title text-center">
+              <Img
+                src={new URL("joki-light.png", JOKI_STOREFRONT).href}
+                alt="Joki"
+                width="135"
+                height="32"
+                style={{ display: "block", margin: "0 auto 16px" }}
+              />
+              <Heading style={{ lineHeight: "1.3" }} className="m-0 text-[28px] font-bold text-title text-center">
                 {orderConfirmed}
               </Heading>
               <Text style={{ lineHeight: "1.5" }} className="m-0 mt-3 text-[16px] text-subTitle text-center">
@@ -122,7 +136,7 @@ export function CheckEmail({
                           <td style={{ width: "120px", verticalAlign: "top", paddingRight: "20px" }}>
                             <Img
                               style={{ objectFit: "cover", borderRadius: "8px", display: "block" }}
-                              src={getVariantImageUrl(product, product.selectedVariant)}
+                              src={getReceiptImageUrl(getVariantImageUrl(product, product.selectedVariant))}
                               width="120"
                               height="120"
                               alt={product.selectedVariant?.label || translation.title}
@@ -143,7 +157,7 @@ export function CheckEmail({
                               </Text>
                             )}
                             <Text className="m-0 text-[16px] font-medium text-title">
-                              {formatCurrency(product.price * product.quantity)}
+                              {formatCurrency(product.price * product.quantity, productLocale)}
                             </Text>
                           </td>
                         </tr>
@@ -162,7 +176,7 @@ export function CheckEmail({
                         <Text className="m-0 text-[20px] font-bold text-title">{totalText}</Text>
                       </td>
                       <td style={{ textAlign: "right" }}>
-                        <Text className="m-0 text-[24px] font-bold text-title">{formatCurrency(totalAmount)}</Text>
+                        <Text className="m-0 text-[24px] font-bold text-title">{formatCurrency(totalAmount, productLocale)}</Text>
                       </td>
                     </tr>
                   </tbody>
@@ -184,7 +198,7 @@ export function CheckEmail({
               <Link
                 style={{
                   display: "inline-block",
-                  background: "#1ce956",
+                  background: "#087239",
                   color: "#ffffff",
                   padding: "14px 32px",
                   borderRadius: "8px",
@@ -193,7 +207,7 @@ export function CheckEmail({
                   fontWeight: "600",
                   marginBottom: "16px",
                 }}
-                href={`${getURL()}track-order`}>
+                href={new URL(`${productLocale}/track-order`, JOKI_STOREFRONT).href}>
                 {trackYourOrder}
               </Link>
               <Text style={{ lineHeight: "1.5" }} className="m-0 text-[14px] text-subTitle">
@@ -211,14 +225,8 @@ export function CheckEmail({
                       <Link
                         style={{ textDecoration: "none", fontWeight: "500" }}
                         className="text-[14px] text-[#1ce956] mx-3"
-                        href={`${getURL()}support`}>
+                        href={new URL(`${productLocale}/support`, JOKI_STOREFRONT).href}>
                         {supportText}
-                      </Link>
-                      <Link
-                        style={{ textDecoration: "none", fontWeight: "500" }}
-                        className="text-[14px] text-[#1ce956] mx-3"
-                        href={`${getURL()}feedback`}>
-                        {feedbackText}
                       </Link>
                     </td>
                   </tr>

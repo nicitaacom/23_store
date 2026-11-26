@@ -6,7 +6,7 @@ import { selectCatalogProducts } from "../functions/selectCatalogProducts"
 import { SearchTracker } from "./SearchTracker"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import { getI18n } from "@/locales/server"
-import { normalizeProducts } from "@/utils/productVariants"
+import { isProductInStock, normalizeProducts } from "@/utils/productVariants"
 
 interface SearchPageProps {
   searchParams: Promise<{ query: string }>
@@ -31,7 +31,7 @@ export default async function SearchPage({ searchParams: searchParamsPromise }: 
   const { query } = await searchParamsPromise
   const selectCatalogProductsResp = await selectCatalogProducts()
   if (selectCatalogProductsResp.error) throw selectCatalogProductsResp.error
-  const products = filterProductsBySearchQuery(normalizeProducts(selectCatalogProductsResp.data), query)
+  const products = filterProductsBySearchQuery(normalizeProducts(selectCatalogProductsResp.data).filter(isProductInStock), query)
 
   if (products.length === 0) {
     return (

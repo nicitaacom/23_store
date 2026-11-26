@@ -1,4 +1,4 @@
-import { TProductTranslations } from "@/ts/product/TProductDB"
+import { TProductDB, TProductTranslations } from "@/ts/product/TProductDB"
 import { TProductVariant } from "@/ts/product/TProductVariant"
 import {
   TMockupRect,
@@ -141,4 +141,9 @@ export function normalizeProducts<
   T extends { variants?: unknown; translations?: unknown; personalization?: unknown },
 >(products: T[]) {
   return products.map(product => normalizeProduct(product))
+}
+
+export function isProductInStock(product: Pick<TProductDB, "variants" | "on_stock">): boolean {
+  if (product.variants?.length) return product.variants.some(variant => variant.quantity > 0)
+  return product.on_stock > 0
 }

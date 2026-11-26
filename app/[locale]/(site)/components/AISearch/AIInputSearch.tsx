@@ -12,6 +12,7 @@ import { ChatInput } from "./ChatInput"
 import { ChatMessages } from "./ChatMessages"
 import { MemoryDebug } from "../MemoryDebug"
 import { useScopedI18n } from "@/locales/client"
+import { useSupportDropdown } from "@/store/ui/useSupportDropdown"
 
 // http://localhost:6006/?path=/story/commerce-aisearch--search-entry-point
 export function AIInputSearch() {
@@ -33,6 +34,15 @@ export function AIInputSearch() {
   } = useAIChat()
   const [isDesktop, setIsDesktop] = useState<boolean | null>(null)
   const [isExpanded, setIsExpanded] = useState(false)
+
+  useEffect(() => useSupportDropdown.subscribe(({ isDropdown }) => {
+    if (isDropdown) setIsExpanded(false)
+  }), [])
+
+  function openAssistant() {
+    useSupportDropdown.getState().closeDropdown()
+    setIsExpanded(true)
+  }
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -76,7 +86,7 @@ export function AIInputSearch() {
 
   const swipeHandlers = useSwipeable({
     onSwipedUp: ({ absY }) => {
-      if (absY > 24) setIsExpanded(true)
+      if (absY > 24) openAssistant()
     },
     onSwipedDown: ({ absY }) => {
       if (absY > 24) setIsExpanded(false)
@@ -109,30 +119,26 @@ export function AIInputSearch() {
   return (
     <div
       style={{
-        width: mobileSheetWidth,
+        width: isExpanded ? mobileSheetWidth : "3rem",
         bottom: "max(1rem, env(safe-area-inset-bottom))",
         height: isExpanded ? openSheetHeight : "3rem",
       }}
-      className="fixed left-4 z-[110] flex flex-col overflow-hidden rounded-[4px] border border-border-color/30 bg-background/95 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-[height] duration-300 laptop:hidden"
+      className="fixed right-[4.75rem] z-[110] flex flex-col overflow-hidden rounded-lg border border-border-color/30 bg-background/95 shadow-compact backdrop-blur-xl transition-[height,width] duration-300 laptop:hidden"
       {...swipeHandlers}>
       <button
-        className="flex h-12 w-full shrink-0 items-center gap-3 border-b border-success/10 px-3 text-left"
+        className={twMerge("flex h-12 w-full shrink-0 items-center", isExpanded ? "gap-3 border-b border-success/10 px-3 text-left" : "justify-center")}
         data-cy="ai-chat-toggle"
         type="button"
-        onClick={() => setIsExpanded(current => !current)}
+        onClick={() => isExpanded ? setIsExpanded(false) : openAssistant()}
+        aria-label={t("header_title")}
         aria-expanded={isExpanded}>
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-success/20 bg-success/10">
-          <BsStars className="text-base text-success" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-semibold text-title">{t("header_title")}</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="h-1 w-8 rounded-full bg-success/25" />
-          <BiChevronDown
-            className={twMerge("text-xl text-success transition-transform duration-300", isExpanded && "rotate-180")}
-          />
-        </div>
+        <BsStars className="shrink-0 text-xl text-success" />
+        {isExpanded && (
+          <>
+            <span className="min-w-0 flex-1 truncate text-sm font-semibold text-title">{t("header_title")}</span>
+            <BiChevronDown className="shrink-0 text-xl text-success" />
+          </>
+        )}
       </button>
 
       <div className={twMerge("min-h-0 flex-1 flex-col gap-3 overflow-hidden px-2 pb-2 pt-2", isExpanded ? "flex" : "hidden")}>

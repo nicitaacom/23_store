@@ -15,7 +15,7 @@ import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import { getScopedI18n } from "@/locales/server"
 import { selectPublicCatalogCategories } from "@/libs/publicCatalog"
 import { isSupabaseOutageStatus, reportSupabaseOutage } from "@/libs/storeAlerts"
-import { normalizeProducts } from "@/utils/productVariants"
+import { isProductInStock, normalizeProducts } from "@/utils/productVariants"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 import PaginationControls from "@/components/PaginationControls"
 import ProductsPerPage from "@/components/ProductsPerPage"
@@ -74,7 +74,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
   if (databaseError)
     console.error("[catalog.database]", { status: databaseStatus, message: databaseError.message, code: databaseError.code })
   if (databaseError && isSupabaseOutageStatus(databaseStatus)) after(() => reportSupabaseOutage(databaseStatus))
-  const products = normalizeProducts(selectProductsResp.data ?? [])
+  const products = normalizeProducts(selectProductsResp.data ?? []).filter(isProductInStock)
   const filteredProducts = searchQuery ? filterProductsBySearchQuery(products, searchQuery) : products
 
   //Logic for pagination
@@ -93,13 +93,16 @@ export default async function Home({ params: paramsPromise, searchParams: search
 
   return (
     <div className="mx-auto flex h-[calc(100dvh-64px)] w-full flex-col overflow-hidden px-3 pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-2 text-2xl text-title laptop:h-[calc(100vh-64px)] laptop:px-4 laptop:pb-2">
-      <section className="mx-auto grid min-h-0 w-full flex-1 max-w-[2200px] grid-cols-1 grid-rows-1 gap-1 laptop:grid-cols-[minmax(0,1fr)_minmax(420px,30%)] 4xl:max-w-[3000px]">
+      <section className="mx-auto grid min-h-0 w-full flex-1 max-w-[2200px] grid-cols-1 grid-rows-1 gap-1 laptop:grid-cols-[minmax(0,1fr)_minmax(320px,25%)] 4xl:max-w-[3000px]">
         <div className="h-full min-h-0 min-w-0 overflow-y-auto rounded-[4px] border border-success/15 bg-gradient-to-br from-success/5 via-background to-background px-4 py-2 shadow-2xl shadow-success/5 laptop:overflow-hidden">
           <div className="flex min-h-0 flex-col gap-[2px] laptop:h-full">
             <section className="shrink-0 flex flex-col gap-[2px]">
-              <div className="flex flex-col gap-3">
-                <div className="flex w-full flex-row items-start justify-between gap-3">
-                  <div className="w-full max-w-[480px] max-[480px]:max-w-none">
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 tablet:flex-row tablet:items-center tablet:justify-between">
+                  <h1 className="text-xl font-semibold leading-tight tracking-tight text-title laptop:text-2xl">
+                    {t("catalog_title")}
+                  </h1>
+                  <div className="w-full tablet:max-w-[440px]">
                     <CatalogSearchForm
                       ariaLabel={t("catalog_search_action")}
                       focusSearch={searchParams["focusSearch"] === "1"}
@@ -110,24 +113,17 @@ export default async function Home({ params: paramsPromise, searchParams: search
                       submitLabel={t("catalog_search_action")}
                     />
                   </div>
-                  <div className="flex justify-end max-[480px]:hidden">
-                    <div className="inline-flex w-fit items-center rounded-[2px] border border-success/25 bg-success/10 px-3 py-1 text-sm font-medium tracking-wide text-success">
-                      {t("products")}
-                    </div>
-                  </div>
                 </div>
-                <div className="flex max-w-3xl flex-col gap-2">
-                  <h1 className="text-xl font-semibold leading-tight tracking-tight text-title mobile:text-2xl laptop:truncate laptop:whitespace-nowrap laptop:text-4xl">
-                    {t("catalog_title")}
-                  </h1>
-                  <p className="hidden max-w-3xl text-base leading-7 text-subTitle tablet:block">{t("catalog_subtitle")}</p>
-                  <CategoryPillBar
-                    categories={categories}
-                    isAuthenticated={!!user}
-                    locale={params.locale}
-                    serverViews={serverViews}
-                  />
-                  <div className="flex flex-row items-center gap-[2px] pt-1">
+                <div className="flex min-w-0 flex-col gap-2 laptop:flex-row laptop:items-center laptop:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <CategoryPillBar
+                      categories={categories}
+                      isAuthenticated={!!user}
+                      locale={params.locale}
+                      serverViews={serverViews}
+                    />
+                  </div>
+                  <div className="flex shrink-0 flex-row items-center gap-[2px]">
                     <CatalogAddProductButton isAuthenticated={!!user} label={t("add")} />
                     <Link
                       className="inline-flex h-11 w-fit items-center justify-center whitespace-nowrap rounded-[4px] border border-success/30 px-4 py-3 text-sm font-semibold text-success transition-colors duration-150 hover:border-success hover:bg-success hover:text-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background mobile:text-base max-[480px]:flex-1 max-[480px]:px-0 max-[480px]:py-0"
@@ -142,7 +138,9 @@ export default async function Home({ params: paramsPromise, searchParams: search
               </div>
             </section>
 
-            <section className="min-h-0 flex-1 pr-1 laptop:overflow-x-hidden laptop:overflow-y-auto laptop:[scrollbar-gutter:stable]">
+            <section
+              className="min-h-0 flex-1 pr-1 laptop:overflow-x-hidden laptop:overflow-y-auto laptop:[scrollbar-gutter:stable]"
+              key={`${page}:${perPage}:${validCategory ?? ""}:${searchQuery}`}>
               {databaseError ? (
                 <CatalogUnavailable
                   databaseMessage={databaseError.message.trim()}
@@ -168,6 +166,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
                     totalPages={totalPages}
                     perPage={perPage}
                     basePath={`/${params.locale}`}
+                    categoryId={validCategory}
                     query={searchQuery}
                   />
                   <ProductsPerPage />

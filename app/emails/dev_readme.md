@@ -73,3 +73,10 @@ In short it's pnpm i resend or pnpm i ses and then you init SDK then await SDK.s
 
 By `flex-row` and flex-col I don't mean exact classes that you see in dev tools
 I mean only how it looks like because you may don't use flex at all and chieve `flex-row` `flex-col` result
+
+### Order receipts
+
+Order receipts include the Joki logo and use the production storefront for product images and
+localized tracking and support links. The sender is the address configured for the Resend-verified
+store domain. Confirm that `NEXT_PUBLIC_SUPPORT_EMAIL` points to a `jokik.fi` address before sending
+customer receipts from production.

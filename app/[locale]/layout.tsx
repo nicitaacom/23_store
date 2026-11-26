@@ -2,7 +2,7 @@ import "../globals.css"
 import "../styles/theme-halloween.css"
 import "../styles/theme-new-year.css"
 import React, { lazy, Suspense } from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 
 import type { TLocaleTag } from "@/ts/types/i18n/TLocaleTag"
 import { UTMTracker } from "./UTMTracker"
@@ -16,6 +16,8 @@ import { ModalsProvider, ModalsQueryProvider } from "@/providers"
 import { SeasonalThemeLifecycle } from "@/components/SeasonalThemeLifecycle"
 
 const ToastProvider = lazy(() => import("@/providers/ToastProvider"))
+
+export const viewport: Viewport = { interactiveWidget: "resizes-content" }
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NODE_ENV === "production" ? process.env.NEXT_PUBLIC_PRODUCTION_URL : "http://localhost:3023"),

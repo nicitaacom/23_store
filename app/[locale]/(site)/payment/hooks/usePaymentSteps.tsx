@@ -37,7 +37,7 @@ export const usePaymentSteps = (status: string | null, sessionId: string | null)
   const emailData = {
     from: process.env.NEXT_PUBLIC_SUPPORT_EMAIL,
     to: customerEmail,
-    subject: t("payment.status"),
+    subject: t("payment.email.order_confirmed"),
     html: html,
   }
 

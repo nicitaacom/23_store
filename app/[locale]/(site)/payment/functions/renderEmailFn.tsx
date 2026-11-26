@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react"
-import { renderAsync } from "@react-email/render"
+import { renderToStaticMarkup } from "react-dom/server"
 
 import { TProductAfterDB } from "@/ts/product/TProductAfterDB"
 import { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
@@ -19,7 +19,7 @@ export async function renderEmailFn(
 
   if (productsData.length > 0) {
     try {
-      const emailMessageString = await renderAsync(
+      const emailMessageString = renderToStaticMarkup(
         <CheckEmail
           products={productsData}
           locale={locale}
@@ -29,7 +29,6 @@ export async function renderEmailFn(
           willBeDelivered={t("payment.email.order_will_be_delivered_on")}
           weKeepYouUpdated={t("payment.email.we_will_keep_you_updated")}
           quantityText={t("payment.email.quantity")}
-          feedbackText={t("payment.email.feedback")}
           supportText={t("payment.email.support")}
           totalText={t("payment.email.total")}
           trackYourOrder={t("payment.email.track_your_order")}
@@ -37,9 +36,6 @@ export async function renderEmailFn(
           variantLabel={t("payment.email.variant")}
           needHelpText={t("payment.email.need_help")}
         />,
-        {
-          pretty: true,
-        },
       )
       setHtml(emailMessageString)
       logFn(t("payment.email_rendered"))

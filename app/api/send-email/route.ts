@@ -46,13 +46,14 @@ export async function POST(req: Request) {
     )
   }
 
-  const from = process.env.NEXT_PUBLIC_SUPPORT_EMAIL
-  if (!from?.trim()) {
+  const sender = process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim()
+  if (!sender) {
     return NextResponse.json(
       { error: "Email delivery is unavailable because the store sender address is not configured. Contact support to complete the email settings." },
       { status: 503, headers: { "x-application-request-id": requestId } },
     )
   }
+  const from = `Joki <${sender.match(/<([^<>]+)>$/)?.[1] ?? sender}>`
 
   try {
     const { data, error } = await resend.emails.send({ from, to, subject, html })

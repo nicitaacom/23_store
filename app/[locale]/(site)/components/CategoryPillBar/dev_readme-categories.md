@@ -19,6 +19,10 @@ Products had no grouping. Buyers could not browse by type. The categories system
 
 ### 1.1 UI + component paths
 
+The catalog and search show products with available stock. Direct product links still show the
+availability and replenishment action. Catalog page and page-size links use Next.js navigation and
+keep the selected category and search term.
+
 [screenshot placeholder — add after implementation]
 
 - **Pill bar**: `app/[locale]/(site)/components/CategoryPillBar.tsx`

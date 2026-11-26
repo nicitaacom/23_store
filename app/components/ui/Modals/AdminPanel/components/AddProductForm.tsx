@@ -766,17 +766,16 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                   <p className="text-xs font-medium text-white/80">
                     {isDragging ? t("drop_files_here") : t("click_or_drop_here")}
                   </p>
-                  <p className="mt-0.5 text-[10px] text-white/35">{t("add_form.eyebrow")}</p>
                 </div>
               </button>
 
               {/* 16:9 main preview — black bars only behind a real image, panel surface when empty
                   so clearing the form on submit doesn't flash a black slab */}
               <div
-                style={{ aspectRatio: "16/9" }}
+                style={{ aspectRatio: activeImage ? "16/9" : undefined }}
                 className={twMerge(
                   "relative w-full shrink-0 overflow-hidden rounded",
-                  activeImage ? "bg-black" : "bg-white/[0.02]",
+                  activeImage ? "bg-black" : "h-32 bg-white/[0.02]",
                 )}>
                 {activeImage ? (
                   <>
@@ -843,17 +842,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                       </svg>
                     </div>
                     <p className="text-[11px] text-white/70">{t("click_or_drop_here")}</p>
-                  </div>
-                )}
-
-                {activeImage && (
-                  <div className="absolute inset-x-3 top-3 flex items-center justify-between">
-                    <span className="rounded-lg bg-black/50 px-2 py-1 text-[11px] font-medium text-white/70 backdrop-blur-sm">
-                      {previewStock}
-                    </span>
-                    <span className="rounded border border-success-accent/20 bg-success-accent/12 px-2 py-1 text-[11px] font-semibold text-success-accent backdrop-blur-sm">
-                      {previewPrice}
-                    </span>
                   </div>
                 )}
 
@@ -930,6 +918,17 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
                 </div>
               )}
 
+              {(titleValue || categoryId || variants.length > 0) && (
+                <div className="grid gap-1 rounded border border-white/10 bg-foreground/20 p-3">
+                  {titleValue && <p className="line-clamp-2 text-sm font-semibold text-title">{titleValue}</p>}
+                  <p className="truncate text-xs text-subTitle">{allCategories.find(category => category.id === categoryId)?.name ?? tGlobal("category.uncategorized")}</p>
+                  <div className="flex items-center justify-between gap-2 text-xs">
+                    <p className="font-semibold text-success">{previewPrice}</p>
+                    <p className="text-subTitle">{t("on_stock")} {previewStock}</p>
+                  </div>
+                </div>
+              )}
+
               <details className="group shrink-0 rounded border border-white/8 bg-white/[0.02]">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-3 text-sm font-semibold text-white/80 marker:hidden">
                   <span>{tGlobal("personalize.admin_title")}</span>
@@ -962,6 +961,53 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
           event.currentTarget.scrollTo({ top: 0, behavior: "smooth" })
           void handleFormSubmit(event)
         }}>
+        <div className="grid items-end gap-2 tablet:grid-cols-[minmax(0,1fr)_auto]">
+          {/* Category */}
+          <div className="grid gap-1.5">
+            <div className="flex items-center gap-2">
+              <label
+                className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70"
+                id="add-product-category-label">
+                {tGlobal("category.edit_category")}
+              </label>
+              {isSuggestingCategory && (
+                <span className="text-[10px] text-white/70 animate-pulse">{tGlobal("category.ai_suggesting")}</span>
+              )}
+              {!isSuggestingCategory && autoAssignedName && categoryId && (
+                <span className="flex items-center gap-1 rounded bg-success/10 px-1.5 py-0.5 text-[10px] text-success">
+                  {tGlobal("category.auto_assigned")}: {autoAssignedName}
+                  <button
+                    className="ml-0.5 text-success/60 hover:text-success"
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => {
+                      setCategoryId(null)
+                      setAutoAssignedName(null)
+                    }}>
+                    ×
+                  </button>
+                </span>
+              )}
+            </div>
+            <CategoryDropdown
+              categories={allCategories}
+              value={categoryId}
+              onChange={id => {
+                setCategoryId(id)
+                setAutoAssignedName(null)
+                manualCategoryPickRef.current = true
+              }}
+              disabled={isLoading}
+              uncategorizedLabel={tGlobal("category.uncategorized")}
+              ariaLabelledBy="add-product-category-label"
+            />
+          </div>
+          <dl className="flex h-10 items-center gap-4 rounded border border-white/10 px-3 text-xs">
+            <div className="flex items-center gap-1.5"><dt className="text-subTitle">{t("price")}</dt><dd className="font-semibold text-title">{previewPrice}</dd></div>
+            <div className="flex items-center gap-1.5"><dt className="text-subTitle">{t("on_stock")}</dt><dd className="font-semibold text-title">{previewStock}</dd></div>
+          </dl>
+        </div>
+
         {/* Title */}
         <div className="grid gap-1.5">
           <label className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70" htmlFor="title">
@@ -991,7 +1037,7 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               <RichTextToolbar onWrap={marker => wrapRef.current?.(marker)} />
             </div>
             <MarkdownEditor
-              className={twMerge(inputCn, "min-h-[100px]")}
+              className={twMerge(inputCn, "min-h-20")}
               ref={descriptionRef}
               id="add-product-description"
               ariaLabelledBy="add-product-description-label"
@@ -1005,47 +1051,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             />
           </div>
           {errors.subTitle?.message && <p className="font-secondary text-danger text-xs">{errors.subTitle.message as string}</p>}
-        </div>
-
-        {/* Category */}
-        <div className="grid gap-1.5">
-          <div className="flex items-center gap-2">
-            <label
-              className="px-0.5 text-[11px] font-semibold uppercase tracking-widest text-white/70"
-              id="add-product-category-label">
-              {tGlobal("category.edit_category")}
-            </label>
-            {isSuggestingCategory && (
-              <span className="text-[10px] text-white/70 animate-pulse">{tGlobal("category.ai_suggesting")}</span>
-            )}
-            {!isSuggestingCategory && autoAssignedName && categoryId && (
-              <span className="flex items-center gap-1 rounded bg-success/10 px-1.5 py-0.5 text-[10px] text-success">
-                {tGlobal("category.auto_assigned")}: {autoAssignedName}
-                <button
-                  className="ml-0.5 text-success/60 hover:text-success"
-                  type="button"
-                  tabIndex={-1}
-                  onClick={() => {
-                    setCategoryId(null)
-                    setAutoAssignedName(null)
-                  }}>
-                  ×
-                </button>
-              </span>
-            )}
-          </div>
-          <CategoryDropdown
-            categories={allCategories}
-            value={categoryId}
-            onChange={id => {
-              setCategoryId(id)
-              setAutoAssignedName(null)
-              manualCategoryPickRef.current = true
-            }}
-            disabled={isLoading}
-            uncategorizedLabel={tGlobal("category.uncategorized")}
-            ariaLabelledBy="add-product-category-label"
-          />
         </div>
 
         {/* ── Variants (moved from left col) ── */}
@@ -1105,29 +1110,34 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
             </button>
           </div>
 
-          <VariantOptionsEditor
-            key={variantDraftKey}
-            variantLabel={variantLabelValue}
-            options={variantOptions}
-            onChange={setVariantOptions}
-            disabled={isLoading}
-          />
+          <details className="rounded border border-white/8 px-2 py-1.5" data-cy="add-product-variant-options">
+            <summary className="cursor-pointer py-1.5 text-xs font-semibold text-subTitle">{t("variant_options_for_new")}</summary>
+            <div className="grid gap-2 pt-1">
+              <VariantOptionsEditor
+                key={variantDraftKey}
+                variantLabel={variantLabelValue}
+                options={variantOptions}
+                onChange={setVariantOptions}
+                disabled={isLoading}
+              />
 
-          <label className="flex w-fit items-center gap-2 text-[11px] text-white/70">
-            <input
-              type="checkbox"
-              checked={isVariantImageAttached}
-              onChange={event => setIsVariantImageAttached(event.target.checked)}
-              disabled={isLoading || !images.length}
-            />
-            {t("variant_image_optional")}
-          </label>
+              <label className="flex w-fit items-center gap-2 text-[11px] text-white/70">
+                <input
+                  type="checkbox"
+                  checked={isVariantImageAttached}
+                  onChange={event => setIsVariantImageAttached(event.target.checked)}
+                  disabled={isLoading || !images.length}
+                />
+                {t("variant_image_optional")}
+              </label>
 
-          {/* The print area is measured against the attached photo, so a variant showing another
-              variant's photo makes the buyer's preview lie about what gets printed */}
-          {isVariantImageAttached && <p className="text-[11px] text-white/70">{t("variant_image_matches_hint")}</p>}
+              {/* The print area is measured against the attached photo, so a variant showing another
+                  variant's photo makes the buyer's preview lie about what gets printed */}
+              {isVariantImageAttached && <p className="text-[11px] text-white/70">{t("variant_image_matches_hint")}</p>}
 
-          <p className="text-[11px] text-white/70">{t("manage_variant_help")}</p>
+              <p className="text-[11px] text-white/70">{t("manage_variant_help")}</p>
+            </div>
+          </details>
 
           {variants.length > 0 ? (
             <div className="grid gap-2 tablet:grid-cols-2">
@@ -1180,18 +1190,6 @@ export function AddProductForm({ onCreated }: AddProductFormProps) {
               {t("manage_variant_empty")}
             </div>
           )}
-        </div>
-
-        {/* Live preview row — on_stock is the accumulated stock of all variants, not a manual field */}
-        <div className="grid gap-2 rounded border border-white/8 bg-white/[0.02] p-3 tablet:grid-cols-2">
-          <div>
-            <p className="text-[10px] font-medium uppercase tracking-widest text-white/70">{t("price")}</p>
-            <p className="mt-1 text-sm font-semibold text-white/75">{previewPrice}</p>
-          </div>
-          <div>
-            <p className="text-[10px] font-medium uppercase tracking-widest text-white/70">{t("on_stock")}</p>
-            <p className="mt-1 text-sm font-semibold text-white/75">{previewStock}</p>
-          </div>
         </div>
 
         {/* Submit */}
