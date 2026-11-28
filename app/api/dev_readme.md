@@ -9,7 +9,7 @@
   - Usage for auth/reset route
   - Usage for coinmarketcap route
   - Usage for create-checkout-session route
-  - Usage for create-klarna-session route
+  - Klarna direct-payment incident
   - Usage for create-paypal-session route
   - Usage for customer route
   - Usage for message/seen route
@@ -202,10 +202,15 @@ I use this API route to create-checkout-session on stripe
 This is API route because I use `NEXT_STRIPE_SECRET_KEY` in libs/stripe.ts
 that I import in this route
 
-### Usage for create-klarna-session
+### Klarna direct-payment incident — 2026-11-28
 
-I use this API route to create checkout session with klarna
-So user may pay with klarna - this doen't work
+The Production Merchant Portal sign-in reached Klarna's identity-provider page and displayed “Unexpected error when authenticating with identity provider.” This documents one failed sign-in session, not a general Klarna outage. No merchant settings or payments were changed; setup was canceled at the maintainer's direction.
+
+![Klarna Merchant Portal authentication error](https://i.imgur.com/MFmfQR4.png)
+
+The old `POST /api/create-klarna-session` code embedded an API credential, sent an empty `line_items` array, and did not create a store order. The route now returns `503` without contacting Klarna. Revoke the old Klarna credential; Git history may still contain it. The cart does not expose the Klarna button.
+
+Klarna's Finland payment session requires `purchase_country: FI` and `purchase_currency: EUR`; Jokik currently charges in USD. Do not enable direct Klarna until real EUR prices and the order, capture, refund, and fulfillment flow are defined and verified.
 
 ### Usage for create-paypal-session
 
