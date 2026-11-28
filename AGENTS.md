@@ -8,6 +8,8 @@ Before coding, read:
 
 Treat all three as mandatory project instructions.
 
+When writing task plans, handoffs, documentation, or responses, describe work as tasks and use concrete action or status headings. Avoid objective-framed headings and generic planning boilerplate; include only details specific to this repository and the current request.
+
 `development` is the main branch and deployment source. Work on `development`; do not create
 or switch to a feature branch for a plan. Merge existing migration work into `development`.
 Before starting the next plan, commit all completed work and leave `development` clean.
