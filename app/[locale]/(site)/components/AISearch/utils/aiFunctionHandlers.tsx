@@ -3,11 +3,9 @@
 import type { TI18nFunction } from "@/ts/types/i18n/TI18nFunction"
 import { aiSDK } from "@/sdk/AISDK/AISDK"
 // src/utils/aiFunctionHandlers.ts
-import { createProductFn } from "@/functions/createProductFn"
 import { getAiImageFolder } from "@/functions/uploadImageFolder"
 import { getTimestampFileName } from "@/functions/support/image/getTimestampFileName"
 import { uploadImageFn } from "@/functions/uploadImageFn"
-import useCartStore from "@/store/user/cartStore"
 
 type FunctionResult = {
   success: boolean
@@ -21,40 +19,10 @@ type HandlerArgs = Record<string, unknown>
 const fallbackT: TI18nFunction = (key: string) => key
 
 async function addProductToCartHandler(args: HandlerArgs): Promise<FunctionResult> {
-  const { product, quantity = 1 } = args
-  const { increaseProductQuantity } = useCartStore.getState()
-  if (!product || typeof product !== "object")
-    return { success: false, message: "Product object is missing. Please provide product details." }
-
-  const typed = product as { title?: string; subtitle?: string; price?: number }
-  if (!typed.title) return { success: false, message: "Product title is required." }
-  if (!typed.subtitle) return { success: false, message: "Product subtitle is required." }
-  if (typeof typed.price !== "number") return { success: false, message: "Product price is required." }
-
-  try {
-    const i18n = (args.t as unknown as TI18nFunction) ?? fallbackT
-    const response = await createProductFn(i18n, {
-      title: typed.title,
-      description: typed.subtitle,
-      price: typed.price,
-      onStock: 0,
-      images: [],
-      variants: [],
-    })
-    if (!response?.id) return { success: false, message: "Failed to create product. No id." }
-
-    for (let index = 0; index < Number(quantity || 1); index++) increaseProductQuantity(response.id)
-
-    const quantityText = Number(quantity) > 1 ? `${quantity}x ${typed.title}` : typed.title
-    return {
-      success: true,
-      message: `Ok — I added ${quantityText} to your cart ($${typed.price})`,
-      memory: `user added ${quantityText} to cart`,
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to add product"
-    return { success: false, message }
-  }
+  const message = typeof args.t === "function"
+    ? (args.t as TI18nFunction)("aichat.choose_catalog_product")
+    : "Choose a product in the store catalog to add it to your cart."
+  return { success: false, message }
 }
 
 async function generateImageHandler(args: HandlerArgs): Promise<FunctionResult> {

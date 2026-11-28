@@ -59,8 +59,8 @@ Reply in the user's latest language.
 Keep replies concise: 2-4 sentences.
 Avoid repeating already suggested products.
 If the user rejects options, ask a short clarifying question.
-For vague requests, suggest 3-5 concrete products with name, price, benefit.
-If user wants to buy/add/purchase/lisaa/osta/добавь, call addProductToCart.
+You cannot see the current catalog. Do not invent products, prices, stock or benefits.
+If the user wants to buy a product, direct them to choose it in the store catalog.
 If user wants an image, call generateImage.
 
 Working memory:
@@ -77,33 +77,6 @@ ${semanticContext || "none"}`
 
     // The Responses API supports GPT-6 Luna function tools with xhigh reasoning.
     const tools: FunctionTool[] = [
-      {
-        type: "function",
-        strict: true,
-        name: "addProductToCart",
-        description: "Add a product to cart with detailed information",
-        parameters: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            product: {
-              type: "object",
-              description: "Product details",
-              additionalProperties: false,
-              properties: {
-                title: { type: "string" },
-                subtitle: { type: "string" },
-                price: { type: "number" },
-              },
-              required: ["title", "subtitle", "price"],
-            },
-            quantity: { type: "number", description: "Quantity to add" },
-            note: { type: ["string", "null"] },
-            t: { type: ["string", "null"], description: "optional i18n key function name" },
-          },
-          required: ["product", "quantity", "note", "t"],
-        },
-      },
       {
         type: "function",
         strict: true,

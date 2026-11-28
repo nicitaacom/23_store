@@ -305,6 +305,7 @@ export default {
   "aichat.error.generate_image_with_reason": "Не удалось создать изображение: {message}",
   "aichat.error.generate_image_unknown": "Не удалось создать изображение. Если проблема повторится, обратитесь к владельцу магазина.",
   "aichat.add_to_cart": "Добавить в корзину",
+  "aichat.choose_catalog_product": "Выберите товар в каталоге магазина и добавьте его в корзину.",
   "aichat.header_title": "AI Ассистент покупок",
   "aichat.header_subtitle": "Найдите идеальный продукт за секунды",
   "aichat.button.send": "Отправить",

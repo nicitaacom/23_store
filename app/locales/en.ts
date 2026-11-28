@@ -304,6 +304,7 @@ export default {
   "aichat.error.generate_image_with_reason": "Image generation failed: {message}",
   "aichat.error.generate_image_unknown": "The image could not be generated. Contact the store owner if this continues.",
   "aichat.add_to_cart": "Add to Cart",
+  "aichat.choose_catalog_product": "Choose a product in the store catalog to add it to your cart.",
   "aichat.header_title": "AI Shopping Assistant",
   "aichat.header_subtitle": "Find your perfect product in seconds",
   "aichat.button.send": "Send",

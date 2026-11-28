@@ -304,6 +304,7 @@ export default {
   "aichat.error.generate_image_with_reason": "Bildgenereringen misslyckades: {message}",
   "aichat.error.generate_image_unknown": "Bilden kunde inte skapas. Kontakta butiksägaren om problemet fortsätter.",
   "aichat.add_to_cart": "Lägg i kundvagn",
+  "aichat.choose_catalog_product": "Välj en produkt i butikens sortiment och lägg den i kundvagnen.",
   "aichat.header_title": "AI Shopping-assistent",
   "aichat.header_subtitle": "Hitta din perfekta produkt på sekunder",
   "aichat.button.send": "Skicka",

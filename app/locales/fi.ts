@@ -304,6 +304,7 @@ export default {
   "aichat.error.generate_image_with_reason": "Kuvan luonti epäonnistui: {message}",
   "aichat.error.generate_image_unknown": "Kuvaa ei voitu luoda. Ota yhteyttä kaupan ylläpitäjään, jos ongelma jatkuu.",
   "aichat.add_to_cart": "Lisää ostoskoriin",
+  "aichat.choose_catalog_product": "Valitse tuote kaupan valikoimasta ja lisää se ostoskoriin.",
   "aichat.header_title": "AI-ostosassistentti",
   "aichat.header_subtitle": "Löydä täydellinen tuote sekunneissa",
   "aichat.button.send": "Lähetä",
