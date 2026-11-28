@@ -5,7 +5,7 @@ import Link from "next/link"
 import { CiStar } from "react-icons/ci"
 import { FaStar } from "react-icons/fa"
 
-import { TProductDB } from "@/ts/product/TProductDB"
+import type { TPopularProduct } from "@/ts/product/TPopularProduct"
 import { ProductLikeButton } from "../../components/ProductLikeButton"
 import { formatCurrency } from "@/utils/currencyFormatter"
 import { formatNumber } from "@/utils/numberFormatter"
@@ -17,7 +17,7 @@ import { useScopedI18n } from "@/locales/client"
 import { ImageWithFallback } from "@/components/ui"
 
 interface PopularProductCardProps {
-  product: TProductDB
+  product: TPopularProduct
   locale: string
 }
 

@@ -2,14 +2,14 @@
 
 import { useCallback, useState } from "react"
 
-import { TProductDB } from "@/ts/product/TProductDB"
+import type { TPopularProduct } from "@/ts/product/TPopularProduct"
 import { PopularProductCard } from "./components/PopularProductCard"
 import { productsSDK } from "@/sdk/ProductsSDK/ProductsSDK"
 import { useLazyLoading } from "@/hooks/useLazyLoading"
 import { useScopedI18n } from "@/locales/client"
 
 interface PopularProductsLazyFeedProps {
-  initialProducts: TProductDB[]
+  initialProducts: TPopularProduct[]
   locale: string
   totalItems: number
 }

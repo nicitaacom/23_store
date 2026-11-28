@@ -1,4 +1,4 @@
-import { TProductDB } from "@/ts/product/TProductDB"
+import type { TPopularProduct } from "@/ts/product/TPopularProduct"
 import { BaseSDK } from "@/sdk/BaseSDK"
 
 export class ProductsSDK extends BaseSDK {
@@ -75,7 +75,7 @@ export class ProductsSDK extends BaseSDK {
   }
 
   async getPopularProducts(start: number, end: number) {
-    const response = await this.getJson<{ products?: TProductDB[] }>("/api/popular-products", {
+    const response = await this.getJson<{ products?: TPopularProduct[] }>("/api/popular-products", {
       start,
       end,
     } satisfies API.ProductsPopularRequest)

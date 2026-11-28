@@ -1,6 +1,12 @@
-import { TProductDB } from "@/ts/product/TProductDB"
+import type { TPopularProduct } from "@/ts/product/TPopularProduct"
 import { createPublicCatalogClient } from "@/libs/publicCatalog"
 import { normalizeProducts } from "@/utils/productVariants"
+
+export const POPULAR_PRODUCT_COLUMNS = "id,price,img_url,translations,likes_count,rating_sum,rating_count"
+
+export function normalizePopularProducts(rows: TPopularProduct[]) {
+  return normalizeProducts(rows)
+}
 
 interface FetchPopularProductsOptions {
   page?: number
@@ -9,7 +15,7 @@ interface FetchPopularProductsOptions {
 }
 
 export interface IPopularProductsResult {
-  products: TProductDB[]
+  products: TPopularProduct[]
   totalItems: number
   totalPages: number
   page: number
@@ -30,7 +36,7 @@ export async function selectPopularProducts({
   // Popular = most likes first (on_stock as a stable tiebreaker) — must match /api/popular-products
   const response = await supabase
     .from("23_products")
-    .select("*", { count: "exact" })
+    .select(POPULAR_PRODUCT_COLUMNS, { count: "exact" })
     .order("likes_count", { ascending: false, nullsFirst: false })
     .order("on_stock", { ascending: false, nullsFirst: false })
     .range(from, to)
@@ -44,7 +50,7 @@ export async function selectPopularProducts({
   const totalPages = Math.max(1, Math.ceil(totalItems / resolvedPerPage))
 
   return {
-    products: normalizeProducts(response.data),
+    products: normalizePopularProducts(response.data as unknown as TPopularProduct[]),
     totalItems,
     totalPages,
     page: currentPage,
