@@ -18,7 +18,7 @@ const countAndClaim = `
     if alerts >= tonumber(ARGV[4]) then return 0 end
     if redis.call('incr', KEYS[3]) == 1 then redis.call('expire', KEYS[3], ARGV[2]) end
   end
-  redis.call('set', KEYS[2], ARGV[3], 'EX', 60)
+  redis.call('set', KEYS[2], ARGV[3], 'EX', ARGV[5])
   return count
 `
 
@@ -44,8 +44,8 @@ async function sendDailyAlert(redis: Redis, key: string, threshold: number, getM
   const alertKey = `${prefix}:${key}:telegram`
   const budgetKey = `${prefix}:toast-alerts`
   const claim = crypto.randomUUID()
-  const count = await redis.eval<[number, number, string, number], number>(countAndClaim, [`${prefix}:${key}:count`, alertKey, budgetKey], [
-    threshold, DAY_SECONDS, claim, dailyLimit,
+  const count = await redis.eval<[number, number, string, number, number], number>(countAndClaim, [`${prefix}:${key}:count`, alertKey, budgetKey], [
+    threshold, DAY_SECONDS, claim, dailyLimit, DAY_SECONDS,
   ])
   if (!count) return
 
@@ -54,10 +54,15 @@ async function sendDailyAlert(redis: Redis, key: string, threshold: number, getM
     const response = await sendTelegramMessage(getMessage(count), AbortSignal.timeout(5000))
     sent = response.ok
     if (!sent) console.error("[store-alerts] Telegram rejected a notification", response.status)
-  } catch {
-    console.error("[store-alerts] Telegram request failed")
+  } catch (error) {
+    console.error("[store-alerts] Telegram request failed", error instanceof Error ? error.name : "UnknownError")
   } finally {
-    await redis.eval(finishClaim, [alertKey, budgetKey], [claim, sent ? 1 : 0, DAY_SECONDS, dailyLimit])
+    try {
+      await redis.eval(finishClaim, [alertKey, budgetKey], [claim, sent ? 1 : 0, DAY_SECONDS, dailyLimit])
+    } catch (error) {
+      // Preserve the daily deduplication window if Telegram accepted the alert but Redis could not finalize it.
+      console.error("[store-alerts] Could not finalize the Telegram alert claim", error instanceof Error ? error.name : "UnknownError")
+    }
   }
 }
 

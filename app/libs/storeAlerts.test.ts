@@ -36,6 +36,30 @@ describe("store alerts", () => {
     expect(mocks.eval.mock.calls[1][2][1]).toBe(0)
   })
 
+  it("retains the daily claim lease when Redis fails to record a successful Telegram send", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    mocks.eval.mockResolvedValueOnce(1).mockRejectedValueOnce(new Error("redis unavailable"))
+    mocks.send.mockResolvedValueOnce({ ok: true, status: 200 })
+
+    await reportSupabaseOutage(402)
+
+    expect(mocks.eval.mock.calls[0][2][4]).toBe(86_400)
+    expect(errorSpy).toHaveBeenCalledWith("[store-alerts] Could not finalize the Telegram alert claim", "Error")
+    expect(mocks.send).toHaveBeenCalledTimes(1)
+  })
+
+  it("logs a safe error name when Telegram transport fails and releases the claim", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    mocks.eval.mockResolvedValueOnce(1).mockResolvedValueOnce(1)
+    mocks.send.mockRejectedValueOnce(new Error("request timed out"))
+
+    await reportSupabaseOutage(402)
+
+    expect(errorSpy).toHaveBeenCalledWith("[store-alerts] Telegram request failed", "Error")
+    expect(mocks.eval).toHaveBeenCalledTimes(2)
+    expect(mocks.eval.mock.calls[1][2][1]).toBe(0)
+  })
+
   it("does not send a toast alert when Redis has not claimed one", async () => {
     mocks.eval.mockResolvedValueOnce(1).mockResolvedValueOnce(0)
     await reportErrorToast("fingerprint", "client")
