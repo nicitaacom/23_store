@@ -41,6 +41,7 @@ interface InputFormProps extends React.InputHTMLAttributes<HTMLInputElement> {
   placeholder: string
   disabled?: boolean
   externalTextareaRef?: React.MutableRefObject<HTMLTextAreaElement | null>
+  externalInputRef?: (element: HTMLInputElement | null) => void
 }
 
 interface ValidationRules {
@@ -67,6 +68,7 @@ export function ProductInput({
   placeholder,
   disabled,
   externalTextareaRef,
+  externalInputRef,
   onInput,
   onBlur: onBlurProp,
   ...props
@@ -244,6 +246,7 @@ export function ProductInput({
           ref={e => {
             ref(e)
             inputRef.current = e // you can still assign to ref
+            externalInputRef?.(e)
           }}
           {...props}
         />
