@@ -1,6 +1,6 @@
 import { TProductDB } from "@/ts/product/TProductDB"
+import { createPublicCatalogClient } from "@/libs/publicCatalog"
 import { normalizeProducts } from "@/utils/productVariants"
-import supabaseServer from "@/libs/supabase/supabaseServer"
 
 interface FetchPopularProductsOptions {
   page?: number
@@ -26,7 +26,7 @@ export async function selectPopularProducts({
   const from = limit ? 0 : (currentPage - 1) * currentPerPage
   const to = limit ? Math.max(0, limit - 1) : from + currentPerPage - 1
 
-  const supabase = await supabaseServer()
+  const supabase = createPublicCatalogClient()
   // Popular = most likes first (on_stock as a stable tiebreaker) — must match /api/popular-products
   const response = await supabase
     .from("23_products")

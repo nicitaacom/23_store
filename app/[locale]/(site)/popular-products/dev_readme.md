@@ -14,7 +14,7 @@ Likes drive the ordering; ratings give each product an average star score.
 - Page (server, initial fetch) — [page.tsx](page.tsx) → `fetchPopularProducts` ([app/libs/popularProducts.ts](../../../libs/popularProducts.ts))
 - Infinite feed (lazy load) — [PopularProductsLazyFeed.tsx](PopularProductsLazyFeed.tsx) → renders a grid of
   [components/PopularProductCard.tsx](components/PopularProductCard.tsx)
-- More pages fetched via `productsSDK.getPopularProducts` → [app/api/popular-products/route.ts](../../../api/popular-products/route.ts)
+- More pages fetched via `productsSDK.getPopularProducts` → [app/api/popular-products/route.ts](../../../api/popular-products/route.ts). Both the initial server page and later API pages use the public catalog fetch cache (5-minute revalidation); product and category mutations that call `revalidatePublicCatalog` invalidate the shared tag.
 
 The feed requests 24 products at a time. The route accepts a maximum of 100 per request and rejects
 invalid ranges before contacting Supabase. This limits one response, not the number of requests or

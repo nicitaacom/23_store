@@ -4,7 +4,7 @@ import { GET } from "./route"
 
 const requests = vi.hoisted(() => ({ createClient: vi.fn(), range: vi.fn() }))
 
-vi.mock("@/libs/supabase/supabaseServer", () => ({ default: requests.createClient }))
+vi.mock("@/libs/publicCatalog", () => ({ createPublicCatalogClient: requests.createClient }))
 
 describe("popular products request range", () => {
   beforeEach(() => {
@@ -13,7 +13,7 @@ describe("popular products request range", () => {
     const query = { select: vi.fn(), order: vi.fn(), range: requests.range }
     query.select.mockReturnValue(query)
     query.order.mockReturnValue(query)
-    requests.createClient.mockResolvedValue({ from: () => query })
+    requests.createClient.mockReturnValue({ from: () => query })
   })
 
   it.each([

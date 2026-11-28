@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
+import { createPublicCatalogClient } from "@/libs/publicCatalog"
 import { normalizeProducts } from "@/utils/productVariants"
-import supabaseServer from "@/libs/supabase/supabaseServer"
 
 const MAX_PRODUCTS_PER_REQUEST = 100
 
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "The requested product range is invalid." }, { status: 400 })
   }
 
-  const supabase = await supabaseServer()
+  const supabase = createPublicCatalogClient()
   // Popular = most likes first. on_stock is a stable tiebreaker so paging stays deterministic.
   const response = await supabase
     .from("23_products")
