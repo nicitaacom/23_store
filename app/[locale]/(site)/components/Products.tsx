@@ -18,7 +18,7 @@ function Products({ products }: ProductsProps) {
   return (
     <div className="w-full min-w-0 rounded mobile:border-[1px] broder-border-color">
       <motion.ul
-        className="grid grid-cols-2 gap-2 tablet:grid-cols-3 laptop:flex laptop:flex-col laptop:gap-y-8"
+        className="grid grid-cols-2 items-stretch gap-2 tablet:grid-cols-3 desktop:grid-cols-4"
         initial={false}
         animate="visible"
         variants={{
@@ -33,13 +33,14 @@ function Products({ products }: ProductsProps) {
         {products?.map(product => (
           <motion.li
             key={product.id}
+            className="min-w-0"
             layout="position"
             variants={{ visible: { opacity: 1, y: 0 } }}
             transition={{
               duration: 0.3,
               ease: [0.22, 1, 0.36, 1],
             }}>
-            <Product {...product} />
+            <Product {...product} compact />
           </motion.li>
         ))}
       </motion.ul>

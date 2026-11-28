@@ -5,10 +5,11 @@ import { ImageWithFallback, Slider } from "@/components/ui"
 interface ProductImageProps {
   imgUrl: string[]
   productTitle: string
+  priority?: boolean
 }
 
 // http://localhost:6006/?path=/story/commerce-product--normal
-export function ProductImage({ imgUrl, productTitle }: ProductImageProps) {
+export function ProductImage({ imgUrl, productTitle, priority = true }: ProductImageProps) {
   return imgUrl.length === 1 ? (
     <ImageWithFallback
       className="w-full h-full object-contain"
@@ -20,7 +21,7 @@ export function ProductImage({ imgUrl, productTitle }: ProductImageProps) {
       width={720}
       height={480}
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      priority
+      priority={priority}
     />
   ) : (
     <Slider

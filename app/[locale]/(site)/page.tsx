@@ -15,7 +15,7 @@ import { filterProductsBySearchQuery } from "@/utils/productSearch"
 import { getScopedI18n } from "@/locales/server"
 import { selectPublicCatalogCategories } from "@/libs/publicCatalog"
 import { isSupabaseOutageStatus, reportSupabaseOutage } from "@/libs/storeAlerts"
-import { isProductInStock, normalizeProducts } from "@/utils/productVariants"
+import { normalizeProducts } from "@/utils/productVariants"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 
 interface SearchProps {
@@ -72,7 +72,7 @@ export default async function Home({ params: paramsPromise, searchParams: search
   if (databaseError)
     console.error("[catalog.database]", { status: databaseStatus, message: databaseError.message, code: databaseError.code })
   if (databaseError && isSupabaseOutageStatus(databaseStatus)) after(() => reportSupabaseOutage(databaseStatus))
-  const products = normalizeProducts(selectProductsResp.data ?? []).filter(isProductInStock)
+  const products = normalizeProducts(selectProductsResp.data ?? [])
   const filteredProducts = searchQuery ? filterProductsBySearchQuery(products, searchQuery) : products
 
   //Logic for pagination

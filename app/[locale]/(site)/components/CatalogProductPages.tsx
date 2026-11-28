@@ -2,11 +2,12 @@
 
 import { useSearchParams } from "next/navigation"
 
-import { SortedProducts } from "./SortedProducts"
+import { TProductDB } from "@/ts/product/TProductDB"
+import Products from "./Products"
+import { useSortedCatalogProducts } from "./SortedProducts"
+import { defaultPerPage, perPage as perPageOptions } from "@/constant/perPage"
 import PaginationControls from "@/components/PaginationControls"
 import ProductsPerPage from "@/components/ProductsPerPage"
-import { defaultPerPage, perPage as perPageOptions } from "@/constant/perPage"
-import { TProductDB } from "@/ts/product/TProductDB"
 
 interface CatalogProductPagesProps {
   products: TProductDB[]
@@ -18,6 +19,7 @@ interface CatalogProductPagesProps {
 }
 
 export function CatalogProductPages({ products, serverViews, locale, categoryId, searchQuery, emptyLabel }: CatalogProductPagesProps) {
+  const sortedProducts = useSortedCatalogProducts({ products, serverViews, searchQuery })
   const searchParams = useSearchParams()
   const requestedPerPage = Number(searchParams.get("perPage"))
   const perPage = perPageOptions.includes(requestedPerPage) ? requestedPerPage : defaultPerPage
@@ -37,7 +39,7 @@ export function CatalogProductPages({ products, serverViews, locale, categoryId,
             {emptyLabel}
           </div>
         ) : (
-          <SortedProducts products={products.slice(start, end)} serverViews={serverViews} searchQuery={searchQuery} />
+          <Products products={sortedProducts.slice(start, end)} />
         )}
       </section>
       <div className="shrink-0 border-t border-success/15 pt-2">

@@ -71,6 +71,11 @@ Story: `Commerce/Product → VariantWithoutImage`.
 
 ## Per-variant stock (sold out) in Product.tsx
 
+The catalog orders available products before sold-out products across the entire result set, before
+pagination. A product with variants is available when at least one variant has stock. Category-view
+preferences apply within each stock group. Searches keep their match order and include sold-out
+products. The catalog grid defaults to 50 products per page; shoppers can choose another page size.
+
 Each variant has its own `quantity` (`{ id, label, image_url?, price, quantity }`). `quantity === 0`
 means THAT variant is sold out — not the whole product.
 

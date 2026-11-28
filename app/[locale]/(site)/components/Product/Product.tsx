@@ -36,6 +36,7 @@ type Props = TProductDB & {
   containerClassName?: string
   showViewButton?: boolean
   variantId?: string | null
+  compact?: boolean
 }
 
 function Product({ ...product }: Props) {
@@ -77,33 +78,34 @@ function Product({ ...product }: Props) {
         // before:z-10 - the media div below is positioned too, so without it the accent bar paints
         // under the product image and the hover effect is only visible next to the text
         "before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-1 before:origin-top before:scale-y-0 before:bg-gradient-to-b before:from-success before:to-success-accent before:transition-transform before:duration-300 hover:before:scale-y-100",
+        product.compact && "h-full laptop:flex-col",
         product.containerClassName,
       )}>
 
       {/* 2. Media — square above the title through tablet, wider beside the text from laptop up */}
-      <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-foreground/10 laptop:aspect-auto laptop:w-[240px] laptop:self-stretch">
-        <ProductImage key={selectedVariant?.id ?? "base"} imgUrl={displayedImages} productTitle={translation.title} />
+      <div className={twMerge("relative aspect-square w-full shrink-0 overflow-hidden bg-foreground/10 laptop:aspect-auto laptop:w-[240px] laptop:self-stretch", product.compact && "aspect-[4/3] laptop:aspect-[4/3] laptop:w-full")}>
+        <ProductImage key={selectedVariant?.id ?? "base"} imgUrl={displayedImages} productTitle={translation.title} priority={!product.compact} />
         <ProductLikeButton className="absolute right-2 top-2 z-[90]" productId={product.id} categoryId={product.category_id} />
       </div>
 
       {/* 3. Content */}
-      <div className="flex min-w-0 flex-1 flex-col gap-2 p-2 laptop:gap-3 laptop:p-4">
+      <div className={twMerge("flex min-w-0 flex-1 flex-col gap-2 p-2 laptop:gap-3 laptop:p-4", product.compact && "laptop:gap-2 laptop:p-2")}>
 
         {/* 4. Title + colored price pill */}
-        <div className="flex flex-col gap-2 tablet:flex-row tablet:items-start tablet:justify-between">
-          <Link className="line-clamp-2 min-w-0 text-sm font-semibold leading-snug text-title transition-colors duration-300 hover:text-success laptop:text-lg" href={`/${locale}/products/${product.id}`}>
+        <div className={twMerge("flex flex-col gap-2 tablet:flex-row tablet:items-start tablet:justify-between", product.compact && "tablet:flex-col")}>
+          <Link className={twMerge("line-clamp-2 min-w-0 text-sm font-semibold leading-snug text-title transition-colors duration-300 hover:text-success laptop:text-lg", product.compact && "laptop:text-sm")} href={`/${locale}/products/${product.id}`}>
             {translation.title}
           </Link>
           <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded border border-success/20 bg-success/10 px-2.5 py-1">
             <span className="hidden text-[11px] font-medium uppercase tracking-[0.14em] text-subTitle laptop:inline">{t("price")}</span>
-            <span className="whitespace-nowrap text-sm font-bold tracking-tight text-success laptop:text-lg">
+            <span className={twMerge("whitespace-nowrap text-sm font-bold tracking-tight text-success laptop:text-lg", product.compact && "laptop:text-sm")}>
               {formatCurrency(selectedPrice)}
             </span>
           </span>
         </div>
 
         {variants.length > 0 && !isVariantSelectionLocked && (
-          <div className="grid gap-2">
+          <div className={twMerge("grid gap-2", product.compact && "max-h-28 overflow-y-auto")}>
             {groupProductVariants(variants).some(group => group.length > 1 || group[0]?.group_id) && (
               <div className="flex flex-wrap gap-1.5">
                 {groupProductVariants(variants).map(group => {
@@ -154,7 +156,7 @@ function Product({ ...product }: Props) {
         )}
 
         {/* 5. Stock + locked-variant badges */}
-        <div className="hidden flex-wrap items-center gap-2 laptop:flex">
+        <div className={twMerge("hidden flex-wrap items-center gap-2 laptop:flex", product.compact && "flex")}>
           <span
             className={twMerge(
               "inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-[11px] font-medium uppercase tracking-[0.16em]",
