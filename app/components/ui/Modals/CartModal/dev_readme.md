@@ -122,19 +122,26 @@ window.solana.connect()          <- already trusted wallet resolves with no prom
   |
   v
 sendMoneyWithSolana.ts
-  1. productsSDK.getCoinmarketcapQuote({ amount: cartUSD, symbol: "USD", convert: "SOL" })
-  2. amountInSol = data[0].quote.SOL.price          <- SOL equal to the cart's USD total
-  3. lamports    = round(amountInSol * 10^9)
-  4. new Connection(clusterApiUrl(cluster), "confirmed")
-  5. Transaction { feePayer, blockhash } .add(SystemProgram.transfer)
-  6. window.solana.signAndSendTransaction(tx)       <- extension signs, returns a signature
-  7. connection.confirmTransaction(...)
-  |
-  v
-router.push("/payment?status=success")
+  1. create a wallet payment intent with the cart and sender address
+  2. use the server's SOL amount, recipient, cluster and intent ID
+  3. create a SOL transfer and a memo containing the intent ID
+  4. ask Phantom to sign and send the transaction, then confirm it
+  5. send the signature and intent ID to /api/wallet-payment/verify
+  6. navigate to the success page only after verification succeeds
 ```
 
 The MetaMask button needs 2 clicks — one to connect, one to pay. Solana does both in one, because the button says Solana and the user pressed it to pay.
+
+The verification route requests parsed legacy, version 0 and version 1 transactions with
+`@solana/web3.js` 1.99.0 or later. It requires transaction metadata with no error, a memo matching
+the payment intent, and a system transfer matching the sender, recipient and minimum amount. An
+unavailable transaction or missing metadata remains pending. The actual amount comes from the
+server-created payment intent, not from the chart.
+
+Opening “Other ways to pay” also shows the TradingView Coinbase SOL/USD chart below the payment
+buttons. It is a market reference in USD; the checkout quote can differ. The chart uses TradingView's
+hosted widget and needs a browser connection to TradingView. The summary sidebar scrolls on larger
+screens to keep the payment controls and chart reachable. See [the chart UI recipe](dev_readme-ui-solana-chart.md).
 
 ### 5.5 Env vars
 

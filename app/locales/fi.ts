@@ -569,6 +569,8 @@ export default {
   //                   payment
   // =================        =================
   "payment.products_data_fetched": "tuotetiedot haettu – vaihe 4 asetettu",
+  "payment.solana_chart_title": "Solanan hintakaavio",
+  "payment.solana_chart_note": "Markkinahinta Yhdysvaltain dollareissa. Kassan vaihtokurssi voi poiketa tästä.",
   "payment.error.fetch_products_data": "virhe selectProductsData",
   "payment.customer_email_received": "asiakkaan sähköposti vastaanotettu – vaihe 3 asetettu",
   "payment.error.receive_customer_email_title": "Virhe asiakkaan sähköpostin haussa",

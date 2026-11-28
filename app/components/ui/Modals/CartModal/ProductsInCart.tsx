@@ -54,7 +54,7 @@ export function ProductsInCart() {
       </section>
 
       {/* 1. Order summary sidebar — flex-col with actions pinned to bottom */}
-      <aside className="flex shrink-0 flex-col gap-2 laptop:gap-3 laptop:w-[300px] laptop:border-l laptop:border-border-color/20 laptop:pl-4 desktop:w-[340px]">
+      <aside className="flex shrink-0 flex-col gap-2 laptop:gap-3 laptop:w-[300px] laptop:overflow-y-auto laptop:border-l laptop:border-border-color/20 laptop:pl-4 desktop:w-[340px]">
         {/* 2. Summary panel — soft accent gradient, emphasized total */}
         <div className="rounded-md border border-border-color/20 bg-gradient-to-br from-foreground/10 to-transparent p-2 laptop:p-3">
           <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-subTitle laptop:mb-3">{t("product.order_summary")}</p>

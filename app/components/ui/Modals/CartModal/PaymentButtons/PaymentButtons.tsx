@@ -4,6 +4,7 @@ import { PayWithMetamaskButton } from "./components/PayWithMetamaskButton"
 import { PayWithPaypalButton } from "./components/PayWithPaypalButton"
 import { PayWithSolanaButton } from "./components/PayWithSolanaButton"
 import { PayWithStripeButton } from "./components/PayWithStripeButton"
+import { SolanaPriceChart } from "./components/SolanaPriceChart"
 
 // http://localhost:6006/?path=/story/commerce-checkout--cart
 export function PaymentButtons({ deliveryAddress }: { deliveryAddress?: API.ProductsCheckoutDeliveryAddress }) {
@@ -13,6 +14,7 @@ export function PaymentButtons({ deliveryAddress }: { deliveryAddress?: API.Prod
       <PayWithSolanaButton />
       <PayWithPaypalButton />
       <PayWithStripeButton deliveryAddress={deliveryAddress} />
+      <SolanaPriceChart />
       {/* <PayWithKlarnaButton /> */}
     </div>
   )

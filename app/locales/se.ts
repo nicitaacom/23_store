@@ -567,6 +567,8 @@ export default {
   //                   payment
   // =================        =================
   "payment.products_data_fetched": "Produktdata hämtad – sätt steg 4",
+  "payment.solana_chart_title": "Solanas prisdiagram",
+  "payment.solana_chart_note": "Marknadspris i amerikanska dollar. Växelkursen i kassan kan skilja sig.",
   "payment.error.fetch_products_data": "fel vid hämtning av produktdata",
   "payment.customer_email_received": "kundens e-post mottagen – sätt steg 3",
   "payment.error.receive_customer_email_title": "Fel vid hämtning av kundens e-post",

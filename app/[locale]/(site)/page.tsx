@@ -8,7 +8,7 @@ import { AIInputSearch } from "./components/AISearch/AIInputSearch"
 import { CatalogAddProductButton } from "./components/CatalogAddProductButton"
 import { CatalogSearchForm } from "./components/CatalogSearchForm"
 import { CategoryPillBar } from "./components/CategoryPillBar"
-import { SortedProducts } from "./components/SortedProducts"
+import { CatalogProductPages } from "./components/CatalogProductPages"
 import { CatalogUnavailable } from "./components/CatalogUnavailable/CatalogUnavailable"
 import { defaultPerPage, perPage as perPageOptions } from "@/constant/perPage"
 import { filterProductsBySearchQuery } from "@/utils/productSearch"
@@ -17,8 +17,6 @@ import { selectPublicCatalogCategories } from "@/libs/publicCatalog"
 import { isSupabaseOutageStatus, reportSupabaseOutage } from "@/libs/storeAlerts"
 import { isProductInStock, normalizeProducts } from "@/utils/productVariants"
 import supabaseServer from "@/libs/supabase/supabaseServer"
-import PaginationControls from "@/components/PaginationControls"
-import ProductsPerPage from "@/components/ProductsPerPage"
 
 interface SearchProps {
   params: Promise<{ locale: string }>
@@ -81,16 +79,6 @@ export default async function Home({ params: paramsPromise, searchParams: search
   const requestedPerPage = Number(searchParams["perPage"])
   const perPage = perPageOptions.includes(requestedPerPage) ? requestedPerPage : defaultPerPage
 
-  const totalItems = filteredProducts.length
-  const totalPages = Math.max(1, Math.ceil(totalItems / perPage))
-  const requestedPage = Number(searchParams["page"]) || 1
-  const page = Math.min(Math.max(requestedPage, 1), totalPages)
-
-  const start = (page - 1) * perPage
-  const end = Math.min(start + perPage, totalItems)
-
-  const entries = filteredProducts.slice(start, end)
-
   return (
     <div className="mx-auto flex h-[calc(100dvh-64px)] w-full flex-col overflow-hidden px-3 pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-2 text-2xl text-title laptop:h-[calc(100vh-64px)] laptop:px-4 laptop:pb-2">
       <section className="mx-auto grid min-h-0 w-full flex-1 max-w-[2200px] grid-cols-1 grid-rows-1 gap-1 laptop:grid-cols-[minmax(0,1fr)_minmax(320px,25%)] 4xl:max-w-[3000px]">
@@ -138,40 +126,23 @@ export default async function Home({ params: paramsPromise, searchParams: search
               </div>
             </section>
 
-            <section
-              className="min-h-0 flex-1 pr-1 laptop:overflow-x-hidden laptop:overflow-y-auto laptop:[scrollbar-gutter:stable]"
-              key={`${page}:${perPage}:${validCategory ?? ""}:${searchQuery}`}>
-              {databaseError ? (
+            {databaseError ? (
+              <section className="min-h-0 flex-1 pr-1 laptop:overflow-x-hidden laptop:overflow-y-auto laptop:[scrollbar-gutter:stable]">
                 <CatalogUnavailable
                   databaseMessage={databaseError.message.trim()}
                   databaseStatus={databaseStatus}
                   autoRecover={[0, 502, 503, 504, 520].includes(databaseStatus)}
                 />
-              ) : totalItems === 0 ? (
-                <div className="flex min-h-full items-center justify-center rounded-[4px] border border-dashed border-success/20 bg-background/60 px-6 py-12 text-center text-base text-subTitle">
-                  {t("no_products_found")}
-                </div>
-              ) : (
-                <SortedProducts products={entries} serverViews={serverViews} searchQuery={searchQuery} />
-              )}
-            </section>
-
-            {!databaseError && (
-              <div className="shrink-0 border-t border-success/15 pt-2">
-                <div className="flex items-center justify-between gap-2">
-                  <PaginationControls
-                    hasNextPage={end < totalItems}
-                    hasPrevPage={start > 0}
-                    currentPage={page}
-                    totalPages={totalPages}
-                    perPage={perPage}
-                    basePath={`/${params.locale}`}
-                    categoryId={validCategory}
-                    query={searchQuery}
-                  />
-                  <ProductsPerPage />
-                </div>
-              </div>
+              </section>
+            ) : (
+              <CatalogProductPages
+                products={filteredProducts}
+                serverViews={serverViews}
+                locale={params.locale}
+                categoryId={validCategory}
+                searchQuery={searchQuery}
+                emptyLabel={t("no_products_found")}
+              />
             )}
           </div>
         </div>

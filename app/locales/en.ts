@@ -569,6 +569,8 @@ export default {
   //                   payment
   // =================        =================
   "payment.products_data_fetched": "products data fetched - set step 4",
+  "payment.solana_chart_title": "Solana price chart",
+  "payment.solana_chart_note": "Market price in USD. The checkout quote may differ.",
   "payment.error.fetch_products_data": "error selectProductsData",
   "payment.customer_email_received": "customer email received - set step 3",
   "payment.error.receive_customer_email_title": "Error fetching customer email",

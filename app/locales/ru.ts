@@ -568,6 +568,8 @@ export default {
   //                   payment
   // =================        =================
   "payment.products_data_fetched": "Данные о продуктах получены — установить шаг 4",
+  "payment.solana_chart_title": "График цены Solana",
+  "payment.solana_chart_note": "Рыночная цена в долларах США. Курс при оплате может отличаться.",
   "payment.error.fetch_products_data": "Ошибка получения данных о продуктах",
   "payment.customer_email_received": "Email клиента получен — установить шаг 3",
   "payment.error.receive_customer_email_title": "Ошибка получения email клиента",

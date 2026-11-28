@@ -1,7 +1,7 @@
 "use client"
 
-import { BiChevronLeft, BiChevronRight } from "react-icons/bi"
 import Link from "next/link"
+import { BiChevronLeft, BiChevronRight } from "react-icons/bi"
 import { twMerge } from "tailwind-merge"
 
 import { useScopedI18n } from "@/locales/client"
@@ -83,6 +83,10 @@ function PaginationControls({
           aria-disabled={!hasPrevPage}
           aria-label={t("previous_page")}
           href={createPageHref(hasPrevPage ? currentPage - 1 : currentPage)}
+          onNavigate={event => {
+            event.preventDefault()
+            if (hasPrevPage) window.history.pushState(null, "", createPageHref(currentPage - 1))
+          }}
           prefetch={false}
           scroll={false}
           tabIndex={hasPrevPage ? undefined : -1}>
@@ -106,6 +110,10 @@ function PaginationControls({
                 key={`${item}-${index}`}
                 aria-current={item === currentPage ? "page" : undefined}
                 href={createPageHref(item)}
+                onNavigate={event => {
+                  event.preventDefault()
+                  if (item !== currentPage) window.history.pushState(null, "", createPageHref(item))
+                }}
                 prefetch={false}
                 scroll={false}>
                 {item}
@@ -125,6 +133,10 @@ function PaginationControls({
           aria-disabled={!hasNextPage}
           aria-label={t("next_page")}
           href={createPageHref(hasNextPage ? currentPage + 1 : currentPage)}
+          onNavigate={event => {
+            event.preventDefault()
+            if (hasNextPage) window.history.pushState(null, "", createPageHref(currentPage + 1))
+          }}
           prefetch={false}
           scroll={false}
           tabIndex={hasNextPage ? undefined : -1}>

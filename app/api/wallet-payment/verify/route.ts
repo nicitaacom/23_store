@@ -106,13 +106,16 @@ async function verifySolanaTransfer(intent: TWalletPaymentIntent, signature: str
   const connection = new Connection(clusterApiUrl(intent.solanaCluster as Parameters<typeof clusterApiUrl>[0]), "confirmed")
   const getParsedTransactionResp = await connection.getParsedTransaction(signature, {
     commitment: "confirmed",
-    maxSupportedTransactionVersion: 0,
+    maxSupportedTransactionVersion: 1,
   })
 
   if (!getParsedTransactionResp) {
     throw new WalletVerificationError("The Solana transfer has not appeared on the network yet. The store will check it again automatically.", 425, "WALLET_TRANSACTION_PENDING")
   }
-  if (getParsedTransactionResp.meta?.err) {
+  if (!getParsedTransactionResp.meta) {
+    throw new WalletVerificationError("The Solana transfer details are not available yet. The store will check it again automatically.", 425, "WALLET_TRANSACTION_PENDING")
+  }
+  if (getParsedTransactionResp.meta.err) {
     throw new WalletVerificationError("The Solana transfer did not complete successfully.", 400, "WALLET_TRANSACTION_FAILED")
   }
 
