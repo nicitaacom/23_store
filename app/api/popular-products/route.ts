@@ -3,10 +3,16 @@ import { NextResponse } from "next/server"
 import { normalizeProducts } from "@/utils/productVariants"
 import supabaseServer from "@/libs/supabase/supabaseServer"
 
+const MAX_PRODUCTS_PER_REQUEST = 100
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const start = Math.max(0, Number(searchParams.get("start")) || 0)
-  const endExclusive = Math.max(start + 1, Number(searchParams.get("end")) || start + 24)
+  const start = Number(searchParams.get("start") ?? 0)
+  const endExclusive = Number(searchParams.get("end") ?? start + 24)
+  if (!Number.isSafeInteger(start) || start < 0 || !Number.isSafeInteger(endExclusive)
+    || endExclusive <= start || endExclusive - start > MAX_PRODUCTS_PER_REQUEST) {
+    return NextResponse.json({ error: "The requested product range is invalid." }, { status: 400 })
+  }
 
   const supabase = await supabaseServer()
   // Popular = most likes first. on_stock is a stable tiebreaker so paging stays deterministic.

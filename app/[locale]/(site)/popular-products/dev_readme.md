@@ -16,6 +16,10 @@ Likes drive the ordering; ratings give each product an average star score.
   [components/PopularProductCard.tsx](components/PopularProductCard.tsx)
 - More pages fetched via `productsSDK.getPopularProducts` → [app/api/popular-products/route.ts](../../../api/popular-products/route.ts)
 
+The feed requests 24 products at a time. The route accepts a maximum of 100 per request and rejects
+invalid ranges before contacting Supabase. This limits one response, not the number of requests or
+total egress; the actual savings depend on traffic and product sizes.
+
 The card is the "big title + feature rows + bottom action" reference design: square image banner, title,
 description, price, a likes / avg-rating summary, the rate panel (buyers) and a "View product" action.
 
