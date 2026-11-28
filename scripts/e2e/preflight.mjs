@@ -69,7 +69,8 @@ const browserRequestHeaders = {
 async function checkProductionSite(productionUrl) {
   if (!productionUrl) return { name: "production-site", status: "blocked_by_configuration", detail: "NEXT_PUBLIC_PRODUCTION_URL is missing" }
   try {
-    const response = await fetch(productionUrl, {
+    // Rendering the homepage can invoke the catalog outage alert and send a message.
+    const response = await fetch(new URL("/favicon.ico", productionUrl), {
       method: "GET",
       headers: browserRequestHeaders,
       redirect: "follow",
@@ -79,7 +80,7 @@ async function checkProductionSite(productionUrl) {
     return {
       name: "production-site",
       status: response.ok ? "passed" : "failed",
-      detail: `HTTP ${response.status}; host ${new URL(productionUrl).host}`,
+      detail: `Static favicon HTTP ${response.status}; host ${new URL(productionUrl).host}`,
       httpStatus: response.status,
       vercelId: response.headers.get("x-vercel-id"),
     }

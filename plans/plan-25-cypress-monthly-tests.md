@@ -106,6 +106,12 @@ about 250 ms between actions without waiting for animations or disabled states t
 
 ## Setup and production safety
 
+**Current safety hold:** The monthly and replay runner stop after inventory and read-only preflight,
+with `INCOMPLETE`, even if preflight is healthy. No browser journey is authorized by the schedule or
+typed dispatch. Resume only after implementing and verifying an isolated application and provider
+target, preserving read-only production health checks, and obtaining approval for provider costs
+and messages. TEST-mode Stripe alone does not prove isolation or approval. No flag bypasses the hold.
+
 1. Confirm the checkout is on `development`. Do not switch branches. Read this plan, `plans/`,
    `dev_readme-eslint.md`, and `commit-patterns.md` before implementation.
 2. Read only environment variable names and non-secret service identity. Do not inspect
@@ -119,15 +125,15 @@ about 250 ms between actions without waiting for animations or disabled states t
    first verifies the admin-controlled run marker, resets only that account's password, then signs
    in to remove its dependent provider data. The email domain is derived from the production host;
    no password or provider credential is committed or printed.
-5. Use the deployed production runtime credentials for all actual provider calls. App-side E2E
+5. Once an isolated target is implemented and approved, use its runtime credentials for provider calls. App-side E2E
    readback routes must authenticate a Supabase access token and verify the immutable admin-set
    `app_metadata` run marker before exposing or deleting the signed-in account's own data.
 6. `GET /api/e2e/stripe-mode` is read-only. Preflight must confirm both the deployed app and runner
    use Stripe TEST before the browser starts. Never attempt a live payment.
 7. GitHub Actions reads the production URL, Supabase, and Stripe TEST from the workflow
    environment. It does not read `.env.local`. The cron is 03:23 UTC on the 1st, with no weekly cron.
-   When Supabase or Redis settings are absent, `scripts/e2e/ensure-data-services.mjs` starts the
-   self-hosted stack in `docker/e2e-weekly/docker-compose.yml`. `NEXT_PUBLIC_PUSHER_APP_KEY` stays on the deployed site.
+   The held runner does not start data services; `pnpm e2e:data-services` can start the local stack
+   separately for local work. `NEXT_PUBLIC_PUSHER_APP_KEY` stays on the deployed site.
    Do not ask for a duplicate E2E account, provider key, or OpenAI spending cap.
    OpenAI, Yandex, AWS/Lambda, Resend, Pusher, Redis, Pinecone, S3-compatible storage, Telegram,
    PayPal, CoinMarketCap, and Turnstile calls must use the real credentials already configured in

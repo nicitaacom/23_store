@@ -7,8 +7,19 @@ import test from "node:test"
 import { fileURLToPath } from "node:url"
 
 import { buildPreflight, describeProviderCallPlan } from "../../scripts/e2e/preflight.mjs"
+import { holdRealServiceJourneys } from "../../scripts/e2e/run-weekly.mjs"
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
+
+test("even a healthy preflight cannot start browser journeys while isolation is unverified", () => {
+  const preflight = { status: "PASS", blockers: [], checks: [{ name: "supabase", status: "passed" }] }
+  const held = holdRealServiceJourneys(preflight)
+  assert.equal(held.status, "INCOMPLETE")
+  assert.match(held.blockers[0], /isolated target.*approved/)
+  assert.deepEqual(held.checks, preflight.checks)
+  assert.deepEqual(preflight.blockers, [])
+  assert.deepEqual(holdRealServiceJourneys({ ...preflight, status: "INCOMPLETE", blockers: ["Supabase failed"] }).blockers.slice(0, 1), ["Supabase failed"])
+})
 
 test("incomplete local setup stops before contacting production or providers", async () => {
   const preflight = await buildPreflight({})

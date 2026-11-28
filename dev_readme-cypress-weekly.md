@@ -1,5 +1,12 @@
 # Monthly Cypress production checks
 
+**Safety hold:** The monthly runner currently performs only inventory and read-only preflight,
+then reports `INCOMPLETE` even if those checks pass. It does not start browser journeys, create
+provider resources, send messages, or run cleanup. The typed dispatch has the same hold. Resuming
+requires implementing and verifying a genuinely isolated application and provider target, keeping
+production health read-only, and obtaining explicit approval for any provider costs or messages.
+Stripe TEST mode alone does not establish isolation or approval. No flag currently bypasses this hold.
+
 The Plan 25 suite uses a real browser against `NEXT_PUBLIC_PRODUCTION_URL`, real production app
 requests, real Supabase records, the deployed application's provider credentials, and Stripe TEST.
 It does not mock API responses. GitHub Actions runs it at 03:23 UTC on the 1st of each month in
@@ -25,10 +32,10 @@ There is no OpenAI spending cap prerequisite. The suite runs its finite declared
 once, Cypress retries are disabled, and retries are limited by application code. The local provider
 action journal records operation, attempts, ids, and outcome; it does not estimate or cap dollars.
 
-The job has no push, PR, or deployment trigger. One typed run-monthly-once starts a single suite. It compares the checkout SHA
-to the production deployment, performs read-only preflight, runs the browser journeys, and keeps
-sanitized JSON, screenshots, and videos for 14 days. A second attempt of the same scheduled job skips
-the suite so provider actions are not repeated. When Supabase or Redis settings are absent,
+The job has no push, PR, or deployment trigger. One typed run-monthly-once starts the same held
+inventory and preflight as the schedule. It compares the checkout SHA to the production deployment
+and keeps sanitized evidence for 14 days. A second attempt of the same scheduled job skips the run.
+The held runner does not start local services automatically. When needed for separate local work,
 `pnpm e2e:data-services` starts the self-hosted Postgres, GoTrue, PostgREST, gateway, Redis, and
 Redis HTTP services in `docker/e2e-weekly/docker-compose.yml`.
 
@@ -85,7 +92,8 @@ pnpm e2e:weekly
 ```
 
 Commands use only environment variables already present in the invoking process; they never load
-`.env.local`. A local replay is explicit:
+`.env.local`. The safety hold also stops local replay because this runner cannot prove that the
+local application uses isolated providers. A replay command, once isolation and approval exist, is:
 
 ```sh
 E2E_BASE_URL=http://localhost:3023 pnpm e2e:replay --spec cypress/monthly/product-edit.cy.ts --seed 250

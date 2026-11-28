@@ -6,13 +6,20 @@ import path from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
 import { createE2EReport } from "./build-report.mjs"
-import { ensureDataServices } from "./ensure-data-services.mjs"
 import { writePaidOperationSnapshot } from "./paid-budget.mjs"
 import { buildPreflight } from "./preflight.mjs"
 import { deriveRunTestPassword } from "./run-password.mjs"
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const artifactDirectory = path.resolve(repositoryRoot, process.env.E2E_ARTIFACT_DIR ?? "artifacts/e2e")
+
+export function holdRealServiceJourneys(preflight) {
+  return {
+    ...preflight,
+    status: "INCOMPLETE",
+    blockers: [...preflight.blockers, "Real-service browser journeys are on hold until an isolated target and its provider costs and messages are approved; this runner has no isolation gate yet."],
+  }
+}
 
 function parseRunArguments(argumentsList) {
   const options = { suite: "weekly", browser: process.env.E2E_BROWSER ?? "chrome", spec: null, seed: null }
@@ -94,9 +101,6 @@ async function runWeekly() {
   if (options.suite === "replay" && !runEnvironment.E2E_BASE_URL) {
     runEnvironment.E2E_BASE_URL = runEnvironment.NEXT_PUBLIC_PRODUCTION_URL
   }
-  if (runEnvironment.NEXT_PUBLIC_PRODUCTION_URL || (options.suite === "replay" && runEnvironment.E2E_BASE_URL)) {
-    Object.assign(runEnvironment, await ensureDataServices(runEnvironment))
-  }
   if (runEnvironment.E2E_BASE_URL) {
     const targetHost = new URL(runEnvironment.E2E_BASE_URL).hostname.replace(/^www\./, "")
     runEnvironment.E2E_TEST_EMAIL_DOMAIN ??= targetHost
@@ -110,7 +114,7 @@ async function runWeekly() {
   if (inventoryOutcome.exitCode !== 0) {
     throw new Error(`Request inventory generation exited with code ${inventoryOutcome.exitCode}`)
   }
-  const preflight = await buildPreflight(runEnvironment)
+  const preflight = holdRealServiceJourneys(await buildPreflight(runEnvironment))
   const preflightEvidence = preflight.checks
     .filter(check => check.operationId)
     .map(check => ({
