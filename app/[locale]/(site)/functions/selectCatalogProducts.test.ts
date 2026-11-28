@@ -82,6 +82,17 @@ describe("catalog database reads", () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
+  it("selects only the fields required by the storefront catalog", async () => {
+    responses.push({ data: [], error: null, status: 200, statusText: "OK", count: null } as TCatalogResponse)
+
+    await selectCatalogProducts()
+
+    const query = selectTable.mock.results[0].value
+    expect(query.select).toHaveBeenCalledWith(
+      "id,owner_id,price_id,translations,price,img_url,variants,on_stock,category_id,replanishment_requests_count,personalization",
+    )
+  })
+
   it("retries network failures reported by the database client", async () => {
     const success = { data: [], error: null, status: 200, statusText: "OK", count: null } as TCatalogResponse
     responses.push(failedResponse(0), success)
