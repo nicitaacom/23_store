@@ -5,7 +5,7 @@ import { sendTelegramMessage } from "@/utils/sendTelegramMessage"
 const ALERT_KEY_PREFIX = "store-alert:23"
 const DAY_SECONDS = 86_400
 const FINLAND_DATE = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Helsinki" })
-const TOAST_ALERT_THRESHOLD = 11
+const TOAST_ALERT_THRESHOLD = 10
 const MAX_DAILY_TOAST_ALERTS = 3
 
 const countAndClaim = `
